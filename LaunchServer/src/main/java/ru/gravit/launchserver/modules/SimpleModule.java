@@ -17,7 +17,12 @@ public class SimpleModule implements Module {
 
     @Override
     public LauncherVersion getVersion() {
-        return new LauncherVersion(1,0,0);
+        return new LauncherVersion(1,0,0,0, LauncherVersion.Type.UNKNOWN);
+    }
+
+    @Override
+    public int getPriority() {
+        return 0;
     }
 
     @Override

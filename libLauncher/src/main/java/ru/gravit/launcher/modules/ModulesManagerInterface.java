@@ -11,5 +11,6 @@ public interface ModulesManagerInterface {
     void postInitModules() throws Exception;
     void preInitModules() throws Exception;
     void printModules() throws Exception;
+    void sort();
     void registerModule(Module module,boolean preload) throws Exception;
 }

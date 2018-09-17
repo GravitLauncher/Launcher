@@ -6,11 +6,11 @@ import java.util.Objects;
 import ru.gravit.utils.helper.IOHelper;
 
 public class LauncherVersion {
-    public static int MAJOR = 3;
-    public static int MINOR = 18;
+    public static int MAJOR = 4;
+    public static int MINOR = 0;
     public static int PATCH = 0;
     public static int BUILD = readBuildNumber();
-    public static Type RELEASE = Type.EXPERIMENTAL;
+    public static Type RELEASE = Type.DEV;
 
     public static LauncherVersion getVersion() {
         return new LauncherVersion(MAJOR,MINOR,PATCH,BUILD,RELEASE);
@@ -107,7 +107,7 @@ public class LauncherVersion {
     public String toString() {
         return String.format("%d.%d.%d-%d %s", major, minor, patch, build,getReleaseStatus());
     }
-    enum Type
+    public enum Type
     {
         LTS,
         STABLE,

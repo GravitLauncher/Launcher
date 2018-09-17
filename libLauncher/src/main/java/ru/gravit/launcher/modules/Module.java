@@ -8,6 +8,7 @@ public interface Module extends AutoCloseable {
 
     LauncherVersion getVersion();
 
+    int getPriority();
     void init(ModuleContext context);
   
     void postInit(ModuleContext context);

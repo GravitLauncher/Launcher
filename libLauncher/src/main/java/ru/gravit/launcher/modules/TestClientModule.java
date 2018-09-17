@@ -20,6 +20,11 @@ public class TestClientModule implements Module {
     }
 
     @Override
+    public int getPriority() {
+        return 0;
+    }
+
+    @Override
     public void init(ModuleContext context) {
 
     }
