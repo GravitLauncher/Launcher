@@ -5,10 +5,10 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.SecurityHelper;
-import ru.gravit.launcher.helper.SecurityHelper.DigestAlgorithm;
-import ru.gravit.launcher.helper.VerifyHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
+import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 

@@ -17,10 +17,10 @@ import java.util.Objects;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.HashedEntry.Type;
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.JVMHelper;
-import ru.gravit.launcher.helper.JVMHelper.OS;
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.JVMHelper.OS;
+import ru.gravit.utils.helper.LogHelper;
 
 public final class DirWatcher implements Runnable, AutoCloseable {
     private final class RegisterFileVisitor extends SimpleFileVisitor<Path> {

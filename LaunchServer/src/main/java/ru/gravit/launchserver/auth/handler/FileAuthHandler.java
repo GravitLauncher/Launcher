@@ -11,11 +11,11 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.CommonHelper;
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.LogHelper;
-import ru.gravit.launcher.helper.SecurityHelper;
-import ru.gravit.launcher.helper.VerifyHelper;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;

@@ -1,4 +1,4 @@
-package ru.gravit.launcher.helper;
+package ru.gravit.utils.helper;
 
 import java.util.HashMap;
 import java.util.Locale;

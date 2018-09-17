@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;

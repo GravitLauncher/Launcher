@@ -1,6 +1,6 @@
 package ru.gravit.launchserver.binary;
 
-import static ru.gravit.launcher.helper.IOHelper.newZipEntry;
+import static ru.gravit.utils.helper.IOHelper.newZipEntry;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,10 +24,10 @@ import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.LogHelper;
-import ru.gravit.launcher.helper.SecurityHelper;
-import ru.gravit.launcher.helper.SecurityHelper.DigestAlgorithm;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
 import proguard.Configuration;

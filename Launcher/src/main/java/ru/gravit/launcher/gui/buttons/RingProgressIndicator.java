@@ -14,7 +14,7 @@ import javafx.scene.control.Skin;
 
 import com.sun.javafx.css.converters.SizeConverter;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 @LauncherAPI
 public class RingProgressIndicator extends ProgressCircleIndicator {

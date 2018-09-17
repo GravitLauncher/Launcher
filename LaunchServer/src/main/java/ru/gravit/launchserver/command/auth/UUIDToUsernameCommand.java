@@ -3,7 +3,7 @@ package ru.gravit.launchserver.command.auth;
 import java.io.IOException;
 import java.util.UUID;
 
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;

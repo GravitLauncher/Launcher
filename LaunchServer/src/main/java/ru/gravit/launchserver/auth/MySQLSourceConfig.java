@@ -10,8 +10,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.LogHelper;
-import ru.gravit.launcher.helper.VerifyHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;

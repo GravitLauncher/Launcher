@@ -7,7 +7,7 @@ import java.util.Set;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.helper.IOHelper;
+import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;

@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import ru.gravit.launcher.helper.IOHelper;
+import ru.gravit.utils.helper.IOHelper;
 
 public class HTTPRequest {
     public static int sendCrashreport(String strurl, byte[] data) throws IOException {

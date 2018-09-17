@@ -8,8 +8,8 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.ProfileLookupCallback;
 
-import ru.gravit.launcher.helper.LogHelper;
-import ru.gravit.launcher.helper.VerifyHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.uuid.BatchProfileByUsernameRequest;
 import ru.gravit.launcher.serialize.SerializeLimits;

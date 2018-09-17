@@ -16,7 +16,7 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import com.eclipsesource.json.WriterConfig;
 
-import ru.gravit.launcher.helper.IOHelper;
+import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 
 public final class MojangAuthProvider extends AuthProvider {

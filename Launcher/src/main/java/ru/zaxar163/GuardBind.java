@@ -3,8 +3,8 @@ package ru.zaxar163;
 import java.nio.file.Path;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.JVMHelper;
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 @LauncherAPI
 public final class GuardBind {

@@ -14,8 +14,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.VerifyHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.EnumSerializer;

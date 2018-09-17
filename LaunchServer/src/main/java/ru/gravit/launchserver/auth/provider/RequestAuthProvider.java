@@ -5,9 +5,9 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ru.gravit.launcher.helper.CommonHelper;
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.SecurityHelper;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 

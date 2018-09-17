@@ -3,7 +3,7 @@ package ru.gravit.launchserver.command;
 import java.util.UUID;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.VerifyHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launchserver.LaunchServer;
 
 public abstract class Command {

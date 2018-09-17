@@ -1,6 +1,6 @@
 package ru.gravit.launchserver.auth.provider;
 
-import ru.gravit.launcher.helper.SecurityHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 
 public final class AcceptAuthProvider extends AuthProvider {

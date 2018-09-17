@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 

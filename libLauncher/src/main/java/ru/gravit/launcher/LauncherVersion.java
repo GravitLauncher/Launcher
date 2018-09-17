@@ -3,7 +3,7 @@ package ru.gravit.launcher;
 import java.io.IOException;
 import java.util.Objects;
 
-import ru.gravit.launcher.helper.IOHelper;
+import ru.gravit.utils.helper.IOHelper;
 
 public class LauncherVersion {
     public static int MAJOR = 3;

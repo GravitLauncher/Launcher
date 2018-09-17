@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.jar.JarFile;
 
 import javassist.bytecode.ClassFile;
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.transformers.SystemClassLoaderTransformer;
 
 @LauncherAPI

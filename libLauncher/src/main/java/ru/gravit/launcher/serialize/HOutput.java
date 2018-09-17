@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.IOHelper;
+import ru.gravit.utils.helper.IOHelper;
 
 public final class HOutput implements AutoCloseable, Flushable {
     @LauncherAPI

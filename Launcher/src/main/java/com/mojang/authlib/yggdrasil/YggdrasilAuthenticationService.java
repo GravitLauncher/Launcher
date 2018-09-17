@@ -8,7 +8,7 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.UserAuthentication;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 public final class YggdrasilAuthenticationService implements AuthenticationService {
     @SuppressWarnings("UnusedParameters")

@@ -12,8 +12,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.LogHelper;
-import ru.gravit.launcher.helper.VerifyHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;

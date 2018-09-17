@@ -1,8 +1,8 @@
 package ru.gravit.launchserver.auth.provider;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.SecurityHelper;
-import ru.gravit.launcher.helper.SecurityHelper.DigestAlgorithm;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launchserver.auth.AuthException;

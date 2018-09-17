@@ -4,8 +4,8 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 
-import ru.gravit.launcher.helper.JVMHelper;
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launchserver.LaunchServer;
 
 public final class LaunchServerPluginBridge implements Runnable, AutoCloseable {

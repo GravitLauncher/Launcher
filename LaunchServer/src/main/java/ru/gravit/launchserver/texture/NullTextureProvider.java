@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.VerifyHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.profiles.Texture;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 

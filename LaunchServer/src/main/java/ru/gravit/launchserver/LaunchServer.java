@@ -31,12 +31,12 @@ import java.util.zip.CRC32;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.launcher.helper.CommonHelper;
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.JVMHelper;
-import ru.gravit.launcher.helper.LogHelper;
-import ru.gravit.launcher.helper.SecurityHelper;
-import ru.gravit.launcher.helper.VerifyHelper;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.config.ConfigObject;

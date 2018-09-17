@@ -15,8 +15,8 @@ import java.util.jar.Manifest;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherClassLoader;
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.modules.Module;
 import ru.gravit.launcher.modules.ModulesManagerInterface;
 import ru.gravit.launchserver.LaunchServer;

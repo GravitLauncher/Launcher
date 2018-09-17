@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.CommonHelper;
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launchserver.LaunchServer;
 import net.sf.launch4j.Builder;
 import net.sf.launch4j.Log;

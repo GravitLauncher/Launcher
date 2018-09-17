@@ -6,9 +6,9 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.LogHelper;
-import ru.gravit.launcher.helper.SecurityHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;

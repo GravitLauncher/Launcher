@@ -21,9 +21,9 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 
 import ru.gravit.launcher.client.ClientLauncher;
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.LogHelper;
-import ru.gravit.launcher.helper.SecurityHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.auth.CheckServerRequest;
 import ru.gravit.launcher.request.auth.JoinServerRequest;

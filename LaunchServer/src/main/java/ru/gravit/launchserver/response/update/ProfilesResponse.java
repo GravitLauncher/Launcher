@@ -3,7 +3,7 @@ package ru.gravit.launchserver.response.update;
 import java.io.IOException;
 import java.util.Collection;
 
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;

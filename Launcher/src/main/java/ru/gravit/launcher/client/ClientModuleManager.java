@@ -4,7 +4,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import ru.gravit.launcher.LauncherEngine;
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.modules.Module;
 import ru.gravit.launcher.modules.ModulesManagerInterface;
 

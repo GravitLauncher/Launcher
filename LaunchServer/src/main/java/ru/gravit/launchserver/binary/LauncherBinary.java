@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.IOHelper;
+import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.serialize.signed.SignedBytesHolder;
 import ru.gravit.launchserver.LaunchServer;
 

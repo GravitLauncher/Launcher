@@ -2,7 +2,7 @@ package ru.gravit.launchserver.command.hash;
 
 import java.io.IOException;
 
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 

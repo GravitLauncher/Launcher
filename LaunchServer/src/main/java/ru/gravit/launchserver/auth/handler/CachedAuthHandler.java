@@ -7,9 +7,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.helper.CommonHelper;
-import ru.gravit.launcher.helper.SecurityHelper;
-import ru.gravit.launcher.helper.VerifyHelper;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 

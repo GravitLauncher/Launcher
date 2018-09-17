@@ -1,7 +1,7 @@
 package ru.gravit.launchserver.command.basic;
 
-import ru.gravit.launcher.helper.JVMHelper;
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;

@@ -3,7 +3,7 @@ package ru.gravit.launchserver.command.handler;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import ru.gravit.launcher.helper.IOHelper;
+import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launchserver.LaunchServer;
 
 public final class StdCommandHandler extends CommandHandler {

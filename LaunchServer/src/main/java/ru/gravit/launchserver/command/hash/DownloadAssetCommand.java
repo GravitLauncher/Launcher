@@ -8,8 +8,8 @@ import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import ru.gravit.launcher.helper.IOHelper;
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.profiles.ClientProfile.Version;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;

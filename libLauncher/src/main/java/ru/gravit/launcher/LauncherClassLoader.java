@@ -3,7 +3,7 @@ package ru.gravit.launcher;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 public class LauncherClassLoader extends URLClassLoader {
 	@LauncherAPI

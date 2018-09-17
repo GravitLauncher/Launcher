@@ -2,7 +2,7 @@ package ru.gravit.launchserver.command.auth;
 
 import java.util.UUID;
 
-import ru.gravit.launcher.helper.LogHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.launchserver.command.Command;
