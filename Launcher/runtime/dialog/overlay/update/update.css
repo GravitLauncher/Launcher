@@ -1,0 +1,31 @@
+#overlay > #utitle {
+    -fx-font-size: 14pt;
+    -fx-alignment: baseline-center;
+}
+
+#overlay > #description {
+    -fx-alignment: top-left;
+    -fx-wrap-text: true;
+}
+
+#overlay > #description.error {
+    -fx-text-fill: red;
+}
+
+/* Progress bar */
+#overlay > #progress {
+    -fx-indeterminate-bar-flip: false;
+}
+
+#overlay > #progress > .bar {
+    -fx-background-color: #888888;
+    -fx-background-insets: none;
+    -fx-background-radius: 3px;
+    -fx-padding: 0;
+}
+
+#overlay > #progress > .track {
+    -fx-background-color: #E6E6E6;
+    -fx-background-insets: none;
+    -fx-background-radius: 3px;
+}

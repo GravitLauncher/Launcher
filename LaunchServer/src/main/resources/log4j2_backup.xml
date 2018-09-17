@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" packages="launcher,launchserver">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %highlight{[%-5level] [%logger{36}]}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=white bright, DEBUG=cyan, TRACE=cyan} %highlight{%msg%n}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=white, DEBUG=white, TRACE=white}" />
+        </Console>
+        <Console name="SimpleConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%-5level] [%logger{36}] %msg%n" />
+        </Console>
+        <File name="MyFile" fileName="LaunchServer.log" immediateFlush="false" append="false">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%-5level] [%logger{36}] %msg%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="SimpleConsole" />
+            <AppenderRef ref="MyFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
+

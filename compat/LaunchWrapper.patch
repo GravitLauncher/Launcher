@@ -1,0 +1,17 @@
+diff --git a/src/main/java/net/minecraft/launchwrapper/LaunchClassLoader.java b/src/main/java/net/minecraft/launchwrapper/LaunchClassLoader.java
+index f4e83af..d3a6d7f 100644
+--- a/src/main/java/net/minecraft/launchwrapper/LaunchClassLoader.java
++++ b/src/main/java/net/minecraft/launchwrapper/LaunchClassLoader.java
+@@ -58,6 +58,12 @@ public class LaunchClassLoader extends URLClassLoader {
+         addClassLoaderExclusion("org.apache.logging.");
+         addClassLoaderExclusion("net.minecraft.launchwrapper.");
+ 
++        // classloader launcher exclusions
++        addClassLoaderExclusion("launcher.");
++        addClassLoaderExclusion("com.mojang.");
++        addClassLoaderExclusion("com.google.gson.");
++        addClassLoaderExclusion("org.json.");
++
+         // transformer exclusions
+         addTransformerExclusion("javax.");
+         addTransformerExclusion("argo.");

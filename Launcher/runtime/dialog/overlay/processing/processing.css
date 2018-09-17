@@ -1,0 +1,11 @@
+@import url(../../styles/common.css);
+
+/* Label */
+#overlay > #description {
+    -fx-font-size: 12pt;
+    -fx-wrap-text: true;
+}
+
+#overlay > #description.error {
+    -fx-text-fill: red;
+}

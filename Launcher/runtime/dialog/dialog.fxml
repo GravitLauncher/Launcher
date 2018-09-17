@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.web.WebView?>
+
+<Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="layout" prefWidth="600.0" prefHeight="400.0">
+    <stylesheets>
+        <URL value="@dialog.css" />
+    </stylesheets>
+
+    <!-- News web view -->
+    <WebView fx:id="news" layoutX="0.0" layoutY="0.0" prefWidth="600.0" prefHeight="315.0" />
+
+    <!-- Auth pane -->
+    <Pane fx:id="authPane" layoutX="0.0" layoutY="315.0" prefWidth="600.0" prefHeight="85.0">
+        <!-- First row -->
+        <TextField fx:id="login" layoutX="10.0" layoutY="10.0" prefWidth="200.0" prefHeight="30.0" promptText="Логин" />
+        <PasswordField fx:id="password" layoutX="215.0" layoutY="10.0" prefWidth="200.0" prefHeight="30.0" promptText="Пароль" />
+        <Button fx:id="goAuth" layoutX="430.0" layoutY="10.0" prefWidth="125.0" prefHeight="30.0" text="Авторизация" defaultButton="true" />
+        <Button fx:id="goSettings" layoutX="560.0" layoutY="10.0" prefWidth="30.0" prefHeight="30.0" />
+
+        <!-- Second row -->
+        <ComboBox fx:id="profiles" layoutX="10.0" layoutY="45.0" prefWidth="200.0" prefHeight="30.0" />
+        <CheckBox fx:id="savePassword" layoutX="220.0" layoutY="50.0" prefWidth="200.0" text="Сохранить пароль" />
+        <Hyperlink fx:id="link" layoutX="430.0" layoutY="45.0" prefWidth="160.0" prefHeight="30.0" />
+    </Pane>
+
+    <!-- Overlay -->
+    <Pane fx:id="dim" layoutX="0.0" layoutY="0.0" prefWidth="600.0" prefHeight="400.0" visible="false" />
+</Pane>

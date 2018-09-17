@@ -1,0 +1,29 @@
+allprojects {
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	
+	repositories {
+		mavenCentral()
+		maven {
+			url "http://clojars.org/repo/"
+		}
+	}
+}
+
+subprojects {
+	apply plugin: 'java'
+	
+	configurations {
+		apt
+		aptCompileOnly
+		aptOnly
+		aptOnly.extendsFrom apt, aptCompileOnly
+		compile.extendsFrom apt
+		compileOnly.extendsFrom aptCompileOnly
+	}
+
+	tasks.withType(JavaCompile) {
+		options.encoding = "UTF-8"
+		options.annotationProcessorPath = configurations.aptOnly
+	}
+}

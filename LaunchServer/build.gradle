@@ -1,0 +1,86 @@
+def mainClassName = "LaunchServer"
+def mainAgentName = "StarterAgent"
+
+repositories {
+    maven {
+        url "https://hub.spigotmc.org/nexus/content/repositories/snapshots"
+    }
+    maven {
+        url "http://maven.geomajas.org/"
+    }
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+	maven {
+		url "http://repo.md-5.net/content/groups/public"
+	}
+}
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+configurations {
+	bundleOnly
+	bundle
+	hikari
+	bundle.extendsFrom bundleOnly
+	compileOnly.extendsFrom bundle, hikari
+}
+
+jar {
+    dependsOn parent.childProjects.Launcher.tasks.build, parent.childProjects.Launcher.tasks.genRuntimeJS, parent.childProjects.Launcher.tasks.jar
+    from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
+    from(parent.childProjects.Launcher.tasks.jar.archivePath, parent.childProjects.Launcher.tasks.genRuntimeJS.archivePath)
+    manifest.attributes("Main-Class": mainClassName,
+		"Premain-Class": mainAgentName,
+		"Can-Redefine-Classes": "true",
+		"Can-Retransform-Classes": "true",
+		"Can-Set-Native-Method-Prefix": "true"
+		)
+}
+
+dependencies {
+    compile project(':libLauncher') // pack
+    compileOnly 'org.spigotmc:spigot-api:1.8-R0.1-SNAPSHOT' // api
+    compileOnly 'net.md-5:bungeecord-api:1.8-SNAPSHOT' // api
+	
+	compileOnly 'org.ow2.asm:asm-debug-all:5.0.4'
+	bundleOnly 'org.ow2.asm:asm-all:5.0.4'
+	bundle 'org.apache.logging.log4j:log4j-core:2.9.0'
+	bundle 'mysql:mysql-connector-java:8.0.12'
+	bundle 'jline:jline:2.14.6'
+	bundle 'net.sf.proguard:proguard-base:6.0.3'
+	bundle 'org.bouncycastle:bcpkix-jdk15on:1.49'
+	bundle 'org.fusesource.jansi:jansi:1.17.1'
+	bundle 'commons-io:commons-io:2.6'
+	bundle 'org.javassist:javassist:3.23.1-GA'
+	
+	bundle 'org.slf4j:slf4j-simple:1.7.25'
+	bundle 'org.slf4j:slf4j-api:1.7.25'
+
+	hikari 'io.micrometer:micrometer-core:1.0.6'
+	hikari('hikari-cp:hikari-cp:2.6.0') {
+		exclude group: 'javassist'
+		exclude group: 'io.micrometer'
+		exclude group: 'org.slf4j'
+	}
+	
+	compileOnly('net.sf.launch4j:launch4j:3.12') { // need user
+		exclude group: '*'
+	}
+	
+	//compile 'org.mozilla:rhino:1.7.10' will be module
+}
+
+task hikari(type: Copy) {
+	into "$buildDir/libs/libraries/hikaricp"
+	from configurations.hikari
+}
+
+task dumpLibs(type: Copy) {
+	dependsOn tasks.hikari
+	into "$buildDir/libs/libraries"
+	from configurations.bundle
+}
+
+build.dependsOn tasks.dumpLibs

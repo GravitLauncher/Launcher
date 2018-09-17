@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="overlay" prefWidth="400.0" prefHeight="100.0">
+    <stylesheets>
+        <URL value="@processing.css" />
+    </stylesheets>
+
+    <!-- Icon image -->
+    <ImageView fx:id="spinner" layoutX="26.0" layoutY="26.0">
+        <Image url="@spinner.gif" />
+    </ImageView>
+
+    <!-- Description -->
+    <Label fx:id="description" layoutX="100.0" layoutY="10.0" prefWidth="290.0" prefHeight="80.0" text="..." />
+</Pane>

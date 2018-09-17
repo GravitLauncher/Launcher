@@ -1,0 +1,11 @@
+@import url(button.css);
+@import url(input.css);
+
+/* Common styles */
+* {
+    -fx-font-family: "Open Sans", sans-serif;
+}
+
+Button, CheckBox, ComboBox {
+    -fx-cursor: hand;
+}

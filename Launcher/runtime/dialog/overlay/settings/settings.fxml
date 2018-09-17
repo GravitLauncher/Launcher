@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
+
+<Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="overlay" prefWidth="500.0" prefHeight="250.0">
+    <stylesheets>
+        <URL value="@settings.css" />
+    </stylesheets>
+
+    <!-- Settings -->
+    <Label fx:id="settingsTitle" layoutX="20.0" layoutY="5.0" prefWidth="460.0" text="Настройки" />
+    <Separator layoutX="20.0" layoutY="35.0" prefWidth="460.0" />
+    <CheckBox fx:id="autoEnter" layoutX="20.0" layoutY="45.0" text="Автовход на сервер" />
+    <CheckBox fx:id="fullScreen" layoutX="250.0" layoutY="45.0" text="Клиент в полный экран" />
+
+    <!-- RAM settings -->
+    <TextFlow layoutX="20.0" layoutY="70.0">
+        <Text>Выделение памяти: </Text>
+        <Text fx:id="ramLabel" />
+    </TextFlow>
+    <Slider fx:id="ramSlider" layoutX="20.0" layoutY="90.0" prefWidth="460.0" />
+    <Separator layoutX="20.0" layoutY="135.0" prefWidth="460.0" />
+
+    <!-- Dir settings -->
+    <TextFlow layoutX="20.0" layoutY="135.0">
+        <Text>Директория загрузок: </Text>
+        <Hyperlink fx:id="dirLabel" />
+    </TextFlow>
+    <Button fx:id="changeDir" layoutX="20.0" layoutY="160.0" prefWidth="225.0" prefHeight="30.0" text="Сменить директорию" />
+    <Button fx:id="deleteDir" layoutX="255.0" layoutY="160.0" prefWidth="225.0" prefHeight="30.0" text="Удалить всё содержимое" />
+    <Separator layoutX="20.0" layoutY="200.0" prefWidth="460.0" />
+
+    <!-- Debug checkbox and apply button -->
+    <CheckBox fx:id="debug" layoutX="20.0" layoutY="210.0" prefHeight="30.0" text="Режим отладки" />
+    <Button fx:id="apply" layoutX="390.0" layoutY="210.0" prefWidth="100.0" prefHeight="30.0" text="Применить" defaultButton="true" />
+</Pane>

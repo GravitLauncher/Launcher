@@ -1,0 +1,14 @@
+name: LaunchServer
+description: "sashok724's LaunchServer"
+version: 1.0
+
+author: "sashok724 LLC"
+website: 'https://sashok724.net/'
+
+main: LaunchServerPluginBukkit
+
+commands:
+  launchserver:
+    aliases: [launcher,ls,l]
+    description: "Primary LaunchServer command"
+    usage: '/<command> <action> [args...]'

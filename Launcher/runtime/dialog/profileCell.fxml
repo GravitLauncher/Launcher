@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Circle?>
+
+<HBox xmlns:fx="http://javafx.com/fxml/1" fx:id="cellBox">
+    <stylesheets>
+        <URL value="@profileCell.css" />
+    </stylesheets>
+
+    <!-- Left side -->
+    <Label fx:id="profileTitle">
+        <graphic><Circle radius="3.0" /></graphic>
+    </Label>
+
+    <!-- Separator -->
+    <Pane HBox.hgrow="ALWAYS" />
+
+    <!-- Right side -->
+    <Label fx:id="serverStatus" />
+</HBox>

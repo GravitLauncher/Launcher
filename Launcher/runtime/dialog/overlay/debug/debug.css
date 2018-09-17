@@ -1,0 +1,46 @@
+@import url(../../styles/common.css);
+
+/* Output */
+#overlay > #output {
+    -fx-background-color: white;
+    -fx-font-family: monospace;
+    -fx-font-size: 8pt;
+}
+
+#overlay > #output .content {
+    -fx-background-color: white;
+}
+
+/* Close button */
+#overlay > #copy,
+#overlay > #action.close {
+    -fx-background-color: rgba(33,133,208,.5);
+    -fx-text-fill: white;
+}
+
+#overlay > #copy:hover,
+#overlay > #copy:focused,
+#overlay > #action.close:hover,
+#overlay > #action.close:focused {
+    -fx-background-color: rgba(22,120,194,.5);
+}
+
+#overlay > #copy:pressed,
+#overlay > #action.close:pressed {
+    -fx-background-color: rgba(22,105,164,.5);
+}
+
+/* Kill button */
+#overlay > #action.kill {
+    -fx-background-color: rgba(219,40,40,.5);
+    -fx-text-fill: white;
+}
+
+#overlay > #action.kill:hover,
+#overlay > #action.kill:focused {
+    -fx-background-color: rgba(202,16,16,.5);
+}
+
+#overlay > #action.kill:pressed {
+    -fx-background-color: rgba(178,30,30,.5);
+}

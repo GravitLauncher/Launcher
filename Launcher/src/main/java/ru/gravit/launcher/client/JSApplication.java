@@ -1,0 +1,21 @@
+package ru.gravit.launcher.client;
+
+import java.util.concurrent.atomic.AtomicReference;
+
+import javafx.application.Application;
+import ru.gravit.launcher.LauncherAPI;
+
+@LauncherAPI
+@SuppressWarnings("AbstractClassNeverImplemented")
+public abstract class JSApplication extends Application {
+    private static final AtomicReference<JSApplication> INSTANCE = new AtomicReference<>();
+
+    public static JSApplication getInstance() {
+        return INSTANCE.get();
+    }
+
+    @SuppressWarnings("ConstructorNotProtectedInAbstractClass")
+    public JSApplication() {
+        INSTANCE.set(this);
+    }
+}
