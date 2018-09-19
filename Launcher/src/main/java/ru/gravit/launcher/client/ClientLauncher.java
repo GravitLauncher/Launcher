@@ -381,7 +381,7 @@ public final class ClientLauncher {
     @LauncherAPI
     public static void main(String... args) throws Throwable {
         Launcher.modulesManager = new ClientModuleManager(null);
-        LauncherConfig.getAutogenConfig(); //INIT
+        LauncherConfig.getAutogenConfig().initModules(); //INIT
         Launcher.modulesManager.preInitModules();
         if (JVMHelper.OS_TYPE == OS.MUSTDIE) {
             AvanguardStarter.loadVared();

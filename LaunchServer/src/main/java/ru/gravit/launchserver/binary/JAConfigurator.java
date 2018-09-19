@@ -2,36 +2,35 @@ package ru.gravit.launchserver.binary;
 
 import java.io.IOException;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.NotFoundException;
+import javassist.*;
 
 public class JAConfigurator implements AutoCloseable {
     ClassPool pool = ClassPool.getDefault();
     CtClass ctClass;
     CtConstructor ctConstructor;
+    CtMethod initModuleMethod;
     String classname;
     StringBuilder body;
+    StringBuilder moduleBody;
     int autoincrement;
     public JAConfigurator(Class<?> configclass) throws NotFoundException {
         classname = configclass.getName();
         ctClass = pool.get(classname);
         ctConstructor = ctClass.getDeclaredConstructor(null);
-        body = new StringBuilder("{");
+        initModuleMethod = ctClass.getDeclaredMethod("initModules");
+        body = new StringBuilder("{ isInitModules = false; ");
         autoincrement = 0;
     }
     public void addModuleClass(String fullName)
     {
-        body.append("ru.gravit.launcher.modules.Module mod");
-        body.append(autoincrement);
-        body.append(" = new ");
-        body.append(fullName);
-        body.append("();");
-        body.append("ru.gravit.launcher.Launcher.modulesManager.registerModule( mod");
-        body.append(autoincrement);
-        body.append(" , true );");
+        moduleBody.append("ru.gravit.launcher.modules.Module mod");
+        moduleBody.append(autoincrement);
+        moduleBody.append(" = new ");
+        moduleBody.append(fullName);
+        moduleBody.append("();");
+        moduleBody.append("ru.gravit.launcher.Launcher.modulesManager.registerModule( mod");
+        moduleBody.append(autoincrement);
+        moduleBody.append(" , true );");
         autoincrement++;
     }
     @Override
@@ -41,6 +40,7 @@ public class JAConfigurator implements AutoCloseable {
     public byte[] getBytecode() throws IOException, CannotCompileException {
         body.append("}");
         ctConstructor.setBody(body.toString());
+        initModuleMethod.insertAfter(moduleBody.toString());
         return ctClass.toBytecode();
     }
     public String getZipEntryPath()
@@ -59,5 +59,9 @@ public class JAConfigurator implements AutoCloseable {
         body.append("this.port = ");
         body.append(port);
         body.append(";");
+    }
+    public ClassPool getPool()
+    {
+        return pool;
     }
 }
