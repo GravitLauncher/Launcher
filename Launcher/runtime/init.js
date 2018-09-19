@@ -1,12 +1,5 @@
 var app, stage, scene;
 
-// Engine scripts (API should be imported through static link)
-launcher.loadScript(LauncherClass.static.getResourceURL("engine/api.js"));
-launcher.loadScript(Launcher.getResourceURL("config.js"));
-
-// Dialog scripts
-launcher.loadScript(Launcher.getResourceURL("dialog/dialog.js"));
-
 // internal
 function getPathDirHelper() {
 	return dir;

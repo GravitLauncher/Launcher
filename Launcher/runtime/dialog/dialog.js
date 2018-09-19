@@ -360,7 +360,7 @@ var overlay = {
 };
 
 /* ======== Overlay scripts ======== */
-launcher.loadScript(Launcher.getResourceURL("dialog/overlay/debug/debug.js"));
-launcher.loadScript(Launcher.getResourceURL("dialog/overlay/processing/processing.js"));
-launcher.loadScript(Launcher.getResourceURL("dialog/overlay/settings/settings.js"));
-launcher.loadScript(Launcher.getResourceURL("dialog/overlay/update/update.js"));
+launcher.loadScript("dialog/overlay/debug/debug.js");
+launcher.loadScript("dialog/overlay/processing/processing.js");
+launcher.loadScript("dialog/overlay/settings/settings.js");
+launcher.loadScript("dialog/overlay/update/update.js");
