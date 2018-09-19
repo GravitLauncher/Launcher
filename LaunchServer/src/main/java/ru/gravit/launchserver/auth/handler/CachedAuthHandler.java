@@ -7,13 +7,17 @@ import java.util.Objects;
 import java.util.UUID;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.NeedGarbageCollection;
+import ru.gravit.launcher.managers.GarbageManager;
+import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 
-public abstract class CachedAuthHandler extends AuthHandler {
+public abstract class CachedAuthHandler extends AuthHandler implements NeedGarbageCollection {
     public static final class Entry {
         @LauncherAPI
         public final UUID uuid;
@@ -36,6 +40,7 @@ public abstract class CachedAuthHandler extends AuthHandler {
     @LauncherAPI
     protected CachedAuthHandler(BlockConfigEntry block) {
         super(block);
+        if(block.hasEntry("garbage")) if(block.getEntryValue("garbage", BooleanConfigEntry.class)) GarbageManager.registerNeedGC(this);
     }
 
     @LauncherAPI
@@ -107,7 +112,10 @@ public abstract class CachedAuthHandler extends AuthHandler {
         entry.serverID = serverID;
         return true;
     }
-
+    public synchronized void garbageCollection()
+    {
+        entryCache.clear();
+    }
     @LauncherAPI
     protected abstract boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException;
 
