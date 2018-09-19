@@ -7,18 +7,19 @@ import java.util.Set;
 
 import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.modules.TestClientModule;
+import ru.gravit.launchserver.binary.BuildContext;
 import ru.gravit.launchserver.binary.JAConfigurator;
 
 public class BuildHookManager {
     @FunctionalInterface
     public interface PostBuildHook
     {
-        void build(Map<String, byte[]> output);
+        void build(BuildContext context);
     }
 	@FunctionalInterface
     public interface PreBuildHook
     {
-        void build(Map<String, byte[]> output);
+        void build(BuildContext context);
     }
     @FunctionalInterface
     public interface Transformer
@@ -69,13 +70,13 @@ public class BuildHookManager {
     {
         return CLASS_BLACKLIST.contains(clazz);
     }
-    public void postHook(Map<String, byte[]> output)
+    public void postHook(BuildContext context)
     {
-        for(PostBuildHook hook : POST_HOOKS) hook.build(output);
+        for(PostBuildHook hook : POST_HOOKS) hook.build(context);
     }
-    public void preHook(Map<String, byte[]> output)
+    public void preHook(BuildContext context)
     {
-        for(PreBuildHook hook : PRE_HOOKS) hook.build(output);
+        for(PreBuildHook hook : PRE_HOOKS) hook.build(context);
     }
     public void registerAllClientModuleClass(JAConfigurator cfg)
     {

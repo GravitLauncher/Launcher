@@ -5,4 +5,5 @@ public interface ModuleContext {
         SERVER,CLIENT,LAUNCHSERVER
     }
     Type getType();
+    ModulesManagerInterface getModulesManager();
 }

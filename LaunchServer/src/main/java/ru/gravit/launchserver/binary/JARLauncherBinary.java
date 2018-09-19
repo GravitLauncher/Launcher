@@ -130,13 +130,8 @@ public final class JARLauncherBinary extends LauncherBinary {
 	private void stdBuild() throws IOException {
 		try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(binaryFile));
 				JAConfigurator jaConfigurator = new JAConfigurator(AutogenConfig.class)) {
-			Map<String, byte[]> outputM1 = new HashMap<>();
-			server.buildHookManager.preHook(outputM1);
-			for (Entry<String, byte[]> e : outputM1.entrySet()) {
-				output.putNextEntry(newZipEntry(e.getKey()));
-				output.write(e.getValue());
-			}
-			outputM1.clear();
+			BuildContext context = new BuildContext(output, jaConfigurator);
+			server.buildHookManager.preHook(context);
 			jaConfigurator.setAddress(server.config.getAddress());
 			jaConfigurator.setPort(server.config.port);
 			server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
@@ -204,12 +199,7 @@ public final class JARLauncherBinary extends LauncherBinary {
 			ZipEntry e = newZipEntry(jaConfigurator.getZipEntryPath());
 			output.putNextEntry(e);
 			output.write(jaConfigurator.getBytecode());
-			server.buildHookManager.postHook(outputM1);
-			for (Entry<String, byte[]> e1 : outputM1.entrySet()) {
-				output.putNextEntry(newZipEntry(e1.getKey()));
-				output.write(e1.getValue());
-			}
-			outputM1.clear();
+			server.buildHookManager.postHook(context);
 		} catch (CannotCompileException | NotFoundException e) {
 			LogHelper.error(e);
 		}

@@ -2,6 +2,7 @@ package ru.gravit.launchserver.modules;
 
 import ru.gravit.launcher.LauncherClassLoader;
 import ru.gravit.launcher.modules.ModuleContext;
+import ru.gravit.launcher.modules.ModulesManagerInterface;
 import ru.gravit.launchserver.LaunchServer;
 
 public class LaunchServerModuleContext implements ModuleContext {
@@ -15,5 +16,10 @@ public class LaunchServerModuleContext implements ModuleContext {
     @Override
     public Type getType() {
         return Type.LAUNCHSERVER;
+    }
+
+    @Override
+    public ModulesManagerInterface getModulesManager() {
+        return launchServer.modulesManager;
     }
 }
