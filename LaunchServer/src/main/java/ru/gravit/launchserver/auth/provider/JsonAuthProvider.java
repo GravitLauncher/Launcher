@@ -12,6 +12,7 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
@@ -48,28 +49,7 @@ public final class JsonAuthProvider extends AuthProvider {
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws IOException {
         JsonObject request = Json.object().add(userKeyName, login).add(passKeyName, password).add(ipKeyName, ip);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoInput(true);
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        connection.setRequestProperty("Accept", "application/json");
-        if (TIMEOUT > 0)
-			connection.setConnectTimeout(TIMEOUT);
-
-        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), Charset.forName("UTF-8"));
-        writer.write(request.toString());
-        writer.flush();
-        writer.close();
-
-        InputStreamReader reader;
-        int statusCode = connection.getResponseCode();
-
-        if (200 <= statusCode && statusCode < 300)
-			reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
-		else
-			reader = new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8);
-        JsonValue content = Json.parse(reader);
+        JsonValue content = HTTPRequest.jsonRequest(request,url);
         if (!content.isObject())
 			return authError("Authentication server response is malformed");
 

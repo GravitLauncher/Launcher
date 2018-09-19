@@ -26,6 +26,7 @@ import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedFile;
+import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.IOHelper;
