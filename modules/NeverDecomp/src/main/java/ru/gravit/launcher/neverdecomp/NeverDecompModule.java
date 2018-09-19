@@ -24,6 +24,11 @@ public class NeverDecompModule implements Module {
 	}
 
 	@Override
+	public int getPriority() {
+		return 1;
+	}
+
+	@Override
 	public void init(ModuleContext context1) {
 		if (context1.getType().equals(ModuleContext.Type.LAUNCHSERVER)) {
 			// Config may has boolean variable "hardAntiDecomp", which enables hard mode (needs -noverify to JVM)

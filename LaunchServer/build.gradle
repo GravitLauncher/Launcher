@@ -1,5 +1,5 @@
-def mainClassName = "LaunchServer"
-def mainAgentName = "StarterAgent"
+def mainClassName = "ru.gravit.launchserver.LaunchServer"
+def mainAgentName = "ru.gravit.launchserver.StarterAgent"
 
 repositories {
     maven {

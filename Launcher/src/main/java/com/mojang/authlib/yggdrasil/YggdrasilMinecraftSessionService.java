@@ -171,7 +171,9 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
     public GameProfile hasJoinedServer(GameProfile profile, String serverID, InetAddress address) throws AuthenticationUnavailableException {
         return hasJoinedServer(profile, serverID);
     }
-
+    public YggdrasilAuthenticationService getAuthenticationService() {
+        return (YggdrasilAuthenticationService)super.getAuthenticationService();
+    }
     @Override
     public void joinServer(GameProfile profile, String accessToken, String serverID) throws AuthenticationException {
         if (!ClientLauncher.isLaunched())

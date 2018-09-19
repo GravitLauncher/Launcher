@@ -49,6 +49,10 @@ public final class ResponseThread implements Runnable {
                 session = 0;
                 legacy = true;
             }
+            else if (magicNumber == Launcher.PROTOCOL_MAGIC_LEGACY - 2) { // Previous launcher protocol
+                session = 0;
+                legacy = true;
+            }
             else if (magicNumber == Launcher.PROTOCOL_MAGIC_LEGACY){
 
             } else

@@ -1,5 +1,5 @@
-String mainClassName = "LauncherEngine"
-String mainAgentName = "LauncherAgent"
+String mainClassName = "ru.gravit.launcher.LauncherEngine"
+String mainAgentName = "ru.gravit.launcher.LauncherAgent"
 
 
 repositories {

@@ -147,8 +147,6 @@ public class LauncherEngine {
     }
 
     public static void main(String... args) throws Throwable {
-        if(System.getProperty("log4j.configurationFile") == null)
-            System.setProperty("log4j.configurationFile", "ru/gravit/launcher/log4j2.xml");
         JVMHelper.verifySystemProperties(Launcher.class, true);
         LogHelper.printVersion("Launcher");
         // Start Launcher
@@ -172,10 +170,11 @@ public class LauncherEngine {
     }
 
     @LauncherAPI
-    public Object loadScript(URL url) throws IOException, ScriptException {
+    public Object loadScript(String path) throws IOException, ScriptException {
+        URL url = Launcher.getResourceURL(path);
         LogHelper.debug("Loading script: '%s'", url);
         try (BufferedReader reader = IOHelper.newReader(url)) {
-            return engine.eval(reader);
+            return engine.eval(reader,engine.getBindings(ScriptContext.ENGINE_SCOPE));
         }
     }
 
@@ -198,7 +197,10 @@ public class LauncherEngine {
 			throw new IllegalStateException("Launcher has been already started");
         Launcher.modulesManager.initModules();
         // Load init.js script
-        loadScript(Launcher.getResourceURL(Launcher.INIT_SCRIPT_FILE));
+        loadScript(Launcher.API_SCRIPT_FILE);
+        loadScript(Launcher.INIT_SCRIPT_FILE);
+        loadScript("config.js");
+        loadScript("dialog/dialog.js");
         LogHelper.info("Invoking start() function");
         Invocable invoker = (Invocable) engine;
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {

@@ -382,7 +382,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         
         // pre init modules
         modulesManager = new ModulesManager(this);
-        modulesManager.autoload();
+        modulesManager.autoload(dir.resolve("modules"));
         modulesManager.preInitModules();
         
         // Read LaunchServer config

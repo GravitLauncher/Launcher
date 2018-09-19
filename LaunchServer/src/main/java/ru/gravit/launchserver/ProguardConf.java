@@ -39,7 +39,7 @@ public class ProguardConf {
 		words = proguard.resolve("random.pro");
 		confStrs = new HashSet<>();
 		prepare(false);
-		confStrs.add(readConf());
+		confStrs.add("@".concat(config.toString()));
 		if (this.srv.config.genMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
 		confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
 		confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
