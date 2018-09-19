@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launchserver.command.basic.*;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launchserver.LaunchServer;
@@ -22,18 +23,6 @@ import ru.gravit.launchserver.command.auth.BanCommand;
 import ru.gravit.launchserver.command.auth.UUIDToUsernameCommand;
 import ru.gravit.launchserver.command.auth.UnbanCommand;
 import ru.gravit.launchserver.command.auth.UsernameToUUIDCommand;
-import ru.gravit.launchserver.command.basic.BuildCommand;
-import ru.gravit.launchserver.command.basic.ClearCommand;
-import ru.gravit.launchserver.command.basic.DebugCommand;
-import ru.gravit.launchserver.command.basic.GCCommand;
-import ru.gravit.launchserver.command.basic.HelpCommand;
-import ru.gravit.launchserver.command.basic.LogConnectionsCommand;
-import ru.gravit.launchserver.command.basic.ProguardCleanCommand;
-import ru.gravit.launchserver.command.basic.RebindCommand;
-import ru.gravit.launchserver.command.basic.RegenProguardDictCommand;
-import ru.gravit.launchserver.command.basic.RemoveMappingsProguardCommand;
-import ru.gravit.launchserver.command.basic.StopCommand;
-import ru.gravit.launchserver.command.basic.VersionCommand;
 import ru.gravit.launchserver.command.hash.DownloadAssetCommand;
 import ru.gravit.launchserver.command.hash.DownloadClientCommand;
 import ru.gravit.launchserver.command.hash.IndexAssetCommand;
@@ -112,6 +101,7 @@ public abstract class CommandHandler implements Runnable {
         registerCommand("logConnections", new LogConnectionsCommand(server));
         registerCommand("loadModule", new LoadModuleCommand(server));
         registerCommand("modules", new ModulesCommand(server));
+        registerCommand("test",new TestCommand(server));
 
         // Register sync commands
         registerCommand("indexAsset", new IndexAssetCommand(server));

@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
+import ru.gravit.utils.HttpDownloader;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.profiles.ClientProfile;
@@ -49,7 +50,7 @@ public final class DownloadClientCommand extends Command {
 
         // Download required client
         LogHelper.subInfo("Downloading client, it may take some time");
-        DownloadAssetCommand.unpack(new URL(String.format(CLIENT_URL_MASK,
+        HttpDownloader.downloadZip(new URL(String.format(CLIENT_URL_MASK,
                 IOHelper.urlEncode(version.name))), clientDir);
 
         // Create profile file

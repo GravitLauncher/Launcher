@@ -1,13 +1,11 @@
 package ru.gravit.launchserver.command.hash;
 
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
+import ru.gravit.utils.HttpDownloader;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.profiles.ClientProfile.Version;
@@ -16,20 +14,6 @@ import ru.gravit.launchserver.command.Command;
 
 public final class DownloadAssetCommand extends Command {
     private static final String ASSET_URL_MASK = "http://launcher.sashok724.net/download/assets/%s.zip";
-
-    public static void unpack(URL url, Path dir) throws IOException {
-        try (ZipInputStream input = IOHelper.newZipInput(url)) {
-            for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
-                if (entry.isDirectory())
-					continue; // Skip directories
-
-                // Unpack entry
-                String name = entry.getName();
-                LogHelper.subInfo("Downloading file: '%s'", name);
-                IOHelper.transfer(input, dir.resolve(IOHelper.toPath(name)));
-            }
-        }
-    }
 
     public DownloadAssetCommand(LaunchServer server) {
         super(server);
@@ -58,7 +42,7 @@ public final class DownloadAssetCommand extends Command {
 
         // Download required asset
         LogHelper.subInfo("Downloading asset, it may take some time");
-        unpack(new URL(String.format(ASSET_URL_MASK, IOHelper.urlEncode(version.name))), assetDir);
+        HttpDownloader.downloadZip(new URL(String.format(ASSET_URL_MASK, IOHelper.urlEncode(version.name))), assetDir);
 
         // Finished
         server.syncUpdatesDir(Collections.singleton(dirName));
