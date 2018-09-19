@@ -13,13 +13,14 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 
 @SuppressWarnings("unused")
-public class JsonAuthHandler extends CachedAuthHandler {
+public class JsonAuthHandler extends AuthHandler {
 
     private static final int TIMEOUT = 10;
     private final URL url;
@@ -31,7 +32,6 @@ public class JsonAuthHandler extends CachedAuthHandler {
     private final String serverIDKeyName;
     private final String accessTokenKeyName;
     private final String uuidKeyName;
-    private final String responseUserKeyName;
     private final String responseErrorKeyName;
 
     protected JsonAuthHandler(BlockConfigEntry block) {
@@ -49,8 +49,6 @@ public class JsonAuthHandler extends CachedAuthHandler {
                 VerifyHelper.NOT_EMPTY, "UUID key name can't be empty");
         accessTokenKeyName = VerifyHelper.verify(block.getEntryValue("accessTokenKeyName", StringConfigEntry.class),
                 VerifyHelper.NOT_EMPTY, "AccessToken key name can't be empty");
-        responseUserKeyName = VerifyHelper.verify(block.getEntryValue("responseUserKeyName", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "Response username key can't be empty");
         responseErrorKeyName = VerifyHelper.verify(block.getEntryValue("responseErrorKeyName", StringConfigEntry.class),
                 VerifyHelper.NOT_EMPTY, "Response error key can't be empty");
         url = IOHelper.convertToURL(configUrl);
@@ -61,49 +59,54 @@ public class JsonAuthHandler extends CachedAuthHandler {
     }
 
     @Override
+    public UUID auth(AuthProviderResult authResult) throws IOException {
+        JsonObject request = Json.object().add(userKeyName, authResult.username).add(accessTokenKeyName, authResult.accessToken);
+        JsonObject result = jsonRequest(request, url);
+        String value;
+        if ((value = result.getString(uuidKeyName, null)) != null)
+            return UUID.fromString(value);
+        throw new IOException("Service error");
+    }
+
+    @Override
     public UUID checkServer(String username, String serverID) throws IOException {
         JsonObject request = Json.object().add(userKeyName, username).add(serverIDKeyName, serverID);
         JsonObject result = jsonRequest(request, urlCheckServer);
         String value;
         if ((value = result.getString(uuidKeyName, null)) != null)
 			return UUID.fromString(value);
-		return super.checkServer(username, serverID);
+		throw new IOException("Service error");
     }
 
     @Override
     public void close() {
 
     }
-
-    @Override
-    protected Entry fetchEntry(String username) throws IOException {
-        JsonObject request = Json.object().add(userKeyName, username);
-        JsonObject result = jsonRequest(request, urlCheckServer);
-        UUID uuid = UUID.fromString(result.getString(uuidKeyName, null));
-        String accessToken = result.getString(accessTokenKeyName, null);
-        String serverID = result.getString(serverIDKeyName, null);
-        if (accessToken == null || serverID == null) return null;
-
-        return new Entry(uuid, username, accessToken, serverID);
-    }
-
-    @Override
-    protected Entry fetchEntry(UUID uuid) throws IOException {
-        JsonObject request = Json.object().add(uuidKeyName, uuid.toString());
-        JsonObject result = jsonRequest(request, urlCheckServer);
-        String username = result.getString(userKeyName, null);
-        String accessToken = result.getString(accessTokenKeyName, null);
-        String serverID = result.getString(serverIDKeyName, null);
-        if (username == null || accessToken == null || serverID == null) return null;
-
-        return new Entry(uuid, username, accessToken, serverID);
-    }
-
     @Override
     public boolean joinServer(String username, String accessToken, String serverID) throws IOException {
         JsonObject request = Json.object().add(userKeyName, username).add(serverIDKeyName, serverID).add(accessTokenKeyName, accessToken);
         jsonRequest(request, urlJoinServer);
-        return super.joinServer(username, accessToken, serverID);
+        return request.getString(responseErrorKeyName,null).equals("OK");
+    }
+
+    @Override
+    public UUID usernameToUUID(String username) throws IOException {
+        JsonObject request = Json.object().add(userKeyName, username);
+        JsonObject result = jsonRequest(request, urlUsernameToUUID);
+        String value;
+        if ((value = result.getString(uuidKeyName, null)) != null)
+            return UUID.fromString(value);
+        throw new IOException("Service error");
+    }
+
+    @Override
+    public String uuidToUsername(UUID uuid) throws IOException {
+        JsonObject request = Json.object().add(uuidKeyName, uuid.toString());
+        JsonObject result = jsonRequest(request, urlUUIDToUsername);
+        String value;
+        if ((value = result.getString(userKeyName, null)) != null)
+            return value;
+        throw new IOException("Service error");
     }
 
     public JsonObject jsonRequest(JsonObject request, URL url) throws IOException {
@@ -138,15 +141,5 @@ public class JsonAuthHandler extends CachedAuthHandler {
         if ((value = response.getString(responseErrorKeyName, null)) != null)
 			authError(value);
         return response;
-    }
-
-    @Override
-    protected boolean updateAuth(UUID uuid, String username, String accessToken) {
-        return false;
-    }
-
-    @Override
-    protected boolean updateServerID(UUID uuid, String serverID) {
-        return false;
     }
 }
