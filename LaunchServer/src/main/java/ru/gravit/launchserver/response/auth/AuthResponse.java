@@ -73,10 +73,7 @@ public final class AuthResponse extends Response {
 					if(!p.object.isWhitelistContains(login))
 						throw new AuthException(server.config.whitelistRejectString);
             server.config.hwidHandler.check(HWID.gen(hwid_hdd, hwid_bios, hwid_cpu), result.username);
-        } catch (AuthException e) {
-            requestError(e.getMessage());
-            return;
-        } catch (HWIDException e) {
+        } catch (AuthException | HWIDException e) {
             requestError(e.getMessage());
             return;
         } catch (Exception e) {

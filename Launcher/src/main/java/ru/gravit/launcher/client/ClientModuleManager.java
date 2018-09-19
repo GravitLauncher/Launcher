@@ -5,9 +5,6 @@ import java.util.ArrayList;
 
 import ru.gravit.launcher.LauncherEngine;
 import ru.gravit.launcher.modules.SimpleModuleManager;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.launcher.modules.Module;
-import ru.gravit.launcher.modules.ModulesManagerInterface;
 
 public class ClientModuleManager extends SimpleModuleManager {
     public ClientModuleManager(LauncherEngine engine)

@@ -78,7 +78,7 @@ public final class Launcher {
     @LauncherAPI
     @SuppressWarnings({"SameReturnValue", "MethodReturnAlwaysConstant"})
     public static String getVersion() {
-        return VERSION; // Because Java constants are known at compile-time
+        return LauncherVersion.getVersion().toString(); // Because Java constants are known at compile-time
     }
 
     @LauncherAPI

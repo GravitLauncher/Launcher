@@ -19,7 +19,7 @@ public class ProguardConf {
 	private static final String charsFirst = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
 	private static final String chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ";
 	private static String generateString(SecureRandom rand, int il) {
-		StringBuffer sb = new StringBuffer(il);
+		StringBuilder sb = new StringBuilder(il);
 		sb.append(charsFirst.charAt(rand.nextInt(charsFirst.length())));
 		for (int i = 0; i < il - 1; i++) sb.append(chars.charAt(rand.nextInt(chars.length())));
 		return sb.toString();

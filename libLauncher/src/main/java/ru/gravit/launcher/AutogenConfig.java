@@ -8,6 +8,7 @@ public class AutogenConfig {
     AutogenConfig() {
 
     }
+    @SuppressWarnings("UnnecessaryReturnStatement")
     public void initModules()
     {
         if(isInitModules) return;

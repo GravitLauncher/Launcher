@@ -5,29 +5,29 @@ import ru.gravit.launcher.LauncherAPI;
 
 public interface CheckModel<T> {
 	@LauncherAPI
-	public void check(T item);
+	void check(T item);
 
 	@LauncherAPI
-	public void checkAll();
+	void checkAll();
 
 	@LauncherAPI
-	public void clearCheck(T item);
+	void clearCheck(T item);
 
 	@LauncherAPI
-	public void clearChecks();
+	void clearChecks();
 
 	@LauncherAPI
-	public ObservableList<T> getCheckedItems();
+	ObservableList<T> getCheckedItems();
 
 	@LauncherAPI
-	public int getItemCount();
+	int getItemCount();
 
 	@LauncherAPI
-	public boolean isChecked(T item);
+	boolean isChecked(T item);
 
 	@LauncherAPI
-	public boolean isEmpty();
+	boolean isEmpty();
 
 	@LauncherAPI
-	public void toggleCheckState(T item);
+	void toggleCheckState(T item);
 }

@@ -101,7 +101,7 @@ public final class JARLauncherBinary extends LauncherBinary {
 		// ProGuard
 		Configuration proguard_cfg = new Configuration();
 		ConfigurationParser parser = new ConfigurationParser(
-				server.proguardConf.confStrs.toArray(new String[server.proguardConf.confStrs.size()]),
+				server.proguardConf.confStrs.toArray(new String[0]),
 				server.proguardConf.proguard.toFile(), System.getProperties());
 		try {
 			parser.parse(proguard_cfg);

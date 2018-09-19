@@ -321,7 +321,7 @@ public final class ClientLauncher {
         // Fill CLI arguments
         List<String> args = new LinkedList<>();
         boolean wrapper = isUsingWrapper();
-        Path javaBin = null;
+        Path javaBin;
         if (wrapper) javaBin = JVMHelper.JVM_BITS == 64 ? AvanguardStarter.wrap64: AvanguardStarter.wrap32;
         else javaBin = Paths.get(System.getProperty("java.home") + IOHelper.PLATFORM_SEPARATOR + "bin" + IOHelper.PLATFORM_SEPARATOR + "java");
         args.add(javaBin.toString());
@@ -465,7 +465,7 @@ public final class ClientLauncher {
     }
 
     private static LinkedList<Path> resolveClassPathList(Path clientDir, String... classPath) throws IOException {
-        Collection<Path> result = new LinkedList<>();
+        LinkedList<Path> result = new LinkedList<>();
         for (String classPathEntry : classPath) {
             Path path = clientDir.resolve(IOHelper.toPath(classPathEntry));
             if (IOHelper.isDir(path)) { // Recursive walking and adding
@@ -474,7 +474,7 @@ public final class ClientLauncher {
             }
             result.add(path);
         }
-        return (LinkedList<Path>) result;
+        return result;
     }
 
     @LauncherAPI

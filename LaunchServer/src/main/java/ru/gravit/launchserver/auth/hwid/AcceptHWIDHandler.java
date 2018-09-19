@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.auth.hwid;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
@@ -28,7 +29,7 @@ public class AcceptHWIDHandler extends HWIDHandler {
 
     @Override
     public List<HWID> getHwid(String username) {
-        return Arrays.asList(nullHWID);
+        return Collections.singletonList(nullHWID);
     }
 
     @Override

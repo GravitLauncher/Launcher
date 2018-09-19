@@ -73,7 +73,7 @@ abstract class CheckBitSetModelBase<T> implements IndexedCheckModel<T> {
 			}
 		};
 
-		final MappingChange.Map<Integer, T> map = f -> getItem(f);
+		final MappingChange.Map<Integer, T> map = this::getItem;
 
 		checkedIndicesList.addListener((ListChangeListener<Integer>) c -> {
 			boolean hasRealChangeOccurred = false;
@@ -218,7 +218,7 @@ abstract class CheckBitSetModelBase<T> implements IndexedCheckModel<T> {
 			final BooleanProperty booleanProperty = new SimpleBooleanProperty(item, "selected", false); //$NON-NLS-1$
 			itemBooleanMap.put(item, booleanProperty);
 
-			booleanProperty.addListener((InvalidationListener) o -> {
+			booleanProperty.addListener(o -> {
 				if (booleanProperty.get()) {
 					checkedIndices.set(index);
 					final int changeIndex1 = checkedIndicesList.indexOf(index);

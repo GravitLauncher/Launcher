@@ -172,7 +172,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
             try (ResultSet set = s.executeQuery()) {
                 if(!set.next()) {
                     LogHelper.error(new HWIDException("HWID not found"));
-                    return new ArrayList<HWID>();
+                    return new ArrayList<>();
                 }
                 hdd = set.getLong(hddName);
                 cpu = set.getLong(cpuName);

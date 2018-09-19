@@ -34,33 +34,21 @@ public class RingProgressIndicatorSkin implements Skin<RingProgressIndicator> {
         this.indicator = indicator;
         initContainer(indicator);
         initFillerArc();
-        container.widthProperty().addListener((o, oldVal, newVal) -> {
-            fillerArc.setCenterX(newVal.intValue() / 2);
-        });
-        container.heightProperty().addListener((o, oldVal, newVal) -> {
-            fillerArc.setCenterY(newVal.intValue() / 2);
-        });
+        container.widthProperty().addListener((o, oldVal, newVal) -> fillerArc.setCenterX(newVal.intValue() / 2));
+        container.heightProperty().addListener((o, oldVal, newVal) -> fillerArc.setCenterY(newVal.intValue() / 2));
         innerCircle.getStyleClass().add("ringindicator-inner-circle");
         outerCircle.getStyleClass().add("ringindicator-outer-circle-secondary");
         updateRadii();
 
-        this.indicator.indeterminateProperty().addListener((o, oldVal, newVal) -> {
-            initIndeterminate(newVal);
-        });
+        this.indicator.indeterminateProperty().addListener((o, oldVal, newVal) -> initIndeterminate(newVal));
         this.indicator.progressProperty().addListener((o, oldVal, newVal) -> {
             if (newVal.intValue() >= 0) {
                 fillerArc.setLength(newVal.doubleValue() * -360);
             }
         });
-        this.indicator.ringWidthProperty().addListener((o, oldVal, newVal) -> {
-            updateRadii();
-        });
-        innerCircle.strokeWidthProperty().addListener((e) -> {
-            updateRadii();
-        });
-        innerCircle.radiusProperty().addListener((e) -> {
-            updateRadii();
-        });
+        this.indicator.ringWidthProperty().addListener((o, oldVal, newVal) -> updateRadii());
+        innerCircle.strokeWidthProperty().addListener((e) -> updateRadii());
+        innerCircle.radiusProperty().addListener((e) -> updateRadii());
         initTransition();
         initIndeterminate(indicator.isIndeterminate());
         indicator.visibleProperty().addListener((o, oldVal, newVal) -> {

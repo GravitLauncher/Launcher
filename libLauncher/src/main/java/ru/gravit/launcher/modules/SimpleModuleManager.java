@@ -52,9 +52,7 @@ public class SimpleModuleManager implements ModulesManagerInterface,AutoCloseabl
         modules.sort((m1,m2) -> {
             int p1 = m1.getPriority();
             int p2 = m2.getPriority();
-            if(p1 < p2) return 1;
-            else if(p1 > p2) return -1;
-            else return 0;
+            return Integer.compare(p2, p1);
         });
     }
 

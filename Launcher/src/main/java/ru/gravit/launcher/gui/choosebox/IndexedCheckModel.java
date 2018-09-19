@@ -5,27 +5,27 @@ import ru.gravit.launcher.LauncherAPI;
 
 public interface IndexedCheckModel<T> extends CheckModel<T> {
 	@LauncherAPI
-	public void check(int index);
+    void check(int index);
 
 	@LauncherAPI
-	public void checkIndices(int... indices);
+    void checkIndices(int... indices);
 
 	@LauncherAPI
-	public void clearCheck(int index);
+    void clearCheck(int index);
 
 	@LauncherAPI
-	public ObservableList<Integer> getCheckedIndices();
+    ObservableList<Integer> getCheckedIndices();
 
 	@LauncherAPI
-	public T getItem(int index);
+    T getItem(int index);
 
 	@LauncherAPI
-	public int getItemIndex(T item);
+    int getItemIndex(T item);
 
 	@LauncherAPI
-	public boolean isChecked(int index);
+    boolean isChecked(int index);
 
 	@LauncherAPI
-	public void toggleCheckState(int index);
+    void toggleCheckState(int index);
 
 }

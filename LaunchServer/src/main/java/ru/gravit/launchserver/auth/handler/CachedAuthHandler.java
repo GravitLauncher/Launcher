@@ -10,7 +10,6 @@ import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;

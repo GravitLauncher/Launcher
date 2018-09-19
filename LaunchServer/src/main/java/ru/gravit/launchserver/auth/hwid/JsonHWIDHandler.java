@@ -100,7 +100,7 @@ public final class JsonHWIDHandler extends HWIDHandler {
     @Override
     public void check0(HWID hwid, String username) throws HWIDException {
         JsonObject request = Json.object().add(loginKeyName,username).add(hddKeyName,hwid.getHwid_hdd()).add(cpuKeyName,hwid.getHwid_cpu()).add(biosKeyName,hwid.getHwid_bios());
-        JsonObject response = null;
+        JsonObject response;
         try {
             response = request(request,url);
         } catch (IOException e) {
@@ -130,7 +130,7 @@ public final class JsonHWIDHandler extends HWIDHandler {
         ArrayList<HWID> hwids = new ArrayList<>();
         for(JsonValue i : array)
         {
-            long hdd=0,cpu=0,bios=0;
+            long hdd,cpu,bios;
             JsonObject object = i.asObject();
             hdd = object.getLong(hddKeyName,0);
             cpu = object.getLong(cpuKeyName,0);
