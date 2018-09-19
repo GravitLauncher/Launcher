@@ -20,12 +20,6 @@ import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 public class ServerWrapper {
     public static ModulesManager modulesManager;
     public static void main(String[] args) throws Throwable {
-        if(System.getProperty("log4j.configurationFile") == null)
-			try(InputStream stream = IOHelper.newInput(IOHelper.getResourceURL("log4j2.xml"))) {
-                System.setProperty("log4j.configurationFile", "launcher/log4j2.xml,log4j2.xml");
-            } catch (Exception e) {
-                System.setProperty("log4j.configurationFile", "ru/gravit/launcher/log4j2.xml");
-            }
         ServerWrapper wrapper = new ServerWrapper();
         modulesManager = new ModulesManager(wrapper);
         modulesManager.autoload(Paths.get("modules"));

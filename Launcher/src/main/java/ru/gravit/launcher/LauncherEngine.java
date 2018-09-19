@@ -190,7 +190,7 @@ public class LauncherEngine {
     @LauncherAPI
     public void start(String... args) throws Throwable {
         Launcher.modulesManager = new ClientModuleManager(this);
-        LauncherConfig.getAutogenConfig(); //INIT
+        LauncherConfig.getAutogenConfig().initModules(); //INIT
         Launcher.modulesManager.preInitModules();
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))

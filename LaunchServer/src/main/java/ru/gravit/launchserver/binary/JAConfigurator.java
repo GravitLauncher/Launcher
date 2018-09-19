@@ -19,6 +19,7 @@ public class JAConfigurator implements AutoCloseable {
         ctConstructor = ctClass.getDeclaredConstructor(null);
         initModuleMethod = ctClass.getDeclaredMethod("initModules");
         body = new StringBuilder("{ isInitModules = false; ");
+        moduleBody = new StringBuilder("{ isInitModules = true; ");
         autoincrement = 0;
     }
     public void addModuleClass(String fullName)
@@ -39,6 +40,7 @@ public class JAConfigurator implements AutoCloseable {
     }
     public byte[] getBytecode() throws IOException, CannotCompileException {
         body.append("}");
+        moduleBody.append("}");
         ctConstructor.setBody(body.toString());
         initModuleMethod.insertAfter(moduleBody.toString());
         return ctClass.toBytecode();
