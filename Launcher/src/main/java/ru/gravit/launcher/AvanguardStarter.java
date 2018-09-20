@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+import ru.gravit.launcher.hasher.DirWatcher;
+import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
@@ -100,12 +102,16 @@ public class AvanguardStarter {
         wrap64 = IOHelper.toAbsPath(wrapper64);
     }
 
-    public static void start(Path path1) {
+    public static void start(Path path1) throws IOException {
         Path path = path1.resolve("guard");
         processArched(handle(path.resolve("Avanguard32.dll"), "Avanguard32.dll"),
                 handle(path.resolve("Avanguard64.dll"), "Avanguard64.dll"),
                 handle(path.resolve(NAME + "32.exe"), "wrapper32.exe"),
                 handle(path.resolve(NAME + "64.exe"), "wrapper64.exe"));
+        HashedDir guard = new HashedDir(path,null,true,false);
+        try(DirWatcher dirWatcher = new DirWatcher(path, guard, null, false)){
+            CommonHelper.newThread("Guard Directory Watcher", true, dirWatcher).start();
+        }
     }
 
     private static void transfer(byte[] orig, Path mustdiedll) throws IOException {
