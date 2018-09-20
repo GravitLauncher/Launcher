@@ -55,6 +55,12 @@ public class JAConfigurator implements AutoCloseable {
         body.append(address);
         body.append("\";");
     }
+    public void setProjectName(String name)
+    {
+        body.append("this.projectname = \"");
+        body.append(name);
+        body.append("\";");
+    }
 
     public void setPort(int port)
     {

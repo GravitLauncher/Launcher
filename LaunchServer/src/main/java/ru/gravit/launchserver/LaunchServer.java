@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
-import org.apache.commons.io.FileUtils;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.utils.helper.CommonHelper;
@@ -95,6 +94,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         @LauncherAPI
         public final String authRejectString;
         @LauncherAPI
+        public final String projectName;
+        @LauncherAPI
         public final String whitelistRejectString;
         @LauncherAPI
         public final boolean genMappings;
@@ -135,6 +136,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             launch4j = new ExeConf(block.getEntry("launch4J", BlockConfigEntry.class));
             sign = new SignConf(block.getEntry("signing", BlockConfigEntry.class), coredir);
             binaryName = block.getEntryValue("binaryName", StringConfigEntry.class);
+            projectName = block.hasEntry("projectName") ? block.getEntryValue("projectName", StringConfigEntry.class) : "Minecraft";
             compress = block.getEntryValue("compress", BooleanConfigEntry.class);
         }
 
