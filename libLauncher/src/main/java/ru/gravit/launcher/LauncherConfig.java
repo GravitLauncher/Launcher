@@ -32,6 +32,8 @@ public final class LauncherConfig extends StreamObject {
     @LauncherAPI
     public final InetSocketAddress address;
     @LauncherAPI
+    public final String projectname;
+    @LauncherAPI
     public final RSAPublicKey publicKey;
 
     @LauncherAPI
@@ -42,7 +44,7 @@ public final class LauncherConfig extends StreamObject {
         address = InetSocketAddress.createUnresolved(
                 ADDRESS_OVERRIDE == null ? localAddress : ADDRESS_OVERRIDE, config.port);
         publicKey = SecurityHelper.toPublicRSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
-
+        projectname = config.projectname;
         // Read signed runtime
         int count = input.readLength(0);
         Map<String, byte[]> localResources = new HashMap<>(count);
@@ -60,10 +62,19 @@ public final class LauncherConfig extends StreamObject {
     }
     @LauncherAPI
     @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
+    public LauncherConfig(String address, int port, RSAPublicKey publicKey, Map<String, byte[]> runtime,String projectname) {
+        this.address = InetSocketAddress.createUnresolved(address, port);
+        this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
+        this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
+        this.projectname = projectname;
+    }
+    @LauncherAPI
+    @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
     public LauncherConfig(String address, int port, RSAPublicKey publicKey, Map<String, byte[]> runtime) {
         this.address = InetSocketAddress.createUnresolved(address, port);
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
+        this.projectname = "Minecraft";
     }
 
     @Override

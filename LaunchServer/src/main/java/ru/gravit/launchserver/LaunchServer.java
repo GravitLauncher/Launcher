@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
+import org.apache.commons.io.FileUtils;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.utils.helper.CommonHelper;

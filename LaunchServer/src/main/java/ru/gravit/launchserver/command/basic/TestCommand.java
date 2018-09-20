@@ -26,7 +26,7 @@ public class TestCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args,1);
         LogHelper.debug("start downloading");
-        HttpDownloader.downloadFile(new URL(args[0]),"test.html");
+        HttpDownloader downloader =new HttpDownloader(new URL(args[0]),"test.html");
         LogHelper.debug("end downloading");
     }
 }

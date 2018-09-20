@@ -29,12 +29,7 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.WriterConfig;
 
-import ru.gravit.launcher.AvanguardStarter;
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherClassLoader;
-import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.LauncherVersion;
+import ru.gravit.launcher.*;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
@@ -352,8 +347,8 @@ public final class ClientLauncher {
         Collections.addAll(args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
         Collections.addAll(args,"-javaagent:".concat(pathLauncher));
         //Collections.addAll(args, "-classpath", classPathString.toString());
-        if(wrapper)
-        Collections.addAll(args, "-Djava.class.path=".concat(classPathString.toString())); // Add Class Path
+        //if(wrapper)
+        //Collections.addAll(args, "-Djava.class.path=".concat(classPathString.toString())); // Add Class Path
         Collections.addAll(args, ClientLauncher.class.getName());
         Collections.addAll(args, paramsFile.toString());
 
@@ -365,8 +360,8 @@ public final class ClientLauncher {
         ProcessBuilder builder = new ProcessBuilder(args);
         if(wrapper)
         builder.environment().put("JAVA_HOME", System.getProperty("java.home"));
-        else
-        builder.environment().put("CLASSPATH", classPathString.toString());
+        //else
+        //builder.environment().put("CLASSPATH", classPathString.toString());
         EnvHelper.addEnv(builder);
         builder.directory(params.clientDir.toFile());
         builder.inheritIO();
@@ -414,20 +409,10 @@ public final class ClientLauncher {
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         SecurityHelper.verifySign(LauncherRequest.BINARY_PATH, params.launcherSign, publicKey);
-        String[] classpath = JVMHelper.getClassPath();
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.object.getClassPath());
-        int counter = classPath.size();
-        for (String classpathURL : classpath) {
-            Path file = Paths.get(classpathURL);
-            if (!file.startsWith(IOHelper.JVM_DIR))
-				for (Path classPathURL : classPath)
-					if (classpathURL.equals(classPathURL.toString())) {
-                        counter--;
-                        break;
-                    }
+        for (Path classpathURL : classPath) {
+            LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
         }
-        if (counter != 0)
-			throw new SecurityException(String.format("Forbidden classpath entry, %d != 0", counter));
         URL[] classpathurls = resolveClassPath(params.clientDir, profile.object.getClassPath());
         classLoader = new LauncherClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);

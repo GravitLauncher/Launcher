@@ -38,7 +38,7 @@ public class AvanguardStarter {
             }
         }
     }
-	public static final String NAME = "wrapper"; // TODO customizable filename.
+	public static final String NAME = Launcher.getConfig().projectname;
 	public static String avn32 = null, avn64 = null;
     public static Path wrap32 = null, wrap64 = null;
 
@@ -102,8 +102,8 @@ public class AvanguardStarter {
 
     public static void start(Path path1) {
         Path path = path1.resolve("guard");
-        processArched(handle(path.resolve(NAME + "32.dll"), "Avanguard32.dll"),
-                handle(path.resolve(NAME + "64.dll"), "Avanguard64.dll"),
+        processArched(handle(path.resolve("Avanguard32.dll"), "Avanguard32.dll"),
+                handle(path.resolve("Avanguard64.dll"), "Avanguard64.dll"),
                 handle(path.resolve(NAME + "32.exe"), "wrapper32.exe"),
                 handle(path.resolve(NAME + "64.exe"), "wrapper64.exe"));
     }
