@@ -34,7 +34,7 @@ public class NeverDecompModule implements Module {
 			// Config may has boolean variable "hardAntiDecomp", which enables hard mode (needs -noverify to JVM)
 			LaunchServerModuleContext context = (LaunchServerModuleContext) context1;
 			boolean hobf = context.launchServer.config.block.hasEntry("hardAntiDecomp") ? context.launchServer.config.block.getEntryValue("hardAntiDecomp", BooleanConfigEntry.class) : false;
-			context.launchServer.buildHookManager.registerClassTransformer(new TransformerClass(hobf));
+			context.launchServer.buildHookManager.registerClassTransformer(new TransformerClass(hobf, context.metadataReader));
 		}
 	}
 

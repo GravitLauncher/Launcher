@@ -3,10 +3,6 @@ package ru.gravit.launchserver.command.basic;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.socket.NettyServerSocketHandler;
-import ru.gravit.utils.HttpDownloader;
-import ru.gravit.utils.helper.LogHelper;
-
-import java.net.URL;
 
 public class TestCommand extends Command {
     public TestCommand(LaunchServer server) {

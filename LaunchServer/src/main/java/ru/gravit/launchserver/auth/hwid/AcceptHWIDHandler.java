@@ -1,6 +1,5 @@
 package ru.gravit.launchserver.auth.hwid;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

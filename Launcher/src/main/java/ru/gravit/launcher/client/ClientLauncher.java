@@ -149,6 +149,7 @@ public final class ClientLauncher {
     private static final String[] EMPTY_ARRAY = new String[0];
     private static final String MAGICAL_INTEL_OPTION = "-XX:HeapDumpPath=ThisTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
     private static final boolean isUsingWrapper = true;
+    private static final boolean isUsingGuard = true;
 
     @LauncherAPI
     public static final String TITLE_PROPERTY = "launcher.title";
@@ -378,10 +379,7 @@ public final class ClientLauncher {
         Launcher.modulesManager = new ClientModuleManager(null);
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         Launcher.modulesManager.preInitModules();
-        if (JVMHelper.OS_TYPE == OS.MUSTDIE) {
-            AvanguardStarter.loadVared();
-            AvanguardStarter.main(false);
-        }
+        if (JVMHelper.OS_TYPE == OS.MUSTDIE) runAvn();
         checkJVMBitsAndVersion();
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         LogHelper.printVersion("Client Launcher");
@@ -436,7 +434,11 @@ public final class ClientLauncher {
         }
     }
 
-    private static URL[] resolveClassPath(Path clientDir, String... classPath) throws IOException {
+    private static void runAvn() {
+    	if (isUsingGuard) AvanguardStarter.start(); // так компилятор с гарантией вырежет
+	}
+
+	private static URL[] resolveClassPath(Path clientDir, String... classPath) throws IOException {
         Collection<Path> result = new LinkedList<>();
         for (String classPathEntry : classPath) {
             Path path = clientDir.resolve(IOHelper.toPath(classPathEntry));

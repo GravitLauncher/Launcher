@@ -81,6 +81,7 @@ public class SimpleModuleManager implements ModulesManagerInterface,AutoCloseabl
     @LauncherAPI
     public void load(Module module) {
         modules.add(module);
+        module.preInit(context);
     }
 
     @Override
@@ -107,9 +108,7 @@ public class SimpleModuleManager implements ModulesManagerInterface,AutoCloseabl
         classloader.addURL(jarpath);
         Class<?> moduleclass = Class.forName(classname, true, classloader);
         Module module = (Module) moduleclass.newInstance();
-        modules.add(module);
-        module.preInit(context);
-        if(!preload) module.init(context);
+        load(module, preload);
         LogHelper.info("Module %s version: %s loaded",module.getName(),module.getVersion());
     }
 
