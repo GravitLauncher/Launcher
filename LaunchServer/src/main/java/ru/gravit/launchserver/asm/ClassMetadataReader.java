@@ -5,29 +5,16 @@ import org.objectweb.asm.*;
 import ru.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
 
 /**
- * Позволяет при помощи велосипеда из костылей искать методы внутри незагруженных классов
- * и общие суперклассы для чего угодно. Работает через поиск class-файлов в classpath, и, в случае провала -
- * ищет через рефлексию.
+ * Позволяет искать методы внутри незагруженных классов
+ * и общие суперклассы для чего угодно. Работает через поиск class-файлов в classpath.
  */
 public class ClassMetadataReader {
-    private static final Method m;
-
-    static {
-        try {
-            m = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
-            m.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            throw new InternalError(e);
-        }
-    }
-
 	private final List<JarFile> list;
 
     public ClassMetadataReader() {
@@ -75,7 +62,7 @@ public class ClassMetadataReader {
         try {
             return getMethodReferenceASM(type, methodName, desc);
         } catch (Exception e) {
-            return getMethodReferenceReflect(type, methodName, desc);
+            return null;
         }
     }
 
@@ -84,18 +71,6 @@ public class ClassMetadataReader {
         acceptVisitor(type, cv);
         if (cv.found) {
             return new MethodReference(type, cv.targetName, cv.targetDesc);
-        }
-        return null;
-    }
-
-    protected MethodReference getMethodReferenceReflect(String type, String methodName, String desc) {
-        Class<?> loadedClass = getLoadedClass(type);
-        if (loadedClass != null) {
-            for (Method m : loadedClass.getDeclaredMethods()) {
-                if (checkSameMethod(methodName, desc, m.getName(), Type.getMethodDescriptor(m))) {
-                    return new MethodReference(type, m.getName(), Type.getMethodDescriptor(m));
-                }
-            }
         }
         return null;
     }
@@ -117,40 +92,18 @@ public class ClassMetadataReader {
         Collections.reverse(superclasses);
         return superclasses;
     }
-
-    private Class<?> getLoadedClass(String type) {
-        if (m != null) {
-            try {
-                ClassLoader classLoader = ClassMetadataReader.class.getClassLoader();
-                return (Class<?>) m.invoke(classLoader, type.replace('/', '.'));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
     public String getSuperClass(String type) {
         try {
-            return getSuperClassASM(type);
-        } catch (Exception e) {
-            return getSuperClassReflect(type);
-        }
+			return getSuperClassASM(type);
+		} catch (Exception e) {
+			return null;
+		}
     }
-
+    
     protected String getSuperClassASM(String type) throws IOException {
         CheckSuperClassVisitor cv = new CheckSuperClassVisitor();
         acceptVisitor(type, cv);
         return cv.superClassName;
-    }
-
-    protected String getSuperClassReflect(String type) {
-        Class<?> loadedClass = getLoadedClass(type);
-        if (loadedClass != null) {
-            if (loadedClass.getSuperclass() == null) return null;
-            return loadedClass.getSuperclass().getName().replace('.', '/');
-        }
-        return "java/lang/Object";
     }
 
     private class CheckSuperClassVisitor extends ClassVisitor {
