@@ -7,11 +7,14 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
@@ -29,7 +32,7 @@ public class ProguardConf {
 	public final Path config;
 	public final Path mappings;
 	public final Path words;
-	public final Set<String> confStrs;
+	public final ArrayList<String> confStrs;
 	
 	public ProguardConf(LaunchServer srv) {
 		this.srv = srv;
@@ -37,14 +40,14 @@ public class ProguardConf {
 		config = proguard.resolve("proguard.config");
 		mappings = proguard.resolve("mappings.pro");
 		words = proguard.resolve("random.pro");
-		confStrs = new HashSet<>();
+		confStrs = new ArrayList<>();
 		prepare(false);
-		confStrs.add("@".concat(config.toString()));
 		if (this.srv.config.genMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
 		confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
-		confStrs.add("-injar \'../" + srv.config.binaryName + ".jar\'");
-		confStrs.add("-outjar \'../" + srv.config.binaryName + "-obf.jar\'");
+		confStrs.add("-injar \'" + Paths.get(".").toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + ".jar\'");
+		confStrs.add("-outjar \'" + Paths.get(".").toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + "-obf.jar\'");
 		confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
+		confStrs.add(readConf());
 
 	}
 
