@@ -8,8 +8,10 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import ru.gravit.launcher.LauncherAPI;
@@ -20,6 +22,8 @@ import ru.gravit.launcher.ssl.LauncherKeyStore;
 import ru.gravit.launcher.ssl.LauncherTrustManager;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.Response;
+import ru.gravit.launchserver.socket.websocket.WebSocketFrameHandler;
+import ru.gravit.launchserver.socket.websocket.WebSocketIndexPageHandler;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
@@ -44,6 +48,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
+    private static final String WEBSOCKET_PATH = "/api";
     private static SSLServerSocketFactory ssf;
     private static final ThreadFactory THREAD_FACTORY = r -> CommonHelper.newThread("Network Thread", true, r);
     @LauncherAPI
@@ -133,11 +138,15 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         public void initChannel(NioSocketChannel ch) throws Exception {
-                            ChannelPipeline p = ch.pipeline();
+                            ChannelPipeline pipeline = ch.pipeline();
                             //p.addLast(new LoggingHandler(LogLevel.INFO));
                             System.out.println("P!");
-                            p.addLast("httpServerCodec", new HttpServerCodec());
-                            p.addLast(new WebSocketServerProtocolHandler("/chat"));
+                            pipeline.addLast(new HttpServerCodec());
+                            pipeline.addLast(new HttpObjectAggregator(65536));
+                            pipeline.addLast(new WebSocketServerCompressionHandler());
+                            pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
+                            pipeline.addLast(new WebSocketIndexPageHandler(WEBSOCKET_PATH));
+                            pipeline.addLast(new WebSocketFrameHandler());
                         }
                     });
             ChannelFuture f = b.bind(server.config.getSocketAddress()).sync();
