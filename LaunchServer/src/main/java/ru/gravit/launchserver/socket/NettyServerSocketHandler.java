@@ -31,6 +31,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.channels.Selector;
@@ -100,7 +101,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
 
     @Override
     public void run() {
-        SSLContext sc = null;
+        /*SSLContext sc = null;
         try {
             sc = SSLContextInit();
         } catch (NoSuchAlgorithmException e) {
@@ -115,7 +116,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
             e.printStackTrace();
         } catch (CertificateException e) {
             e.printStackTrace();
-        }
+        }*/
         //System.setProperty( "javax.net.ssl.keyStore","keystore");
         //System.setProperty( "javax.net.ssl.keyStorePassword","PSP1000");
         try {
@@ -126,8 +127,8 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
             e.printStackTrace();
         }
         LogHelper.info("Starting server socket thread");
-        SSLEngine engine = sc.createSSLEngine();
-        engine.setUseClientMode(false);
+        //SSLEngine engine = sc.createSSLEngine();
+        //engine.setUseClientMode(false);
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -149,7 +150,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
                             pipeline.addLast(new WebSocketFrameHandler());
                         }
                     });
-            ChannelFuture f = b.bind(server.config.getSocketAddress()).sync();
+            ChannelFuture f = b.bind(new InetSocketAddress(9876)).sync(); //TEST ONLY!
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

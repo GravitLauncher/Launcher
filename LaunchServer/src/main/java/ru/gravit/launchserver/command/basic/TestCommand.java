@@ -2,6 +2,7 @@ package ru.gravit.launchserver.command.basic;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
+import ru.gravit.launchserver.socket.NettyServerSocketHandler;
 import ru.gravit.utils.HttpDownloader;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -11,7 +12,7 @@ public class TestCommand extends Command {
     public TestCommand(LaunchServer server) {
         super(server);
     }
-
+    NettyServerSocketHandler handler;
     @Override
     public String getArgsDescription() {
         return null;
@@ -25,8 +26,11 @@ public class TestCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args,1);
-        LogHelper.debug("start downloading");
-        HttpDownloader downloader =new HttpDownloader(new URL(args[0]),"test.html");
-        LogHelper.debug("end downloading");
+        if(handler == null)
+        handler = new NettyServerSocketHandler(server);
+        if(args[0].equals("start"))
+        {
+            handler.run();
+        }
     }
 }
