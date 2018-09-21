@@ -8,7 +8,6 @@ import java.security.cert.CertificateException;
 public class LauncherSSLContext {
     public SSLServerSocketFactory ssf;
     public SSLSocketFactory sf;
-    private SSLContext sc;
     public LauncherSSLContext(KeyStore ks,String keypassword) throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, UnrecoverableKeyException, KeyManagementException {
         TrustManager[] trustAllCerts = new TrustManager[] {
                 new LauncherTrustManager()

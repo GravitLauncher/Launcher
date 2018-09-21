@@ -2,7 +2,7 @@ package ru.gravit.launchserver.asm;
 
 import org.objectweb.asm.*;
 
-import launcher.helper.IOHelper;
+import ru.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

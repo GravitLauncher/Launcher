@@ -1,12 +1,7 @@
 package ru.gravit.launchserver.auth.provider;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
@@ -20,9 +15,6 @@ import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 
 public final class JsonAuthProvider extends AuthProvider {
-    private static final int TIMEOUT = Integer.parseInt(
-            System.getProperty("launcher.connection.timeout", Integer.toString(1500)));
-
     private final URL url;
     private final String userKeyName;
     private final String passKeyName;
