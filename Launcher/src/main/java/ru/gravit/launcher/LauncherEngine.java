@@ -67,7 +67,8 @@ import ru.gravit.launcher.serialize.stream.EnumSerializer;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 
 public class LauncherEngine {
-    @LauncherAPI
+	private static final boolean isUsingGuard = true;
+	
     public static void addLauncherClassBindings(Map<String, Object> bindings) {
         bindings.put("LauncherClass", Launcher.class);
         bindings.put("LauncherConfigClass", LauncherConfig.class);
@@ -188,7 +189,6 @@ public class LauncherEngine {
         addLauncherClassBindings(bindings);
     }
 
-    @LauncherAPI
     public void start(String... args) throws Throwable {
         Launcher.modulesManager = new ClientModuleManager(this);
         LauncherConfig.getAutogenConfig().initModules(); //INIT
@@ -205,9 +205,9 @@ public class LauncherEngine {
         LogHelper.info("Invoking start() function");
         Invocable invoker = (Invocable) engine;
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
-            AvanguardStarter.start((Path) invoker.invokeFunction("getPathDirHelper"));
+            AvanguardStarter.init((Path) invoker.invokeFunction("getPathDirHelper"));
             AvanguardStarter.loadVared();
-            AvanguardStarter.main(false);
+            if (isUsingGuard) AvanguardStarter.start();
         }
         Launcher.modulesManager.postInitModules();
         invoker.invokeFunction("start", (Object) args);

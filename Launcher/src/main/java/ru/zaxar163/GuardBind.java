@@ -1,10 +1,6 @@
 package ru.zaxar163;
 
-import java.nio.file.Path;
-
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
 
 @LauncherAPI
 public final class GuardBind {
@@ -73,29 +69,7 @@ public final class GuardBind {
 
     @LauncherAPI
     public static native int getCheckTime();
-
-    public static void init() {
-        LogHelper.debug("Anti-Cheat loading");
-        if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
-			if (JVMHelper.JVM_BITS == 32)
-				System.loadLibrary("Avanguard32");
-			else if (JVMHelper.JVM_BITS == 64)
-				System.loadLibrary("Avanguard64");
-        LogHelper.debug("Anti-Cheat loaded");
-    }
-
+    
     @LauncherAPI
     public static native void setCheckTime(int time);
-
-    public static void start(Path path) {
-        LogHelper.debug("Anti-Cheat loading");
-        System.load(path.normalize().toAbsolutePath().toFile().getAbsolutePath());
-        LogHelper.debug("Anti-Cheat loaded");
-    }
-
-    public static void startAbs(String path) {
-        LogHelper.debug("Anti-Cheat loading");
-        System.load(path);
-        LogHelper.debug("Anti-Cheat loaded");
-    }
 }
