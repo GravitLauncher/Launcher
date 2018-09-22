@@ -11,7 +11,7 @@ import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.LoaderClassPath;
-import ru.gravit.launcher.LauncherClassLoader;
+import ru.gravit.utils.PublicURLClassLoader;
 
 public class SystemClassLoaderTransformer implements ClassFileTransformer {
     @Override
@@ -24,11 +24,11 @@ public class SystemClassLoaderTransformer implements ClassFileTransformer {
         if(classname.startsWith("jdk/")) return bytes;
         try {
             ClassPool pool = ClassPool.getDefault();
-            pool.appendClassPath(new LoaderClassPath(LauncherClassLoader.systemclassloader));
+            pool.appendClassPath(new LoaderClassPath(PublicURLClassLoader.systemclassloader));
             pool.appendClassPath(new LoaderClassPath(classLoader));
             CtClass s1 = pool.get("java.lang.ClassLoader");
             CtMethod m11 = s1.getDeclaredMethod("getSystemClassLoader"); // Находим метод, который нам нужно заменить
-            CtClass s2 = pool.get(LauncherClassLoader.class.getName());
+            CtClass s2 = pool.get(PublicURLClassLoader.class.getName());
             CtMethod m21 = s2.getDeclaredMethod("getSystemClassLoader"); // Находим метод, на который мы будем заменять
             CodeConverter cc = new CodeConverter();
             cc.redirectMethodCall(m11, m21); // Указываем что на что нам нужно заменить

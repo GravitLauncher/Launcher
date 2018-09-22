@@ -9,7 +9,6 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherVersion;
 
 public final class CommonHelper {
     @LauncherAPI

@@ -1,7 +1,7 @@
 package ru.gravit.launcher.modules;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherClassLoader;
+import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -36,7 +36,7 @@ public class SimpleModuleManager implements ModulesManagerInterface,AutoCloseabl
         }
     }
     public ArrayList<Module> modules;
-    public LauncherClassLoader classloader;
+    public PublicURLClassLoader classloader;
     protected ModuleContext context;
 
     @LauncherAPI

@@ -1,12 +1,12 @@
 package ru.gravit.launcher.modules;
 
-import ru.gravit.launcher.LauncherVersion;
+import ru.gravit.utils.Version;
 
 public interface Module extends AutoCloseable {
 
     String getName();
 
-    LauncherVersion getVersion();
+    Version getVersion();
 
     int getPriority();
     void init(ModuleContext context);

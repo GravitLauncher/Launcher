@@ -3,9 +3,8 @@ package ru.gravit.launchserver.binary;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherVersion;
-import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launchserver.LaunchServer;
@@ -114,8 +113,8 @@ public final class EXEL4JLauncherBinary extends LauncherBinary {
 		// Return prepared config
 		ConfigPersister.getInstance().setAntConfig(config, null);
 	}
-	private static String VERSION = LauncherVersion.getVersion().getVersionString();
-	private static int BUILD = LauncherVersion.getVersion().build;
+	private static String VERSION = Launcher.getVersion().getVersionString();
+	private static int BUILD = Launcher.getVersion().build;
 	public static String formatVars(String mask)
 	{
 		return String.format(mask, VERSION, BUILD);

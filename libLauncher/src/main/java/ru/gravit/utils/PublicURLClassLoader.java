@@ -1,17 +1,17 @@
-package ru.gravit.launcher;
+package ru.gravit.utils;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.utils.helper.LogHelper;
 
-public class LauncherClassLoader extends URLClassLoader {
+public class PublicURLClassLoader extends URLClassLoader {
 	@LauncherAPI
     public static ClassLoader systemclassloader = ClassLoader.getSystemClassLoader();
     @LauncherAPI
     public static ClassLoader getSystemClassLoader()
     {
-        LogHelper.debug("Used FAKECLASSLOADER!!!!!!!!!");
         return systemclassloader;
     }
 
@@ -35,7 +35,7 @@ public class LauncherClassLoader extends URLClassLoader {
      * @throws NullPointerException if {@code urls} is {@code null}.
      * @see SecurityManager#checkCreateClassLoader
      */
-    public LauncherClassLoader(URL[] urls) {
+    public PublicURLClassLoader(URL[] urls) {
         super(urls);
     }
     /**
@@ -59,7 +59,7 @@ public class LauncherClassLoader extends URLClassLoader {
      * @throws NullPointerException if {@code urls} is {@code null}.
      * @see SecurityManager#checkCreateClassLoader
      */
-    public LauncherClassLoader(URL[] urls, ClassLoader parent) {
+    public PublicURLClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
     @Override

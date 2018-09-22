@@ -1,15 +1,15 @@
 package ru.gravit.launcher.server;
 
 import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherClassLoader;
+import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.launcher.modules.ModuleContext;
 import ru.gravit.launcher.modules.ModulesManagerInterface;
 
 public class ServerModuleContext implements ModuleContext {
-    public final LauncherClassLoader classLoader;
+    public final PublicURLClassLoader classLoader;
     public final ServerWrapper wrapper;
 
-    public ServerModuleContext(ServerWrapper wrapper, LauncherClassLoader classLoader) {
+    public ServerModuleContext(ServerWrapper wrapper, PublicURLClassLoader classLoader) {
         this.classLoader = classLoader;
         this.wrapper = wrapper;
     }

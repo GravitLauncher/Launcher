@@ -33,6 +33,7 @@ import ru.gravit.launcher.*;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.IOHelper;
@@ -161,7 +162,7 @@ public final class ClientLauncher {
     // Constants
     private static final Path NATIVES_DIR = IOHelper.toPath("natives");
     private static final Path RESOURCEPACKS_DIR = IOHelper.toPath("resourcepacks");
-    private static LauncherClassLoader classLoader;
+    private static PublicURLClassLoader classLoader;
     // Authlib constants
     @LauncherAPI
     public static final String SKIN_URL_PROPERTY = "skinURL";
@@ -222,7 +223,7 @@ public final class ClientLauncher {
         Collections.addAll(args, "--assetsDir", params.assetDir.toString());
         Collections.addAll(args, "--resourcePackDir", params.clientDir.resolve(RESOURCEPACKS_DIR).toString());
         if (version.compareTo(ClientProfile.Version.MC194) >= 0)
-			Collections.addAll(args, "--versionType", "Launcher v" + LauncherVersion.getVersion().getVersionString());
+			Collections.addAll(args, "--versionType", "Launcher v" + Launcher.getVersion().getVersionString());
 
         // Add server args
         if (params.autoEnter) {
@@ -451,9 +452,9 @@ public final class ClientLauncher {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
         }
         URL[] classpathurls = resolveClassPath(params.clientDir, profile.object.getClassPath());
-        classLoader = new LauncherClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
+        classLoader = new PublicURLClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
-        LauncherClassLoader.systemclassloader = classLoader;
+        PublicURLClassLoader.systemclassloader = classLoader;
         // Start client with WatchService monitoring
         boolean digest = !profile.object.isUpdateFastCheck();
         LogHelper.debug("Starting JVM and client WatchService");

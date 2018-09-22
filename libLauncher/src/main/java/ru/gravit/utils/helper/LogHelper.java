@@ -20,8 +20,8 @@ import org.fusesource.jansi.Ansi.Color;
 import org.fusesource.jansi.AnsiConsole;
 import org.fusesource.jansi.AnsiOutputStream;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherVersion;
 
 public final class LogHelper {
     @LauncherAPI
@@ -234,8 +234,8 @@ public final class LogHelper {
         return new Ansi().bold(). // Setup
                 fgBright(Color.MAGENTA).a("sashok724's "). // sashok724's
                 fgBright(Color.CYAN).a(product). // Product
-                fgBright(Color.WHITE).a(" v").fgBright(Color.BLUE).a(LauncherVersion.getVersion().toString()). // Version
-                fgBright(Color.WHITE).a(" (build #").fgBright(Color.RED).a(LauncherVersion.getVersion().build).fgBright(Color.WHITE).a(')'). // Build#
+                fgBright(Color.WHITE).a(" v").fgBright(Color.BLUE).a(Launcher.getVersion().toString()). // Version
+                fgBright(Color.WHITE).a(" (build #").fgBright(Color.RED).a(Launcher.getVersion().build).fgBright(Color.WHITE).a(')'). // Build#
                 reset().toString(); // To string
     }
 
@@ -247,7 +247,7 @@ public final class LogHelper {
     }
 
     private static String formatVersion(String product) {
-        return String.format("sashok724's %s v%s", product, LauncherVersion.getVersion().toString());
+        return String.format("sashok724's %s v%s", product, Launcher.getVersion().toString());
     }
 
     static {

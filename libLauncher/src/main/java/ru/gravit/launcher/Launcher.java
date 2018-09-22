@@ -9,23 +9,22 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
+import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.launcher.modules.ModulesManagerInterface;
 import ru.gravit.launcher.serialize.HInput;
 
 public final class Launcher {
+
+    static int readBuildNumber() {
+        try {
+            return Integer.valueOf(IOHelper.request(IOHelper.getResourceURL("buildnumber")));
+        } catch (IOException ignored) {
+            return 0; // Maybe dev env?
+        }
+    }
     private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
-    // Version info
-    //Все версии оригинального Sashok Launcher v3 считаются как 3.xx.xx, например 3.15.3 3.15.4
-    //Все версии модификации считаются так: 3.16.xx Например 3.16.5 для коммита от 20 Августа
-    @Deprecated
-    @LauncherAPI
-    public static final String VERSION = LauncherVersion.getVersion().getVersionString();
-    @Deprecated
-    @LauncherAPI
-    public static final String BUILD = String.valueOf(LauncherVersion.readBuildNumber());
-    //Начиная с 4.0.0 PROTOCOL_MAGIC изменит свою форму
     @LauncherAPI
     public static ModulesManagerInterface modulesManager = null;
     @LauncherAPI
@@ -44,6 +43,11 @@ public final class Launcher {
     public static final String API_SCRIPT_FILE = "engine/api.js";
 
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
+    public static int MAJOR = 4;
+    public static int MINOR = 0;
+    public static int PATCH = 0;
+    public static int BUILD = readBuildNumber();
+    public static Version.Type RELEASE = Version.Type.DEV;
 
     @LauncherAPI
     public static LauncherConfig getConfig() {
@@ -76,14 +80,11 @@ public final class Launcher {
     }
 
     @LauncherAPI
-    @SuppressWarnings({"SameReturnValue", "MethodReturnAlwaysConstant"})
-    public static String getVersion() {
-        return LauncherVersion.getVersion().toString(); // Because Java constants are known at compile-time
-    }
-
-    @LauncherAPI
     public static String toHash(UUID uuid) {
         return UUID_PATTERN.matcher(uuid.toString()).replaceAll("");
     }
 
+    public static Version getVersion() {
+        return new Version(MAJOR,MINOR,PATCH,BUILD,RELEASE);
+    }
 }

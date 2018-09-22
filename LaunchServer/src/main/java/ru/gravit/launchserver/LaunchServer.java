@@ -29,8 +29,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherVersion;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
@@ -196,9 +196,9 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             trademarks = block.hasEntry("trademarks") ? block.getEntryValue("trademarks", StringConfigEntry.class)
                     : "This product is licensed under MIT License";
             txtFileVersion = block.hasEntry("txtFileVersion") ? block.getEntryValue("txtFileVersion", StringConfigEntry.class)
-                    : String.format("%s, build %d", LauncherVersion.getVersion().getVersionString(),LauncherVersion.getVersion().build);
+                    : String.format("%s, build %d", Launcher.getVersion().getVersionString(), Launcher.getVersion().build);
             txtProductVersion = block.hasEntry("txtProductVersion") ? block.getEntryValue("txtProductVersion", StringConfigEntry.class)
-                    : String.format("%s, build %d", LauncherVersion.getVersion().getVersionString(),LauncherVersion.getVersion().build);
+                    : String.format("%s, build %d", Launcher.getVersion().getVersionString(), Launcher.getVersion().build);
         }
     }
     private final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {

@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.modules;
 
-import ru.gravit.launcher.LauncherVersion;
+import ru.gravit.launcher.Launcher;
+import ru.gravit.utils.Version;
 import ru.gravit.launcher.modules.Module;
 import ru.gravit.launcher.modules.ModuleContext;
 
@@ -16,8 +17,8 @@ public class CoreModule implements Module {
 	}
 
 	@Override
-	public LauncherVersion getVersion() {
-		return LauncherVersion.getVersion();
+	public Version getVersion() {
+		return Launcher.getVersion();
 	}
 
 	@Override

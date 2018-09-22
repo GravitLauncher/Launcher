@@ -1,7 +1,8 @@
 package ru.gravit.launcher.modules;
 
 
-import ru.gravit.launcher.LauncherVersion;
+import ru.gravit.launcher.Launcher;
+import ru.gravit.utils.Version;
 
 public class TestClientModule implements Module {
     @Override
@@ -15,8 +16,8 @@ public class TestClientModule implements Module {
     }
 
     @Override
-    public LauncherVersion getVersion() {
-        return LauncherVersion.getVersion();
+    public Version getVersion() {
+        return Launcher.getVersion();
     }
 
     @Override
