@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.LauncherVersion;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -91,15 +92,15 @@ public final class EXEL4JLauncherBinary extends LauncherBinary {
 		// Prepare version info (product)
 		VersionInfo info = new VersionInfo();
 		info.setProductName(server.config.launch4j.productName);
-		info.setProductVersion(CommonHelper.formatVars(server.config.launch4j.productVer));
+		info.setProductVersion(formatVars(server.config.launch4j.productVer));
 		info.setFileDescription(server.config.launch4j.fileDesc);
-		info.setFileVersion(CommonHelper.formatVars(server.config.launch4j.fileVer));
+		info.setFileVersion(formatVars(server.config.launch4j.fileVer));
 		info.setCopyright(server.config.launch4j.copyright);
 		info.setTrademarks(server.config.launch4j.trademarks);
-		info.setInternalName(CommonHelper.formatVars(server.config.launch4j.internalName));
+		info.setInternalName(formatVars(server.config.launch4j.internalName));
 		// Prepare version info (file)
-		info.setTxtFileVersion(CommonHelper.formatVars(server.config.launch4j.txtFileVersion));
-		info.setTxtProductVersion(CommonHelper.formatVars(server.config.launch4j.txtProductVersion));
+		info.setTxtFileVersion(formatVars(server.config.launch4j.txtFileVersion));
+		info.setTxtProductVersion(formatVars(server.config.launch4j.txtProductVersion));
 		// Prepare version info (misc)
 		info.setOriginalFilename(binaryFile.getFileName().toString());
 		info.setLanguage(LanguageID.RUSSIAN);
@@ -112,5 +113,11 @@ public final class EXEL4JLauncherBinary extends LauncherBinary {
 
 		// Return prepared config
 		ConfigPersister.getInstance().setAntConfig(config, null);
+	}
+	private static String VERSION = LauncherVersion.getVersion().getVersionString();
+	private static int BUILD = LauncherVersion.getVersion().build;
+	public static String formatVars(String mask)
+	{
+		return String.format(mask, VERSION, BUILD);
 	}
 }

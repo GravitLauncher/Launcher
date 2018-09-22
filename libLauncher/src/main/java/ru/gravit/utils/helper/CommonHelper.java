@@ -13,18 +13,9 @@ import ru.gravit.launcher.LauncherVersion;
 
 public final class CommonHelper {
     @LauncherAPI
-    public static final String VERSIONREPLACE = "VERSION";
-    @LauncherAPI
-    public static final String BUILDREPLACE = "BUILDNUMBER";
-    @LauncherAPI
     public static final ScriptEngineManager scriptManager = new ScriptEngineManager();
     @LauncherAPI
     public static final ScriptEngineFactory nashornFactory = getEngineFactories(scriptManager);
-
-    @LauncherAPI
-    public static String formatVars(String in) {
-        return replace(in, VERSIONREPLACE , LauncherVersion.getVersion().getVersionString(), BUILDREPLACE, Integer.toString(LauncherVersion.BUILD));
-    }
 
     private static ScriptEngineFactory getEngineFactories(ScriptEngineManager manager) {
         // Метод похож на костыль но таковым не является, ибо единоразовое получение фактории быстрее, чем её переполучение на ходу.
