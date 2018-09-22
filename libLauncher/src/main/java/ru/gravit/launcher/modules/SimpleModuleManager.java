@@ -44,6 +44,7 @@ public class SimpleModuleManager implements ModulesManagerInterface,AutoCloseabl
         LogHelper.info("Load modules");
         if (Files.notExists(dir)) Files.createDirectory(dir);
         IOHelper.walk(dir, new ModulesVisitor(), true);
+        sort();
         LogHelper.info("Loaded %d modules", modules.size());
     }
 

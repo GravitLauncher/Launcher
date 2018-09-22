@@ -40,7 +40,7 @@ public final class BatchProfileByUsernameRequest extends Request<PlayerProfile[]
         output.writeLength(usernames.length, SerializeLimits.MAX_BATCH_SIZE);
         for (String username : usernames) {
             output.writeString(username, SerializeLimits.MAX_LOGIN);
-            output.writeString("", SerializeLimits.MAX_CLIENT); //TODO: Что это за запрос и для чего он нужен?
+            output.writeString("", SerializeLimits.MAX_CLIENT);
         }
         output.flush();
 
