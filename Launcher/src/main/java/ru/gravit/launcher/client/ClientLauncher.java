@@ -6,7 +6,7 @@ import java.lang.ProcessBuilder.Redirect;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.net.URL;
+import java.net.*;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -303,12 +303,32 @@ public final class ClientLauncher {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
         Path paramsFile = Files.createTempFile("ClientLauncherParams", ".bin");
-        try (HOutput output = new HOutput(IOHelper.newOutput(paramsFile))) {
-            params.write(output);
-            profile.write(output);
-            assetHDir.write(output);
-            clientHDir.write(output);
-        }
+        CommonHelper.newThread("Client params writter",false,() ->
+        {
+            try {
+                try (ServerSocket socket = new ServerSocket()) {
+                    socket.setReuseAddress(true);
+                    socket.bind(new InetSocketAddress("127.0.0.1", 54983));
+                    Socket client = socket.accept();
+                    try (HOutput output = new HOutput(client.getOutputStream())) {
+                        params.write(output);
+                        profile.write(output);
+                        assetHDir.write(output);
+                        clientHDir.write(output);
+                    }
+                }
+            } catch (IOException e) {
+                LogHelper.error(e);
+                try (HOutput output = new HOutput(IOHelper.newOutput(paramsFile))) {
+                    params.write(output);
+                    profile.write(output);
+                    assetHDir.write(output);
+                    clientHDir.write(output);
+                } catch (IOException e1) {
+                    LogHelper.error(e1);
+                }
+            }
+        }).start();
         // Resolve java bin and set permissions
         LogHelper.debug("Resolving JVM binary");
         //Path javaBin = IOHelper.resolveJavaBin(jvmDir);
@@ -394,16 +414,33 @@ public final class ClientLauncher {
         SignedObjectHolder<ClientProfile> profile;
         SignedObjectHolder<HashedDir> assetHDir, clientHDir;
         RSAPublicKey publicKey = Launcher.getConfig().publicKey;
-        try (HInput input = new HInput(IOHelper.newInput(paramsFile))) {
-            params = new Params(input);
-            profile = new SignedObjectHolder<>(input, publicKey, ClientProfile.RO_ADAPTER);
+        try {
+            try (Socket socket = IOHelper.newSocket()) {
+                socket.connect(new InetSocketAddress("127.0.0.1", 54983));
+                try (HInput input = new HInput(socket.getInputStream())) {
+                    params = new Params(input);
+                    profile = new SignedObjectHolder<>(input, publicKey, ClientProfile.RO_ADAPTER);
 
-            // Read hdirs
-            assetHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
-            clientHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
-        } finally {
-            Files.delete(paramsFile);
+                    // Read hdirs
+                    assetHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
+                    clientHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
+                }
+            }
+        } catch (IOException ex)
+        {
+            LogHelper.error(ex);
+            try (HInput input = new HInput(IOHelper.newInput(paramsFile))) {
+                params = new Params(input);
+                profile = new SignedObjectHolder<>(input, publicKey, ClientProfile.RO_ADAPTER);
+
+                // Read hdirs
+                assetHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
+                clientHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
+            } finally {
+                Files.delete(paramsFile);
+            }
         }
+
         title = params.title;
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
