@@ -79,7 +79,6 @@ public class AvanguardStarter {
             return false;
         });
         // нужно делать до пуска таймера!
-        GuardBind.setCheckTime(3000);
         GuardBind.avnStartDefence();
         CommonHelper.newThread("Security Thread", true, new SecurityThread()).start();
     }

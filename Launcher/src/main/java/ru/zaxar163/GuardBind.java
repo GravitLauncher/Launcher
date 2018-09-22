@@ -71,9 +71,6 @@ public final class GuardBind {
     @LauncherAPI
     public static native void avnStopDefence();
 
-    @LauncherAPI
-    public static native int getCheckTime();
-
     public static void init() {
         LogHelper.debug("Anti-Cheat loading");
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
@@ -83,9 +80,6 @@ public final class GuardBind {
 				System.loadLibrary("Avanguard64");
         LogHelper.debug("Anti-Cheat loaded");
     }
-
-    @LauncherAPI
-    public static native void setCheckTime(int time);
 
     public static void start(Path path) {
         LogHelper.debug("Anti-Cheat loading");
