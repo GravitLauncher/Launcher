@@ -1,4 +1,14 @@
+# project is java
 language: java
+# Use https (public access) instead of git for git-submodules. This modifies only Travis-CI behavior!
+# disable the default submodule logic
+git:
+  submodules: false
+# use sed to replace the SSH URL with the public URL, then init and update submodules
+before_install:
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
+# gradle
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -8,5 +18,6 @@ cache:
     - $HOME/.gradle/wrapper/
 script:
     - ./gradlew assemble build
+# not working artifacts
 addons:
-  artifacts: true
+  artifacts: false
