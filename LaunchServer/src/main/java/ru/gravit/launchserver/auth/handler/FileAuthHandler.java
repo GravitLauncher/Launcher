@@ -37,7 +37,7 @@ public abstract class FileAuthHandler extends AuthHandler {
             if (input.readBoolean()) {
                 accessToken = SecurityHelper.verifyToken(input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH));
                 if (input.readBoolean())
-					serverID = VerifyHelper.verifyServerID(input.readASCII(41));
+                    serverID = VerifyHelper.verifyServerID(input.readASCII(41));
             }
         }
 
@@ -50,7 +50,7 @@ public abstract class FileAuthHandler extends AuthHandler {
         public Entry(String username, String accessToken, String serverID) {
             this(username);
             if (accessToken == null && serverID != null)
-				throw new IllegalArgumentException("Can't set access token while server ID is null");
+                throw new IllegalArgumentException("Can't set access token while server ID is null");
 
             // Set and verify access token
             this.accessToken = accessToken == null ? null : SecurityHelper.verifyToken(accessToken);
@@ -84,7 +84,7 @@ public abstract class FileAuthHandler extends AuthHandler {
 
         private boolean joinServer(String username, String accessToken, String serverID) {
             if (!username.equals(this.username) || !accessToken.equals(this.accessToken))
-				return false; // Username or access token mismatch
+                return false; // Username or access token mismatch
 
             // Update server ID
             this.serverID = serverID;
@@ -99,10 +99,11 @@ public abstract class FileAuthHandler extends AuthHandler {
                 output.writeASCII(accessToken, -SecurityHelper.TOKEN_STRING_LENGTH);
                 output.writeBoolean(serverID != null);
                 if (serverID != null)
-					output.writeASCII(serverID, 41);
+                    output.writeASCII(serverID, 41);
             }
         }
     }
+
     @LauncherAPI
     public final Path file;
     @LauncherAPI
@@ -143,7 +144,7 @@ public abstract class FileAuthHandler extends AuthHandler {
         try {
             Entry previous = entryMap.put(uuid, entry);
             if (previous != null)
-				usernamesMap.remove(CommonHelper.low(previous.username));
+                usernamesMap.remove(CommonHelper.low(previous.username));
             usernamesMap.put(CommonHelper.low(entry.username), uuid);
         } finally {
             lock.writeLock().unlock();
@@ -210,15 +211,15 @@ public abstract class FileAuthHandler extends AuthHandler {
         if (offlineUUIDs) {
             UUID md5UUID = PlayerProfile.offlineUUID(username);
             if (!entryMap.containsKey(md5UUID))
-				return md5UUID;
+                return md5UUID;
             LogHelper.warning("Offline UUID collision, using random: '%s'", username);
         }
 
         // Pick random UUID
         UUID uuid;
         do
-			uuid = new UUID(random.nextLong(), random.nextLong());
-		while (entryMap.containsKey(uuid));
+            uuid = new UUID(random.nextLong(), random.nextLong());
+        while (entryMap.containsKey(uuid));
         return uuid;
     }
 

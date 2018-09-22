@@ -15,9 +15,6 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketSe
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.hasher.HashedEntry;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.ssl.LauncherKeyStore;
 import ru.gravit.launcher.ssl.LauncherTrustManager;
 import ru.gravit.launchserver.LaunchServer;
@@ -55,8 +52,6 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     @LauncherAPI
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
 
-    // Instance
-    private final LaunchServer server;
     private final AtomicReference<ServerSocket> serverSocket = new AtomicReference<>();
     private final ExecutorService threadPool = Executors.newCachedThreadPool(THREAD_FACTORY);
 
@@ -64,12 +59,11 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private final Map<String, Response.Factory> customResponses = new ConcurrentHashMap<>(2);
     private final AtomicLong idCounter = new AtomicLong(0L);
     private Set<Socket> sockets;
-    private Selector selector;
-    private ServerSocketChannel serverChannel;
     private volatile Listener listener;
 
     public NettyServerSocketHandler(LaunchServer server) {
-        this.server = server;
+        // Instance
+        LaunchServer server1 = server;
     }
 
     @Override
@@ -86,10 +80,10 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     }
 
     public SSLContext SSLContextInit() throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, IOException, CertificateException {
-        TrustManager[] trustAllCerts = new TrustManager[] {
+        TrustManager[] trustAllCerts = new TrustManager[]{
                 new LauncherTrustManager()
         };
-        KeyStore ks = LauncherKeyStore.getKeyStore("keystore","PSP1000");
+        KeyStore ks = LauncherKeyStore.getKeyStore("keystore", "PSP1000");
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory
                 .getDefaultAlgorithm());
@@ -120,8 +114,8 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
         //System.setProperty( "javax.net.ssl.keyStore","keystore");
         //System.setProperty( "javax.net.ssl.keyStorePassword","PSP1000");
         try {
-            selector = Selector.open();
-            serverChannel = ServerSocketChannel.open();
+            Selector selector = Selector.open();
+            ServerSocketChannel serverChannel = ServerSocketChannel.open();
             serverChannel.configureBlocking(false);
         } catch (IOException e) {
             e.printStackTrace();
@@ -138,7 +132,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
                     .handler(new LoggingHandler(LogLevel.DEBUG))
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
-                        public void initChannel(NioSocketChannel ch) throws Exception {
+                        public void initChannel(NioSocketChannel ch) {
                             ChannelPipeline pipeline = ch.pipeline();
                             //p.addLast(new LoggingHandler(LogLevel.INFO));
                             System.out.println("P!");
@@ -198,7 +192,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     public void registerCustomResponse(String name, Response.Factory factory) {
         VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(customResponses, name, Objects.requireNonNull(factory, "factory"),
-            String.format("Custom response has been already registered: '%s'", name));
+                String.format("Custom response has been already registered: '%s'", name));
     }
 
     @LauncherAPI

@@ -15,6 +15,7 @@ public abstract class ConfigEntry<V> extends StreamObject {
     public enum Type implements Itf {
         BLOCK(1), BOOLEAN(2), INTEGER(3), STRING(4), LIST(5);
         private static final EnumSerializer<Type> SERIALIZER = new EnumSerializer<>(Type.class);
+
         public static Type read(HInput input) throws IOException {
             return SERIALIZER.read(input);
         }
@@ -30,6 +31,7 @@ public abstract class ConfigEntry<V> extends StreamObject {
             return n;
         }
     }
+
     protected static ConfigEntry<?> readEntry(HInput input, boolean ro) throws IOException {
         Type type = Type.read(input);
         switch (type) {
@@ -47,6 +49,7 @@ public abstract class ConfigEntry<V> extends StreamObject {
                 throw new AssertionError("Unsupported config entry type: " + type.name());
         }
     }
+
     protected static void writeEntry(ConfigEntry<?> entry, HOutput output) throws IOException {
         EnumSerializer.write(output, entry.getType());
         entry.write(output);
@@ -67,13 +70,13 @@ public abstract class ConfigEntry<V> extends StreamObject {
 
     protected final void ensureWritable() {
         if (ro)
-			throw new UnsupportedOperationException("Read-only");
+            throw new UnsupportedOperationException("Read-only");
     }
 
     @LauncherAPI
     public final String getComment(int i) {
         if (i < 0)
-			i += comments.length;
+            i += comments.length;
         return i >= comments.length ? null : comments[i];
     }
 

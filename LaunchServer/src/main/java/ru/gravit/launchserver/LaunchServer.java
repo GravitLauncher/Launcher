@@ -166,6 +166,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             VerifyHelper.verify(getAddress(), VerifyHelper.NOT_EMPTY, "LaunchServer address can't be empty");
         }
     }
+
     public static class ExeConf extends ConfigObject {
         public final boolean enabled;
         public String productName;
@@ -201,6 +202,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
                     : String.format("%s, build %d", Launcher.getVersion().getVersionString(), Launcher.getVersion().build);
         }
     }
+
     private final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
         private final Collection<SignedObjectHolder<ClientProfile>> result;
 
@@ -224,6 +226,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             return super.visitFile(file, attrs);
         }
     }
+
     public static class SignConf extends ConfigObject {
         public final boolean enabled;
         public String algo;
@@ -233,22 +236,24 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         public boolean hasPass;
         public String pass;
         public String keyalias;
+
         private SignConf(BlockConfigEntry block, Path coredir) {
             super(block);
             enabled = block.getEntryValue("enabled", BooleanConfigEntry.class);
             storepass = null;
             pass = null;
             if (enabled) {
-            	algo = block.hasEntry("storeType") ? block.getEntryValue("storeType", StringConfigEntry.class) : "JKS";
-            	key =  coredir.resolve(block.getEntryValue("keyFile", StringConfigEntry.class));
-            	hasStorePass = block.hasEntry("keyStorePass");
-            	if (hasStorePass) storepass = block.getEntryValue("keyStorePass", StringConfigEntry.class);
-            	keyalias = block.getEntryValue("keyAlias", StringConfigEntry.class);
-            	hasPass = block.hasEntry("keyPass");
-            	if (hasPass) pass = block.getEntryValue("keyPass", StringConfigEntry.class);
+                algo = block.hasEntry("storeType") ? block.getEntryValue("storeType", StringConfigEntry.class) : "JKS";
+                key = coredir.resolve(block.getEntryValue("keyFile", StringConfigEntry.class));
+                hasStorePass = block.hasEntry("keyStorePass");
+                if (hasStorePass) storepass = block.getEntryValue("keyStorePass", StringConfigEntry.class);
+                keyalias = block.getEntryValue("keyAlias", StringConfigEntry.class);
+                hasPass = block.hasEntry("keyPass");
+                if (hasPass) pass = block.getEntryValue("keyPass", StringConfigEntry.class);
             }
         }
     }
+
     public static void main(String... args) throws Throwable {
         JVMHelper.verifySystemProperties(LaunchServer.class, true);
         LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
@@ -267,6 +272,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         Instant end = Instant.now();
         LogHelper.debug("LaunchServer started in %dms", Duration.between(start, end).toMillis());
     }
+
     // Constant paths
     @LauncherAPI
     public final Path dir;
@@ -317,7 +323,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     @LauncherAPI
     public final ServerSocketHandler serverSocketHandler;
 
-	private final AtomicBoolean started = new AtomicBoolean(false);
+    private final AtomicBoolean started = new AtomicBoolean(false);
 
     // Updates and profiles
     private volatile List<SignedObjectHolder<ClientProfile>> profilesList;
@@ -346,9 +352,9 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         // Set command handler
         CommandHandler localCommandHandler;
         if (portable)
-			localCommandHandler = new StdCommandHandler(this, false);
-		else
-			try {
+            localCommandHandler = new StdCommandHandler(this, false);
+        else
+            try {
                 Class.forName("jline.Terminal");
 
                 // JLine2 available
@@ -366,7 +372,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             publicKey = SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile));
             privateKey = SecurityHelper.toPrivateRSAKey(IOHelper.read(privateKeyFile));
             if (!publicKey.getModulus().equals(privateKey.getModulus()))
-				throw new IOException("Private and public key modulus mismatch");
+                throw new IOException("Private and public key modulus mismatch");
         } else {
             LogHelper.info("Generating RSA keypair");
             KeyPair pair = SecurityHelper.genRSAKeyPair();
@@ -383,12 +389,12 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         CRC32 crc = new CRC32();
         crc.update(publicKey.getModulus().toByteArray());
         LogHelper.subInfo("Modulus CRC32: 0x%08x", crc.getValue());
-        
+
         // pre init modules
         modulesManager = new ModulesManager(this);
         modulesManager.autoload(dir.resolve("modules"));
         modulesManager.preInitModules();
-        
+
         // Read LaunchServer config
         generateConfigIfNotExists();
         LogHelper.info("Reading LaunchServer config file");
@@ -404,7 +410,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         sessionManager = new SessionManager();
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
-        
+
         // init modules
         modulesManager.initModules();
 
@@ -415,25 +421,25 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         // Sync updates dir
         if (!IOHelper.isDir(updatesDir))
-			Files.createDirectory(updatesDir);
+            Files.createDirectory(updatesDir);
         syncUpdatesDir(null);
 
         // Sync profiles dir
         if (!IOHelper.isDir(profilesDir))
-			Files.createDirectory(profilesDir);
+            Files.createDirectory(profilesDir);
         syncProfilesDir();
 
 
         // Set server socket thread
         serverSocketHandler = new ServerSocketHandler(this, sessionManager);
-        
+
         // post init modules
         modulesManager.postInitModules();
     }
 
     private LauncherBinary binary() {
-    	if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
-		return new EXELauncherBinary(this);
+        if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
+        return new EXELauncherBinary(this);
     }
 
     @LauncherAPI
@@ -462,11 +468,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         } catch (IOException e) {
             LogHelper.error(e);
         }
-        try {
-            config.hwidHandler.close();
-        } catch (IOException e) {
-            LogHelper.error(e);
-        }
+        config.hwidHandler.close();
         modulesManager.close();
         // Print last message before death :(
         LogHelper.info("LaunchServer stopped");
@@ -474,7 +476,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     private void generateConfigIfNotExists() throws IOException {
         if (IOHelper.isFile(configFile))
-			return;
+            return;
 
         // Create new config
         LogHelper.info("Creating LaunchServer config");
@@ -524,7 +526,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     @Override
     public void run() {
         if (started.getAndSet(true))
-			throw new IllegalStateException("LaunchServer has been already started");
+            throw new IllegalStateException("LaunchServer has been already started");
 
         // Add shutdown hook, then start LaunchServer
         if (!portable) {
@@ -548,7 +550,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             LogHelper.warning("Missing launcher EXE binary file");
 
     }
-    
+
     @LauncherAPI
     public void syncProfilesDir() throws IOException {
         LogHelper.info("Syncing profiles dir");
@@ -559,7 +561,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         newProfies.sort(Comparator.comparing(a -> a.object));
         profilesList = Collections.unmodifiableList(newProfies);
     }
-    
+
     @LauncherAPI
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
         LogHelper.info("Syncing updates dir");
@@ -567,7 +569,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(updatesDir)) {
             for (Path updateDir : dirStream) {
                 if (Files.isHidden(updateDir))
-					continue; // Skip hidden
+                    continue; // Skip hidden
 
                 // Resolve name and verify is dir
                 String name = IOHelper.getFileName(updateDir);

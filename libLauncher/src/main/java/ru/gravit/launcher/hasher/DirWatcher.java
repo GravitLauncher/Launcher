@@ -30,7 +30,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
         public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
             FileVisitResult result = super.postVisitDirectory(dir, exc);
             if (!DirWatcher.this.dir.equals(dir))
-				path.removeLast();
+                path.removeLast();
             return result;
         }
 
@@ -63,15 +63,18 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     private static final Kind<?>[] KINDS = {
             StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
     };
+
     private static void handleError(Throwable e) {
         LogHelper.error(e);
     }
+
     private static Deque<String> toPath(Iterable<Path> path) {
         Deque<String> result = new LinkedList<>();
         for (Path pe : path)
-			result.add(pe.toString());
+            result.add(pe.toString());
         return result;
     }
+
     // Instance
     private final Path dir;
     private final HashedDir hdir;
@@ -107,7 +110,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
             Kind<?> kind = event.kind();
             if (kind.equals(StandardWatchEventKinds.OVERFLOW)) {
                 if (Boolean.getBoolean("launcher.dirwatcher.ignoreOverflows"))
-					continue; // Sometimes it's better to ignore than interrupt fair playing
+                    continue; // Sometimes it's better to ignore than interrupt fair playing
                 throw new IOException("Overflow");
             }
 
@@ -116,13 +119,13 @@ public final class DirWatcher implements Runnable, AutoCloseable {
             LogHelper.subInfo("DirWatcher event %s", path.toString());
             Deque<String> stringPath = toPath(dir.relativize(path));
             if (matcher != null && !matcher.shouldVerify(stringPath))
-				continue; // Exclusion; should not be verified
+                continue; // Exclusion; should not be verified
 
             // Verify is REALLY modified (not just attributes)
             if (kind.equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
                 HashedEntry entry = hdir.resolve(stringPath);
                 if (entry != null && (entry.getType() != Type.FILE || ((HashedFile) entry).isSame(path, digest)))
-					continue; // Modified attributes, not need to worry :D
+                    continue; // Modified attributes, not need to worry :D
             }
 
             // Forbidden modification!
@@ -133,7 +136,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
 
     private void processLoop() throws IOException, InterruptedException {
         while (!Thread.interrupted())
-			processKey(service.take());
+            processKey(service.take());
     }
 
     @Override

@@ -62,10 +62,11 @@ public final class ClientLauncher {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (IOHelper.hasExtension(file, "jar") || IOHelper.hasExtension(file, "zip"))
-				result.add(file);
+                result.add(file);
             return super.visitFile(file, attrs);
         }
     }
+
     public static final class Params extends StreamObject {
         // Client paths
         @LauncherAPI
@@ -147,6 +148,7 @@ public final class ClientLauncher {
             output.writeVarInt(height);
         }
     }
+
     private static final String[] EMPTY_ARRAY = new String[0];
     private static final String MAGICAL_INTEL_OPTION = "-XX:HeapDumpPath=ThisTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
     private static final boolean isUsingWrapper = true;
@@ -215,7 +217,7 @@ public final class ClientLauncher {
                 Collections.addAll(args, "--assetIndex", profile.getAssetIndex());
             }
         } else
-			Collections.addAll(args, "--session", params.accessToken);
+            Collections.addAll(args, "--session", params.accessToken);
 
         // Add version and dirs args
         Collections.addAll(args, "--version", profile.getVersion().name);
@@ -223,7 +225,7 @@ public final class ClientLauncher {
         Collections.addAll(args, "--assetsDir", params.assetDir.toString());
         Collections.addAll(args, "--resourcePackDir", params.clientDir.resolve(RESOURCEPACKS_DIR).toString());
         if (version.compareTo(ClientProfile.Version.MC194) >= 0)
-			Collections.addAll(args, "--versionType", "Launcher v" + Launcher.getVersion().getVersionString());
+            Collections.addAll(args, "--versionType", "Launcher v" + Launcher.getVersion().getVersionString());
 
         // Add server args
         if (params.autoEnter) {
@@ -233,7 +235,7 @@ public final class ClientLauncher {
 
         // Add window size args
         if (params.fullScreen)
-			Collections.addAll(args, "--fullscreen", Boolean.toString(true));
+            Collections.addAll(args, "--fullscreen", Boolean.toString(true));
         if (params.width > 0 && params.height > 0) {
             Collections.addAll(args, "--width", Integer.toString(params.width));
             Collections.addAll(args, "--height", Integer.toString(params.height));
@@ -249,6 +251,7 @@ public final class ClientLauncher {
         Collections.addAll(args, "--gameDir", params.clientDir.toString());
         Collections.addAll(args, "--assetsDir", params.assetDir.toString());
     }
+
     @LauncherAPI
     public static void checkJVMBitsAndVersion() {
         if (JVMHelper.JVM_BITS != JVMHelper.OS_BITS) {
@@ -264,6 +267,7 @@ public final class ClientLauncher {
             JOptionPane.showMessageDialog(null, error);
         }
     }
+
     @LauncherAPI
     public static boolean isLaunched() {
         return LAUNCHED.get();
@@ -281,9 +285,9 @@ public final class ClientLauncher {
         // Add client args
         Collection<String> args = new LinkedList<>();
         if (profile.getVersion().compareTo(ClientProfile.Version.MC164) >= 0)
-			addClientArgs(args, profile, params);
-		else
-			addClientLegacyArgs(args, profile, params);
+            addClientArgs(args, profile, params);
+        else
+            addClientLegacyArgs(args, profile, params);
         Collections.addAll(args, profile.getClientArgs());
         LogHelper.debug("Args: " + args);
         // Resolve main class and method
@@ -304,7 +308,7 @@ public final class ClientLauncher {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
         Path paramsFile = Files.createTempFile("ClientLauncherParams", ".bin");
-        CommonHelper.newThread("Client params writter",false,() ->
+        CommonHelper.newThread("Client params writter", false, () ->
         {
             try {
                 try (ServerSocket socket = new ServerSocket()) {
@@ -333,13 +337,14 @@ public final class ClientLauncher {
         // Resolve java bin and set permissions
         LogHelper.debug("Resolving JVM binary");
         //Path javaBin = IOHelper.resolveJavaBin(jvmDir);
-		checkJVMBitsAndVersion();
+        checkJVMBitsAndVersion();
         // Fill CLI arguments
         List<String> args = new LinkedList<>();
         boolean wrapper = isUsingWrapper();
         Path javaBin;
-        if (wrapper) javaBin = JVMHelper.JVM_BITS == 64 ? AvanguardStarter.wrap64: AvanguardStarter.wrap32;
-        else javaBin = Paths.get(System.getProperty("java.home") + IOHelper.PLATFORM_SEPARATOR + "bin" + IOHelper.PLATFORM_SEPARATOR + "java");
+        if (wrapper) javaBin = JVMHelper.JVM_BITS == 64 ? AvanguardStarter.wrap64 : AvanguardStarter.wrap32;
+        else
+            javaBin = Paths.get(System.getProperty("java.home") + IOHelper.PLATFORM_SEPARATOR + "bin" + IOHelper.PLATFORM_SEPARATOR + "java");
         args.add(javaBin.toString());
         args.add(MAGICAL_INTEL_OPTION);
         if (params.ram > 0 && params.ram <= JVMHelper.RAM) {
@@ -348,7 +353,7 @@ public final class ClientLauncher {
         }
         args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         if (LauncherConfig.ADDRESS_OVERRIDE != null)
-			args.add(JVMHelper.jvmProperty(LauncherConfig.ADDRESS_OVERRIDE_PROPERTY, LauncherConfig.ADDRESS_OVERRIDE));
+            args.add(JVMHelper.jvmProperty(LauncherConfig.ADDRESS_OVERRIDE_PROPERTY, LauncherConfig.ADDRESS_OVERRIDE));
         if (JVMHelper.OS_TYPE == OS.MUSTDIE) {
             if (JVMHelper.OS_VERSION.startsWith("10.")) {
                 LogHelper.debug("MustDie 10 fix is applied");
@@ -363,10 +368,10 @@ public final class ClientLauncher {
         StringBuilder classPathString = new StringBuilder(pathLauncher);
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.object.getClassPath());
         for (Path path : classPath)
-			classPathString.append(File.pathSeparatorChar).append(path.toString());
+            classPathString.append(File.pathSeparatorChar).append(path.toString());
         Collections.addAll(args, profile.object.getJvmArgs());
         Collections.addAll(args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
-        Collections.addAll(args,"-javaagent:".concat(pathLauncher));
+        Collections.addAll(args, "-javaagent:".concat(pathLauncher));
         //Collections.addAll(args, "-classpath", classPathString.toString());
         //if(wrapper)
         //Collections.addAll(args, "-Djava.class.path=".concat(classPathString.toString())); // Add Class Path
@@ -379,8 +384,8 @@ public final class ClientLauncher {
         // Build client process
         LogHelper.debug("Launching client instance");
         ProcessBuilder builder = new ProcessBuilder(args);
-        if(wrapper)
-        builder.environment().put("JAVA_HOME", System.getProperty("java.home"));
+        if (wrapper)
+            builder.environment().put("JAVA_HOME", System.getProperty("java.home"));
         //else
         //builder.environment().put("CLASSPATH", classPathString.toString());
         EnvHelper.addEnv(builder);
@@ -427,8 +432,7 @@ public final class ClientLauncher {
                     clientHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
                 }
             }
-        } catch (IOException ex)
-        {
+        } catch (IOException ex) {
             LogHelper.error(ex);
             try (HInput input = new HInput(IOHelper.newInput(paramsFile))) {
                 params = new Params(input);
@@ -509,12 +513,12 @@ public final class ClientLauncher {
     @LauncherAPI
     public static void verifyHDir(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) throws IOException {
         if (matcher != null)
-			matcher = matcher.verifyOnly();
+            matcher = matcher.verifyOnly();
 
         // Hash directory and compare (ignore update-only matcher entries, it will break offline-mode)
         HashedDir currentHDir = new HashedDir(dir, matcher, false, digest);
         if (!hdir.diff(currentHDir, matcher).isSame())
-			throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
+            throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
     }
 
     private ClientLauncher() {

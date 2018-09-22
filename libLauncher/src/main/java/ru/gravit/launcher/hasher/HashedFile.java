@@ -49,9 +49,9 @@ public final class HashedFile extends HashedEntry {
     @LauncherAPI
     public boolean isSame(Path file, boolean digest) throws IOException {
         if (size != IOHelper.readAttributes(file).size())
-			return false;
+            return false;
         if (!digest || this.digest == null)
-			return true;
+            return true;
 
         // Create digest
         byte[] actualDigest = SecurityHelper.digest(DIGEST_ALGO, file);
@@ -73,6 +73,6 @@ public final class HashedFile extends HashedEntry {
         output.writeVarLong(size);
         output.writeBoolean(digest != null);
         if (digest != null)
-			output.writeByteArray(digest, -DIGEST_ALGO.bytes);
+            output.writeByteArray(digest, -DIGEST_ALGO.bytes);
     }
 }

@@ -75,13 +75,14 @@ public class RingProgressIndicator extends ProgressCircleIndicator {
             }
 
             @SuppressWarnings("unchecked")
-			@Override
+            @Override
             public StyleableProperty<Number> getStyleableProperty(RingProgressIndicator n) {
                 return (StyleableProperty<Number>) n.ringWidth;
             }
         };
 
         public static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
+
         static {
             final List<CssMetaData<? extends Styleable, ?>> styleables = new ArrayList<>(Control.getClassCssMetaData());
             styleables.addAll(getClassCssMetaData());
@@ -93,6 +94,6 @@ public class RingProgressIndicator extends ProgressCircleIndicator {
     @LauncherAPI
     @Override
     public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() {
-    	 return StyleableProperties.STYLEABLES;
+        return StyleableProperties.STYLEABLES;
     }
 }

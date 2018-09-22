@@ -20,16 +20,16 @@ public abstract class DigestAuthProvider extends AuthProvider {
     protected final void verifyDigest(String validDigest, String password) throws AuthException {
         boolean valid;
         if (digest == DigestAlgorithm.PLAIN)
-			valid = password.equals(validDigest);
-		else if (validDigest == null)
-			valid = false;
-		else {
+            valid = password.equals(validDigest);
+        else if (validDigest == null)
+            valid = false;
+        else {
             byte[] actualDigest = SecurityHelper.digest(digest, password);
             valid = SecurityHelper.toHex(actualDigest).equals(validDigest);
         }
 
         // Verify is valid
         if (!valid)
-			authError("Incorrect username or password");
+            authError("Incorrect username or password");
     }
 }

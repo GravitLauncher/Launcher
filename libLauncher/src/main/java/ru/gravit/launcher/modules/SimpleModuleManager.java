@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-public class SimpleModuleManager implements ModulesManagerInterface,AutoCloseable {
+public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseable {
     protected final class ModulesVisitor extends SimpleFileVisitor<Path> {
         private ModulesVisitor() {
         }
@@ -35,6 +35,7 @@ public class SimpleModuleManager implements ModulesManagerInterface,AutoCloseabl
             return super.visitFile(file, attrs);
         }
     }
+
     public ArrayList<Module> modules;
     public PublicURLClassLoader classloader;
     protected ModuleContext context;
@@ -48,9 +49,8 @@ public class SimpleModuleManager implements ModulesManagerInterface,AutoCloseabl
         LogHelper.info("Loaded %d modules", modules.size());
     }
 
-    public void sort()
-    {
-        modules.sort((m1,m2) -> {
+    public void sort() {
+        modules.sort((m1, m2) -> {
             int p1 = m1.getPriority();
             int p2 = m2.getPriority();
             return Integer.compare(p2, p1);
@@ -110,8 +110,8 @@ public class SimpleModuleManager implements ModulesManagerInterface,AutoCloseabl
         Module module = (Module) moduleclass.newInstance();
         modules.add(module);
         module.preInit(context);
-        if(!preload) module.init(context);
-        LogHelper.info("Module %s version: %s loaded",module.getName(),module.getVersion());
+        if (!preload) module.init(context);
+        LogHelper.info("Module %s version: %s loaded", module.getName(), module.getVersion());
     }
 
     @Override
@@ -142,9 +142,8 @@ public class SimpleModuleManager implements ModulesManagerInterface,AutoCloseabl
 
     @Override
     @LauncherAPI
-    public void registerModule(Module module,boolean preload)
-    {
+    public void registerModule(Module module, boolean preload) {
         load(module, preload);
-        LogHelper.info("Module %s version: %s registered",module.getName(),module.getVersion());
+        LogHelper.info("Module %s version: %s registered", module.getName(), module.getVersion());
     }
 }

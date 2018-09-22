@@ -20,13 +20,14 @@ public final class JVMHelper {
     @LauncherAPI
     public enum OS {
         MUSTDIE("mustdie"), LINUX("linux"), MACOSX("macosx");
+
         public static OS byName(String name) {
             if (name.startsWith("Windows"))
-				return MUSTDIE;
+                return MUSTDIE;
             if (name.startsWith("Linux"))
-				return LINUX;
+                return LINUX;
             if (name.startsWith("Mac OS X"))
-				return MACOSX;
+                return MACOSX;
             throw new RuntimeException(String.format("This shit is not yet supported: '%s'", name));
         }
 
@@ -36,6 +37,7 @@ public final class JVMHelper {
             this.name = name;
         }
     }
+
     // MXBeans exports
     @LauncherAPI
     public static final RuntimeMXBean RUNTIME_MXBEAN = ManagementFactory.getRuntimeMXBean();
@@ -92,7 +94,7 @@ public final class JVMHelper {
 
     public static Class<?> firstClass(String... names) throws ClassNotFoundException {
         for (String name : names)
-			try {
+            try {
                 return Class.forName(name, false, LOADER);
             } catch (ClassNotFoundException ignored) {
                 // Expected
@@ -141,7 +143,7 @@ public final class JVMHelper {
     private static int getCorrectOSArch() {
         // As always, mustdie must die
         if (OS_TYPE == OS.MUSTDIE)
-			return System.getenv("ProgramFiles(x86)") == null ? 32 : 64;
+            return System.getenv("ProgramFiles(x86)") == null ? 32 : 64;
 
         // Or trust system property (maybe incorrect)
         return System.getProperty("os.arch").contains("64") ? 64 : 32;
@@ -179,7 +181,7 @@ public final class JVMHelper {
         // Verify class loader
         LogHelper.debug("Verifying class loader");
         if (requireSystem && !mainClass.getClassLoader().equals(LOADER))
-			throw new SecurityException("ClassLoader should be system");
+            throw new SecurityException("ClassLoader should be system");
 
         // Verify system and java architecture
         LogHelper.debug("Verifying JVM architecture");

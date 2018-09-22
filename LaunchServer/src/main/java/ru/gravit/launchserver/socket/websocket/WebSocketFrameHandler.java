@@ -13,11 +13,13 @@ import ru.gravit.utils.helper.LogHelper;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
     static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         LogHelper.debug("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));
         channels.add(ctx.channel());
     }
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
         // ping and pong frames already handled
@@ -26,6 +28,6 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         long handshake = input.readLong();
         long connection_flags = input.readLong();
         long type = input.readInt();
-        LogHelper.debug("MessageHead: handshake %dl, flags %dl, type %d", handshake,connection_flags,type);
+        LogHelper.debug("MessageHead: handshake %dl, flags %dl, type %d", handshake, connection_flags, type);
     }
 }

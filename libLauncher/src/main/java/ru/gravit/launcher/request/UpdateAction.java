@@ -13,6 +13,7 @@ public final class UpdateAction extends StreamObject {
     public enum Type implements EnumSerializer.Itf {
         CD(1), CD_BACK(2), GET(3), FINISH(255);
         private static final EnumSerializer<Type> SERIALIZER = new EnumSerializer<>(Type.class);
+
         public static Type read(HInput input) throws IOException {
             return SERIALIZER.read(input);
         }
@@ -28,6 +29,7 @@ public final class UpdateAction extends StreamObject {
             return n;
         }
     }
+
     public static final UpdateAction CD_BACK = new UpdateAction(Type.CD_BACK, null, null);
 
     public static final UpdateAction FINISH = new UpdateAction(Type.FINISH, null, null);
@@ -53,6 +55,6 @@ public final class UpdateAction extends StreamObject {
     public void write(HOutput output) throws IOException {
         EnumSerializer.write(output, type);
         if (type == Type.CD || type == Type.GET)
-			output.writeString(name, 255);
+            output.writeString(name, 255);
     }
 }

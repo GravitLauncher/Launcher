@@ -18,6 +18,7 @@ public final class FileNameMatcher {
         //    }
         //}
     }
+
     // Instance
     private final String[] update;
     private final String[] verify;

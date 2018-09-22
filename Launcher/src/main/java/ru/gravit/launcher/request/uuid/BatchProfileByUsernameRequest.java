@@ -22,7 +22,7 @@ public final class BatchProfileByUsernameRequest extends Request<PlayerProfile[]
         this.usernames = usernames.clone();
         IOHelper.verifyLength(this.usernames.length, SerializeLimits.MAX_BATCH_SIZE);
         for (String username : this.usernames)
-			VerifyHelper.verifyUsername(username);
+            VerifyHelper.verifyUsername(username);
     }
 
     @LauncherAPI
@@ -47,7 +47,7 @@ public final class BatchProfileByUsernameRequest extends Request<PlayerProfile[]
         // Read profiles response
         PlayerProfile[] profiles = new PlayerProfile[usernames.length];
         for (int i = 0; i < profiles.length; i++)
-			profiles[i] = input.readBoolean() ? new PlayerProfile(input) : null;
+            profiles[i] = input.readBoolean() ? new PlayerProfile(input) : null;
 
         // Return result
         return profiles;

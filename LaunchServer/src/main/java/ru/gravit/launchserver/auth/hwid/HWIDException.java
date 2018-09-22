@@ -2,11 +2,11 @@ package ru.gravit.launchserver.auth.hwid;
 
 public class HWIDException extends Exception {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -5307315891121889972L;
+     *
+     */
+    private static final long serialVersionUID = -5307315891121889972L;
 
-	public HWIDException() {
+    public HWIDException() {
     }
 
     public HWIDException(String s) {

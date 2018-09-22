@@ -63,14 +63,14 @@ public final class VerifyHelper {
     @LauncherAPI
     public static <T> T verify(T object, Predicate<T> predicate, String error) {
         if (predicate.test(object))
-			return object;
+            return object;
         throw new IllegalArgumentException(error);
     }
 
     @LauncherAPI
     public static double verifyDouble(double d, DoublePredicate predicate, String error) {
         if (predicate.test(d))
-			return d;
+            return d;
         throw new IllegalArgumentException(error);
     }
 
@@ -82,14 +82,14 @@ public final class VerifyHelper {
     @LauncherAPI
     public static int verifyInt(int i, IntPredicate predicate, String error) {
         if (predicate.test(i))
-			return i;
+            return i;
         throw new IllegalArgumentException(error);
     }
 
     @LauncherAPI
     public static long verifyLong(long l, LongPredicate predicate, String error) {
         if (predicate.test(l))
-			return l;
+            return l;
         throw new IllegalArgumentException(error);
     }
 

@@ -45,6 +45,6 @@ public abstract class Command {
     @LauncherAPI
     protected final void verifyArgs(String[] args, int min) throws CommandException {
         if (args.length < min)
-			throw new CommandException("Command usage: " + getArgsDescription());
+            throw new CommandException("Command usage: " + getArgsDescription());
     }
 }

@@ -32,6 +32,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
             this.serverID = serverID == null ? null : VerifyHelper.verifyServerID(serverID);
         }
     }
+
     private final Map<UUID, Entry> entryCache = new HashMap<>(1024);
 
     private final Map<String, UUID> usernamesCache = new HashMap<>(1024);
@@ -39,14 +40,15 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
     @LauncherAPI
     protected CachedAuthHandler(BlockConfigEntry block) {
         super(block);
-        if(block.hasEntry("garbage")) if(block.getEntryValue("garbage", BooleanConfigEntry.class)) GarbageManager.registerNeedGC(this);
+        if (block.hasEntry("garbage"))
+            if (block.getEntryValue("garbage", BooleanConfigEntry.class)) GarbageManager.registerNeedGC(this);
     }
 
     @LauncherAPI
     protected void addEntry(Entry entry) {
         Entry previous = entryCache.put(entry.uuid, entry);
         if (previous != null)
-			usernamesCache.remove(CommonHelper.low(previous.username));
+            usernamesCache.remove(CommonHelper.low(previous.username));
         usernamesCache.put(CommonHelper.low(entry.username), entry.uuid);
     }
 
@@ -54,7 +56,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
     public final synchronized UUID auth(AuthProviderResult result) throws IOException {
         Entry entry = getEntry(result.username);
         if (entry == null || !updateAuth(entry.uuid, entry.username, result.accessToken))
-			return authError(String.format("UUID is null for username '%s'", result.username));
+            return authError(String.format("UUID is null for username '%s'", result.username));
 
         // Update cached access token (and username case)
         entry.username = result.username;
@@ -79,12 +81,12 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
     private Entry getEntry(String username) throws IOException {
         UUID uuid = usernamesCache.get(CommonHelper.low(username));
         if (uuid != null)
-			return getEntry(uuid);
+            return getEntry(uuid);
 
         // Fetch entry by username
         Entry entry = fetchEntry(username);
         if (entry != null)
-			addEntry(entry);
+            addEntry(entry);
 
         // Return what we got
         return entry;
@@ -95,7 +97,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
         if (entry == null) {
             entry = fetchEntry(uuid);
             if (entry != null)
-				addEntry(entry);
+                addEntry(entry);
         }
         return entry;
     }
@@ -105,16 +107,17 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
         Entry entry = getEntry(username);
         if (entry == null || !username.equals(entry.username) || !accessToken.equals(entry.accessToken) ||
                 !updateServerID(entry.uuid, serverID))
-			return false; // Account doesn't exist or invalid access token
+            return false; // Account doesn't exist or invalid access token
 
         // Update cached server ID
         entry.serverID = serverID;
         return true;
     }
-    public synchronized void garbageCollection()
-    {
+
+    public synchronized void garbageCollection() {
         entryCache.clear();
     }
+
     @LauncherAPI
     protected abstract boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException;
 

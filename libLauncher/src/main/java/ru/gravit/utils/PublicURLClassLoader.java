@@ -4,14 +4,13 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.LogHelper;
 
 public class PublicURLClassLoader extends URLClassLoader {
-	@LauncherAPI
-    public static ClassLoader systemclassloader = ClassLoader.getSystemClassLoader();
     @LauncherAPI
-    public static ClassLoader getSystemClassLoader()
-    {
+    public static ClassLoader systemclassloader = ClassLoader.getSystemClassLoader();
+
+    @LauncherAPI
+    public static ClassLoader getSystemClassLoader() {
         return systemclassloader;
     }
 
@@ -38,6 +37,7 @@ public class PublicURLClassLoader extends URLClassLoader {
     public PublicURLClassLoader(URL[] urls) {
         super(urls);
     }
+
     /**
      * Constructs a new URLClassLoader for the given URLs. The URLs will be
      * searched in the order specified for classes and resources after first
@@ -62,6 +62,7 @@ public class PublicURLClassLoader extends URLClassLoader {
     public PublicURLClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
+
     @Override
     public void addURL(URL url) {
         super.addURL(url);

@@ -23,11 +23,12 @@ public final class LauncherConfig extends StreamObject {
     @LauncherAPI
     public static final String ADDRESS_OVERRIDE = System.getProperty(ADDRESS_OVERRIDE_PROPERTY, null);
     private static final AutogenConfig config = new AutogenConfig();
+
     @LauncherAPI
-    public static AutogenConfig getAutogenConfig()
-    {
+    public static AutogenConfig getAutogenConfig() {
         return config;
     }
+
     // Instance
     @LauncherAPI
     public final InetSocketAddress address;
@@ -38,6 +39,7 @@ public final class LauncherConfig extends StreamObject {
 
     @LauncherAPI
     public final Map<String, byte[]> runtime;
+
     @LauncherAPI
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
         String localAddress = config.address;
@@ -58,16 +60,18 @@ public final class LauncherConfig extends StreamObject {
 
         // Print warning if address override is enabled
         if (ADDRESS_OVERRIDE != null)
-			LogHelper.warning("Address override is enabled: '%s'", ADDRESS_OVERRIDE);
+            LogHelper.warning("Address override is enabled: '%s'", ADDRESS_OVERRIDE);
     }
+
     @LauncherAPI
     @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
-    public LauncherConfig(String address, int port, RSAPublicKey publicKey, Map<String, byte[]> runtime,String projectname) {
+    public LauncherConfig(String address, int port, RSAPublicKey publicKey, Map<String, byte[]> runtime, String projectname) {
         this.address = InetSocketAddress.createUnresolved(address, port);
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectname = projectname;
     }
+
     @LauncherAPI
     @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
     public LauncherConfig(String address, int port, RSAPublicKey publicKey, Map<String, byte[]> runtime) {

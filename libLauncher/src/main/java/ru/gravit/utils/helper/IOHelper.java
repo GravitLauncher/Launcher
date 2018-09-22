@@ -74,7 +74,7 @@ public final class IOHelper {
         public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
             FileVisitResult result = super.postVisitDirectory(dir, exc);
             if (self || !this.dir.equals(dir))
-				Files.delete(dir);
+                Files.delete(dir);
             return result;
         }
 
@@ -84,6 +84,7 @@ public final class IOHelper {
             return super.visitFile(file, attrs);
         }
     }
+
     private static final class SkipHiddenVisitor implements FileVisitor<Path> {
         private final FileVisitor<Path> visitor;
 
@@ -211,7 +212,7 @@ public final class IOHelper {
     public static void createParentDirs(Path path) throws IOException {
         Path parent = path.getParent();
         if (parent != null && !isDir(parent))
-			Files.createDirectories(parent);
+            Files.createDirectories(parent);
     }
 
     @LauncherAPI
@@ -268,7 +269,7 @@ public final class IOHelper {
     public static URL getResourceURL(String name) throws NoSuchFileException {
         URL url = Launcher.class.getResource('/' + name);
         if (url == null)
-			throw new NoSuchFileException(name);
+            throw new NoSuchFileException(name);
         return url;
     }
 
@@ -345,7 +346,7 @@ public final class IOHelper {
             connection.setConnectTimeout(HTTP_TIMEOUT);
             connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)"); // Fix for stupid servers
         } else
-			connection.setUseCaches(false);
+            connection.setUseCaches(false);
         connection.setDoInput(true);
         connection.setDoOutput(false);
         return connection;
@@ -483,7 +484,7 @@ public final class IOHelper {
         while (offset < bytes.length) {
             int length = input.read(bytes, offset, bytes.length - offset);
             if (length < 0)
-				throw new EOFException(String.format("%d bytes remaining", bytes.length - offset));
+                throw new EOFException(String.format("%d bytes remaining", bytes.length - offset));
             offset += length;
         }
     }
@@ -492,7 +493,7 @@ public final class IOHelper {
     public static byte[] read(Path file) throws IOException {
         long size = readAttributes(file).size();
         if (size > Integer.MAX_VALUE)
-			throw new IOException("File too big");
+            throw new IOException("File too big");
 
         // Read bytes from file
         byte[] bytes = new byte[(int) size];
@@ -526,7 +527,7 @@ public final class IOHelper {
             int width = reader.getWidth(0);
             int height = reader.getHeight(0);
             if (!isValidTextureBounds(width, height, cloak))
-				throw new IOException(String.format("Invalid texture bounds: %dx%d", width, height));
+                throw new IOException(String.format("Invalid texture bounds: %dx%d", width, height));
 
             // Read image
             return reader.read(0);
@@ -543,7 +544,7 @@ public final class IOHelper {
     @LauncherAPI
     public static InetSocketAddress resolve(InetSocketAddress address) {
         if (address.isUnresolved())
-			return new InetSocketAddress(address.getHostString(), address.getPort());
+            return new InetSocketAddress(address.getHostString(), address.getPort());
         return address;
     }
 
@@ -551,7 +552,7 @@ public final class IOHelper {
     public static Path resolveIncremental(Path dir, String name, String extension) {
         Path original = dir.resolve(name + '.' + extension);
         if (!exists(original))
-			return original;
+            return original;
 
         // Incremental resolve
         int counter = 1;
@@ -574,18 +575,18 @@ public final class IOHelper {
         if (!LogHelper.isDebugEnabled()) {
             Path javawExe = javaBinDir.resolve("javaw.exe");
             if (isFile(javawExe))
-				return javawExe;
+                return javawExe;
         }
 
         // Verify has "java.exe" file
         Path javaExe = javaBinDir.resolve("java.exe");
         if (isFile(javaExe))
-			return javaExe;
+            return javaExe;
 
         // Verify has "java" file
         Path java = javaBinDir.resolve("java");
         if (isFile(java))
-			return java;
+            return java;
 
         // Throw exception as no runnable found
         throw new RuntimeException("Java binary wasn't found");
@@ -608,14 +609,14 @@ public final class IOHelper {
     }
 
     @LauncherAPI
-	public static String toAbs(Path path) {
-		return toAbsPath(path).toFile().getAbsolutePath();
-	}
+    public static String toAbs(Path path) {
+        return toAbsPath(path).toFile().getAbsolutePath();
+    }
 
     @LauncherAPI
-	public static Path toAbsPath(Path path) {
-		return path.normalize().toAbsolutePath();
-	}
+    public static Path toAbsPath(Path path) {
+        return path.normalize().toAbsolutePath();
+    }
 
     @LauncherAPI
     public static byte[] toByteArray(InputStream in) throws IOException {
@@ -715,7 +716,7 @@ public final class IOHelper {
     @LauncherAPI
     public static int verifyLength(int length, int max) throws IOException {
         if (length < 0 || max < 0 && length != -max || max > 0 && length > max)
-			throw new IOException("Illegal length: " + length);
+            throw new IOException("Illegal length: " + length);
         return length;
     }
 

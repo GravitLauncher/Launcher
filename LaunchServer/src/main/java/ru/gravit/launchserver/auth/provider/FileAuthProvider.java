@@ -66,7 +66,7 @@ public final class FileAuthProvider extends DigestAuthProvider {
         // Verify digest and return true username
         verifyDigest(entry == null ? null : entry.password, password);
         if (entry == null || entry.ip != null && !entry.ip.equals(ip))
-			authError("Authentication from this IP is not allowed");
+            authError("Authentication from this IP is not allowed");
 
         // We're done
         return new AuthProviderResult(entry.username, SecurityHelper.randomStringToken());
@@ -80,7 +80,7 @@ public final class FileAuthProvider extends DigestAuthProvider {
     private void updateCache() throws IOException {
         FileTime lastModified = IOHelper.readAttributes(file).lastModifiedTime();
         if (lastModified.equals(cacheLastModified))
-			return; // Not modified, so cache is up-to-date
+            return; // Not modified, so cache is up-to-date
 
         // Read file
         LogHelper.info("Recaching auth provider file: '%s'", file);

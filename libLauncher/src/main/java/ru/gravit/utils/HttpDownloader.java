@@ -33,8 +33,8 @@ public class HttpDownloader extends Observable {
         thread = downloader;
         downloader.start();
     }
-    public synchronized String getFilename()
-    {
+
+    public synchronized String getFilename() {
         return filename;
     }
 
@@ -47,10 +47,10 @@ public class HttpDownloader extends Observable {
             int writed_local = 0;
             while ((count = in.read(data, 0, BUFER_SIZE)) != -1) {
                 fout.write(data, 0, count);
-                writed_local+=count;
-                if(System.currentTimeMillis() - timestamp > INTERVAL) {
+                writed_local += count;
+                if (System.currentTimeMillis() - timestamp > INTERVAL) {
                     writed.set(writed_local);
-                    LogHelper.debug("Downloaded %d",writed_local);
+                    LogHelper.debug("Downloaded %d", writed_local);
                 }
             }
             writed.set(writed_local);
@@ -61,7 +61,7 @@ public class HttpDownloader extends Observable {
         try (ZipInputStream input = IOHelper.newZipInput(url)) {
             for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
                 if (entry.isDirectory())
-					continue; // Skip directories
+                    continue; // Skip directories
                 // Unpack entry
                 String name = entry.getName();
                 LogHelper.subInfo("Downloading file: '%s'", name);

@@ -29,6 +29,7 @@ public final class AuthRequest extends Request<Result> {
             this.accessToken = accessToken;
         }
     }
+
     private final String login;
 
     private final byte[] encryptedPassword;

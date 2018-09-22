@@ -36,7 +36,7 @@ public final class UpdateListRequest extends Request<Set<String>> {
         // Read all update dirs names
         Set<String> result = new HashSet<>(count);
         for (int i = 0; i < count; i++)
-			result.add(IOHelper.verifyFileName(input.readString(255)));
+            result.add(IOHelper.verifyFileName(input.readString(255)));
 
         // We're done. Make it unmodifiable and return
         return Collections.unmodifiableSet(result);

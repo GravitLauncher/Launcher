@@ -19,9 +19,9 @@ public final class LaunchServerCommandBukkit implements CommandExecutor {
         // Eval command
         LaunchServerPluginBridge bridge = plugin.bridge;
         if (bridge == null)
-			sender.sendMessage(ChatColor.RED + LaunchServerPluginBridge.nonInitText);
-		else
-			bridge.eval(args);
+            sender.sendMessage(ChatColor.RED + LaunchServerPluginBridge.nonInitText);
+        else
+            bridge.eval(args);
         return true;
     }
 }

@@ -17,6 +17,7 @@ public final class LaunchServerPluginBridge implements Runnable, AutoCloseable {
      * Err text.
      */
     public static final String nonInitText = "Лаунчсервер не был полностью загружен";
+
     static {
         //SecurityHelper.verifyCertificates(LaunchServer.class);
         JVMHelper.verifySystemProperties(LaunchServer.class, false);

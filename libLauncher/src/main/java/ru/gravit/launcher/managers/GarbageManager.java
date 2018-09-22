@@ -16,13 +16,14 @@ public class GarbageManager {
             this.timer = timer;
         }
     }
+
     private static final Timer timer = new Timer("GarbageTimer");
 
     private static final ArrayList<Entry> NEED_GARBARE_COLLECTION = new ArrayList<>();
 
     public static void gc() {
         for (Entry gc : NEED_GARBARE_COLLECTION)
-			gc.invoke.garbageCollection();
+            gc.invoke.garbageCollection();
     }
 
     public static void registerNeedGC(NeedGarbageCollection gc) {

@@ -20,16 +20,17 @@ public class AuthLimiter implements NeedGarbageCollection {
         @Override
         public boolean equals(Object obj) {
             if (this == obj)
-				return true;
+                return true;
             if (obj == null)
-				return false;
+                return false;
             if (!(obj instanceof AuthEntry))
-				return false;
+                return false;
             AuthEntry other = (AuthEntry) obj;
             if (ts != other.ts)
-				return false;
+                return false;
             return value == other.value;
         }
+
         @Override
         public int hashCode() {
             final int prime = 31;
@@ -44,6 +45,7 @@ public class AuthLimiter implements NeedGarbageCollection {
             return String.format("AuthEntry {value=%s, ts=%s}", value, ts);
         }
     }
+
     @LauncherAPI
     public static final long TIMEOUT = 10 * 60 * 1000; //10 минут
     public final int rateLimit;
@@ -78,7 +80,7 @@ public class AuthLimiter implements NeedGarbageCollection {
             rate.ts = currenttime;
             return false;
         }
-		map.put(ip, new AuthEntry(1, System.currentTimeMillis()));
-		return false;
+        map.put(ip, new AuthEntry(1, System.currentTimeMillis()));
+        return false;
     }
 }

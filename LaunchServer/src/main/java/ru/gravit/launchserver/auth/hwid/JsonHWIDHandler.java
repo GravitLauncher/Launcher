@@ -58,16 +58,17 @@ public final class JsonHWIDHandler extends HWIDHandler {
 
     @Override
     public void ban(List<HWID> l_hwid) throws HWIDException {
-        for(HWID hwid : l_hwid) {
+        for (HWID hwid : l_hwid) {
             JsonObject request = Json.object().add(hddKeyName, hwid.getHwid_hdd()).add(cpuKeyName, hwid.getHwid_cpu()).add(biosKeyName, hwid.getHwid_bios());
             try {
-                request(request,urlBan);
+                request(request, urlBan);
             } catch (IOException e) {
                 LogHelper.error(e);
                 throw new HWIDException("HWID service error");
             }
         }
     }
+
     public JsonObject request(JsonObject request, URL url) throws HWIDException, IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoInput(true);
@@ -95,20 +96,21 @@ public final class JsonHWIDHandler extends HWIDHandler {
             throw new HWIDException("HWID server response is malformed");
 
         JsonObject response = content.asObject();
-        return  response;
+        return response;
     }
+
     @Override
     public void check0(HWID hwid, String username) throws HWIDException {
-        JsonObject request = Json.object().add(loginKeyName,username).add(hddKeyName,hwid.getHwid_hdd()).add(cpuKeyName,hwid.getHwid_cpu()).add(biosKeyName,hwid.getHwid_bios());
+        JsonObject request = Json.object().add(loginKeyName, username).add(hddKeyName, hwid.getHwid_hdd()).add(cpuKeyName, hwid.getHwid_cpu()).add(biosKeyName, hwid.getHwid_bios());
         JsonObject response;
         try {
-            response = request(request,url);
+            response = request(request, url);
         } catch (IOException e) {
             LogHelper.error(e);
             throw new HWIDException("HWID service error");
         }
-        boolean isBanned = response.getBoolean(isBannedKeyName,false);
-        if(isBanned) throw new HWIDException("You will BANNED!");
+        boolean isBanned = response.getBoolean(isBannedKeyName, false);
+        if (isBanned) throw new HWIDException("You will BANNED!");
     }
 
     @Override
@@ -118,24 +120,23 @@ public final class JsonHWIDHandler extends HWIDHandler {
 
     @Override
     public List<HWID> getHwid(String username) throws HWIDException {
-        JsonObject request = Json.object().add(loginKeyName,username);
+        JsonObject request = Json.object().add(loginKeyName, username);
         JsonObject responce;
         try {
-            responce = request(request,urlGet);
+            responce = request(request, urlGet);
         } catch (IOException e) {
             LogHelper.error(e);
             throw new HWIDException("HWID service error");
         }
         JsonArray array = responce.get("hwids").asArray();
         ArrayList<HWID> hwids = new ArrayList<>();
-        for(JsonValue i : array)
-        {
-            long hdd,cpu,bios;
+        for (JsonValue i : array) {
+            long hdd, cpu, bios;
             JsonObject object = i.asObject();
-            hdd = object.getLong(hddKeyName,0);
-            cpu = object.getLong(cpuKeyName,0);
-            bios = object.getLong(biosKeyName,0);
-            HWID hwid = HWID.gen(hdd,cpu,bios);
+            hdd = object.getLong(hddKeyName, 0);
+            cpu = object.getLong(cpuKeyName, 0);
+            bios = object.getLong(biosKeyName, 0);
+            HWID hwid = HWID.gen(hdd, cpu, bios);
             hwids.add(hwid);
         }
         return hwids;
@@ -143,10 +144,10 @@ public final class JsonHWIDHandler extends HWIDHandler {
 
     @Override
     public void unban(List<HWID> l_hwid) throws HWIDException {
-        for(HWID hwid : l_hwid) {
+        for (HWID hwid : l_hwid) {
             JsonObject request = Json.object().add(hddKeyName, hwid.getHwid_hdd()).add(cpuKeyName, hwid.getHwid_cpu()).add(biosKeyName, hwid.getHwid_bios());
             try {
-                request(request,urlUnBan);
+                request(request, urlUnBan);
             } catch (IOException e) {
                 LogHelper.error(e);
                 throw new HWIDException("HWID service error");

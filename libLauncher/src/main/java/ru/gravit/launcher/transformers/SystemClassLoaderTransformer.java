@@ -15,13 +15,13 @@ import ru.gravit.utils.PublicURLClassLoader;
 
 public class SystemClassLoaderTransformer implements ClassFileTransformer {
     @Override
-    public byte[] transform(ClassLoader classLoader, String classname, Class<?> aClass, ProtectionDomain protectionDomain, byte[] bytes) throws IllegalClassFormatException {
-    	if(classname.startsWith("ru/gravit/launcher/")) return bytes;
-        if(classname.startsWith("java/")) return bytes;
-        if(classname.startsWith("sun/")) return bytes;
-        if(classname.startsWith("com/sun/")) return bytes;
-        if(classname.startsWith("javax/")) return bytes;
-        if(classname.startsWith("jdk/")) return bytes;
+    public byte[] transform(ClassLoader classLoader, String classname, Class<?> aClass, ProtectionDomain protectionDomain, byte[] bytes) {
+        if (classname.startsWith("ru/gravit/launcher/")) return bytes;
+        if (classname.startsWith("java/")) return bytes;
+        if (classname.startsWith("sun/")) return bytes;
+        if (classname.startsWith("com/sun/")) return bytes;
+        if (classname.startsWith("javax/")) return bytes;
+        if (classname.startsWith("jdk/")) return bytes;
         try {
             ClassPool pool = ClassPool.getDefault();
             pool.appendClassPath(new LoaderClassPath(PublicURLClassLoader.systemclassloader));
@@ -34,16 +34,16 @@ public class SystemClassLoaderTransformer implements ClassFileTransformer {
             cc.redirectMethodCall(m11, m21); // Указываем что на что нам нужно заменить
 
             CtClass cl = pool.makeClass(new ByteArrayInputStream(bytes), false); // Загружаем класс, переданный для трансформации
-            if(cl.isFrozen()) return null;
+            if (cl.isFrozen()) return null;
             CtConstructor[] constructors = cl.getConstructors(); // Находим все конструкторы класса
-            for(CtConstructor constructor : constructors)
-				constructor.instrument(cc); // Заменяем вызовы
+            for (CtConstructor constructor : constructors)
+                constructor.instrument(cc); // Заменяем вызовы
             CtMethod[] methods = cl.getDeclaredMethods(); // Находим все методы класса
-            for(CtMethod method : methods)
-				method.instrument(cc); // Заменяем вызовы
+            for (CtMethod method : methods)
+                method.instrument(cc); // Заменяем вызовы
             return cl.toBytecode();
-        } catch (Exception ex) {
-        	
+        } catch (Exception ignored) {
+
         }
         return bytes;
     }

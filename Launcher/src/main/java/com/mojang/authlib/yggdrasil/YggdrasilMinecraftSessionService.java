@@ -36,7 +36,7 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
     public static void fillTextureProperties(GameProfile profile, PlayerProfile pp) {
         LogHelper.debug("fillTextureProperties, Username: '%s'", profile.getName());
         if (NO_TEXTURES)
-			return;
+            return;
 
         // Fill textures map
         PropertyMap properties = profile.getProperties();
@@ -66,14 +66,14 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
         // Fetch textures from textures JSON
         for (Type type : MinecraftProfileTexture.PROFILE_TEXTURE_TYPES) {
             if (textures.containsKey(type))
-				continue; // Overriden by launcher
+                continue; // Overriden by launcher
 
             // Get texture from JSON
             JsonElement textureJSON = texturesJSON.get(type.name());
             if (textureJSON != null && textureJSON.isJsonObject()) {
                 JsonElement urlValue = textureJSON.getAsJsonObject().get("url");
                 if (urlValue.isJsonPrimitive())
-					textures.put(type, new MinecraftProfileTexture(urlValue.getAsString()));
+                    textures.put(type, new MinecraftProfileTexture(urlValue.getAsString()));
             }
         }
     }
@@ -95,7 +95,7 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
         UUID uuid = profile.getUUID();
         LogHelper.debug("fillProfileProperties, UUID: %s", uuid);
         if (uuid == null)
-			return profile;
+            return profile;
 
         // Make profile request
         PlayerProfile pp;
@@ -129,19 +129,19 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
             Property skinURL = Iterables.getFirst(profile.getProperties().get(ClientLauncher.SKIN_URL_PROPERTY), null);
             Property skinDigest = Iterables.getFirst(profile.getProperties().get(ClientLauncher.SKIN_DIGEST_PROPERTY), null);
             if (skinURL != null && skinDigest != null)
-				textures.put(Type.SKIN, new MinecraftProfileTexture(skinURL.getValue(), skinDigest.getValue()));
+                textures.put(Type.SKIN, new MinecraftProfileTexture(skinURL.getValue(), skinDigest.getValue()));
 
             // Add cloak URL to textures map
             Property cloakURL = Iterables.getFirst(profile.getProperties().get(ClientLauncher.CLOAK_URL_PROPERTY), null);
             Property cloakDigest = Iterables.getFirst(profile.getProperties().get(ClientLauncher.CLOAK_DIGEST_PROPERTY), null);
             if (cloakURL != null && cloakDigest != null)
-				textures.put(Type.CAPE, new MinecraftProfileTexture(cloakURL.getValue(), cloakDigest.getValue()));
+                textures.put(Type.CAPE, new MinecraftProfileTexture(cloakURL.getValue(), cloakDigest.getValue()));
 
             // Try to find missing textures in textures payload (now always true because launcher is not passing elytra skins)
             if (textures.size() != MinecraftProfileTexture.PROFILE_TEXTURE_COUNT) {
                 Property texturesMojang = Iterables.getFirst(profile.getProperties().get("textures"), null);
                 if (texturesMojang != null)
-					getTexturesMojang(textures, texturesMojang.getValue(), profile);
+                    getTexturesMojang(textures, texturesMojang.getValue(), profile);
             }
         }
 
@@ -171,13 +171,15 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
     public GameProfile hasJoinedServer(GameProfile profile, String serverID, InetAddress address) throws AuthenticationUnavailableException {
         return hasJoinedServer(profile, serverID);
     }
+
     public YggdrasilAuthenticationService getAuthenticationService() {
-        return (YggdrasilAuthenticationService)super.getAuthenticationService();
+        return (YggdrasilAuthenticationService) super.getAuthenticationService();
     }
+
     @Override
     public void joinServer(GameProfile profile, String accessToken, String serverID) throws AuthenticationException {
         if (!ClientLauncher.isLaunched())
-			throw new AuthenticationException("Bad Login (Cheater)");
+            throw new AuthenticationException("Bad Login (Cheater)");
 
         // Join server
         String username = profile.getName();
@@ -193,6 +195,6 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
 
         // Verify is success
         if (!success)
-			throw new AuthenticationException("Bad Login (Clientside)");
+            throw new AuthenticationException("Bad Login (Clientside)");
     }
 }

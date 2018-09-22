@@ -13,6 +13,7 @@ public abstract class HashedEntry extends StreamObject {
     public enum Type implements Itf {
         DIR(1), FILE(2);
         private static final EnumSerializer<Type> SERIALIZER = new EnumSerializer<>(Type.class);
+
         public static Type read(HInput input) throws IOException {
             return SERIALIZER.read(input);
         }

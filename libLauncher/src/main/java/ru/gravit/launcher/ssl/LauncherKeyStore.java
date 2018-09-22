@@ -9,15 +9,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
 public class LauncherKeyStore {
-    public static KeyStore getKeyStore(String keystore,String password) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
+    public static KeyStore getKeyStore(String keystore, String password) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
         KeyStore ks = KeyStore.getInstance("JKS");
-        InputStream ksIs = new FileInputStream(keystore);
-        try {
+        try (InputStream ksIs = new FileInputStream(keystore)) {
             ks.load(ksIs, password.toCharArray());
-        } finally {
-            if (ksIs != null) {
-                ksIs.close();
-            }
         }
         return ks;
     }

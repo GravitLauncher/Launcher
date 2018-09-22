@@ -48,6 +48,7 @@ public final class IndexAssetCommand extends Command {
             return super.visitFile(file, attrs);
         }
     }
+
     public static final String INDEXES_DIR = "indexes";
     public static final String OBJECTS_DIR = "objects";
 
@@ -86,7 +87,7 @@ public final class IndexAssetCommand extends Command {
         Path inputAssetDir = server.updatesDir.resolve(inputAssetDirName);
         Path outputAssetDir = server.updatesDir.resolve(outputAssetDirName);
         if (outputAssetDir.equals(inputAssetDir))
-			throw new CommandException("Unindexed and indexed asset dirs can't be same");
+            throw new CommandException("Unindexed and indexed asset dirs can't be same");
 
         // Create new asset dir
         LogHelper.subInfo("Creating indexed asset dir: '%s'", outputAssetDirName);

@@ -14,6 +14,7 @@ public enum RequestType implements EnumSerializer.Itf {
     PROFILES(10),
     CUSTOM(255); // Custom requests
     private static final EnumSerializer<RequestType> SERIALIZER = new EnumSerializer<>(RequestType.class);
+
     @LauncherAPI
     public static RequestType read(HInput input) throws IOException {
         return SERIALIZER.read(input);

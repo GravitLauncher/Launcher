@@ -62,7 +62,7 @@ public final class HOutput implements AutoCloseable, Flushable {
     public void writeLength(int length, int max) throws IOException {
         IOHelper.verifyLength(length, max);
         if (max >= 0)
-			writeVarInt(length);
+            writeVarInt(length);
     }
 
     @LauncherAPI

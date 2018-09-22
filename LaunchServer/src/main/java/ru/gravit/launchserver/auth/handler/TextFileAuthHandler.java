@@ -72,17 +72,17 @@ public final class TextFileAuthHandler extends FileAuthHandler {
             authMap.put("username", cc(auth.getUsername()));
             String accessToken = auth.getAccessToken();
             if (accessToken != null)
-				authMap.put("accessToken", cc(accessToken));
+                authMap.put("accessToken", cc(accessToken));
             String serverID = auth.getServerID();
             if (serverID != null)
-				authMap.put("serverID", cc(serverID));
+                authMap.put("serverID", cc(serverID));
 
             // Create and add auth block
             BlockConfigEntry authBlock = new BlockConfigEntry(authMap, true, 5);
             if (next)
-				authBlock.setComment(0, "\n"); // Pre-name
-			else
-				next = true;
+                authBlock.setComment(0, "\n"); // Pre-name
+            else
+                next = true;
             authBlock.setComment(2, " "); // Pre-value
             authBlock.setComment(4, "\n"); // Post-comment
             map.put(uuid.toString(), authBlock);

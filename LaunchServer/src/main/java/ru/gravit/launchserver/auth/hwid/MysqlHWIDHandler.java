@@ -22,7 +22,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
     private final String banMessage;
     private final String isBannedName;
     private final String loginName;
-    private final String hddName,cpuName,biosName;
+    private final String hddName, cpuName, biosName;
     private final String[] queryParams;
     private final String queryUpd;
     private final String[] queryParamsUpd;
@@ -72,7 +72,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
             Connection c = mySQLHolder.getConnection();
 
             PreparedStatement s = c.prepareStatement(query);
-            String[] replaceParams = {"hwid_hdd", String.valueOf(hwid.getHwid_hdd()), "hwid_cpu", String.valueOf(hwid.getHwid_cpu()), "hwid_bios", String.valueOf(hwid.getHwid_bios()),"login",username};
+            String[] replaceParams = {"hwid_hdd", String.valueOf(hwid.getHwid_hdd()), "hwid_cpu", String.valueOf(hwid.getHwid_cpu()), "hwid_bios", String.valueOf(hwid.getHwid_bios()), "login", username};
             for (int i = 0; i < queryParams.length; i++) {
                 s.setString(i + 1, CommonHelper.replace(queryParams[i], replaceParams));
             }
@@ -82,7 +82,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
             try (ResultSet set = s.executeQuery()) {
                 boolean isOne = false;
                 boolean needWrite = true;
-                while(set.next()) {
+                while (set.next()) {
                     isOne = true;
                     boolean isBanned = set.getBoolean(isBannedName);
                     if (isBanned) throw new HWIDException(banMessage);
@@ -95,8 +95,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
                     writeHWID(hwid, username, c);
                     return;
                 }
-                if(needWrite)
-                {
+                if (needWrite) {
                     writeHWID(hwid, username, c);
                     return;
                 }
@@ -105,9 +104,9 @@ public class MysqlHWIDHandler extends HWIDHandler {
             e.printStackTrace();
         }
     }
-    public void writeHWID(HWID hwid, String username, Connection c)
-    {
-        LogHelper.debug("Write HWID %s from username %s",hwid.toString(),username);
+
+    public void writeHWID(HWID hwid, String username, Connection c) {
+        LogHelper.debug("Write HWID %s from username %s", hwid.toString(), username);
         try (PreparedStatement a = c.prepareStatement(queryUpd)) {
             //IF
             String[] replaceParamsUpd = {"hwid_hdd", String.valueOf(hwid.getHwid_hdd()), "hwid_cpu", String.valueOf(hwid.getHwid_cpu()), "hwid_bios", String.valueOf(hwid.getHwid_bios()), "login", username};
@@ -120,9 +119,9 @@ public class MysqlHWIDHandler extends HWIDHandler {
             e.printStackTrace();
         }
     }
-    public void setIsBanned(HWID hwid,boolean isBanned)
-    {
-        LogHelper.debug("%s Request HWID: %s",isBanned ? "Ban" : "UnBan",hwid.toString());
+
+    public void setIsBanned(HWID hwid, boolean isBanned) {
+        LogHelper.debug("%s Request HWID: %s", isBanned ? "Ban" : "UnBan", hwid.toString());
         Connection c = null;
         try {
             c = mySQLHolder.getConnection();
@@ -141,36 +140,35 @@ public class MysqlHWIDHandler extends HWIDHandler {
             e.printStackTrace();
         }
     }
-    @Override
-    public void ban(List<HWID> list) throws HWIDException {
 
-        for(HWID hwid : list)
-        {
-            setIsBanned(hwid,true);
+    @Override
+    public void ban(List<HWID> list) {
+
+        for (HWID hwid : list) {
+            setIsBanned(hwid, true);
         }
     }
 
     @Override
-    public void unban(List<HWID> list) throws HWIDException {
-        for(HWID hwid : list)
-        {
-            setIsBanned(hwid,false);
+    public void unban(List<HWID> list) {
+        for (HWID hwid : list) {
+            setIsBanned(hwid, false);
         }
     }
 
     @Override
-    public List<HWID> getHwid(String username) throws HWIDException {
+    public List<HWID> getHwid(String username) {
         try {
-            LogHelper.debug("Try find HWID from username %s",username);
+            LogHelper.debug("Try find HWID from username %s", username);
             Connection c = mySQLHolder.getConnection();
             PreparedStatement s = c.prepareStatement(querySelect);
             String[] replaceParams = {"login", username};
             for (int i = 0; i < queryParamsSelect.length; i++) {
                 s.setString(i + 1, CommonHelper.replace(queryParamsSelect[i], replaceParams));
             }
-            long hdd,cpu,bios;
+            long hdd, cpu, bios;
             try (ResultSet set = s.executeQuery()) {
-                if(!set.next()) {
+                if (!set.next()) {
                     LogHelper.error(new HWIDException("HWID not found"));
                     return new ArrayList<>();
                 }
@@ -179,11 +177,12 @@ public class MysqlHWIDHandler extends HWIDHandler {
                 bios = set.getLong(biosName);
             }
             ArrayList<HWID> list = new ArrayList<>();
-            HWID hwid = HWID.gen(hdd,bios,cpu);
-            if(hdd == 0 && cpu == 0 && bios == 0) {LogHelper.warning("Null HWID");}
-            else {
+            HWID hwid = HWID.gen(hdd, bios, cpu);
+            if (hdd == 0 && cpu == 0 && bios == 0) {
+                LogHelper.warning("Null HWID");
+            } else {
                 list.add(hwid);
-                LogHelper.debug("Username: %s HWID: %s",username,hwid.toString());
+                LogHelper.debug("Username: %s HWID: %s", username, hwid.toString());
             }
             return list;
         } catch (SQLException e) {

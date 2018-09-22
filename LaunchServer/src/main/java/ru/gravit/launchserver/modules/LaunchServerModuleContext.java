@@ -8,11 +8,12 @@ import ru.gravit.launchserver.LaunchServer;
 public class LaunchServerModuleContext implements ModuleContext {
     public final LaunchServer launchServer;
     public final PublicURLClassLoader classloader;
-    public LaunchServerModuleContext(LaunchServer server, PublicURLClassLoader classloader)
-    {
+
+    public LaunchServerModuleContext(LaunchServer server, PublicURLClassLoader classloader) {
         launchServer = server;
         this.classloader = classloader;
     }
+
     @Override
     public Type getType() {
         return Type.LAUNCHSERVER;

@@ -31,7 +31,7 @@ public final class UUIDToUsernameCommand extends Command {
         // Get UUID by username
         String username = server.config.authHandler.uuidToUsername(uuid);
         if (username == null)
-			throw new CommandException("Unknown UUID: " + uuid);
+            throw new CommandException("Unknown UUID: " + uuid);
 
         // Print username
         LogHelper.subInfo("Username of player %s: '%s'", uuid, username);

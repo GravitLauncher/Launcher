@@ -17,143 +17,144 @@ import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.gui.choosebox.impl.CheckComboBoxSkin;
 
 public class CheckComboBox<T> extends ControlsFXControl {
-	@LauncherAPI
-	private static class CheckComboBoxBitSetCheckModel<T> extends CheckBitSetModelBase<T> {
-		@LauncherAPI
-		private final ObservableList<T> items;
+    @LauncherAPI
+    private static class CheckComboBoxBitSetCheckModel<T> extends CheckBitSetModelBase<T> {
+        @LauncherAPI
+        private final ObservableList<T> items;
 
-		@LauncherAPI
-		CheckComboBoxBitSetCheckModel(final ObservableList<T> items, final Map<T, BooleanProperty> itemBooleanMap) {
-			super(itemBooleanMap);
+        @LauncherAPI
+        CheckComboBoxBitSetCheckModel(final ObservableList<T> items, final Map<T, BooleanProperty> itemBooleanMap) {
+            super(itemBooleanMap);
 
-			this.items = items;
-			this.items.addListener((ListChangeListener<T>) c -> updateMap());
+            this.items = items;
+            this.items.addListener((ListChangeListener<T>) c -> updateMap());
 
-			updateMap();
-		}
+            updateMap();
+        }
 
-		@LauncherAPI
-		@Override
-		public T getItem(int index) {
-			return items.get(index);
-		}
+        @LauncherAPI
+        @Override
+        public T getItem(int index) {
+            return items.get(index);
+        }
 
-		@LauncherAPI
-		@Override
-		public int getItemCount() {
-			return items.size();
-		}
+        @LauncherAPI
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
 
-		@LauncherAPI
-		@Override
-		public int getItemIndex(T item) {
-			return items.indexOf(item);
-		}
-	}
-	private final ObservableList<T> items;
-	private final Map<T, BooleanProperty> itemBooleanMap;
+        @LauncherAPI
+        @Override
+        public int getItemIndex(T item) {
+            return items.indexOf(item);
+        }
+    }
 
-	private CheckComboBoxSkin<T> checkComboBoxSkin;
+    private final ObservableList<T> items;
+    private final Map<T, BooleanProperty> itemBooleanMap;
 
-	@LauncherAPI
-	private ObjectProperty<IndexedCheckModel<T>> checkModel = new SimpleObjectProperty<>(this, "checkModel");
+    private CheckComboBoxSkin<T> checkComboBoxSkin;
 
-	@LauncherAPI
-	private ObjectProperty<StringConverter<T>> converter = new SimpleObjectProperty<>(this,
-			"converter");
+    @LauncherAPI
+    private ObjectProperty<IndexedCheckModel<T>> checkModel = new SimpleObjectProperty<>(this, "checkModel");
 
-	@LauncherAPI
-	private StringProperty title = new SimpleStringProperty(null);
+    @LauncherAPI
+    private ObjectProperty<StringConverter<T>> converter = new SimpleObjectProperty<>(this,
+            "converter");
 
-	public CheckComboBox() {
-		this(null);
-	}
+    @LauncherAPI
+    private StringProperty title = new SimpleStringProperty(null);
 
-	public CheckComboBox(final ObservableList<T> items) {
-		final int initialSize = items == null ? 32 : items.size();
+    public CheckComboBox() {
+        this(null);
+    }
 
-		this.itemBooleanMap = new HashMap<>(initialSize);
-		this.items = items == null ? FXCollections.observableArrayList() : items;
-		setCheckModel(new CheckComboBoxBitSetCheckModel<>(this.items, itemBooleanMap));
-	}
+    public CheckComboBox(final ObservableList<T> items) {
+        final int initialSize = items == null ? 32 : items.size();
 
-	@LauncherAPI
-	public final ObjectProperty<IndexedCheckModel<T>> checkModelProperty() {
-		return checkModel;
-	}
+        this.itemBooleanMap = new HashMap<>(initialSize);
+        this.items = items == null ? FXCollections.observableArrayList() : items;
+        setCheckModel(new CheckComboBoxBitSetCheckModel<>(this.items, itemBooleanMap));
+    }
 
-	@LauncherAPI
-	public final ObjectProperty<StringConverter<T>> converterProperty() {
-		return converter;
-	}
+    @LauncherAPI
+    public final ObjectProperty<IndexedCheckModel<T>> checkModelProperty() {
+        return checkModel;
+    }
 
-	@Override
-	protected Skin<?> createDefaultSkin() {
-		checkComboBoxSkin = new CheckComboBoxSkin<>(this);
-		return checkComboBoxSkin;
-	}
+    @LauncherAPI
+    public final ObjectProperty<StringConverter<T>> converterProperty() {
+        return converter;
+    }
 
-	@LauncherAPI
-	public final IndexedCheckModel<T> getCheckModel() {
-		return checkModel == null ? null : checkModel.get();
-	}
+    @Override
+    protected Skin<?> createDefaultSkin() {
+        checkComboBoxSkin = new CheckComboBoxSkin<>(this);
+        return checkComboBoxSkin;
+    }
 
-	@LauncherAPI
-	public final StringConverter<T> getConverter() {
-		return converterProperty().get();
-	}
+    @LauncherAPI
+    public final IndexedCheckModel<T> getCheckModel() {
+        return checkModel == null ? null : checkModel.get();
+    }
 
-	@LauncherAPI
-	public BooleanProperty getItemBooleanProperty(int index) {
-		if (index < 0 || index >= items.size())
-			return null;
-		return getItemBooleanProperty(getItems().get(index));
-	}
+    @LauncherAPI
+    public final StringConverter<T> getConverter() {
+        return converterProperty().get();
+    }
 
-	@LauncherAPI
-	public BooleanProperty getItemBooleanProperty(T item) {
-		return itemBooleanMap.get(item);
-	}
+    @LauncherAPI
+    public BooleanProperty getItemBooleanProperty(int index) {
+        if (index < 0 || index >= items.size())
+            return null;
+        return getItemBooleanProperty(getItems().get(index));
+    }
 
-	@LauncherAPI
-	public ObservableList<T> getItems() {
-		return items;
-	}
+    @LauncherAPI
+    public BooleanProperty getItemBooleanProperty(T item) {
+        return itemBooleanMap.get(item);
+    }
 
-	@LauncherAPI
-	public final String getTitle() {
-		return title.getValue();
-	}
+    @LauncherAPI
+    public ObservableList<T> getItems() {
+        return items;
+    }
 
-	@LauncherAPI
-	public void hide() {
-		if (checkComboBoxSkin != null)
-			checkComboBoxSkin.hide();
-	}
+    @LauncherAPI
+    public final String getTitle() {
+        return title.getValue();
+    }
 
-	@LauncherAPI
-	public final void setCheckModel(IndexedCheckModel<T> value) {
-		checkModelProperty().set(value);
-	}
+    @LauncherAPI
+    public void hide() {
+        if (checkComboBoxSkin != null)
+            checkComboBoxSkin.hide();
+    }
 
-	@LauncherAPI
-	public final void setConverter(StringConverter<T> value) {
-		converterProperty().set(value);
-	}
+    @LauncherAPI
+    public final void setCheckModel(IndexedCheckModel<T> value) {
+        checkModelProperty().set(value);
+    }
 
-	@LauncherAPI
-	public final void setTitle(String value) {
-		title.setValue(value);
-	}
+    @LauncherAPI
+    public final void setConverter(StringConverter<T> value) {
+        converterProperty().set(value);
+    }
 
-	@LauncherAPI
-	public void show() {
-		if (checkComboBoxSkin != null)
-			checkComboBoxSkin.show();
-	}
+    @LauncherAPI
+    public final void setTitle(String value) {
+        title.setValue(value);
+    }
 
-	@LauncherAPI
-	public final StringProperty titleProperty() {
-		return title;
-	}
+    @LauncherAPI
+    public void show() {
+        if (checkComboBoxSkin != null)
+            checkComboBoxSkin.show();
+    }
+
+    @LauncherAPI
+    public final StringProperty titleProperty() {
+        return title;
+    }
 }

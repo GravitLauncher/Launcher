@@ -6,7 +6,7 @@ import ru.gravit.utils.Version;
 
 public class TestClientModule implements Module {
     @Override
-    public void close() throws Exception {
+    public void close() {
 
     }
 

@@ -72,19 +72,20 @@ public class JsonAuthHandler extends AuthHandler {
         JsonObject result = jsonRequestChecked(request, urlCheckServer);
         String value;
         if ((value = result.getString(uuidKeyName, null)) != null)
-			return UUID.fromString(value);
-		throw new IOException("Service error");
+            return UUID.fromString(value);
+        throw new IOException("Service error");
     }
 
     @Override
     public void close() {
 
     }
+
     @Override
     public boolean joinServer(String username, String accessToken, String serverID) throws IOException {
         JsonObject request = Json.object().add(userKeyName, username).add(serverIDKeyName, serverID).add(accessTokenKeyName, accessToken);
         HTTPRequest.jsonRequest(request, urlJoinServer);
-        return request.getString(responseOKKeyName,null).equals("OK");
+        return request.getString(responseOKKeyName, null).equals("OK");
     }
 
     @Override
@@ -107,8 +108,8 @@ public class JsonAuthHandler extends AuthHandler {
         throw new IOException("Service error");
     }
 
-    public JsonObject jsonRequestChecked(JsonObject object,URL url) throws IOException {
-        JsonValue result = HTTPRequest.jsonRequest(object,url);
+    public JsonObject jsonRequestChecked(JsonObject object, URL url) throws IOException {
+        JsonValue result = HTTPRequest.jsonRequest(object, url);
         if (!result.isObject())
             authError("Authentication server response is malformed");
 

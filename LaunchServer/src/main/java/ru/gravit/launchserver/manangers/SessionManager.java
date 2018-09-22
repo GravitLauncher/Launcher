@@ -19,7 +19,7 @@ public class SessionManager implements NeedGarbageCollection {
     }
 
     @Override
-	@LauncherAPI
+    @LauncherAPI
     public void garbageCollection() {
         long time = System.currentTimeMillis();
         clientSet.removeIf(c -> c.timestamp + SESSION_TIMEOUT < time);
@@ -28,14 +28,14 @@ public class SessionManager implements NeedGarbageCollection {
     @LauncherAPI
     public Client getClient(long session) {
         for (Client c : clientSet)
-			if (c.session == session) return c;
+            if (c.session == session) return c;
         return null;
     }
 
     @LauncherAPI
     public Client getOrNewClient(long session) {
         for (Client c : clientSet)
-			if (c.session == session) return c;
+            if (c.session == session) return c;
         Client newClient = new Client(session);
         clientSet.add(newClient);
         return newClient;
@@ -44,7 +44,7 @@ public class SessionManager implements NeedGarbageCollection {
     @LauncherAPI
     public void updateClient(long session) {
         for (Client c : clientSet)
-			if (c.session == session) {
+            if (c.session == session) {
                 c.up();
                 return;
             }

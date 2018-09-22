@@ -36,7 +36,7 @@ public final class MySQLAuthProvider extends AuthProvider {
         PreparedStatement s = c.prepareStatement(query);
         String[] replaceParams = {"login", login, "password", password, "ip", ip};
         for (int i = 0; i < queryParams.length; i++)
-			s.setString(i + 1, CommonHelper.replace(queryParams[i], replaceParams));
+            s.setString(i + 1, CommonHelper.replace(queryParams[i], replaceParams));
 
         // Execute SQL query
         s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);

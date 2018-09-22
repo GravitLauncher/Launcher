@@ -28,13 +28,17 @@ public abstract class Response {
         @LauncherAPI
         Response newResponse(LaunchServer server, long id, HInput input, HOutput output, String ip);
     }
+
     private static final Map<Integer, Factory<?>> RESPONSES = new ConcurrentHashMap<>(8);
+
     public static Response getResponse(int type, LaunchServer server, long session, HInput input, HOutput output, String ip) {
         return RESPONSES.get(type).newResponse(server, session, input, output, ip);
     }
+
     public static void registerResponse(int type, Factory<?> factory) {
         RESPONSES.put(type, factory);
     }
+
     public static void registerResponses() {
         registerResponse(RequestType.PING.getNumber(), PingResponse::new);
         registerResponse(RequestType.AUTH.getNumber(), AuthResponse::new);
@@ -50,6 +54,7 @@ public abstract class Response {
         registerResponse(RequestType.UPDATE.getNumber(), UpdateResponse::new);
         registerResponse(RequestType.PROFILES.getNumber(), ProfilesResponse::new);
     }
+
     @LauncherAPI
     public static void requestError(String message) throws RequestException {
         throw new RequestException(message);

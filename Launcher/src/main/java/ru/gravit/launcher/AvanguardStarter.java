@@ -16,7 +16,7 @@ import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 import ru.zaxar163.GuardBind;
 
 public class AvanguardStarter {
-	static class SecurityThread implements Runnable {
+    static class SecurityThread implements Runnable {
         @Override
         public void run() {
             while (!Thread.interrupted()) {
@@ -40,8 +40,9 @@ public class AvanguardStarter {
             }
         }
     }
-	public static final String NAME = Launcher.getConfig().projectname;
-	public static String avn32 = null, avn64 = null;
+
+    public static final String NAME = Launcher.getConfig().projectname;
+    public static String avn32 = null, avn64 = null;
     public static Path wrap32 = null, wrap64 = null;
 
     private static Path handle(Path mustdiedll, String resource) {
@@ -51,13 +52,13 @@ public class AvanguardStarter {
             in.close();
             if (IOHelper.exists(mustdiedll)) {
                 if (!matches(mustdiedll, orig))
-					transfer(orig, mustdiedll);
+                    transfer(orig, mustdiedll);
             } else
-				transfer(orig, mustdiedll);
+                transfer(orig, mustdiedll);
         } catch (Exception e) {
             if (e instanceof RuntimeException)
                 throw (RuntimeException) e;
-			throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
         return mustdiedll;
     }
@@ -107,8 +108,8 @@ public class AvanguardStarter {
                 handle(path.resolve("Avanguard64.dll"), "Avanguard64.dll"),
                 handle(path.resolve(NAME + "32.exe"), "wrapper32.exe"),
                 handle(path.resolve(NAME + "64.exe"), "wrapper64.exe"));
-        HashedDir guard = new HashedDir(path,null,true,false);
-        try(DirWatcher dirWatcher = new DirWatcher(path, guard, null, false)){
+        HashedDir guard = new HashedDir(path, null, true, false);
+        try (DirWatcher dirWatcher = new DirWatcher(path, guard, null, false)) {
             CommonHelper.newThread("Guard Directory Watcher", true, dirWatcher).start();
         }
     }

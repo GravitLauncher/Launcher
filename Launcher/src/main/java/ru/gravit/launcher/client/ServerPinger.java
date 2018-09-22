@@ -43,12 +43,14 @@ public final class ServerPinger {
             return onlinePlayers >= maxPlayers;
         }
     }
+
     // Constants
     private static final String LEGACY_PING_HOST_MAGIC = "§1";
     private static final String LEGACY_PING_HOST_CHANNEL = "MC|PingHost";
     private static final Pattern LEGACY_PING_HOST_DELIMETER = Pattern.compile("\0", Pattern.LITERAL);
 
     private static final int PACKET_LENGTH = 65535;
+
     private static String readUTF16String(HInput input) throws IOException {
         int length = input.readUnsignedShort() << 1;
         byte[] encoded = input.readByteArray(-length);
@@ -59,6 +61,7 @@ public final class ServerPinger {
         output.writeShort((short) s.length());
         output.stream.write(s.getBytes(StandardCharsets.UTF_16BE));
     }
+
     // Instance
     private final InetSocketAddress address;
     private final ClientProfile.Version version;
@@ -114,25 +117,25 @@ public final class ServerPinger {
         // Raed kick (response) packet
         int kickPacketID = input.readUnsignedByte();
         if (kickPacketID != 0xFF)
-			throw new IOException("Illegal kick packet ID: " + kickPacketID);
+            throw new IOException("Illegal kick packet ID: " + kickPacketID);
 
         // Read and parse response
         String response = readUTF16String(input);
         LogHelper.debug("Ping response (legacy): '%s'", response);
         String[] splitted = LEGACY_PING_HOST_DELIMETER.split(response);
         if (splitted.length != 6)
-			throw new IOException("Tokens count mismatch");
+            throw new IOException("Tokens count mismatch");
 
         // Verify all parts
         String magic = splitted[0];
         if (!magic.equals(LEGACY_PING_HOST_MAGIC))
-			throw new IOException("Magic string mismatch: " + magic);
+            throw new IOException("Magic string mismatch: " + magic);
         int protocol = Integer.parseInt(splitted[1]);
         if (protocol != version.protocol)
-			throw new IOException("Protocol mismatch: " + protocol);
+            throw new IOException("Protocol mismatch: " + protocol);
         String clientVersion = splitted[2];
         if (!clientVersion.equals(version.name))
-			throw new IOException(String.format("Version mismatch: '%s'", clientVersion));
+            throw new IOException(String.format("Version mismatch: '%s'", clientVersion));
         int onlinePlayers = VerifyHelper.verifyInt(Integer.parseInt(splitted[4]),
                 VerifyHelper.NOT_NEGATIVE, "onlinePlayers can't be < 0");
         int maxPlayers = VerifyHelper.verifyInt(Integer.parseInt(splitted[5]),
@@ -167,7 +170,7 @@ public final class ServerPinger {
         // ab is a dirty fix for some servers (noticed KCauldron 1.7.10)
         int ab = 0;
         while (ab <= 0)
-			ab = IOHelper.verifyLength(input.readVarInt(), PACKET_LENGTH);
+            ab = IOHelper.verifyLength(input.readVarInt(), PACKET_LENGTH);
 
         // Read outer status response packet ID
         String response;
@@ -175,7 +178,7 @@ public final class ServerPinger {
         try (HInput packetInput = new HInput(statusPacket)) {
             int statusPacketID = packetInput.readVarInt();
             if (statusPacketID != 0x0)
-				throw new IOException("Illegal status packet ID: " + statusPacketID);
+                throw new IOException("Illegal status packet ID: " + statusPacketID);
             response = packetInput.readString(PACKET_LENGTH);
             LogHelper.debug("Ping response (modern): '%s'", response);
         }
@@ -209,9 +212,9 @@ public final class ServerPinger {
             // Verify is result available
             if (cache == null) {
                 if (cacheException instanceof IOException)
-					throw (IOException) cacheException;
+                    throw (IOException) cacheException;
                 if (cacheException instanceof IllegalArgumentException)
-					throw (IllegalArgumentException) cacheException;
+                    throw (IllegalArgumentException) cacheException;
                 cacheException = new IOException("Unavailable");
                 throw (IOException) cacheException;
             }

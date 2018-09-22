@@ -7,8 +7,7 @@ import ru.gravit.launcher.LauncherEngine;
 import ru.gravit.launcher.modules.SimpleModuleManager;
 
 public class ClientModuleManager extends SimpleModuleManager {
-    public ClientModuleManager(LauncherEngine engine)
-    {
+    public ClientModuleManager(LauncherEngine engine) {
         context = new ClientModuleContext(engine);
         modules = new ArrayList<>();
     }

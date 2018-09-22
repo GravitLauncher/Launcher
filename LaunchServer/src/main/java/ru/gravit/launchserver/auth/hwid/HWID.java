@@ -9,9 +9,11 @@ public class HWID {
     public static HWID fromData(HInput in) throws IOException {
         return gen(in.readLong(), in.readLong(), in.readLong());
     }
+
     public static HWID gen(long hwid_hdd, long hwid_bios, long hwid_cpu) {
         return new HWID(hwid_hdd, hwid_bios, hwid_cpu);
     }
+
     private long hwid_bios;
 
     private long hwid_hdd;
@@ -27,16 +29,16 @@ public class HWID {
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
-			return true;
+            return true;
         if (obj == null)
-			return false;
+            return false;
         if (!(obj instanceof HWID))
-			return false;
+            return false;
         HWID other = (HWID) obj;
         if (hwid_bios != other.hwid_bios)
-			return false;
+            return false;
         if (hwid_cpu != other.hwid_cpu)
-			return false;
+            return false;
         return hwid_hdd == other.hwid_hdd;
     }
 

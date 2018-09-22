@@ -13,6 +13,7 @@ public class JAConfigurator implements AutoCloseable {
     StringBuilder body;
     StringBuilder moduleBody;
     int autoincrement;
+
     public JAConfigurator(Class<?> configclass) throws NotFoundException {
         classname = configclass.getName();
         ctClass = pool.get(classname);
@@ -22,8 +23,8 @@ public class JAConfigurator implements AutoCloseable {
         moduleBody = new StringBuilder("{ isInitModules = true; ");
         autoincrement = 0;
     }
-    public void addModuleClass(String fullName)
-    {
+
+    public void addModuleClass(String fullName) {
         moduleBody.append("ru.gravit.launcher.modules.Module mod");
         moduleBody.append(autoincrement);
         moduleBody.append(" = new ");
@@ -34,10 +35,12 @@ public class JAConfigurator implements AutoCloseable {
         moduleBody.append(" , true );");
         autoincrement++;
     }
+
     @Override
     public void close() {
         ctClass.defrost();
     }
+
     public byte[] getBytecode() throws IOException, CannotCompileException {
         body.append("}");
         moduleBody.append("}");
@@ -45,31 +48,30 @@ public class JAConfigurator implements AutoCloseable {
         initModuleMethod.insertAfter(moduleBody.toString());
         return ctClass.toBytecode();
     }
-    public String getZipEntryPath()
-    {
-        return classname.replace('.','/').concat(".class");
+
+    public String getZipEntryPath() {
+        return classname.replace('.', '/').concat(".class");
     }
-    public void setAddress(String address)
-    {
+
+    public void setAddress(String address) {
         body.append("this.address = \"");
         body.append(address);
         body.append("\";");
     }
-    public void setProjectName(String name)
-    {
+
+    public void setProjectName(String name) {
         body.append("this.projectname = \"");
         body.append(name);
         body.append("\";");
     }
 
-    public void setPort(int port)
-    {
+    public void setPort(int port) {
         body.append("this.port = ");
         body.append(port);
         body.append(";");
     }
-    public ClassPool getPool()
-    {
+
+    public ClassPool getPool() {
         return pool;
     }
 }

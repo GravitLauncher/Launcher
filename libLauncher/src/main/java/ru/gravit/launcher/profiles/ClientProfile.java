@@ -32,12 +32,14 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
         MC113("1.13", 393),
         MC1131("1.13.1", 401);
         private static final Map<String, Version> VERSIONS;
+
         static {
             Version[] versionsValues = values();
             VERSIONS = new HashMap<>(versionsValues.length);
             for (Version version : versionsValues)
-				VERSIONS.put(version.name, version);
+                VERSIONS.put(version.name, version);
         }
+
         public static Version byName(String name) {
             return VerifyHelper.getMapValue(VERSIONS, name, String.format("Unknown client version: '%s'", name));
         }
@@ -56,6 +58,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
             return "Minecraft " + name;
         }
     }
+
     @LauncherAPI
     public static final StreamObject.Adapter<ClientProfile> RO_ADAPTER = input -> new ClientProfile(input, true);
 
@@ -157,6 +160,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     public String[] getJvmArgs() {
         return jvmArgs.stream(StringConfigEntry.class).toArray(String[]::new);
     }
+
     @LauncherAPI
     public String getMainClass() {
         return mainClass.getValue();
@@ -198,10 +202,9 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     }
 
     @LauncherAPI
-    public boolean isWhitelistContains(String username)
-    {
-        if(!useWhitelist.getValue()) return true;
-		return whitelist.stream(StringConfigEntry.class).anyMatch(e -> e.equals(username));
+    public boolean isWhitelistContains(String username) {
+        if (!useWhitelist.getValue()) return true;
+        return whitelist.stream(StringConfigEntry.class).anyMatch(e -> e.equals(username));
     }
 
     @LauncherAPI

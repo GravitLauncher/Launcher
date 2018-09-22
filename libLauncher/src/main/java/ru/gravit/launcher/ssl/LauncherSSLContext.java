@@ -9,8 +9,9 @@ public class LauncherSSLContext {
     public SSLServerSocketFactory ssf;
     public SSLSocketFactory sf;
     private SSLContext sc;
-    public LauncherSSLContext(KeyStore ks,String keypassword) throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, UnrecoverableKeyException, KeyManagementException {
-        TrustManager[] trustAllCerts = new TrustManager[] {
+
+    public LauncherSSLContext(KeyStore ks, String keypassword) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
+        TrustManager[] trustAllCerts = new TrustManager[]{
                 new LauncherTrustManager()
         };
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory
@@ -21,8 +22,9 @@ public class LauncherSSLContext {
         ssf = sc.getServerSocketFactory();
         sf = sc.getSocketFactory();
     }
+
     public LauncherSSLContext() throws NoSuchAlgorithmException, KeyManagementException {
-        TrustManager[] trustAllCerts = new TrustManager[] {
+        TrustManager[] trustAllCerts = new TrustManager[]{
                 new LauncherTrustManager()
         };
         SSLContext sc = SSLContext.getInstance("TLSv1.2");

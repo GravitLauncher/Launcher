@@ -46,6 +46,7 @@ public final class LauncherRequest extends Request<Result> {
             return sign.clone();
         }
     }
+
     @LauncherAPI
     public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
 
@@ -60,9 +61,9 @@ public final class LauncherRequest extends Request<Result> {
         List<String> args = new ArrayList<>(8);
         args.add(IOHelper.resolveJavaBin(null).toString());
         if (LogHelper.isDebugEnabled())
-			args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
+            args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         if (LauncherConfig.ADDRESS_OVERRIDE != null)
-			args.add(JVMHelper.jvmProperty(LauncherConfig.ADDRESS_OVERRIDE_PROPERTY, LauncherConfig.ADDRESS_OVERRIDE));
+            args.add(JVMHelper.jvmProperty(LauncherConfig.ADDRESS_OVERRIDE_PROPERTY, LauncherConfig.ADDRESS_OVERRIDE));
         args.add("-jar");
         args.add(BINARY_PATH.toString());
         ProcessBuilder builder = new ProcessBuilder(args.toArray(new String[0]));
@@ -117,7 +118,7 @@ public final class LauncherRequest extends Request<Result> {
         int count = input.readLength(0);
         List<SignedObjectHolder<ClientProfile>> profiles = new ArrayList<>(count);
         for (int i = 0; i < count; i++)
-			profiles.add(new SignedObjectHolder<>(input, publicKey, ClientProfile.RO_ADAPTER));
+            profiles.add(new SignedObjectHolder<>(input, publicKey, ClientProfile.RO_ADAPTER));
 
         // Return request result
         return new Result(null, sign, profiles);

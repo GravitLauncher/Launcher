@@ -9,16 +9,16 @@ import ru.gravit.launchserver.LaunchServer;
 
 public class EXELauncherBinary extends LauncherBinary {
 
-	public EXELauncherBinary(LaunchServer server) {
-		super(server, server.dir.resolve(server.config.binaryName + ".exe"));
-	}
+    public EXELauncherBinary(LaunchServer server) {
+        super(server, server.dir.resolve(server.config.binaryName + ".exe"));
+    }
 
-	@Override
-	public void build() throws IOException {
+    @Override
+    public void build() throws IOException {
         if (IOHelper.isFile(binaryFile)) {
             LogHelper.subWarning("Deleting obsolete launcher EXE binary file");
             Files.delete(binaryFile);
         }
-	}
+    }
 
 }

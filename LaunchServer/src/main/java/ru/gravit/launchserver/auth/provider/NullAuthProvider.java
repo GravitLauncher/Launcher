@@ -23,7 +23,7 @@ public final class NullAuthProvider extends AuthProvider {
     public void close() throws IOException {
         AuthProvider provider = this.provider;
         if (provider != null)
-			provider.close();
+            provider.close();
     }
 
     private AuthProvider getProvider() {

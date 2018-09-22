@@ -18,22 +18,22 @@ import ru.gravit.launcher.LauncherAPI;
 @LauncherAPI
 abstract class ProgressCircleIndicator extends ProgressIndicator {
 
-	@LauncherAPI
+    @LauncherAPI
     public ProgressCircleIndicator() {
         this.getStylesheets().add(ProgressCircleIndicator.class.getResource("/runtime/launcher/overlay/update/circleprogress.css").toExternalForm());
     }
 
-	@LauncherAPI
+    @LauncherAPI
     public final void setInnerCircleRadius(int value) {
         innerCircleRadiusProperty().set(value);
     }
 
-	@LauncherAPI
+    @LauncherAPI
     public final DoubleProperty innerCircleRadiusProperty() {
         return innerCircleRadius;
     }
 
-	@LauncherAPI
+    @LauncherAPI
     public final double getInnerCircleRadius() {
         return innerCircleRadiusProperty().get();
     }
@@ -68,13 +68,14 @@ abstract class ProgressCircleIndicator extends ProgressIndicator {
             }
 
             @SuppressWarnings("unchecked")
-			@Override
+            @Override
             public StyleableProperty<Number> getStyleableProperty(ProgressCircleIndicator n) {
                 return (StyleableProperty<Number>) n.innerCircleRadiusProperty();
             }
         };
 
         public static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
+
         static {
             final List<CssMetaData<? extends Styleable, ?>> styleables = new ArrayList<>(Control.getClassCssMetaData());
             styleables.add(INNER_CIRCLE_RADIUS);
@@ -83,13 +84,10 @@ abstract class ProgressCircleIndicator extends ProgressIndicator {
     }
 
     @LauncherAPI
-    /**
-     * @return The CssMetaData associated with this class, which may include the CssMetaData of its super classes.
-     */
     public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
         return StyleableProperties.STYLEABLES;
     }
-    
+
     @LauncherAPI
     @Override
     public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() {

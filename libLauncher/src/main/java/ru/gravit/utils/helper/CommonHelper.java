@@ -19,7 +19,7 @@ public final class CommonHelper {
     private static ScriptEngineFactory getEngineFactories(ScriptEngineManager manager) {
         // Метод похож на костыль но таковым не является, ибо единоразовое получение фактории быстрее, чем её переполучение на ходу.
         for (ScriptEngineFactory fact : manager.getEngineFactories())
-			if (fact.getNames().contains("nashorn") || fact.getNames().contains("Nashorn")) return fact;
+            if (fact.getNames().contains("nashorn") || fact.getNames().contains("Nashorn")) return fact;
         return null;
     }
 
@@ -31,7 +31,7 @@ public final class CommonHelper {
     @LauncherAPI
     public static boolean multiMatches(Pattern[] pattern, String from) {
         for (Pattern p : pattern)
-			if (p.matcher(from).matches()) return true;
+            if (p.matcher(from).matches()) return true;
         return false;
     }
 
@@ -56,14 +56,14 @@ public final class CommonHelper {
         Thread thread = new Thread(runnable);
         thread.setDaemon(daemon);
         if (name != null)
-			thread.setName(name);
+            thread.setName(name);
         return thread;
     }
 
     @LauncherAPI
     public static String replace(String source, String... params) {
         for (int i = 0; i < params.length; i += 2)
-			source = source.replace('%' + params[i] + '%', params[i + 1]);
+            source = source.replace('%' + params[i] + '%', params[i + 1]);
         return source;
     }
 

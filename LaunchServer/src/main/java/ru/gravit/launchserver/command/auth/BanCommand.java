@@ -23,7 +23,7 @@ public class BanCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        verifyArgs(args,1);
+        verifyArgs(args, 1);
         List<HWID> target = server.config.hwidHandler.getHwid(args[0]);
         server.config.hwidHandler.ban(target);
     }

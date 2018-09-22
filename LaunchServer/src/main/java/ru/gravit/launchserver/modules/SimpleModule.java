@@ -6,9 +6,9 @@ import ru.gravit.launcher.modules.ModuleContext;
 
 public class SimpleModule implements Module {
     @Override
-	public void close() {
-		// on stop
-	}
+    public void close() {
+        // on stop
+    }
 
     @Override
     public String getName() {
@@ -17,7 +17,7 @@ public class SimpleModule implements Module {
 
     @Override
     public Version getVersion() {
-        return new Version(1,0,0,0, Version.Type.UNKNOWN);
+        return new Version(1, 0, 0, 0, Version.Type.UNKNOWN);
     }
 
     @Override

@@ -28,6 +28,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
         @LauncherAPI
         boolean onHandshake(long session, Integer type);
     }
+
     private static final ThreadFactory THREAD_FACTORY = r -> CommonHelper.newThread("Network Thread", true, r);
 
     @LauncherAPI
@@ -68,7 +69,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
 
     /*package*/ void onDisconnect(Exception e) {
         if (listener != null)
-			listener.onDisconnect(e);
+            listener.onDisconnect(e);
     }
 
     /*package*/ boolean onHandshake(long session, Integer type) {
@@ -80,7 +81,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
         LogHelper.info("Starting server socket thread");
         try (ServerSocket serverSocket = new ServerSocket()) {
             if (!this.serverSocket.compareAndSet(null, serverSocket))
-				throw new IllegalStateException("Previous socket wasn't closed");
+                throw new IllegalStateException("Previous socket wasn't closed");
 
             // Set socket params
             serverSocket.setReuseAddress(true);
@@ -96,7 +97,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
                 // Invoke pre-connect listener
                 long id = idCounter.incrementAndGet();
                 if (listener != null && !listener.onConnect(socket.getInetAddress()))
-					continue; // Listener didn't accepted this connection
+                    continue; // Listener didn't accepted this connection
 
                 // Reply in separate thread
                 threadPool.execute(new ResponseThread(server, id, socket, sessionManager));
@@ -104,7 +105,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
         } catch (IOException e) {
             // Ignore error after close/rebind
             if (serverSocket.get() != null)
-				LogHelper.error(e);
+                LogHelper.error(e);
         }
     }
 

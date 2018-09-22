@@ -20,7 +20,7 @@ public final class NullTextureProvider extends TextureProvider {
     public void close() throws IOException {
         TextureProvider provider = this.provider;
         if (provider != null)
-			provider.close();
+            provider.close();
     }
 
     @Override

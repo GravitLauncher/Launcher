@@ -15,6 +15,7 @@ public class Version {
     public final int build;
     @LauncherAPI
     public final Type release;
+
     @LauncherAPI
     public Version(int major, int minor, int patch) {
         this.major = major;
@@ -23,6 +24,7 @@ public class Version {
         build = 0;
         release = Type.UNKNOWN;
     }
+
     @LauncherAPI
     public Version(int major, int minor, int patch, int build) {
         this.major = major;
@@ -31,6 +33,7 @@ public class Version {
         this.build = build;
         release = Type.UNKNOWN;
     }
+
     @LauncherAPI
     public Version(int major, int minor, int patch, int build, Type release) {
         this.major = major;
@@ -51,9 +54,10 @@ public class Version {
                 patch == that.patch &&
                 build == that.build;
     }
+
     @LauncherAPI
     public String getVersionString() {
-    	return String.format("%d.%d.%d", major, minor, patch);
+        return String.format("%d.%d.%d", major, minor, patch);
     }
 
     @Override
@@ -61,46 +65,47 @@ public class Version {
     public int hashCode() {
         return Objects.hash(major, minor, patch, build);
     }
+
     @LauncherAPI
-    public String getReleaseStatus()
-    {
+    public String getReleaseStatus() {
         String result;
         switch (release) {
             case LTS:
-                result="lts";
+                result = "lts";
                 break;
             case STABLE:
-                result="stable";
+                result = "stable";
                 break;
             case BETA:
-                result="beta";
+                result = "beta";
                 break;
             case ALPHA:
-                result="alpha";
+                result = "alpha";
                 break;
             case DEV:
-                result="dev";
+                result = "dev";
                 break;
             case EXPERIMENTAL:
-                result="experimental";
+                result = "experimental";
                 break;
             case UNKNOWN:
-                result="";
+                result = "";
                 break;
             default:
-                result="";
+                result = "";
                 break;
         }
         return result;
     }
+
     @Override
     @LauncherAPI
     public String toString() {
-        return String.format("%d.%d.%d-%d %s", major, minor, patch, build,getReleaseStatus());
+        return String.format("%d.%d.%d-%d %s", major, minor, patch, build, getReleaseStatus());
     }
+
     @LauncherAPI
-    public enum Type
-    {
+    public enum Type {
         LTS,
         STABLE,
         BETA,

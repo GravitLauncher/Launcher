@@ -19,6 +19,7 @@ public final class TextConfigWriter {
     public static void write(BlockConfigEntry block, Writer writer, boolean comments) throws IOException {
         new TextConfigWriter(writer, comments).writeBlock(block, false);
     }
+
     private final Writer writer;
 
     private final boolean comments;
@@ -31,7 +32,7 @@ public final class TextConfigWriter {
     private void writeBlock(BlockConfigEntry block, boolean brackets) throws IOException {
         // Write start bracket
         if (brackets)
-			writer.write('{');
+            writer.write('{');
 
         // Write block entries
         Map<String, ConfigEntry<?>> map = block.getValue();
@@ -55,7 +56,7 @@ public final class TextConfigWriter {
 
         // Write end bracket
         if (brackets)
-			writer.write('}');
+            writer.write('}');
     }
 
     private void writeBoolean(BooleanConfigEntry entry) throws IOException {
@@ -64,7 +65,7 @@ public final class TextConfigWriter {
 
     private void writeComment(String comment) throws IOException {
         if (comments && comment != null)
-			writer.write(comment);
+            writer.write(comment);
     }
 
     private void writeEntry(ConfigEntry<?> entry) throws IOException {
@@ -101,7 +102,7 @@ public final class TextConfigWriter {
         List<ConfigEntry<?>> value = entry.getValue();
         for (int i = 0; i < value.size(); i++) {
             if (i > 0)
-				writer.write(',');
+                writer.write(',');
 
             // Write element
             ConfigEntry<?> element = value.get(i);

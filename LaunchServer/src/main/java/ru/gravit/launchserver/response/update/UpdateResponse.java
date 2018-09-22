@@ -57,7 +57,7 @@ public final class UpdateResponse extends Response {
             // Read actions slice
             int length = input.readLength(actionsSlice.length);
             for (int i = 0; i < length; i++)
-				actionsSlice[i] = new UpdateAction(input);
+                actionsSlice[i] = new UpdateAction(input);
 
             // Perform actions
             for (int i = 0; i < length; i++) {
@@ -69,7 +69,7 @@ public final class UpdateResponse extends Response {
                         // Get hashed dir (for validation)
                         HashedEntry hSubdir = dirStack.getLast().getEntry(action.name);
                         if (hSubdir == null || hSubdir.getType() != Type.DIR)
-							throw new IOException("Unknown hashed dir: " + action.name);
+                            throw new IOException("Unknown hashed dir: " + action.name);
                         dirStack.add((HashedDir) hSubdir);
 
                         // Resolve dir
@@ -81,7 +81,7 @@ public final class UpdateResponse extends Response {
                         // Get hashed file (for validation)
                         HashedEntry hFile = dirStack.getLast().getEntry(action.name);
                         if (hFile == null || hFile.getType() != Type.FILE)
-							throw new IOException("Unknown hashed file: " + action.name);
+                            throw new IOException("Unknown hashed file: " + action.name);
 
                         // Resolve and write file
                         Path file = dir.resolve(action.name);
@@ -101,7 +101,7 @@ public final class UpdateResponse extends Response {
                         // Remove from hashed dir stack
                         dirStack.removeLast();
                         if (dirStack.isEmpty())
-							throw new IOException("Empty hDir stack");
+                            throw new IOException("Empty hDir stack");
 
                         // Get parent
                         dir = dir.getParent();
@@ -119,6 +119,6 @@ public final class UpdateResponse extends Response {
 
         // So we've updated :)
         if (fileOutput instanceof DeflaterOutputStream)
-			((DeflaterOutputStream) fileOutput).finish();
+            ((DeflaterOutputStream) fileOutput).finish();
     }
 }

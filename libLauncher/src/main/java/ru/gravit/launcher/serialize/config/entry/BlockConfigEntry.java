@@ -52,7 +52,7 @@ public final class BlockConfigEntry extends ConfigEntry<Map<String, ConfigEntry<
         Map<String, ConfigEntry<?>> map = super.getValue();
         ConfigEntry<?> value = map.get(name);
         if (!clazz.isInstance(value))
-			throw new NoSuchElementException(name);
+            throw new NoSuchElementException(name);
         return clazz.cast(value);
     }
 

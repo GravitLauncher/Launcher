@@ -39,7 +39,7 @@ public final class UnindexAssetCommand extends Command {
         Path inputAssetDir = server.updatesDir.resolve(inputAssetDirName);
         Path outputAssetDir = server.updatesDir.resolve(outputAssetDirName);
         if (outputAssetDir.equals(inputAssetDir))
-			throw new CommandException("Indexed and unindexed asset dirs can't be same");
+            throw new CommandException("Indexed and unindexed asset dirs can't be same");
 
         // Create new asset dir
         LogHelper.subInfo("Creating unindexed asset dir: '%s'", outputAssetDirName);

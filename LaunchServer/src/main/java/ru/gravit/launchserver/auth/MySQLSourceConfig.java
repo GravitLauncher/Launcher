@@ -67,7 +67,7 @@ public final class MySQLSourceConfig extends ConfigObject implements AutoCloseab
     @Override
     public synchronized void close() {
         if (hikari)
-			((HikariDataSource) source).close();
+            ((HikariDataSource) source).close();
     }
 
     @LauncherAPI

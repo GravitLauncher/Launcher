@@ -9,6 +9,7 @@ import ru.gravit.launcher.LauncherAPI;
 @SuppressWarnings("AbstractClassNeverImplemented")
 public abstract class JSApplication extends Application {
     private static final AtomicReference<JSApplication> INSTANCE = new AtomicReference<>();
+
     @LauncherAPI
     public static JSApplication getInstance() {
         return INSTANCE.get();

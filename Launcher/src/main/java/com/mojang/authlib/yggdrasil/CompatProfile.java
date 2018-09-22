@@ -24,6 +24,7 @@ public final class CompatProfile {
                 profile.cloak == null ? null : SecurityHelper.toHex(profile.cloak.digest)
         );
     }
+
     // Instance
     public final UUID uuid;
     public final String uuidHash, username;
@@ -44,13 +45,13 @@ public final class CompatProfile {
     public int countProperties() {
         int count = 0;
         if (skinURL != null)
-			count++;
+            count++;
         if (skinDigest != null)
-			count++;
+            count++;
         if (cloakURL != null)
-			count++;
+            count++;
         if (cloakDigest != null)
-			count++;
+            count++;
         return count;
     }
 }

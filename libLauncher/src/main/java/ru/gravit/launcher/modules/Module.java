@@ -9,9 +9,10 @@ public interface Module extends AutoCloseable {
     Version getVersion();
 
     int getPriority();
+
     void init(ModuleContext context);
-  
+
     void postInit(ModuleContext context);
-    
+
     void preInit(ModuleContext context);
 }

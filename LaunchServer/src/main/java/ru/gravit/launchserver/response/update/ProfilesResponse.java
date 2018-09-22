@@ -25,7 +25,7 @@ public final class ProfilesResponse extends Response {
         Collection<SignedObjectHolder<ClientProfile>> profiles = server.getProfiles();
         output.writeLength(profiles.size(), 0);
         for (SignedObjectHolder<ClientProfile> profile : profiles) {
-            LogHelper.debug("Writted profile: %s",profile.object.getTitle());
+            LogHelper.debug("Writted profile: %s", profile.object.getTitle());
             profile.write(output);
         }
     }

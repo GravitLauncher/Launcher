@@ -26,6 +26,7 @@ public final class ResponseThread implements Runnable {
             this.session = session;
         }
     }
+
     private final LaunchServer server;
     private final Socket socket;
 
@@ -45,18 +46,16 @@ public final class ResponseThread implements Runnable {
         // Verify magic number
         int magicNumber = input.readInt();
         if (magicNumber != Launcher.PROTOCOL_MAGIC)
-			if (magicNumber == Launcher.PROTOCOL_MAGIC_LEGACY - 1) { // Previous launcher protocol
+            if (magicNumber == Launcher.PROTOCOL_MAGIC_LEGACY - 1) { // Previous launcher protocol
                 session = 0;
                 legacy = true;
-            }
-            else if (magicNumber == Launcher.PROTOCOL_MAGIC_LEGACY - 2) { // Previous launcher protocol
+            } else if (magicNumber == Launcher.PROTOCOL_MAGIC_LEGACY - 2) { // Previous launcher protocol
                 session = 0;
                 legacy = true;
-            }
-            else if (magicNumber == Launcher.PROTOCOL_MAGIC_LEGACY){
+            } else if (magicNumber == Launcher.PROTOCOL_MAGIC_LEGACY) {
 
             } else
-				throw new IOException("Invalid Handshake");
+                throw new IOException("Invalid Handshake");
         // Verify key modulus
         BigInteger keyModulus = input.readBigInteger(SecurityHelper.RSA_KEY_LENGTH + 1);
         if (!legacy) {
@@ -68,7 +67,7 @@ public final class ResponseThread implements Runnable {
             throw new IOException(String.format("#%d Key modulus mismatch", session));
         }
         // Read request type
-        Integer type = input.readVarInt();
+        int type = input.readVarInt();
         if (!server.serverSocketHandler.onHandshake(session, type)) {
             output.writeBoolean(false);
             return null;
@@ -82,7 +81,7 @@ public final class ResponseThread implements Runnable {
 
     private void respond(Integer type, HInput input, HOutput output, long session, String ip) throws Exception {
         if (server.serverSocketHandler.logConnections)
-			LogHelper.info("Connection #%d from %s", session, ip);
+            LogHelper.info("Connection #%d from %s", session, ip);
 
         // Choose response based on type
         Response response = Response.getResponse(type, server, session, input, output, ip);
@@ -95,7 +94,7 @@ public final class ResponseThread implements Runnable {
     @Override
     public void run() {
         if (!server.serverSocketHandler.logConnections)
-			LogHelper.debug("Connection from %s", IOHelper.getIP(socket.getRemoteSocketAddress()));
+            LogHelper.debug("Connection from %s", IOHelper.getIP(socket.getRemoteSocketAddress()));
 
         // Process connection
         boolean cancelled = false;
@@ -121,7 +120,7 @@ public final class ResponseThread implements Runnable {
         } finally {
             IOHelper.close(socket);
             if (!cancelled)
-				server.serverSocketHandler.onDisconnect(savedError);
+                server.serverSocketHandler.onDisconnect(savedError);
         }
     }
 }

@@ -48,11 +48,11 @@ public abstract class CommandHandler implements Runnable {
             // Maybe we should read next argument?
             if (end || !quoted && Character.isWhitespace(ch)) {
                 if (end && quoted)
-					throw new CommandException("Quotes wasn't closed");
+                    throw new CommandException("Quotes wasn't closed");
 
                 // Empty args are ignored (except if was quoted)
                 if (wasQuoted || builder.length() > 0)
-					result.add(builder.toString());
+                    result.add(builder.toString());
 
                 // Reset string builder
                 wasQuoted = false;
@@ -68,7 +68,7 @@ public abstract class CommandHandler implements Runnable {
                     break;
                 case '\\': // All escapes, including spaces etc
                     if (i + 1 >= line.length())
-						throw new CommandException("Escape character is not specified");
+                        throw new CommandException("Escape character is not specified");
                     char next = line.charAt(i + 1);
                     builder.append(next);
                     i++;
@@ -101,7 +101,7 @@ public abstract class CommandHandler implements Runnable {
         registerCommand("logConnections", new LogConnectionsCommand(server));
         registerCommand("loadModule", new LoadModuleCommand(server));
         registerCommand("modules", new ModulesCommand(server));
-        registerCommand("test",new TestCommand(server));
+        registerCommand("test", new TestCommand(server));
 
         // Register sync commands
         registerCommand("indexAsset", new IndexAssetCommand(server));
@@ -151,7 +151,7 @@ public abstract class CommandHandler implements Runnable {
     @LauncherAPI
     public final void eval(String[] args, boolean bell) {
         if (args.length == 0)
-			return;
+            return;
 
         // Measure start time and invoke command
         Instant startTime = Instant.now();
@@ -164,7 +164,7 @@ public abstract class CommandHandler implements Runnable {
         // Bell if invocation took > 1s
         Instant endTime = Instant.now();
         if (bell && Duration.between(startTime, endTime).getSeconds() >= 5)
-			try {
+            try {
                 bell();
             } catch (IOException e) {
                 LogHelper.error(e);
@@ -175,7 +175,7 @@ public abstract class CommandHandler implements Runnable {
     public final Command lookup(String name) throws CommandException {
         Command command = commands.get(name);
         if (command == null)
-			throw new CommandException(String.format("Unknown command: '%s'", name));
+            throw new CommandException(String.format("Unknown command: '%s'", name));
         return command;
     }
 
@@ -184,7 +184,7 @@ public abstract class CommandHandler implements Runnable {
 
     private void readLoop() throws IOException {
         for (String line = readLine(); line != null; line = readLine())
-			eval(line, true);
+            eval(line, true);
     }
 
     @LauncherAPI

@@ -44,7 +44,7 @@ public class HTTPRequest {
         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setRequestProperty("Accept", "application/json");
         if (TIMEOUT > 0)
-			connection.setConnectTimeout(TIMEOUT);
+            connection.setConnectTimeout(TIMEOUT);
 
         OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), Charset.forName("UTF-8"));
         writer.write(request.toString());
@@ -55,9 +55,9 @@ public class HTTPRequest {
         int statusCode = connection.getResponseCode();
 
         if (200 <= statusCode && statusCode < 300)
-			reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
-		else
-			reader = new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8);
+            reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
+        else
+            reader = new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8);
         JsonValue content = Json.parse(reader);
         return content;
     }

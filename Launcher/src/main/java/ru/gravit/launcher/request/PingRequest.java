@@ -29,7 +29,7 @@ public final class PingRequest extends Request<Void> {
     protected Void requestDo(HInput input, HOutput output) throws IOException {
         byte pong = (byte) input.readUnsignedByte();
         if (pong != SerializeLimits.EXPECTED_BYTE)
-			throw new IOException("Illegal ping response: " + pong);
+            throw new IOException("Illegal ping response: " + pong);
         return null;
     }
 }

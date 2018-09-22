@@ -19,7 +19,7 @@ public class ModulesCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
-    	server.modulesManager.printModules();
+    public void invoke(String... args) {
+        server.modulesManager.printModules();
     }
 }

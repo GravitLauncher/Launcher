@@ -28,7 +28,7 @@ public final class CompatBridge {
     @SuppressWarnings("unused")
     public static boolean joinServer(String username, String accessToken, String serverID) throws Exception {
         if (!ClientLauncher.isLaunched())
-			throw new IllegalStateException("Bad Login (Cheater)");
+            throw new IllegalStateException("Bad Login (Cheater)");
 
         // Join server
         LogHelper.debug("LegacyBridge.joinServer, Username: '%s', Access token: %s, Server ID: %s", username, accessToken, serverID);
@@ -52,7 +52,7 @@ public final class CompatBridge {
         // Convert profiles
         CompatProfile[] resultProfiles = new CompatProfile[profiles.length];
         for (int i = 0; i < profiles.length; i++)
-			resultProfiles[i] = CompatProfile.fromPlayerProfile(profiles[i]);
+            resultProfiles[i] = CompatProfile.fromPlayerProfile(profiles[i]);
 
         // We're dones
         return resultProfiles;

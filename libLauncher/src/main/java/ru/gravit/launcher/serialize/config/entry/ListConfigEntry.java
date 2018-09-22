@@ -15,7 +15,7 @@ public final class ListConfigEntry extends ConfigEntry<List<ConfigEntry<?>>> {
         int elementsCount = input.readLength(0);
         List<ConfigEntry<?>> list = new ArrayList<>(elementsCount);
         for (int i = 0; i < elementsCount; i++)
-			list.add(readEntry(input, ro));
+            list.add(readEntry(input, ro));
         return list;
     }
 
@@ -48,7 +48,7 @@ public final class ListConfigEntry extends ConfigEntry<List<ConfigEntry<?>>> {
     @LauncherAPI
     public void verifyOfType(Type type) {
         if (getValue().stream().anyMatch(e -> e.getType() != type))
-			throw new IllegalArgumentException("List type mismatch: " + type.name());
+            throw new IllegalArgumentException("List type mismatch: " + type.name());
     }
 
     @Override
@@ -56,6 +56,6 @@ public final class ListConfigEntry extends ConfigEntry<List<ConfigEntry<?>>> {
         List<ConfigEntry<?>> value = getValue();
         output.writeLength(value.size(), 0);
         for (ConfigEntry<?> element : value)
-			writeEntry(element, output);
+            writeEntry(element, output);
     }
 }

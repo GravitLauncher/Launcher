@@ -60,7 +60,7 @@ public final class HashedDir extends HashedEntry {
         public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
             FileVisitResult result = super.postVisitDirectory(dir, exc);
             if (this.dir.equals(dir))
-				return result;
+                return result;
 
             // Add directory to parent
             HashedDir parent = stack.removeLast();
@@ -75,12 +75,12 @@ public final class HashedDir extends HashedEntry {
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             FileVisitResult result = super.preVisitDirectory(dir, attrs);
             if (this.dir.equals(dir))
-				return result;
+                return result;
 
             // Verify is not symlink
             // Symlinks was disallowed because modification of it's destination are ignored by DirWatcher
             if (!allowSymlinks && attrs.isSymbolicLink())
-				throw new SecurityException("Symlinks are not allowed");
+                throw new SecurityException("Symlinks are not allowed");
 
             // Add child
             stack.add(current);
@@ -95,7 +95,7 @@ public final class HashedDir extends HashedEntry {
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             // Verify is not symlink
             if (!allowSymlinks && attrs.isSymbolicLink())
-				throw new SecurityException("Symlinks are not allowed");
+                throw new SecurityException("Symlinks are not allowed");
 
             // Add file (may be unhashed, if exclusion)
             path.add(IOHelper.getFileName(file));
@@ -200,7 +200,7 @@ public final class HashedDir extends HashedEntry {
 
                     // Should be deleted!
                     if (!mismatchList)
-						entry.flag = true;
+                        entry.flag = true;
                 }
                 path.removeLast();
                 continue;
@@ -212,7 +212,7 @@ public final class HashedDir extends HashedEntry {
                     HashedFile file = (HashedFile) entry;
                     HashedFile otherFile = (HashedFile) otherEntry;
                     if (mismatchList && shouldUpdate && !file.isSame(otherFile))
-						diff.map.put(name, entry);
+                        diff.map.put(name, entry);
                     break;
                 case DIR:
                     HashedDir dir = (HashedDir) entry;
@@ -220,7 +220,7 @@ public final class HashedDir extends HashedEntry {
                     if (mismatchList || shouldUpdate) { // Maybe isn't need to go deeper?
                         HashedDir mismatch = dir.sideDiff(otherDir, matcher, path, mismatchList);
                         if (!mismatch.isEmpty())
-							diff.map.put(name, mismatch);
+                            diff.map.put(name, mismatch);
                     }
                     break;
                 default:

@@ -34,7 +34,7 @@ public final class LegacyBridge {
     @SuppressWarnings("unused")
     public static String joinServer(String username, String accessToken, String serverID) {
         if (!ClientLauncher.isLaunched())
-			return "Bad Login (Cheater)";
+            return "Bad Login (Cheater)";
 
         // Join server
         LogHelper.debug("LegacyBridge.joinServer, Username: '%s', Access token: %s, Server ID: %s", username, accessToken, serverID);

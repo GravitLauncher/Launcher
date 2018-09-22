@@ -66,10 +66,10 @@ public final class MojangAuthProvider extends AuthProvider {
         // Verify there's no error
         JsonObject response = makeJSONRequest(URL, request);
         if (response == null)
-			authError("Empty mojang response");
+            authError("Empty mojang response");
         JsonValue errorMessage = response.get("errorMessage");
         if (errorMessage != null)
-			authError(errorMessage.asString());
+            authError(errorMessage.asString());
 
         // Parse JSON data
         JsonObject selectedProfile = response.get("selectedProfile").asObject();

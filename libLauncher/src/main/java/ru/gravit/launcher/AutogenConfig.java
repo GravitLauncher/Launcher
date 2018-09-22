@@ -5,12 +5,13 @@ public class AutogenConfig {
     public String address;
     public int port;
     private boolean isInitModules;
+
     AutogenConfig() {
 
     }
+
     @SuppressWarnings("UnnecessaryReturnStatement")
-    public void initModules()
-    {
-        if(isInitModules) return;
+    public void initModules() {
+        if (isInitModules) return;
     }
 }

@@ -39,11 +39,13 @@ public final class SecurityHelper {
             DigestAlgorithm[] algorithmsValues = values();
             ALGORITHMS = new HashMap<>(algorithmsValues.length);
             for (DigestAlgorithm algorithm : algorithmsValues)
-				ALGORITHMS.put(algorithm.name, algorithm);
+                ALGORITHMS.put(algorithm.name, algorithm);
         }
+
         public static DigestAlgorithm byName(String name) {
             return VerifyHelper.getMapValue(ALGORITHMS, name, String.format("Unknown digest algorithm: '%s'", name));
         }
+
         // Instance
         public final String name;
 
@@ -67,10 +69,11 @@ public final class SecurityHelper {
 
         public byte[] verify(byte[] digest) {
             if (digest.length != bytes)
-				throw new IllegalArgumentException("Invalid digest length: " + digest.length);
+                throw new IllegalArgumentException("Invalid digest length: " + digest.length);
             return digest;
         }
     }
+
     // Algorithm constants
     @LauncherAPI
     public static final String RSA_ALGO = "RSA";
@@ -112,7 +115,7 @@ public final class SecurityHelper {
         byte[] buffer = IOHelper.newBuffer();
         MessageDigest digest = newDigest(algo);
         for (int length = input.read(buffer); length != -1; length = input.read(buffer))
-			digest.update(buffer, 0, length);
+            digest.update(buffer, 0, length);
         return digest.digest();
     }
 
@@ -321,7 +324,7 @@ public final class SecurityHelper {
             prefix = "Mrs";
             usernameLength -= 3;
         } else
-			prefix = "";
+            prefix = "";
 
         // Choose suffix
         String suffix;
@@ -333,7 +336,7 @@ public final class SecurityHelper {
             suffix = String.valueOf(1990 + random.nextInt(26));
             usernameLength -= 4;
         } else
-			suffix = "";
+            suffix = "";
 
         // Choose name
         int consRepeat = 0;
@@ -347,8 +350,8 @@ public final class SecurityHelper {
 
             // Choose next char
             if (consRepeat < 1 && random.nextInt() == 5)
-				consRepeat++;
-			else {
+                consRepeat++;
+            else {
                 consRepeat = 0;
                 consPrev ^= true;
             }
@@ -360,7 +363,7 @@ public final class SecurityHelper {
 
         // Make first letter uppercase
         if (!prefix.isEmpty() || random.nextBoolean())
-			chars[0] = Character.toUpperCase(chars[0]);
+            chars[0] = Character.toUpperCase(chars[0]);
 
         // Return chosen name (and verify for sure)
         return VerifyHelper.verifyUsername(prefix + new String(chars) + suffix);
@@ -422,7 +425,7 @@ public final class SecurityHelper {
     private static void updateSignature(InputStream input, Signature signature) throws IOException {
         byte[] buffer = IOHelper.newBuffer();
         for (int length = input.read(buffer); length >= 0; length = input.read(buffer))
-			try {
+            try {
                 signature.update(buffer, 0, length);
             } catch (SignatureException e) {
                 throw new InternalError(e);
@@ -432,25 +435,25 @@ public final class SecurityHelper {
     @LauncherAPI
     public static void verifySign(byte[] bytes, byte[] sign, RSAPublicKey publicKey) throws SignatureException {
         if (!isValidSign(bytes, sign, publicKey))
-			throw new SignatureException("Invalid sign");
+            throw new SignatureException("Invalid sign");
     }
 
     @LauncherAPI
     public static void verifySign(InputStream input, byte[] sign, RSAPublicKey publicKey) throws SignatureException, IOException {
         if (!isValidSign(input, sign, publicKey))
-			throw new SignatureException("Invalid stream sign");
+            throw new SignatureException("Invalid stream sign");
     }
 
     @LauncherAPI
     public static void verifySign(Path path, byte[] sign, RSAPublicKey publicKey) throws SignatureException, IOException {
         if (!isValidSign(path, sign, publicKey))
-			throw new SignatureException(String.format("Invalid file sign: '%s'", path));
+            throw new SignatureException(String.format("Invalid file sign: '%s'", path));
     }
 
     @LauncherAPI
     public static void verifySign(URL url, byte[] sign, RSAPublicKey publicKey) throws SignatureException, IOException {
         if (!isValidSign(url, sign, publicKey))
-			throw new SignatureException(String.format("Invalid URL sign: '%s'", url));
+            throw new SignatureException(String.format("Invalid URL sign: '%s'", url));
     }
 
     @LauncherAPI

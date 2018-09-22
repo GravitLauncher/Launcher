@@ -16,10 +16,12 @@ public final class PlayerProfile extends StreamObject {
     public static PlayerProfile newOfflineProfile(String username) {
         return new PlayerProfile(offlineUUID(username), username, null, null);
     }
+
     @LauncherAPI
     public static UUID offlineUUID(String username) {
         return UUID.nameUUIDFromBytes(IOHelper.encodeASCII("OfflinePlayer:" + username));
     }
+
     @LauncherAPI
     public final UUID uuid;
 
@@ -53,10 +55,10 @@ public final class PlayerProfile extends StreamObject {
         // Write textures
         output.writeBoolean(skin != null);
         if (skin != null)
-			skin.write(output);
+            skin.write(output);
         output.writeBoolean(cloak != null);
         if (cloak != null)
-			cloak.write(output);
+            cloak.write(output);
     }
 
 }

@@ -46,7 +46,7 @@ public class EnvHelper {
      */
     private static boolean check1() {
         if (hasOptsVar())
-			for (String testStr : toTest)
+            for (String testStr : toTest)
                 if (System.getProperty(testStr) != null) {
                     String str = System.getenv(testStr);
                     StringTokenizer st = new StringTokenizer(str);

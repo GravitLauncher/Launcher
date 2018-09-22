@@ -24,6 +24,7 @@ public final class Launcher {
             return 0; // Maybe dev env?
         }
     }
+
     private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
     @LauncherAPI
     public static ModulesManagerInterface modulesManager = null;
@@ -68,12 +69,12 @@ public final class Launcher {
         LauncherConfig config = getConfig();
         byte[] validDigest = config.runtime.get(name);
         if (validDigest == null)
-			throw new NoSuchFileException(name);
+            throw new NoSuchFileException(name);
 
         // Resolve URL and verify digest
         URL url = IOHelper.getResourceURL(RUNTIME_DIR + '/' + name);
         if (!Arrays.equals(validDigest, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, url)))
-			throw new NoSuchFileException(name); // Digest mismatch
+            throw new NoSuchFileException(name); // Digest mismatch
 
         // Return verified URL
         return url;
@@ -85,6 +86,6 @@ public final class Launcher {
     }
 
     public static Version getVersion() {
-        return new Version(MAJOR,MINOR,PATCH,BUILD,RELEASE);
+        return new Version(MAJOR, MINOR, PATCH, BUILD, RELEASE);
     }
 }

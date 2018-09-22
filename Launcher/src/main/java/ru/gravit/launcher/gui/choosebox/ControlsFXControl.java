@@ -5,18 +5,18 @@ import ru.gravit.launcher.LauncherAPI;
 
 abstract class ControlsFXControl extends Control {
 
-	private String stylesheet;
+    private String stylesheet;
 
-	public ControlsFXControl() {
+    public ControlsFXControl() {
 
-	}
+    }
 
-	@LauncherAPI
-	protected final String getUserAgentStylesheet(Class<?> clazz, String fileName) {
+    @LauncherAPI
+    protected final String getUserAgentStylesheet(Class<?> clazz, String fileName) {
 
-		if (stylesheet == null)
-			stylesheet = clazz.getResource(fileName).toExternalForm();
+        if (stylesheet == null)
+            stylesheet = clazz.getResource(fileName).toExternalForm();
 
-		return stylesheet;
-	}
+        return stylesheet;
+    }
 }

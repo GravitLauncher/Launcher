@@ -41,6 +41,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
         public interface Callback {
             void call(State state);
         }
+
         @LauncherAPI
         public final long fileDownloaded;
         @LauncherAPI
@@ -70,7 +71,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
         public double getBps() {
             long seconds = duration.getSeconds();
             if (seconds == 0)
-				return -1.0D; // Otherwise will throw /0 exception
+                return -1.0D; // Otherwise will throw /0 exception
             return totalDownloaded / (double) seconds;
         }
 
@@ -78,7 +79,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
         public Duration getEstimatedTime() {
             double bps = getBps();
             if (bps <= 0.0D)
-				return null; // Otherwise will throw /0 exception
+                return null; // Otherwise will throw /0 exception
             return Duration.ofSeconds((long) (getTotalRemaining() / bps));
         }
 
@@ -95,7 +96,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
         @LauncherAPI
         public double getFileDownloadedPart() {
             if (fileSize == 0)
-				return 0.0D;
+                return 0.0D;
             return (double) fileDownloaded / fileSize;
         }
 
@@ -137,7 +138,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
         @LauncherAPI
         public double getTotalDownloadedPart() {
             if (totalSize == 0)
-				return 0.0D;
+                return 0.0D;
             return (double) totalDownloaded / totalSize;
         }
 
@@ -166,6 +167,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
             return getTotalSizeKiB() / 1024.0D;
         }
     }
+
     private static void fillActionsQueue(Queue<UpdateAction> queue, HashedDir mismatch) {
         for (Entry<String, HashedEntry> mapEntry : mismatch.map().entrySet()) {
             String name = mapEntry.getKey();
@@ -185,6 +187,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
             }
         }
     }
+
     // Instance
     private final String dirName;
     private final Path dir;
@@ -257,12 +260,12 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
                 int remaining = (int) Math.min(hFile.size - downloaded, bytes.length);
                 int length = input.read(bytes, 0, remaining);
                 if (length < 0)
-					throw new EOFException(String.format("%d bytes remaining", hFile.size - downloaded));
+                    throw new EOFException(String.format("%d bytes remaining", hFile.size - downloaded));
 
                 // Update file
                 fileOutput.write(bytes, 0, length);
                 if (digest != null)
-					digest.update(bytes, 0, length);
+                    digest.update(bytes, 0, length);
 
                 // Update state
                 downloaded += length;
@@ -275,7 +278,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
         if (digest != null) {
             byte[] digestBytes = digest.digest();
             if (!hFile.isSameDigest(digestBytes))
-				throw new SecurityException(String.format("File digest mismatch: '%s'", filePath));
+                throw new SecurityException(String.format("File digest mismatch: '%s'", filePath));
         }
     }
 
@@ -342,7 +345,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
                     case GET:
                         Path targetFile = currentDir.resolve(action.name);
                         if (fileInput.read() != 0xFF)
-							throw new IOException("Serverside cached size mismath for file " + action.name);
+                            throw new IOException("Serverside cached size mismath for file " + action.name);
                         downloadFile(targetFile, (HashedFile) action.entry, fileInput);
                         break;
                     case CD_BACK:
@@ -368,7 +371,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
 
     private void updateState(String filePath, long fileDownloaded, long fileSize) {
         if (stateCallback != null)
-			stateCallback.call(new State(filePath, fileDownloaded, fileSize,
+            stateCallback.call(new State(filePath, fileDownloaded, fileSize,
                     totalDownloaded, totalSize, Duration.between(startTime, Instant.now())));
     }
 }

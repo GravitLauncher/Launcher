@@ -29,17 +29,20 @@ public abstract class HWIDHandler extends ConfigObject implements AutoCloseable 
         VerifyHelper.putIfAbsent(HW_HANDLERS, name, Objects.requireNonNull(adapter, "adapter"),
                 String.format("HWID handler has been already registered: '%s'", name));
     }
+
     public static void registerHandlers() {
         if (!registredHandl) {
             registerHandler("accept", AcceptHWIDHandler::new);
-            registerHandler("mysql",MysqlHWIDHandler::new);
-            registerHandler("json",JsonHWIDHandler::new);
+            registerHandler("mysql", MysqlHWIDHandler::new);
+            registerHandler("json", JsonHWIDHandler::new);
             registredHandl = true;
         }
     }
+
     protected HWIDHandler(BlockConfigEntry block) {
         super(block);
     }
+
     public abstract void ban(List<HWID> hwid) throws HWIDException;
 
     public void check(HWID hwid, String username) throws HWIDException {
@@ -50,7 +53,7 @@ public abstract class HWIDHandler extends ConfigObject implements AutoCloseable 
     public abstract void check0(HWID hwid, String username) throws HWIDException;
 
     @Override
-    public abstract void close() throws IOException;
+    public abstract void close();
 
     public abstract List<HWID> getHwid(String username) throws HWIDException;
 

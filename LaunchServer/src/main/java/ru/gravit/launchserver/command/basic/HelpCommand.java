@@ -44,6 +44,6 @@ public final class HelpCommand extends Command {
 
     private void printCommands() {
         for (Entry<String, Command> entry : server.commandHandler.commandsMap().entrySet())
-			printCommand(entry.getKey(), entry.getValue());
+            printCommand(entry.getKey(), entry.getValue());
     }
 }

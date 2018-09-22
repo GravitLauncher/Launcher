@@ -22,6 +22,7 @@ public abstract class LauncherBinary {
         this.binaryFile = binaryFile;
         syncBinaryFile = binaryFile;
     }
+
     @LauncherAPI
     protected LauncherBinary(LaunchServer server, Path binaryFile, Path syncBinaryFile) {
         this.server = server;

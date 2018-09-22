@@ -68,7 +68,7 @@ public final class HInput implements AutoCloseable {
     @LauncherAPI
     public int readLength(int max) throws IOException {
         if (max < 0)
-			return -max;
+            return -max;
         return IOHelper.verifyLength(readVarInt(), max);
     }
 
@@ -91,7 +91,7 @@ public final class HInput implements AutoCloseable {
     public int readUnsignedByte() throws IOException {
         int b = stream.read();
         if (b < 0)
-			throw new EOFException("readUnsignedByte");
+            throw new EOFException("readUnsignedByte");
         return b;
     }
 
@@ -113,7 +113,7 @@ public final class HInput implements AutoCloseable {
             int b = readUnsignedByte();
             result |= (b & 0x7F) << shift;
             if ((b & 0x80) == 0)
-				return result;
+                return result;
             shift += 7;
         }
         throw new IOException("VarInt too big");
@@ -127,7 +127,7 @@ public final class HInput implements AutoCloseable {
             int b = readUnsignedByte();
             result |= (long) (b & 0x7F) << shift;
             if ((b & 0x80) == 0)
-				return result;
+                return result;
             shift += 7;
         }
         throw new IOException("VarLong too big");

@@ -161,6 +161,7 @@ public class LauncherEngine {
         Instant end = Instant.now();
         LogHelper.debug("Launcher started in %dms", Duration.between(start, end).toMillis());
     }
+
     // Instance
     private final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -175,7 +176,7 @@ public class LauncherEngine {
         URL url = Launcher.getResourceURL(path);
         LogHelper.debug("Loading script: '%s'", url);
         try (BufferedReader reader = IOHelper.newReader(url)) {
-            return engine.eval(reader,engine.getBindings(ScriptContext.ENGINE_SCOPE));
+            return engine.eval(reader, engine.getBindings(ScriptContext.ENGINE_SCOPE));
         }
     }
 
@@ -195,7 +196,7 @@ public class LauncherEngine {
         Launcher.modulesManager.preInitModules();
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
-			throw new IllegalStateException("Launcher has been already started");
+            throw new IllegalStateException("Launcher has been already started");
         Launcher.modulesManager.initModules();
         // Load init.js script
         loadScript(Launcher.API_SCRIPT_FILE);

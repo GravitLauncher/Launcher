@@ -4,28 +4,28 @@ import javafx.collections.ObservableList;
 import ru.gravit.launcher.LauncherAPI;
 
 public interface IndexedCheckModel<T> extends CheckModel<T> {
-	@LauncherAPI
+    @LauncherAPI
     void check(int index);
 
-	@LauncherAPI
+    @LauncherAPI
     void checkIndices(int... indices);
 
-	@LauncherAPI
+    @LauncherAPI
     void clearCheck(int index);
 
-	@LauncherAPI
+    @LauncherAPI
     ObservableList<Integer> getCheckedIndices();
 
-	@LauncherAPI
+    @LauncherAPI
     T getItem(int index);
 
-	@LauncherAPI
+    @LauncherAPI
     int getItemIndex(T item);
 
-	@LauncherAPI
+    @LauncherAPI
     boolean isChecked(int index);
 
-	@LauncherAPI
+    @LauncherAPI
     void toggleCheckState(int index);
 
 }

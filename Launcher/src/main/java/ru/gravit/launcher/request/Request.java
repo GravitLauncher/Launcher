@@ -14,10 +14,12 @@ import ru.gravit.launcher.serialize.HOutput;
 
 public abstract class Request<R> {
     private static final long session = SecurityHelper.secureRandom.nextLong();
+
     @LauncherAPI
     public static void requestError(String message) throws RequestException {
         throw new RequestException(message);
     }
+
     @LauncherAPI
     protected final LauncherConfig config;
 
@@ -40,14 +42,14 @@ public abstract class Request<R> {
     protected final void readError(HInput input) throws IOException {
         String error = input.readString(0);
         if (!error.isEmpty())
-			requestError(error);
+            requestError(error);
     }
 
     @LauncherAPI
     @SuppressWarnings("DesignForExtension")
     public R request() throws Exception {
         if (!started.compareAndSet(false, true))
-			throw new IllegalStateException("Request already started");
+            throw new IllegalStateException("Request already started");
 
         // Make request to LaunchServer
         try (Socket socket = IOHelper.newSocket()) {
@@ -73,7 +75,7 @@ public abstract class Request<R> {
 
         // Verify is accepted
         if (!input.readBoolean())
-			requestError("Serverside not accepted this connection");
+            requestError("Serverside not accepted this connection");
     }
 
 }

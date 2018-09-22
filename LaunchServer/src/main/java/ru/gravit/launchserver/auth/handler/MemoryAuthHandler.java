@@ -18,7 +18,7 @@ public final class MemoryAuthHandler extends CachedAuthHandler {
         // Find username end
         int length = 0;
         while (length < bytes.length && bytes[length] != 0)
-			length++;
+            length++;
 
         // Decode and verify
         return VerifyHelper.verifyUsername(new String(bytes, 0, length, IOHelper.ASCII_CHARSET));

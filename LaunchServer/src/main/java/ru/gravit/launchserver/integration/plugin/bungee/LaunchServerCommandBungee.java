@@ -24,8 +24,8 @@ public final class LaunchServerCommandBungee extends Command {
         // Eval command
         LaunchServerPluginBridge bridge = plugin.bridge;
         if (bridge == null)
-			sender.sendMessage(NOT_INITIALIZED_MESSAGE);
-		else
-			bridge.eval(args);
+            sender.sendMessage(NOT_INITIALIZED_MESSAGE);
+        else
+            bridge.eval(args);
     }
 }

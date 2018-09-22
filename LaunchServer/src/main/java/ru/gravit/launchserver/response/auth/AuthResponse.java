@@ -68,10 +68,10 @@ public final class AuthResponse extends Response {
                 return;
             }
             Collection<SignedObjectHolder<ClientProfile>> profiles = server.getProfiles();
-            for(SignedObjectHolder<ClientProfile> p : profiles)
-				if(p.object.getTitle().equals(client))
-					if(!p.object.isWhitelistContains(login))
-						throw new AuthException(server.config.whitelistRejectString);
+            for (SignedObjectHolder<ClientProfile> p : profiles)
+                if (p.object.getTitle().equals(client))
+                    if (!p.object.isWhitelistContains(login))
+                        throw new AuthException(server.config.whitelistRejectString);
             server.config.hwidHandler.check(HWID.gen(hwid_hdd, hwid_bios, hwid_cpu), result.username);
         } catch (AuthException | HWIDException e) {
             requestError(e.getMessage());

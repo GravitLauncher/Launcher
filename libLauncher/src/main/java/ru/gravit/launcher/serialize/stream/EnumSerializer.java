@@ -27,7 +27,7 @@ public final class EnumSerializer<E extends Enum<?> & Itf> {
     @LauncherAPI
     public EnumSerializer(Class<E> clazz) {
         for (E e : clazz.getEnumConstants())
-			VerifyHelper.putIfAbsent(map, e.getNumber(), e, "Duplicate number for enum constant " + e.name());
+            VerifyHelper.putIfAbsent(map, e.getNumber(), e, "Duplicate number for enum constant " + e.name());
     }
 
     @LauncherAPI

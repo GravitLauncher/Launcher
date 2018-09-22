@@ -30,7 +30,7 @@ public final class NullAuthHandler extends AuthHandler {
     public void close() throws IOException {
         AuthHandler handler = this.handler;
         if (handler != null)
-			handler.close();
+            handler.close();
     }
 
     private AuthHandler getHandler() {

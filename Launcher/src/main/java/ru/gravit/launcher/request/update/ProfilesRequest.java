@@ -38,6 +38,7 @@ public final class ProfilesRequest extends Request<ProfilesRequest.Result> {
     public Integer getType() {
         return RequestType.PROFILES.getNumber();
     }
+
     @Override
     protected Result requestDo(HInput input, HOutput output) throws Exception {
         output.writeBoolean(true);
@@ -47,7 +48,7 @@ public final class ProfilesRequest extends Request<ProfilesRequest.Result> {
         int count = input.readLength(0);
         List<SignedObjectHolder<ClientProfile>> profiles = new ArrayList<>(count);
         for (int i = 0; i < count; i++)
-			profiles.add(new SignedObjectHolder<>(input, config.publicKey, ClientProfile.RO_ADAPTER));
+            profiles.add(new SignedObjectHolder<>(input, config.publicKey, ClientProfile.RO_ADAPTER));
 
         // Return request result
         return new Result(profiles);
