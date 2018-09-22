@@ -4,3 +4,6 @@ include 'Launcher'
 include 'libLauncher'
 include 'LaunchServer'
 include 'modules'
+file('modules').eachDir { sub ->
+    if (sub.name.endsWith('_module')) include 'modules:' + sub.name
+}
