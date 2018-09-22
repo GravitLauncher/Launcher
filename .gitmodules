@@ -1,3 +1,4 @@
 [submodule "modules"]
 	path = modules
 	url = git@github.com:GravitLauncher/LauncherModules.git
+	branch = master
