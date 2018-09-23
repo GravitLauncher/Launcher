@@ -171,6 +171,8 @@ public final class ClientLauncher {
     @LauncherAPI
     public static String title;
     @LauncherAPI
+    public static ClientProfile profile;
+    @LauncherAPI
     public static final String SKIN_DIGEST_PROPERTY = "skinDigest";
 
     @LauncherAPI
@@ -445,7 +447,7 @@ public final class ClientLauncher {
                 Files.delete(paramsFile);
             }
         }
-
+        ClientLauncher.profile = profile.object;
         title = params.title;
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
@@ -506,6 +508,7 @@ public final class ClientLauncher {
 
     @LauncherAPI
     public static void setProfile(ClientProfile profile) {
+        ClientLauncher.profile = profile;
         ClientLauncher.title = profile.getTitle();
         LogHelper.debug("New Profile name: %s", profile.getTitle());
     }
