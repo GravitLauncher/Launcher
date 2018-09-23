@@ -1,9 +1,11 @@
 package ru.gravit.launchserver.manangers;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipOutputStream;
 
 import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.modules.TestClientModule;
@@ -20,6 +22,10 @@ public class BuildHookManager {
     public interface PreBuildHook {
         void build(BuildContext context);
     }
+    @FunctionalInterface
+    public interface ProGuardTransformHook {
+        byte[] transform(byte[] input, CharSequence classname);
+    }
 
     @FunctionalInterface
     public interface Transformer {
@@ -28,6 +34,7 @@ public class BuildHookManager {
 
     private boolean BUILDRUNTIME;
     private final Set<PostBuildHook> POST_HOOKS;
+    private final Set<ProGuardTransformHook> POST_PROGUARD_HOOKS;
     private final Set<PreBuildHook> PRE_HOOKS;
     private final Set<Transformer> CLASS_TRANSFORMER;
     private final Set<String> CLASS_BLACKLIST;
@@ -36,6 +43,7 @@ public class BuildHookManager {
 
     public BuildHookManager() {
         POST_HOOKS = new HashSet<>(4);
+        POST_PROGUARD_HOOKS = new HashSet<>(4);
         PRE_HOOKS = new HashSet<>(4);
         CLASS_BLACKLIST = new HashSet<>(4);
         MODULE_CLASS = new HashSet<>(4);
@@ -58,6 +66,11 @@ public class BuildHookManager {
     }
 
     public byte[] classTransform(byte[] clazz, CharSequence classname) {
+        byte[] result = clazz;
+        for (Transformer transformer : CLASS_TRANSFORMER) result = transformer.transform(result, classname);
+        return result;
+    }
+    public byte[] proGuardClassTransform(byte[] clazz, CharSequence classname) {
         byte[] result = clazz;
         for (Transformer transformer : CLASS_TRANSFORMER) result = transformer.transform(result, classname);
         return result;
@@ -101,6 +114,13 @@ public class BuildHookManager {
 
     public void registerPostHook(PostBuildHook hook) {
         POST_HOOKS.add(hook);
+    }
+    public void registerProGuardHook(ProGuardTransformHook hook) {
+        POST_PROGUARD_HOOKS.add(hook);
+    }
+    public boolean isNeedPostProguardHook()
+    {
+        return !POST_PROGUARD_HOOKS.isEmpty();
     }
 
     public void registerPreHook(PreBuildHook hook) {

@@ -5,10 +5,7 @@ import static ru.gravit.utils.helper.IOHelper.newZipEntry;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +21,7 @@ import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launchserver.manangers.BuildHookManager;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -110,6 +108,38 @@ public final class JARLauncherBinary extends LauncherBinary {
         } catch (ParseException e1) {
             e1.printStackTrace();
         }
+        if(server.buildHookManager.isNeedPostProguardHook())
+        {
+            Path obfPath = Paths.get(server.config.binaryName + "-obf.jar");
+            Path tmpPath = Paths.get(server.config.binaryName + "-tmp.jar");
+            IOHelper.move(obfPath,tmpPath);
+            try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(obfPath)))
+            {
+                try (ZipInputStream input = new ZipInputStream(
+                        IOHelper.newInput(tmpPath))) {
+                    ZipEntry e = input.getNextEntry();
+                    while (e != null) {
+                        String filename = e.getName();
+                        output.putNextEntry(e);
+                        if (filename.endsWith(".class")) {
+                            CharSequence classname = filename.replace('/', '.').subSequence(0,
+                                    filename.length() - ".class".length());
+                            byte[] bytes;
+                            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(2048)) {
+                                IOHelper.transfer(input, outputStream);
+                                bytes = outputStream.toByteArray();
+                            }
+                            bytes = server.buildHookManager.proGuardClassTransform(bytes, classname);
+                            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
+                                IOHelper.transfer(inputStream, output);
+                            }
+                        } else
+                            IOHelper.transfer(input, output);
+                        e = input.getNextEntry();
+                    }
+                }
+            }
+        }
         if (server.config.sign.enabled)
             signBuild();
     }
@@ -123,6 +153,7 @@ public final class JARLauncherBinary extends LauncherBinary {
             while (e != null) {
                 output.addFileContents(e, input);
                 e = input.getNextEntry();
+
             }
         }
     }
