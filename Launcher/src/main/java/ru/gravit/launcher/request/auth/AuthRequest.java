@@ -33,17 +33,30 @@ public final class AuthRequest extends Request<Result> {
     private final String login;
 
     private final byte[] encryptedPassword;
+    private final int auth_id;
 
     @LauncherAPI
     public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
+        auth_id = 0;
+    }
+    @LauncherAPI
+    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword,int auth_id) {
+        super(config);
+        this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
+        this.encryptedPassword = encryptedPassword.clone();
+        this.auth_id = auth_id;
     }
 
     @LauncherAPI
     public AuthRequest(String login, byte[] encryptedPassword) {
         this(null, login, encryptedPassword);
+    }
+    @LauncherAPI
+    public AuthRequest(String login, byte[] encryptedPassword,int auth_id) {
+        this(null, login, encryptedPassword,auth_id);
     }
 
     @Override
@@ -55,6 +68,7 @@ public final class AuthRequest extends Request<Result> {
     protected Result requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(login, SerializeLimits.MAX_LOGIN);
         output.writeString(ClientLauncher.title, SerializeLimits.MAX_CLIENT);
+        output.writeInt(auth_id);
         output.writeLong(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? GuardBind.avnGetHddId() : 0);
         output.writeLong(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? GuardBind.avnGetCpuid() : 0);
         output.writeLong(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? GuardBind.avnGetSmbiosId() : 0);

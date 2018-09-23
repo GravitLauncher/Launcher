@@ -75,7 +75,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         @LauncherAPI
         public final AuthHandler authHandler;
         @LauncherAPI
-        public final AuthProvider authProvider;
+        public final AuthProvider[] authProvider;
         @LauncherAPI
         public final TextureProvider textureProvider;
         @LauncherAPI
@@ -125,7 +125,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             // Set handlers & providers
             authHandler = AuthHandler.newHandler(block.getEntryValue("authHandler", StringConfigEntry.class),
                     block.getEntry("authHandlerConfig", BlockConfigEntry.class));
-            authProvider = AuthProvider.newProvider(block.getEntryValue("authProvider", StringConfigEntry.class),
+            authProvider = new AuthProvider[1];
+            authProvider[0] = AuthProvider.newProvider(block.getEntryValue("authProvider", StringConfigEntry.class),
                     block.getEntry("authProviderConfig", BlockConfigEntry.class));
             textureProvider = TextureProvider.newProvider(block.getEntryValue("textureProvider", StringConfigEntry.class),
                     block.getEntry("textureProviderConfig", BlockConfigEntry.class));
@@ -459,7 +460,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             LogHelper.error(e);
         }
         try {
-            config.authProvider.close();
+            for(AuthProvider p : config.authProvider) p.close();
         } catch (IOException e) {
             LogHelper.error(e);
         }

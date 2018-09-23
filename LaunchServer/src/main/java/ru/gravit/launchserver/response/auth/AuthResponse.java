@@ -40,9 +40,11 @@ public final class AuthResponse extends Response {
     public void reply() throws Exception {
         String login = input.readString(SerializeLimits.MAX_LOGIN);
         String client = input.readString(SerializeLimits.MAX_CLIENT);
+        int auth_id = input.readInt();
         long hwid_hdd = input.readLong();
         long hwid_cpu = input.readLong();
         long hwid_bios = input.readLong();
+        if(auth_id + 1 > server.config.authProvider.length || auth_id < 0) auth_id = 0;
         byte[] encryptedPassword = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
         // Decrypt password
         String password;
@@ -62,7 +64,8 @@ public final class AuthResponse extends Response {
                 AuthProvider.authError(server.config.authRejectString);
                 return;
             }
-            result = server.config.authProvider.auth(login, password, ip);
+            AuthProvider provider = server.config.authProvider[auth_id];
+            result = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(result.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", result.username));
                 return;
