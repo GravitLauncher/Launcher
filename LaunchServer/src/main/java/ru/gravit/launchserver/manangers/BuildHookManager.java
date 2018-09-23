@@ -72,7 +72,7 @@ public class BuildHookManager {
     }
     public byte[] proGuardClassTransform(byte[] clazz, CharSequence classname) {
         byte[] result = clazz;
-        for (Transformer transformer : CLASS_TRANSFORMER) result = transformer.transform(result, classname);
+        for (ProGuardTransformHook transformer : POST_PROGUARD_HOOKS) result = transformer.transform(result, classname);
         return result;
     }
 
