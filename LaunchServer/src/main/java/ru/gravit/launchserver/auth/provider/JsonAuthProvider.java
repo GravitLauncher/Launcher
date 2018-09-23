@@ -7,6 +7,7 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -25,8 +26,8 @@ public final class JsonAuthProvider extends AuthProvider {
     private final String responseUserKeyName;
     private final String responseErrorKeyName;
 
-    JsonAuthProvider(BlockConfigEntry block) {
-        super(block);
+    JsonAuthProvider(BlockConfigEntry block, LaunchServer server) {
+        super(block,server);
         String configUrl = block.getEntryValue("url", StringConfigEntry.class);
         userKeyName = VerifyHelper.verify(block.getEntryValue("userKeyName", StringConfigEntry.class),
                 VerifyHelper.NOT_EMPTY, "Username key name can't be empty");

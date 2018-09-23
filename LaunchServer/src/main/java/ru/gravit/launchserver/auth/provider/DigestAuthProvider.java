@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.auth.provider;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
@@ -11,8 +12,8 @@ public abstract class DigestAuthProvider extends AuthProvider {
     private final DigestAlgorithm digest;
 
     @LauncherAPI
-    protected DigestAuthProvider(BlockConfigEntry block) {
-        super(block);
+    protected DigestAuthProvider(BlockConfigEntry block, LaunchServer server) {
+        super(block,server);
         digest = DigestAlgorithm.byName(block.getEntryValue("digest", StringConfigEntry.class));
     }
 

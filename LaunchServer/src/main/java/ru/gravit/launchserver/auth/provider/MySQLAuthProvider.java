@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import clojure.lang.IFn;
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
@@ -19,8 +21,8 @@ public final class MySQLAuthProvider extends AuthProvider {
     private final String query;
     private final String[] queryParams;
 
-    public MySQLAuthProvider(BlockConfigEntry block) {
-        super(block);
+    public MySQLAuthProvider(BlockConfigEntry block, LaunchServer server) {
+        super(block,server);
         mySQLHolder = new MySQLSourceConfig("authProviderPool", block);
 
         // Read query

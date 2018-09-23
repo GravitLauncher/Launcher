@@ -59,12 +59,12 @@ public final class AuthResponse extends Response {
         // Authenticate
         debug("Login: '%s', Password: '%s'", login, echo(password.length()));
         AuthProviderResult result;
+        AuthProvider provider = server.config.authProvider[auth_id];
         try {
             if (server.limiter.isLimit(ip)) {
                 AuthProvider.authError(server.config.authRejectString);
                 return;
             }
-            AuthProvider provider = server.config.authProvider[auth_id];
             result = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(result.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", result.username));
@@ -88,7 +88,7 @@ public final class AuthResponse extends Response {
         // Authenticate on server (and get UUID)
         UUID uuid;
         try {
-            uuid = server.config.authHandler.auth(result);
+            uuid = provider.getAccociateHandler(auth_id).auth(result);
         } catch (AuthException e) {
             requestError(e.getMessage());
             return;

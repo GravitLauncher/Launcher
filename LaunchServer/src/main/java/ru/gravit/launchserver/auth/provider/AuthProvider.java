@@ -6,14 +6,17 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launchserver.auth.AuthException;
 
 public abstract class AuthProvider extends ConfigObject implements AutoCloseable {
-    private static final Map<String, Adapter<AuthProvider>> AUTH_PROVIDERS = new ConcurrentHashMap<>(8);
+    private static final Map<String, ServerAdapter<AuthProvider>> AUTH_PROVIDERS = new ConcurrentHashMap<>(8);
     private static boolean registredProv = false;
+    private LaunchServer server;
 
     @LauncherAPI
     public static AuthProviderResult authError(String message) throws AuthException {
@@ -21,15 +24,15 @@ public abstract class AuthProvider extends ConfigObject implements AutoCloseable
     }
 
     @LauncherAPI
-    public static AuthProvider newProvider(String name, BlockConfigEntry block) {
+    public static AuthProvider newProvider(String name, BlockConfigEntry block,LaunchServer server) {
         VerifyHelper.verifyIDName(name);
-        Adapter<AuthProvider> authHandlerAdapter = VerifyHelper.getMapValue(AUTH_PROVIDERS, name,
+        ServerAdapter<AuthProvider> authHandlerAdapter = VerifyHelper.getMapValue(AUTH_PROVIDERS, name,
                 String.format("Unknown auth provider: '%s'", name));
-        return authHandlerAdapter.convert(block);
+        return authHandlerAdapter.convert(block,server);
     }
 
     @LauncherAPI
-    public static void registerProvider(String name, Adapter<AuthProvider> adapter) {
+    public static void registerProvider(String name, ServerAdapter<AuthProvider> adapter) {
         VerifyHelper.putIfAbsent(AUTH_PROVIDERS, name, Objects.requireNonNull(adapter, "adapter"),
                 String.format("Auth provider has been already registered: '%s'", name));
     }
@@ -49,10 +52,15 @@ public abstract class AuthProvider extends ConfigObject implements AutoCloseable
             registredProv = true;
         }
     }
+    public AuthHandler getAccociateHandler(int this_position)
+    {
+        return server.config.authHandler[this_position];
+    }
 
     @LauncherAPI
-    protected AuthProvider(BlockConfigEntry block) {
+    protected AuthProvider(BlockConfigEntry block, LaunchServer launchServer) {
         super(block);
+        server = launchServer;
     }
 
     @LauncherAPI
@@ -60,4 +68,9 @@ public abstract class AuthProvider extends ConfigObject implements AutoCloseable
 
     @Override
     public abstract void close() throws IOException;
+    @FunctionalInterface
+    public interface ServerAdapter<O extends ConfigObject> {
+        @LauncherAPI
+        O convert(BlockConfigEntry entry,LaunchServer server);
+    }
 }

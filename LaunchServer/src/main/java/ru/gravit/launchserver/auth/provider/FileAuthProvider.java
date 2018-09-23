@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -43,8 +44,8 @@ public final class FileAuthProvider extends DigestAuthProvider {
 
     private FileTime cacheLastModified;
 
-    public FileAuthProvider(BlockConfigEntry block) {
-        super(block);
+    public FileAuthProvider(BlockConfigEntry block, LaunchServer server) {
+        super(block,server);
         file = IOHelper.toPath(block.getEntryValue("file", StringConfigEntry.class));
 
         // Try to update cache

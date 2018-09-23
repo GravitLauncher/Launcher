@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -15,8 +16,8 @@ public final class RequestAuthProvider extends AuthProvider {
     private final String url;
     private final Pattern response;
 
-    public RequestAuthProvider(BlockConfigEntry block) {
-        super(block);
+    public RequestAuthProvider(BlockConfigEntry block, LaunchServer server) {
+        super(block,server);
         url = block.getEntryValue("url", StringConfigEntry.class);
         response = Pattern.compile(block.getEntryValue("response", StringConfigEntry.class));
 

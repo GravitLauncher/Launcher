@@ -16,6 +16,7 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import com.eclipsesource.json.WriterConfig;
 
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 
@@ -53,8 +54,8 @@ public final class MojangAuthProvider extends AuthProvider {
         }
     }
 
-    public MojangAuthProvider(BlockConfigEntry block) {
-        super(block);
+    public MojangAuthProvider(BlockConfigEntry block, LaunchServer server) {
+        super(block,server);
     }
 
     @Override
