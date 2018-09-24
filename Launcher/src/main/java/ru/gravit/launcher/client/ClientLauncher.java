@@ -146,7 +146,7 @@ public final class ClientLauncher {
 
     private static final String[] EMPTY_ARRAY = new String[0];
     private static final String SOCKET_HOST = "127.0.0.1";
-    private static final int SOCKET_PORT = 87564;
+    private static final int SOCKET_PORT = 32148;
     private static final String MAGICAL_INTEL_OPTION = "-XX:HeapDumpPath=ThisTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
     private static final boolean isUsingWrapper = true;
     @SuppressWarnings("unused")
@@ -310,7 +310,7 @@ public final class ClientLauncher {
                         clientHDir.write(output);
                     }
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LogHelper.error(e);
                 try (HOutput output = new HOutput(IOHelper.newOutput(paramsFile))) {
                     params.write(output);

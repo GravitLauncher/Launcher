@@ -36,7 +36,7 @@ public class ServerWrapper {
         modulesManager.autoload(Paths.get("modules"));
         Launcher.modulesManager = modulesManager;
         LauncherConfig cfg = new LauncherConfig(new HInput(IOHelper.newInput(IOHelper.getResourceURL(Launcher.CONFIG_FILE))));
-        configFile = IOHelper.WORKING_DIR.resolve("ServerWrapper.cfg");
+        configFile = Paths.get("ServerWrapper.cfg");
         modulesManager.preInitModules();
         generateConfigIfNotExists();
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
@@ -73,7 +73,7 @@ public class ServerWrapper {
             return;
 
         // Create new config
-        LogHelper.info("Creating LaunchServer config");
+        LogHelper.info("Creating LaunchWrapper config");
         Config newConfig;
         try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/config.cfg"))) {
             newConfig = new Config(TextConfigReader.read(reader, false));
@@ -82,7 +82,7 @@ public class ServerWrapper {
         LogHelper.warning("Title is not set. Please show ServerWrapper.cfg");
 
         // Write LaunchServer config
-        LogHelper.info("Writing LaunchServer config file");
+        LogHelper.info("Writing LaunchWrapper config file");
         try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
             TextConfigWriter.write(newConfig.block, writer, true);
         }
