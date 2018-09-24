@@ -147,7 +147,14 @@ public final class HashedDir extends HashedEntry {
         HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
         return new Diff(mismatch, extra);
     }
-
+    public void pushHashedFile(String name, HashedFile file)
+    {
+        map.put(name,file);
+    }
+    public void remove(String name)
+    {
+        map.remove(name);
+    }
     @LauncherAPI
     public HashedEntry getEntry(String name) {
         return map.get(name);

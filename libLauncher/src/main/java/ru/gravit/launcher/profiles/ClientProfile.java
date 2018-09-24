@@ -1,12 +1,19 @@
 package ru.gravit.launcher.profiles;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
+import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.hasher.HashedFile;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;
@@ -75,9 +82,11 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
 
     private final IntegerConfigEntry serverPort;
     //  Updater and client watch service
-    private final ListConfigEntry update;
-    private final ListConfigEntry updateExclusions;
-    private final ListConfigEntry updateVerify;
+    private final List<String> update = new ArrayList<>();
+    private final List<String> updateExclusions = new ArrayList<>();
+    private final List<String> updateVerify = new ArrayList<>();
+    private final List<String> updateOptional = new ArrayList<>();
+    private final List<String> markUpdateOptional = new ArrayList<>();
     private final BooleanConfigEntry updateFastCheck;
 
     private final BooleanConfigEntry useWhitelist;
@@ -104,9 +113,10 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
         serverPort = block.getEntry("serverPort", IntegerConfigEntry.class);
 
         //  Updater and client watch service
-        update = block.getEntry("update", ListConfigEntry.class);
-        updateVerify = block.getEntry("updateVerify", ListConfigEntry.class);
-        updateExclusions = block.getEntry("updateExclusions", ListConfigEntry.class);
+        block.getEntry("update", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(update::add);
+        block.getEntry("updateVerify", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateVerify::add);
+        block.getEntry("updateOptional", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateOptional::add);
+        block.getEntry("updateExclusions", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateExclusions::add);
         updateFastCheck = block.getEntry("updateFastCheck", BooleanConfigEntry.class);
         useWhitelist = block.getEntry("useWhitelist", BooleanConfigEntry.class);
 
@@ -149,10 +159,19 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     }
 
     @LauncherAPI
-    public FileNameMatcher getClientUpdateMatcher() {
-        String[] updateArray = update.stream(StringConfigEntry.class).toArray(String[]::new);
-        String[] verifyArray = updateVerify.stream(StringConfigEntry.class).toArray(String[]::new);
-        String[] exclusionsArray = updateExclusions.stream(StringConfigEntry.class).toArray(String[]::new);
+    public FileNameMatcher getClientUpdateMatcher(/*boolean excludeOptional*/) {
+        String[] updateArray = update.toArray(new String[0]);
+        String[] verifyArray = updateVerify.toArray(new String[0]);
+        List<String> excludeList;
+        //if(excludeOptional)
+        //{
+        //    excludeList = new ArrayList<>();
+        //    excludeList.addAll(updateExclusions);
+        //    excludeList.addAll(updateOptional);
+        //}
+        //else
+        excludeList = updateExclusions;
+        String[] exclusionsArray = excludeList.toArray(new String[0]);
         return new FileNameMatcher(updateArray, verifyArray, exclusionsArray);
     }
 
@@ -171,6 +190,30 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
         return serverAddress.getValue();
     }
 
+    @LauncherAPI
+    public void markOptional(String opt)
+    {
+        if(!updateOptional.contains(opt)) throw new SecurityException(String.format("Optional mod %s not found in optionalList",opt));
+        markUpdateOptional.add(opt);
+    }
+    @LauncherAPI
+    public void unmarkOptional(String opt)
+    {
+        if(!updateOptional.contains(opt)) throw new SecurityException(String.format("Optional mod %s not found in optionalList",opt));
+        markUpdateOptional.remove(opt);
+    }
+    public void pushOptional(HashedDir dir,boolean digest) throws IOException {
+        for(String opt : updateOptional)
+        {
+            dir.remove(opt);
+        }
+        for(String opt : markUpdateOptional)
+        {
+            Path path = Paths.get(opt);
+            File file = new File(path.toAbsolutePath().toString());
+            dir.pushHashedFile(opt, new HashedFile(path,file.getUsableSpace(),digest));
+        }
+    }
     @LauncherAPI
     public int getServerPort() {
         return serverPort.getValue();
@@ -232,11 +275,6 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
         VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Profile title can't be empty");
         VerifyHelper.verify(getServerAddress(), VerifyHelper.NOT_EMPTY, "Server address can't be empty");
         VerifyHelper.verifyInt(getServerPort(), VerifyHelper.range(0, 65535), "Illegal server port: " + getServerPort());
-
-        //  Updater and client watch service
-        update.verifyOfType(ConfigEntry.Type.STRING);
-        updateVerify.verifyOfType(ConfigEntry.Type.STRING);
-        updateExclusions.verifyOfType(ConfigEntry.Type.STRING);
 
         // Client launcher
         jvmArgs.verifyOfType(ConfigEntry.Type.STRING);
