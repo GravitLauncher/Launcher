@@ -45,7 +45,7 @@ public class ServerWrapper {
         ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
         for (SignedObjectHolder<ClientProfile> p : result.profiles) {
             LogHelper.debug("Get profile: %s", p.object.getTitle());
-            if (p.object.getTitle().equals(ClientLauncher.profile.getTitle())) {
+            if (p.object.getTitle().equals(config.title)) {
                 wrapper.profile = p.object;
                 ClientLauncher.setProfile(p.object);
                 LogHelper.debug("Found profile: %s", ClientLauncher.profile.getTitle());
