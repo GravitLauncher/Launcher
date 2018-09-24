@@ -17,6 +17,7 @@ import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.TextConfigReader;
 import ru.gravit.launcher.serialize.config.TextConfigWriter;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -52,8 +53,15 @@ public class ServerWrapper {
             }
         }
         modulesManager.initModules();
-        String classname = args[0];
-        Class<?> mainClass = Class.forName(classname);
+        String classname = config.mainclass.isEmpty() ? args[0] : config.mainclass;
+        Class<?> mainClass;
+        if(config.customClassLoader) {
+            Class<ClassLoader> classloader_class = (Class<ClassLoader>) Class.forName(config.classloader);
+            ClassLoader loader = classloader_class.getConstructor(ClassLoader.class).newInstance(ClassLoader.getSystemClassLoader());
+            Thread.currentThread().setContextClassLoader(loader);
+            mainClass = Class.forName(classname,false,loader);
+        }
+        else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         String[] real_args = new String[args.length - 1];
         System.arraycopy(args, 1, real_args, 0, args.length - 1);
@@ -81,9 +89,16 @@ public class ServerWrapper {
     }
     public static final class Config extends ConfigObject {
         public String title;
+        public boolean customClassLoader;
+        public String classloader;
+        public String mainclass;
         protected Config(BlockConfigEntry block) {
             super(block);
             title = block.getEntryValue("title",StringConfigEntry.class);
+            customClassLoader = block.getEntryValue("customClassLoader", BooleanConfigEntry.class);
+            if(customClassLoader)
+                classloader = block.getEntryValue("classloader",StringConfigEntry.class);
+            mainclass = block.getEntryValue("MainClass",StringConfigEntry.class);
         }
     }
 
