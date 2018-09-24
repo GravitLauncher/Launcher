@@ -22,10 +22,6 @@ public class BuildHookManager {
     public interface PreBuildHook {
         void build(BuildContext context);
     }
-    @FunctionalInterface
-    public interface ProGuardTransformHook {
-        byte[] transform(byte[] input, CharSequence classname);
-    }
 
     @FunctionalInterface
     public interface Transformer {
@@ -34,7 +30,7 @@ public class BuildHookManager {
 
     private boolean BUILDRUNTIME;
     private final Set<PostBuildHook> POST_HOOKS;
-    private final Set<ProGuardTransformHook> POST_PROGUARD_HOOKS;
+    private final Set<Transformer> POST_PROGUARD_HOOKS;
     private final Set<PreBuildHook> PRE_HOOKS;
     private final Set<Transformer> CLASS_TRANSFORMER;
     private final Set<String> CLASS_BLACKLIST;
@@ -72,7 +68,7 @@ public class BuildHookManager {
     }
     public byte[] proGuardClassTransform(byte[] clazz, CharSequence classname) {
         byte[] result = clazz;
-        for (ProGuardTransformHook transformer : POST_PROGUARD_HOOKS) result = transformer.transform(result, classname);
+        for (Transformer transformer : POST_PROGUARD_HOOKS) result = transformer.transform(result, classname);
         return result;
     }
 
@@ -115,7 +111,7 @@ public class BuildHookManager {
     public void registerPostHook(PostBuildHook hook) {
         POST_HOOKS.add(hook);
     }
-    public void registerProGuardHook(ProGuardTransformHook hook) {
+    public void registerProGuardHook(Transformer hook) {
         POST_PROGUARD_HOOKS.add(hook);
     }
     public boolean isNeedPostProguardHook()
