@@ -5,13 +5,8 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.utils.helper.IOHelper;
@@ -148,8 +143,21 @@ public final class HashedDir extends HashedEntry {
         return new Diff(mismatch, extra);
     }
     public void pushHashedFile(String name, HashedFile file)
-    {
-        map.put(name,file);
+    { //TODO: NOT WORKED
+        Stack<String> dir_stack = new Stack<>();
+        StringTokenizer st = new StringTokenizer(name,"/");
+        while(st.hasMoreTokens())
+        {
+            dir_stack.push(st.nextToken());
+        }
+        HashedDir dir;
+        Map<String,HashedEntry> current = map;
+        while(dir_stack.size() != 1)
+        {
+            dir = (HashedDir) current.get(dir_stack.pop());
+            current = dir.map;
+        }
+        current.put(dir_stack.pop(),file);
     }
     public void remove(String name)
     {
