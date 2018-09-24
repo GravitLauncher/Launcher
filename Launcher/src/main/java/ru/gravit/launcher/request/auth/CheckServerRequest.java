@@ -38,7 +38,7 @@ public final class CheckServerRequest extends Request<PlayerProfile> {
     protected PlayerProfile requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(username, SerializeLimits.MAX_LOGIN);
         output.writeASCII(serverID, SerializeLimits.MAX_SERVERID); // 1 char for minus sign
-        output.writeString(ClientLauncher.title, 64);
+        output.writeString(ClientLauncher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.flush();
 
         // Read response

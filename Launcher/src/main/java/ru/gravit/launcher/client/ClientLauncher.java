@@ -80,8 +80,6 @@ public final class ClientLauncher {
         @LauncherAPI
         public final String accessToken;
         @LauncherAPI
-        public final String title;
-        @LauncherAPI
         public final boolean autoEnter;
         @LauncherAPI
         public final boolean fullScreen;
@@ -101,7 +99,6 @@ public final class ClientLauncher {
             // Client paths
             this.assetDir = assetDir;
             this.clientDir = clientDir;
-            title = ClientLauncher.title;
             // Client params
             this.pp = pp;
             this.accessToken = SecurityHelper.verifyToken(accessToken);
@@ -115,7 +112,6 @@ public final class ClientLauncher {
         @LauncherAPI
         public Params(HInput input) throws IOException {
             launcherSign = input.readByteArray(-SecurityHelper.RSA_KEY_LENGTH);
-            title = input.readString(SerializeLimits.MAX_CLIENT);
             // Client paths
             assetDir = IOHelper.toPath(input.readString(0));
             clientDir = IOHelper.toPath(input.readString(0));
@@ -133,7 +129,6 @@ public final class ClientLauncher {
         @Override
         public void write(HOutput output) throws IOException {
             output.writeByteArray(launcherSign, -SecurityHelper.RSA_KEY_LENGTH);
-            output.writeString(title, SerializeLimits.MAX_CLIENT);
             // Client paths
             output.writeString(assetDir.toString(), 0);
             output.writeString(clientDir.toString(), 0);
@@ -150,11 +145,10 @@ public final class ClientLauncher {
     }
 
     private static final String[] EMPTY_ARRAY = new String[0];
+    private static final String SOCKET_HOST = "127.0.0.1";
+    private static final int SOCKET_PORT = 87564;
     private static final String MAGICAL_INTEL_OPTION = "-XX:HeapDumpPath=ThisTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
     private static final boolean isUsingWrapper = true;
-
-    @LauncherAPI
-    public static final String TITLE_PROPERTY = "launcher.title";
     @SuppressWarnings("unused")
     private static final Set<PosixFilePermission> BIN_POSIX_PERMISSIONS = Collections.unmodifiableSet(EnumSet.of(
             PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE, // Owner
@@ -169,8 +163,6 @@ public final class ClientLauncher {
     @LauncherAPI
     public static final String SKIN_URL_PROPERTY = "skinURL";
     @LauncherAPI
-    public static String title;
-    @LauncherAPI
     public static ClientProfile profile;
     @LauncherAPI
     public static final String SKIN_DIGEST_PROPERTY = "skinDigest";
@@ -183,12 +175,6 @@ public final class ClientLauncher {
 
     // Used to determine from clientside is launched from launcher
     private static final AtomicBoolean LAUNCHED = new AtomicBoolean(false);
-
-    static {
-        String title_property = System.getProperty(TITLE_PROPERTY);
-        if (title_property != null) title = title_property;
-        else title = "";
-    }
 
     private static void addClientArgs(Collection<String> args, ClientProfile profile, Params params) {
         PlayerProfile pp = params.pp;
@@ -315,7 +301,7 @@ public final class ClientLauncher {
             try {
                 try (ServerSocket socket = new ServerSocket()) {
                     socket.setReuseAddress(true);
-                    socket.bind(new InetSocketAddress("127.0.0.1", 54983));
+                    socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                     Socket client = socket.accept();
                     try (HOutput output = new HOutput(client.getOutputStream())) {
                         params.write(output);
@@ -424,7 +410,7 @@ public final class ClientLauncher {
         RSAPublicKey publicKey = Launcher.getConfig().publicKey;
         try {
             try (Socket socket = IOHelper.newSocket()) {
-                socket.connect(new InetSocketAddress("127.0.0.1", 54983));
+                socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                 try (HInput input = new HInput(socket.getInputStream())) {
                     params = new Params(input);
                     profile = new SignedObjectHolder<>(input, publicKey, ClientProfile.RO_ADAPTER);
@@ -448,7 +434,6 @@ public final class ClientLauncher {
             }
         }
         ClientLauncher.profile = profile.object;
-        title = params.title;
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
@@ -509,7 +494,6 @@ public final class ClientLauncher {
     @LauncherAPI
     public static void setProfile(ClientProfile profile) {
         ClientLauncher.profile = profile;
-        ClientLauncher.title = profile.getTitle();
         LogHelper.debug("New Profile name: %s", profile.getTitle());
     }
 

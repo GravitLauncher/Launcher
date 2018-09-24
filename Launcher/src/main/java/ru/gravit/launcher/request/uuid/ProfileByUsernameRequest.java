@@ -35,7 +35,7 @@ public final class ProfileByUsernameRequest extends Request<PlayerProfile> {
     @Override
     protected PlayerProfile requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(username, SerializeLimits.MAX_LOGIN);
-        output.writeString(ClientLauncher.title, SerializeLimits.MAX_CLIENT);
+        output.writeString(ClientLauncher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.flush();
         // Return profile
         return input.readBoolean() ? new PlayerProfile(input) : null;
