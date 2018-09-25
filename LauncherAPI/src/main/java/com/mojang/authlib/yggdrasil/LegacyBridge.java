@@ -1,7 +1,6 @@
 package com.mojang.authlib.yggdrasil;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.client.ClientLauncher;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -33,8 +32,6 @@ public final class LegacyBridge {
 
     @SuppressWarnings("unused")
     public static String joinServer(String username, String accessToken, String serverID) {
-        if (!ClientLauncher.isLaunched())
-            return "Bad Login (Cheater)";
 
         // Join server
         LogHelper.debug("LegacyBridge.joinServer, Username: '%s', Access token: %s, Server ID: %s", username, accessToken, serverID);

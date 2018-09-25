@@ -16,7 +16,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.interfaces.RSAPublicKey;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JOptionPane;
 
@@ -168,20 +167,6 @@ public final class ClientLauncher {
     private static final Path NATIVES_DIR = IOHelper.toPath("natives");
     private static final Path RESOURCEPACKS_DIR = IOHelper.toPath("resourcepacks");
     private static PublicURLClassLoader classLoader;
-    // Authlib constants
-    @LauncherAPI
-    public static final String SKIN_URL_PROPERTY = "skinURL";
-    @LauncherAPI
-    public static final String SKIN_DIGEST_PROPERTY = "skinDigest";
-
-    @LauncherAPI
-    public static final String CLOAK_URL_PROPERTY = "cloakURL";
-
-    @LauncherAPI
-    public static final String CLOAK_DIGEST_PROPERTY = "cloakDigest";
-
-    // Used to determine from clientside is launched from launcher
-    private static final AtomicBoolean LAUNCHED = new AtomicBoolean(false);
 
     private static void addClientArgs(Collection<String> args, ClientProfile profile, Params params) {
         PlayerProfile pp = params.pp;
@@ -199,12 +184,12 @@ public final class ClientLauncher {
                 Collections.addAll(args, "--userType", "mojang");
                 JsonObject properties = Json.object();
                 if (pp.skin != null) {
-                    properties.add(SKIN_URL_PROPERTY, Json.array(pp.skin.url));
-                    properties.add(SKIN_DIGEST_PROPERTY, Json.array(SecurityHelper.toHex(pp.skin.digest)));
+                    properties.add(Launcher.SKIN_URL_PROPERTY, Json.array(pp.skin.url));
+                    properties.add(Launcher.SKIN_DIGEST_PROPERTY, Json.array(SecurityHelper.toHex(pp.skin.digest)));
                 }
                 if (pp.cloak != null) {
-                    properties.add(CLOAK_URL_PROPERTY, Json.array(pp.cloak.url));
-                    properties.add(CLOAK_DIGEST_PROPERTY, Json.array(SecurityHelper.toHex(pp.cloak.digest)));
+                    properties.add(Launcher.CLOAK_URL_PROPERTY, Json.array(pp.cloak.url));
+                    properties.add(Launcher.CLOAK_DIGEST_PROPERTY, Json.array(SecurityHelper.toHex(pp.cloak.digest)));
                 }
                 Collections.addAll(args, "--userProperties", properties.toString(WriterConfig.MINIMAL));
 
@@ -265,7 +250,7 @@ public final class ClientLauncher {
 
     @LauncherAPI
     public static boolean isLaunched() {
-        return LAUNCHED.get();
+        return Launcher.LAUNCHED.get();
     }
 
     @LauncherAPI
@@ -289,7 +274,7 @@ public final class ClientLauncher {
         Class<?> mainClass = classLoader.loadClass(profile.getMainClass());
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         // Invoke main method with exception wrapping
-        LAUNCHED.set(true);
+        Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
         System.setProperty("minecraft.applet.TargetDirectory", params.clientDir.toString()); // For 1.5.2
         mainMethod.invoke((Object) args.toArray(EMPTY_ARRAY));

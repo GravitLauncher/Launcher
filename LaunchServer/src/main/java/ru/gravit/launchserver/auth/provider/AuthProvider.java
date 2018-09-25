@@ -44,7 +44,7 @@ public abstract class AuthProvider extends ConfigObject implements AutoCloseable
             registerProvider("reject", RejectAuthProvider::new);
 
             // Auth providers that doesn't do nothing :D
-            registerProvider("mojang", MojangAuthProvider::new);
+            registerProvider("com.mojang", MojangAuthProvider::new);
             registerProvider("mysql", MySQLAuthProvider::new);
             registerProvider("file", FileAuthProvider::new);
             registerProvider("request", RequestAuthProvider::new);

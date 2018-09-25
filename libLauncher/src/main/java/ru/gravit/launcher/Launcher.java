@@ -6,6 +6,7 @@ import java.nio.file.NoSuchFileException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
@@ -17,6 +18,18 @@ import ru.gravit.launcher.modules.ModulesManagerInterface;
 import ru.gravit.launcher.serialize.HInput;
 
 public final class Launcher {
+
+    // Authlib constants
+    @LauncherAPI
+    public static final String SKIN_URL_PROPERTY = "skinURL";
+    @LauncherAPI
+    public static final String SKIN_DIGEST_PROPERTY = "skinDigest";
+    @LauncherAPI
+    public static final String CLOAK_URL_PROPERTY = "cloakURL";
+    @LauncherAPI
+    public static final String CLOAK_DIGEST_PROPERTY = "cloakDigest";
+    // Used to determine from clientside is launched from launcher
+    public static final AtomicBoolean LAUNCHED = new AtomicBoolean(false);
 
     static int readBuildNumber() {
         try {

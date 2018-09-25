@@ -3,4 +3,7 @@ targetCompatibility = '1.8'
 
 dependencies {
 	compile project(':libLauncher')
+    compileOnly 'com.google.code.gson:gson:2.8.5'
+    compileOnly 'com.google.guava:guava:26.0-jre'
+	compile files('../compat/authlib/authlib-clean.jar')
 }

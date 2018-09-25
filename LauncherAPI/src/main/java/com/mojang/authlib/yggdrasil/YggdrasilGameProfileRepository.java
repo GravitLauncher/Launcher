@@ -16,11 +16,11 @@ import ru.gravit.launcher.serialize.SerializeLimits;
 
 public final class YggdrasilGameProfileRepository implements GameProfileRepository {
     private static final long BUSY_WAIT_MS = VerifyHelper.verifyLong(
-            Long.parseLong(System.getProperty("launcher.authlib.busyWait", Long.toString(100L))),
-            VerifyHelper.L_NOT_NEGATIVE, "launcher.authlib.busyWait can't be < 0");
+            Long.parseLong(System.getProperty("launcher.com.mojang.authlib.busyWait", Long.toString(100L))),
+            VerifyHelper.L_NOT_NEGATIVE, "launcher.com.mojang.authlib.busyWait can't be < 0");
     private static final long ERROR_BUSY_WAIT_MS = VerifyHelper.verifyLong(
-            Long.parseLong(System.getProperty("launcher.authlib.errorBusyWait", Long.toString(500L))),
-            VerifyHelper.L_NOT_NEGATIVE, "launcher.authlib.errorBusyWait can't be < 0");
+            Long.parseLong(System.getProperty("launcher.com.mojang.authlib.errorBusyWait", Long.toString(500L))),
+            VerifyHelper.L_NOT_NEGATIVE, "launcher.com.mojang.authlib.errorBusyWait can't be < 0");
 
     private static void busyWait(long ms) {
         try {
@@ -51,7 +51,7 @@ public final class YggdrasilGameProfileRepository implements GameProfileReposito
                     callback.onProfileLookupFailed(new GameProfile((UUID) null, username), e);
                 }
 
-                // Busy wait, like in standard authlib
+                // Busy wait, like in standard com.mojang.authlib
                 busyWait(ERROR_BUSY_WAIT_MS);
                 continue;
             }
@@ -71,7 +71,7 @@ public final class YggdrasilGameProfileRepository implements GameProfileReposito
                 callback.onProfileLookupSucceeded(YggdrasilMinecraftSessionService.toGameProfile(pp));
             }
 
-            // Busy wait, like in standard authlib
+            // Busy wait, like in standard com.mojang.authlib
             busyWait(BUSY_WAIT_MS);
         }
     }

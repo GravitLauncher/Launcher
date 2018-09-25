@@ -24,9 +24,9 @@
 -renamesourcefileattribute SourceFile
 -adaptresourcefilecontents META-INF/MANIFEST.MF
 
--keeppackagenames com.eclipsesource.json.**,com.mojang.**
+-keeppackagenames com.eclipsesource.json.**,com.com.mojang.**
 
--keep class com.eclipsesource.json.**,com.mojang.** {
+-keep class com.eclipsesource.json.**,com.com.mojang.** {
     <fields>;
     <methods>;
 }

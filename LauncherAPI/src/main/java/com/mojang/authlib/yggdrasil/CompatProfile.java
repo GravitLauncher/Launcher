@@ -4,17 +4,16 @@ import java.util.UUID;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.client.ClientLauncher;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.launcher.profiles.PlayerProfile;
 
 @SuppressWarnings("unused")
 @LauncherAPI
 public final class CompatProfile {
-    public static final String SKIN_URL_PROPERTY = ClientLauncher.SKIN_URL_PROPERTY;
-    public static final String SKIN_DIGEST_PROPERTY = ClientLauncher.SKIN_DIGEST_PROPERTY;
-    public static final String CLOAK_URL_PROPERTY = ClientLauncher.CLOAK_URL_PROPERTY;
-    public static final String CLOAK_DIGEST_PROPERTY = ClientLauncher.CLOAK_DIGEST_PROPERTY;
+    public static final String SKIN_URL_PROPERTY = Launcher.SKIN_URL_PROPERTY;
+    public static final String SKIN_DIGEST_PROPERTY = Launcher.SKIN_DIGEST_PROPERTY;
+    public static final String CLOAK_URL_PROPERTY = Launcher.CLOAK_URL_PROPERTY;
+    public static final String CLOAK_DIGEST_PROPERTY = Launcher.CLOAK_DIGEST_PROPERTY;
 
     public static CompatProfile fromPlayerProfile(PlayerProfile profile) {
         return profile == null ? null : new CompatProfile(profile.uuid, profile.username,

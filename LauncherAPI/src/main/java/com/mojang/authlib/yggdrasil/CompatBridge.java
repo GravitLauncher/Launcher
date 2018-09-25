@@ -3,7 +3,6 @@ package com.mojang.authlib.yggdrasil;
 import java.util.UUID;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.client.ClientLauncher;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.auth.CheckServerRequest;
@@ -27,8 +26,6 @@ public final class CompatBridge {
 
     @SuppressWarnings("unused")
     public static boolean joinServer(String username, String accessToken, String serverID) throws Exception {
-        if (!ClientLauncher.isLaunched())
-            throw new IllegalStateException("Bad Login (Cheater)");
 
         // Join server
         LogHelper.debug("LegacyBridge.joinServer, Username: '%s', Access token: %s, Server ID: %s", username, accessToken, serverID);

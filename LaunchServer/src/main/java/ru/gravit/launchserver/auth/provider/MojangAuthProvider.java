@@ -26,7 +26,7 @@ public final class MojangAuthProvider extends AuthProvider {
 
     static {
         try {
-            URL = new URL("https://authserver.mojang.com/authenticate");
+            URL = new URL("https://authserver.com.mojang.com/authenticate");
         } catch (MalformedURLException e) {
             throw new InternalError(e);
         }
@@ -67,7 +67,7 @@ public final class MojangAuthProvider extends AuthProvider {
         // Verify there's no error
         JsonObject response = makeJSONRequest(URL, request);
         if (response == null)
-            authError("Empty mojang response");
+            authError("Empty com.mojang response");
         JsonValue errorMessage = response.get("errorMessage");
         if (errorMessage != null)
             authError(errorMessage.asString());

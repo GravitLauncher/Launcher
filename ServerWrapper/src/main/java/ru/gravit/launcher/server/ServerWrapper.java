@@ -69,6 +69,7 @@ public class ServerWrapper {
         String[] real_args = new String[args.length - 1];
         System.arraycopy(args, 1, real_args, 0, args.length - 1);
         modulesManager.postInitModules();
+        LogHelper.debug("Invoke main method");
         mainMethod.invoke(real_args);
     }
     private static void generateConfigIfNotExists() throws IOException {
