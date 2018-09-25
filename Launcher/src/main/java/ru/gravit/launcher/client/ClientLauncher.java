@@ -15,12 +15,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JOptionPane;
@@ -78,6 +73,8 @@ public final class ClientLauncher {
         @LauncherAPI
         public final PlayerProfile pp;
         @LauncherAPI
+        public final Set<ClientProfile.MarkedString> updateOptional;
+        @LauncherAPI
         public final String accessToken;
         @LauncherAPI
         public final boolean autoEnter;
@@ -95,7 +92,11 @@ public final class ClientLauncher {
         public Params(byte[] launcherSign, Path assetDir, Path clientDir, PlayerProfile pp, String accessToken,
                       boolean autoEnter, boolean fullScreen, int ram, int width, int height) {
             this.launcherSign = launcherSign.clone();
-
+            this.updateOptional = new HashSet<>();
+            for(ClientProfile.MarkedString s : ClientLauncher.profile.getOptional())
+            {
+                if(s.mark) updateOptional.add(s);
+            }
             // Client paths
             this.assetDir = assetDir;
             this.clientDir = clientDir;
@@ -115,7 +116,12 @@ public final class ClientLauncher {
             // Client paths
             assetDir = IOHelper.toPath(input.readString(0));
             clientDir = IOHelper.toPath(input.readString(0));
-
+            updateOptional = new HashSet<>();
+            int len = input.readLength(128);
+            for(int i=0;i<len;++i)
+            {
+                updateOptional.add(new ClientProfile.MarkedString(input.readString(512),true));
+            }
             // Client params
             pp = new PlayerProfile(input);
             accessToken = SecurityHelper.verifyToken(input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH));
@@ -132,7 +138,11 @@ public final class ClientLauncher {
             // Client paths
             output.writeString(assetDir.toString(), 0);
             output.writeString(clientDir.toString(), 0);
-
+            output.writeLength(updateOptional.size(),128);
+            for(ClientProfile.MarkedString s : updateOptional)
+            {
+                output.writeString(s.string,512);
+            }
             // Client params
             pp.write(output);
             output.writeASCII(accessToken, -SecurityHelper.TOKEN_STRING_LENGTH);
@@ -148,7 +158,7 @@ public final class ClientLauncher {
     private static final String SOCKET_HOST = "127.0.0.1";
     private static final int SOCKET_PORT = 32148;
     private static final String MAGICAL_INTEL_OPTION = "-XX:HeapDumpPath=ThisTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
-    private static final boolean isUsingWrapper = true;
+    private static final boolean isUsingWrapper = false;
     @SuppressWarnings("unused")
     private static final Set<PosixFilePermission> BIN_POSIX_PERMISSIONS = Collections.unmodifiableSet(EnumSet.of(
             PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE, // Owner
@@ -455,8 +465,14 @@ public final class ClientLauncher {
              DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir.object, clientMatcher, digest)) {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
+            HashedDir hdir = clientHDir.object;
+            for(ClientProfile.MarkedString s : ClientLauncher.profile.getOptional())
+            {
+                if(params.updateOptional.contains(s)) s.mark = true;
+                else hdir.removeR(s.string);
+            }
             verifyHDir(params.assetDir, assetHDir.object, assetMatcher, digest);
-            verifyHDir(params.clientDir, clientHDir.object, clientMatcher, digest);
+            verifyHDir(params.clientDir, hdir, clientMatcher, digest);
             Launcher.modulesManager.postInitModules();
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();

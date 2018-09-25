@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
@@ -142,26 +143,38 @@ public final class HashedDir extends HashedEntry {
         HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
         return new Diff(mismatch, extra);
     }
-    public void pushHashedFile(String name, HashedFile file)
-    { //TODO: NOT WORKED
-        Stack<String> dir_stack = new Stack<>();
-        StringTokenizer st = new StringTokenizer(name,"/");
-        while(st.hasMoreTokens())
-        {
-            dir_stack.push(st.nextToken());
-        }
-        HashedDir dir;
-        Map<String,HashedEntry> current = map;
-        while(dir_stack.size() != 1)
-        {
-            dir = (HashedDir) current.get(dir_stack.pop());
-            current = dir.map;
-        }
-        current.put(dir_stack.pop(),file);
-    }
     public void remove(String name)
     {
         map.remove(name);
+    }
+    public void removeR(String name)
+    {
+        LinkedList<String> dirs = new LinkedList<>();
+        StringTokenizer t = new StringTokenizer(name,"/");
+        while(t.hasMoreTokens())
+        {
+            dirs.add(t.nextToken());
+        }
+        Map<String,HashedEntry> current = map;
+        for(String s : dirs)
+        {
+            HashedEntry e = current.get(s);
+            if(e == null)
+            {
+                LogHelper.debug("Null %s",s);
+                for(String x : current.keySet()) LogHelper.debug("Contains %s",x);
+                break;
+            }
+            if(e.getType() == Type.DIR)
+            {
+                current = ((HashedDir) e).map;
+                LogHelper.debug("Found dir %s",s);
+            } else {
+                current.remove(s);
+                LogHelper.debug("Found filename %s",s);
+                break;
+            }
+        }
     }
     @LauncherAPI
     public HashedEntry getEntry(String name) {

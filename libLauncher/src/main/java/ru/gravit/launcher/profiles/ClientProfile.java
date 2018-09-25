@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
@@ -81,12 +78,37 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     private final StringConfigEntry serverAddress;
 
     private final IntegerConfigEntry serverPort;
+    public static class MarkedString {
+        public String string;
+        public boolean mark;
+
+        public MarkedString(String string, boolean mark) {
+            this.string = string;
+            this.mark = mark;
+        }
+        public MarkedString(String string) {
+            this.string = string;
+            this.mark = false;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MarkedString that = (MarkedString) o;
+            return Objects.equals(string, that.string);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(string);
+        }
+    }
     //  Updater and client watch service
     private final List<String> update = new ArrayList<>();
     private final List<String> updateExclusions = new ArrayList<>();
     private final List<String> updateVerify = new ArrayList<>();
-    private final List<String> updateOptional = new ArrayList<>();
-    private final List<String> markUpdateOptional = new ArrayList<>();
+    private final Set<MarkedString> updateOptional = new HashSet<>();
     private final BooleanConfigEntry updateFastCheck;
 
     private final BooleanConfigEntry useWhitelist;
@@ -115,7 +137,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
         //  Updater and client watch service
         block.getEntry("update", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(update::add);
         block.getEntry("updateVerify", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateVerify::add);
-        block.getEntry("updateOptional", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateOptional::add);
+        block.getEntry("updateOptional", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(e -> updateOptional.add(new MarkedString(e)));
         block.getEntry("updateExclusions", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateExclusions::add);
         updateFastCheck = block.getEntry("updateFastCheck", BooleanConfigEntry.class);
         useWhitelist = block.getEntry("useWhitelist", BooleanConfigEntry.class);
@@ -191,27 +213,26 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     }
 
     @LauncherAPI
+    public Set<MarkedString> getOptional()
+    {
+        return updateOptional;
+    }
+    @LauncherAPI
     public void markOptional(String opt)
     {
-        if(!updateOptional.contains(opt)) throw new SecurityException(String.format("Optional mod %s not found in optionalList",opt));
-        markUpdateOptional.add(opt);
+        if(!updateOptional.contains(new MarkedString(opt))) throw new SecurityException(String.format("Optional mod %s not found in optionalList",opt));
+        updateOptional.forEach(e -> {if(e.string.equals(opt)) e.mark = true;});
     }
     @LauncherAPI
     public void unmarkOptional(String opt)
     {
-        if(!updateOptional.contains(opt)) throw new SecurityException(String.format("Optional mod %s not found in optionalList",opt));
-        markUpdateOptional.remove(opt);
+        if(!updateOptional.contains(new MarkedString(opt))) throw new SecurityException(String.format("Optional mod %s not found in optionalList",opt));
+        updateOptional.forEach(e -> {if(e.string.equals(opt)) e.mark = false;});
     }
     public void pushOptional(HashedDir dir,boolean digest) throws IOException {
-        for(String opt : updateOptional)
+        for(MarkedString opt : updateOptional)
         {
-            dir.remove(opt);
-        }
-        for(String opt : markUpdateOptional)
-        {
-            Path path = Paths.get(opt);
-            File file = new File(path.toAbsolutePath().toString());
-            dir.pushHashedFile(opt, new HashedFile(path,file.getUsableSpace(),digest));
+            if(!opt.mark) dir.removeR(opt.string);
         }
     }
     @LauncherAPI
