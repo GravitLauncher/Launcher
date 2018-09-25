@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
+import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -38,6 +39,8 @@ public final class Launcher {
     public static final String RUNTIME_DIR = "runtime";
     @LauncherAPI
     public static final String CONFIG_FILE = "config.bin";
+    @LauncherAPI
+    public static ClientProfile profile;
     @LauncherAPI
     public static final String INIT_SCRIPT_FILE = "init.js";
     @LauncherAPI

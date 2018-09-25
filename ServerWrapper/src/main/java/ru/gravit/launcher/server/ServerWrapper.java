@@ -12,7 +12,6 @@ import java.nio.file.Paths;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.client.ClientLauncher;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.TextConfigReader;
 import ru.gravit.launcher.serialize.config.TextConfigWriter;
@@ -47,8 +46,8 @@ public class ServerWrapper {
             LogHelper.debug("Get profile: %s", p.object.getTitle());
             if (p.object.getTitle().equals(config.title)) {
                 wrapper.profile = p.object;
-                ClientLauncher.setProfile(p.object);
-                LogHelper.debug("Found profile: %s", ClientLauncher.profile.getTitle());
+                Launcher.profile = p.object;
+                LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
                 break;
             }
         }

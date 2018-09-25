@@ -2,9 +2,9 @@ package ru.gravit.launcher.request.auth;
 
 import java.io.IOException;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.client.ClientLauncher;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
@@ -67,7 +67,7 @@ public final class AuthRequest extends Request<Result> {
     @Override
     protected Result requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(login, SerializeLimits.MAX_LOGIN);
-        output.writeString(ClientLauncher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
+        output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.writeInt(auth_id);
         output.writeLong(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? GuardBind.avnGetHddId() : 0);
         output.writeLong(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? GuardBind.avnGetCpuid() : 0);

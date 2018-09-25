@@ -16,9 +16,9 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.zip.InflaterInputStream;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.client.ClientLauncher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
@@ -307,7 +307,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
         // Get diff between local and remote dir
         SignedObjectHolder<HashedDir> remoteHDirHolder = new SignedObjectHolder<>(input, config.publicKey, HashedDir::new);
         HashedDir hackHackedDir = remoteHDirHolder.object;
-        ClientLauncher.profile.pushOptional(hackHackedDir,!ClientLauncher.profile.isUpdateFastCheck());
+        Launcher.profile.pushOptional(hackHackedDir,!Launcher.profile.isUpdateFastCheck());
         HashedDir.Diff diff = hackHackedDir.diff(localDir, matcher);
         totalSize = diff.mismatch.size();
         boolean compress = input.readBoolean();

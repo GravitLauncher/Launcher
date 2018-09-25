@@ -2,9 +2,9 @@ package ru.gravit.launcher.request.auth;
 
 import java.io.IOException;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.client.ClientLauncher;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.profiles.PlayerProfile;
@@ -39,12 +39,12 @@ public final class CheckServerRequest extends Request<PlayerProfile> {
     protected PlayerProfile requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(username, SerializeLimits.MAX_LOGIN);
         output.writeASCII(serverID, SerializeLimits.MAX_SERVERID); // 1 char for minus sign
-        if(ClientLauncher.profile == null) {
+        if(Launcher.profile == null) {
             LogHelper.error("Profile is null. Title is not net.");
             output.writeString("", SerializeLimits.MAX_CLIENT);
         }
         else
-            output.writeString(ClientLauncher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
+            output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.flush();
 
         // Read response

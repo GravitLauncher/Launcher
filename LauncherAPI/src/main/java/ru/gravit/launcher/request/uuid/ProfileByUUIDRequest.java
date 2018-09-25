@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.client.ClientLauncher;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
@@ -36,7 +36,7 @@ public final class ProfileByUUIDRequest extends Request<PlayerProfile> {
     @Override
     protected PlayerProfile requestDo(HInput input, HOutput output) throws IOException {
         output.writeUUID(uuid);
-        output.writeString(ClientLauncher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
+        output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.flush();
 
         // Return profile

@@ -2,9 +2,9 @@ package ru.gravit.launcher.request.uuid;
 
 import java.io.IOException;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.client.ClientLauncher;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
@@ -35,7 +35,7 @@ public final class ProfileByUsernameRequest extends Request<PlayerProfile> {
     @Override
     protected PlayerProfile requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(username, SerializeLimits.MAX_LOGIN);
-        output.writeString(ClientLauncher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
+        output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.flush();
         // Return profile
         return input.readBoolean() ? new PlayerProfile(input) : null;

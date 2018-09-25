@@ -1,5 +1,5 @@
-String mainClassName = "ru.gravit.launcher.LauncherEngine"
-String mainAgentName = "ru.gravit.launcher.LauncherAgent"
+String mainClassName = "ru.gravit.launcher.server.ServerWrapper"
+String mainAgentName = "ru.gravit.launcher.server.ServerAgent"
 
 
 repositories {
@@ -26,11 +26,3 @@ dependencies {
     compileOnly 'com.google.code.gson:gson:2.8.5'
     compileOnly 'com.google.guava:guava:26.0-jre'
 }
-
-task genRuntimeJS(type: Zip) {
-    archiveName = "runtime.zip"
-    destinationDir = file("${buildDir}/tmp")
-    from "runtime/"
-}
-
-build.dependsOn tasks.genRuntimeJS

@@ -42,7 +42,6 @@ import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.update.LauncherRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 
@@ -93,7 +92,7 @@ public final class ClientLauncher {
                       boolean autoEnter, boolean fullScreen, int ram, int width, int height) {
             this.launcherSign = launcherSign.clone();
             this.updateOptional = new HashSet<>();
-            for(ClientProfile.MarkedString s : ClientLauncher.profile.getOptional())
+            for(ClientProfile.MarkedString s : Launcher.profile.getOptional())
             {
                 if(s.mark) updateOptional.add(s);
             }
@@ -172,8 +171,6 @@ public final class ClientLauncher {
     // Authlib constants
     @LauncherAPI
     public static final String SKIN_URL_PROPERTY = "skinURL";
-    @LauncherAPI
-    public static ClientProfile profile;
     @LauncherAPI
     public static final String SKIN_DIGEST_PROPERTY = "skinDigest";
 
@@ -443,7 +440,7 @@ public final class ClientLauncher {
                 Files.delete(paramsFile);
             }
         }
-        ClientLauncher.profile = profile.object;
+        Launcher.profile = profile.object;
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
@@ -466,7 +463,7 @@ public final class ClientLauncher {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
             HashedDir hdir = clientHDir.object;
-            for(ClientProfile.MarkedString s : ClientLauncher.profile.getOptional())
+            for(ClientProfile.MarkedString s : Launcher.profile.getOptional())
             {
                 if(params.updateOptional.contains(s)) s.mark = true;
                 else hdir.removeR(s.string);
@@ -509,7 +506,7 @@ public final class ClientLauncher {
 
     @LauncherAPI
     public static void setProfile(ClientProfile profile) {
-        ClientLauncher.profile = profile;
+        Launcher.profile = profile;
         LogHelper.debug("New Profile name: %s", profile.getTitle());
     }
 
