@@ -158,7 +158,7 @@ public final class ClientLauncher {
     private static final String SOCKET_HOST = "127.0.0.1";
     private static final int SOCKET_PORT = 32148;
     private static final String MAGICAL_INTEL_OPTION = "-XX:HeapDumpPath=ThisTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
-    private static final boolean isUsingWrapper = false;
+    private static final boolean isUsingWrapper = true;
     @SuppressWarnings("unused")
     private static final Set<PosixFilePermission> BIN_POSIX_PERMISSIONS = Collections.unmodifiableSet(EnumSet.of(
             PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE, // Owner
