@@ -43,7 +43,7 @@ public class Downloader implements Runnable {
     public void downloadFile() throws IOException {
         try (BufferedInputStream in = new BufferedInputStream(url.openStream()); FileOutputStream fout = new FileOutputStream(file, skip != 0)) {
             final byte data[] = new byte[IOHelper.BUFFER_SIZE];
-            int count;
+            int count = -1;
             long timestamp = System.currentTimeMillis();
             int writed_local = 0;
             in.skip(skip);
