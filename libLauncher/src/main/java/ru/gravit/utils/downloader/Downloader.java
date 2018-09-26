@@ -42,7 +42,7 @@ public class Downloader implements Runnable {
     }
 
     public void downloadFile() throws IOException {
-    	if (!url.getProtocol().equalsIgnoreCase("http")) throw new IOException("Invalid protocol.");
+    	if (!(url.getProtocol().equalsIgnoreCase("http") || url.getProtocol().equalsIgnoreCase("https"))) throw new IOException("Invalid protocol.");
         HttpURLConnection connect = (HttpURLConnection) (url).openConnection();
         connect.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"); // for stupid servers
         connect.setInstanceFollowRedirects(true);
