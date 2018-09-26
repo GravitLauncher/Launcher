@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launchserver.response.auth.AuthServerResponse;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.RequestType;
@@ -53,6 +54,7 @@ public abstract class Response {
         registerResponse(RequestType.UPDATE_LIST.getNumber(), UpdateListResponse::new);
         registerResponse(RequestType.UPDATE.getNumber(), UpdateResponse::new);
         registerResponse(RequestType.PROFILES.getNumber(), ProfilesResponse::new);
+        registerResponse(RequestType.SERVERAUTH.getNumber(), AuthServerResponse::new);
     }
 
     @LauncherAPI

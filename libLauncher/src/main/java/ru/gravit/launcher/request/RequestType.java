@@ -11,7 +11,7 @@ public enum RequestType implements EnumSerializer.Itf {
     LAUNCHER(1), UPDATE(2), UPDATE_LIST(3), // Update requests
     AUTH(4), JOIN_SERVER(5), CHECK_SERVER(6), // Auth requests
     PROFILE_BY_USERNAME(7), PROFILE_BY_UUID(8), BATCH_PROFILE_BY_USERNAME(9), // Profile requests
-    PROFILES(10),
+    PROFILES(10),SERVERAUTH(11),
     CUSTOM(255); // Custom requests
     private static final EnumSerializer<RequestType> SERIALIZER = new EnumSerializer<>(RequestType.class);
 

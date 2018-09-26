@@ -1,17 +1,5 @@
 package ru.gravit.launchserver.response.auth;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.UUID;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-
-import ru.gravit.launchserver.socket.Client;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
@@ -25,15 +13,26 @@ import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
+import ru.gravit.launchserver.socket.Client;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
-public final class AuthResponse extends Response {
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.UUID;
+
+public final class AuthServerResponse extends Response {
     private static String echo(int length) {
         char[] chars = new char[length];
         Arrays.fill(chars, '*');
         return new String(chars);
     }
 
-    public AuthResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
+    public AuthServerResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
         super(server, session, input, output, ip);
     }
 
@@ -42,9 +41,6 @@ public final class AuthResponse extends Response {
         String login = input.readString(SerializeLimits.MAX_LOGIN);
         String client = input.readString(SerializeLimits.MAX_CLIENT);
         int auth_id = input.readInt();
-        long hwid_hdd = input.readLong();
-        long hwid_cpu = input.readLong();
-        long hwid_bios = input.readLong();
         if(auth_id + 1 > server.config.authProvider.length || auth_id < 0) auth_id = 0;
         byte[] encryptedPassword = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
         // Decrypt password
@@ -53,16 +49,15 @@ public final class AuthResponse extends Response {
             password = IOHelper.decode(SecurityHelper.newRSADecryptCipher(server.privateKey).
                     doFinal(encryptedPassword));
         } catch (IllegalBlockSizeException | BadPaddingException ignored) {
-            requestError("Password decryption error");
+            requestError("ServerPassword decryption error");
             return;
         }
-
+        if(client.length() == 0) requestError("Request error. You is cheater?");
         // Authenticate
-        debug("Login: '%s', Password: '%s'", login, echo(password.length()));
+        debug("ServerLogin: '%s', Password: '%s'", login, echo(password.length()));
         AuthProviderResult result;
         AuthProvider provider = server.config.authProvider[auth_id];
         Client clientData = server.sessionManager.getClient(session);
-        clientData.type = Client.Type.USER;
         try {
             if (server.limiter.isLimit(ip)) {
                 AuthProvider.authError(server.config.authRejectString);
@@ -85,7 +80,7 @@ public final class AuthResponse extends Response {
             if(clientData.profile == null) {
                 throw new AuthException("You profile not found");
             }
-            server.config.hwidHandler.check(HWID.gen(hwid_hdd, hwid_bios, hwid_cpu), result.username);
+            clientData.type = Client.Type.SERVER;
         } catch (AuthException | HWIDException e) {
             requestError(e.getMessage());
             return;
@@ -94,23 +89,7 @@ public final class AuthResponse extends Response {
             requestError("Internal auth provider error");
             return;
         }
-        debug("Auth: '%s' -> '%s', '%s'", login, result.username, result.accessToken);
+        debug("ServerAuth: '%s' -> '%s', '%s'", login, result.username, result.accessToken);
         clientData.isAuth = true;
-        // Authenticate on server (and get UUID)
-        UUID uuid;
-        try {
-            uuid = provider.getAccociateHandler(auth_id).auth(result);
-        } catch (AuthException e) {
-            requestError(e.getMessage());
-            return;
-        } catch (Exception e) {
-            LogHelper.error(e);
-            requestError("Internal auth handler error");
-            return;
-        }
-        writeNoError(output);
-        // Write profile and UUID
-        ProfileByUUIDResponse.getProfile(server, uuid, result.username, client).write(output);
-        output.writeASCII(result.accessToken, -SecurityHelper.TOKEN_STRING_LENGTH);
     }
 }
