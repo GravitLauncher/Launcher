@@ -46,6 +46,7 @@ public class ServerWrapper {
         }
         LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(Paths.get("public.key"))),new HashMap<>(),config.projectname);
         ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
+        Launcher.setConfig(cfg);
         for (SignedObjectHolder<ClientProfile> p : result.profiles) {
             LogHelper.debug("Get profile: %s", p.object.getTitle());
             if (p.object.getTitle().equals(config.title)) {

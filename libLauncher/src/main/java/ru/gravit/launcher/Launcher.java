@@ -79,6 +79,11 @@ public final class Launcher {
         }
         return config;
     }
+    @LauncherAPI
+    public static void setConfig(LauncherConfig cfg)
+    {
+        CONFIG.set(cfg);
+    }
 
     @LauncherAPI
     public static URL getResourceURL(String name) throws IOException {
