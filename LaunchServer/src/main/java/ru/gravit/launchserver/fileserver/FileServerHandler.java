@@ -42,15 +42,18 @@ import java.util.regex.Pattern;
 import static io.netty.handler.codec.http.HttpMethod.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.*;
+
 public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
     public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
     public static final int HTTP_CACHE_SECONDS = 60;
 	private final File base;
+	private final boolean fullOut;
 
-	public FileServerHandler(File base) {
+	public FileServerHandler(File base, boolean fullOut) {
 		this.base = base;
+		this.fullOut = fullOut;
 	}
 	
     @Override
@@ -79,11 +82,13 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         }
 
         if (file.isDirectory()) {
-            if (uri.endsWith("/")) {
-                sendListing(ctx, file, uri);
-            } else {
-                sendRedirect(ctx, uri + '/');
-            }
+        	if (fullOut) {
+        		if (uri.endsWith("/")) {
+                	sendListing(ctx, file, uri);
+            	} else {
+                	sendRedirect(ctx, uri + '/');
+            	}
+        	} else sendError(ctx, FORBIDDEN);
             return;
         }
 
@@ -207,8 +212,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 
     private static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[^-\\._]?[^<>&\\\"]*");
 
-    
-    // TODO rewrite if needed
     private static void sendListing(ChannelHandlerContext ctx, File dir, String dirPath) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");

@@ -14,10 +14,12 @@ public class FileInitializer extends ChannelInitializer<SocketChannel> {
 
     private final SslContext sslCtx;
     private final File base;
+	private final boolean outDirs;
     
-    public FileInitializer(SslContext sslCtx, File base) {
+    public FileInitializer(SslContext sslCtx, File base, boolean outDirs) {
         this.sslCtx = sslCtx;
         this.base = base;
+        this.outDirs = outDirs;
     }
 
     @Override
@@ -29,6 +31,6 @@ public class FileInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(65536));
         pipeline.addLast(new ChunkedWriteHandler());
-        pipeline.addLast(new FileServerHandler(base));
+        pipeline.addLast(new FileServerHandler(base, outDirs));
     }
 }
