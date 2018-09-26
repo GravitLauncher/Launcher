@@ -60,15 +60,14 @@ public class Downloader implements Runnable {
                     writed.set(writed_local);
                     LogHelper.debug("Downloaded %d", writed_local);
                     if (interrupt.get()) {
-                    	interrupted.set(true);
                     	break;
                     }
                 }
             }
             LogHelper.debug("Downloaded %d", writed_local);
             writed.set(writed_local);
-            interrupted.set(true);
         }
+        interrupted.set(true);
     }
 
 	@Override
