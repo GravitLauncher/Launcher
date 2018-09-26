@@ -22,7 +22,5 @@ jar {
 
 dependencies {
     compile project(':LauncherAPI')
-	compile 'org.javassist:javassist:3.23.1-GA'
-    compileOnly 'com.google.code.gson:gson:2.8.5'
-    compileOnly 'com.google.guava:guava:26.0-jre'
+    compile 'org.javassist:javassist:3.23.1-GA'
 }
