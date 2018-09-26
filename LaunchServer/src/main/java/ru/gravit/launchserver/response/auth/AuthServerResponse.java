@@ -52,7 +52,6 @@ public final class AuthServerResponse extends Response {
             requestError("ServerPassword decryption error");
             return;
         }
-        if(client.length() == 0) requestError("Request error. You is cheater?");
         // Authenticate
         debug("ServerLogin: '%s', Password: '%s'", login, echo(password.length()));
         AuthProviderResult result;

@@ -31,6 +31,7 @@ public final class AuthServerRequest extends Request<Boolean> {
 
     private final byte[] encryptedPassword;
     private final int auth_id;
+    private final String title;
 
     @LauncherAPI
     public AuthServerRequest(LauncherConfig config, String login, byte[] encryptedPassword) {
@@ -38,6 +39,7 @@ public final class AuthServerRequest extends Request<Boolean> {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
         auth_id = 0;
+        title = "";
     }
     @LauncherAPI
     public AuthServerRequest(LauncherConfig config, String login, byte[] encryptedPassword, int auth_id) {
@@ -45,6 +47,15 @@ public final class AuthServerRequest extends Request<Boolean> {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
         this.auth_id = auth_id;
+        title = "";
+    }
+    @LauncherAPI
+    public AuthServerRequest(LauncherConfig config, String login, byte[] encryptedPassword, int auth_id,String title) {
+        super(config);
+        this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
+        this.encryptedPassword = encryptedPassword.clone();
+        this.auth_id = auth_id;
+        this.title = title;
     }
 
     @LauncherAPI
@@ -64,7 +75,7 @@ public final class AuthServerRequest extends Request<Boolean> {
     @Override
     protected Boolean requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(login, SerializeLimits.MAX_LOGIN);
-        output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
+        output.writeString(title, SerializeLimits.MAX_CLIENT);
         output.writeInt(auth_id);
         output.writeByteArray(encryptedPassword, SecurityHelper.CRYPTO_MAX_LENGTH);
         output.flush();

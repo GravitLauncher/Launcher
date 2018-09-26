@@ -44,7 +44,7 @@ public class ServerWrapper {
             config = new Config(TextConfigReader.read(reader, true));
         }
         LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(Paths.get("public.key"))),new HashMap<>(),config.projectname);
-        Boolean auth = new AuthServerRequest(cfg,config.login,SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password))).request();
+        Boolean auth = new AuthServerRequest(cfg,config.login,SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)),0,config.title).request();
 
         ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
         Launcher.setConfig(cfg);
