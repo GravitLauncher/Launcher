@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,7 +42,12 @@ public class Downloader implements Runnable {
     }
 
     public void downloadFile() throws IOException {
-        try (BufferedInputStream in = new BufferedInputStream(url.openStream()); FileOutputStream fout = new FileOutputStream(file, skip != 0)) {
+    	if (!url.getProtocol().equalsIgnoreCase("http")) throw new IOException("Invalid protocol.");
+        HttpURLConnection connect = (HttpURLConnection) (url).openConnection();
+        connect.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"); // for stupid servers
+        connect.setInstanceFollowRedirects(true);
+        if (!(connect.getResponseCode() >= 200 && connect.getResponseCode() < 300)) throw new IOException(String.format("Invalid response of http server %d.", connect.getResponseCode()));
+        try (BufferedInputStream in = new BufferedInputStream(connect.getInputStream(), IOHelper.BUFFER_SIZE); FileOutputStream fout = new FileOutputStream(file, skip != 0)) {
             final byte data[] = new byte[IOHelper.BUFFER_SIZE];
             int count = -1;
             long timestamp = System.currentTimeMillis();
