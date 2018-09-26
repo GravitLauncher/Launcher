@@ -22,6 +22,12 @@ public class FileInitializer extends ChannelInitializer<SocketChannel> {
         this.outDirs = outDirs;
     }
 
+    public FileInitializer(File base, boolean outDirs) {
+        this.sslCtx = null;
+        this.base = base;
+        this.outDirs = outDirs;
+    }
+	
     @Override
     public void initChannel(SocketChannel ch) {
         ChannelPipeline pipeline = ch.pipeline();
