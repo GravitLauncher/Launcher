@@ -91,5 +91,6 @@ public final class AuthServerResponse extends Response {
         }
         debug("ServerAuth: '%s' -> '%s', '%s'", login, result.username, result.accessToken);
         clientData.isAuth = true;
+        writeNoError(output);
     }
 }

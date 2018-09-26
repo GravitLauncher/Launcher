@@ -13,6 +13,7 @@ import java.util.HashMap;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.request.auth.AuthServerRequest;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.TextConfigReader;
 import ru.gravit.launcher.serialize.config.TextConfigWriter;
@@ -24,10 +25,8 @@ import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.update.ProfilesRequest;
-import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.helper.SecurityHelper;
-import sun.security.rsa.RSAPublicKeyImpl;
 
 public class ServerWrapper {
     public static ModulesManager modulesManager;
@@ -45,6 +44,8 @@ public class ServerWrapper {
             config = new Config(TextConfigReader.read(reader, true));
         }
         LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(Paths.get("public.key"))),new HashMap<>(),config.projectname);
+        Boolean auth = new AuthServerRequest(cfg,config.login,SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password))).request();
+
         ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
         Launcher.setConfig(cfg);
         for (SignedObjectHolder<ClientProfile> p : result.profiles) {
@@ -100,11 +101,15 @@ public class ServerWrapper {
         public boolean customClassLoader;
         public String classloader;
         public String mainclass;
+        public String login;
+        public String password;
         protected Config(BlockConfigEntry block) {
             super(block);
             title = block.getEntryValue("title",StringConfigEntry.class);
             address = block.getEntryValue("address",StringConfigEntry.class);
             projectname = block.getEntryValue("projectName",StringConfigEntry.class);
+            login = block.getEntryValue("login",StringConfigEntry.class);
+            password = block.getEntryValue("password",StringConfigEntry.class);
             port = block.getEntryValue("port", IntegerConfigEntry.class);
             customClassLoader = block.getEntryValue("customClassLoader", BooleanConfigEntry.class);
             if(customClassLoader)
