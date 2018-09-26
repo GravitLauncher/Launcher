@@ -10,6 +10,7 @@ import ru.gravit.launchserver.socket.Client;
 public class SessionManager implements NeedGarbageCollection {
     @LauncherAPI
     public static final long SESSION_TIMEOUT = 10 * 60 * 1000; // 10 минут
+    public static final boolean NON_GARBAGE_SERVER = true;
     private Set<Client> clientSet = new HashSet<>(128);
 
     @LauncherAPI
@@ -22,7 +23,7 @@ public class SessionManager implements NeedGarbageCollection {
     @LauncherAPI
     public void garbageCollection() {
         long time = System.currentTimeMillis();
-        clientSet.removeIf(c -> c.timestamp + SESSION_TIMEOUT < time);
+        clientSet.removeIf(c -> (c.timestamp + SESSION_TIMEOUT < time)  && ((c.type == Client.Type.USER) || ((c.type == Client.Type.SERVER) && !NON_GARBAGE_SERVER ) ));
     }
 
     @LauncherAPI
@@ -43,10 +44,13 @@ public class SessionManager implements NeedGarbageCollection {
 
     @LauncherAPI
     public void updateClient(long session) {
-        for (Client c : clientSet)
+        for (Client c : clientSet) {
             if (c.session == session) {
                 c.up();
                 return;
             }
+        }
+        Client newClient = new Client(session);
+        clientSet.add(newClient);
     }
 }
