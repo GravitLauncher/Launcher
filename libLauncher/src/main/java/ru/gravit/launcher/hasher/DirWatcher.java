@@ -15,6 +15,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Objects;
 
+import cpw.mods.fml.SafeExitJVM;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.HashedEntry.Type;
 import ru.gravit.utils.helper.IOHelper;
@@ -66,6 +67,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
 
     private static void handleError(Throwable e) {
         LogHelper.error(e);
+        SafeExitJVM.exit(-123);
     }
 
     private static Deque<String> toPath(Iterable<Path> path) {
@@ -135,8 +137,10 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     }
 
     private void processLoop() throws IOException, InterruptedException {
+        LogHelper.info("WatchService start processing");
         while (!Thread.interrupted())
             processKey(service.take());
+        LogHelper.info("WatchService closed");
     }
 
     @Override
@@ -145,6 +149,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
         try {
             processLoop();
         } catch (InterruptedException | ClosedWatchServiceException ignored) {
+            LogHelper.info("WatchService closed 2");
             // Do nothing (closed etc)
         } catch (Throwable exc) {
             handleError(exc);

@@ -109,9 +109,8 @@ public class AvanguardStarter {
                 handle(path.resolve(NAME + "32.exe"), "wrapper32.exe"),
                 handle(path.resolve(NAME + "64.exe"), "wrapper64.exe"));
         HashedDir guard = new HashedDir(path, null, true, false);
-        try (DirWatcher dirWatcher = new DirWatcher(path, guard, null, false)) {
-            CommonHelper.newThread("Guard Directory Watcher", true, dirWatcher).start();
-        }
+        DirWatcher dirWatcher = new DirWatcher(path, guard, null, false);
+        CommonHelper.newThread("Guard Directory Watcher", true, dirWatcher).start();
     }
 
     private static void transfer(byte[] orig, Path mustdiedll) throws IOException {
