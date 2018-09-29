@@ -1,4 +1,4 @@
-package cpw.mods.fml;
+package net.minecraftforge.fml;
 // FMLSecurityManager запрещает делать System.exit из классов
 // Не входящих в пакеты самого Forge
 public class SafeExitJVM {

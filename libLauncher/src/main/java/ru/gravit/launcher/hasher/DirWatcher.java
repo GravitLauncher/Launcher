@@ -15,7 +15,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Objects;
 
-import cpw.mods.fml.SafeExitJVM;
+import cpw.mods.fml.SafeExitJVMLegacy;
+import net.minecraftforge.fml.SafeExitJVM;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.HashedEntry.Type;
 import ru.gravit.utils.helper.IOHelper;
@@ -67,7 +68,12 @@ public final class DirWatcher implements Runnable, AutoCloseable {
 
     private static void handleError(Throwable e) {
         LogHelper.error(e);
-        SafeExitJVM.exit(-123);
+        try {
+            SafeExitJVMLegacy.exit(-123);
+        } catch (Throwable ignored)
+        {
+            SafeExitJVM.exit(-123);
+        }
     }
 
     private static Deque<String> toPath(Iterable<Path> path) {
