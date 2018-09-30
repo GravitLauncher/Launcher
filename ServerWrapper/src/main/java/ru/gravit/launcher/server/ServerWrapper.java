@@ -45,7 +45,7 @@ public class ServerWrapper {
         }
         LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(Paths.get("public.key"))),new HashMap<>(),config.projectname);
         Boolean auth = new AuthServerRequest(cfg,config.login,SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)),0,config.title).request();
-
+        // TODO check auth...
         ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
         Launcher.setConfig(cfg);
         for (SignedObjectHolder<ClientProfile> p : result.profiles) {
@@ -61,7 +61,8 @@ public class ServerWrapper {
         String classname = config.mainclass.isEmpty() ? args[0] : config.mainclass;
         Class<?> mainClass;
         if(config.customClassLoader) {
-            Class<ClassLoader> classloader_class = (Class<ClassLoader>) Class.forName(config.classloader);
+            @SuppressWarnings("unchecked")
+			Class<ClassLoader> classloader_class = (Class<ClassLoader>) Class.forName(config.classloader);
             ClassLoader loader = classloader_class.getConstructor(ClassLoader.class).newInstance(ClassLoader.getSystemClassLoader());
             Thread.currentThread().setContextClassLoader(loader);
             mainClass = Class.forName(classname,false,loader);

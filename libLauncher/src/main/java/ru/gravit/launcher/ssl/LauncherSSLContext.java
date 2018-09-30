@@ -1,9 +1,7 @@
 package ru.gravit.launcher.ssl;
 
 import javax.net.ssl.*;
-import java.io.IOException;
 import java.security.*;
-import java.security.cert.CertificateException;
 
 public class LauncherSSLContext {
     public SSLServerSocketFactory ssf;

@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import clojure.lang.IFn;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.SecurityHelper;

@@ -2,7 +2,6 @@ package ru.gravit.launcher.transformers;
 
 import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import javassist.ClassPool;

@@ -7,12 +7,10 @@ import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
-import ru.gravit.launchserver.auth.hwid.HWID;
 import ru.gravit.launchserver.auth.hwid.HWIDException;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.launchserver.response.Response;
-import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -23,7 +21,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.UUID;
 
 public final class AuthServerResponse extends Response {
     private static String echo(int length) {

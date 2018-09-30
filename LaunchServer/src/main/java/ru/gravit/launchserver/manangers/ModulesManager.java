@@ -14,6 +14,7 @@ public class ModulesManager extends SimpleModuleManager {
         modules = new ArrayList<>(1);
         classloader = new PublicURLClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
         context = new LaunchServerModuleContext(lsrv, classloader);
+        registerCoreModule();
     }
 
     private void registerCoreModule() {
