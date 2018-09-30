@@ -1,8 +1,7 @@
 package ru.gravit.launcher.request.websockets;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.Reader;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.OnError;
@@ -50,11 +49,19 @@ public class ClientJSONPoint {
 	}
 
 	@OnMessage
-	public void processMessage(final String message) {
+	public void processMessage(Reader message) {
 		try {
 			JsonValue json = Json.parse(message);
-		} catch (ParseException ex) {
+		} catch (ParseException | IOException ex) {
 			LogHelper.error(ex);
 		}
+	}
+	
+	public void send(JsonValue js) throws IOException {
+		session.getBasicRemote().sendText(js.asString());
+	}
+	
+	public void sendAsync(JsonValue js) throws IOException {
+		session.getAsyncRemote().sendText(js.asString());
 	}
 }
