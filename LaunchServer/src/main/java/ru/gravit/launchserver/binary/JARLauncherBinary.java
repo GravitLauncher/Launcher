@@ -21,7 +21,6 @@ import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launchserver.manangers.BuildHookManager;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;

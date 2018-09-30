@@ -16,9 +16,6 @@ import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 
 public final class JsonAuthProvider extends AuthProvider {
-    private static final int TIMEOUT = Integer.parseInt(
-            System.getProperty("launcher.connection.timeout", Integer.toString(1500)));
-
     private final URL url;
     private final String userKeyName;
     private final String passKeyName;

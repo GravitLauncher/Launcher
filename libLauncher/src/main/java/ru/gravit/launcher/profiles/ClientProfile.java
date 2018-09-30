@@ -1,16 +1,12 @@
 package ru.gravit.launcher.profiles;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.launcher.hasher.HashedFile;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;

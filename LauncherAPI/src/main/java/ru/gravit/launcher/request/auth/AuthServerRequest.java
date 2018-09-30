@@ -1,6 +1,5 @@
 package ru.gravit.launcher.request.auth;
 
-import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.profiles.PlayerProfile;
