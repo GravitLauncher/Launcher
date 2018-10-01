@@ -3,6 +3,7 @@ package ru.gravit.launchserver.socket.websocket;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -14,6 +15,7 @@ import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.socket.websocket.json.auth.AuthResponse;
 import ru.gravit.launchserver.socket.websocket.json.auth.CheckServerResponse;
 import ru.gravit.launchserver.socket.websocket.json.auth.JoinServerResponse;
+import ru.gravit.launchserver.socket.websocket.json.update.LauncherResponse;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.util.HashMap;
@@ -64,10 +66,15 @@ public class WebSocketService {
         registerResponse("auth", AuthResponse.class);
         registerResponse("checkServer", CheckServerResponse.class);
         registerResponse("joinServer", JoinServerResponse.class);
+        registerResponse("launcherUpdate", LauncherResponse.class);
     }
     public void sendObject(ChannelHandlerContext ctx, Object obj)
     {
         ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
+    }
+    public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj)
+    {
+        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj))).addListener(ChannelFutureListener.CLOSE);
     }
     public void sendEvent(EventResult obj)
     {
