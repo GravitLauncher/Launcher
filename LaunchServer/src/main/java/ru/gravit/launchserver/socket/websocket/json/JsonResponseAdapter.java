@@ -6,12 +6,15 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 
 public class JsonResponseAdapter implements JsonSerializer<JsonResponse>, JsonDeserializer<JsonResponse> {
-    static HashMap<String,Class<JsonResponse>> map = new HashMap<>();
+    static HashMap<String,Class> map = new HashMap<>();
     private static final String PROP_NAME = "type";
+    static {
+        map.put("echo",EchoResponse.class);
+    }
     @Override
     public JsonResponse deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
-        Class<JsonResponse> cls = map.get(typename);
+        Class cls = map.get(typename);
 
 
         return (JsonResponse) context.deserialize(json, cls);
