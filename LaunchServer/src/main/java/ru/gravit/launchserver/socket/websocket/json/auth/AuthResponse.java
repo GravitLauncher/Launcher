@@ -19,7 +19,6 @@ import java.util.Collection;
 public class AuthResponse implements JsonResponseInterface {
     public String login;
     public String client;
-    private LaunchServer server = LaunchServer.server;
 
     public String password;
 
@@ -41,21 +40,21 @@ public class AuthResponse implements JsonResponseInterface {
     public void execute(WebSocketService service, ChannelHandlerContext ctx) throws Exception {
         try {
             String ip = IOHelper.getIP(ctx.channel().remoteAddress());
-            if (server.limiter.isLimit(ip)) {
-                AuthProvider.authError(server.config.authRejectString);
+            if (LaunchServer.server.limiter.isLimit(ip)) {
+                AuthProvider.authError(LaunchServer.server.config.authRejectString);
                 return;
             }
-            AuthProvider provider = server.config.authProvider[authid];
+            AuthProvider provider = LaunchServer.server.config.authProvider[authid];
             AuthProviderResult result = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(result.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", result.username));
                 return;
             }
-            Collection<SignedObjectHolder<ClientProfile>> profiles = server.getProfiles();
+            Collection<SignedObjectHolder<ClientProfile>> profiles = LaunchServer.server.getProfiles();
             for (SignedObjectHolder<ClientProfile> p : profiles) {
                 if (p.object.getTitle().equals(client)) {
                     if (!p.object.isWhitelistContains(login)) {
-                        throw new AuthException(server.config.whitelistRejectString);
+                        throw new AuthException(LaunchServer.server.config.whitelistRejectString);
                     }
                     //clientData.profile = p.object;
                 }
@@ -63,7 +62,7 @@ public class AuthResponse implements JsonResponseInterface {
             //if(clientData.profile == null) {
             //    throw new AuthException("You profile not found");
             //}
-            server.config.hwidHandler.check(hwid, result.username);
+            LaunchServer.server.config.hwidHandler.check(hwid, result.username);
             service.sendObject(ctx,new WebSocketService.SuccessResult("auth"));
         } catch (AuthException | HWIDException e)
         {
