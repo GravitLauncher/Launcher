@@ -8,6 +8,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import ru.gravit.launchserver.LaunchServer;
@@ -38,10 +39,13 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
         // ping and pong frames already handled
-        ByteBuf buf = frame.content();
-        ByteBufInputStream input = new ByteBufInputStream(buf);
-        Reader reader = new InputStreamReader(input, "UTF-8");
-        JsonResponse response = gson.fromJson(reader,JsonResponse.class);
-        response.execute(ctx,frame);
+        if (frame instanceof TextWebSocketFrame) {
+            String request = ((TextWebSocketFrame) frame).text();
+            JsonResponse response = gson.fromJson(request, JsonResponse.class);
+            response.execute(ctx, frame);
+        } else {
+            String message = "unsupported frame type: " + frame.getClass().getName();
+            throw new UnsupportedOperationException(message);
+        }
     }
 }

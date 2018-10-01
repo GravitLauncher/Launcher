@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.socket.websocket.json.auth;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
@@ -67,7 +68,7 @@ public class AuthResponse implements JsonResponse {
             server.config.hwidHandler.check(hwid, result.username);
         } catch (AuthException | HWIDException e)
         {
-            ctx.channel().writeAndFlush(WebSocketFrameHandler.gson.toJson(new ErrorResult(e.getMessage())));
+            ctx.channel().writeAndFlush(new TextWebSocketFrame(WebSocketFrameHandler.gson.toJson(new ErrorResult(e.getMessage()))));
         }
     }
     public class ErrorResult
