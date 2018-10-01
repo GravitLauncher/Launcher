@@ -65,6 +65,7 @@ public class AuthResponse implements JsonResponseInterface {
             }
             LaunchServer.server.config.hwidHandler.check(hwid, result.username);
             clientData.isAuth = true;
+            clientData.permissions = result.permissions;
             service.sendObject(ctx,new WebSocketService.SuccessResult("auth"));
         } catch (AuthException | HWIDException e)
         {

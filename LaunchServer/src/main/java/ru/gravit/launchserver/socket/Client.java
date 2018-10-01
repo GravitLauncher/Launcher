@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.socket;
 
 import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.launchserver.auth.ClientPermissions;
 
 public class Client {
     public long session;
@@ -9,12 +10,14 @@ public class Client {
     public Type type;
     public ClientProfile profile;
     public boolean isAuth;
+    public ClientPermissions permissions;
 
     public Client(long session) {
         this.session = session;
         timestamp = System.currentTimeMillis();
         type = Type.USER;
         isAuth = false;
+        permissions = ClientPermissions.DEFAULT;
     }
     //Данные ваторизации
     public void up() {
