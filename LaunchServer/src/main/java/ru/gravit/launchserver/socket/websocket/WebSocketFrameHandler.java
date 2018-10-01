@@ -1,26 +1,20 @@
 package ru.gravit.launchserver.socket.websocket;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.util.AttributeKey;
-import io.netty.util.AttributeMap;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
-    public static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     public static LaunchServer server;
     public static GsonBuilder builder = new GsonBuilder();
-    public static WebSocketService service = new WebSocketService(LaunchServer.server,builder);
+    public static WebSocketService service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), LaunchServer.server,builder);
     private Client client;
     static {
         service.registerResponses();
@@ -29,7 +23,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     public void channelActive(ChannelHandlerContext ctx) {
         LogHelper.debug("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));
         client = new Client(0);
-        channels.add(ctx.channel());
+        service.registerClient(ctx.channel());
     }
 
     @Override

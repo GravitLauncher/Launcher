@@ -2,7 +2,9 @@ package ru.gravit.launchserver.socket.websocket;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
@@ -15,9 +17,12 @@ import ru.gravit.utils.helper.LogHelper;
 import java.util.HashMap;
 
 public class WebSocketService {
-    public WebSocketService(LaunchServer server, GsonBuilder gson) {
+    public final ChannelGroup channels;
+    public WebSocketService(ChannelGroup channels, LaunchServer server, GsonBuilder gson) {
+        this.channels = channels;
         this.server = server;
         this.gsonBuiler = gson;
+        this.
         gsonBuiler.registerTypeAdapter(JsonResponseInterface.class,new JsonResponseAdapter(this));
         this.gson = gsonBuiler.create();
     }
@@ -47,6 +52,10 @@ public class WebSocketService {
     {
         responses.put(key,responseInterfaceClass);
     }
+    public void registerClient(Channel channel)
+    {
+        channels.add(channel);
+    }
     public void registerResponses()
     {
         registerResponse("echo", EchoResponse.class);
@@ -55,6 +64,10 @@ public class WebSocketService {
     public void sendObject(ChannelHandlerContext ctx, Object obj)
     {
         ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
+    }
+    public void sendEvent(EventResult obj)
+    {
+        channels.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
     }
     public static class ErrorResult
     {
@@ -76,7 +89,14 @@ public class WebSocketService {
         public final String requesttype;
         public final String type;
     }
-    public class ExceptionResult
+    public static class EventResult
+    {
+        public EventResult() {
+            this.type = "event";
+        }
+        public final String type;
+    }
+    public static class ExceptionResult
     {
         public ExceptionResult(Exception e) {
             this.message = e.getMessage();
