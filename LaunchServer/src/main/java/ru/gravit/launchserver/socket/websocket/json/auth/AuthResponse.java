@@ -67,15 +67,15 @@ public class AuthResponse implements JsonResponse {
             //    throw new AuthException("You profile not found");
             //}
             server.config.hwidHandler.check(hwid, result.username);
+            service.sendObject(ctx,new WebSocketService.SuccessResult("auth"));
         } catch (AuthException | HWIDException e)
         {
-            service.sendObject(ctx,new ErrorResult(e.getMessage()));
+            service.sendObject(ctx,new WebSocketService.ErrorResult(e.getMessage()));
         }
     }
-    public class ErrorResult
+    public class Result
     {
-        public ErrorResult(String error) {
-            this.error = error;
+        public Result() {
         }
 
         public String error;

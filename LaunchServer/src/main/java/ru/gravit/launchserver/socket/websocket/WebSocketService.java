@@ -32,7 +32,7 @@ public class WebSocketService {
     {
         ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
     }
-    public class ErrorResult
+    public static class ErrorResult
     {
         public ErrorResult(String error) {
             this.error = error;
@@ -40,6 +40,16 @@ public class WebSocketService {
         }
 
         public final String error;
+        public final String type;
+    }
+    public static class SuccessResult
+    {
+        public SuccessResult(String requesttype) {
+            this.requesttype = requesttype;
+            this.type = "success";
+        }
+
+        public final String requesttype;
         public final String type;
     }
     public class ExceptionResult
