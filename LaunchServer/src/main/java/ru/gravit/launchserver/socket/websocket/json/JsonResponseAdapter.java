@@ -1,20 +1,22 @@
 package ru.gravit.launchserver.socket.websocket.json;
 
 import com.google.gson.*;
+import ru.gravit.launchserver.socket.websocket.WebSocketService;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 
 public class JsonResponseAdapter implements JsonSerializer<JsonResponseInterface>, JsonDeserializer<JsonResponseInterface> {
-    static HashMap<String,Class> map = new HashMap<>();
+    private final WebSocketService service;
     private static final String PROP_NAME = "type";
-    static {
-        map.put("echo",EchoResponse.class);
+
+    public JsonResponseAdapter(WebSocketService service) {
+        this.service = service;
     }
+
     @Override
     public JsonResponseInterface deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
-        Class cls = map.get(typename);
+        Class<JsonResponseInterface> cls = service.getResponseClass(typename);
 
 
         return (JsonResponseInterface) context.deserialize(json, cls);

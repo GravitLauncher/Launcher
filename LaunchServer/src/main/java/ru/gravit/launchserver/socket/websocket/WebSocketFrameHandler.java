@@ -10,21 +10,16 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
-import ru.gravit.launchserver.socket.websocket.json.JsonResponseAdapter;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
     public static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-    public static Gson gson;
-    public WebSocketService service = new WebSocketService(LaunchServer.server,gson);
-
     public static LaunchServer server;
     public static GsonBuilder builder = new GsonBuilder();
+    public static WebSocketService service = new WebSocketService(LaunchServer.server,builder);
     static {
-        builder.registerTypeAdapter(JsonResponseInterface.class,new JsonResponseAdapter());
-        gson = builder.create();
+        service.registerResponses();
     }
     @Override
     public void channelActive(ChannelHandlerContext ctx) {

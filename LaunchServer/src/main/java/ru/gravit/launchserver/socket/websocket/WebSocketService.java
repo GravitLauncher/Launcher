@@ -1,20 +1,30 @@
 package ru.gravit.launchserver.socket.websocket;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.socket.websocket.json.EchoResponse;
+import ru.gravit.launchserver.socket.websocket.json.JsonResponseAdapter;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.socket.websocket.json.auth.AuthResponse;
 import ru.gravit.utils.helper.LogHelper;
 
+import java.util.HashMap;
+
 public class WebSocketService {
-    public WebSocketService(LaunchServer server, Gson gson) {
+    public WebSocketService(LaunchServer server, GsonBuilder gson) {
         this.server = server;
-        this.gson = gson;
+        this.gsonBuiler = gson;
+        gsonBuiler.registerTypeAdapter(JsonResponseInterface.class,new JsonResponseAdapter(this));
+        this.gson = gsonBuiler.create();
     }
 
     private final LaunchServer server;
+    private static final HashMap<String,Class> responses = new HashMap<>();
     private final Gson gson;
+    private final GsonBuilder gsonBuiler;
 
     void process(ChannelHandlerContext ctx, TextWebSocketFrame frame)
     {
@@ -27,6 +37,19 @@ public class WebSocketService {
             LogHelper.error(e);
             sendObject(ctx,new ExceptionResult(e));
         }
+    }
+    public Class getResponseClass(String type)
+    {
+        return responses.get(type);
+    }
+    public void registerResponse(String key,Class responseInterfaceClass)
+    {
+        responses.put(key,responseInterfaceClass);
+    }
+    public void registerResponses()
+    {
+        registerResponse("echo", EchoResponse.class);
+        registerResponse("auth", AuthResponse.class);
     }
     public void sendObject(ChannelHandlerContext ctx, Object obj)
     {
