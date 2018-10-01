@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import ru.gravit.launchserver.socket.websocket.WebSocketFrameHandler;
+import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.utils.helper.LogHelper;
 
 public class EchoResponse implements JsonResponse {
@@ -19,9 +20,10 @@ public class EchoResponse implements JsonResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, WebSocketFrame frame) {
+    public void execute(WebSocketService service,ChannelHandlerContext ctx) {
         LogHelper.info("Echo: %s",echo);
         ctx.channel().writeAndFlush(new TextWebSocketFrame(WebSocketFrameHandler.gson.toJson(new Result(echo))));
+        service.sendObject(ctx,new Result(echo));
     }
     public class Result
     {

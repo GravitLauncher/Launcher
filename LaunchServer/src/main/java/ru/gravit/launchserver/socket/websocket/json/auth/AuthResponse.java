@@ -12,6 +12,7 @@ import ru.gravit.launchserver.auth.hwid.HWIDException;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.launchserver.socket.websocket.WebSocketFrameHandler;
+import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponse;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
@@ -40,7 +41,7 @@ public class AuthResponse implements JsonResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
+    public void execute(WebSocketService service, ChannelHandlerContext ctx) throws Exception {
         try {
             String ip = IOHelper.getIP(ctx.channel().remoteAddress());
             if (server.limiter.isLimit(ip)) {
@@ -68,7 +69,7 @@ public class AuthResponse implements JsonResponse {
             server.config.hwidHandler.check(hwid, result.username);
         } catch (AuthException | HWIDException e)
         {
-            ctx.channel().writeAndFlush(new TextWebSocketFrame(WebSocketFrameHandler.gson.toJson(new ErrorResult(e.getMessage()))));
+            service.sendObject(ctx,new ErrorResult(e.getMessage()));
         }
     }
     public class ErrorResult
