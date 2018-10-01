@@ -23,6 +23,7 @@ import java.io.Reader;
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
     public static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     public static Gson gson;
+    public WebSocketService service = new WebSocketService(LaunchServer.server,gson);
 
     public static LaunchServer server;
     public static GsonBuilder builder = new GsonBuilder();
@@ -40,9 +41,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
         // ping and pong frames already handled
         if (frame instanceof TextWebSocketFrame) {
-            String request = ((TextWebSocketFrame) frame).text();
-            JsonResponse response = gson.fromJson(request, JsonResponse.class);
-            response.execute(ctx, frame);
+            service.process(ctx, (TextWebSocketFrame) frame);
         } else {
             String message = "unsupported frame type: " + frame.getClass().getName();
             throw new UnsupportedOperationException(message);
