@@ -287,7 +287,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     public final Path privateKeyFile;
     @LauncherAPI
     public final Path updatesDir;
-
+    public static LaunchServer server;
     @LauncherAPI
     public final Path profilesDir;
     // Server config
@@ -350,6 +350,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         TextureProvider.registerProviders();
         HWIDHandler.registerHandlers();
         Response.registerResponses();
+        LaunchServer.server = this;
 
         // Set command handler
         CommandHandler localCommandHandler;

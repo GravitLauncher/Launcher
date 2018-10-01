@@ -126,6 +126,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
         //engine.setUseClientMode(false);
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
+        WebSocketFrameHandler.server = LaunchServer.server;
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)

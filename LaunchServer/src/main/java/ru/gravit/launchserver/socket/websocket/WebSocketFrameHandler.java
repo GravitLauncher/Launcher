@@ -10,6 +10,7 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponse;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseAdapter;
 import ru.gravit.utils.helper.IOHelper;
@@ -19,9 +20,11 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
-    static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-    static Gson gson;
-    static GsonBuilder builder = new GsonBuilder();
+    public static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+    public static Gson gson;
+
+    public static LaunchServer server;
+    public static GsonBuilder builder = new GsonBuilder();
     static {
         builder.registerTypeAdapter(JsonResponse.class,new JsonResponseAdapter());
         gson = builder.create();
