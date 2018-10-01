@@ -12,6 +12,8 @@ import ru.gravit.launchserver.socket.websocket.json.EchoResponse;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseAdapter;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.socket.websocket.json.auth.AuthResponse;
+import ru.gravit.launchserver.socket.websocket.json.auth.CheckServerResponse;
+import ru.gravit.launchserver.socket.websocket.json.auth.JoinServerResponse;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.util.HashMap;
@@ -60,6 +62,8 @@ public class WebSocketService {
     {
         registerResponse("echo", EchoResponse.class);
         registerResponse("auth", AuthResponse.class);
+        registerResponse("checkServer", CheckServerResponse.class);
+        registerResponse("joinServer", JoinServerResponse.class);
     }
     public void sendObject(ChannelHandlerContext ctx, Object obj)
     {
