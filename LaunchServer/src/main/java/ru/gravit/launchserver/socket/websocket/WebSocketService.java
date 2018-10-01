@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.socket.websocket.json.JsonResponse;
+import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.utils.helper.LogHelper;
 
 public class WebSocketService {
@@ -19,7 +19,7 @@ public class WebSocketService {
     void process(ChannelHandlerContext ctx, TextWebSocketFrame frame)
     {
         String request = frame.text();
-        JsonResponse response = gson.fromJson(request, JsonResponse.class);
+        JsonResponseInterface response = gson.fromJson(request, JsonResponseInterface.class);
         try {
             response.execute(this,ctx);
         } catch (Exception e)

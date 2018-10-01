@@ -1,13 +1,10 @@
 package ru.gravit.launchserver.socket.websocket.json;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import ru.gravit.launchserver.socket.websocket.WebSocketFrameHandler;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.utils.helper.LogHelper;
 
-public class EchoResponse implements JsonResponse {
+public class EchoResponse implements JsonResponseInterface {
     public final String echo;
 
     public EchoResponse(String echo) {
