@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.json.EchoResponse;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseAdapter;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
@@ -26,12 +27,12 @@ public class WebSocketService {
     private final Gson gson;
     private final GsonBuilder gsonBuiler;
 
-    void process(ChannelHandlerContext ctx, TextWebSocketFrame frame)
+    void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client)
     {
         String request = frame.text();
         JsonResponseInterface response = gson.fromJson(request, JsonResponseInterface.class);
         try {
-            response.execute(this,ctx);
+            response.execute(this,ctx,client);
         } catch (Exception e)
         {
             LogHelper.error(e);

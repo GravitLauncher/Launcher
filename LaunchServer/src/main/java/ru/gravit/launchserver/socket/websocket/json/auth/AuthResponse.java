@@ -9,6 +9,7 @@ import ru.gravit.launchserver.auth.hwid.HWID;
 import ru.gravit.launchserver.auth.hwid.HWIDException;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
+import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.utils.helper.IOHelper;
@@ -37,7 +38,7 @@ public class AuthResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx) throws Exception {
+    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client clientData) throws Exception {
         try {
             String ip = IOHelper.getIP(ctx.channel().remoteAddress());
             if (LaunchServer.server.limiter.isLimit(ip)) {
@@ -56,13 +57,14 @@ public class AuthResponse implements JsonResponseInterface {
                     if (!p.object.isWhitelistContains(login)) {
                         throw new AuthException(LaunchServer.server.config.whitelistRejectString);
                     }
-                    //clientData.profile = p.object;
+                    clientData.profile = p.object;
                 }
             }
-            //if(clientData.profile == null) {
-            //    throw new AuthException("You profile not found");
-            //}
+            if(clientData.profile == null) {
+                throw new AuthException("You profile not found");
+            }
             LaunchServer.server.config.hwidHandler.check(hwid, result.username);
+            clientData.isAuth = true;
             service.sendObject(ctx,new WebSocketService.SuccessResult("auth"));
         } catch (AuthException | HWIDException e)
         {
