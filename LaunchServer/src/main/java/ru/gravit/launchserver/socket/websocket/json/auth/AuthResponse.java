@@ -67,7 +67,7 @@ public class AuthResponse implements JsonResponse {
             server.config.hwidHandler.check(hwid, result.username);
         } catch (AuthException | HWIDException e)
         {
-            ctx.channel().write(WebSocketFrameHandler.gson.toJson(new ErrorResult(e.getMessage())));
+            ctx.channel().writeAndFlush(WebSocketFrameHandler.gson.toJson(new ErrorResult(e.getMessage())));
         }
     }
     public class ErrorResult

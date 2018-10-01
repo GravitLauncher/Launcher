@@ -20,7 +20,7 @@ public class EchoResponse implements JsonResponse {
     @Override
     public void execute(ChannelHandlerContext ctx, WebSocketFrame frame) {
         LogHelper.info("Echo: %s",echo);
-        ctx.channel().write(WebSocketFrameHandler.gson.toJson(new Result(echo)));
+        ctx.channel().writeAndFlush(WebSocketFrameHandler.gson.toJson(new Result(echo)));
     }
     public class Result
     {
