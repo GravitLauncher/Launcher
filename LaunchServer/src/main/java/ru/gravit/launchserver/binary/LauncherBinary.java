@@ -53,7 +53,7 @@ public abstract class LauncherBinary {
     public final boolean sync() throws IOException {
         boolean exists = exists();
         binary = exists ? new SignedBytesHolder(IOHelper.read(syncBinaryFile), server.privateKey) : null;
-        hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512,IOHelper.newInput(syncBinaryFile));
+        hash = exists ? SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512,IOHelper.newInput(syncBinaryFile)) : null;
         return exists;
     }
 }
