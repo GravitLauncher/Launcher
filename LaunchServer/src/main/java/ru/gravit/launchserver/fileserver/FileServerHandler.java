@@ -31,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,15 +48,16 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 
     public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
     public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
+    public static final String READ = "r";
     public static final int HTTP_CACHE_SECONDS = 60;
-	private final File base;
-	private final boolean fullOut;
+    private final Path base;
+    private final boolean fullOut;
 
-	public FileServerHandler(File base, boolean fullOut) {
-		this.base = base;
-		this.fullOut = fullOut;
-	}
-	
+    public FileServerHandler(Path base, boolean fullOut) {
+        this.base = base;
+        this.fullOut = fullOut;
+    }
+
     @Override
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
         if (!request.decoderResult().isSuccess()) {
@@ -75,20 +77,20 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
             return;
         }
 
-        File file = new File(base, path);
+        File file = base.resolve(path).toFile();
         if (file.isHidden() || !file.exists()) {
             sendError(ctx, NOT_FOUND);
             return;
         }
 
         if (file.isDirectory()) {
-        	if (fullOut) {
-        		if (uri.endsWith("/")) {
-                	sendListing(ctx, file, uri);
-            	} else {
-                	sendRedirect(ctx, uri + '/');
-            	}
-        	} else sendError(ctx, FORBIDDEN);
+            if (fullOut) {
+                if (uri.endsWith("/")) {
+                    sendListing(ctx, file, uri);
+                } else {
+                    sendRedirect(ctx, uri + '/');
+                }
+            } else sendError(ctx, FORBIDDEN);
             return;
         }
 
@@ -115,7 +117,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 
         RandomAccessFile raf;
         try {
-            raf = new RandomAccessFile(file, "r");
+            raf = new RandomAccessFile(file, READ);
         } catch (FileNotFoundException ignore) {
             sendError(ctx, NOT_FOUND);
             return;
@@ -200,9 +202,9 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         // Simplistic dumb security check.
         // You will have to do something serious in the production environment.
         if (uri.contains(File.separator + '.') ||
-            uri.contains('.' + File.separator) ||
-            uri.charAt(0) == '.' || uri.charAt(uri.length() - 1) == '.' ||
-            INSECURE_URI.matcher(uri).matches()) {
+                uri.contains('.' + File.separator) ||
+                uri.charAt(0) == '.' || uri.charAt(uri.length() - 1) == '.' ||
+                INSECURE_URI.matcher(uri).matches()) {
             return null;
         }
 
@@ -217,18 +219,18 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
 
         StringBuilder buf = new StringBuilder()
-            .append("<!DOCTYPE html>\r\n")
-            .append("<html><head><meta charset='utf-8' /><title>")
-            .append("Listing of: ")
-            .append(dirPath)
-            .append("</title></head><body>\r\n")
+                .append("<!DOCTYPE html>\r\n")
+                .append("<html><head><meta charset='utf-8' /><title>")
+                .append("Listing of: ")
+                .append(dirPath)
+                .append("</title></head><body>\r\n")
 
-            .append("<h3>Listing of: ")
-            .append(dirPath)
-            .append("</h3>\r\n")
+                .append("<h3>Listing of: ")
+                .append(dirPath)
+                .append("</h3>\r\n")
 
-            .append("<ul>")
-            .append("<li><a href=\"../\">..</a></li>\r\n");
+                .append("<ul>")
+                .append("<li><a href=\"../\">..</a></li>\r\n");
 
         for (File f: dir.listFiles()) {
             if (f.isHidden() || !f.canRead()) {
@@ -241,10 +243,10 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
             }
 
             buf.append("<li><a href=\"")
-               .append(name)
-               .append("\">")
-               .append(name)
-               .append("</a></li>\r\n");
+                    .append(name)
+                    .append("\">")
+                    .append(name)
+                    .append("</a></li>\r\n");
         }
 
         buf.append("</ul></body></html>\r\n");
