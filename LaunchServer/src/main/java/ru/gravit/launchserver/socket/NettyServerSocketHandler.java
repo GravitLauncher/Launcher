@@ -19,6 +19,7 @@ import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.ssl.LauncherKeyStore;
 import ru.gravit.launcher.ssl.LauncherTrustManager;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.fileserver.FileServerHandler;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.websocket.WebSocketFrameHandler;
 import ru.gravit.launchserver.socket.websocket.WebSocketIndexPageHandler;
@@ -142,7 +143,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
                             pipeline.addLast(new HttpObjectAggregator(65536));
                             pipeline.addLast(new WebSocketServerCompressionHandler());
                             pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
-                            pipeline.addLast(new WebSocketIndexPageHandler(WEBSOCKET_PATH));
+                            pipeline.addLast(new FileServerHandler(LaunchServer.server.updatesDir,true));
                             pipeline.addLast(new WebSocketFrameHandler());
                         }
                     });
