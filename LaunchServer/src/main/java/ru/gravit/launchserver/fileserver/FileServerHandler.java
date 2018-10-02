@@ -90,7 +90,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
                 } else {
                     sendRedirect(ctx, uri + '/');
                 }
-            } else sendError(ctx, FORBIDDEN);
+            } else sendError(ctx, NOT_FOUND); // can not handle dirs
             return;
         }
 
@@ -197,7 +197,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         }
 
         // Convert file separators.
-        uri = uri.replace('/', File.separatorChar);
+        uri = uri.replace(File.separatorChar, '/');
 
         // Simplistic dumb security check.
         // You will have to do something serious in the production environment.
@@ -207,9 +207,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
                 INSECURE_URI.matcher(uri).matches()) {
             return null;
         }
-
-        // Convert to absolute path.
-        return SystemPropertyUtil.get("user.dir") + File.separator + uri;
+        return uri.substring(1);
     }
 
     private static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[^-\\._]?[^<>&\\\"]*");
