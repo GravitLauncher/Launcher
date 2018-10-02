@@ -7,6 +7,7 @@ import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.serialize.signed.SignedBytesHolder;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.utils.helper.SecurityHelper;
 
 public abstract class LauncherBinary {
     @LauncherAPI
@@ -15,6 +16,7 @@ public abstract class LauncherBinary {
     protected final Path binaryFile;
     protected final Path syncBinaryFile;
     private volatile SignedBytesHolder binary;
+    private volatile byte[] hash;
 
     @LauncherAPI
     protected LauncherBinary(LaunchServer server, Path binaryFile) {
@@ -42,11 +44,16 @@ public abstract class LauncherBinary {
     public final SignedBytesHolder getBytes() {
         return binary;
     }
+    @LauncherAPI
+    public final byte[] getHash() {
+        return hash;
+    }
 
     @LauncherAPI
     public final boolean sync() throws IOException {
         boolean exists = exists();
         binary = exists ? new SignedBytesHolder(IOHelper.read(syncBinaryFile), server.privateKey) : null;
+        hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512,IOHelper.newInput(syncBinaryFile));
         return exists;
     }
 }

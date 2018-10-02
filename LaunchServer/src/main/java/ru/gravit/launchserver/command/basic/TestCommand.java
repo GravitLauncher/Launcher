@@ -3,6 +3,7 @@ package ru.gravit.launchserver.command.basic;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.socket.NettyServerSocketHandler;
+import ru.gravit.utils.helper.CommonHelper;
 
 public class TestCommand extends Command {
     public TestCommand(LaunchServer server) {
@@ -27,7 +28,10 @@ public class TestCommand extends Command {
         if (handler == null)
             handler = new NettyServerSocketHandler(server);
         if (args[0].equals("start")) {
-            handler.run();
+            CommonHelper.newThread("Netty Server",true,handler);
+        }
+        if (args[0].equals("stop")) {
+            handler.close();
         }
     }
 }

@@ -5,4 +5,5 @@ dependencies {
 	compileOnly 'org.fusesource.jansi:jansi:1.17.1'
 	compileOnly 'org.javassist:javassist:3.23.1-GA'
 	compile 'com.eclipsesource.minimal-json:minimal-json:0.9.4'
+    compile 'com.google.code.gson:gson:2.8.5'
 }
