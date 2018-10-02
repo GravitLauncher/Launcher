@@ -330,7 +330,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     // Updates and profiles
     private volatile List<SignedObjectHolder<ClientProfile>> profilesList;
 
-    private volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
+    public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
 
     public LaunchServer(Path dir, boolean portable) throws IOException, InvalidKeySpecException {
         //setScriptBindings();

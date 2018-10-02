@@ -14,6 +14,9 @@ public class LauncherResponse implements JsonResponseInterface {
     public Version version;
     public String hash;
     public int launcher_type;
+    //REPLACED TO REAL URL
+    public static final String JAR_URL = "http://localhost:9752/Launcher.jar";
+    public static final String EXE_URL = "http://localhost:9752/Launcher.exe";
     @Override
     public String getType() {
         return "launcherUpdate";
@@ -25,24 +28,24 @@ public class LauncherResponse implements JsonResponseInterface {
         if(launcher_type == 1) // JAR
         {
             byte[] hash = LaunchServer.server.launcherBinary.getHash();
-            if(hash == null) service.sendObjectAndClose(ctx, new Result(true));
-            if(Arrays.equals(bytes, hash)) //REPLACE REAL HASH
+            if(hash == null) service.sendObjectAndClose(ctx, new Result(true,JAR_URL));
+            if(Arrays.equals(bytes, hash))
             {
-                service.sendObject(ctx, new Result(false));
+                service.sendObject(ctx, new Result(false,JAR_URL));
             } else
             {
-                service.sendObjectAndClose(ctx, new Result(true));
+                service.sendObjectAndClose(ctx, new Result(true,JAR_URL));
             }
         } else if(launcher_type == 2) //EXE
         {
             byte[] hash = LaunchServer.server.launcherEXEBinary.getHash();
-            if(hash == null) service.sendObjectAndClose(ctx, new Result(true));
-            if(Arrays.equals(bytes, hash)) //REPLACE REAL HASH
+            if(hash == null) service.sendObjectAndClose(ctx, new Result(true,EXE_URL));
+            if(Arrays.equals(bytes, hash))
             {
-                service.sendObject(ctx, new Result(false));
+                service.sendObject(ctx, new Result(false,EXE_URL));
             } else
             {
-                service.sendObjectAndClose(ctx, new Result(true));
+                service.sendObjectAndClose(ctx, new Result(true,EXE_URL));
             }
         } else service.sendObject(ctx, new WebSocketService.ErrorResult("Request launcher type error"));
 
@@ -51,9 +54,11 @@ public class LauncherResponse implements JsonResponseInterface {
     {
         public String type = "success";
         public String requesttype = "launcherUpdate";
+        public String url;
 
-        public Result(boolean needUpdate) {
+        public Result(boolean needUpdate,String url) {
             this.needUpdate = needUpdate;
+            this.url = url;
         }
 
         public boolean needUpdate;
