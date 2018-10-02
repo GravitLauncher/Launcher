@@ -169,7 +169,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 
         // Decide whether to close the connection or not.
         if (!HttpUtil.isKeepAlive(request)) {
-            // Close the connection when the whole content is written out.
+            lastContentFuture.addListener(new ClosingChannelFutureListener(raf));
             lastContentFuture.addListener(ChannelFutureListener.CLOSE);
         }
     }
