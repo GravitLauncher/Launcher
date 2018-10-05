@@ -5,7 +5,9 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.auth.ClientPermissions;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -15,12 +17,13 @@ import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 public final class RequestAuthProvider extends AuthProvider {
     private final String url;
     private final Pattern response;
+    private final boolean usePermission;
 
     public RequestAuthProvider(BlockConfigEntry block, LaunchServer server) {
         super(block,server);
         url = block.getEntryValue("url", StringConfigEntry.class);
         response = Pattern.compile(block.getEntryValue("response", StringConfigEntry.class));
-
+        usePermission = block.hasEntry("usePermission") ? block.getEntryValue("usePermission", BooleanConfigEntry.class) : false;
         // Verify is valid URL
         IOHelper.verifyURL(getFormattedURL("urlAuthLogin", "urlAuthPassword", "127.0.0.1"));
     }
@@ -32,7 +35,7 @@ public final class RequestAuthProvider extends AuthProvider {
         // Match username
         Matcher matcher = response.matcher(currentResponse);
         return matcher.matches() && matcher.groupCount() >= 1 ?
-                new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken()) :
+                new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(Long.getLong(matcher.group("permission"))) : new ClientPermissions()) :
                 authError(currentResponse);
     }
 

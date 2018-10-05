@@ -8,6 +8,7 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.auth.ClientPermissions;
 import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -21,6 +22,7 @@ public final class JsonAuthProvider extends AuthProvider {
     private final String passKeyName;
     private final String ipKeyName;
     private final String responseUserKeyName;
+    private final String responsePermissionKeyName;
     private final String responseErrorKeyName;
 
     JsonAuthProvider(BlockConfigEntry block, LaunchServer server) {
@@ -36,6 +38,8 @@ public final class JsonAuthProvider extends AuthProvider {
                 VerifyHelper.NOT_EMPTY, "Response username key can't be empty");
         responseErrorKeyName = VerifyHelper.verify(block.getEntryValue("responseErrorKeyName", StringConfigEntry.class),
                 VerifyHelper.NOT_EMPTY, "Response error key can't be empty");
+        responsePermissionKeyName = VerifyHelper.verify(block.getEntryValue("responsePermissionKeyName", StringConfigEntry.class),
+                VerifyHelper.NOT_EMPTY, "Response error key can't be empty");
         url = IOHelper.convertToURL(configUrl);
     }
 
@@ -50,7 +54,7 @@ public final class JsonAuthProvider extends AuthProvider {
         String value;
 
         if ((value = response.getString(responseUserKeyName, null)) != null)
-            return new AuthProviderResult(value, SecurityHelper.randomStringToken());
+            return new AuthProviderResult(value, SecurityHelper.randomStringToken(),new ClientPermissions(response.getLong(responsePermissionKeyName,0)));
         else if ((value = response.getString(responseErrorKeyName, null)) != null)
             return authError(value);
         else

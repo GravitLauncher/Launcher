@@ -9,4 +9,8 @@ public class ClientPermissions {
         canAdmin = false;
         canServer = false;
     }
+    public ClientPermissions(long data) {
+        canAdmin =  (data & (1 << 0)) != 0;
+        canServer = (data & (1 << 1)) != 0;
+    }
 }
