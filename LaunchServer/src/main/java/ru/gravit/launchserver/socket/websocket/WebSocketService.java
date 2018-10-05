@@ -18,6 +18,7 @@ import ru.gravit.launchserver.socket.websocket.json.auth.AuthResponse;
 import ru.gravit.launchserver.socket.websocket.json.auth.CheckServerResponse;
 import ru.gravit.launchserver.socket.websocket.json.auth.JoinServerResponse;
 import ru.gravit.launchserver.socket.websocket.json.update.LauncherResponse;
+import ru.gravit.launchserver.socket.websocket.json.update.UpdateListResponse;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.util.HashMap;
@@ -70,6 +71,8 @@ public class WebSocketService {
         registerResponse("checkServer", CheckServerResponse.class);
         registerResponse("joinServer", JoinServerResponse.class);
         registerResponse("launcherUpdate", LauncherResponse.class);
+        registerResponse("updateList", UpdateListResponse.class);
+        registerResponse("cmdExec",UpdateListResponse.class);
     }
     public void sendObject(ChannelHandlerContext ctx, Object obj)
     {
