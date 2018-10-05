@@ -11,7 +11,7 @@ import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.json.EchoResponse;
-import ru.gravit.launchserver.socket.websocket.json.HashedEntryAdapter;
+import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseAdapter;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.socket.websocket.json.auth.AuthResponse;
@@ -31,7 +31,7 @@ public class WebSocketService {
         this.gsonBuiler = gson;
         this.
         gsonBuiler.registerTypeAdapter(JsonResponseInterface.class,new JsonResponseAdapter(this));
-        gsonBuiler.registerTypeAdapter(HashedEntry.class,new HashedEntryAdapter(this));
+        gsonBuiler.registerTypeAdapter(HashedEntry.class,new HashedEntryAdapter());
         this.gson = gsonBuiler.create();
     }
 

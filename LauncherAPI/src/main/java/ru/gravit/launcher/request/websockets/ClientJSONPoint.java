@@ -9,10 +9,6 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonValue;
-import com.eclipsesource.json.ParseException;
-
 import ru.gravit.utils.helper.LogHelper;
 
 /*
@@ -36,6 +32,11 @@ import ru.gravit.utils.helper.LogHelper;
 @ClientEndpoint
 public class ClientJSONPoint {
 	public Session session = null;
+	private ClientWebSocketService service;
+
+	public void setService(ClientWebSocketService service) {
+		this.service = service;
+	}
 
 	@OnOpen
 	public void onOpen(final Session session_r) {
@@ -50,18 +51,14 @@ public class ClientJSONPoint {
 
 	@OnMessage
 	public void processMessage(Reader message) {
-		try {
-			JsonValue json = Json.parse(message);
-		} catch (ParseException | IOException ex) {
-			LogHelper.error(ex);
-		}
+		service.processMessage(message);
 	}
 	
-	public void send(JsonValue js) throws IOException {
-		session.getBasicRemote().sendText(js.asString());
+	public void send(String js) throws IOException {
+		session.getBasicRemote().sendText(js);
 	}
 	
-	public void sendAsync(JsonValue js) throws IOException {
-		session.getAsyncRemote().sendText(js.asString());
+	public void sendAsync(String js) throws IOException {
+		session.getAsyncRemote().sendText(js);
 	}
 }

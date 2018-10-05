@@ -1,20 +1,15 @@
-package ru.gravit.launchserver.socket.websocket.json;
+package ru.gravit.launcher.hasher;
 
 import com.google.gson.*;
-import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.launcher.hasher.HashedEntry;
-import ru.gravit.launcher.hasher.HashedFile;
-import ru.gravit.launchserver.socket.websocket.WebSocketService;
 
 import java.lang.reflect.Type;
 
 
 public class HashedEntryAdapter implements JsonSerializer<HashedEntry>, JsonDeserializer<HashedEntry> {
-    private final WebSocketService service;
     private static final String PROP_NAME = "type";
 
-    public HashedEntryAdapter(WebSocketService service) {
-        this.service = service;
+    public HashedEntryAdapter() {
+
     }
 
     @Override
