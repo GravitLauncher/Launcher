@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+import cpw.mods.fml.SafeExitJVMLegacy;
+import net.minecraftforge.fml.SafeExitJVM;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.utils.helper.CommonHelper;
@@ -17,27 +19,42 @@ import ru.zaxar163.GuardBind;
 
 public class AvanguardStarter {
     static class SecurityThread implements Runnable {
+        static long macID = GuardBind.avnGetMacId();
         @Override
         public void run() {
             while (!Thread.interrupted()) {
                 try {
+                    if(macID != GuardBind.avnGetMacId()) {
+                        LogHelper.error("MacID changed");
+                        safeHalt(8);
+                    }
                     if (!GuardBind.avnIsStarted()) {
                         LogHelper.error("Avanguard stopped! Process stopped");
-                        System.exit(5);
+                        safeHalt(5);
                     }
                 } catch (NullPointerException e) {
                     LogHelper.error("Avanguard unloaded! Process stopped");
-                    System.exit(6);
+                    safeHalt(6);
                 }
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
+                    GuardBind.avnGetMacId();
                     if (!GuardBind.avnIsStarted()) {
                         LogHelper.error("Thread stopped! Process stopped");
-                        System.exit(7);
+                        safeHalt(7);
                     }
                 }
             }
+        }
+    }
+    static void safeHalt(int exitcode)
+    {
+        try {
+            SafeExitJVM.exit(exitcode);
+        } catch (Throwable e)
+        {
+            SafeExitJVMLegacy.exit(exitcode);
         }
     }
 
@@ -76,7 +93,12 @@ public class AvanguardStarter {
         GuardBind.avnRegisterThreatNotifier((int threatType) -> {
             System.err.println("Threat " + GuardBind.ThreatType.getThreat(threatType).name());
             LogHelper.error("Cheating == crash!");
-            System.exit(12);
+            try {
+                SafeExitJVM.exit(threatType + 7000);
+            } catch (Throwable e)
+            {
+                SafeExitJVMLegacy.exit(threatType + 7000);
+            }
             return false;
         });
         // нужно делать до пуска таймера!
