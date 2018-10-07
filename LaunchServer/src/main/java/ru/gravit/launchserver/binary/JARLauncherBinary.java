@@ -229,6 +229,7 @@ public final class JARLauncherBinary extends LauncherBinary {
             output.write(launcherConfigBytes);
             ZipEntry e = newZipEntry(jaConfigurator.getZipEntryPath());
             output.putNextEntry(e);
+            jaConfigurator.compile();
             output.write(jaConfigurator.getBytecode());
             server.buildHookManager.postHook(context);
         } catch (CannotCompileException | NotFoundException e) {

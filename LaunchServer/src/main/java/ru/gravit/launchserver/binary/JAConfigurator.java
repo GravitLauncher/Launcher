@@ -41,12 +41,19 @@ public class JAConfigurator implements AutoCloseable {
         ctClass.defrost();
     }
 
+    public CtClass getCtClass() {
+        return ctClass;
+    }
+
     public byte[] getBytecode() throws IOException, CannotCompileException {
+        return ctClass.toBytecode();
+    }
+    public void compile() throws CannotCompileException {
         body.append("}");
         moduleBody.append("}");
         ctConstructor.setBody(body.toString());
         initModuleMethod.insertAfter(moduleBody.toString());
-        return ctClass.toBytecode();
+        if(ctClass.isFrozen()) ctClass.defrost();
     }
 
     public String getZipEntryPath() {
