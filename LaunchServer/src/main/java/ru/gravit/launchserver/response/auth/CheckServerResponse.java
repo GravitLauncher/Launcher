@@ -3,6 +3,7 @@ package ru.gravit.launchserver.response.auth;
 import java.io.IOException;
 import java.util.UUID;
 
+import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;
@@ -25,7 +26,8 @@ public final class CheckServerResponse extends Response {
         String serverID = VerifyHelper.verifyServerID(input.readASCII(41)); // With minus sign
         String client = input.readString(SerializeLimits.MAX_CLIENT);
         debug("Username: %s, Server ID: %s", username, serverID);
-
+        Client clientData = server.sessionManager.getClient(session);
+        if(!clientData.isAuth || clientData.type != Client.Type.SERVER) { requestError("Assess denied"); return;}
         // Try check server with auth handler
         UUID uuid;
         try {

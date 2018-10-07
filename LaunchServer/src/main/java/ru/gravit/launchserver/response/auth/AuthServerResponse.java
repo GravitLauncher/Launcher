@@ -77,6 +77,7 @@ public final class AuthServerResponse extends Response {
                 throw new AuthException("You profile not found");
             }
             clientData.type = Client.Type.SERVER;
+            clientData.username = result.username;
         } catch (AuthException | HWIDException e) {
             requestError(e.getMessage());
             return;

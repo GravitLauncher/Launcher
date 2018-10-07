@@ -97,6 +97,7 @@ public final class AuthResponse extends Response {
         debug("Auth: '%s' -> '%s', '%s'", login, result.username, result.accessToken);
         clientData.isAuth = true;
         clientData.permissions = result.permissions;
+        clientData.username = result.username;
         // Authenticate on server (and get UUID)
         UUID uuid;
         try {

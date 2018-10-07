@@ -11,6 +11,7 @@ public class Client {
     public ClientProfile profile;
     public boolean isAuth;
     public ClientPermissions permissions;
+    public String username;
 
     public Client(long session) {
         this.session = session;
@@ -18,6 +19,7 @@ public class Client {
         type = Type.USER;
         isAuth = false;
         permissions = ClientPermissions.DEFAULT;
+        username = "";
     }
     //Данные ваторизации
     public void up() {

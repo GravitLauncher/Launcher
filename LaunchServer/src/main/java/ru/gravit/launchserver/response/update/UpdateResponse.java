@@ -11,6 +11,8 @@ import java.util.zip.DeflaterOutputStream;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntry.Type;
+import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.request.UpdateAction;
 import ru.gravit.launcher.serialize.HInput;
@@ -34,6 +36,17 @@ public final class UpdateResponse extends Response {
         if (hdir == null) {
             requestError(String.format("Unknown update dir: %s", updateDirName));
             return;
+        }
+        Client clientData = server.sessionManager.getClient(session);
+        if(!clientData.isAuth || clientData.type != Client.Type.USER) { requestError("Assess denied"); return;}
+        for(SignedObjectHolder<ClientProfile> p : server.getProfiles())
+        {
+            ClientProfile profile = p.object;
+            if(!clientData.profile.getTitle().equals(profile.getTitle())) continue;
+            if(!profile.isWhitelistContains(clientData.username)) {
+                requestError("You don't download this folder");
+                return;
+            }
         }
         writeNoError(output);
 
