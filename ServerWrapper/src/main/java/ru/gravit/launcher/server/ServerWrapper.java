@@ -82,7 +82,7 @@ public class ServerWrapper {
         // Create new config
         LogHelper.info("Creating LaunchWrapper config");
         Config newConfig;
-        try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/config.cfg"))) {
+        try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/ServerWrapper.cfg"))) {
             newConfig = new Config(TextConfigReader.read(reader, false));
         }
 
