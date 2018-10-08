@@ -5,6 +5,7 @@ public class AutogenConfig {
     public String address;
     public int port;
     private boolean isInitModules;
+    public String secretKeyClient;
 
     AutogenConfig() {
 

@@ -109,7 +109,7 @@ public final class ClientLauncher {
         }
 
         @LauncherAPI
-        public Params(HInput input) throws IOException {
+        public Params(HInput input) throws Exception {
             launcherSign = input.readByteArray(-SecurityHelper.RSA_KEY_LENGTH);
             // Client paths
             assetDir = IOHelper.toPath(input.readString(0));
@@ -122,7 +122,9 @@ public final class ClientLauncher {
             }
             // Client params
             pp = new PlayerProfile(input);
-            accessToken = SecurityHelper.verifyToken(input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH));
+            byte[] encryptedAccessToken = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
+            String accessTokenD = new String(SecurityHelper.decrypt(Launcher.getConfig().secretKeyClient.getBytes(),encryptedAccessToken));
+            accessToken = SecurityHelper.verifyToken(accessTokenD);
             autoEnter = input.readBoolean();
             fullScreen = input.readBoolean();
             ram = input.readVarInt();
@@ -143,7 +145,11 @@ public final class ClientLauncher {
             }
             // Client params
             pp.write(output);
-            output.writeASCII(accessToken, -SecurityHelper.TOKEN_STRING_LENGTH);
+            try {
+                output.writeByteArray(SecurityHelper.encrypt(Launcher.getConfig().secretKeyClient.getBytes(),accessToken.getBytes()), SecurityHelper.CRYPTO_MAX_LENGTH);
+            } catch (Exception e) {
+                LogHelper.error(e);
+            }
             output.writeBoolean(autoEnter);
             output.writeBoolean(fullScreen);
             output.writeVarInt(ram);

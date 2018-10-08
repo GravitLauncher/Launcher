@@ -34,6 +34,7 @@ public final class LauncherConfig extends StreamObject {
     public final InetSocketAddress address;
     @LauncherAPI
     public final String projectname;
+    public String secretKeyClient;
     @LauncherAPI
     public final RSAPublicKey publicKey;
 
@@ -47,6 +48,7 @@ public final class LauncherConfig extends StreamObject {
                 ADDRESS_OVERRIDE == null ? localAddress : ADDRESS_OVERRIDE, config.port);
         publicKey = SecurityHelper.toPublicRSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
         projectname = config.projectname;
+        secretKeyClient = config.secretKeyClient;
         // Read signed runtime
         int count = input.readLength(0);
         Map<String, byte[]> localResources = new HashMap<>(count);
