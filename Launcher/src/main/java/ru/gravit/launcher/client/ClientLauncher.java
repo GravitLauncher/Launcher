@@ -293,31 +293,25 @@ public final class ClientLauncher {
             SignedObjectHolder<ClientProfile> profile, Params params, boolean pipeOutput) throws Throwable {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
-        Path paramsFile = Files.createTempFile("ClientLauncherParams", ".bin");
         CommonHelper.newThread("Client params writter", false, () ->
         {
             try {
                 try (ServerSocket socket = new ServerSocket()) {
-                    socket.setReuseAddress(true);
-                    socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
-                    Socket client = socket.accept();
-                    try (HOutput output = new HOutput(client.getOutputStream())) {
-                        params.write(output);
-                        profile.write(output);
-                        assetHDir.write(output);
-                        clientHDir.write(output);
-                    }
+
+                        socket.setReuseAddress(true);
+                        socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
+                        Socket client = socket.accept();
+                        try (HOutput output = new HOutput(client.getOutputStream())) {
+                            params.write(output);
+                            profile.write(output);
+                            assetHDir.write(output);
+                            clientHDir.write(output);
+                        }
+
+
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 LogHelper.error(e);
-                try (HOutput output = new HOutput(IOHelper.newOutput(paramsFile))) {
-                    params.write(output);
-                    profile.write(output);
-                    assetHDir.write(output);
-                    clientHDir.write(output);
-                } catch (IOException e1) {
-                    LogHelper.error(e1);
-                }
             }
         }).start();
         // Resolve java bin and set permissions
@@ -362,7 +356,6 @@ public final class ClientLauncher {
         //if(wrapper)
         //Collections.addAll(args, "-Djava.class.path=".concat(classPathString.toString())); // Add Class Path
         Collections.addAll(args, ClientLauncher.class.getName());
-        Collections.addAll(args, paramsFile.toString());
 
         // Print commandline debug message
         LogHelper.debug("Commandline: " + args);
@@ -397,9 +390,6 @@ public final class ClientLauncher {
         checkJVMBitsAndVersion();
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         LogHelper.printVersion("Client Launcher");
-        // Resolve params file
-        VerifyHelper.verifyInt(args.length, l -> l >= 1, "Missing args: <paramsFile>");
-        Path paramsFile = IOHelper.toPath(args[0]);
         // Read and delete params file
         LogHelper.debug("Reading ClientLauncher params");
         Params params;
@@ -420,16 +410,8 @@ public final class ClientLauncher {
             }
         } catch (IOException ex) {
             LogHelper.error(ex);
-            try (HInput input = new HInput(IOHelper.newInput(paramsFile))) {
-                params = new Params(input);
-                profile = new SignedObjectHolder<>(input, publicKey, ClientProfile.RO_ADAPTER);
-
-                // Read hdirs
-                assetHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
-                clientHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
-            } finally {
-                Files.delete(paramsFile);
-            }
+            System.exit(-98);
+            return;
         }
         Launcher.profile = profile.object;
         Launcher.modulesManager.initModules();
