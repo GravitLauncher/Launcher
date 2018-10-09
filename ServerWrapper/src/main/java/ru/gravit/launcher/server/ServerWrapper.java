@@ -21,6 +21,7 @@ import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
+import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.profiles.ClientProfile;
@@ -32,6 +33,44 @@ public class ServerWrapper {
     public static ModulesManager modulesManager;
     public static Path configFile;
     public static Config config;
+    public static boolean auth(ServerWrapper wrapper) {
+        try {
+            LauncherConfig cfg = Launcher.getConfig();
+            Boolean auth = new AuthServerRequest(cfg,config.login,SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)),0,config.title).request();
+            ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
+            for (SignedObjectHolder<ClientProfile> p : result.profiles) {
+                LogHelper.debug("Get profile: %s", p.object.getTitle());
+                if (p.object.getTitle().equals(config.title)) {
+                    wrapper.profile = p.object;
+                    Launcher.profile = p.object;
+                    LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
+                    break;
+                }
+            }
+            return true;
+        } catch (Throwable e)
+        {
+            LogHelper.error(e);
+            return false;
+        }
+
+    }
+    public static boolean loopAuth(ServerWrapper wrapper,int count,int sleeptime) {
+        if(count == 0) {
+            while(true) {
+                if(auth(wrapper)) return true;
+            }
+        }
+        for(int i=0;i<count;++i) {
+            if(auth(wrapper)) return true;
+            try {
+                Thread.sleep(sleeptime);
+            } catch (InterruptedException e) {
+                return false;
+            }
+        }
+        return false;
+    }
     public static void main(String[] args) throws Throwable {
         ServerWrapper wrapper = new ServerWrapper();
         modulesManager = new ModulesManager(wrapper);
@@ -44,19 +83,9 @@ public class ServerWrapper {
             config = new Config(TextConfigReader.read(reader, true));
         }
         LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(Paths.get("public.key"))),new HashMap<>(),config.projectname);
-        Boolean auth = new AuthServerRequest(cfg,config.login,SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)),0,config.title).request();
-        // TODO check auth...
-        ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
         Launcher.setConfig(cfg);
-        for (SignedObjectHolder<ClientProfile> p : result.profiles) {
-            LogHelper.debug("Get profile: %s", p.object.getTitle());
-            if (p.object.getTitle().equals(config.title)) {
-                wrapper.profile = p.object;
-                Launcher.profile = p.object;
-                LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
-                break;
-            }
-        }
+        if(config.syncAuth) auth(wrapper);
+        else CommonHelper.newThread("Server Auth Thread",true,() -> ServerWrapper.loopAuth(wrapper,config.reconnectCount,config.reconnectSleep));
         modulesManager.initModules();
         String classname = config.mainclass.isEmpty() ? args[0] : config.mainclass;
         Class<?> mainClass;
@@ -99,7 +128,10 @@ public class ServerWrapper {
         public String projectname;
         public String address;
         public int port;
+        public int reconnectCount;
+        public int reconnectSleep;
         public boolean customClassLoader;
+        public boolean syncAuth;
         public String classloader;
         public String mainclass;
         public String login;
@@ -116,8 +148,10 @@ public class ServerWrapper {
             if(customClassLoader)
                 classloader = block.getEntryValue("classloader",StringConfigEntry.class);
             mainclass = block.getEntryValue("MainClass",StringConfigEntry.class);
+            reconnectCount = block.hasEntry("reconnectCount") ? block.getEntryValue("reconnectCount",IntegerConfigEntry.class) : 1;
+            reconnectSleep = block.hasEntry("reconnectSleep") ? block.getEntryValue("reconnectSleep",IntegerConfigEntry.class) : 30000;
+            syncAuth = block.hasEntry("syncAuth") ? block.getEntryValue("syncAuth",BooleanConfigEntry.class) : true;
         }
     }
-
     public ClientProfile profile;
 }
