@@ -74,7 +74,7 @@ public class ServerWrapper {
     public static void main(String[] args) throws Throwable {
         ServerWrapper wrapper = new ServerWrapper();
         modulesManager = new ModulesManager(wrapper);
-        modulesManager.autoload(Paths.get("modules"));
+        modulesManager.autoload(Paths.get("srv_modules")); //BungeeCord using modules dir
         Launcher.modulesManager = modulesManager;
         configFile = Paths.get("ServerWrapper.cfg");
         modulesManager.preInitModules();
