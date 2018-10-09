@@ -1,5 +1,6 @@
 package ru.gravit.utils.helper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -25,7 +26,10 @@ import java.util.Map;
 import java.util.Random;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import ru.gravit.launcher.LauncherAPI;
 
@@ -97,6 +101,7 @@ public final class SecurityHelper {
     // Certificate constants
     @LauncherAPI
     public static final String HEX = "0123456789abcdef";
+    public static final byte[] NUMBERS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
     @LauncherAPI
     public static final SecureRandom secureRandom = new SecureRandom();
@@ -462,5 +467,47 @@ public final class SecurityHelper {
     }
 
     private SecurityHelper() {
+    }
+    //AES
+    public static byte[] encrypt(String seed, byte[] cleartext) throws Exception {
+        byte[] rawKey = getRawKey(seed.getBytes());
+        byte[] result = encrypt(rawKey, cleartext);
+        return result;
+    }
+
+    public static byte[] encrypt(String seed, String cleartext) throws Exception {
+        return encrypt(seed, cleartext.getBytes());
+    }
+
+    private static byte[] getRawKey(byte[] seed) throws Exception {
+        KeyGenerator kGen = KeyGenerator.getInstance("AES");
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        sr.setSeed(seed);
+        kGen.init(128, sr); // 192 and 256 bits may not be available
+        SecretKey sKey = kGen.generateKey();
+        return sKey.getEncoded();
+    }
+
+
+    public static byte[] encrypt(byte[] raw, byte[] clear) throws Exception {
+        SecretKeySpec sKeySpec = new SecretKeySpec(raw, "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, sKeySpec);
+        return cipher.doFinal(clear);
+    }
+
+    public static byte[] decrypt(byte[] raw, byte[] encrypted) throws Exception {
+        SecretKeySpec sKeySpec = new SecretKeySpec(raw, "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, sKeySpec);
+        return cipher.doFinal(encrypted);
+    }
+    public static byte[] HexToByte(String hexString) {
+        int len = hexString.length() / 2;
+        byte[] result = new byte[len];
+        for (int i = 0; i < len; i++) {
+            result[i] = Integer.valueOf(hexString.substring(2 * i, 2 * i + 2), 16).byteValue();
+        }
+        return result;
     }
 }

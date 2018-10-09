@@ -72,6 +72,12 @@ public class JAConfigurator implements AutoCloseable {
         body.append("\";");
     }
 
+    public void setSecretKey(String key) {
+        body.append("this.secretKeyClient = \"");
+        body.append(key);
+        body.append("\";");
+    }
+
     public void setPort(int port) {
         body.append("this.port = ");
         body.append(port);
