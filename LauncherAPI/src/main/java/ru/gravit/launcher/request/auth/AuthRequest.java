@@ -69,9 +69,9 @@ public final class AuthRequest extends Request<Result> {
         output.writeString(login, SerializeLimits.MAX_LOGIN);
         output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.writeInt(auth_id);
-        output.writeLong(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? GuardBind.avnGetHddId() : 0);
-        output.writeLong(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? GuardBind.avnGetCpuid() : 0);
-        output.writeLong(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? GuardBind.avnGetSmbiosId() : 0);
+        output.writeLong(Launcher.isUsingAvanguard() ? GuardBind.avnGetHddId() : 0);
+        output.writeLong(Launcher.isUsingAvanguard() ? GuardBind.avnGetCpuid() : 0);
+        output.writeLong(Launcher.isUsingAvanguard() ? GuardBind.avnGetSmbiosId() : 0);
         output.writeByteArray(encryptedPassword, SecurityHelper.CRYPTO_MAX_LENGTH);
         output.flush();
 
