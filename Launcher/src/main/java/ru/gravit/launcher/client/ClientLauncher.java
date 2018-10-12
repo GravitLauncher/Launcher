@@ -320,7 +320,7 @@ public final class ClientLauncher {
         checkJVMBitsAndVersion();
         // Fill CLI arguments
         List<String> args = new LinkedList<>();
-        boolean wrapper = isUsingWrapper();
+        boolean wrapper = isUsingWrapper() && Launcher.isUsingAvanguard();
         Path javaBin;
         if (wrapper) javaBin = JVMHelper.JVM_BITS == 64 ? AvanguardStarter.wrap64 : AvanguardStarter.wrap32;
         else
@@ -383,7 +383,7 @@ public final class ClientLauncher {
         Launcher.modulesManager = new ClientModuleManager(null);
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         Launcher.modulesManager.preInitModules();
-        if (JVMHelper.OS_TYPE == OS.MUSTDIE) {
+        if (Launcher.isUsingAvanguard()) {
             AvanguardStarter.loadVared();
             AvanguardStarter.main(false);
         }
