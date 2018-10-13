@@ -51,7 +51,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private static final String WEBSOCKET_PATH = "/api";
     private static SSLServerSocketFactory ssf;
     private static final ThreadFactory THREAD_FACTORY = r -> CommonHelper.newThread("Network Thread", true, r);
-    @LauncherAPI
+
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
 
     private final AtomicReference<ServerSocket> serverSocket = new AtomicReference<>();
@@ -191,14 +191,14 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
         */
     }
 
-    @LauncherAPI
+
     public void registerCustomResponse(String name, Response.Factory factory) {
         VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(customResponses, name, Objects.requireNonNull(factory, "factory"),
                 String.format("Custom response has been already registered: '%s'", name));
     }
 
-    @LauncherAPI
+
     public void setListener(Listener listener) {
         this.listener = listener;
     }
@@ -214,13 +214,13 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     }
 
     public interface Listener {
-        @LauncherAPI
+
         boolean onConnect(long id, InetAddress address);
 
-        @LauncherAPI
+
         void onDisconnect(long id, Exception e);
 
-        @LauncherAPI
+
         boolean onHandshake(long id, Integer type);
     }
 }

@@ -19,7 +19,7 @@ import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 
 public final class MySQLSourceConfig extends ConfigObject implements AutoCloseable {
-    @LauncherAPI
+
     public static final int TIMEOUT = VerifyHelper.verifyInt(
             Integer.parseUnsignedInt(System.getProperty("launcher.mysql.idleTimeout", Integer.toString(5000))),
             VerifyHelper.POSITIVE, "launcher.mysql.idleTimeout can't be <= 5000");
@@ -44,7 +44,7 @@ public final class MySQLSourceConfig extends ConfigObject implements AutoCloseab
     private DataSource source;
     private boolean hikari;
 
-    @LauncherAPI
+
     public MySQLSourceConfig(String poolName, BlockConfigEntry block) {
         super(block);
         this.poolName = poolName;
@@ -70,7 +70,7 @@ public final class MySQLSourceConfig extends ConfigObject implements AutoCloseab
             ((HikariDataSource) source).close();
     }
 
-    @LauncherAPI
+
     public synchronized Connection getConnection() throws SQLException {
         if (source == null) { // New data source
             MysqlDataSource mysqlSource = new MysqlDataSource();

@@ -42,7 +42,7 @@ public final class NullAuthHandler extends AuthHandler {
         return getHandler().joinServer(username, accessToken, serverID);
     }
 
-    @LauncherAPI
+
     public void setBackend(AuthHandler handler) {
         this.handler = handler;
     }

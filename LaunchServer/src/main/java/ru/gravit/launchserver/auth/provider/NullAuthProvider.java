@@ -31,7 +31,7 @@ public final class NullAuthProvider extends AuthProvider {
         return VerifyHelper.verify(provider, Objects::nonNull, "Backend auth provider wasn't set");
     }
 
-    @LauncherAPI
+
     public void setBackend(AuthProvider provider) {
         this.provider = provider;
     }

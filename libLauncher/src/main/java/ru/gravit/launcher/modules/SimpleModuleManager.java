@@ -40,7 +40,7 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     public PublicURLClassLoader classloader;
     protected ModuleContext context;
 
-    @LauncherAPI
+
     public void autoload(Path dir) throws IOException {
         LogHelper.info("Load modules");
         if (Files.notExists(dir)) Files.createDirectory(dir);
@@ -70,7 +70,7 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     }
 
     @Override
-    @LauncherAPI
+
     public void initModules() {
         for (Module m : modules) {
             m.init(context);
@@ -79,13 +79,13 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     }
 
     @Override
-    @LauncherAPI
+
     public void load(Module module) {
         modules.add(module);
     }
 
     @Override
-    @LauncherAPI
+
     public void load(Module module, boolean preload) {
         load(module);
         if (!preload) module.init(context);
@@ -93,7 +93,7 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
 
 
     @Override
-    @LauncherAPI
+
     public void loadModule(URL jarpath, boolean preload) throws ClassNotFoundException, IllegalAccessException, InstantiationException, URISyntaxException, IOException {
         JarFile f = new JarFile(Paths.get(jarpath.toURI()).toString());
         Manifest m = f.getManifest();
@@ -103,7 +103,7 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     }
 
     @Override
-    @LauncherAPI
+
     public void loadModule(URL jarpath, String classname, boolean preload) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         classloader.addURL(jarpath);
         Class<?> moduleclass = Class.forName(classname, true, classloader);
@@ -124,7 +124,7 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
 
 
     @Override
-    @LauncherAPI
+
     public void preInitModules() {
         for (Module m : modules) {
             m.preInit(context);
@@ -133,7 +133,7 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     }
 
     @Override
-    @LauncherAPI
+
     public void printModules() {
         for (Module m : modules)
             LogHelper.info("Module %s version: %s", m.getName(), m.getVersion());
@@ -141,7 +141,7 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     }
 
     @Override
-    @LauncherAPI
+
     public void registerModule(Module module, boolean preload) {
         load(module, preload);
         LogHelper.info("Module %s version: %s registered", module.getName(), module.getVersion());

@@ -18,13 +18,13 @@ import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 
 public abstract class CachedAuthHandler extends AuthHandler implements NeedGarbageCollection {
     public static final class Entry {
-        @LauncherAPI
+
         public final UUID uuid;
         private String username;
         private String accessToken;
         private String serverID;
 
-        @LauncherAPI
+
         public Entry(UUID uuid, String username, String accessToken, String serverID) {
             this.uuid = Objects.requireNonNull(uuid, "uuid");
             this.username = Objects.requireNonNull(username, "username");
@@ -37,14 +37,14 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
 
     private final Map<String, UUID> usernamesCache = new HashMap<>(1024);
 
-    @LauncherAPI
+
     protected CachedAuthHandler(BlockConfigEntry block) {
         super(block);
         if (block.hasEntry("garbage"))
             if (block.getEntryValue("garbage", BooleanConfigEntry.class)) GarbageManager.registerNeedGC(this);
     }
 
-    @LauncherAPI
+
     protected void addEntry(Entry entry) {
         Entry previous = entryCache.put(entry.uuid, entry);
         if (previous != null)
@@ -72,10 +72,10 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
                 serverID.equals(entry.serverID) ? entry.uuid : null;
     }
 
-    @LauncherAPI
+
     protected abstract Entry fetchEntry(String username) throws IOException;
 
-    @LauncherAPI
+
     protected abstract Entry fetchEntry(UUID uuid) throws IOException;
 
     private Entry getEntry(String username) throws IOException {
@@ -118,10 +118,10 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
         entryCache.clear();
     }
 
-    @LauncherAPI
+
     protected abstract boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException;
 
-    @LauncherAPI
+
     protected abstract boolean updateServerID(UUID uuid, String serverID) throws IOException;
 
     @Override

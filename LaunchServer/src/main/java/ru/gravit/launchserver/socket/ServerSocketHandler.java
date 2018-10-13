@@ -19,19 +19,19 @@ import ru.gravit.launchserver.manangers.SessionManager;
 
 public final class ServerSocketHandler implements Runnable, AutoCloseable {
     public interface Listener {
-        @LauncherAPI
+
         boolean onConnect(InetAddress address);
 
-        @LauncherAPI
+
         void onDisconnect(Exception e);
 
-        @LauncherAPI
+
         boolean onHandshake(long session, Integer type);
     }
 
     private static final ThreadFactory THREAD_FACTORY = r -> CommonHelper.newThread("Network Thread", true, r);
 
-    @LauncherAPI
+
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
     // Instance
     private final LaunchServer server;
@@ -109,7 +109,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
         }
     }
 
-    @LauncherAPI
+
     public void setListener(Listener listener) {
         this.listener = listener;
     }

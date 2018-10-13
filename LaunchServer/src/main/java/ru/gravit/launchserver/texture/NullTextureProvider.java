@@ -37,7 +37,7 @@ public final class NullTextureProvider extends TextureProvider {
         return getProvider().getSkinTexture(uuid, username, client);
     }
 
-    @LauncherAPI
+
     public void setBackend(TextureProvider provider) {
         this.provider = provider;
     }

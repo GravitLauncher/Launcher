@@ -54,12 +54,12 @@ public final class IndexAssetCommand extends Command {
 
     private static final String JSON_EXTENSION = ".json";
 
-    @LauncherAPI
+
     public static Path resolveIndexFile(Path assetDir, String name) {
         return assetDir.resolve(INDEXES_DIR).resolve(name + JSON_EXTENSION);
     }
 
-    @LauncherAPI
+
     public static Path resolveObjectFile(Path assetDir, String hash) {
         return assetDir.resolve(OBJECTS_DIR).resolve(hash.substring(0, 2)).resolve(hash);
     }

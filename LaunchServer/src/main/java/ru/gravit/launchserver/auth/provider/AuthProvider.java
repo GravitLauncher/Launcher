@@ -18,12 +18,12 @@ public abstract class AuthProvider extends ConfigObject implements AutoCloseable
     private static boolean registredProv = false;
     private LaunchServer server;
 
-    @LauncherAPI
+
     public static AuthProviderResult authError(String message) throws AuthException {
         throw new AuthException(message);
     }
 
-    @LauncherAPI
+
     public static AuthProvider newProvider(String name, BlockConfigEntry block,LaunchServer server) {
         VerifyHelper.verifyIDName(name);
         ServerAdapter<AuthProvider> authHandlerAdapter = VerifyHelper.getMapValue(AUTH_PROVIDERS, name,
@@ -31,7 +31,7 @@ public abstract class AuthProvider extends ConfigObject implements AutoCloseable
         return authHandlerAdapter.convert(block,server);
     }
 
-    @LauncherAPI
+
     public static void registerProvider(String name, ServerAdapter<AuthProvider> adapter) {
         VerifyHelper.putIfAbsent(AUTH_PROVIDERS, name, Objects.requireNonNull(adapter, "adapter"),
                 String.format("Auth provider has been already registered: '%s'", name));
@@ -57,20 +57,20 @@ public abstract class AuthProvider extends ConfigObject implements AutoCloseable
         return server.config.authHandler[this_position];
     }
 
-    @LauncherAPI
+
     protected AuthProvider(BlockConfigEntry block, LaunchServer launchServer) {
         super(block);
         server = launchServer;
     }
 
-    @LauncherAPI
+
     public abstract AuthProviderResult auth(String login, String password, String ip) throws Exception;
 
     @Override
     public abstract void close() throws IOException;
     @FunctionalInterface
     public interface ServerAdapter<O extends ConfigObject> {
-        @LauncherAPI
+
         O convert(BlockConfigEntry entry,LaunchServer server);
     }
 }

@@ -68,39 +68,39 @@ import ru.gravit.launchserver.texture.TextureProvider;
 
 public final class LaunchServer implements Runnable, AutoCloseable {
     public static final class Config extends ConfigObject {
-        @LauncherAPI
+
         public final int port;
 
         // Handlers & Providers
-        @LauncherAPI
+
         public final AuthHandler[] authHandler;
-        @LauncherAPI
+
         public final AuthProvider[] authProvider;
-        @LauncherAPI
+
         public final TextureProvider textureProvider;
-        @LauncherAPI
+
         public final HWIDHandler hwidHandler;
 
         // Misc options
-        @LauncherAPI
+
         public final ExeConf launch4j;
-        @LauncherAPI
+
         public final SignConf sign;
-        @LauncherAPI
+
         public final boolean compress;
-        @LauncherAPI
+
         public final int authRateLimit;
-        @LauncherAPI
+
         public final int authRateLimitMilis;
-        @LauncherAPI
+
         public final String authRejectString;
-        @LauncherAPI
+
         public final String projectName;
-        @LauncherAPI
+
         public final String whitelistRejectString;
-        @LauncherAPI
+
         public final boolean genMappings;
-        @LauncherAPI
+
         public final String binaryName;
         private final StringConfigEntry address;
         private final String bindAddress;
@@ -143,27 +143,27 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             compress = block.getEntryValue("compress", BooleanConfigEntry.class);
         }
 
-        @LauncherAPI
+
         public String getAddress() {
             return address.getValue();
         }
 
-        @LauncherAPI
+
         public String getBindAddress() {
             return bindAddress;
         }
 
-        @LauncherAPI
+
         public SocketAddress getSocketAddress() {
             return new InetSocketAddress(bindAddress, port);
         }
 
-        @LauncherAPI
+
         public void setAddress(String address) {
             this.address.setValue(address);
         }
 
-        @LauncherAPI
+
         public void verify() {
             VerifyHelper.verify(getAddress(), VerifyHelper.NOT_EMPTY, "LaunchServer address can't be empty");
         }
@@ -276,53 +276,53 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     }
 
     // Constant paths
-    @LauncherAPI
+
     public final Path dir;
 
-    @LauncherAPI
+
     public final Path configFile;
-    @LauncherAPI
+
     public final Path publicKeyFile;
-    @LauncherAPI
+
     public final Path privateKeyFile;
-    @LauncherAPI
+
     public final Path updatesDir;
     public static LaunchServer server;
-    @LauncherAPI
+
     public final Path profilesDir;
     // Server config
-    @LauncherAPI
+
     public final Config config;
 
-    @LauncherAPI
+
     public final RSAPublicKey publicKey;
-    @LauncherAPI
+
     public final RSAPrivateKey privateKey;
-    @LauncherAPI
+
     public final boolean portable;
     // Launcher binary
-    @LauncherAPI
+
     public final LauncherBinary launcherBinary;
-    @LauncherAPI
+
     public final LauncherBinary launcherEXEBinary;
     // HWID ban + anti-brutforce
-    @LauncherAPI
+
     public final AuthLimiter limiter;
-    @LauncherAPI
+
     public final SessionManager sessionManager;
     // Server
-    @LauncherAPI
+
     public final ModulesManager modulesManager;
 
-    @LauncherAPI
+
     public final BuildHookManager buildHookManager;
-    @LauncherAPI
+
     public final ProguardConf proguardConf;
 
-    @LauncherAPI
+
     public final CommandHandler commandHandler;
 
-    @LauncherAPI
+
     public final ServerSocketHandler serverSocketHandler;
 
     private final AtomicBoolean started = new AtomicBoolean(false);
@@ -445,7 +445,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         return new EXELauncherBinary(this);
     }
 
-    @LauncherAPI
+
     public void buildLauncherBinaries() throws IOException {
         launcherBinary.build();
         launcherEXEBinary.build();
@@ -504,23 +504,23 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         }
     }
 
-    @LauncherAPI
+
     @SuppressWarnings("ReturnOfCollectionOrArrayField")
     public Collection<SignedObjectHolder<ClientProfile>> getProfiles() {
         return profilesList;
     }
 
-    @LauncherAPI
+
     public SignedObjectHolder<HashedDir> getUpdateDir(String name) {
         return updatesDirMap.get(name);
     }
 
-    @LauncherAPI
+
     public Set<Entry<String, SignedObjectHolder<HashedDir>>> getUpdateDirs() {
         return updatesDirMap.entrySet();
     }
 
-    @LauncherAPI
+
     public void rebindServerSocket() {
         serverSocketHandler.close();
         CommonHelper.newThread("Server Socket Thread", false, serverSocketHandler).start();
@@ -539,7 +539,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         rebindServerSocket();
     }
 
-    @LauncherAPI
+
     public void syncLauncherBinaries() throws IOException {
         LogHelper.info("Syncing launcher binaries");
 
@@ -554,7 +554,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     }
 
-    @LauncherAPI
+
     public void syncProfilesDir() throws IOException {
         LogHelper.info("Syncing profiles dir");
         List<SignedObjectHolder<ClientProfile>> newProfies = new LinkedList<>();
@@ -565,7 +565,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         profilesList = Collections.unmodifiableList(newProfies);
     }
 
-    @LauncherAPI
+
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
         LogHelper.info("Syncing updates dir");
         Map<String, SignedObjectHolder<HashedDir>> newUpdatesDirMap = new HashMap<>(16);

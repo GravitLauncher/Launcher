@@ -26,7 +26,7 @@ import ru.gravit.launchserver.response.update.UpdateResponse;
 public abstract class Response {
     @FunctionalInterface
     public interface Factory<R> {
-        @LauncherAPI
+
         Response newResponse(LaunchServer server, long id, HInput input, HOutput output, String ip);
     }
 
@@ -57,24 +57,24 @@ public abstract class Response {
         registerResponse(RequestType.SERVERAUTH.getNumber(), AuthServerResponse::new);
     }
 
-    @LauncherAPI
+
     public static void requestError(String message) throws RequestException {
         throw new RequestException(message);
     }
 
-    @LauncherAPI
+
     protected final LaunchServer server;
 
-    @LauncherAPI
+
     protected final HInput input;
 
-    @LauncherAPI
+
     protected final HOutput output;
 
-    @LauncherAPI
+
     protected final String ip;
 
-    @LauncherAPI
+
     protected final long session;
 
     protected Response(LaunchServer server, long session, HInput input, HOutput output, String ip) {
@@ -85,20 +85,20 @@ public abstract class Response {
         this.session = session;
     }
 
-    @LauncherAPI
+
     protected final void debug(String message) {
         LogHelper.subDebug("#%d %s", session, message);
     }
 
-    @LauncherAPI
+
     protected final void debug(String message, Object... args) {
         debug(String.format(message, args));
     }
 
-    @LauncherAPI
+
     public abstract void reply() throws Exception;
 
-    @LauncherAPI
+
     @SuppressWarnings("MethodMayBeStatic") // Intentionally not static
     protected final void writeNoError(HOutput output) throws IOException {
         output.writeString("", 0);

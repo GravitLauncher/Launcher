@@ -71,17 +71,17 @@ public final class JARLauncherBinary extends LauncherBinary {
         return newZipEntry(Launcher.RUNTIME_DIR + IOHelper.CROSS_SEPARATOR + fileName);
     }
 
-    @LauncherAPI
+
     public final Path runtimeDir;
     public final Path guardDir;
 
-    @LauncherAPI
+
     public final Path initScriptFile;
 
-    @LauncherAPI
+
     public final Path obfJar;
 
-    @LauncherAPI
+
     public JARLauncherBinary(LaunchServer server) throws IOException {
         super(server, server.dir.resolve(server.config.binaryName + ".jar"),
                 server.dir.resolve(server.config.binaryName + (server.config.sign.enabled ? "-sign.jar" : "-obf.jar")));
@@ -252,7 +252,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         }
     }
 
-    @LauncherAPI
+
     public void tryUnpackRuntime() throws IOException {
         // Verify is runtime dir unpacked
         if (IOHelper.isDir(runtimeDir))
@@ -271,7 +271,7 @@ public final class JARLauncherBinary extends LauncherBinary {
             }
         }
     }
-    @LauncherAPI
+
     public void tryUnpackGuard() throws IOException {
         // Verify is runtime dir unpacked
         if (IOHelper.isDir(guardDir))

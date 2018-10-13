@@ -39,10 +39,8 @@ public final class JVMHelper {
     }
 
     // MXBeans exports
-    @LauncherAPI
     public static final RuntimeMXBean RUNTIME_MXBEAN = ManagementFactory.getRuntimeMXBean();
 
-    @LauncherAPI
     public static final OperatingSystemMXBean OPERATING_SYSTEM_MXBEAN =
             ManagementFactory.getOperatingSystemMXBean();
     // System properties
@@ -60,10 +58,8 @@ public final class JVMHelper {
     @LauncherAPI
     public static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
     // Public static fields
-    @LauncherAPI
     public static final Runtime RUNTIME = Runtime.getRuntime();
 
-    @LauncherAPI
     public static final ClassLoader LOADER = ClassLoader.getSystemClassLoader();
 
     static {
@@ -76,18 +72,18 @@ public final class JVMHelper {
     }
 
     @Deprecated
-    @LauncherAPI
+
     public static void addClassPath(URL url) {
         throw new IllegalArgumentException("Method Deprecated");
     }
 
     @Deprecated
-    @LauncherAPI
+
     public static void addNativePath(Path path) {
         throw new IllegalArgumentException("Method Deprecated");
     }
 
-    @LauncherAPI
+
     public static void appendVars(ProcessBuilder builder, Map<String, String> vars) {
         builder.environment().putAll(vars);
     }
@@ -111,17 +107,17 @@ public final class JVMHelper {
     }
 
     @Deprecated
-    @LauncherAPI
+
     public static Certificate[] getCertificates(String resource) {
         throw new IllegalArgumentException("Method Deprecated");
     }
 
-    @LauncherAPI
+
     public static String[] getClassPath() {
         return System.getProperty("java.class.path").split(File.pathSeparator);
     }
 
-    @LauncherAPI
+
     public static URL[] getClassPathURL() {
         String[] cp = System.getProperty("java.class.path").split(File.pathSeparator);
         URL[] list = new URL[cp.length];
@@ -175,7 +171,7 @@ public final class JVMHelper {
         return String.format("-D%s=%s", name, System.getProperties().getProperty(name));
     }
 
-    @LauncherAPI
+
     public static void verifySystemProperties(Class<?> mainClass, boolean requireSystem) {
         Locale.setDefault(Locale.US);
         // Verify class loader

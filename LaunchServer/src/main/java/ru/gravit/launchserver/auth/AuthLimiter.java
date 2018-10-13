@@ -46,7 +46,7 @@ public class AuthLimiter implements NeedGarbageCollection {
         }
     }
 
-    @LauncherAPI
+
     public static final long TIMEOUT = 10 * 60 * 1000; //10 минут
     public final int rateLimit;
     public final int rateLimitMilis;

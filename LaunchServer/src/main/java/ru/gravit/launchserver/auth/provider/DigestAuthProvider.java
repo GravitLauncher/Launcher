@@ -11,13 +11,13 @@ import ru.gravit.launchserver.auth.AuthException;
 public abstract class DigestAuthProvider extends AuthProvider {
     private final DigestAlgorithm digest;
 
-    @LauncherAPI
+
     protected DigestAuthProvider(BlockConfigEntry block, LaunchServer server) {
         super(block,server);
         digest = DigestAlgorithm.byName(block.getEntryValue("digest", StringConfigEntry.class));
     }
 
-    @LauncherAPI
+
     protected final void verifyDigest(String validDigest, String password) throws AuthException {
         boolean valid;
         if (digest == DigestAlgorithm.PLAIN)

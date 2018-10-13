@@ -15,14 +15,14 @@ public abstract class HWIDHandler extends ConfigObject implements AutoCloseable 
     public static final HWID nullHWID = HWID.gen(0, 0, 0);
     private static boolean registredHandl = false;
 
-    @LauncherAPI
+
     public static HWIDHandler newHandler(String name, BlockConfigEntry block) {
         Adapter<HWIDHandler> authHandlerAdapter = VerifyHelper.getMapValue(HW_HANDLERS, name,
                 String.format("Unknown HWID handler: '%s'", name));
         return authHandlerAdapter.convert(block);
     }
 
-    @LauncherAPI
+
     public static void registerHandler(String name, Adapter<HWIDHandler> adapter) {
         VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(HW_HANDLERS, name, Objects.requireNonNull(adapter, "adapter"),

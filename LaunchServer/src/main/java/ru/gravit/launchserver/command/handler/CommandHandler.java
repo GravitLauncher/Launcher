@@ -120,18 +120,18 @@ public abstract class CommandHandler implements Runnable {
         registerCommand("unban", new UnbanCommand(server));
     }
 
-    @LauncherAPI
+
     public abstract void bell() throws IOException;
 
-    @LauncherAPI
+
     public abstract void clear() throws IOException;
 
-    @LauncherAPI
+
     public final Map<String, Command> commandsMap() {
         return Collections.unmodifiableMap(commands);
     }
 
-    @LauncherAPI
+
     public final void eval(String line, boolean bell) {
         LogHelper.info("Command '%s'", line);
 
@@ -148,7 +148,7 @@ public abstract class CommandHandler implements Runnable {
         eval(args, bell);
     }
 
-    @LauncherAPI
+
     public final void eval(String[] args, boolean bell) {
         if (args.length == 0)
             return;
@@ -171,7 +171,7 @@ public abstract class CommandHandler implements Runnable {
             }
     }
 
-    @LauncherAPI
+
     public final Command lookup(String name) throws CommandException {
         Command command = commands.get(name);
         if (command == null)
@@ -179,7 +179,7 @@ public abstract class CommandHandler implements Runnable {
         return command;
     }
 
-    @LauncherAPI
+
     public abstract String readLine() throws IOException;
 
     private void readLoop() throws IOException {
@@ -187,7 +187,7 @@ public abstract class CommandHandler implements Runnable {
             eval(line, true);
     }
 
-    @LauncherAPI
+
     public final void registerCommand(String name, Command command) {
         VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(commands, name, Objects.requireNonNull(command, "command"),

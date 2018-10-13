@@ -24,7 +24,7 @@ public final class LauncherConfig extends StreamObject {
     public static final String ADDRESS_OVERRIDE = System.getProperty(ADDRESS_OVERRIDE_PROPERTY, null);
     private static final AutogenConfig config = new AutogenConfig();
 
-    @LauncherAPI
+
     public static AutogenConfig getAutogenConfig() {
         return config;
     }

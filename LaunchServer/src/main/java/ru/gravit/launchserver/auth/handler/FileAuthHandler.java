@@ -31,7 +31,7 @@ public abstract class FileAuthHandler extends AuthHandler {
         private String accessToken;
         private String serverID;
 
-        @LauncherAPI
+
         public Entry(HInput input) throws IOException {
             username = VerifyHelper.verifyUsername(input.readString(64));
             if (input.readBoolean()) {
@@ -41,12 +41,12 @@ public abstract class FileAuthHandler extends AuthHandler {
             }
         }
 
-        @LauncherAPI
+
         public Entry(String username) {
             this.username = VerifyHelper.verifyUsername(username);
         }
 
-        @LauncherAPI
+
         public Entry(String username, String accessToken, String serverID) {
             this(username);
             if (accessToken == null && serverID != null)
@@ -67,17 +67,17 @@ public abstract class FileAuthHandler extends AuthHandler {
             return username.equals(this.username) && serverID.equals(this.serverID);
         }
 
-        @LauncherAPI
+
         public String getAccessToken() {
             return accessToken;
         }
 
-        @LauncherAPI
+
         public String getServerID() {
             return serverID;
         }
 
-        @LauncherAPI
+
         public String getUsername() {
             return username;
         }
@@ -104,12 +104,12 @@ public abstract class FileAuthHandler extends AuthHandler {
         }
     }
 
-    @LauncherAPI
+
     public final Path file;
-    @LauncherAPI
+
     public final Path fileTmp;
 
-    @LauncherAPI
+
     public final boolean offlineUUIDs;
     // Instance
     private final SecureRandom random = SecurityHelper.newRandom();
@@ -120,7 +120,7 @@ public abstract class FileAuthHandler extends AuthHandler {
 
     private final Map<String, UUID> usernamesMap = new HashMap<>(256);
 
-    @LauncherAPI
+
     protected FileAuthHandler(BlockConfigEntry block) {
         super(block);
         file = IOHelper.toPath(block.getEntryValue("file", StringConfigEntry.class));
@@ -138,7 +138,7 @@ public abstract class FileAuthHandler extends AuthHandler {
         }
     }
 
-    @LauncherAPI
+
     protected final void addAuth(UUID uuid, Entry entry) {
         lock.writeLock().lock();
         try {
@@ -202,7 +202,7 @@ public abstract class FileAuthHandler extends AuthHandler {
         }
     }
 
-    @LauncherAPI
+
     protected final Set<Map.Entry<UUID, Entry>> entrySet() {
         return Collections.unmodifiableMap(entryMap).entrySet();
     }
@@ -234,7 +234,7 @@ public abstract class FileAuthHandler extends AuthHandler {
         }
     }
 
-    @LauncherAPI
+
     protected abstract void readAuthFile() throws IOException;
 
     @Override
@@ -258,6 +258,6 @@ public abstract class FileAuthHandler extends AuthHandler {
         }
     }
 
-    @LauncherAPI
+
     protected abstract void writeAuthFileTmp() throws IOException;
 }
