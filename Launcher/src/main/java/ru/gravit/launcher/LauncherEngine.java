@@ -205,7 +205,7 @@ public class LauncherEngine {
         loadScript("dialog/dialog.js");
         LogHelper.info("Invoking start() function");
         Invocable invoker = (Invocable) engine;
-        if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
+        if (Launcher.isUsingAvanguard()) {
             AvanguardStarter.start((Path) invoker.invokeFunction("getPathDirHelper"));
             AvanguardStarter.loadVared();
             AvanguardStarter.main(false);
