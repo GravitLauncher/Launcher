@@ -5,6 +5,7 @@ import static ru.gravit.utils.helper.IOHelper.newZipEntry;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
@@ -33,6 +34,9 @@ import proguard.ParseException;
 import proguard.ProGuard;
 
 public final class JARLauncherBinary extends LauncherBinary {
+
+    public static final String[] guardFileList = {"Avanguard64.dll", "Avanguard32.dll", "wrapper64.exe", "wrapper32.exe"};
+
     private final class RuntimeDirVisitor extends SimpleFileVisitor<Path> {
         private final ZipOutputStream output;
         private final Map<String, byte[]> runtime;
@@ -69,6 +73,7 @@ public final class JARLauncherBinary extends LauncherBinary {
 
     @LauncherAPI
     public final Path runtimeDir;
+    public final Path guardDir;
 
     @LauncherAPI
     public final Path initScriptFile;
@@ -81,6 +86,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         super(server, server.dir.resolve(server.config.binaryName + ".jar"),
                 server.dir.resolve(server.config.binaryName + (server.config.sign.enabled ? "-sign.jar" : "-obf.jar")));
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
+        guardDir = server.dir.resolve("guard");
         initScriptFile = runtimeDir.resolve(Launcher.INIT_SCRIPT_FILE);
         obfJar = server.config.sign.enabled ? server.dir.resolve(server.config.binaryName + "-obf.jar")
                 : syncBinaryFile;
@@ -90,6 +96,7 @@ public final class JARLauncherBinary extends LauncherBinary {
     @Override
     public void build() throws IOException {
         tryUnpackRuntime();
+        tryUnpackGuard();
 
         // Build launcher binary
         LogHelper.info("Building launcher binary file");
@@ -232,6 +239,13 @@ public final class JARLauncherBinary extends LauncherBinary {
             output.putNextEntry(e);
             jaConfigurator.compile();
             output.write(jaConfigurator.getBytecode());
+            for(String file : guardFileList)
+            {
+                Path path = guardDir.resolve(file);
+                ZipEntry en = newZipEntry(file);
+                output.putNextEntry(en);
+                IOHelper.transfer(path,output);
+            }
             server.buildHookManager.postHook(context);
         } catch (CannotCompileException | NotFoundException e) {
             LogHelper.error(e);
@@ -254,6 +268,25 @@ public final class JARLauncherBinary extends LauncherBinary {
 
                 // Unpack runtime file
                 IOHelper.transfer(input, runtimeDir.resolve(IOHelper.toPath(entry.getName())));
+            }
+        }
+    }
+    @LauncherAPI
+    public void tryUnpackGuard() throws IOException {
+        // Verify is runtime dir unpacked
+        if (IOHelper.isDir(guardDir))
+            return; // Already unpacked
+
+        // Unpack launcher runtime files
+        Files.createDirectory(guardDir);
+        LogHelper.info("Unpacking launcher native guard files");
+        try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL("guard.zip"))) {
+            for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
+                if (entry.isDirectory())
+                    continue; // Skip dirs
+
+                // Unpack runtime file
+                IOHelper.transfer(input, guardDir.resolve(IOHelper.toPath(entry.getName())));
             }
         }
     }
