@@ -83,6 +83,11 @@ public class JAConfigurator implements AutoCloseable {
         body.append(port);
         body.append(";");
     }
+    public void setClientPort(int port) {
+        body.append("this.clientPort = ");
+        body.append(port);
+        body.append(";");
+    }
 
     public ClassPool getPool() {
         return pool;
