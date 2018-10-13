@@ -247,7 +247,7 @@ public final class ClientLauncher {
         }
         String jvmVersion = JVMHelper.RUNTIME_MXBEAN.getVmVersion();
         LogHelper.info(jvmVersion);
-        if (jvmVersion.startsWith("10.") || jvmVersion.startsWith("9.")) {
+        if (jvmVersion.startsWith("10.") || jvmVersion.startsWith("9.") || jvmVersion.startsWith("11.")) {
             String error = String.format("У Вас установлена Java %s. Для правильной работы необходима Java 8", JVMHelper.RUNTIME_MXBEAN.getVmVersion());
             LogHelper.error(error);
             JOptionPane.showMessageDialog(null, error);
