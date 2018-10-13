@@ -285,7 +285,7 @@ public final class ClientLauncher {
         System.setProperty("minecraft.applet.TargetDirectory", params.clientDir.toString()); // For 1.5.2
         mainMethod.invoke((Object) args.toArray(EMPTY_ARRAY));
     }
-
+    private static Process process = null;
     @LauncherAPI
     public static Process launch(
 
@@ -301,6 +301,17 @@ public final class ClientLauncher {
                         socket.setReuseAddress(true);
                         socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                         Socket client = socket.accept();
+                        if(process == null)
+                        {
+                            LogHelper.error("Process is null");
+                            return;
+                        }
+                        if(!process.isAlive())
+                        {
+                            LogHelper.error("Process is not alive");
+                            JOptionPane.showMessageDialog(null,"Client Process crashed","Launcher",JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
                         try (HOutput output = new HOutput(client.getOutputStream())) {
                             params.write(output);
                             profile.write(output);
@@ -375,7 +386,8 @@ public final class ClientLauncher {
             builder.redirectOutput(Redirect.PIPE);
         }
         // Let's rock!
-        return builder.start();
+        process = builder.start();
+        return process;
     }
 
     @LauncherAPI
