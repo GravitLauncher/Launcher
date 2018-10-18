@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.SocketAddress;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
@@ -32,6 +33,8 @@ import java.util.zip.CRC32;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.serialize.config.entry.*;
+import ru.gravit.launchserver.manangers.MirrorManager;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
@@ -43,10 +46,6 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.TextConfigReader;
 import ru.gravit.launcher.serialize.config.TextConfigWriter;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.auth.AuthLimiter;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
@@ -101,6 +100,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         public final boolean genMappings;
 
+        public ListConfigEntry mirrors;
         public final String binaryName;
         private final StringConfigEntry address;
         private final String bindAddress;
@@ -136,6 +136,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
             // Set misc config
             genMappings = block.getEntryValue("proguardPrintMappings", BooleanConfigEntry.class);
+            mirrors = block.getEntry("mirrors",ListConfigEntry.class);
             launch4j = new ExeConf(block.getEntry("launch4J", BlockConfigEntry.class));
             sign = new SignConf(block.getEntry("signing", BlockConfigEntry.class), coredir);
             binaryName = block.getEntryValue("binaryName", StringConfigEntry.class);
@@ -314,6 +315,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     public final ModulesManager modulesManager;
 
+    public final MirrorManager mirrorManager;
+
 
     public final BuildHookManager buildHookManager;
 
@@ -390,7 +393,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         // Print keypair fingerprints
         CRC32 crc = new CRC32();
-        crc.update(publicKey.getModulus().toByteArray());
+        crc.update(publicKey.getModulus().toByteArray()); // IDEA говорит, что это Java 9 API. WTF?
         LogHelper.subInfo("Modulus CRC32: 0x%08x", crc.getValue());
 
         // pre init modules
@@ -411,8 +414,16 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         limiter = new AuthLimiter(this);
         proguardConf = new ProguardConf(this);
         sessionManager = new SessionManager();
+        mirrorManager = new MirrorManager();
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
+        config.mirrors.stream(StringConfigEntry.class).forEach(s -> {
+            try {
+                mirrorManager.addMirror(s);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        });
 
         // init modules
         modulesManager.initModules();

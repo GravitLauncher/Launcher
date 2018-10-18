@@ -21,7 +21,6 @@ import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
 
 public final class DownloadClientCommand extends Command {
-    private static final String CLIENT_URL_MASK = "http://launcher.sashok724.net/download/clients/%s.zip";
 
     public DownloadClientCommand(LaunchServer server) {
         super(server);
@@ -50,8 +49,7 @@ public final class DownloadClientCommand extends Command {
 
         // Download required client
         LogHelper.subInfo("Downloading client, it may take some time");
-        HttpDownloader.downloadZip(new URL(String.format(CLIENT_URL_MASK,
-                IOHelper.urlEncode(version.name))), clientDir);
+        HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getClientsURL(version.name), clientDir);
 
         // Create profile file
         LogHelper.subInfo("Creaing profile file: '%s'", dirName);

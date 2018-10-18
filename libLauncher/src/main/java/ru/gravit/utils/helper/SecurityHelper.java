@@ -90,6 +90,8 @@ public final class SecurityHelper {
     @LauncherAPI
     public static final int TOKEN_LENGTH = 16;
     @LauncherAPI
+    public static final int AES_KEY_LENGTH = 24;
+    @LauncherAPI
     public static final int TOKEN_STRING_LENGTH = TOKEN_LENGTH << 1;
     @LauncherAPI
     public static final int RSA_KEY_LENGTH_BITS = 2048;
@@ -308,6 +310,25 @@ public final class SecurityHelper {
     @LauncherAPI
     public static byte[] randomToken(Random random) {
         return randomBytes(random, TOKEN_LENGTH);
+    }
+
+    @LauncherAPI
+    public static String randomStringAESKey() {
+        return toHex(randomAESKey(newRandom()));
+    }
+    @LauncherAPI
+    public static String randomStringAESKey(Random random) {
+        return toHex(randomAESKey(random));
+    }
+
+    @LauncherAPI
+    public static byte[] randomAESKey() {
+        return randomAESKey(newRandom());
+    }
+
+    @LauncherAPI
+    public static byte[] randomAESKey(Random random) {
+        return randomBytes(random, AES_KEY_LENGTH);
     }
 
     @LauncherAPI
