@@ -143,6 +143,12 @@ public final class HashedDir extends HashedEntry {
         HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
         return new Diff(mismatch, extra);
     }
+    @LauncherAPI
+    public Diff compare(HashedDir other, FileNameMatcher matcher) {
+        HashedDir mismatch = sideDiff(other, matcher, new LinkedList<>(), true);
+        HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
+        return new Diff(mismatch, extra);
+    }
     public void remove(String name)
     {
         map.remove(name);
@@ -247,6 +253,58 @@ public final class HashedDir extends HashedEntry {
                     HashedDir otherDir = (HashedDir) otherEntry;
                     if (mismatchList || shouldUpdate) { // Maybe isn't need to go deeper?
                         HashedDir mismatch = dir.sideDiff(otherDir, matcher, path, mismatchList);
+                        if (!mismatch.isEmpty())
+                            diff.map.put(name, mismatch);
+                    }
+                    break;
+                default:
+                    throw new AssertionError("Unsupported hashed entry type: " + type.name());
+            }
+
+            // Remove this path entry
+            path.removeLast();
+        }
+        return diff;
+    }
+
+    private HashedDir sideCompare(HashedDir other, FileNameMatcher matcher, Deque<String> path, boolean mismatchList) {
+        HashedDir diff = new HashedDir();
+        for (Entry<String, HashedEntry> mapEntry : map.entrySet()) {
+            String name = mapEntry.getKey();
+            HashedEntry entry = mapEntry.getValue();
+            path.add(name);
+
+            // Should update?
+            boolean shouldUpdate = matcher == null || matcher.shouldUpdate(path);
+
+            // Not found or of different type
+            Type type = entry.getType();
+            HashedEntry otherEntry = other.map.get(name);
+            if (otherEntry == null || otherEntry.getType() != type) {
+                if (shouldUpdate || mismatchList && otherEntry == null) {
+                    diff.map.put(name, entry);
+
+                    // Should be deleted!
+                    if (!mismatchList)
+                        entry.flag = true;
+                }
+                path.removeLast();
+                continue;
+            }
+
+            // Compare entries based on type
+            switch (type) {
+                case FILE:
+                    HashedFile file = (HashedFile) entry;
+                    HashedFile otherFile = (HashedFile) otherEntry;
+                    if (mismatchList && shouldUpdate && file.isSame(otherFile))
+                        diff.map.put(name, entry);
+                    break;
+                case DIR:
+                    HashedDir dir = (HashedDir) entry;
+                    HashedDir otherDir = (HashedDir) otherEntry;
+                    if (mismatchList || shouldUpdate) { // Maybe isn't need to go deeper?
+                        HashedDir mismatch = dir.sideCompare(otherDir, matcher, path, mismatchList);
                         if (!mismatch.isEmpty())
                             diff.map.put(name, mismatch);
                     }
