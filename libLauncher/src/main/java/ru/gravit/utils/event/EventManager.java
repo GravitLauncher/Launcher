@@ -13,12 +13,12 @@ public class EventManager {
     public static final int INITIAL_HANDLERS_SIZE = 16;
     public class Entry
     {
-        public Entry(EventHandler func, UUID[] events) {
+        public Entry(EventHandler<EventInterface> func, UUID[] events) {
             this.func = func;
             this.events = events;
         }
 
-        EventHandler func;
+        EventHandler<EventInterface> func;
         UUID[] events;
     }
     public class QueueEntry
@@ -33,7 +33,7 @@ public class EventManager {
     }
     public ArrayList<Entry> handlers = new ArrayList<>(INITIAL_HANDLERS_SIZE);
     public BlockingQueue<QueueEntry> queue = new LinkedBlockingQueue<>(QUEUE_MAX_SIZE); //Максимальный размер очереди
-    public int registerHandler(EventHandler func, UUID[] events)
+    public int registerHandler(EventHandler<EventInterface> func, UUID[] events)
     {
         Arrays.sort(events);
         handlers.add(new Entry(func,events));
