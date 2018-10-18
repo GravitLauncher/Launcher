@@ -14,6 +14,9 @@ var LauncherApp = Java.extend(JSApplication, {
     }, start: function(primaryStage) {
         stage = primaryStage;
         stage.setTitle(config.title);
+	    
+        // Disable resizable button
+        stage.setResizable(false);
 
         // Set icons
         for each (var icon in config.icons) {
