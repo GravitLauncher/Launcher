@@ -48,7 +48,7 @@ public class EventManager {
     {
         for(Entry e : handlers)
         {
-            if(Arrays.binarySearch(e.events,key) >= 0) e.func.run(event);
+            if(Arrays.binarySearch(e.events,key) >= 0) e.func.run(key, event);
         }
     }
     public class EventExecutor implements Runnable {
