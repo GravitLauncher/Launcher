@@ -1,5 +1,6 @@
 package ru.gravit.utils.event;
 
+import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EventManager {
     public static final int QUEUE_MAX_SIZE = 2048;
@@ -31,6 +33,26 @@ public class EventManager {
         EventInterface event;
         UUID key;
     }
+    private EventExecutor executor;
+    private Thread executorThread;
+    private AtomicBoolean isStarted = new AtomicBoolean(false);
+    public synchronized void start()
+    {
+        if(isStarted.get()) return;
+        executor = new EventExecutor();
+        isStarted.set(true);
+        executorThread = CommonHelper.newThread("EventExecutor",true,executor);
+        executorThread.start();
+    }
+    public synchronized void stop()
+    {
+        if(!isStarted.get()) return;
+        executorThread.interrupt();
+        try {
+            executorThread.join();
+        } catch (InterruptedException ignored) {
+        }
+    }
     public ArrayList<Entry> handlers = new ArrayList<>(INITIAL_HANDLERS_SIZE);
     public BlockingQueue<QueueEntry> queue = new LinkedBlockingQueue<>(QUEUE_MAX_SIZE); //Максимальный размер очереди
     public int registerHandler(EventHandler<EventInterface> func, UUID[] events)
@@ -38,6 +60,10 @@ public class EventManager {
         Arrays.sort(events);
         handlers.add(new Entry(func,events));
         return handlers.size();
+    }
+    public void unregisterHandler(EventHandler<EventInterface> func)
+    {
+        handlers.removeIf(e -> e.func.equals(func));
     }
     public void sendEvent(UUID key, EventInterface event, boolean blocking)
     {
