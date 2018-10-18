@@ -1,6 +1,6 @@
 package ru.gravit.utils.event;
 
 @FunctionalInterface
-public interface EventHandler {
-    void run(EventInterface event);
+public interface EventHandler<T extends EventInterface> {
+    void run(T event);
 }
