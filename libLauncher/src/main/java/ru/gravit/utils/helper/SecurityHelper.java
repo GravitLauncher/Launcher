@@ -90,7 +90,7 @@ public final class SecurityHelper {
     @LauncherAPI
     public static final int TOKEN_LENGTH = 16;
     @LauncherAPI
-    public static final int AES_KEY_LENGTH = 24;
+    public static final int AES_KEY_LENGTH = 8;
     @LauncherAPI
     public static final int TOKEN_STRING_LENGTH = TOKEN_LENGTH << 1;
     @LauncherAPI
