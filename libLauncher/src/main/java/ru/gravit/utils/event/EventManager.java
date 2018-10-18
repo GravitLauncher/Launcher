@@ -57,12 +57,14 @@ public class EventManager {
     public BlockingQueue<QueueEntry> queue = new LinkedBlockingQueue<>(QUEUE_MAX_SIZE); //Максимальный размер очереди
     public int registerHandler(EventHandler<EventInterface> func, UUID[] events)
     {
+        if(isStarted.get()) throw new IllegalThreadStateException("It is forbidden to add a handler during thread operation.");
         Arrays.sort(events);
         handlers.add(new Entry(func,events));
         return handlers.size();
     }
     public void unregisterHandler(EventHandler<EventInterface> func)
     {
+        if(isStarted.get()) throw new IllegalThreadStateException("It is forbidden to remove a handler during thread operation.");
         handlers.removeIf(e -> e.func.equals(func));
     }
     public void sendEvent(UUID key, EventInterface event, boolean blocking)
