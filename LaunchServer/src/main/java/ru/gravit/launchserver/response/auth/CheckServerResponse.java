@@ -26,8 +26,9 @@ public final class CheckServerResponse extends Response {
         String serverID = VerifyHelper.verifyServerID(input.readASCII(41)); // With minus sign
         String client = input.readString(SerializeLimits.MAX_CLIENT);
         debug("Username: %s, Server ID: %s", username, serverID);
-        Client clientData = server.sessionManager.getClient(session);
-        if(!clientData.isAuth || clientData.type != Client.Type.SERVER) { requestError("Assess denied"); return;}
+        //Фитча оставлена до внедрения WebSockets
+        //Client clientData = server.sessionManager.getClient(session);
+        //if(!clientData.isAuth || clientData.type != Client.Type.SERVER) { requestError("Assess denied"); return;}
         // Try check server with auth handler
         UUID uuid;
         try {
