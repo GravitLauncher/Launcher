@@ -5,16 +5,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launchserver.response.auth.AuthServerResponse;
+import ru.gravit.launchserver.response.auth.*;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.response.auth.AuthResponse;
-import ru.gravit.launchserver.response.auth.CheckServerResponse;
-import ru.gravit.launchserver.response.auth.JoinServerResponse;
 import ru.gravit.launchserver.response.profile.BatchProfileByUsernameResponse;
 import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
 import ru.gravit.launchserver.response.profile.ProfileByUsernameResponse;
@@ -55,6 +52,7 @@ public abstract class Response {
         registerResponse(RequestType.UPDATE.getNumber(), UpdateResponse::new);
         registerResponse(RequestType.PROFILES.getNumber(), ProfilesResponse::new);
         registerResponse(RequestType.SERVERAUTH.getNumber(), AuthServerResponse::new);
+        registerResponse(RequestType.SETPROFILE.getNumber(), SetProfileResponse::new);
     }
 
 
