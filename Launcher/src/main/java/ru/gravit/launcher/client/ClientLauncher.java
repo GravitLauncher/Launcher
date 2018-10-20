@@ -162,7 +162,10 @@ public final class ClientLauncher {
     private static final String SOCKET_HOST = "127.0.0.1";
     private static final int SOCKET_PORT = Launcher.getConfig().clientPort;
     private static final String MAGICAL_INTEL_OPTION = "-XX:HeapDumpPath=ThisTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
-    private static final boolean isUsingWrapper = true;
+    private static final boolean isUsingWrapper = Launcher.getConfig().isUsingWrapper;
+    private static final boolean isDownloadJava = Launcher.getConfig().isDownloadJava;
+
+    private static Path JavaBinPath;
     @SuppressWarnings("unused")
     private static final Set<PosixFilePermission> BIN_POSIX_PERMISSIONS = Collections.unmodifiableSet(EnumSet.of(
             PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE, // Owner
@@ -227,6 +230,10 @@ public final class ClientLauncher {
             Collections.addAll(args, "--height", Integer.toString(params.height));
         }
     }
+    @LauncherAPI
+    public static void setJavaBinPath(Path javaBinPath) {
+        JavaBinPath = javaBinPath;
+    }
 
     private static void addClientLegacyArgs(Collection<String> args, ClientProfile profile, Params params) {
         args.add(params.pp.username);
@@ -288,7 +295,6 @@ public final class ClientLauncher {
     private static Process process = null;
     @LauncherAPI
     public static Process launch(
-
             SignedObjectHolder<HashedDir> assetHDir, SignedObjectHolder<HashedDir> clientHDir,
             SignedObjectHolder<ClientProfile> profile, Params params, boolean pipeOutput) throws Throwable {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
@@ -331,9 +337,17 @@ public final class ClientLauncher {
         checkJVMBitsAndVersion();
         // Fill CLI arguments
         List<String> args = new LinkedList<>();
-        boolean wrapper = isUsingWrapper() && Launcher.isUsingAvanguard();
+        boolean wrapper = isUsingWrapper();
         Path javaBin;
         if (wrapper) javaBin = JVMHelper.JVM_BITS == 64 ? AvanguardStarter.wrap64 : AvanguardStarter.wrap32;
+        else if(isDownloadJava)
+        {
+            //Linux и Mac не должны скачивать свою JVM
+            if(JVMHelper.OS_TYPE == OS.MUSTDIE)
+                javaBin = IOHelper.resolveJavaBin(JavaBinPath);
+            else
+                javaBin = Paths.get(System.getProperty("java.home") + IOHelper.PLATFORM_SEPARATOR + "bin" + IOHelper.PLATFORM_SEPARATOR + "java");
+        }
         else
             javaBin = Paths.get(System.getProperty("java.home") + IOHelper.PLATFORM_SEPARATOR + "bin" + IOHelper.PLATFORM_SEPARATOR + "java");
         args.add(javaBin.toString());

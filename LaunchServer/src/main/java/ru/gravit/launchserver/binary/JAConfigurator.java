@@ -88,6 +88,16 @@ public class JAConfigurator implements AutoCloseable {
         body.append(port);
         body.append(";");
     }
+    public void setUsingWrapper(boolean b) {
+        body.append("this.isUsingWrapper = ");
+        body.append(b ? "true" : "false");
+        body.append(";");
+    }
+    public void setDownloadJava(boolean b) {
+        body.append("this.isDownloadJava = ");
+        body.append(b ? "true" : "false");
+        body.append(";");
+    }
 
     public ClassPool getPool() {
         return pool;

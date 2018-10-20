@@ -174,6 +174,8 @@ public final class JARLauncherBinary extends LauncherBinary {
             jaConfigurator.setProjectName(server.config.projectName);
             jaConfigurator.setSecretKey(SecurityHelper.randomStringAESKey());
             jaConfigurator.setClientPort(32148 + SecurityHelper.newRandom().nextInt(512));
+            jaConfigurator.setUsingWrapper(server.config.isUsingWrapper);
+            jaConfigurator.setDownloadJava(server.config.isDownloadJava);
             server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
             try (ZipInputStream input = new ZipInputStream(
                     IOHelper.newInput(IOHelper.getResourceURL("Launcher.jar")))) {

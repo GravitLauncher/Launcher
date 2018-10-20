@@ -42,6 +42,9 @@ public final class LauncherConfig extends StreamObject {
     @LauncherAPI
     public final Map<String, byte[]> runtime;
 
+    public final boolean isUsingWrapper;
+    public final boolean isDownloadJava;
+
     @LauncherAPI
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
         String localAddress = config.address;
@@ -51,6 +54,8 @@ public final class LauncherConfig extends StreamObject {
         projectname = config.projectname;
         clientPort = config.clientPort;
         secretKeyClient = config.secretKeyClient;
+        isDownloadJava = config.isDownloadJava;
+        isUsingWrapper = config.isUsingWrapper;
         // Read signed runtime
         int count = input.readLength(0);
         Map<String, byte[]> localResources = new HashMap<>(count);
@@ -75,6 +80,8 @@ public final class LauncherConfig extends StreamObject {
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectname = projectname;
         this.clientPort = 32148;
+        isUsingWrapper = true;
+        isDownloadJava = false;
     }
 
     @LauncherAPI
@@ -85,6 +92,8 @@ public final class LauncherConfig extends StreamObject {
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectname = "Minecraft";
         this.clientPort = 32148;
+        isUsingWrapper = true;
+        isDownloadJava = false;
     }
 
     @Override

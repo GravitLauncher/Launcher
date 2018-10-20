@@ -99,6 +99,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         public final String whitelistRejectString;
 
         public final boolean genMappings;
+        public final boolean isUsingWrapper;
+        public final boolean isDownloadJava;
 
         public ListConfigEntry mirrors;
         public final String binaryName;
@@ -142,6 +144,9 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             binaryName = block.getEntryValue("binaryName", StringConfigEntry.class);
             projectName = block.hasEntry("projectName") ? block.getEntryValue("projectName", StringConfigEntry.class) : "Minecraft";
             compress = block.getEntryValue("compress", BooleanConfigEntry.class);
+
+            isUsingWrapper = block.getEntryValue("isUsingWrapper", BooleanConfigEntry.class);
+            isDownloadJava = block.getEntryValue("isDownloadJava", BooleanConfigEntry.class);
         }
 
 
