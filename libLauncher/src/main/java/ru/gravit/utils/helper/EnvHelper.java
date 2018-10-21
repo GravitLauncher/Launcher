@@ -8,13 +8,10 @@ import java.util.regex.Pattern;
 
 import ru.gravit.launcher.LauncherAPI;
 
-@LauncherAPI
 public class EnvHelper {
     private static final boolean TST;
     private static final boolean HASXM;
-    @LauncherAPI
     public static final String[] toTest;
-    @LauncherAPI
     public static final Pattern[] test;
 
     static {
@@ -24,7 +21,6 @@ public class EnvHelper {
         HASXM = check1();
     }
 
-    @LauncherAPI
     public static void addEnv(ProcessBuilder builder) {
         if (hasOptsVar()) {
             Map<String, String> repl = new HashMap<>();
@@ -33,6 +29,14 @@ public class EnvHelper {
                 repl.put(str.toLowerCase(Locale.ENGLISH), "");
             }
             JVMHelper.appendVars(builder, repl);
+        }
+    }
+    public static void checkDangerousParametrs()
+    {
+        for(String t : toTest)
+        {
+            String env = System.getenv(t);
+            if(env.contains("-javaagent") || env.contains("-agentpath") || env.contains("-agentlib")) throw new SecurityException("JavaAgent in global optings not allow");
         }
     }
 
