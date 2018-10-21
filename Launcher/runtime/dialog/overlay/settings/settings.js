@@ -119,7 +119,7 @@ var settings = {
         settings.profile = 0;
 
         // Client settings
-        settings.updatesDir = defaultUpdatesDir;
+        settings.updatesDir = DirBridge.defaultUpdatesDir;
         settings.autoEnter = config.autoEnterDefault;
         settings.fullScreen = config.fullScreenDefault;
         settings.setRAM(config.ramDefault);

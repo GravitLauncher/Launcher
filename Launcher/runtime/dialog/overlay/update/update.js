@@ -75,7 +75,7 @@ var update = {
 function makeUpdateRequest(dirName, dir, matcher, digest, callback) {
     var request = settings.offline ? { setStateCallback: function(stateCallback) { /* Ignored */ } } :
         new UpdateRequest(dirName, dir, matcher, digest);
-    var task = settings.offline ? newTask(FunctionalBridge.offlineUpdateRequest(dirName, dir, matcher, digest)) :
+    var task = settings.offline ? newTask(FunctionalBridge.offlineUpdateRequest(dirName, dir, settings.lastHDirs.get(dirName), matcher, digest)) :
         newRequestTask(request);
 
     // Set task properties and start
