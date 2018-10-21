@@ -71,25 +71,11 @@ var update = {
     }
 };
 
-function offlineUpdateRequest(dirName, dir, matcher, digest) {
-    return function() {
-        var hdir = settings.lastHDirs.get(dirName);
-        if (hdir === null) {
-            Request.requestError(java.lang.String.format("Директории '%s' нет в кэше", dirName));
-            return;
-        }
-
-        // Verify dir with matcher using ClientLauncher's API
-        ClientLauncher.verifyHDir(dir, hdir.object, matcher, digest);
-        return hdir;
-    };
-}
-
 /* Export functions */
 function makeUpdateRequest(dirName, dir, matcher, digest, callback) {
     var request = settings.offline ? { setStateCallback: function(stateCallback) { /* Ignored */ } } :
         new UpdateRequest(dirName, dir, matcher, digest);
-    var task = settings.offline ? newTask(offlineUpdateRequest(dirName, dir, matcher, digest)) :
+    var task = settings.offline ? newTask(FunctionalBridge.offlineUpdateRequest(dirName, dir, matcher, digest)) :
         newRequestTask(request);
 
     // Set task properties and start

@@ -133,6 +133,7 @@ public class LauncherEngine {
         bindings.put("DigestAlgorithmClass", SecurityHelper.DigestAlgorithm.class);
         bindings.put("VerifyHelperClass", VerifyHelper.class);
         bindings.put("DirBridgeClass", DirBridge.class);
+        bindings.put("FunctionalBridgeClass",FunctionalBridge.class);
 
         // Load JS API if available
         bindings.put("RingProgressIndicatorClass", RingProgressIndicator.class);
