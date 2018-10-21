@@ -17,11 +17,11 @@ var config = {
 };
 
 // ====== DON'T TOUCH! ====== //
-var dir = IOHelper.HOME_DIR.resolve(config.dir);
-if (!IOHelper.isDir(dir)) {
-    java.nio.file.Files.createDirectory(dir);
+DirBridge.dir = IOHelper.HOME_DIR.resolve(config.dir);
+if (!IOHelper.isDir(DirBridge.dir)) {
+    java.nio.file.Files.createDirectory(DirBridge.dir);
 }
-var defaultUpdatesDir = dir.resolve("updates");
-if (!IOHelper.isDir(defaultUpdatesDir)) {
-    java.nio.file.Files.createDirectory(defaultUpdatesDir);
+DirBridge.defaultUpdatesDir = DirBridge.dir.resolve("updates");
+if (!IOHelper.isDir(DirBridge.defaultUpdatesDir)) {
+    java.nio.file.Files.createDirectory(DirBridge.defaultUpdatesDir);
 }

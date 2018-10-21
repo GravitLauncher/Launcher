@@ -346,10 +346,10 @@ public final class ClientLauncher {
             if(JVMHelper.OS_TYPE == OS.MUSTDIE)
                 javaBin = IOHelper.resolveJavaBin(JavaBinPath);
             else
-                javaBin = Paths.get(System.getProperty("java.home") + IOHelper.PLATFORM_SEPARATOR + "bin" + IOHelper.PLATFORM_SEPARATOR + "java");
+                javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
         }
         else
-            javaBin = Paths.get(System.getProperty("java.home") + IOHelper.PLATFORM_SEPARATOR + "bin" + IOHelper.PLATFORM_SEPARATOR + "java");
+            javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
         args.add(javaBin.toString());
         args.add(MAGICAL_INTEL_OPTION);
         if (params.ram > 0 && params.ram <= JVMHelper.RAM) {

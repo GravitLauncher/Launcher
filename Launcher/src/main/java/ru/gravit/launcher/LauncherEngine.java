@@ -16,10 +16,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import ru.gravit.launcher.client.ClientLauncher;
-import ru.gravit.launcher.client.ClientModuleManager;
-import ru.gravit.launcher.client.JSApplication;
-import ru.gravit.launcher.client.ServerPinger;
+import ru.gravit.launcher.client.*;
 import ru.gravit.launcher.gui.buttons.RingProgressIndicator;
 import ru.gravit.launcher.gui.buttons.RingProgressIndicatorSkin;
 import ru.gravit.launcher.hasher.FileNameMatcher;
@@ -135,6 +132,7 @@ public class LauncherEngine {
         bindings.put("SecurityHelperClass", SecurityHelper.class);
         bindings.put("DigestAlgorithmClass", SecurityHelper.DigestAlgorithm.class);
         bindings.put("VerifyHelperClass", VerifyHelper.class);
+        bindings.put("DirBridgeClass", DirBridge.class);
 
         // Load JS API if available
         bindings.put("RingProgressIndicatorClass", RingProgressIndicator.class);
@@ -206,7 +204,7 @@ public class LauncherEngine {
         LogHelper.info("Invoking start() function");
         Invocable invoker = (Invocable) engine;
         if (Launcher.isUsingAvanguard()) {
-            AvanguardStarter.start((Path) invoker.invokeFunction("getPathDirHelper"));
+            AvanguardStarter.start(DirBridge.dir);
             AvanguardStarter.loadVared();
             AvanguardStarter.main(false);
         }

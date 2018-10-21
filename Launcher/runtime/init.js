@@ -1,10 +1,5 @@
 var app, stage, scene;
 
-// internal
-function getPathDirHelper() {
-	return dir;
-}
-
 // Override application class
 var LauncherApp = Java.extend(JSApplication, {
     init: function() {

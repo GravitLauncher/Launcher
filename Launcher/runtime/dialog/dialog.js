@@ -10,7 +10,7 @@ function initDialog() {
     // Lookup news WebView
     news = rootPane.lookup("#news");
     var newsEngine = news.getEngine();
-    newsEngine.setUserDataDirectory(dir.resolve("webview").toFile());
+    newsEngine.setUserDataDirectory(DirBridge.dir.resolve("webview").toFile());
     newsEngine.load(config.newsURL);
 
     // Lookup auth pane and dim

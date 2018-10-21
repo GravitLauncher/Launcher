@@ -1,5 +1,5 @@
 var settings = {
-    file: dir.resolve("settings.bin"), // Settings file
+    file: DirBridge.dir.resolve("settings.bin"), // Settings file
     login: null, rsaPassword: null, profile: 0, // Auth
     updatesDir: null, autoEnter: false, fullScreen: false, ram: 0, // Client
 
