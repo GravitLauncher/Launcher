@@ -266,7 +266,7 @@ public final class ClientLauncher {
         return Launcher.LAUNCHED.get();
     }
 
-    @LauncherAPI
+
     public static boolean isUsingWrapper() {
         return JVMHelper.OS_TYPE == OS.MUSTDIE && isUsingWrapper;
     }
@@ -509,7 +509,6 @@ public final class ClientLauncher {
         LogHelper.debug("New Profile name: %s", profile.getTitle());
     }
 
-    @LauncherAPI
     public static void verifyHDir(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) throws IOException {
         if (matcher != null)
             matcher = matcher.verifyOnly();
