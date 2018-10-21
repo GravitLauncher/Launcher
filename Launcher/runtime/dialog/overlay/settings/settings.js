@@ -22,7 +22,7 @@ var settingsClass = Java.extend(LauncherSettingsClass.static, {
 
     setPassword: function(password) {
         var encrypted = SecurityHelper.newRSAEncryptCipher(Launcher.getConfig().publicKey).doFinal(IOHelper.encode(password));
-        settings.password = encrypted;
+        //settings.password = encrypted;
         return encrypted;
     }
 
@@ -34,26 +34,26 @@ var settingsOverlay = {
     deleteDirPressedAgain: false,
 
     initOverlay: function() {
-        settings.overlay = loadFXML("dialog/overlay/settings/settings.fxml");
+        settingsOverlay.overlay = loadFXML("dialog/overlay/settings/settings.fxml");
 
         // Lookup autoEnter checkbox
-        var autoEnterBox = settings.overlay.lookup("#autoEnter");
+        var autoEnterBox = settingsOverlay.overlay.lookup("#autoEnter");
         autoEnterBox.setSelected(settings.autoEnter);
         autoEnterBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) settings.autoEnter = nv);
 
         // Lookup fullScreen checkbox
-        var fullScreenBox = settings.overlay.lookup("#fullScreen");
+        var fullScreenBox = settingsOverlay.overlay.lookup("#fullScreen");
         fullScreenBox.setSelected(settings.fullScreen);
         fullScreenBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) settings.fullScreen = nv);
 
         // Lookup RAM label
-        settings.ramLabel = settings.overlay.lookup("#ramLabel");
-        settings.updateRAMLabel();
+        settingsOverlay.ramLabel = settingsOverlay.overlay.lookup("#ramLabel");
+        settingsOverlay.updateRAMLabel();
 
         // Lookup RAM slider options
-        var ramSlider = settings.overlay.lookup("#ramSlider");
+        var ramSlider = settingsOverlay.overlay.lookup("#ramSlider");
         ramSlider.setMin(0);
         ramSlider.setMax(JVMHelper.RAM);
         ramSlider.setSnapToTicks(true);
@@ -65,17 +65,17 @@ var settingsOverlay = {
         ramSlider.setValue(settings.ram);
         ramSlider.valueProperty()["addListener(javafx.beans.value.ChangeListener)"](function(o, ov, nv) {
             settings.setRAM(nv);
-            settings.updateRAMLabel();
+            settingsOverlay.updateRAMLabel();
         });
 
         // Lookup dir label
-        settings.dirLabel = settings.overlay.lookup("#dirLabel");
-        settings.dirLabel.setOnAction(function(event)
+        settingsOverlay.dirLabel = settingsOverlay.overlay.lookup("#dirLabel");
+        settingsOverlay.dirLabel.setOnAction(function(event)
             app.getHostServices().showDocument(settings.updatesDir.toUri()));
-        settings.updateDirLabel();
+        settingsOverlay.updateDirLabel();
 
         // Lookup change dir button
-        settings.overlay.lookup("#changeDir").setOnAction(function(event) {
+        settingsOverlay.overlay.lookup("#changeDir").setOnAction(function(event) {
             var chooser = new javafx.stage.DirectoryChooser();
             chooser.setTitle("Сменить директорию загрузок");
             chooser.setInitialDirectory(dir.toFile());
@@ -89,53 +89,54 @@ var settingsOverlay = {
         });
 
         // Lookup delete dir button
-        var deleteDirButton = settings.overlay.lookup("#deleteDir");
+        var deleteDirButton = settingsOverlay.overlay.lookup("#deleteDir");
         deleteDirButton.setOnAction(function(event) {
-            if (!settings.deleteDirPressedAgain) {
-                settings.deleteDirPressedAgain = true;
+            if (!settingsOverlay.deleteDirPressedAgain) {
+                settingsOverlay.deleteDirPressedAgain = true;
                 deleteDirButton.setText("Подтвердить вменяемость");
                 return;
             }
 
             // Delete dir!
-            settings.deleteUpdatesDir();
-            settings.deleteDirPressedAgain = false;
+            settingsOverlay.deleteUpdatesDir();
+            settingsOverlay.deleteDirPressedAgain = false;
             deleteDirButton.setText("Ещё раз попробовать");
         });
 
         // Lookup debug checkbox
-        var debugBox = settings.overlay.lookup("#debug");
+        var debugBox = settingsOverlay.overlay.lookup("#debug");
         debugBox.setSelected(LogHelper.isDebugEnabled());
         debugBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) LogHelper.setDebugEnabled(nv));
 
         // Lookup apply settings button
-        settings.overlay.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
+        settingsOverlay.overlay.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
     },
 
     updateRAMLabel: function() {
-        settings.ramLabel.setText(settings.ram <= 0 ? "Автоматически" : settings.ram + " MiB");
+        settingsOverlay.ramLabel.setText(settings.ram <= 0 ? "Автоматически" : settings.ram + " MiB");
     },
 
     deleteUpdatesDir: function() {
         processing.description.setText("Удаление директории загрузок");
         overlay.swap(0, processing.overlay, function(event) {
             var task = newTask(function() IOHelper.deleteDir(settings.updatesDir, false));
-            task.setOnSucceeded(function(event) overlay.swap(0, settings.overlay, null));
+            task.setOnSucceeded(function(event) overlay.swap(0, settingsOverlay.overlay, null));
             task.setOnFailed(function(event) {
                 processing.setError(task.getException());
-                overlay.swap(2500, settings.overlay, null);
+                overlay.swap(2500, settingsOverlay.overlay, null);
             });
             startTask(task);
         });
     },
 
     updateDirLabel: function() {
-        settings.dirLabel.setText(IOHelper.toString(settings.updatesDir));
+        settingsOverlay.dirLabel.setText(IOHelper.toString(settings.updatesDir));
     }
 };
+var settings = new settingsClass;
 /* ====================== CLI PARAMS ===================== */
-var cliParamsClass = Java.extend(CliParamsInterface.static, {
+var cliParams = {
     login: null, password: null, profile: -1, autoLogin: false, // Auth
     updatesDir: null, autoEnter: null, fullScreen: null, ram: -1, // Client
     offline: false, // Offline
@@ -192,7 +193,7 @@ var cliParamsClass = Java.extend(CliParamsInterface.static, {
 
         // Apply client params
         if (cliParams.updatesDir !== null) {
-            settings.updatesDir = cliParams.updatesDir;
+            //settings.updatesDir = cliParams.updatesDir;
         }
         if (cliParams.autoEnter !== null) {
             settings.autoLogin = cliParams.autoEnter;
@@ -209,7 +210,4 @@ var cliParamsClass = Java.extend(CliParamsInterface.static, {
             settings.offline = cliParams.offline;
         }
     }
-});
-var cliParams = new cliParamsClass;
-var settings = new settingsClass;
-settings.cliParams = cliParams;
+};

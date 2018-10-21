@@ -6,6 +6,7 @@ var LauncherApp = Java.extend(JSApplication, {
         app = JSApplication.getInstance();
         cliParams.init(app.getParameters());
         settings.load();
+        cliParams.applySettings();
     }, start: function(primaryStage) {
         stage = primaryStage;
         stage.setTitle(config.title);

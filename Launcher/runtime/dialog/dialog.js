@@ -20,7 +20,7 @@ function initDialog() {
     // Init overlays
     debug.initOverlay();
     processing.initOverlay();
-    settings.initOverlay();
+    settingsOverlay.initOverlay();
     update.initOverlay();
 
     // Verify launcher & make request
@@ -135,7 +135,7 @@ function goSettings(event) {
     }
 
     // Show settings overlay
-    overlay.show(settings.overlay, null);
+    overlay.show(settingsOverlay.overlay, null);
 }
 
 /* ======== Processing functions ======== */

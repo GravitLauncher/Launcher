@@ -9,16 +9,19 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.helper.*;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.SignatureException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class LauncherSettings {
-    public static int settingsMagic;
+    public static int settingsMagic = 0xc0de5;
     @LauncherAPI
     public Path file = DirBridge.dir.resolve("settings.bin");
     @LauncherAPI
@@ -37,23 +40,33 @@ public class LauncherSettings {
     public boolean offline;
     @LauncherAPI
     public int ram;
-    @LauncherAPI
-    public CliParamsInterface cliParams;
 
     @LauncherAPI
     public byte[] lastSign;
     @LauncherAPI
-    public LinkedList<SignedObjectHolder<ClientProfile>> lastProfiles;
+    public List<SignedObjectHolder<ClientProfile>> lastProfiles = new LinkedList<>();
     @LauncherAPI
-    public HashMap<String,SignedObjectHolder<HashedDir>> lastHDirs;
+    public Map<String,SignedObjectHolder<HashedDir>> lastHDirs = new HashMap<>(16);
     @LauncherAPI
-    public void load()
-    {
+    public void load() throws SignatureException {
         LogHelper.debug("Loading settings file");
         try {
             try(HInput input = new HInput(IOHelper.newInput(file)))
             {
-
+                read(input);
+            }
+        } catch(IOException e) {
+            LogHelper.error(e);
+            setDefault();
+        }
+    }
+    @LauncherAPI
+    public void save() throws SignatureException {
+        LogHelper.debug("Save settings file");
+        try {
+            try(HOutput output = new HOutput(IOHelper.newOutput(file)))
+            {
+                write(output);
             }
         } catch(IOException e) {
             LogHelper.error(e);
@@ -100,7 +113,6 @@ public class LauncherSettings {
             VerifyHelper.putIfAbsent(lastHDirs, name, new SignedObjectHolder<>(input, publicKey, HashedDir::new),
             java.lang.String.format("Duplicate offline hashed dir: '%s'", name));
         }
-        cliParams.applySettings();
     }
     @LauncherAPI
     public void write(HOutput output) throws IOException {
@@ -166,8 +178,10 @@ public class LauncherSettings {
         lastSign = null;
         lastProfiles.clear();
         lastHDirs.clear();
-
-        // Apply CLI params
-        cliParams.applySettings();
+    }
+    @LauncherAPI
+    public byte[] setPassword(String password) throws BadPaddingException, IllegalBlockSizeException {
+        byte[] encrypted = SecurityHelper.newRSAEncryptCipher(Launcher.getConfig().publicKey).doFinal(IOHelper.encode(password));
+        return encrypted;
     }
 }
