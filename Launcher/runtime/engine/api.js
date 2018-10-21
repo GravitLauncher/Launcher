@@ -67,6 +67,7 @@ var DigestAlgorithm = DigestAlgorithmClass.static;
 var VerifyHelper = VerifyHelperClass.static;
 var RingProgressIndicator = RingProgressIndicatorClass.static
 var RingProgressIndicatorSkin = RingProgressIndicatorSkinClass.static
+var LauncherSettings = LauncherSettingsClass.static
 
 // Helper JS class API imports
 var JSApplication = null;

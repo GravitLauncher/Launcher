@@ -134,6 +134,8 @@ public class LauncherEngine {
         bindings.put("VerifyHelperClass", VerifyHelper.class);
         bindings.put("DirBridgeClass", DirBridge.class);
         bindings.put("FunctionalBridgeClass",FunctionalBridge.class);
+        bindings.put("LauncherSettingsClass",LauncherSettings.class);
+        bindings.put("CliParamsInterface",CliParamsInterface.class);
 
         // Load JS API if available
         bindings.put("RingProgressIndicatorClass", RingProgressIndicator.class);

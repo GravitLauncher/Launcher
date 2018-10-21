@@ -1,117 +1,4 @@
-var settings = {
-    file: DirBridge.dir.resolve("settings.bin"), // Settings file
-    login: null, rsaPassword: null, profile: 0, // Auth
-    updatesDir: null, autoEnter: false, fullScreen: false, ram: 0, // Client
-
-    // Offline cache
-    offline: false,
-    lastSign: null,
-    lastProfiles: new java.util.LinkedList(),
-    lastHDirs: new java.util.HashMap(16),
-
-    /* Settings and overlay functions */
-    load: function() {
-        LogHelper.debug("Loading settings file");
-        try {
-            tryWithResources(new HInput(IOHelper.newInput(settings.file)), settings.read);
-        } catch(e) {
-            LogHelper.error(e);
-            settings.setDefault();
-        }
-    },
-
-    save: function() {
-        LogHelper.debug("Saving settings file");
-        try {
-            tryWithResources(new HOutput(IOHelper.newOutput(settings.file)), settings.write);
-        } catch(e) {
-            LogHelper.error(e);
-        }
-    },
-
-    // Internal functions
-    read: function(input) {
-        var magic = input.readInt();
-        if (magic != config.settingsMagic) {
-            throw new java.io.IOException("Settings magic mismatch: " + java.lang.Integer.toString(magic, 16));
-        }
-
-        // Launcher settings
-        var debug = input.readBoolean();
-        if (!LogHelper.isDebugEnabled() && debug) {
-            LogHelper.setDebugEnabled(true);
-        }
-
-        // Auth settings
-        settings.login = input.readBoolean() ? input.readString(255) : null;
-        settings.rsaPassword = input.readBoolean() ? input.readByteArray(IOHelper.BUFFER_SIZE) : null;
-        settings.profile = input.readLength(0);
-
-        // Client settings
-        settings.updatesDir = IOHelper.toPath(input.readString(0));
-        settings.autoEnter = input.readBoolean();
-        settings.fullScreen = input.readBoolean();
-        settings.setRAM(input.readLength(JVMHelper.RAM));
-
-        // Offline cache
-        var publicKey = Launcher.getConfig().publicKey;
-        settings.lastSign = input.readBoolean() ? input.readByteArray(-SecurityHelper.RSA_KEY_LENGTH) : null;
-        settings.lastProfiles.clear();
-        var lastProfilesCount = input.readLength(0);
-        for (var i = 0; i < lastProfilesCount; i++) {
-            settings.lastProfiles.add(new SignedObjectHolder(input, publicKey, ClientProfile.RO_ADAPTER));
-        }
-        settings.lastHDirs.clear();
-        var lastHDirsCount = input.readLength(0);
-        for (var i = 0; i < lastHDirsCount; i++) {
-            var name = IOHelper.verifyFileName(input.readString(255));
-            VerifyHelper.putIfAbsent(settings.lastHDirs, name, new SignedObjectHolder(input, publicKey, function(i) new HashedDir(i)),
-                java.lang.String.format("Duplicate offline hashed dir: '%s'", name));
-        }
-
-        // Apply CLI params
-        cliParams.applySettings();
-    },
-
-    write: function(output) {
-        output.writeInt(config.settingsMagic);
-
-        // Launcher settings
-        output.writeBoolean(LogHelper.isDebugEnabled());
-
-        // Auth settings
-        output.writeBoolean(settings.login !== null);
-        if (settings.login !== null) {
-            output.writeString(settings.login, 255);
-        }
-        output.writeBoolean(settings.rsaPassword !== null);
-        if (settings.rsaPassword !== null) {
-            output.writeByteArray(settings.rsaPassword, IOHelper.BUFFER_SIZE);
-        }
-        output.writeLength(settings.profile, 0);
-
-        // Client settings
-        output.writeString(IOHelper.toString(settings.updatesDir), 0);
-        output.writeBoolean(settings.autoEnter);
-        output.writeBoolean(settings.fullScreen);
-        output.writeLength(settings.ram, JVMHelper.RAM);
-
-        // Offline cache
-        output.writeBoolean(settings.lastSign !== null);
-        if (settings.lastSign !== null) {
-            output.writeByteArray(settings.lastSign, -SecurityHelper.RSA_KEY_LENGTH);
-        }
-        output.writeLength(settings.lastProfiles.size(), 0);
-        for each (var profile in settings.lastProfiles) {
-            profile.write(output);
-        }
-        output.writeLength(settings.lastHDirs.size(), 0);
-        for each (var entry in settings.lastHDirs.entrySet()) {
-            output.writeString(entry.getKey(), 0);
-            entry.getValue().write(output);
-        }
-    },
-
+var settingsClass = Java.extend(LauncherSettingsClass.static, {
     setDefault: function() {
         // Auth settings
         settings.login = null;
@@ -137,13 +24,12 @@ var settings = {
         var encrypted = SecurityHelper.newRSAEncryptCipher(Launcher.getConfig().publicKey).doFinal(IOHelper.encode(password));
         settings.password = encrypted;
         return encrypted;
-    },
+    }
 
-    setRAM: function(ram) {
-        settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, JVMHelper.RAM);
-    },
 
-    /* ===================== OVERLAY ===================== */
+});
+var settingsOverlay = {
+/* ===================== OVERLAY ===================== */
     overlay: null, ramLabel: null, dirLabel: null,
     deleteDirPressedAgain: false,
 
@@ -248,9 +134,8 @@ var settings = {
         settings.dirLabel.setText(IOHelper.toString(settings.updatesDir));
     }
 };
-
 /* ====================== CLI PARAMS ===================== */
-var cliParams = {
+var cliParamsClass = Java.extend(CliParamsInterface.static, {
     login: null, password: null, profile: -1, autoLogin: false, // Auth
     updatesDir: null, autoEnter: null, fullScreen: null, ram: -1, // Client
     offline: false, // Offline
@@ -324,4 +209,7 @@ var cliParams = {
             settings.offline = cliParams.offline;
         }
     }
-};
+});
+var cliParams = new cliParamsClass;
+var settings = new settingsClass;
+settings.cliParams = cliParams;

@@ -1,13 +1,12 @@
 package ru.gravit.launcher.client;
 
 import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
-import ru.gravit.utils.event.EventManager;
 import ru.gravit.utils.helper.*;
 
 import java.io.IOException;
@@ -20,18 +19,34 @@ import java.util.Map;
 
 public class LauncherSettings {
     public static int settingsMagic;
-    Path file = DirBridge.dir.resolve("settings.bin");
-    String login;
-    byte[] rsaPassword;
-    int profile;
-    Path updatesDir;
-    boolean autoEnter;
-    boolean fullScreen;
-    int ram;
+    @LauncherAPI
+    public Path file = DirBridge.dir.resolve("settings.bin");
+    @LauncherAPI
+    public String login;
+    @LauncherAPI
+    public byte[] rsaPassword;
+    @LauncherAPI
+    public int profile;
+    @LauncherAPI
+    public Path updatesDir;
+    @LauncherAPI
+    public boolean autoEnter;
+    @LauncherAPI
+    public boolean fullScreen;
+    @LauncherAPI
+    public boolean offline;
+    @LauncherAPI
+    public int ram;
+    @LauncherAPI
+    public CliParamsInterface cliParams;
 
-    byte[] lastSign;
-    LinkedList<SignedObjectHolder<ClientProfile>> lastProfiles;
-    HashMap<String,SignedObjectHolder<HashedDir>> lastHDirs;
+    @LauncherAPI
+    public byte[] lastSign;
+    @LauncherAPI
+    public LinkedList<SignedObjectHolder<ClientProfile>> lastProfiles;
+    @LauncherAPI
+    public HashMap<String,SignedObjectHolder<HashedDir>> lastHDirs;
+    @LauncherAPI
     public void load()
     {
         LogHelper.debug("Loading settings file");
@@ -45,6 +60,7 @@ public class LauncherSettings {
             setDefault();
         }
     }
+    @LauncherAPI
     public void read(HInput input) throws IOException, SignatureException
     {
         int magic = input.readInt();
@@ -84,8 +100,9 @@ public class LauncherSettings {
             VerifyHelper.putIfAbsent(lastHDirs, name, new SignedObjectHolder<>(input, publicKey, HashedDir::new),
             java.lang.String.format("Duplicate offline hashed dir: '%s'", name));
         }
-        //cliParams.applySettings();
+        cliParams.applySettings();
     }
+    @LauncherAPI
     public void write(HOutput output) throws IOException {
         output.writeInt(settingsMagic);
 
@@ -115,19 +132,21 @@ public class LauncherSettings {
             output.writeByteArray(lastSign, -SecurityHelper.RSA_KEY_LENGTH);
         }
         output.writeLength(lastProfiles.size(), 0);
-        for(SignedObjectHolder<ClientProfile> profile : lastProfiles) {
-        profile.write(output);
-    }
+        for (SignedObjectHolder<ClientProfile> profile : lastProfiles) {
+            profile.write(output);
+        }
         output.writeLength(lastHDirs.size(), 0);
-        for(Map.Entry<String,SignedObjectHolder<HashedDir>> entry : lastHDirs.entrySet()) {
-        output.writeString(entry.getKey(), 0);
-        entry.getValue().write(output);
+        for (Map.Entry<String, SignedObjectHolder<HashedDir>> entry : lastHDirs.entrySet()) {
+            output.writeString(entry.getKey(), 0);
+            entry.getValue().write(output);
+        }
     }
-    }
+    @LauncherAPI
     public void setRAM(int ram)
     {
         ram = java.lang.Math.min(((ram / 256)) * 256, JVMHelper.RAM);
     }
+    @LauncherAPI
     public void setDefault()
     {
         // Auth settings
@@ -149,6 +168,6 @@ public class LauncherSettings {
         lastHDirs.clear();
 
         // Apply CLI params
-        //cliParams.applySettings();
+        cliParams.applySettings();
     }
 }
