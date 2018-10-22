@@ -10,34 +10,36 @@ import ru.gravit.launcher.LauncherAPI;
 
 public class EnvHelper {
     private static final boolean TST;
-    private static final boolean HASXM;
+    private static final boolean HASXW;
     public static final String[] toTest;
     public static final Pattern[] test;
 
     static {
         toTest = new String[]{"_JAVA_OPTIONS", "_JAVA_OPTS", "JAVA_OPTS", "JAVA_OPTIONS"};
-        test = new Pattern[]{Pattern.compile("-Xm.*\\d+[KMG]")};
+        test = new Pattern[]{Pattern.compile("-xm.*\\d+[KMG]")};
         TST = check0();
         HASXM = check1();
     }
 
     public static void addEnv(ProcessBuilder builder) {
-        if (hasOptsVar()) {
+        if (hasOptsEnv()) {
             Map<String, String> repl = new HashMap<>();
             for (String str : toTest) {
                 repl.put(str, "");
-                repl.put(str.toLowerCase(Locale.ENGLISH), "");
+                repl.put(str.toLowerCase(Locale.US), "");
             }
             JVMHelper.appendVars(builder, repl);
         }
     }
     public static void checkDangerousParametrs()
     {
-        for(String t : toTest)
-        {
-            String env = System.getenv(t);
-            if(env.contains("-javaagent") || env.contains("-agentpath") || env.contains("-agentlib")) throw new SecurityException("JavaAgent in global optings not allow");
-        }
+        if (hasOptsEnv())
+            for(String t : toTest)
+            {
+                String env = System.getenv(t).toLowerCase(Locale.US);
+                if (env != null)
+                    if (env.contains("-cp") || env.contains("-classpath") || env.contains("-javaagent") || env.contains("-agentpath") || env.contains("-agentlib")) throw new SecurityException("JavaAgent in global optings not allow");
+            }
     }
 
     private static boolean check0() {
@@ -49,10 +51,10 @@ public class EnvHelper {
      * Вынужденное решение ибо тест на наличие -Xm* этакой нужен.
      */
     private static boolean check1() {
-        if (hasOptsVar())
+        if (hasOptsEnv())
             for (String testStr : toTest)
                 if (System.getProperty(testStr) != null) {
-                    String str = System.getenv(testStr);
+                    String str = System.getenv(testStr).toLowerCase(Locale.US);
                     StringTokenizer st = new StringTokenizer(str);
                     while (st.hasMoreTokens())
                         if (CommonHelper.multiMatches(test, st.nextToken())) return true;
@@ -60,13 +62,11 @@ public class EnvHelper {
         return false;
     }
 
-    @LauncherAPI
-    public static boolean hasMemPreDef() {
-        return HASXM;
+    public static boolean hasWarnPreDef() {
+        return HASXW;
     }
 
-    @LauncherAPI
-    public static boolean hasOptsVar() {
+    public static boolean hasOptsEnv() {
         return TST;
     }
 }
