@@ -148,6 +148,7 @@ public class LauncherEngine {
     }
 
     public static void main(String... args) throws Throwable {
+        JVMHelper.checkStackTrace(LauncherEngine.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParametrs();
         LogHelper.printVersion("Launcher");

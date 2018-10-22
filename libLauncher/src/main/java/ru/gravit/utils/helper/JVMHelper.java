@@ -134,6 +134,15 @@ public final class JVMHelper {
         }
         return list;
     }
+    public static void checkStackTrace(Class mainClass)
+    {
+        Exception e = new Exception("Testing stacktrace");
+        StackTraceElement[] list = e.getStackTrace();
+        if(!list[list.length - 1].getClassName().equals(mainClass.getName()))
+        {
+            throw new SecurityException(String.format("Invalid StackTraceElement: %s",list[0].getClassName()));
+        }
+    }
 
     @SuppressWarnings("CallToSystemGetenv")
     private static int getCorrectOSArch() {
