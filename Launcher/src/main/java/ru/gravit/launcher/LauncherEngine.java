@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.script.Bindings;
@@ -148,8 +148,10 @@ public class LauncherEngine {
     }
 
     public static void main(String... args) throws Throwable {
+        JVMHelper.checkStackTrace(LauncherEngine.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParametrs();
+        if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         LogHelper.printVersion("Launcher");
         // Start Launcher
         Instant start = Instant.now();

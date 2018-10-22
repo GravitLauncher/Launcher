@@ -71,18 +71,6 @@ public final class JVMHelper {
         }
     }
 
-    @Deprecated
-
-    public static void addClassPath(URL url) {
-        throw new IllegalArgumentException("Method Deprecated");
-    }
-
-    @Deprecated
-
-    public static void addNativePath(Path path) {
-        throw new IllegalArgumentException("Method Deprecated");
-    }
-
 
     public static void appendVars(ProcessBuilder builder, Map<String, String> vars) {
         builder.environment().putAll(vars);
@@ -106,12 +94,6 @@ public final class JVMHelper {
         LogHelper.debug("Used heap: %d MiB", RUNTIME.totalMemory() - RUNTIME.freeMemory() >> 20);
     }
 
-    @Deprecated
-
-    public static Certificate[] getCertificates(String resource) {
-        throw new IllegalArgumentException("Method Deprecated");
-    }
-
 
     public static String[] getClassPath() {
         return System.getProperty("java.class.path").split(File.pathSeparator);
@@ -133,6 +115,15 @@ public final class JVMHelper {
             it++;
         }
         return list;
+    }
+    public static void checkStackTrace(Class mainClass)
+    {
+        Exception e = new Exception("Testing stacktrace");
+        StackTraceElement[] list = e.getStackTrace();
+        if(!list[list.length - 1].getClassName().equals(mainClass.getName()))
+        {
+            throw new SecurityException(String.format("Invalid StackTraceElement: %s",list[list.length - 1].getClassName()));
+        }
     }
 
     @SuppressWarnings("CallToSystemGetenv")

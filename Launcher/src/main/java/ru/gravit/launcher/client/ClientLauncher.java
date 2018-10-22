@@ -416,6 +416,7 @@ public final class ClientLauncher {
         checkJVMBitsAndVersion();
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParametrs();
+        JVMHelper.checkStackTrace(ClientLauncher.class);
         LogHelper.printVersion("Client Launcher");
         // Read and delete params file
         LogHelper.debug("Reading ClientLauncher params");

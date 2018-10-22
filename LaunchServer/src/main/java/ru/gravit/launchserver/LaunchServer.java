@@ -263,6 +263,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     }
 
     public static void main(String... args) throws Throwable {
+        JVMHelper.checkStackTrace(LaunchServer.class);
         JVMHelper.verifySystemProperties(LaunchServer.class, true);
         LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");

@@ -1,4 +1,5 @@
-String realMainClassName = "ru.gravit.launcher.LauncherEngine"
+
+String realMainClassName = "ru.gravit.launcher.ClientLauncherWrapper"
 String mainAgentName = "ru.gravit.launcher.LauncherAgent"
 
 String mainClassName = "ru.gravit.launcher.relauncher.VerRelauncher"

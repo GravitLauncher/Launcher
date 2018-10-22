@@ -50,4 +50,8 @@ public class LauncherAgent {
             }
         }
     }
+    public static boolean isStarted()
+    {
+        return isAgentStarted;
+    }
 }
