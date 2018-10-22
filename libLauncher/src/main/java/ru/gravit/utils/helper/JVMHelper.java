@@ -140,7 +140,7 @@ public final class JVMHelper {
         StackTraceElement[] list = e.getStackTrace();
         if(!list[list.length - 1].getClassName().equals(mainClass.getName()))
         {
-            throw new SecurityException(String.format("Invalid StackTraceElement: %s",list[0].getClassName()));
+            throw new SecurityException(String.format("Invalid StackTraceElement: %s",list[list.length - 1].getClassName()));
         }
     }
 

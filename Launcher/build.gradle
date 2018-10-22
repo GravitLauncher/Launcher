@@ -1,4 +1,4 @@
-String mainClassName = "ru.gravit.launcher.LauncherEngine"
+String mainClassName = "ru.gravit.launcher.ClientLauncherWrapper"
 String mainAgentName = "ru.gravit.launcher.LauncherAgent"
 
 
