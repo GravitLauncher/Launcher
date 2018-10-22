@@ -1,9 +1,10 @@
 rootProject.name = 'Launcher'
 
-include 'Launcher'
 include 'libLauncher'
 include 'LauncherAPI'
+include 'javaVerRelauncher'
 include 'ServerWrapper'
+include 'Launcher'
 include 'LaunchServer'
 include 'modules'
 file('modules').eachDir { sub ->

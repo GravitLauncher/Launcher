@@ -1,6 +1,9 @@
-String mainClassName = "ru.gravit.launcher.LauncherEngine"
+String realMainClassName = "ru.gravit.launcher.LauncherEngine"
 String mainAgentName = "ru.gravit.launcher.LauncherAgent"
 
+String mainClassName = "ru.gravit.launcher.relauncher.VerRelauncher"
+String errMessage = "Please, download Java 8 or higher."
+String minVer = "52"
 
 repositories {
     maven {
@@ -14,6 +17,10 @@ targetCompatibility = '1.8'
 jar {
     from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest.attributes("Main-Class": mainClassName,
+		"MainRun-Class": realMainClassName,
+		"Graphic-Enabled": "true",
+		"ErrorMessage-String": errMessage,
+		"MinVesion-Integer": minVer,
 		"Premain-Class": mainAgentName,
 		"Can-Redefine-Classes": "true",
 		"Can-Retransform-Classes": "true",
@@ -22,6 +29,7 @@ jar {
 
 dependencies {
     compile project(':LauncherAPI')
+	compile project(':javaVerRelauncher')
     compile 'org.javassist:javassist:3.23.1-GA'
 }
 

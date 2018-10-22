@@ -1,0 +1,8 @@
+String mainClassName = "ru.gravit.launcher.relauncher.VerRelauncher"
+
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
+	
+jar {
+    manifest.attributes("Main-Class": mainClassName)
+}
