@@ -71,18 +71,6 @@ public final class JVMHelper {
         }
     }
 
-    @Deprecated
-
-    public static void addClassPath(URL url) {
-        throw new IllegalArgumentException("Method Deprecated");
-    }
-
-    @Deprecated
-
-    public static void addNativePath(Path path) {
-        throw new IllegalArgumentException("Method Deprecated");
-    }
-
 
     public static void appendVars(ProcessBuilder builder, Map<String, String> vars) {
         builder.environment().putAll(vars);
@@ -104,12 +92,6 @@ public final class JVMHelper {
         RUNTIME.gc();
         RUNTIME.runFinalization();
         LogHelper.debug("Used heap: %d MiB", RUNTIME.totalMemory() - RUNTIME.freeMemory() >> 20);
-    }
-
-    @Deprecated
-
-    public static Certificate[] getCertificates(String resource) {
-        throw new IllegalArgumentException("Method Deprecated");
     }
 
 
