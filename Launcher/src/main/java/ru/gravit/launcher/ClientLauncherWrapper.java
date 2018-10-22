@@ -29,6 +29,7 @@ public class ClientLauncherWrapper {
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         Collections.addAll(args, "-javaagent:".concat(pathLauncher));
         Collections.addAll(args, LauncherEngine.class.getName());
+        args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         EnvHelper.addEnv(processBuilder);
         processBuilder.command(args);
         Process process = processBuilder.start();
