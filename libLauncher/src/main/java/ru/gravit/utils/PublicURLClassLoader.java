@@ -8,7 +8,7 @@ import ru.gravit.launcher.LauncherAPI;
 public class PublicURLClassLoader extends URLClassLoader {
     @LauncherAPI
     public static ClassLoader systemclassloader = ClassLoader.getSystemClassLoader();
-
+    public String nativePath;
     @LauncherAPI
     public static ClassLoader getSystemClassLoader() {
         return systemclassloader;
@@ -61,6 +61,11 @@ public class PublicURLClassLoader extends URLClassLoader {
      */
     public PublicURLClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
+    }
+    @Override
+    public String findLibrary(String name)
+    {
+        return nativePath.concat(name);
     }
 
     @Override
