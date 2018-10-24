@@ -27,10 +27,11 @@ public class ClientLauncherWrapper {
         List<String> args = new LinkedList<>();
         args.add(javaBin.toString());
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
+        args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         Collections.addAll(args, "-javaagent:".concat(pathLauncher));
         Collections.addAll(args, LauncherEngine.class.getName());
-        args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         EnvHelper.addEnv(processBuilder);
+        LogHelper.debug("Commandline: " + args);
         processBuilder.command(args);
         Process process = processBuilder.start();
         if(!LogHelper.isDebugEnabled()) {
