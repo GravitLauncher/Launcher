@@ -91,10 +91,10 @@ public class AvanguardStarter {
 
     public static void start(Path path1) throws IOException {
         Path path = path1.resolve("guard");
-        Path avanguard = path.resolve(JVMHelper.OS_BITS == 64 ? "Avanguard64.dll" : "Avanguard32.dll");
-        Path wrapper = path.resolve(JVMHelper.OS_BITS == 64 ? NAME + "64.exe" : NAME + "32.exe");
-        UnpackHelper.unpack(JVMHelper.OS_BITS == 64 ? "Avanguard64.dll" : "Avanguard32.dll",avanguard);
-        UnpackHelper.unpack(JVMHelper.OS_BITS == 64 ? "wrapper64.dll" : "wrapper32.dll",wrapper);
+        Path avanguard = path.resolve(JVMHelper.JVM_BITS == 64 ? "Avanguard64.dll" : "Avanguard32.dll");
+        Path wrapper = path.resolve(JVMHelper.JVM_BITS == 64 ? NAME + "64.exe" : NAME + "32.exe");
+        UnpackHelper.unpack(JVMHelper.JVM_BITS == 64 ? "Avanguard64.dll" : "Avanguard32.dll",avanguard);
+        UnpackHelper.unpack(JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe",wrapper);
         AvanguardStarter.wrapper = wrapper;
         AvanguardStarter.avanguard = avanguard;
         HashedDir guard = new HashedDir(path, null, true, false);
