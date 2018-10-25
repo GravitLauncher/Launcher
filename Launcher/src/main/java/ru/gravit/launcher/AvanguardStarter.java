@@ -10,11 +10,7 @@ import net.minecraftforge.fml.SafeExitJVM;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.utils.NativeJVMHalt;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.*;
 import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 import ru.zaxar163.GuardBind;
 
@@ -68,33 +64,7 @@ public class AvanguardStarter {
     }
 
     public static final String NAME = Launcher.getConfig().projectname;
-    public static String avn32 = null, avn64 = null;
-    public static Path wrap32 = null, wrap64 = null;
-
-    private static Path handle(Path mustdiedll, String resource) {
-        try {
-            InputStream in = IOHelper.newInput(IOHelper.getResourceURL(resource));
-            byte[] orig = IOHelper.toByteArray(in);
-            in.close();
-            if (IOHelper.exists(mustdiedll)) {
-                if (!matches(mustdiedll, orig))
-                    transfer(orig, mustdiedll);
-            } else
-                transfer(orig, mustdiedll);
-        } catch (Exception e) {
-            if (e instanceof RuntimeException)
-                throw (RuntimeException) e;
-            throw new RuntimeException(e);
-        }
-        return mustdiedll;
-    }
-
-    public static void loadVared() {
-        if (JVMHelper.JVM_BITS == 32)
-            GuardBind.startAbs(System.getProperty("avn32"));
-        else if (JVMHelper.JVM_BITS == 64)
-            GuardBind.startAbs(System.getProperty("avn64"));
-    }
+    public static Path wrapper = null, avanguard = null;
 
     public static void main(boolean init) {
         if (init)
@@ -114,40 +84,21 @@ public class AvanguardStarter {
         GuardBind.avnStartDefence();
         CommonHelper.newThread("Security Thread", true, new SecurityThread()).start();
     }
-
-    private static boolean matches(Path mustdiedll, byte[] in) {
-        try {
-            return Arrays.equals(SecurityHelper.digest(DigestAlgorithm.MD5, in),
-                    SecurityHelper.digest(DigestAlgorithm.MD5, mustdiedll));
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-    private static void processArched(Path arch32, Path arch64, Path wrapper32, Path wrapper64) {
-        System.setProperty("avn32", IOHelper.toAbs(arch32));
-        System.setProperty("avn64", IOHelper.toAbs(arch64));
-        avn32 = IOHelper.toAbs(arch32);
-        avn64 = IOHelper.toAbs(arch64);
-        wrap32 = IOHelper.toAbsPath(wrapper32);
-        wrap64 = IOHelper.toAbsPath(wrapper64);
+    public static void load()
+    {
+        GuardBind.startAbs(avanguard.toString());
     }
 
     public static void start(Path path1) throws IOException {
         Path path = path1.resolve("guard");
-        processArched(handle(path.resolve("Avanguard32.dll"), "Avanguard32.dll"),
-                handle(path.resolve("Avanguard64.dll"), "Avanguard64.dll"),
-                handle(path.resolve(NAME + "32.exe"), "wrapper32.exe"),
-                handle(path.resolve(NAME + "64.exe"), "wrapper64.exe"));
+        Path avanguard = path.resolve(JVMHelper.OS_BITS == 64 ? "Avanguard64.dll" : "Avanguard32.dll");
+        Path wrapper = path.resolve(JVMHelper.OS_BITS == 64 ? NAME + "64.exe" : NAME + "32.exe");
+        UnpackHelper.unpack(JVMHelper.OS_BITS == 64 ? "Avanguard64.dll" : "Avanguard32.dll",avanguard);
+        UnpackHelper.unpack(JVMHelper.OS_BITS == 64 ? "wrapper64.dll" : "wrapper32.dll",wrapper);
+        AvanguardStarter.wrapper = wrapper;
+        AvanguardStarter.avanguard = avanguard;
         HashedDir guard = new HashedDir(path, null, true, false);
         DirWatcher dirWatcher = new DirWatcher(path, guard, null, false);
         CommonHelper.newThread("Guard Directory Watcher", true, dirWatcher).start();
-    }
-
-    private static void transfer(byte[] orig, Path mustdiedll) throws IOException {
-        IOHelper.createParentDirs(mustdiedll);
-        if (!IOHelper.exists(mustdiedll))
-            mustdiedll.toFile().createNewFile();
-        IOHelper.transfer(orig, mustdiedll, false);
     }
 }

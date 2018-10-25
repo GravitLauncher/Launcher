@@ -339,7 +339,7 @@ public final class ClientLauncher {
         List<String> args = new LinkedList<>();
         boolean wrapper = isUsingWrapper();
         Path javaBin;
-        if (wrapper) javaBin = JVMHelper.JVM_BITS == 64 ? AvanguardStarter.wrap64 : AvanguardStarter.wrap32;
+        if (wrapper) javaBin = AvanguardStarter.wrapper;
         else if(isDownloadJava)
         {
             //Linux и Mac не должны скачивать свою JVM
@@ -406,7 +406,6 @@ public final class ClientLauncher {
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         Launcher.modulesManager.preInitModules();
         if (Launcher.isUsingAvanguard()) {
-            AvanguardStarter.loadVared();
             AvanguardStarter.main(false);
         }
         checkJVMBitsAndVersion();

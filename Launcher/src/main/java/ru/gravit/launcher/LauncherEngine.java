@@ -210,7 +210,7 @@ public class LauncherEngine {
         Invocable invoker = (Invocable) engine;
         if (Launcher.isUsingAvanguard()) {
             AvanguardStarter.start(DirBridge.dir);
-            AvanguardStarter.loadVared();
+            AvanguardStarter.load();
             AvanguardStarter.main(false);
         }
         Launcher.modulesManager.postInitModules();
