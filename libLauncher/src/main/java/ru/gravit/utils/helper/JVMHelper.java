@@ -118,6 +118,7 @@ public final class JVMHelper {
     }
     public static void checkStackTrace(Class mainClass)
     {
+        LogHelper.debug("Testing stacktrace");
         Exception e = new Exception("Testing stacktrace");
         StackTraceElement[] list = e.getStackTrace();
         if(!list[list.length - 1].getClassName().equals(mainClass.getName()))

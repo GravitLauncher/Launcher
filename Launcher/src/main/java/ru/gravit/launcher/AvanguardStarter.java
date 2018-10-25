@@ -9,6 +9,7 @@ import cpw.mods.fml.SafeExitJVMLegacy;
 import net.minecraftforge.fml.SafeExitJVM;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.utils.NativeJVMHalt;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
@@ -51,11 +52,19 @@ public class AvanguardStarter {
     static void safeHalt(int exitcode)
     {
         try {
-            SafeExitJVM.exit(exitcode);
-        } catch (Throwable e)
-        {
             SafeExitJVMLegacy.exit(exitcode);
+        } catch (Throwable ignored)
+        {
+
         }
+        try {
+            SafeExitJVM.exit(exitcode);
+        } catch (Throwable ignored)
+        {
+
+        }
+        NativeJVMHalt halt = new NativeJVMHalt(exitcode);
+        halt.halt();
     }
 
     public static final String NAME = Launcher.getConfig().projectname;
