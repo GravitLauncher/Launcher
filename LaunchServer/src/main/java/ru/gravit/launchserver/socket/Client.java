@@ -10,6 +10,7 @@ public class Client {
     public Type type;
     public ClientProfile profile;
     public boolean isAuth;
+    public boolean checkSign;
     public ClientPermissions permissions;
     public String username;
 
@@ -20,6 +21,7 @@ public class Client {
         isAuth = false;
         permissions = ClientPermissions.DEFAULT;
         username = "";
+        checkSign = false;
     }
     //Данные ваторизации
     public void up() {

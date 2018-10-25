@@ -23,7 +23,7 @@ public final class ProfilesResponse extends Response {
         // Resolve launcher binary
         Client client = server.sessionManager.getClient(session);
         input.readBoolean();
-        if(client.type == Client.Type.USER) {
+        if(client.type == Client.Type.USER && !client.checkSign) {
             LogHelper.warning("User session: %d ip %s try get profiles",session,ip);
             requestError("Assess denied");
             return;

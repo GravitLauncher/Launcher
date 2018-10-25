@@ -24,6 +24,7 @@ var JoinServerRequest = JoinServerRequestClass.static;
 var CheckServerRequest = CheckServerRequestClass.static;
 var UpdateRequest = UpdateRequestClass.static;
 var LauncherRequest = LauncherRequestClass.static;
+var ProfilesRequest = ProfilesRequestClass.static;
 var ProfileByUsernameRequest = ProfileByUsernameRequestClass.static;
 var ProfileByUUIDRequest = ProfileByUUIDRequestClass.static;
 var BatchProfileByUsernameRequest = BatchProfileByUsernameRequestClass.static;

@@ -27,7 +27,7 @@ public class LauncherResponse implements JsonResponseInterface {
         byte[] bytes = Base64.getDecoder().decode(hash);
         if(launcher_type == 1) // JAR
         {
-            byte[] hash = LaunchServer.server.launcherBinary.getHash();
+            byte[] hash = LaunchServer.server.launcherBinary.getBytes().getDigest();
             if(hash == null) service.sendObjectAndClose(ctx, new Result(true,JAR_URL));
             if(Arrays.equals(bytes, hash))
             {
@@ -38,7 +38,7 @@ public class LauncherResponse implements JsonResponseInterface {
             }
         } else if(launcher_type == 2) //EXE
         {
-            byte[] hash = LaunchServer.server.launcherEXEBinary.getHash();
+            byte[] hash = LaunchServer.server.launcherEXEBinary.getBytes().getDigest();
             if(hash == null) service.sendObjectAndClose(ctx, new Result(true,EXE_URL));
             if(Arrays.equals(bytes, hash))
             {

@@ -147,20 +147,23 @@ function verifyLauncher(e) {
             return;
         }
         settings.lastSign = result.sign;
-        settings.lastProfiles = result.profiles;
-
+        processing.resetOverlay();
         // Init offline if set
         if (settings.offline) {
-            initOffline();
+             initOffline();
         }
-
-        // Update profiles list and hide overlay
-        updateProfilesList(result.profiles);
-        overlay.hide(0, function() {
-            if (cliParams.autoLogin) {
-                goAuth(null);
-            }
+        overlay.show(processing.overlay, function(event) makeProfilesRequest(function(result) {
+            settings.lastProfiles = result.profiles;
+            // Update profiles list and hide overlay
+            updateProfilesList(result.profiles);
+            overlay.hide(0, function() {
+                  if (cliParams.autoLogin) {
+                      goAuth(null);
+                  }
+            });
         });
+
+
     }));
 }
 

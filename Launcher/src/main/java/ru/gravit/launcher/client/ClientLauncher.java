@@ -1,6 +1,5 @@
 package ru.gravit.launcher.client;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.invoke.MethodHandle;
@@ -8,7 +7,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.net.*;
 import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
@@ -35,10 +33,9 @@ import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.JVMHelper.OS;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
-import ru.gravit.launcher.request.update.LauncherRequest;
+import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
@@ -440,7 +437,7 @@ public final class ClientLauncher {
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        SecurityHelper.verifySign(LauncherRequest.BINARY_PATH, params.launcherSign, publicKey);
+        SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherSign, publicKey);
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.object.getClassPath());
         for (Path classpathURL : classPath) {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
@@ -479,7 +476,7 @@ public final class ClientLauncher {
                             SignedObjectHolder<ClientProfile> profile, Params params) throws Throwable {
         RSAPublicKey publicKey = Launcher.getConfig().publicKey;
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        SecurityHelper.verifySign(LauncherRequest.BINARY_PATH, params.launcherSign, publicKey);
+        SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherSign, publicKey);
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.object.getClassPath());
         for (Path classpathURL : classPath) {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launchserver.response.auth.*;
+import ru.gravit.launchserver.response.update.*;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.RequestType;
@@ -15,10 +15,6 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.profile.BatchProfileByUsernameResponse;
 import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
 import ru.gravit.launchserver.response.profile.ProfileByUsernameResponse;
-import ru.gravit.launchserver.response.update.LauncherResponse;
-import ru.gravit.launchserver.response.update.ProfilesResponse;
-import ru.gravit.launchserver.response.update.UpdateListResponse;
-import ru.gravit.launchserver.response.update.UpdateResponse;
 
 public abstract class Response {
     @FunctionalInterface
@@ -47,6 +43,7 @@ public abstract class Response {
         registerResponse(RequestType.PROFILE_BY_USERNAME.getNumber(), ProfileByUsernameResponse::new);
         registerResponse(RequestType.PROFILE_BY_UUID.getNumber(), ProfileByUUIDResponse::new);
 
+        registerResponse(RequestType.LEGACYLAUNCHER.getNumber(), LegacyLauncherResponse::new);
         registerResponse(RequestType.LAUNCHER.getNumber(), LauncherResponse::new);
         registerResponse(RequestType.UPDATE_LIST.getNumber(), UpdateListResponse::new);
         registerResponse(RequestType.UPDATE.getNumber(), UpdateResponse::new);

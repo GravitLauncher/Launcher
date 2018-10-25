@@ -83,6 +83,22 @@ function makeLauncherRequest(callback) {
     task.updateMessage("Обновление списка серверов");
     startTask(task);
 }
+function makeProfilesRequest(callback) {
+    var task = newRequestTask(new ProfilesRequest());
+
+    // Set task properties and start
+    processing.setTaskProperties(task, callback, function() {
+        if (settings.offline) {
+            return;
+        }
+
+        // Repeat request, but in offline mode
+        settings.offline = true;
+        overlay.swap(2500, processing.overlay, function() makeProfilesRequest(callback));
+    }, false);
+    task.updateMessage("Обновление списка серверов");
+    startTask(task);
+}
 
 function makeAuthRequest(login, rsaPassword, callback) {
     var task = rsaPassword === null ? newTask(offlineAuthRequest(login)) :
