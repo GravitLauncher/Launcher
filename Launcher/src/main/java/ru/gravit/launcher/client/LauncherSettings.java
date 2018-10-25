@@ -100,7 +100,7 @@ public class LauncherSettings {
 
         // Offline cache
         RSAPublicKey publicKey = Launcher.getConfig().publicKey;
-        lastSign = input.readBoolean() ? input.readByteArray(-SecurityHelper.RSA_KEY_LENGTH) : null;
+        lastSign = input.readBoolean() ? input.readByteArray(0) : null;
         lastProfiles.clear();
         int lastProfilesCount = input.readLength(0);
         for (int i = 0; i < lastProfilesCount; i++) {
@@ -141,7 +141,7 @@ public class LauncherSettings {
         // Offline cache
         output.writeBoolean(lastSign != null);
         if (lastSign != null) {
-            output.writeByteArray(lastSign, -SecurityHelper.RSA_KEY_LENGTH);
+            output.writeByteArray(lastSign, 0);
         }
         output.writeLength(lastProfiles.size(), 0);
         for (SignedObjectHolder<ClientProfile> profile : lastProfiles) {

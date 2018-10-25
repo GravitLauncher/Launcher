@@ -146,13 +146,13 @@ function verifyLauncher(e) {
             LauncherRequest.update(Launcher.getConfig(), result);
             return;
         }
-        settings.lastSign = result.sign;
+        settings.lastSign = result.digest;
         processing.resetOverlay();
         // Init offline if set
         if (settings.offline) {
              initOffline();
         }
-        overlay.show(processing.overlay, function(event) makeProfilesRequest(function(result) {
+        overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
             settings.lastProfiles = result.profiles;
             // Update profiles list and hide overlay
             updateProfilesList(result.profiles);
@@ -161,7 +161,7 @@ function verifyLauncher(e) {
                       goAuth(null);
                   }
             });
-        });
+        }));
 
 
     }));

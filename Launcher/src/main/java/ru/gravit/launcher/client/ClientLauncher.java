@@ -81,12 +81,12 @@ public final class ClientLauncher {
         public final int width;
         @LauncherAPI
         public final int height;
-        private final byte[] launcherSign;
+        private final byte[] launcherDigest;
 
         @LauncherAPI
-        public Params(byte[] launcherSign, Path assetDir, Path clientDir, PlayerProfile pp, String accessToken,
+        public Params(byte[] launcherDigest, Path assetDir, Path clientDir, PlayerProfile pp, String accessToken,
                       boolean autoEnter, boolean fullScreen, int ram, int width, int height) {
-            this.launcherSign = launcherSign.clone();
+            this.launcherDigest = launcherDigest.clone();
             this.updateOptional = new HashSet<>();
             for(ClientProfile.MarkedString s : Launcher.profile.getOptional())
             {
@@ -107,7 +107,7 @@ public final class ClientLauncher {
 
         @LauncherAPI
         public Params(HInput input) throws Exception {
-            launcherSign = input.readByteArray(-SecurityHelper.RSA_KEY_LENGTH);
+            launcherDigest = input.readByteArray(0);
             // Client paths
             assetDir = IOHelper.toPath(input.readString(0));
             clientDir = IOHelper.toPath(input.readString(0));
@@ -131,7 +131,7 @@ public final class ClientLauncher {
 
         @Override
         public void write(HOutput output) throws IOException {
-            output.writeByteArray(launcherSign, -SecurityHelper.RSA_KEY_LENGTH);
+            output.writeByteArray(launcherDigest, 0);
             // Client paths
             output.writeString(assetDir.toString(), 0);
             output.writeString(clientDir.toString(), 0);
@@ -437,7 +437,8 @@ public final class ClientLauncher {
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherSign, publicKey);
+        //TODO: GO TO DIGEST
+        //SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherDigest, publicKey);
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.object.getClassPath());
         for (Path classpathURL : classPath) {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
@@ -476,7 +477,7 @@ public final class ClientLauncher {
                             SignedObjectHolder<ClientProfile> profile, Params params) throws Throwable {
         RSAPublicKey publicKey = Launcher.getConfig().publicKey;
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherSign, publicKey);
+        SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherDigest, publicKey);
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.object.getClassPath());
         for (Path classpathURL : classPath) {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());

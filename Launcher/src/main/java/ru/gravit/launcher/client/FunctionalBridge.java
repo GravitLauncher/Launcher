@@ -35,8 +35,9 @@ public class FunctionalBridge {
         }
 
         // Verify launcher signature
-        SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH,
-                settings.lastSign, Launcher.getConfig().publicKey);
+        //TODO: TO DIGEST
+        //SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH,
+        //        settings.lastSign, Launcher.getConfig().publicKey);
 
         // Return last sign and profiles
         return new LegacyLauncherRequest.Result(null,settings.lastSign,settings.lastProfiles);
