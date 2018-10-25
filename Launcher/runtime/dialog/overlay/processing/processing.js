@@ -50,23 +50,6 @@ var processing = {
     }
 };
 
-function offlineLauncherRequest() {
-    if (settings.lastSign === null || settings.lastProfiles.isEmpty()) {
-        Request.requestError("Запуск в оффлайн-режиме невозможен");
-        return;
-    }
-
-    // Verify launcher signature
-    SecurityHelper.verifySign(LauncherRequest.BINARY_PATH,
-        settings.lastSign, Launcher.getConfig().publicKey);
-
-    // Return last sign and profiles
-    return {
-        sign: settings.lastSign,
-        profiles: settings.lastProfiles
-    };
-}
-
 function offlineAuthRequest(login) {
     return function() {
         if (!VerifyHelper.isValidUsername(login)) {
@@ -84,7 +67,7 @@ function offlineAuthRequest(login) {
 
 /* Export functions */
 function makeLauncherRequest(callback) {
-    var task = settings.offline ? newTask(offlineLauncherRequest) :
+    var task = settings.offline ? newTask(FunctionalBridge.offlineLauncherRequest) :
         newRequestTask(new LauncherRequest());
 
     // Set task properties and start

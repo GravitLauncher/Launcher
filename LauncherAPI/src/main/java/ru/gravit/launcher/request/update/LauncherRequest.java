@@ -30,7 +30,7 @@ public final class LauncherRequest extends Request<Result> {
         private final byte[] binary;
         private final byte[] sign;
 
-        private Result(byte[] binary, byte[] sign, List<SignedObjectHolder<ClientProfile>> profiles) {
+        public Result(byte[] binary, byte[] sign, List<SignedObjectHolder<ClientProfile>> profiles) {
             this.binary = binary == null ? null : binary.clone();
             this.sign = sign.clone();
             this.profiles = Collections.unmodifiableList(profiles);
