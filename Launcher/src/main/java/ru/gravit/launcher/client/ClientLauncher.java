@@ -406,6 +406,7 @@ public final class ClientLauncher {
         engine.loadScript(Launcher.CONFIG_SCRIPT_FILE);
         Launcher.modulesManager.preInitModules();
         if (Launcher.isUsingAvanguard()) {
+            AvanguardStarter.start(DirBridge.dir);
             AvanguardStarter.load();
             AvanguardStarter.main(false);
         }
