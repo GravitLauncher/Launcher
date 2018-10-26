@@ -146,7 +146,7 @@ function verifyLauncher(e) {
             LauncherRequest.update(Launcher.getConfig(), result);
             return;
         }
-        settings.lastSign = result.digest;
+        settings.lastDigest = result.digest;
         processing.resetOverlay();
         // Init offline if set
         if (settings.offline) {
@@ -202,7 +202,7 @@ function doUpdate(profile, pp, accessToken) {
 function doLaunchClient(assetDir, assetHDir, clientDir, clientHDir, profile, pp, accessToken) {
     processing.resetOverlay();
     overlay.swap(0, processing.overlay, function(event)
-        launchClient(assetHDir, clientHDir, profile, new ClientLauncherParams(settings.lastSign,
+        launchClient(assetHDir, clientHDir, profile, new ClientLauncherParams(settings.lastDigest,
             assetDir, clientDir, pp, accessToken, settings.autoEnter, settings.fullScreen, settings.ram, 0, 0), doDebugClient)
     );
 }

@@ -12,7 +12,7 @@ var settingsClass = Java.extend(LauncherSettingsClass.static, {
         settings.setRAM(config.ramDefault);
 
         // Offline cache
-        settings.lastSign = null;
+        settings.lastDigest = null;
         settings.lastProfiles.clear();
         settings.lastHDirs.clear();
 

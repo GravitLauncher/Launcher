@@ -42,7 +42,7 @@ public class LauncherSettings {
     public int ram;
 
     @LauncherAPI
-    public byte[] lastSign;
+    public byte[] lastDigest;
     @LauncherAPI
     public List<SignedObjectHolder<ClientProfile>> lastProfiles = new LinkedList<>();
     @LauncherAPI
@@ -100,7 +100,7 @@ public class LauncherSettings {
 
         // Offline cache
         RSAPublicKey publicKey = Launcher.getConfig().publicKey;
-        lastSign = input.readBoolean() ? input.readByteArray(0) : null;
+        lastDigest = input.readBoolean() ? input.readByteArray(0) : null;
         lastProfiles.clear();
         int lastProfilesCount = input.readLength(0);
         for (int i = 0; i < lastProfilesCount; i++) {
@@ -139,9 +139,9 @@ public class LauncherSettings {
         output.writeLength(ram, JVMHelper.RAM);
 
         // Offline cache
-        output.writeBoolean(lastSign != null);
-        if (lastSign != null) {
-            output.writeByteArray(lastSign, 0);
+        output.writeBoolean(lastDigest != null);
+        if (lastDigest != null) {
+            output.writeByteArray(lastDigest, 0);
         }
         output.writeLength(lastProfiles.size(), 0);
         for (SignedObjectHolder<ClientProfile> profile : lastProfiles) {
@@ -175,7 +175,7 @@ public class LauncherSettings {
         //==========
 
         // Offline cache
-        lastSign = null;
+        lastDigest = null;
         lastProfiles.clear();
         lastHDirs.clear();
     }
