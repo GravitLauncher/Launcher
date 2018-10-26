@@ -403,6 +403,7 @@ public final class ClientLauncher {
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         Launcher.modulesManager.preInitModules();
         if (Launcher.isUsingAvanguard()) {
+            AvanguardStarter.load();
             AvanguardStarter.main(false);
         }
         checkJVMBitsAndVersion();
