@@ -45,6 +45,11 @@ public class AuthResponse implements JsonResponseInterface {
                 AuthProvider.authError(LaunchServer.server.config.authRejectString);
                 return;
             }
+            if(!clientData.checkSign)
+            {
+                AuthProvider.authError("Don't skip Launcher Update");
+                return;
+            }
             AuthProvider provider = LaunchServer.server.config.authProvider[authid];
             AuthProviderResult result = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(result.username)) {
