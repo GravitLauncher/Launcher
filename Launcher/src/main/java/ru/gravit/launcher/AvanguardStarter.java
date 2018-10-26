@@ -2,6 +2,7 @@ package ru.gravit.launcher;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
@@ -91,6 +92,8 @@ public class AvanguardStarter {
 
     public static void start(Path path1) throws IOException {
         Path path = path1.resolve("guard");
+        if(!IOHelper.exists(path))
+            Files.createDirectories(path);
         Path avanguard = path.resolve(JVMHelper.JVM_BITS == 64 ? "Avanguard64.dll" : "Avanguard32.dll");
         Path wrapper = path.resolve(JVMHelper.JVM_BITS == 64 ? NAME + "64.exe" : NAME + "32.exe");
         UnpackHelper.unpack(JVMHelper.JVM_BITS == 64 ? "Avanguard64.dll" : "Avanguard32.dll",avanguard);
