@@ -89,15 +89,9 @@ public final class Launcher {
 
     @LauncherAPI
     public static URL getResourceURL(String name) throws IOException {
-        LauncherConfig config = getConfig();
-        byte[] validDigest = config.runtime.get(name);
-        if (validDigest == null)
-            throw new NoSuchFileException(name);
 
         // Resolve URL and verify digest
         URL url = IOHelper.getResourceURL(RUNTIME_DIR + '/' + name);
-        if (!Arrays.equals(validDigest, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, url)))
-            throw new NoSuchFileException(name); // Digest mismatch
 
         // Return verified URL
         return url;

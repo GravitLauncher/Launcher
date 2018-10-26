@@ -88,10 +88,8 @@ public final class LauncherRequest extends Request<LauncherRequest.Result> {
     @Override
     @SuppressWarnings("CallToSystemExit")
     protected Result requestDo(HInput input, HOutput output) throws Exception {
-        RSAPublicKey publicKey = config.publicKey;
         Path launcherPath = IOHelper.getCodeSource(LauncherRequest.class);
         byte[] digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512,launcherPath);
-        byte[] sign;
         output.writeBoolean(EXE_BINARY);
         output.writeByteArray(digest,0);
         output.flush();
@@ -101,7 +99,8 @@ public final class LauncherRequest extends Request<LauncherRequest.Result> {
         boolean shouldUpdate = input.readBoolean();
         if (shouldUpdate) {
             byte[] binary = input.readByteArray(0);
-            return new Result(binary, digest);
+            Result result = new Result(binary, digest);
+            update(Launcher.getConfig(),result);
         }
 
         // Return request result

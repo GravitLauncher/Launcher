@@ -142,10 +142,6 @@ function goSettings(event) {
 function verifyLauncher(e) {
     processing.resetOverlay();
     overlay.show(processing.overlay, function(event) makeLauncherRequest(function(result) {
-        if (result.binary !== null) {
-            LauncherRequest.update(Launcher.getConfig(), result);
-            return;
-        }
         settings.lastDigest = result.digest;
         processing.resetOverlay();
         // Init offline if set
