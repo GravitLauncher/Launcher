@@ -204,7 +204,7 @@ public class LauncherEngine {
         // Load init.js script
         loadScript(Launcher.API_SCRIPT_FILE);
         loadScript(Launcher.INIT_SCRIPT_FILE);
-        loadScript("config.js");
+        loadScript(Launcher.CONFIG_SCRIPT_FILE);
         loadScript("dialog/dialog.js");
         LogHelper.info("Invoking start() function");
         Invocable invoker = (Invocable) engine;
@@ -215,5 +215,9 @@ public class LauncherEngine {
         }
         Launcher.modulesManager.postInitModules();
         invoker.invokeFunction("start", (Object) args);
+    }
+    public static LauncherEngine clientInstance()
+    {
+        return new LauncherEngine();
     }
 }

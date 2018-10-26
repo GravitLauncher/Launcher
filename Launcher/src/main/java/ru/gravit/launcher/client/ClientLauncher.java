@@ -401,6 +401,9 @@ public final class ClientLauncher {
     public static void main(String... args) throws Throwable {
         Launcher.modulesManager = new ClientModuleManager(null);
         LauncherConfig.getAutogenConfig().initModules(); //INIT
+        LauncherEngine engine = LauncherEngine.clientInstance();
+        engine.loadScript(Launcher.API_SCRIPT_FILE);
+        engine.loadScript(Launcher.CONFIG_SCRIPT_FILE);
         Launcher.modulesManager.preInitModules();
         if (Launcher.isUsingAvanguard()) {
             AvanguardStarter.load();

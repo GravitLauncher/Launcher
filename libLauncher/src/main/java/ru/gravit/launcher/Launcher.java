@@ -59,6 +59,7 @@ public final class Launcher {
     public static final String INIT_SCRIPT_FILE = "init.js";
     @LauncherAPI
     public static final String API_SCRIPT_FILE = "engine/api.js";
+    public static final String CONFIG_SCRIPT_FILE = "config.js";
 
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
     public static int MAJOR = 4;
