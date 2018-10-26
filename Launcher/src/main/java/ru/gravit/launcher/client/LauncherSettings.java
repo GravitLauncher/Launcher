@@ -156,7 +156,7 @@ public class LauncherSettings {
     @LauncherAPI
     public void setRAM(int ram)
     {
-        ram = java.lang.Math.min(((ram / 256)) * 256, JVMHelper.RAM);
+        this.ram = java.lang.Math.min(((ram / 256)) * 256, JVMHelper.RAM);
     }
     @LauncherAPI
     public void setDefault()
