@@ -19,7 +19,7 @@ public class ClientLauncherWrapper {
         LogHelper.printVersion("Launcher");
         JVMHelper.checkStackTrace(ClientLauncherWrapper.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
-        EnvHelper.checkDangerousParametrs();
+        EnvHelper.checkDangerousParams();
         LogHelper.debug("Restart Launcher");
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.inheritIO();

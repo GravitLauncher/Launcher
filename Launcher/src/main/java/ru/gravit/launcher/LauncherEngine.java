@@ -42,7 +42,6 @@ import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.request.auth.AuthRequest;
 import ru.gravit.launcher.request.auth.CheckServerRequest;
 import ru.gravit.launcher.request.auth.JoinServerRequest;
-import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.request.update.UpdateRequest;
 import ru.gravit.launcher.request.uuid.BatchProfileByUsernameRequest;
 import ru.gravit.launcher.request.uuid.ProfileByUUIDRequest;
@@ -151,7 +150,7 @@ public class LauncherEngine {
     public static void main(String... args) throws Throwable {
         JVMHelper.checkStackTrace(LauncherEngine.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
-        EnvHelper.checkDangerousParametrs();
+        EnvHelper.checkDangerousParams();
         if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         LogHelper.printVersion("Launcher");
         // Start Launcher

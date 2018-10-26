@@ -14,20 +14,25 @@ public class EnvHelper {
 	}
 
 	public static void addEnv(ProcessBuilder builder) {
-		Map<String, String> repl = builder.environment();
-		for (String str : toTest) {
-			repl.put(str, "");
-			repl.put(str.toLowerCase(Locale.US), "");
+		Map<String, String> map = builder.environment();
+		for (String env : toTest) {
+			if(map.containsKey(env))
+				map.put(env, "");
+			String lower_env = env.toLowerCase(Locale.US);
+			if(map.containsKey(lower_env))
+				map.put(lower_env, "");
 		}
 	}
 
-	public static void checkDangerousParametrs() {
-		for (String t : toTest)
-			if (System.getenv(t) != null) {
-				String env = System.getenv(t).toLowerCase(Locale.US);
+	public static void checkDangerousParams() {
+		for (String t : toTest) {
+			String env = System.getenv(t);
+			if (env != null) {
+				env = env.toLowerCase(Locale.US);
 				if (env.contains("-cp") || env.contains("-classpath") || env.contains("-javaagent")
 						|| env.contains("-agentpath") || env.contains("-agentlib"))
-					throw new SecurityException("JavaAgent in global optings not allow");
+					throw new SecurityException("JavaAgent in global options not allow");
 			}
+		}
 	}
 }
