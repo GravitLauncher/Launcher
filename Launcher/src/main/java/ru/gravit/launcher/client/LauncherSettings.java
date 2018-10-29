@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public class LauncherSettings {
-    public static int settingsMagic = 0xc0de5;
+    public static int settingsMagic = 0xc0de6;
     @LauncherAPI
     public Path file = DirBridge.dir.resolve("settings.bin");
     @LauncherAPI
@@ -78,7 +78,10 @@ public class LauncherSettings {
     {
         int magic = input.readInt();
         if (magic != settingsMagic) {
-            throw new java.io.IOException("Settings magic mismatch: " + java.lang.Integer.toString(magic, 16));
+            setDefault();
+            LogHelper.warning("Settings magic mismatch: " + java.lang.Integer.toString(magic, 16));
+            return;
+            //throw new java.io.IOException();
         }
 
         // Launcher settings
