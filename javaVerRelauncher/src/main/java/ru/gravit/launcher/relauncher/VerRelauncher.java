@@ -7,8 +7,7 @@ import javax.swing.JOptionPane;
 public final class VerRelauncher {
 	private static final void checkCompat() {
 		if (JavaVersionInfo.MAJOR_VERSION < Helper.getMinVer()) {
-			if (Helper.isGraphic())
-				runGraph(Helper.getErrMessage());
+			runGraph(Helper.getErrMessage());
 			throw new AssertionError(Helper.getErrMessage());
 		}
 	}
@@ -32,7 +31,10 @@ public final class VerRelauncher {
 	}
 
 	private static void runGraph(final String errMessage) {
-		JOptionPane.showMessageDialog(null, errMessage);
+		try {
+			Class.forName("javax.swing.JOptionPane", true, ClassLoader.getSystemClassLoader());
+			JOptionPane.showMessageDialog(null, errMessage);
+		} catch (final Throwable t) { }
 	}
 
 	private static void verifySystemProperties() {
