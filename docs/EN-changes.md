@@ -1,21 +1,21 @@
 # Changes
-* Support native guard library Avanguard
+* Avanguard native guard library support
 * Build with Gradle
 * The code is free of many dirty "hacks" that depend on the implementation and undocumented features of a particular JVM
-* Removed installing JVM
-* Brutus password protection
-* Launcher complished and runs with JDK 10
-* Patch launchwrapper with support Java 10
+* Removed JVM installation
+* Brute-force attack protection
+* Launcher compiles and runs with JDK 10
+* Patched launchwrapper with Java 10 support
 * JsonAuthProvider and a PHP script to work with Yii2
 * ClassPath is not visible in the start line
 * Symlinks are fully allowed without restrictions
-* Removed an undocumented feature, JavaScript plugins server side
+* Removed an undocumented feature which allowed to use JavaScript plugins on server side
 * Various improvements and bugfixes
 * Split into 3 modules instead of two
 * The old bypasses don't work
-* A partially modified structure of the classes
-* Bug fixes from the main branch of the launcher
+* Partially modified structure of the classes
+* Bug fixes in the main branch of the launcher
 * Ability to install different skins on different servers
 * Send HWID
-* Flexible setting options exe when you build
+* Flexible exe settings when building
 * And much more!
