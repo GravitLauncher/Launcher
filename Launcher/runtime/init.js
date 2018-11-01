@@ -57,3 +57,5 @@ function start(args) {
     LogHelper.debug("Launching JavaFX application");
     javafx.application.Application.launch(LauncherApp.class, args);
 }
+
+launcher.loadScript("dialog/dialog.js");

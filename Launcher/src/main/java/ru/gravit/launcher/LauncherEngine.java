@@ -203,9 +203,8 @@ public class LauncherEngine {
         Launcher.modulesManager.initModules();
         // Load init.js script
         loadScript(Launcher.API_SCRIPT_FILE);
-        loadScript(Launcher.INIT_SCRIPT_FILE);
         loadScript(Launcher.CONFIG_SCRIPT_FILE);
-        loadScript("dialog/dialog.js");
+        loadScript(Launcher.INIT_SCRIPT_FILE);
         LogHelper.info("Invoking start() function");
         Invocable invoker = (Invocable) engine;
         if (Launcher.isUsingAvanguard()) {
