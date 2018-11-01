@@ -103,6 +103,21 @@ public final class Launcher {
         return url;
     }
 
+    public static URL getResourceURL(String name,String prefix) throws IOException {
+        LauncherConfig config = getConfig();
+        byte[] validDigest = config.runtime.get(name);
+        if (validDigest == null)
+            throw new NoSuchFileException(name);
+
+        // Resolve URL and verify digest
+        URL url = IOHelper.getResourceURL(prefix + '/' + name);
+        if (!Arrays.equals(validDigest, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, url)))
+            throw new NoSuchFileException(name); // Digest mismatch
+
+        // Return verified URL
+        return url;
+    }
+
     @LauncherAPI
     public static String toHash(UUID uuid) {
         return UUID_PATTERN.matcher(uuid.toString()).replaceAll("");

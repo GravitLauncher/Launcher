@@ -96,8 +96,10 @@ public class AvanguardStarter {
             Files.createDirectories(path);
         Path avanguard = path.resolve(JVMHelper.JVM_BITS == 64 ? "Avanguard64.dll" : "Avanguard32.dll");
         Path wrapper = path.resolve(JVMHelper.JVM_BITS == 64 ? NAME + "64.exe" : NAME + "32.exe");
-        UnpackHelper.unpack(JVMHelper.JVM_BITS == 64 ? "Avanguard64.dll" : "Avanguard32.dll",avanguard);
-        UnpackHelper.unpack(JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe",wrapper);
+        String avanguardResource = JVMHelper.JVM_BITS == 64 ? "Avanguard64.dll" : "Avanguard32.dll";
+        String wrapperResource = JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe";
+        UnpackHelper.unpack(Launcher.getResourceURL(avanguardResource,"guard"),avanguard);
+        UnpackHelper.unpack(Launcher.getResourceURL(wrapperResource,"guard"),wrapper);
         AvanguardStarter.wrapper = wrapper;
         AvanguardStarter.avanguard = avanguard;
         HashedDir guard = new HashedDir(path, null, true, false);

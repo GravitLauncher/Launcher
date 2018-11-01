@@ -1,13 +1,14 @@
 package ru.gravit.utils.helper;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 
 public class UnpackHelper {
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static boolean unpack(String resource, Path target) throws IOException {
-        byte[] orig = IOHelper.read(IOHelper.getResourceURL(resource));
+    public static boolean unpack(URL resource, Path target) throws IOException {
+        byte[] orig = IOHelper.read(resource);
         if(IOHelper.exists(target))
         {
             if(matches(target,orig)) return false;

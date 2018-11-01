@@ -67,6 +67,36 @@ public final class JARLauncherBinary extends LauncherBinary {
         }
     }
 
+    private final class GuardDirVisitor extends SimpleFileVisitor<Path> {
+        private final ZipOutputStream output;
+        private final Map<String, byte[]> runtime;
+
+        private GuardDirVisitor(ZipOutputStream output, Map<String, byte[]> runtime) {
+            this.output = output;
+            this.runtime = runtime;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            String dirName = IOHelper.toString(guardDir.relativize(dir));
+            output.putNextEntry(newEntry(dirName + '/'));
+            return super.preVisitDirectory(dir, attrs);
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            String fileName = IOHelper.toString(guardDir.relativize(file));
+            runtime.put(fileName, SecurityHelper.digest(DigestAlgorithm.MD5, file));
+
+            // Create zip entry and transfer contents
+            output.putNextEntry(newEntry(fileName));
+            IOHelper.transfer(file, output);
+
+            // Return result
+            return super.visitFile(file, attrs);
+        }
+    }
+
     private static ZipEntry newEntry(String fileName) {
         return newZipEntry(Launcher.RUNTIME_DIR + IOHelper.CROSS_SEPARATOR + fileName);
     }
@@ -224,6 +254,7 @@ public final class JARLauncherBinary extends LauncherBinary {
                     throw new IOException(String.format("Missing init script file ('%s')", Launcher.INIT_SCRIPT_FILE));
                 // Write launcher runtime dir
                 IOHelper.walk(runtimeDir, new RuntimeDirVisitor(output, runtime), false);
+                IOHelper.walk(guardDir, new GuardDirVisitor(output, runtime), false);
             }
             // Create launcher config file
             byte[] launcherConfigBytes;
@@ -242,13 +273,6 @@ public final class JARLauncherBinary extends LauncherBinary {
             output.putNextEntry(e);
             jaConfigurator.compile();
             output.write(jaConfigurator.getBytecode());
-            for(String file : guardFileList)
-            {
-                Path path = guardDir.resolve(file);
-                ZipEntry en = newZipEntry(file);
-                output.putNextEntry(en);
-                IOHelper.transfer(path,output);
-            }
             server.buildHookManager.postHook(context);
         } catch (CannotCompileException | NotFoundException e) {
             LogHelper.error(e);
