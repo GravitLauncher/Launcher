@@ -151,7 +151,7 @@ public class LauncherEngine {
         JVMHelper.checkStackTrace(LauncherEngine.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
-        if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
+        //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         LogHelper.printVersion("Launcher");
         // Start Launcher
         Instant start = Instant.now();

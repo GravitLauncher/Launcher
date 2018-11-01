@@ -5,7 +5,6 @@ import static ru.gravit.utils.helper.IOHelper.newZipEntry;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
@@ -20,7 +19,6 @@ import javassist.CannotCompileException;
 import javassist.NotFoundException;
 import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -69,27 +67,27 @@ public final class JARLauncherBinary extends LauncherBinary {
 
     private final class GuardDirVisitor extends SimpleFileVisitor<Path> {
         private final ZipOutputStream output;
-        private final Map<String, byte[]> runtime;
+        private final Map<String, byte[]> guard;
 
-        private GuardDirVisitor(ZipOutputStream output, Map<String, byte[]> runtime) {
+        private GuardDirVisitor(ZipOutputStream output, Map<String, byte[]> guard) {
             this.output = output;
-            this.runtime = runtime;
+            this.guard = guard;
         }
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             String dirName = IOHelper.toString(guardDir.relativize(dir));
-            output.putNextEntry(newEntry(dirName + '/'));
+            output.putNextEntry(newGuardEntry(dirName + '/'));
             return super.preVisitDirectory(dir, attrs);
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             String fileName = IOHelper.toString(guardDir.relativize(file));
-            runtime.put(fileName, SecurityHelper.digest(DigestAlgorithm.MD5, file));
+            guard.put(fileName, SecurityHelper.digest(DigestAlgorithm.MD5, file));
 
             // Create zip entry and transfer contents
-            output.putNextEntry(newEntry(fileName));
+            output.putNextEntry(newGuardEntry(fileName));
             IOHelper.transfer(file, output);
 
             // Return result
@@ -99,6 +97,9 @@ public final class JARLauncherBinary extends LauncherBinary {
 
     private static ZipEntry newEntry(String fileName) {
         return newZipEntry(Launcher.RUNTIME_DIR + IOHelper.CROSS_SEPARATOR + fileName);
+    }
+    private static ZipEntry newGuardEntry(String fileName) {
+        return newZipEntry(Launcher.GUARD_DIR + IOHelper.CROSS_SEPARATOR + fileName);
     }
 
 
@@ -246,13 +247,13 @@ public final class JARLauncherBinary extends LauncherBinary {
                 output.putNextEntry(newZipEntry(ent.getKey().replace('.', '/').concat(".class")));
                 output.write(server.buildHookManager.classTransform(ent.getValue(), ent.getKey()));
             }
-            // map for runtime
+            // map for guard
             Map<String, byte[]> runtime = new HashMap<>(256);
             if (server.buildHookManager.buildRuntime()) {
                 // Verify has init script file
                 if (!IOHelper.isFile(initScriptFile))
                     throw new IOException(String.format("Missing init script file ('%s')", Launcher.INIT_SCRIPT_FILE));
-                // Write launcher runtime dir
+                // Write launcher guard dir
                 IOHelper.walk(runtimeDir, new RuntimeDirVisitor(output, runtime), false);
                 IOHelper.walk(guardDir, new GuardDirVisitor(output, runtime), false);
             }
@@ -281,11 +282,11 @@ public final class JARLauncherBinary extends LauncherBinary {
 
 
     public void tryUnpackRuntime() throws IOException {
-        // Verify is runtime dir unpacked
+        // Verify is guard dir unpacked
         if (IOHelper.isDir(runtimeDir))
             return; // Already unpacked
 
-        // Unpack launcher runtime files
+        // Unpack launcher guard files
         Files.createDirectory(runtimeDir);
         LogHelper.info("Unpacking launcher runtime files");
         try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL("runtime.zip"))) {
@@ -293,18 +294,18 @@ public final class JARLauncherBinary extends LauncherBinary {
                 if (entry.isDirectory())
                     continue; // Skip dirs
 
-                // Unpack runtime file
+                // Unpack guard file
                 IOHelper.transfer(input, runtimeDir.resolve(IOHelper.toPath(entry.getName())));
             }
         }
     }
 
     public void tryUnpackGuard() throws IOException {
-        // Verify is runtime dir unpacked
+        // Verify is guard dir unpacked
         if (IOHelper.isDir(guardDir))
             return; // Already unpacked
 
-        // Unpack launcher runtime files
+        // Unpack launcher guard files
         Files.createDirectory(guardDir);
         LogHelper.info("Unpacking launcher native guard files");
         try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL("guard.zip"))) {
@@ -312,7 +313,7 @@ public final class JARLauncherBinary extends LauncherBinary {
                 if (entry.isDirectory())
                     continue; // Skip dirs
 
-                // Unpack runtime file
+                // Unpack guard file
                 IOHelper.transfer(input, guardDir.resolve(IOHelper.toPath(entry.getName())));
             }
         }

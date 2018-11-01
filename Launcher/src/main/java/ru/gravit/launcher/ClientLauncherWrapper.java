@@ -29,6 +29,8 @@ public class ClientLauncherWrapper {
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         Collections.addAll(args, "-javaagent:".concat(pathLauncher));
+        Collections.addAll(args, "-cp");
+        Collections.addAll(args, pathLauncher);
         Collections.addAll(args, LauncherEngine.class.getName());
         EnvHelper.addEnv(processBuilder);
         LogHelper.debug("Commandline: " + args);

@@ -52,6 +52,8 @@ public final class Launcher {
     @LauncherAPI
     public static final String RUNTIME_DIR = "runtime";
     @LauncherAPI
+    public static final String GUARD_DIR = "guard";
+    @LauncherAPI
     public static final String CONFIG_FILE = "config.bin";
     @LauncherAPI
     public static ClientProfile profile;
