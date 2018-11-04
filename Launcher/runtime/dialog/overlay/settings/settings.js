@@ -78,7 +78,7 @@ var settingsOverlay = {
         settingsOverlay.overlay.lookup("#changeDir").setOnAction(function(event) {
             var chooser = new javafx.stage.DirectoryChooser();
             chooser.setTitle("Сменить директорию загрузок");
-            chooser.setInitialDirectory(dir.toFile());
+            chooser.setInitialDirectory(DirBridge.dir.toFile());
 
             // Set new result
             var newDir = chooser.showDialog(stage);
