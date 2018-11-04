@@ -30,6 +30,7 @@ public class SetProfileResponse extends Response {
                     return;
                 }
                 clientData.profile = p.object;
+                writeNoError(output);
                 output.writeBoolean(true);
                 break;
             }

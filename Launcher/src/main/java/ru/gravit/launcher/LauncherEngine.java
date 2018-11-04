@@ -21,6 +21,7 @@ import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedFile;
+import ru.gravit.launcher.request.auth.SetProfileRequest;
 import ru.gravit.launcher.request.update.LauncherRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.utils.HTTPRequest;
@@ -89,6 +90,7 @@ public class LauncherEngine {
         bindings.put("CheckServerRequestClass", CheckServerRequest.class);
         bindings.put("UpdateRequestClass", UpdateRequest.class);
         bindings.put("LauncherRequestClass", LauncherRequest.class);
+        bindings.put("SetProfileRequestClass", SetProfileRequest.class);
         bindings.put("ProfilesRequestClass", ProfilesRequest.class);
         bindings.put("ProfileByUsernameRequestClass", ProfileByUsernameRequest.class);
         bindings.put("ProfileByUUIDRequestClass", ProfileByUUIDRequest.class);
