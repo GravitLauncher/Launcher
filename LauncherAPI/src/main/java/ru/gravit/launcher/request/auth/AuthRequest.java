@@ -67,7 +67,9 @@ public final class AuthRequest extends Request<Result> {
     @Override
     protected Result requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(login, SerializeLimits.MAX_LOGIN);
-        output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
+        output.writeBoolean(Launcher.profile != null);
+        if(Launcher.profile != null)
+            output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.writeInt(auth_id);
         output.writeLong(Launcher.isUsingAvanguard() ? GuardBind.avnGetHddId() : 0);
         output.writeLong(Launcher.isUsingAvanguard() ? GuardBind.avnGetCpuid() : 0);

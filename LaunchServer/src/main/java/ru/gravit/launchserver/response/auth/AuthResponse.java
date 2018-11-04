@@ -40,7 +40,10 @@ public final class AuthResponse extends Response {
     @Override
     public void reply() throws Exception {
         String login = input.readString(SerializeLimits.MAX_LOGIN);
-        String client = input.readString(SerializeLimits.MAX_CLIENT);
+        boolean isClient = input.readBoolean();
+        String client = null;
+        if(isClient)
+            client = input.readString(SerializeLimits.MAX_CLIENT);
         int auth_id = input.readInt();
         long hwid_hdd = input.readLong();
         long hwid_cpu = input.readLong();
@@ -73,17 +76,19 @@ public final class AuthResponse extends Response {
                 AuthProvider.authError(String.format("Illegal result: '%s'", result.username));
                 return;
             }
-            Collection<SignedObjectHolder<ClientProfile>> profiles = server.getProfiles();
-            for (SignedObjectHolder<ClientProfile> p : profiles) {
-                if (p.object.getTitle().equals(client)) {
-                    if (!p.object.isWhitelistContains(login)) {
-                        throw new AuthException(server.config.whitelistRejectString);
+            if(isClient) {
+                Collection<SignedObjectHolder<ClientProfile>> profiles = server.getProfiles();
+                for (SignedObjectHolder<ClientProfile> p : profiles) {
+                    if (p.object.getTitle().equals(client)) {
+                        if (!p.object.isWhitelistContains(login)) {
+                            throw new AuthException(server.config.whitelistRejectString);
+                        }
+                        clientData.profile = p.object;
                     }
-                    clientData.profile = p.object;
                 }
-            }
-            if(clientData.profile == null) {
-                throw new AuthException("You profile not found");
+                if (clientData.profile == null) {
+                    throw new AuthException("You profile not found");
+                }
             }
             server.config.hwidHandler.check(HWID.gen(hwid_hdd, hwid_bios, hwid_cpu), result.username);
         } catch (AuthException | HWIDException e) {
