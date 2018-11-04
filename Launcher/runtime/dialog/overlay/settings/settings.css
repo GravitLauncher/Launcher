@@ -1,50 +1,99 @@
-@import url(../../styles/common.css);
-
+#holder {
+	-fx-background-color: #fff;
+}
 /* Labels */
-#overlay > #settingsTitle {
+#holder > #settingsTitle {
     -fx-font-size: 14pt;
     -fx-alignment: baseline-center;
 }
 
-#overlay #ramLabel,
-#overlay #dirLabel {
+#holder #ramLabel,
+#holder #dirLabel,
+#holder #dirChange {
     -fx-font-weight: bold;
 }
 
 /* RAM slider */
-#overlay > #ramSlider > .track {
+#holder > #ramSlider > .track {
     -fx-background-color: #D8E0E3;
     -fx-background-insets: none;
     -fx-background-radius: 2px;
     -fx-padding: 2px;
 }
 
-#overlay > #ramSlider > .thumb {
+#holder > #ramSlider > .thumb {
     -fx-background-color: #3498DB;
     -fx-background-insets: none;
     -fx-background-radius: 5px;
     -fx-padding: 5px;
 }
 
-#overlay > #ramSlider:hover > .thumb {
+#holder > #ramSlider:hover > .thumb {
     -fx-background-color: #2F8BC8;
 }
 
-#overlay > #ramSlider:pressed > .thumb {
+#holder > #ramSlider:pressed > .thumb {
     -fx-background-color: #2876AA;
 }
 
 /* Dir options */
-#overlay > #deleteDir {
-    -fx-background-color: #DB2828;
+#holder > #deleteDir {
+    -fx-background-color: #CE5757;
     -fx-text-fill: white;
+    -fx-background-radius: 0;
 }
 
-#overlay > #deleteDir:hover,
-#overlay > #deleteDir:focused {
-    -fx-background-color: #CA1010;
+#holder > #deleteDir:hover,
+#holder > #deleteDir:focused {
+    -fx-opacity: 0.8;
 }
 
-#overlay > #deleteDir:pressed {
-    -fx-background-color: #B21E1E;
+#holder > #changeDir {
+    -fx-background-color: #B4B4B4;
+    -fx-text-fill: white;
+    -fx-background-radius: 0;
+}
+
+#holder > #changeDir:hover,
+#holder > #changeDir:focused {
+    -fx-opacity: 0.8;
+}
+
+#holder > #changeDir:pressed {
+    -fx-opacity: 0.8;
+}
+
+#holder > #apply{
+    -fx-background-color: #61B373;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+}
+#holder > #apply:hover,
+#holder > #apply:focused{
+    -fx-background-color: #74C085;
+}
+
+.check-box{
+	-fx-background-color: transparent;
+	-fx-text-fill:#2c2c2c;
+	-fx-font-size: 13;
+    -fx-background-image: url('../../images/icons/checkbox.png');
+	-fx-background-repeat: no-repeat;
+}
+.check-box .mark {
+    -fx-background-color: transparent;
+}
+.check-box .box {
+    -fx-background-color: transparent;
+}
+.check-box:selected{
+	-fx-background-color: transparent;
+    -fx-background-image: url('../../images/icons/checkbox_checked.png');
+	-fx-background-repeat: no-repeat;
+}
+.check-box:selected .mark {
+    -fx-background-color: transparent;
+}
+.check-box:selected .box {
+    -fx-background-color: transparent;
 }

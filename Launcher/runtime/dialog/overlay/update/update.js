@@ -35,7 +35,6 @@ var update = {
         var estimatedSS = (estimatedSeconds % 60) | 0;
         task.updateMessage(java.lang.String.format(
             "Файл: %s%n" + // File line
-            "Загружено (Файл): %.2f / %.2f MiB.%n" + // File downloaded line
             "Загружено (Всего): %.2f / %.2f MiB.%n" + // Total downloaded line
             "%n" +
             "Средняя скорость: %.1f Kbps%n" + // Speed line
@@ -43,7 +42,6 @@ var update = {
 
             // Formatting
             state.filePath, // File path
-            state.getFileDownloadedMiB() + /* Fuck nashorn */ 0.0, state.getFileSizeMiB() + 0.0, // File downloaded
             state.getTotalDownloadedMiB() + /* Fuck nashorn */ 0.0, state.getTotalSizeMiB() + 0.0, // Total downloaded
             bps <= 0.0 ? 0.0 : bps / 1024.0, // Speed
             estimatedHH, estimatedMM, estimatedSS // Estimated (hh:mm:ss)
@@ -71,12 +69,26 @@ var update = {
     }
 };
 
+function offlineUpdateRequest(dirName, dir, matcher, digest) {
+    return function() {
+        var hdir = settings.lastHDirs.get(dirName);
+        if (hdir === null) {
+            Request.requestError(java.lang.String.format("Директории '%s' нет в кэше", dirName));
+            return;
+        }
+
+        // Verify dir with matcher using ClientLauncher's API
+        ClientLauncher.verifyHDir(dir, hdir.object, matcher, digest);
+        return hdir;
+    };
+}
+
 /* Export functions */
 function makeUpdateRequest(dirName, dir, matcher, digest, callback) {
-    var request = settings.offline ? { setStateCallback: function(stateCallback) { /* Ignored */ } } :
-        new UpdateRequest(dirName, dir, matcher, digest);
-    var task = settings.offline ? newTask(FunctionalBridge.offlineUpdateRequest(dirName, dir, settings.lastHDirs.get(dirName), matcher, digest)) :
-        newRequestTask(request);
+	var request = settings.offline ? { setStateCallback: function(stateCallback) { /* Ignored */ } } :
+		new UpdateRequest(dirName, dir, matcher, digest);
+	var task = settings.offline ? newTask(offlineUpdateRequest(dirName, dir, matcher, digest)) :
+		newRequestTask(request);
 
     // Set task properties and start
     update.setTaskProperties(task, request, callback);

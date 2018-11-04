@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Text?>
+
+<!-- DrLeonardo Design -->
+
+<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+     <Pane id="holder" layoutX="171.0" layoutY="28.0" prefHeight="372.0" prefWidth="429.0">
+       <children>
+         <CheckBox fx:id="modid_0" layoutX="14.0" layoutY="14.0" text="NEI" />
+         <Button fx:id="apply" defaultButton="true" layoutX="315.0" layoutY="333.0" prefHeight="25.0" prefWidth="100.0" text="Применить" />
+         <Text fill="#8c8c8c" layoutX="38.0" layoutY="29.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер" wrappingWidth="379.00000374019146" y="15.0" />
+            <CheckBox fx:id="modid_1" layoutX="14.0" layoutY="108.0" text="BetterFoliage" />
+            <CheckBox fx:id="modid_2" layoutX="14.0" layoutY="166.0" text="Schematica" />
+            <CheckBox fx:id="modid_3" layoutX="39.0" layoutY="73.0" text="NEI Addons" />
+            <Text fill="#8c8c8c" layoutX="38.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Мод довольно сильно преобразит игру, мир обзаведется густой растительностью: изменится трава и листья" wrappingWidth="379.00000374019146" y="15.0" />
+            <Text fill="#8c8c8c" layoutX="38.0" layoutY="180.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Позволит вам смотреть файлы с расширением schematic прямо в вашем игровом мире" wrappingWidth="379.00000374019146" y="15.0" />
+       </children>
+     </Pane>
+   </children>
+  <stylesheets>
+    <URL value="@options.css" />
+  </stylesheets>
+</Pane>

@@ -1,13 +1,15 @@
 // ====== LAUNCHER CONFIG ====== //
 var config = {
-    dir: "gravitlauncher", // Launcher directory
-    title: "Gravit Minecraft Launcher", // Window title
+    dir: "GravitLauncher", // Launcher directory
+    title: "GravitLauncher", // Window title
     icons: [ "favicon.png" ], // Window icon paths
 
     // Auth config
-    newsURL: "https://github.com/GravitLauncher/Launcher/releases", // News WebView URL
-    linkText: "GravitLauncher GitHub", // Text for link under "Auth" button
-    linkURL: new java.net.URL("https://github.com/GravitLauncher/Launcher"), // URL for link under "Auth" button
+    linkText: "GravitHome site", // Text for link under "Auth" button
+    linkURL: new java.net.URL("https://gravithome.ru/"), // URL for link under "Auth" button
+	
+    // Menu config
+    discord_url: new java.net.URL("https://discord.gg/bf7ZtwC"),
 
     // Settings defaults
     settingsMagic: 0xC0DE5, // Ancient magic, don't touch

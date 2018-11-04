@@ -1,37 +1,57 @@
-// Dialog nodes
-var rootPane, news, authPane, dimPane;
-var loginField, passwordField, savePasswordBox, profilesBox;
-var movePoint = null; // Point2D
+// Ининциализируем кучу всяких переменных
+var authPane, dimPane, serverPane;
 
-// State variables
-var pingers = {};
+// Переменные от окна входа
+var loginField, passwordField, forgotButton, savePasswordBox, registerButton;
 
-function initDialog() {
-    // Lookup news WebView
-    news = rootPane.lookup("#news");
-    var newsEngine = news.getEngine();
-    newsEngine.setUserDataDirectory(DirBridge.dir.resolve("webview").toFile());
-    newsEngine.load(config.newsURL);
+// Переменные от основной менюшки
+var serverList, serverInfo, serverDescription, serverEntrance, serverLabel, serverStatus;
+var discord_url;
 
-    // Lookup auth pane and dim
-    initAuthPane(rootPane.lookup("#authPane"));
-    dimPane = rootPane.lookup("#dim");
+// Прочие вспомогалки
+var profilesList = []; // Ассоциативный массив: "кнопка сервера" => "профиль сервера"
+var movePoint = null; // Координата, хранящая опроную точку при Drag'е
+var pingers = {}; // ддосеры серверов
+var loginData; // Буфер для данных авторизации
 
-    // Init overlays
+function initLauncher() {
+	
+    // Инициализируем основы
+    initLoginScene();
+    initMenuScene();
+
+    // Инициализируем доп. менюшки
     debug.initOverlay();
     processing.initOverlay();
     settingsOverlay.initOverlay();
     update.initOverlay();
+    options.initOverlay();
 
-    // Verify launcher & make request
+    // Делаем запрос на проверку свежести лаунчера, ну и сервера заодно обновляем
     verifyLauncher();
 }
 
-function initAuthPane(pane) {
+function initLoginScene() {
+    loginPane.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    loginPane.setOnMouseDragged(function(event) {
+        if(movePoint === null) {
+            return;
+        }
+
+        // Обновляем позицию панели
+        stage.setX(event.getScreenX() - movePoint.getX());
+        stage.setY(event.getScreenY() - movePoint.getY());
+    });
+    loginPane.lookup("#exitbtn").setOnAction(function(event){ javafx.application.Platform.exit()});
+    loginPane.lookup("#hidebtn").setOnAction(function(event){ stage.setIconified(true)});
+    loginPane.lookup("#discord_url").setOnAction(function(){ openURL(config.discord_url); });
+
+    var pane = loginPane.lookup("#authPane");
     authPane = pane;
 
     // Lookup login field
     loginField = pane.lookup("#login");
+	loginField.setOnMouseMoved(function(event){rootPane.fireEvent(event)}); 
     loginField.setOnAction(goAuth);
     if (settings.login !== null) {
         loginField.setText(settings.login);
@@ -39,33 +59,64 @@ function initAuthPane(pane) {
 
     // Lookup password field
     passwordField = pane.lookup("#password");
+	passwordField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
     passwordField.setOnAction(goAuth);
     if (settings.rsaPassword !== null) {
         passwordField.getStyleClass().add("hasSaved");
         passwordField.setPromptText("*** Сохранённый ***");
     }
-
-    // Lookup profiles combobox
-    profilesBox = pane.lookup("#profiles");
-    profilesBox.setCellFactory(newProfileCell);
-    profilesBox.setButtonCell(newProfileCell(null));
-
+	
     // Lookup save password box
-    savePasswordBox = pane.lookup("#savePassword");
+    savePasswordBox = pane.lookup("#rememberchb");
     savePasswordBox.setSelected(settings.login === null || settings.rsaPassword !== null);
-
+	
     // Lookup hyperlink text and actions
     var link = pane.lookup("#link");
     link.setText(config.linkText);
     link.setOnAction(function(event) app.getHostServices().showDocument(config.linkURL.toURI()));
-
+	
     // Lookup action buttons
     pane.lookup("#goAuth").setOnAction(goAuth);
-    pane.lookup("#goSettings").setOnAction(goSettings);
+}
+
+function initMenuScene() {
+    menuPane.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    menuPane.setOnMouseDragged(function(event) {
+        if(movePoint === null) {
+            return;
+        }
+
+        // Обновляем позицию панели
+        stage.setX(event.getScreenX() - movePoint.getX());
+        stage.setY(event.getScreenY() - movePoint.getY());
+    });
+    menuPane.lookup("#exitbtn").setOnAction(function(event){ javafx.application.Platform.exit()});
+    menuPane.lookup("#hidebtn").setOnAction(function(event){ stage.setIconified(true)});
+    var pane = menuPane.lookup("#serverPane");
+    serverPane = pane;
+
+    menuPane.lookup("#discord_url").setOnAction(function(){ openURL(config.discord_url); });
+
+    pane.lookup("#settingsbtn").setOnAction(goSettings);
+    pane.lookup("#clientbtn").setOnAction(goOptions);
+    serverList = pane.lookup("#serverlist").getContent();
+    serverInfo = pane.lookup("#serverinfo").getContent();
+    serverDescription = serverInfo.lookup("#serverDescription");
+
+    serverEntrance = pane.lookup("#serverentrance");
+    serverStatus = serverEntrance.lookup("#serverStatus");
+    serverLabel = serverEntrance.lookup("#serverLabel");
+    serverEntrance.lookup("#serverLaunch").setOnAction(function(){
+        doUpdate(profilesList[serverHolder.old], loginData.pp, loginData.accessToken);
+    });
+
+    pane.lookup("#logoutbtn").setOnAction(function(){
+        setCurrentScene(loginScene);
+    });
 }
 
 function initOffline() {
-    // Update title
+    // Меняем заголовок(Хер его знает зачем, его всё равно нигде не видно...
     stage.setTitle(config.title + " [Offline]");
 
     // Set login field as username field
@@ -74,14 +125,11 @@ function initOffline() {
         loginField.setText(""); // Reset if not valid
     }
 
+
     // Disable password field
     passwordField.setDisable(true);
     passwordField.setPromptText("Недоступно");
     passwordField.setText("");
-
-    // Switch news view to offline page
-    var offlineURL = Launcher.getResourceURL("dialog/offline/offline.html");
-    news.getEngine().load(offlineURL.toString());
 }
 
 /* ======== Handler functions ======== */
@@ -89,17 +137,7 @@ function goAuth(event) {
     // Verify there's no other overlays
     if (overlay.current !== null) {
         return;
-    }
-
-    // Get profile
-    var profile = profilesBox.getSelectionModel().getSelectedItem();
-    if (profile === null) {
-        return; // No profile selected
-    }
-    else
-    {
-        ClientLauncher.setProfile(profile.object);
-    }
+    } 
 
     // Get login
     var login = loginField.getText();
@@ -116,16 +154,15 @@ function goAuth(event) {
         } else if (settings.rsaPassword !== null) {
             rsaPassword = settings.rsaPassword;
         } else {
-            return; // No password - no auth, sorry :C
+            return;
         }
 
-        // Remember or reset password
         settings.rsaPassword = savePasswordBox.isSelected() ? rsaPassword : null;
     }
 
     // Show auth overlay
     settings.login = login;
-    doAuth(profile, login, rsaPassword);
+    doAuth(login, rsaPassword);
 }
 
 function goSettings(event) {
@@ -136,6 +173,16 @@ function goSettings(event) {
 
     // Show settings overlay
     overlay.show(settingsOverlay.overlay, null);
+}
+
+function goOptions(event) {
+    // Verify there's no other overlays
+    if (overlay.current !== null) {
+        return;
+    }
+
+    // Show options overlay
+    overlay.show(options.overlay, null);
 }
 
 /* ======== Processing functions ======== */
@@ -163,33 +210,43 @@ function verifyLauncher(e) {
     }));
 }
 
-function doAuth(profile, login, rsaPassword) {
+function doAuth(login, rsaPassword) {
     processing.resetOverlay();
-    overlay.show(processing.overlay, function(event) makeAuthRequest(login, rsaPassword, function(result)
-        doUpdate(profile, result.pp, result.accessToken)
-    ));
+    overlay.show(processing.overlay, function (event) {
+        makeAuthRequest(login, rsaPassword, function (result) {
+            loginData = { pp: result.pp , accessToken: result.accessToken};
+
+            overlay.hide(0, function () {
+                setCurrentScene(menuScene);
+            });
+            return result;
+        })
+    });
 }
 
 function doUpdate(profile, pp, accessToken) {
-    var digest = profile.object.isUpdateFastCheck();
-
-    // Update asset dir
+var digest = profile.object.isUpdateFastCheck();
     overlay.swap(0, update.overlay, function(event) {
+
+            // Update asset dir
             update.resetOverlay("Обновление файлов ресурсов");
             var assetDirName = profile.object.block.getEntryValue("assetDir", StringConfigEntryClass);
             var assetDir = settings.updatesDir.resolve(assetDirName);
             var assetMatcher = profile.object.getAssetUpdateMatcher();
-            makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
-                settings.lastHDirs.put(assetDirName, assetHDir);
+            makeSetProfileRequest(profile.object, function() {
+                ClientLauncher.setProfile(profile.object);
+                makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
+                    settings.lastHDirs.put(assetDirName, assetHDir);
 
-                // Update client dir
-                update.resetOverlay("Обновление файлов клиента");
-                var clientDirName = profile.object.block.getEntryValue("dir", StringConfigEntryClass);
-                var clientDir = settings.updatesDir.resolve(clientDirName);
-                var clientMatcher = profile.object.getClientUpdateMatcher();
-                makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
-                    settings.lastHDirs.put(clientDirName, clientHDir);
-                    doLaunchClient(assetDir, assetHDir, clientDir, clientHDir, profile, pp, accessToken);
+                    // Update client dir
+                    update.resetOverlay("Обновление файлов клиента");
+                    var clientDirName = profile.object.block.getEntryValue("dir", StringConfigEntryClass);
+                    var clientDir = settings.updatesDir.resolve(clientDirName);
+                    var clientMatcher = profile.object.getClientUpdateMatcher();
+                    makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
+                        settings.lastHDirs.put(clientDirName, clientHDir);
+                        doLaunchClient(assetDir, assetHDir, clientDir, clientHDir, profile, pp, accessToken);
+                    });
                 });
             });
     });
@@ -216,63 +273,40 @@ function doDebugClient(process) {
 
 /* ======== Server handler functions ======== */
 function updateProfilesList(profiles) {
+    profilesList = [];
     // Set profiles items
-    profilesBox.setItems(javafx.collections.FXCollections.observableList(profiles));
-    for each (var profile in profiles) {
+    serverList.getChildren().clear();
+    profiles.forEach(function (profile, i, arr) {
         pingers[profile.object] = new ServerPinger(profile.object.getServerSocketAddress(), profile.object.getVersion());
-    }
-
-    // Set profiles selection model
-    var sm = profilesBox.getSelectionModel();
-    sm.selectedIndexProperty()["addListener(javafx.beans.value.ChangeListener)"](
-        function(o, ov, nv) settings.profile = nv); // Store selected profile index
-
-    // Restore selected item
-    var i = settings.profile;
-    sm.select(i < profiles.size() ? i : 0);
+        var serverBtn = new javafx.scene.control.ToggleButton(profile);
+        (function () {
+            profilesList[serverBtn] = profile;
+            var hold = serverBtn;
+            serverBtn.setOnAction(function (event) {
+                serverHolder.set(hold);
+            });
+        })();
+        serverList.getChildren().add(serverBtn);
+    });
+    serverHolder.set(serverList.getChildren().get(0));
 }
 
-function newProfileCell(listView) {
-    var statusBox = loadFXML("dialog/profileCell.fxml");
-
-    // Lookup labels
-    var title = statusBox.lookup("#profileTitle");
-    var status = statusBox.lookup("#serverStatus");
-    var statusCircle = title.getGraphic();
-
-    // Create and return new cell
-    var cell = new (Java.extend(javafx.scene.control.ListCell))() {
-        updateItem: function(item, empty) {
-            Java.super(cell).updateItem(item, empty);
-            cell.setGraphic(empty ? null : statusBox);
-            if (empty) { // No need to update state
-                return;
-            }
-
-            // Update title and server status
-            title.setText(item.object.getTitle());
-            pingServer(status, statusCircle, item);
-        }
-    };
-    cell.setText(null);
-    return cell;
-}
-
-function pingServer(status, statusCircle, profile) {
-    setServerStatus(status, statusCircle, javafx.scene.paint.Color.GREY, "...");
+function pingServer(btn) {
+    var profile = profilesList[btn];
+    setServerStatus("...");
     var task = newTask(function() pingers[profile.object].ping());
     task.setOnSucceeded(function(event) {
         var result = task.getValue();
-        var color = result.isOverfilled() ? javafx.scene.paint.Color.YELLOW : javafx.scene.paint.Color.GREEN;
-        setServerStatus(status, statusCircle, color, java.lang.String.format("%d из %d", result.onlinePlayers, result.maxPlayers));
+        if(btn==serverHolder.old){
+		setServerStatus(java.lang.String.format("%d из %d", result.onlinePlayers, result.maxPlayers));
+        }
     });
-    task.setOnFailed(function(event) setServerStatus(status, statusCircle, javafx.scene.paint.Color.RED, "Недоступен"));
+    task.setOnFailed(function(event){ if(btn==serverHolder.old){setServerStatus("Недоступен")}});
     startTask(task);
 }
 
-function setServerStatus(status, statusCircle, color, description) {
-    status.setText(description);
-    statusCircle.setFill(color);
+function setServerStatus(description) {
+    serverStatus.setText(description);
 }
 
 /* ======== Overlay helper functions ======== */
@@ -294,7 +328,6 @@ var overlay = {
 
     show: function(newOverlay, onFinished) {
         // Freeze root pane
-        news.setDisable(true);
         authPane.setDisable(true);
         overlay.current = newOverlay;
 
@@ -323,7 +356,6 @@ var overlay = {
                 dimPane.setVisible(false);
 
                 // Unfreeze root pane
-                news.setDisable(false);
                 authPane.setDisable(false);
                 rootPane.requestFocus();
 
@@ -341,6 +373,11 @@ var overlay = {
         fade(overlay.current, delay, 1.0, 0.0, function(event) {
             dimPane.requestFocus();
 
+
+            if(overlay.current==null){
+                overlay.show(newOverlay, onFinished);
+                return;
+            }
             // Hide old overlay
             if (overlay.current !== newOverlay) {
                 var child = dimPane.getChildren();
@@ -358,8 +395,27 @@ var overlay = {
     }
 };
 
+var serverHolder = {
+    old: null,
+
+    set: function(btn){
+        pingServer(btn);
+        serverLabel.setText("СЕРВЕР " + profilesList[btn]);
+        serverDescription.setText(serversConfig.getServerProperty(profilesList[btn], "description"));
+        btn.setSelected(true);
+        btn.setDisable(true);
+        if(serverHolder.old!=null){
+            serverHolder.old.setSelected(false);
+            serverHolder.old.setDisable(false);
+        }
+        serverHolder.old = btn;
+    }
+};
+
 /* ======== Overlay scripts ======== */
 launcher.loadScript("dialog/overlay/debug/debug.js");
 launcher.loadScript("dialog/overlay/processing/processing.js");
 launcher.loadScript("dialog/overlay/settings/settings.js");
+launcher.loadScript("dialog/overlay/options/options.js");
 launcher.loadScript("dialog/overlay/update/update.js");
+

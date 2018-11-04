@@ -11,7 +11,7 @@ var processing = {
 
         // Set images
         processing.processingImage = new javafx.scene.image.Image(
-            Launcher.getResourceURL("dialog/overlay/processing/spinner.gif").toString());
+            Launcher.getResourceURL("dialog/images/icons/loading.gif").toString());
         processing.errorImage = new javafx.scene.image.Image(
             Launcher.getResourceURL("dialog/overlay/processing/error.png").toString());
     },
@@ -97,6 +97,22 @@ function makeProfilesRequest(callback) {
         overlay.swap(2500, processing.overlay, function() makeProfilesRequest(callback));
     }, false);
     task.updateMessage("Обновление списка серверов");
+    startTask(task);
+}
+function makeSetProfileRequest(profile, callback) {
+    var task = newRequestTask(new SetProfileRequest(Launcher.getConfig(), profile));
+
+    // Set task properties and start
+    processing.setTaskProperties(task, callback, function() {
+        if (settings.offline) {
+            return;
+        }
+
+        // Repeat request, but in offline mode
+        settings.offline = true;
+        overlay.swap(2500, processing.overlay, function() makeProfilesRequest(callback));
+    }, false);
+    task.updateMessage("Синхронизация профиля");
     startTask(task);
 }
 

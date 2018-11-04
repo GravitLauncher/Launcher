@@ -3,17 +3,20 @@
 /* Output */
 #overlay > #output {
     -fx-background-color: white;
+    -fx-background-radius: 0;
     -fx-font-family: monospace;
     -fx-font-size: 8pt;
 }
 
 #overlay > #output .content {
     -fx-background-color: white;
+    -fx-background-radius: 0;
 }
 
 /* Close button */
 #overlay > #copy,
 #overlay > #action.close {
+    -fx-background-radius: 0;
     -fx-background-color: rgba(33,133,208,.5);
     -fx-text-fill: white;
 }
@@ -32,6 +35,7 @@
 
 /* Kill button */
 #overlay > #action.kill {
+    -fx-background-radius: 0;
     -fx-background-color: rgba(219,40,40,.5);
     -fx-text-fill: white;
 }

@@ -37,45 +37,21 @@ var settingsOverlay = {
         settingsOverlay.overlay = loadFXML("dialog/overlay/settings/settings.fxml");
 
         // Lookup autoEnter checkbox
-        var autoEnterBox = settingsOverlay.overlay.lookup("#autoEnter");
+        var holder = settingsOverlay.overlay.lookup("#holder");
+
+        var autoEnterBox = holder.lookup("#autoEnter");
         autoEnterBox.setSelected(settings.autoEnter);
         autoEnterBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) settings.autoEnter = nv);
 
-        // Lookup fullScreen checkbox
-        var fullScreenBox = settingsOverlay.overlay.lookup("#fullScreen");
-        fullScreenBox.setSelected(settings.fullScreen);
-        fullScreenBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
-            function(o, ov, nv) settings.fullScreen = nv);
-
-        // Lookup RAM label
-        settingsOverlay.ramLabel = settingsOverlay.overlay.lookup("#ramLabel");
-        settingsOverlay.updateRAMLabel();
-
-        // Lookup RAM slider options
-        var ramSlider = settingsOverlay.overlay.lookup("#ramSlider");
-        ramSlider.setMin(0);
-        ramSlider.setMax(JVMHelper.RAM);
-        ramSlider.setSnapToTicks(true);
-        ramSlider.setShowTickMarks(true);
-        ramSlider.setShowTickLabels(true);
-        ramSlider.setMinorTickCount(3);
-        ramSlider.setMajorTickUnit(1024);
-        ramSlider.setBlockIncrement(1024);
-        ramSlider.setValue(settings.ram);
-        ramSlider.valueProperty()["addListener(javafx.beans.value.ChangeListener)"](function(o, ov, nv) {
-            settings.setRAM(nv);
-            settingsOverlay.updateRAMLabel();
-        });
-
         // Lookup dir label
-        settingsOverlay.dirLabel = settingsOverlay.overlay.lookup("#dirLabel");
+        settingsOverlay.dirLabel = holder.lookup("#dirLabel");
         settingsOverlay.dirLabel.setOnAction(function(event)
             app.getHostServices().showDocument(settings.updatesDir.toUri()));
         settingsOverlay.updateDirLabel();
-
-        // Lookup change dir button
-        settingsOverlay.overlay.lookup("#changeDir").setOnAction(function(event) {
+		
+		// Lookup change dir button
+        holder.lookup("#changeDir").setOnAction(function(event) {
             var chooser = new javafx.stage.DirectoryChooser();
             chooser.setTitle("Сменить директорию загрузок");
             chooser.setInitialDirectory(DirBridge.dir.toFile());
@@ -84,23 +60,58 @@ var settingsOverlay = {
             var newDir = chooser.showDialog(stage);
             if (newDir !== null) {
                 settings.updatesDir = newDir.toPath();
-                settings.updateDirLabel();
+                settingsOverlay.updateDirLabel();
             }
         });
 
+
+        // Lookup fullScreen checkbox
+        var fullScreenBox = holder.lookup("#fullScreen");
+        fullScreenBox.setSelected(settings.fullScreen);
+        fullScreenBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
+            function(o, ov, nv) settings.fullScreen = nv);
+
+        // Lookup RAM label
+        settingsOverlay.ramLabel = holder.lookup("#ramLabel");
+        settingsOverlay.updateRAMLabel();
+
+        // Lookup RAM slider options
+        var ramSlider = holder.lookup("#ramSlider");
+        ramSlider.setMin(0);
+        ramSlider.setMax(JVMHelper.RAM);
+        ramSlider.setSnapToTicks(true);
+        ramSlider.setMinorTickCount(3);
+        //ramSlider.setMajorTickUnit(1024);
+        //ramSlider.setBlockIncrement(1024);
+        ramSlider.setValue(settings.ram);
+        ramSlider.valueProperty()["addListener(javafx.beans.value.ChangeListener)"](function(o, ov, nv) {
+            settings.setRAM(nv);
+            settingsOverlay.updateRAMLabel();
+        });
+
         // Lookup delete dir button
-        var deleteDirButton = settingsOverlay.overlay.lookup("#deleteDir");
+        var deleteDirButton = holder.lookup("#deleteDir");
         deleteDirButton.setOnAction(function(event) {
-            if (!settingsOverlay.deleteDirPressedAgain) {
-                settingsOverlay.deleteDirPressedAgain = true;
-                deleteDirButton.setText("Подтвердить вменяемость");
+            if (!settings.deleteDirPressedAgain) {
+                settings.deleteDirPressedAgain = true;
+                deleteDirButton.setText("Подтвердить");
                 return;
             }
 
             // Delete dir!
-            settingsOverlay.deleteUpdatesDir();
-            settingsOverlay.deleteDirPressedAgain = false;
-            deleteDirButton.setText("Ещё раз попробовать");
+            settings.deleteUpdatesDir();
+            settings.deleteDirPressedAgain = false;
+            settings.count = settings.count+1;
+			if(settings.count>9){
+				javafx.application.Platform.exit();
+			}
+            deleteDirButton.setText(
+				settings.count>8?"Прощай :(":
+				(settings.count>7?"Я умираю!":
+				(settings.count>5?"DeathCry, спаси!":
+				(settings.count>4?"Умоляю, перестань!":
+				(settings.count>3?"Да хорош уже!":"Ещё раз")
+			))));
         });
 
         // Lookup debug checkbox
@@ -109,8 +120,9 @@ var settingsOverlay = {
         debugBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) LogHelper.setDebugEnabled(nv));
 
+
         // Lookup apply settings button
-        settingsOverlay.overlay.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
+        holder.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
     },
 
     updateRAMLabel: function() {

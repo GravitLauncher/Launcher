@@ -1,6 +1,5 @@
 #overlay > #utitle {
-    -fx-font-size: 14pt;
-    -fx-alignment: baseline-center;
+    -fx-alignment: top-left;
 }
 
 #overlay > #description {
@@ -13,19 +12,29 @@
 }
 
 /* Progress bar */
-#overlay > #progress {
+.progress-bar {
     -fx-indeterminate-bar-flip: false;
+    -fx-background-color: transparent;
 }
 
-#overlay > #progress > .bar {
-    -fx-background-color: #888888;
-    -fx-background-insets: none;
-    -fx-background-radius: 3px;
+.progress-indicator{
+    -fx-background-color: transparent ;
+}
+
+.progress-indicator .indicator {
+    -fx-background-color: transparent ;
+}
+
+.progress-bar > .bar {
+    -fx-background-image: url("../../images/downloader/cl_line.png");
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
     -fx-padding: 0;
 }
 
-#overlay > #progress > .track {
-    -fx-background-color: #E6E6E6;
-    -fx-background-insets: none;
+.progress-bar > .track {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
     -fx-background-radius: 3px;
 }
