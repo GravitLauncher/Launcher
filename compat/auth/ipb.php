@@ -11,7 +11,7 @@ if(empty($login) || empty($password)) {
 // Load IPB core
 define('IPB_THIS_SCRIPT', 'public');
 require('initdata.php'); // not once!!!
-require(IPS_ROOT_PATH . 'sources/base/ipsRegistry.php');
+require_once(IPS_ROOT_PATH . 'sources/base/ipsRegistry.php');
 $reg = ipsRegistry::instance();
 $reg->init();
 
