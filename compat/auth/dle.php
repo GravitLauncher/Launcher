@@ -12,7 +12,7 @@ $auth = [
 if( isset( $auth['login'] ) AND isset( $auth['password'] ) ) {
 	
 	define( 'DATALIFEENGINE', true );
-	require_once(  __DIR__ . '/engine/classes/mysql.php' );
+	require(  __DIR__ . '/engine/classes/mysql.php' );
 	require_once(  __DIR__ . '/engine/data/dbconfig.php' );
 
 	$auth['login'] = $db->safesql( $auth['login'] );
