@@ -5,7 +5,7 @@ header("Content-Type: text/plain; charset=UTF-8");
 $login = $_GET['login'];
 $password = $_GET['password'];
 if(empty($login) || empty($password)) {
-	exit('Empty login or password');
+	exit('Введены неверные данные');
 }
 
 // Load PHPBB Core
@@ -16,5 +16,5 @@ include($phpbb_root_path . 'common.' . $phpEx);
 
 // Try authenticate
 $result = $auth->login($login, $password, false, false, false);
-echo($result['status'] === LOGIN_SUCCESS ? 'OK:' . $result['user_row']['username'] : 'Incorrect login or password');
+echo($result['status'] === LOGIN_SUCCESS ? 'OK:' . $result['user_row']['username'] : 'Ошибка при авторизации');
 ?>
