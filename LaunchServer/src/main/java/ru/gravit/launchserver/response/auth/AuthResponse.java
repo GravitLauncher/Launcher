@@ -71,6 +71,10 @@ public final class AuthResponse extends Response {
                 AuthProvider.authError(server.config.authRejectString);
                 return;
             }
+            if(!clientData.checkSign)
+            {
+                throw new AuthException("You must using checkLauncher");
+            }
             result = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(result.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", result.username));

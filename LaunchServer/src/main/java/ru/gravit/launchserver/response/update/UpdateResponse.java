@@ -38,7 +38,7 @@ public final class UpdateResponse extends Response {
             return;
         }
         Client clientData = server.sessionManager.getClient(session);
-        if(!clientData.isAuth || clientData.type != Client.Type.USER) { requestError("Assess denied"); return;}
+        if(!clientData.isAuth || clientData.type != Client.Type.USER || clientData.profile == null) { requestError("Assess denied"); return;}
         for(SignedObjectHolder<ClientProfile> p : server.getProfiles())
         {
             ClientProfile profile = p.object;
