@@ -12,7 +12,7 @@ $auth = [
 if( isset( $auth['login'] ) AND isset( $auth['password'] ) ) {
 	
 	define( 'DATALIFEENGINE', true );
-	require_once(  __DIR__ . '/engine/classes/mysql.php' );
+	require(  __DIR__ . '/engine/classes/mysql.php' );
 	require_once(  __DIR__ . '/engine/data/dbconfig.php' );
 
 	$auth['login'] = $db->safesql( $auth['login'] );
@@ -24,7 +24,7 @@ if( isset( $auth['login'] ) AND isset( $auth['password'] ) ) {
 
 	if( !$member_id['name'] AND !$member_id['email'] ) {
 		
-		die('Введены неверные данные');
+		exit('Введены неверные данные');
 	}
 		
 	if( strlen($member_id['password']) == 32 && ctype_xdigit($member_id['password']) ) {
@@ -71,12 +71,13 @@ if( isset( $auth['login'] ) AND isset( $auth['password'] ) ) {
 		
 		$db->query( "UPDATE LOW_PRIORITY dle_users SET {$new_pass_hash}hash='{$hash}' WHERE name='{$member_id['name']}'" );
 
-		die('OK:'.$member_id['name'].'');
+		exit('OK:'.$member_id['name'].'');
 
 	} else {
 		
-		die('Ошибка при авторизации');
+		exit('Ошибка при авторизации');
 	}
+} else {
+	exit('Введены неверные данные');
 }
-
 ?>
