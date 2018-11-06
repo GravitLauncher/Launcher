@@ -31,7 +31,7 @@ public final class LauncherConfig extends StreamObject {
 
     // Instance
     @LauncherAPI
-    public final InetSocketAddress address;
+    public InetSocketAddress address;
     @LauncherAPI
     public final String projectname;
     public final int clientPort;

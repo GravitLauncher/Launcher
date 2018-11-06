@@ -50,6 +50,7 @@ public abstract class Response {
         registerResponse(RequestType.PROFILES.getNumber(), ProfilesResponse::new);
         registerResponse(RequestType.SERVERAUTH.getNumber(), AuthServerResponse::new);
         registerResponse(RequestType.SETPROFILE.getNumber(), SetProfileResponse::new);
+        registerResponse(RequestType.CHANGESERVER.getNumber(),ChangeServerResponse::new);
     }
 
 
