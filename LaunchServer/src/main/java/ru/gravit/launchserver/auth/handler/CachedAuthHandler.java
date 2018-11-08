@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;

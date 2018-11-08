@@ -1,6 +1,5 @@
 package ru.gravit.launchserver.command.hash;
 
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;

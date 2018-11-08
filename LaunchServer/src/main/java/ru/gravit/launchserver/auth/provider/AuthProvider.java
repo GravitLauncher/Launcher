@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.utils.helper.VerifyHelper;

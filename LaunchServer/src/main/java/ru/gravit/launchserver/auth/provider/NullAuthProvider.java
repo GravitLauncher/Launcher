@@ -3,7 +3,6 @@ package ru.gravit.launchserver.auth.provider;
 import java.io.IOException;
 import java.util.Objects;
 
-import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;

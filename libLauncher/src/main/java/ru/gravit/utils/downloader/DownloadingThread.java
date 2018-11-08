@@ -19,7 +19,6 @@ public class DownloadingThread extends Thread {
 	public void interrupt() {
 		runnable.interrupt.set(true);
 		while (!runnable.interrupted.get()) {
-			;
 		}
 		super.interrupt();
 	}

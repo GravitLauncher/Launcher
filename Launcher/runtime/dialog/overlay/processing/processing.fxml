@@ -8,23 +8,20 @@
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <ImageView fitHeight="161.0" fitWidth="161.0" layoutX="220.0" layoutY="94.0" y="-6.0">
-         <image>
-            <Image url="@../../images/icons/loading.gif" />
-         </image>
-      </ImageView>
-     <!-- Icon image -->
-     <ImageView id="spinner" fx:id="spinner" blendMode="COLOR_BURN" fitHeight="79.0" fitWidth="79.0" layoutX="261.0" layoutY="116.0" preserveRatio="true">
-        <image>
-          <Image url="@error.png" />
-        </image>
-     </ImageView>
-     <!-- Description -->
-     <Label fx:id="description" alignment="CENTER" contentDisplay="CENTER" layoutX="159.0" layoutY="249.0" prefHeight="64.0" prefWidth="283.0" text="..." textAlignment="CENTER" />
-   </children>
-  <stylesheets>
-    <URL value="@processing.css" />
-  </stylesheets>
+<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.1"
+      xmlns:fx="http://javafx.com/fxml/1">
+    <stylesheets>
+        <URL value="@processing.css"/>
+    </stylesheets>
+    <ImageView fitHeight="161.0" fitWidth="161.0" layoutX="220.0" layoutY="94.0" y="-6.0">
+        <Image url="@../../images/icons/loading.gif"/>
+    </ImageView>
+    <!-- Icon image -->
+    <ImageView id="spinner" fx:id="spinner" blendMode="COLOR_BURN" fitHeight="79.0" fitWidth="79.0" layoutX="261.0"
+               layoutY="116.0" preserveRatio="true">
+        <Image url="@error.png"/>
+    </ImageView>
+    <!-- Description -->
+    <Label fx:id="description" alignment="CENTER" contentDisplay="CENTER" layoutX="159.0" layoutY="249.0"
+           prefHeight="64.0" prefWidth="283.0" text="..." textAlignment="CENTER"/>
 </Pane>

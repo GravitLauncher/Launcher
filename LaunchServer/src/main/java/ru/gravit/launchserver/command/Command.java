@@ -2,7 +2,6 @@ package ru.gravit.launchserver.command;
 
 import java.util.UUID;
 
-import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launchserver.LaunchServer;
 

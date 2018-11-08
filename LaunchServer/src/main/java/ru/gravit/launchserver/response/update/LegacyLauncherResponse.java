@@ -1,16 +1,11 @@
 package ru.gravit.launchserver.response.update;
 
 import java.io.IOException;
-import java.util.Collection;
 
-import ru.gravit.launcher.serialize.signed.DigestBytesHolder;
 import ru.gravit.launchserver.binary.LauncherBinary;
 import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.signed.SignedBytesHolder;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.Response;
 

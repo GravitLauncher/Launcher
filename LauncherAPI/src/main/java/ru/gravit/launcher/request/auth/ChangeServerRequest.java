@@ -1,12 +1,10 @@
 package ru.gravit.launcher.request.auth;
 
-import jdk.nashorn.internal.ir.RuntimeNode;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.utils.helper.IOHelper;
 
 import java.net.InetSocketAddress;
 

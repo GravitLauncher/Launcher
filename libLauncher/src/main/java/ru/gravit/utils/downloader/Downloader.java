@@ -21,8 +21,8 @@ import ru.gravit.utils.helper.LogHelper;
 
 public class Downloader implements Runnable {
 	@FunctionalInterface
-	public static interface Handler {
-		public void check(Certificate[] certs) throws IOException;
+	public interface Handler {
+		void check(Certificate[] certs) throws IOException;
 	}
 
 	public static final Map<String, String> requestClient = Collections.singletonMap("User-Agent",

@@ -12,28 +12,31 @@
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="layout" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" visible="true" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
-  <children>
-    <ImageView id="background" fitHeight="400.0" fitWidth="600.0">
-      <image>
-        <Image preserveRatio="true" smooth="true" url="@images/background.png" />
-      </image>
-    </ImageView>
-    <Pane id="authPane" layoutX="1.0" layoutY="2.0" prefHeight="400.0" prefWidth="600.0">
-      <children>
-        <TextField id="login" alignment="CENTER" layoutX="175.0" layoutY="144.0" prefHeight="45.0" prefWidth="233.0" promptText="Логин" />
-        <PasswordField id="password" alignment="CENTER" layoutX="175.0" layoutY="197.0" prefHeight="45.0" prefWidth="233.0" promptText="Пароль" />
-        <Button id="goAuth" layoutX="159.0" layoutY="319.0" mnemonicParsing="false" opacity="1.0" prefHeight="45.0" prefWidth="267.0" styleClass="btn" text="ВОЙТИ" visible="true" />
-      	<CheckBox id="rememberchb" fx:id="savePassword" contentDisplay="CENTER" layoutX="224.0" layoutY="291.0" prefHeight="17.0" prefWidth="137.0" text="Сохранить пароль" textFill="#dadada" />
-		<Hyperlink id="link" fx:id="link" layoutY="371.0" prefHeight="30.0" prefWidth="158.0" textAlignment="CENTER" />
-        <Button id="discord_url" layoutX="278.0" layoutY="373.0" minHeight="16.0" minWidth="28.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="28.0" text="" />
-      </children>
-    </Pane>
-    <Pane id="mask" opacity="0.0" prefHeight="400.0" prefWidth="600.0" visible="false" />
-	<Button id="hidebtn" focusTraversable="false" layoutX="535.0" layoutY="2.0" minHeight="25.0" minWidth="35.0" prefHeight="25.0" prefWidth="25.0" />
-	<Button id="exitbtn" focusTraversable="false" layoutX="574.0" layoutY="2.0" minHeight="25.0" minWidth="20.0" prefHeight="25.0" prefWidth="20.0" />
-  </children>
+<Pane fx:id="layout" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="400.0" prefWidth="600.0"
+      xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <stylesheets>
-    <URL value="@login.css" />
+    <URL value="@login.css"/>
   </stylesheets>
+  <ImageView id="background" fitHeight="400.0" fitWidth="600.0">
+    <Image preserveRatio="true" smooth="true" url="@images/background.png"/>
+  </ImageView>
+  <Pane id="authPane" layoutX="1.0" layoutY="2.0" prefHeight="400.0" prefWidth="600.0">
+    <TextField id="login" alignment="CENTER" layoutX="175.0" layoutY="144.0" prefHeight="45.0" prefWidth="233.0"
+               promptText="Логин"/>
+    <PasswordField id="password" alignment="CENTER" layoutX="175.0" layoutY="197.0" prefHeight="45.0"
+                   prefWidth="233.0" promptText="Пароль"/>
+    <Button id="goAuth" layoutX="159.0" layoutY="319.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="267.0"
+            styleClass="btn" text="ВОЙТИ"/>
+    <CheckBox id="rememberchb" fx:id="savePassword" contentDisplay="CENTER" layoutX="224.0" layoutY="291.0"
+              prefHeight="17.0" prefWidth="137.0" text="Сохранить пароль" textFill="#dadada"/>
+    <Hyperlink id="link" fx:id="link" layoutY="371.0" prefHeight="30.0" prefWidth="158.0" textAlignment="CENTER"/>
+    <Button id="discord_url" layoutX="278.0" layoutY="373.0" minHeight="16.0" minWidth="28.0" mnemonicParsing="false"
+            prefHeight="16.0" prefWidth="28.0"/>
+  </Pane>
+  <Pane id="mask" opacity="0.0" prefHeight="400.0" prefWidth="600.0" visible="false"/>
+  <Button id="hidebtn" focusTraversable="false" layoutX="535.0" layoutY="2.0" minHeight="25.0" minWidth="35.0"
+          prefHeight="25.0" prefWidth="25.0"/>
+  <Button id="exitbtn" focusTraversable="false" layoutX="574.0" layoutY="2.0" minHeight="25.0" minWidth="20.0"
+          prefHeight="25.0" prefWidth="20.0"/>
 </Pane>

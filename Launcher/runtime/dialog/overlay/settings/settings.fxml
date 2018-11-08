@@ -14,36 +14,46 @@
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-     <Pane id="holder" layoutY="28.0" prefHeight="372.0" prefWidth="600.0">
-       <children>
-         <CheckBox fx:id="autoEnter" layoutX="14.0" layoutY="80.0" text="Автовход на сервер" />
-         <CheckBox fx:id="fullScreen" layoutX="13.0" layoutY="185.0" text="Клиент в полный экран" />
-		 
-         <!-- RAM settings -->
-		 <TextFlow layoutX="20.0" layoutY="70.0" />
-		 <Slider fx:id="ramSlider" layoutX="18.0" layoutY="36.0" prefHeight="3.0" prefWidth="563.0" />
-		 <Separator layoutY="65.0" prefHeight="1.0" prefWidth="600.0" />
-         <Label id="" alignment="CENTER_LEFT" layoutX="18.0" layoutY="16.0" prefHeight="17.0" prefWidth="217.0" text="Лимит памяти для клиента ОЗУ (RAM)" textFill="#2f2f2f" />
-         <!-- RAM settings -->
-		 
-         <Button fx:id="deleteDir" layoutX="15.0" layoutY="333.0" prefHeight="25.0" prefWidth="245.0" text="Очистить данные игровых клиентов" textAlignment="CENTER" wrapText="true">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font></Button>
-         <Button fx:id="changeDir" layoutX="14.0" layoutY="229.0" prefHeight="25.0" prefWidth="200.0" text="Сменить директорию загрузки" textAlignment="CENTER" wrapText="true" />
-         <Hyperlink id="dirLabel" alignment="TOP_LEFT" layoutX="215.0" layoutY="230.0" prefHeight="23.0" prefWidth="371.0" text="C:/Users" wrapText="true" />
-         <Button fx:id="apply" defaultButton="true" layoutX="486.0" layoutY="335.0" prefHeight="23.0" prefWidth="100.0" text="Применить" />
-         <CheckBox id="debug" layoutX="13.0" layoutY="124.0" text="Режим Откладки" />
-            <Text fill="#8c8c8c" layoutX="38.0" layoutY="95.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер" wrappingWidth="533.0000102519989" y="15.0" />
-            <Text fill="#8c8c8c" layoutX="38.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Режим отладки позволяет просмотреть лог запуска и работы программы в реальном времени прямо из лаунчера, что упрощает поиск нужной информации" wrappingWidth="533.0000016447157" y="15.0" />
-            <Text fill="#8c8c8c" layoutX="38.0" layoutY="200.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение данной функции позволяет запустить игру сразу в полноэкранном режиме" wrappingWidth="533.0000102519989" y="15.0" />
-			<Label fx:id="ramLabel" alignment="CENTER_RIGHT" layoutX="481.0" layoutY="17.0" prefWidth="100.0" text="RAM" />
-       </children>
-     </Pane>
-   </children>
-  <stylesheets>
-    <URL value="@settings.css" />
-  </stylesheets>
+<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.1"
+      xmlns:fx="http://javafx.com/fxml/1">
+    <stylesheets>
+        <URL value="@settings.css"/>
+    </stylesheets>
+    <Pane id="holder" layoutY="28.0" prefHeight="372.0" prefWidth="600.0">
+        <CheckBox fx:id="autoEnter" layoutX="14.0" layoutY="80.0" text="Автовход на сервер"/>
+        <CheckBox fx:id="fullScreen" layoutX="13.0" layoutY="185.0" text="Клиент в полный экран"/>
+
+        <!-- RAM settings -->
+        <TextFlow layoutX="20.0" layoutY="70.0"/>
+        <Slider fx:id="ramSlider" layoutX="18.0" layoutY="36.0" prefHeight="3.0" prefWidth="563.0"/>
+        <Separator layoutY="65.0" prefHeight="1.0" prefWidth="600.0"/>
+        <Label id="" layoutX="18.0" layoutY="16.0" prefHeight="17.0" prefWidth="217.0"
+               text="Лимит памяти для клиента ОЗУ (RAM)" textFill="#2f2f2f"/>
+        <!-- RAM settings -->
+
+        <Button fx:id="deleteDir" layoutX="15.0" layoutY="333.0" prefHeight="25.0" prefWidth="245.0"
+                text="Очистить данные игровых клиентов" textAlignment="CENTER" wrapText="true">
+            <font>
+                <Font name="System Bold" size="12.0"/>
+            </font>
+        </Button>
+        <Button fx:id="changeDir" layoutX="14.0" layoutY="229.0" prefHeight="25.0" prefWidth="200.0"
+                text="Сменить директорию загрузки" textAlignment="CENTER" wrapText="true"/>
+        <Hyperlink id="dirLabel" alignment="TOP_LEFT" layoutX="215.0" layoutY="230.0" prefHeight="23.0"
+                   prefWidth="371.0" text="C:/Users" wrapText="true"/>
+        <Button fx:id="apply" defaultButton="true" layoutX="486.0" layoutY="335.0" prefHeight="23.0"
+                prefWidth="100.0" text="Применить"/>
+        <CheckBox id="debug" layoutX="13.0" layoutY="124.0" text="Режим Откладки"/>
+        <Text fill="#8c8c8c" layoutX="38.0" layoutY="95.0" strokeType="OUTSIDE" strokeWidth="0.0"
+              text="Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер"
+              wrappingWidth="533.0000102519989" y="15.0"/>
+        <Text fill="#8c8c8c" layoutX="38.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0"
+              text="Режим отладки позволяет просмотреть лог запуска и работы программы в реальном времени прямо из лаунчера, что упрощает поиск нужной информации"
+              wrappingWidth="533.0000016447157" y="15.0"/>
+        <Text fill="#8c8c8c" layoutX="38.0" layoutY="200.0" strokeType="OUTSIDE" strokeWidth="0.0"
+              text="Включение данной функции позволяет запустить игру сразу в полноэкранном режиме"
+              wrappingWidth="533.0000102519989" y="15.0"/>
+        <Label fx:id="ramLabel" alignment="CENTER_RIGHT" layoutX="481.0" layoutY="17.0" prefWidth="100.0"
+               text="RAM"/>
+    </Pane>
 </Pane>

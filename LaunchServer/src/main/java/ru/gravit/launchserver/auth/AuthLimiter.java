@@ -2,7 +2,6 @@ package ru.gravit.launchserver.auth;
 
 import java.util.HashMap;
 
-import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launchserver.LaunchServer;
 

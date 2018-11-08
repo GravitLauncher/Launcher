@@ -10,7 +10,7 @@ public class ClientPermissions {
         canServer = false;
     }
     public ClientPermissions(long data) {
-        canAdmin =  (data & (1 << 0)) != 0;
+        canAdmin =  (data & (1)) != 0;
         canServer = (data & (1 << 1)) != 0;
     }
     public static ClientPermissions getSuperuserAccount()

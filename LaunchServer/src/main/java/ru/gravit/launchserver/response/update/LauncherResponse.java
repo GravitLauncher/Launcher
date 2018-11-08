@@ -1,21 +1,14 @@
 package ru.gravit.launchserver.response.update;
 
-import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.signed.DigestBytesHolder;
-import ru.gravit.launcher.serialize.signed.SignedBytesHolder;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.Client;
-import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
-import java.security.SignatureException;
 import java.util.Arrays;
-import java.util.Collection;
 
 public final class LauncherResponse extends Response {
 

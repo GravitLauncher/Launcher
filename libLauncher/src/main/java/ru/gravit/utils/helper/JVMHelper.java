@@ -7,8 +7,6 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;

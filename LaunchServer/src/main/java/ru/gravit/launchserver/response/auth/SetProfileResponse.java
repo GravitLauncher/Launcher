@@ -6,7 +6,6 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.Client;
 

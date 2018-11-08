@@ -2,7 +2,6 @@ package ru.gravit.launchserver.socket.websocket.json.admin;
 
 import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.command.handler.CommandHandler;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;

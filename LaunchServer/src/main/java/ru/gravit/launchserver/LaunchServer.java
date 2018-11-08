@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
 import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.serialize.config.entry.*;
 import ru.gravit.launchserver.manangers.MirrorManager;

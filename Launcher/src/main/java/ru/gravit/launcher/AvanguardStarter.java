@@ -1,10 +1,8 @@
 package ru.gravit.launcher;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 import cpw.mods.fml.SafeExitJVMLegacy;
 import net.minecraftforge.fml.SafeExitJVM;
@@ -12,7 +10,6 @@ import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.utils.NativeJVMHalt;
 import ru.gravit.utils.helper.*;
-import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 import ru.zaxar163.GuardBind;
 
 public class AvanguardStarter {

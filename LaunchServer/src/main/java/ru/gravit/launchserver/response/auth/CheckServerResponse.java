@@ -3,7 +3,6 @@ package ru.gravit.launchserver.response.auth;
 import java.io.IOException;
 import java.util.UUID;
 
-import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;

@@ -8,8 +8,6 @@ import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.security.SignatureException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 
 public class DigestBytesHolder extends StreamObject {

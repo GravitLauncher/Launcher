@@ -8,8 +8,6 @@ import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.utils.helper.LogHelper;
 
-import java.util.UUID;
-
 public class JoinServerResponse implements JsonResponseInterface {
     public String serverID;
     public String accessToken;
