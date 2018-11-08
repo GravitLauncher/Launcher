@@ -109,6 +109,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     //  Updater and client watch service
     private final List<String> update = new ArrayList<>();
     private final List<String> updateExclusions = new ArrayList<>();
+    private final List<String> updateShared = new ArrayList<>();
     private final List<String> updateVerify = new ArrayList<>();
     private final Set<MarkedString> updateOptional = new HashSet<>();
     private final BooleanConfigEntry updateFastCheck;
@@ -139,6 +140,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
         //  Updater and client watch service
         block.getEntry("update", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(update::add);
         block.getEntry("updateVerify", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateVerify::add);
+        block.getEntry("updateShared", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateVerify::add);
         block.getEntry("updateOptional", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(e -> updateOptional.add(new MarkedString(e)));
         block.getEntry("updateExclusions", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateExclusions::add);
         block.getEntry("enabledOptional", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(e -> updateOptional.stream().anyMatch(e1 -> e.equals(e1.string) && (e1.mark = true)));
