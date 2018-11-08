@@ -31,7 +31,7 @@ var settingsClass = Java.extend(LauncherSettingsClass.static, {
 var settingsOverlay = {
 /* ===================== OVERLAY ===================== */
     overlay: null, ramLabel: null, dirLabel: null,
-    deleteDirPressedAgain: false,
+    deleteDirPressedAgain: false, count = 0,
 
     initOverlay: function() {
         settingsOverlay.overlay = loadFXML("dialog/overlay/settings/settings.fxml");
@@ -92,25 +92,25 @@ var settingsOverlay = {
         // Lookup delete dir button
         var deleteDirButton = holder.lookup("#deleteDir");
         deleteDirButton.setOnAction(function(event) {
-            if (!settings.deleteDirPressedAgain) {
-                settings.deleteDirPressedAgain = true;
+            if (!settingsOverlay.deleteDirPressedAgain) {
+                settingsOverlay.deleteDirPressedAgain = true;
                 deleteDirButton.setText("Подтвердить");
                 return;
             }
 
             // Delete dir!
-            settings.deleteUpdatesDir();
-            settings.deleteDirPressedAgain = false;
-            settings.count = settings.count+1;
-			if(settings.count>9){
+            settingsOverlay.deleteUpdatesDir();
+            settingsOverlay.deleteDirPressedAgain = false;
+            settingsOverlay.count = settingsOverlay.count+1;
+			if(settingsOverlay.count>9){
 				javafx.application.Platform.exit();
 			}
             deleteDirButton.setText(
-				settings.count>8?"Прощай :(":
-				(settings.count>7?"Я умираю!":
-				(settings.count>5?"DeathCry, спаси!":
-				(settings.count>4?"Умоляю, перестань!":
-				(settings.count>3?"Да хорош уже!":"Ещё раз")
+				settingsOverlay.count>8?"Прощай :(":
+				(settingsOverlay.count>7?"Я умираю!":
+				(settingsOverlay.count>5?"DeathCry, спаси!":
+				(settingsOverlay.count>4?"Умоляю, перестань!":
+				(settingsOverlay.count>3?"Да хорош уже!":"Ещё раз")
 			))));
         });
 
