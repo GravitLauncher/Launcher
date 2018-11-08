@@ -45,7 +45,7 @@ public final class FileAuthProvider extends DigestAuthProvider {
     private FileTime cacheLastModified;
 
     public FileAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block,server);
+        super(block, server);
         file = IOHelper.toPath(block.getEntryValue("file", StringConfigEntry.class));
 
         // Try to update cache

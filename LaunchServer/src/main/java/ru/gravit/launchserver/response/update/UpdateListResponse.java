@@ -22,6 +22,6 @@ public final class UpdateListResponse extends Response {
         // Write all update dirs names
         output.writeLength(updateDirs.size(), 0);
         for (Entry<String, SignedObjectHolder<HashedDir>> entry : updateDirs)
-             output.writeString(entry.getKey(), 255);
+            output.writeString(entry.getKey(), 255);
     }
 }

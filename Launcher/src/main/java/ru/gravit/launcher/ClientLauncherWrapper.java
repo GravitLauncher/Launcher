@@ -36,16 +36,14 @@ public class ClientLauncherWrapper {
         LogHelper.debug("Commandline: " + args);
         processBuilder.command(args);
         Process process = processBuilder.start();
-        if(!LogHelper.isDebugEnabled()) {
+        if (!LogHelper.isDebugEnabled()) {
             Thread.sleep(3000);
             if (!process.isAlive()) {
                 LogHelper.error("Process error code: %d", process.exitValue());
             } else {
                 LogHelper.debug("Process started success");
             }
-        }
-        else
-        {
+        } else {
             process.waitFor();
         }
     }

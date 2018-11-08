@@ -33,10 +33,11 @@ public class ServerWrapper {
     public static ModulesManager modulesManager;
     public static Path configFile;
     public static Config config;
+
     public static boolean auth(ServerWrapper wrapper) {
         try {
             LauncherConfig cfg = Launcher.getConfig();
-            Boolean auth = new AuthServerRequest(cfg,config.login,SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)),0,config.title).request();
+            Boolean auth = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), 0, config.title).request();
             ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
             for (SignedObjectHolder<ClientProfile> p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.object.getTitle());
@@ -48,21 +49,21 @@ public class ServerWrapper {
                 }
             }
             return true;
-        } catch (Throwable e)
-        {
+        } catch (Throwable e) {
             LogHelper.error(e);
             return false;
         }
 
     }
-    public static boolean loopAuth(ServerWrapper wrapper,int count,int sleeptime) {
-        if(count == 0) {
-            while(true) {
-                if(auth(wrapper)) return true;
+
+    public static boolean loopAuth(ServerWrapper wrapper, int count, int sleeptime) {
+        if (count == 0) {
+            while (true) {
+                if (auth(wrapper)) return true;
             }
         }
-        for(int i=0;i<count;++i) {
-            if(auth(wrapper)) return true;
+        for (int i = 0; i < count; ++i) {
+            if (auth(wrapper)) return true;
             try {
                 Thread.sleep(sleeptime);
             } catch (InterruptedException e) {
@@ -71,6 +72,7 @@ public class ServerWrapper {
         }
         return false;
     }
+
     public static void main(String[] args) throws Throwable {
         ServerWrapper wrapper = new ServerWrapper();
         modulesManager = new ModulesManager(wrapper);
@@ -82,21 +84,21 @@ public class ServerWrapper {
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = new Config(TextConfigReader.read(reader, true));
         }
-        LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(Paths.get("public.key"))),new HashMap<>(),config.projectname);
+        LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(Paths.get("public.key"))), new HashMap<>(), config.projectname);
         Launcher.setConfig(cfg);
-        if(config.syncAuth) auth(wrapper);
-        else CommonHelper.newThread("Server Auth Thread",true,() -> ServerWrapper.loopAuth(wrapper,config.reconnectCount,config.reconnectSleep));
+        if (config.syncAuth) auth(wrapper);
+        else
+            CommonHelper.newThread("Server Auth Thread", true, () -> ServerWrapper.loopAuth(wrapper, config.reconnectCount, config.reconnectSleep));
         modulesManager.initModules();
         String classname = config.mainclass.isEmpty() ? args[0] : config.mainclass;
         Class<?> mainClass;
-        if(config.customClassLoader) {
+        if (config.customClassLoader) {
             @SuppressWarnings("unchecked")
-			Class<ClassLoader> classloader_class = (Class<ClassLoader>) Class.forName(config.classloader);
+            Class<ClassLoader> classloader_class = (Class<ClassLoader>) Class.forName(config.classloader);
             ClassLoader loader = classloader_class.getConstructor(ClassLoader.class).newInstance(ClassLoader.getSystemClassLoader());
             Thread.currentThread().setContextClassLoader(loader);
-            mainClass = Class.forName(classname,false,loader);
-        }
-        else mainClass = Class.forName(classname);
+            mainClass = Class.forName(classname, false, loader);
+        } else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         String[] real_args = new String[args.length - 1];
         System.arraycopy(args, 1, real_args, 0, args.length - 1);
@@ -104,6 +106,7 @@ public class ServerWrapper {
         LogHelper.debug("Invoke main method");
         mainMethod.invoke(real_args);
     }
+
     private static void generateConfigIfNotExists() throws IOException {
         if (IOHelper.isFile(configFile))
             return;
@@ -123,6 +126,7 @@ public class ServerWrapper {
             TextConfigWriter.write(newConfig.block, writer, true);
         }
     }
+
     public static final class Config extends ConfigObject {
         public String title;
         public String projectname;
@@ -136,22 +140,24 @@ public class ServerWrapper {
         public String mainclass;
         public String login;
         public String password;
+
         protected Config(BlockConfigEntry block) {
             super(block);
-            title = block.getEntryValue("title",StringConfigEntry.class);
-            address = block.getEntryValue("address",StringConfigEntry.class);
-            projectname = block.getEntryValue("projectName",StringConfigEntry.class);
-            login = block.getEntryValue("login",StringConfigEntry.class);
-            password = block.getEntryValue("password",StringConfigEntry.class);
+            title = block.getEntryValue("title", StringConfigEntry.class);
+            address = block.getEntryValue("address", StringConfigEntry.class);
+            projectname = block.getEntryValue("projectName", StringConfigEntry.class);
+            login = block.getEntryValue("login", StringConfigEntry.class);
+            password = block.getEntryValue("password", StringConfigEntry.class);
             port = block.getEntryValue("port", IntegerConfigEntry.class);
             customClassLoader = block.getEntryValue("customClassLoader", BooleanConfigEntry.class);
-            if(customClassLoader)
-                classloader = block.getEntryValue("classloader",StringConfigEntry.class);
-            mainclass = block.getEntryValue("MainClass",StringConfigEntry.class);
-            reconnectCount = block.hasEntry("reconnectCount") ? block.getEntryValue("reconnectCount",IntegerConfigEntry.class) : 1;
-            reconnectSleep = block.hasEntry("reconnectSleep") ? block.getEntryValue("reconnectSleep",IntegerConfigEntry.class) : 30000;
-            syncAuth = block.hasEntry("syncAuth") ? block.getEntryValue("syncAuth",BooleanConfigEntry.class) : true;
+            if (customClassLoader)
+                classloader = block.getEntryValue("classloader", StringConfigEntry.class);
+            mainclass = block.getEntryValue("MainClass", StringConfigEntry.class);
+            reconnectCount = block.hasEntry("reconnectCount") ? block.getEntryValue("reconnectCount", IntegerConfigEntry.class) : 1;
+            reconnectSleep = block.hasEntry("reconnectSleep") ? block.getEntryValue("reconnectSleep", IntegerConfigEntry.class) : 30000;
+            syncAuth = block.hasEntry("syncAuth") ? block.getEntryValue("syncAuth", BooleanConfigEntry.class) : true;
         }
     }
+
     public ClientProfile profile;
 }

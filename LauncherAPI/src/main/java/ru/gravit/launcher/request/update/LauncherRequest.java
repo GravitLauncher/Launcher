@@ -86,9 +86,9 @@ public final class LauncherRequest extends Request<LauncherRequest.Result> {
     @SuppressWarnings("CallToSystemExit")
     protected Result requestDo(HInput input, HOutput output) throws Exception {
         Path launcherPath = IOHelper.getCodeSource(LauncherRequest.class);
-        byte[] digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512,launcherPath);
+        byte[] digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);
         output.writeBoolean(EXE_BINARY);
-        output.writeByteArray(digest,0);
+        output.writeByteArray(digest, 0);
         output.flush();
         readError(input);
 
@@ -97,7 +97,7 @@ public final class LauncherRequest extends Request<LauncherRequest.Result> {
         if (shouldUpdate) {
             byte[] binary = input.readByteArray(0);
             Result result = new Result(binary, digest);
-            update(Launcher.getConfig(),result);
+            update(Launcher.getConfig(), result);
         }
 
         // Return request result

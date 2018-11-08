@@ -28,7 +28,7 @@ public class TestCommand extends Command {
         if (handler == null)
             handler = new NettyServerSocketHandler(server);
         if (args[0].equals("start")) {
-            CommonHelper.newThread("Netty Server",true,handler).start();
+            CommonHelper.newThread("Netty Server", true, handler).start();
         }
         if (args[0].equals("stop")) {
             handler.close();

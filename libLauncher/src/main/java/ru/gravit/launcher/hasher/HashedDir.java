@@ -143,45 +143,43 @@ public final class HashedDir extends HashedEntry {
         HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
         return new Diff(mismatch, extra);
     }
+
     @LauncherAPI
     public Diff compare(HashedDir other, FileNameMatcher matcher) {
         HashedDir mismatch = sideDiff(other, matcher, new LinkedList<>(), true);
         HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
         return new Diff(mismatch, extra);
     }
-    public void remove(String name)
-    {
+
+    public void remove(String name) {
         map.remove(name);
     }
-    public void removeR(String name)
-    {
+
+    public void removeR(String name) {
         LinkedList<String> dirs = new LinkedList<>();
-        StringTokenizer t = new StringTokenizer(name,"/");
-        while(t.hasMoreTokens())
-        {
+        StringTokenizer t = new StringTokenizer(name, "/");
+        while (t.hasMoreTokens()) {
             dirs.add(t.nextToken());
         }
-        Map<String,HashedEntry> current = map;
-        for(String s : dirs)
-        {
+        Map<String, HashedEntry> current = map;
+        for (String s : dirs) {
             HashedEntry e = current.get(s);
-            if(e == null)
-            {
-                LogHelper.debug("Null %s",s);
-                for(String x : current.keySet()) LogHelper.debug("Contains %s",x);
+            if (e == null) {
+                LogHelper.debug("Null %s", s);
+                for (String x : current.keySet()) LogHelper.debug("Contains %s", x);
                 break;
             }
-            if(e.getType() == Type.DIR)
-            {
+            if (e.getType() == Type.DIR) {
                 current = ((HashedDir) e).map;
-                LogHelper.debug("Found dir %s",s);
+                LogHelper.debug("Found dir %s", s);
             } else {
                 current.remove(s);
-                LogHelper.debug("Found filename %s",s);
+                LogHelper.debug("Found filename %s", s);
                 break;
             }
         }
     }
+
     @LauncherAPI
     public HashedEntry getEntry(String name) {
         return map.get(name);

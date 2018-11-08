@@ -41,8 +41,9 @@ public final class AuthRequest extends Request<Result> {
         this.encryptedPassword = encryptedPassword.clone();
         auth_id = 0;
     }
+
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword,int auth_id) {
+    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, int auth_id) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
@@ -53,9 +54,10 @@ public final class AuthRequest extends Request<Result> {
     public AuthRequest(String login, byte[] encryptedPassword) {
         this(null, login, encryptedPassword);
     }
+
     @LauncherAPI
-    public AuthRequest(String login, byte[] encryptedPassword,int auth_id) {
-        this(null, login, encryptedPassword,auth_id);
+    public AuthRequest(String login, byte[] encryptedPassword, int auth_id) {
+        this(null, login, encryptedPassword, auth_id);
     }
 
     @Override
@@ -67,7 +69,7 @@ public final class AuthRequest extends Request<Result> {
     protected Result requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(login, SerializeLimits.MAX_LOGIN);
         output.writeBoolean(Launcher.profile != null);
-        if(Launcher.profile != null)
+        if (Launcher.profile != null)
             output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.writeInt(auth_id);
         output.writeLong(Launcher.isUsingAvanguard() ? GuardBind.avnGetHddId() : 0);

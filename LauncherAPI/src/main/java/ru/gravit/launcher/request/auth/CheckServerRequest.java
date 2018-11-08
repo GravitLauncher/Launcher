@@ -39,11 +39,10 @@ public final class CheckServerRequest extends Request<PlayerProfile> {
     protected PlayerProfile requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(username, SerializeLimits.MAX_LOGIN);
         output.writeASCII(serverID, SerializeLimits.MAX_SERVERID); // 1 char for minus sign
-        if(Launcher.profile == null) {
+        if (Launcher.profile == null) {
             LogHelper.error("Profile is null. Title is not net.");
             output.writeString("", SerializeLimits.MAX_CLIENT);
-        }
-        else
+        } else
             output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.flush();
 

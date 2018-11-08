@@ -11,14 +11,17 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
+
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
     public static LaunchServer server;
     public static GsonBuilder builder = new GsonBuilder();
-    public static WebSocketService service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), LaunchServer.server,builder);
+    public static WebSocketService service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), LaunchServer.server, builder);
     private Client client;
+
     static {
         service.registerResponses();
     }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         LogHelper.debug("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));

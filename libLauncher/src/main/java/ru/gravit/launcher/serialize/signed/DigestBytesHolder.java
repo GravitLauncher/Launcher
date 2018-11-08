@@ -16,7 +16,8 @@ public class DigestBytesHolder extends StreamObject {
 
     @LauncherAPI
     public DigestBytesHolder(byte[] bytes, byte[] digest, SecurityHelper.DigestAlgorithm algorithm) throws SignatureException {
-        if(Arrays.equals(SecurityHelper.digest(algorithm,bytes),digest)) throw new SignatureException("Invalid digest");
+        if (Arrays.equals(SecurityHelper.digest(algorithm, bytes), digest))
+            throw new SignatureException("Invalid digest");
         this.bytes = bytes.clone();
         this.digest = digest.clone();
     }
@@ -24,12 +25,12 @@ public class DigestBytesHolder extends StreamObject {
     @LauncherAPI
     public DigestBytesHolder(byte[] bytes, SecurityHelper.DigestAlgorithm algorithm) {
         this.bytes = bytes.clone();
-        this.digest = SecurityHelper.digest(algorithm,bytes);
+        this.digest = SecurityHelper.digest(algorithm, bytes);
     }
 
     @LauncherAPI
     public DigestBytesHolder(HInput input, SecurityHelper.DigestAlgorithm algorithm) throws IOException, SignatureException {
-        this(input.readByteArray(0), input.readByteArray(-SecurityHelper.RSA_KEY_LENGTH),algorithm);
+        this(input.readByteArray(0), input.readByteArray(-SecurityHelper.RSA_KEY_LENGTH), algorithm);
     }
 
     @LauncherAPI

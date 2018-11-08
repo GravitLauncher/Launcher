@@ -26,8 +26,7 @@ public final class LauncherResponse extends Response {
         }
         Client client = server.sessionManager.getOrNewClient(session);
         byte[] digest = input.readByteArray(0);
-        if(!Arrays.equals(bytes.getDigest(), digest))
-        {
+        if (!Arrays.equals(bytes.getDigest(), digest)) {
             writeNoError(output);
             output.writeBoolean(true);
             output.writeByteArray(bytes.getBytes(), 0);

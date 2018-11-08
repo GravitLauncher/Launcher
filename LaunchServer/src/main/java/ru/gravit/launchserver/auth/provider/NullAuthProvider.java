@@ -11,7 +11,7 @@ public final class NullAuthProvider extends AuthProvider {
     private volatile AuthProvider provider;
 
     public NullAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block,server);
+        super(block, server);
     }
 
     @Override

@@ -23,11 +23,11 @@ public abstract class AuthProvider extends ConfigObject implements AutoCloseable
     }
 
 
-    public static AuthProvider newProvider(String name, BlockConfigEntry block,LaunchServer server) {
+    public static AuthProvider newProvider(String name, BlockConfigEntry block, LaunchServer server) {
         VerifyHelper.verifyIDName(name);
         ServerAdapter<AuthProvider> authHandlerAdapter = VerifyHelper.getMapValue(AUTH_PROVIDERS, name,
                 String.format("Unknown auth provider: '%s'", name));
-        return authHandlerAdapter.convert(block,server);
+        return authHandlerAdapter.convert(block, server);
     }
 
 
@@ -51,8 +51,8 @@ public abstract class AuthProvider extends ConfigObject implements AutoCloseable
             registredProv = true;
         }
     }
-    public AuthHandler getAccociateHandler(int this_position)
-    {
+
+    public AuthHandler getAccociateHandler(int this_position) {
         return server.config.authHandler[this_position];
     }
 
@@ -67,9 +67,10 @@ public abstract class AuthProvider extends ConfigObject implements AutoCloseable
 
     @Override
     public abstract void close() throws IOException;
+
     @FunctionalInterface
     public interface ServerAdapter<O extends ConfigObject> {
 
-        O convert(BlockConfigEntry entry,LaunchServer server);
+        O convert(BlockConfigEntry entry, LaunchServer server);
     }
 }

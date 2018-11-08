@@ -12,7 +12,7 @@ public abstract class DigestAuthProvider extends AuthProvider {
 
 
     protected DigestAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block,server);
+        super(block, server);
         digest = DigestAlgorithm.byName(block.getEntryValue("digest", StringConfigEntry.class));
     }
 

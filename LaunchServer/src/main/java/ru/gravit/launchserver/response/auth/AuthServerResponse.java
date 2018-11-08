@@ -38,7 +38,7 @@ public final class AuthServerResponse extends Response {
         String login = input.readString(SerializeLimits.MAX_LOGIN);
         String client = input.readString(SerializeLimits.MAX_CLIENT);
         int auth_id = input.readInt();
-        if(auth_id + 1 > server.config.authProvider.length || auth_id < 0) auth_id = 0;
+        if (auth_id + 1 > server.config.authProvider.length || auth_id < 0) auth_id = 0;
         byte[] encryptedPassword = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
         // Decrypt password
         String password;
@@ -73,7 +73,7 @@ public final class AuthServerResponse extends Response {
                     clientData.profile = p.object;
                 }
             }
-            if(clientData.profile == null) {
+            if (clientData.profile == null) {
                 throw new AuthException("You profile not found");
             }
             clientData.type = Client.Type.SERVER;

@@ -42,13 +42,13 @@ public final class AuthResponse extends Response {
         String login = input.readString(SerializeLimits.MAX_LOGIN);
         boolean isClient = input.readBoolean();
         String client = null;
-        if(isClient)
+        if (isClient)
             client = input.readString(SerializeLimits.MAX_CLIENT);
         int auth_id = input.readInt();
         long hwid_hdd = input.readLong();
         long hwid_cpu = input.readLong();
         long hwid_bios = input.readLong();
-        if(auth_id + 1 > server.config.authProvider.length || auth_id < 0) auth_id = 0;
+        if (auth_id + 1 > server.config.authProvider.length || auth_id < 0) auth_id = 0;
         byte[] encryptedPassword = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
         // Decrypt password
         String password;
@@ -71,8 +71,7 @@ public final class AuthResponse extends Response {
                 AuthProvider.authError(server.config.authRejectString);
                 return;
             }
-            if(!clientData.checkSign)
-            {
+            if (!clientData.checkSign) {
                 throw new AuthException("You must using checkLauncher");
             }
             result = provider.auth(login, password, ip);
@@ -80,7 +79,7 @@ public final class AuthResponse extends Response {
                 AuthProvider.authError(String.format("Illegal result: '%s'", result.username));
                 return;
             }
-            if(isClient) {
+            if (isClient) {
                 Collection<SignedObjectHolder<ClientProfile>> profiles = server.getProfiles();
                 for (SignedObjectHolder<ClientProfile> p : profiles) {
                     if (p.object.getTitle().equals(client)) {

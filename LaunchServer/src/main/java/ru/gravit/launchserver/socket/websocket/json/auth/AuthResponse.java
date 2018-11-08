@@ -32,6 +32,7 @@ public class AuthResponse implements JsonResponseInterface {
 
     public int authid;
     public HWID hwid;
+
     @Override
     public String getType() {
         return "auth";
@@ -45,8 +46,7 @@ public class AuthResponse implements JsonResponseInterface {
                 AuthProvider.authError(LaunchServer.server.config.authRejectString);
                 return;
             }
-            if(!clientData.checkSign)
-            {
+            if (!clientData.checkSign) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
             }
@@ -65,20 +65,19 @@ public class AuthResponse implements JsonResponseInterface {
                     clientData.profile = p.object;
                 }
             }
-            if(clientData.profile == null) {
+            if (clientData.profile == null) {
                 throw new AuthException("You profile not found");
             }
             LaunchServer.server.config.hwidHandler.check(hwid, result.username);
             clientData.isAuth = true;
             clientData.permissions = result.permissions;
-            service.sendObject(ctx,new WebSocketService.SuccessResult("auth"));
-        } catch (AuthException | HWIDException e)
-        {
-            service.sendObject(ctx,new WebSocketService.ErrorResult(e.getMessage()));
+            service.sendObject(ctx, new WebSocketService.SuccessResult("auth"));
+        } catch (AuthException | HWIDException e) {
+            service.sendObject(ctx, new WebSocketService.ErrorResult(e.getMessage()));
         }
     }
-    public class Result
-    {
+
+    public class Result {
         public Result() {
         }
 

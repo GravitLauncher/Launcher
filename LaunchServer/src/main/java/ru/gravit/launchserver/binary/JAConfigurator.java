@@ -48,12 +48,13 @@ public class JAConfigurator implements AutoCloseable {
     public byte[] getBytecode() throws IOException, CannotCompileException {
         return ctClass.toBytecode();
     }
+
     public void compile() throws CannotCompileException {
         body.append("}");
         moduleBody.append("}");
         ctConstructor.setBody(body.toString());
         initModuleMethod.insertAfter(moduleBody.toString());
-        if(ctClass.isFrozen()) ctClass.defrost();
+        if (ctClass.isFrozen()) ctClass.defrost();
     }
 
     public String getZipEntryPath() {
@@ -83,16 +84,19 @@ public class JAConfigurator implements AutoCloseable {
         body.append(port);
         body.append(";");
     }
+
     public void setClientPort(int port) {
         body.append("this.clientPort = ");
         body.append(port);
         body.append(";");
     }
+
     public void setUsingWrapper(boolean b) {
         body.append("this.isUsingWrapper = ");
         body.append(b ? "true" : "false");
         body.append(";");
     }
+
     public void setDownloadJava(boolean b) {
         body.append("this.isDownloadJava = ");
         body.append(b ? "true" : "false");

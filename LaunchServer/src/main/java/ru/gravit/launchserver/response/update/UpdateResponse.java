@@ -38,12 +38,14 @@ public final class UpdateResponse extends Response {
             return;
         }
         Client clientData = server.sessionManager.getClient(session);
-        if(!clientData.isAuth || clientData.type != Client.Type.USER || clientData.profile == null) { requestError("Assess denied"); return;}
-        for(SignedObjectHolder<ClientProfile> p : server.getProfiles())
-        {
+        if (!clientData.isAuth || clientData.type != Client.Type.USER || clientData.profile == null) {
+            requestError("Assess denied");
+            return;
+        }
+        for (SignedObjectHolder<ClientProfile> p : server.getProfiles()) {
             ClientProfile profile = p.object;
-            if(!clientData.profile.getTitle().equals(profile.getTitle())) continue;
-            if(!profile.isWhitelistContains(clientData.username)) {
+            if (!clientData.profile.getTitle().equals(profile.getTitle())) continue;
+            if (!profile.isWhitelistContains(clientData.username)) {
                 requestError("You don't download this folder");
                 return;
             }

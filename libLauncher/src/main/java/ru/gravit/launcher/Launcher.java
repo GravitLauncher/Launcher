@@ -83,9 +83,9 @@ public final class Launcher {
         }
         return config;
     }
+
     @LauncherAPI
-    public static void setConfig(LauncherConfig cfg)
-    {
+    public static void setConfig(LauncherConfig cfg) {
         CONFIG.set(cfg);
     }
 
@@ -105,7 +105,7 @@ public final class Launcher {
         return url;
     }
 
-    public static URL getResourceURL(String name,String prefix) throws IOException {
+    public static URL getResourceURL(String name, String prefix) throws IOException {
         LauncherConfig config = getConfig();
         byte[] validDigest = config.runtime.get(name);
         if (validDigest == null)

@@ -23,12 +23,13 @@ public class Client {
         username = "";
         checkSign = false;
     }
+
     //Данные ваторизации
     public void up() {
         timestamp = System.currentTimeMillis();
     }
-    public enum Type
-    {
+
+    public enum Type {
         SERVER,
         USER
     }

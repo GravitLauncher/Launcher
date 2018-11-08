@@ -140,7 +140,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
                             pipeline.addLast(new HttpObjectAggregator(65536));
                             pipeline.addLast(new WebSocketServerCompressionHandler());
                             pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
-                            pipeline.addLast(new FileServerHandler(LaunchServer.server.updatesDir,true));
+                            pipeline.addLast(new FileServerHandler(LaunchServer.server.updatesDir, true));
                             pipeline.addLast(new WebSocketFrameHandler());
                         }
                     });

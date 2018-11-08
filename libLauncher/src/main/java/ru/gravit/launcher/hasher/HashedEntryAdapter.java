@@ -16,8 +16,8 @@ public class HashedEntryAdapter implements JsonSerializer<HashedEntry>, JsonDese
     public HashedEntry deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class cls = null;
-        if(typename.equals("dir")) cls = HashedDir.class;
-        if(typename.equals("file")) cls = HashedFile.class;
+        if (typename.equals("dir")) cls = HashedDir.class;
+        if (typename.equals("file")) cls = HashedFile.class;
 
 
         return (HashedEntry) context.deserialize(json, cls);
@@ -29,9 +29,9 @@ public class HashedEntryAdapter implements JsonSerializer<HashedEntry>, JsonDese
         JsonObject jo = context.serialize(src).getAsJsonObject();
 
         HashedEntry.Type type = src.getType();
-        if(type == HashedEntry.Type.DIR)
-        jo.add(PROP_NAME, new JsonPrimitive("dir"));
-        if(type == HashedEntry.Type.FILE)
+        if (type == HashedEntry.Type.DIR)
+            jo.add(PROP_NAME, new JsonPrimitive("dir"));
+        if (type == HashedEntry.Type.FILE)
             jo.add(PROP_NAME, new JsonPrimitive("file"));
 
         return jo;

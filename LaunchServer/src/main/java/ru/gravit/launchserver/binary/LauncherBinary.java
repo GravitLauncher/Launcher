@@ -43,6 +43,7 @@ public abstract class LauncherBinary {
     public final DigestBytesHolder getBytes() {
         return binary;
     }
+
     public final byte[] getSign() {
         return sign;
     }
@@ -51,7 +52,7 @@ public abstract class LauncherBinary {
     public final boolean sync() throws IOException {
         boolean exists = exists();
         binary = exists ? new DigestBytesHolder(IOHelper.read(syncBinaryFile), SecurityHelper.DigestAlgorithm.SHA512) : null;
-        sign = exists ? SecurityHelper.sign(IOHelper.read(syncBinaryFile),server.privateKey) : null;
+        sign = exists ? SecurityHelper.sign(IOHelper.read(syncBinaryFile), server.privateKey) : null;
 
         return exists;
     }

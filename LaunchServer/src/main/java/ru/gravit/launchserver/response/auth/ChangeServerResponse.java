@@ -19,9 +19,8 @@ public class ChangeServerResponse extends Response {
         writeNoError(output);
         output.writeBoolean(needChange);
         //if true
-        if(needChange)
-        {
-            output.writeString(address,255);
+        if (needChange) {
+            output.writeString(address, 255);
             output.writeInt(port);
         }
     }

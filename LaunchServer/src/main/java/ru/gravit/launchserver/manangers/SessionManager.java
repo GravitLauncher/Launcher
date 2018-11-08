@@ -22,7 +22,7 @@ public class SessionManager implements NeedGarbageCollection {
 
     public void garbageCollection() {
         long time = System.currentTimeMillis();
-        clientSet.removeIf(c -> (c.timestamp + SESSION_TIMEOUT < time)  && ((c.type == Client.Type.USER) || ((c.type == Client.Type.SERVER) && !NON_GARBAGE_SERVER ) ));
+        clientSet.removeIf(c -> (c.timestamp + SESSION_TIMEOUT < time) && ((c.type == Client.Type.USER) || ((c.type == Client.Type.SERVER) && !NON_GARBAGE_SERVER)));
     }
 
 

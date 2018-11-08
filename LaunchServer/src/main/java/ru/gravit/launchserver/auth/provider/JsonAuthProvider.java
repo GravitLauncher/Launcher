@@ -26,7 +26,7 @@ public final class JsonAuthProvider extends AuthProvider {
     private final String responseErrorKeyName;
 
     JsonAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block,server);
+        super(block, server);
         String configUrl = block.getEntryValue("url", StringConfigEntry.class);
         userKeyName = VerifyHelper.verify(block.getEntryValue("userKeyName", StringConfigEntry.class),
                 VerifyHelper.NOT_EMPTY, "Username key name can't be empty");
@@ -54,7 +54,7 @@ public final class JsonAuthProvider extends AuthProvider {
         String value;
 
         if ((value = response.getString(responseUserKeyName, null)) != null)
-            return new AuthProviderResult(value, SecurityHelper.randomStringToken(),new ClientPermissions(response.getLong(responsePermissionKeyName,0)));
+            return new AuthProviderResult(value, SecurityHelper.randomStringToken(), new ClientPermissions(response.getLong(responsePermissionKeyName, 0)));
         else if ((value = response.getString(responseErrorKeyName, null)) != null)
             return authError(value);
         else

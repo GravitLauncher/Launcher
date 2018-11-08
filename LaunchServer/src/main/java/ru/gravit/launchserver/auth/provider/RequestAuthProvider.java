@@ -20,7 +20,7 @@ public final class RequestAuthProvider extends AuthProvider {
     private final boolean usePermission;
 
     public RequestAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block,server);
+        super(block, server);
         url = block.getEntryValue("url", StringConfigEntry.class);
         response = Pattern.compile(block.getEntryValue("response", StringConfigEntry.class));
         usePermission = block.hasEntry("usePermission") ? block.getEntryValue("usePermission", BooleanConfigEntry.class) : false;

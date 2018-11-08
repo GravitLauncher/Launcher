@@ -75,6 +75,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     private final StringConfigEntry serverAddress;
 
     private final IntegerConfigEntry serverPort;
+
     public static class MarkedString {
         @LauncherAPI
         public String string;
@@ -85,6 +86,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
             this.string = string;
             this.mark = mark;
         }
+
         public MarkedString(String string) {
             this.string = string;
             this.mark = false;
@@ -103,6 +105,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
             return Objects.hash(string);
         }
     }
+
     //  Updater and client watch service
     private final List<String> update = new ArrayList<>();
     private final List<String> updateExclusions = new ArrayList<>();
@@ -213,28 +216,34 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     }
 
     @LauncherAPI
-    public Set<MarkedString> getOptional()
-    {
+    public Set<MarkedString> getOptional() {
         return updateOptional;
     }
+
     @LauncherAPI
-    public void markOptional(String opt)
-    {
-        if(!updateOptional.contains(new MarkedString(opt))) throw new SecurityException(String.format("Optional mod %s not found in optionalList",opt));
-        updateOptional.forEach(e -> {if(e.string.equals(opt)) e.mark = true;});
+    public void markOptional(String opt) {
+        if (!updateOptional.contains(new MarkedString(opt)))
+            throw new SecurityException(String.format("Optional mod %s not found in optionalList", opt));
+        updateOptional.forEach(e -> {
+            if (e.string.equals(opt)) e.mark = true;
+        });
     }
+
     @LauncherAPI
-    public void unmarkOptional(String opt)
-    {
-        if(!updateOptional.contains(new MarkedString(opt))) throw new SecurityException(String.format("Optional mod %s not found in optionalList",opt));
-        updateOptional.forEach(e -> {if(e.string.equals(opt)) e.mark = false;});
+    public void unmarkOptional(String opt) {
+        if (!updateOptional.contains(new MarkedString(opt)))
+            throw new SecurityException(String.format("Optional mod %s not found in optionalList", opt));
+        updateOptional.forEach(e -> {
+            if (e.string.equals(opt)) e.mark = false;
+        });
     }
-    public void pushOptional(HashedDir dir,boolean digest) throws IOException {
-        for(MarkedString opt : updateOptional)
-        {
-            if(!opt.mark) dir.removeR(opt.string);
+
+    public void pushOptional(HashedDir dir, boolean digest) throws IOException {
+        for (MarkedString opt : updateOptional) {
+            if (!opt.mark) dir.removeR(opt.string);
         }
     }
+
     @LauncherAPI
     public int getServerPort() {
         return serverPort.getValue();

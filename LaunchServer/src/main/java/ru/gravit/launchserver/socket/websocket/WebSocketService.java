@@ -25,69 +25,68 @@ import java.util.HashMap;
 
 public class WebSocketService {
     public final ChannelGroup channels;
+
     public WebSocketService(ChannelGroup channels, LaunchServer server, GsonBuilder gson) {
         this.channels = channels;
         this.server = server;
         this.gsonBuiler = gson;
         this.
-        gsonBuiler.registerTypeAdapter(JsonResponseInterface.class,new JsonResponseAdapter(this));
-        gsonBuiler.registerTypeAdapter(HashedEntry.class,new HashedEntryAdapter());
+                gsonBuiler.registerTypeAdapter(JsonResponseInterface.class, new JsonResponseAdapter(this));
+        gsonBuiler.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuiler.create();
     }
 
     private final LaunchServer server;
-    private static final HashMap<String,Class> responses = new HashMap<>();
+    private static final HashMap<String, Class> responses = new HashMap<>();
     private final Gson gson;
     private final GsonBuilder gsonBuiler;
 
-    void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client)
-    {
+    void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client) {
         String request = frame.text();
         JsonResponseInterface response = gson.fromJson(request, JsonResponseInterface.class);
         try {
-            response.execute(this,ctx,client);
-        } catch (Exception e)
-        {
+            response.execute(this, ctx, client);
+        } catch (Exception e) {
             LogHelper.error(e);
-            sendObject(ctx,new ExceptionResult(e));
+            sendObject(ctx, new ExceptionResult(e));
         }
     }
-    public Class getResponseClass(String type)
-    {
+
+    public Class getResponseClass(String type) {
         return responses.get(type);
     }
-    public void registerResponse(String key,Class responseInterfaceClass)
-    {
-        responses.put(key,responseInterfaceClass);
+
+    public void registerResponse(String key, Class responseInterfaceClass) {
+        responses.put(key, responseInterfaceClass);
     }
-    public void registerClient(Channel channel)
-    {
+
+    public void registerClient(Channel channel) {
         channels.add(channel);
     }
-    public void registerResponses()
-    {
+
+    public void registerResponses() {
         registerResponse("echo", EchoResponse.class);
         registerResponse("auth", AuthResponse.class);
         registerResponse("checkServer", CheckServerResponse.class);
         registerResponse("joinServer", JoinServerResponse.class);
         registerResponse("launcherUpdate", LauncherResponse.class);
         registerResponse("updateList", UpdateListResponse.class);
-        registerResponse("cmdExec",UpdateListResponse.class);
+        registerResponse("cmdExec", UpdateListResponse.class);
     }
-    public void sendObject(ChannelHandlerContext ctx, Object obj)
-    {
+
+    public void sendObject(ChannelHandlerContext ctx, Object obj) {
         ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
     }
-    public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj)
-    {
+
+    public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
         ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj))).addListener(ChannelFutureListener.CLOSE);
     }
-    public void sendEvent(EventResult obj)
-    {
+
+    public void sendEvent(EventResult obj) {
         channels.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
     }
-    public static class ErrorResult
-    {
+
+    public static class ErrorResult {
         public ErrorResult(String error) {
             this.error = error;
             this.type = "requestError";
@@ -96,8 +95,8 @@ public class WebSocketService {
         public final String error;
         public final String type;
     }
-    public static class SuccessResult
-    {
+
+    public static class SuccessResult {
         public SuccessResult(String requesttype) {
             this.requesttype = requesttype;
             this.type = "success";
@@ -106,15 +105,16 @@ public class WebSocketService {
         public final String requesttype;
         public final String type;
     }
-    public static class EventResult
-    {
+
+    public static class EventResult {
         public EventResult() {
             this.type = "event";
         }
+
         public final String type;
     }
-    public static class ExceptionResult
-    {
+
+    public static class ExceptionResult {
         public ExceptionResult(Exception e) {
             this.message = e.getMessage();
             this.clazz = e.getClass().getName();

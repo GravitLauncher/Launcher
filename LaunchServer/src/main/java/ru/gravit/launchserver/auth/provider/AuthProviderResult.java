@@ -13,7 +13,8 @@ public class AuthProviderResult {
         this.accessToken = accessToken;
         permissions = ClientPermissions.DEFAULT;
     }
-    public AuthProviderResult(String username, String accessToken,ClientPermissions permissions) {
+
+    public AuthProviderResult(String username, String accessToken, ClientPermissions permissions) {
         this.username = username;
         this.accessToken = accessToken;
         this.permissions = permissions;

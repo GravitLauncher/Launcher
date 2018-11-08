@@ -88,9 +88,8 @@ public final class ClientLauncher {
                       boolean autoEnter, boolean fullScreen, int ram, int width, int height) {
             this.launcherDigest = launcherDigest.clone();
             this.updateOptional = new HashSet<>();
-            for(ClientProfile.MarkedString s : Launcher.profile.getOptional())
-            {
-                if(s.mark) updateOptional.add(s);
+            for (ClientProfile.MarkedString s : Launcher.profile.getOptional()) {
+                if (s.mark) updateOptional.add(s);
             }
             // Client paths
             this.assetDir = assetDir;
@@ -113,14 +112,13 @@ public final class ClientLauncher {
             clientDir = IOHelper.toPath(input.readString(0));
             updateOptional = new HashSet<>();
             int len = input.readLength(128);
-            for(int i=0;i<len;++i)
-            {
-                updateOptional.add(new ClientProfile.MarkedString(input.readString(512),true));
+            for (int i = 0; i < len; ++i) {
+                updateOptional.add(new ClientProfile.MarkedString(input.readString(512), true));
             }
             // Client params
             pp = new PlayerProfile(input);
             byte[] encryptedAccessToken = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
-            String accessTokenD = new String(SecurityHelper.decrypt(Launcher.getConfig().secretKeyClient.getBytes(),encryptedAccessToken));
+            String accessTokenD = new String(SecurityHelper.decrypt(Launcher.getConfig().secretKeyClient.getBytes(), encryptedAccessToken));
             accessToken = SecurityHelper.verifyToken(accessTokenD);
             autoEnter = input.readBoolean();
             fullScreen = input.readBoolean();
@@ -135,15 +133,14 @@ public final class ClientLauncher {
             // Client paths
             output.writeString(assetDir.toString(), 0);
             output.writeString(clientDir.toString(), 0);
-            output.writeLength(updateOptional.size(),128);
-            for(ClientProfile.MarkedString s : updateOptional)
-            {
-                output.writeString(s.string,512);
+            output.writeLength(updateOptional.size(), 128);
+            for (ClientProfile.MarkedString s : updateOptional) {
+                output.writeString(s.string, 512);
             }
             // Client params
             pp.write(output);
             try {
-                output.writeByteArray(SecurityHelper.encrypt(Launcher.getConfig().secretKeyClient.getBytes(),accessToken.getBytes()), SecurityHelper.CRYPTO_MAX_LENGTH);
+                output.writeByteArray(SecurityHelper.encrypt(Launcher.getConfig().secretKeyClient.getBytes(), accessToken.getBytes()), SecurityHelper.CRYPTO_MAX_LENGTH);
             } catch (Exception e) {
                 LogHelper.error(e);
             }
@@ -227,6 +224,7 @@ public final class ClientLauncher {
             Collections.addAll(args, "--height", Integer.toString(params.height));
         }
     }
+
     @LauncherAPI
     public static void setJavaBinPath(Path javaBinPath) {
         JavaBinPath = javaBinPath;
@@ -289,7 +287,9 @@ public final class ClientLauncher {
         System.setProperty("minecraft.applet.TargetDirectory", params.clientDir.toString()); // For 1.5.2
         mainMethod.invoke((Object) args.toArray(EMPTY_ARRAY));
     }
+
     private static Process process = null;
+
     @LauncherAPI
     public static Process launch(
             SignedObjectHolder<HashedDir> assetHDir, SignedObjectHolder<HashedDir> clientHDir,
@@ -301,26 +301,24 @@ public final class ClientLauncher {
             try {
                 try (ServerSocket socket = new ServerSocket()) {
 
-                        socket.setReuseAddress(true);
-                        socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
-                        Socket client = socket.accept();
-                        if(process == null)
-                        {
-                            LogHelper.error("Process is null");
-                            return;
-                        }
-                        if(!process.isAlive())
-                        {
-                            LogHelper.error("Process is not alive");
-                            JOptionPane.showMessageDialog(null,"Client Process crashed","Launcher",JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        try (HOutput output = new HOutput(client.getOutputStream())) {
-                            params.write(output);
-                            profile.write(output);
-                            assetHDir.write(output);
-                            clientHDir.write(output);
-                        }
+                    socket.setReuseAddress(true);
+                    socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
+                    Socket client = socket.accept();
+                    if (process == null) {
+                        LogHelper.error("Process is null");
+                        return;
+                    }
+                    if (!process.isAlive()) {
+                        LogHelper.error("Process is not alive");
+                        JOptionPane.showMessageDialog(null, "Client Process crashed", "Launcher", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    try (HOutput output = new HOutput(client.getOutputStream())) {
+                        params.write(output);
+                        profile.write(output);
+                        assetHDir.write(output);
+                        clientHDir.write(output);
+                    }
 
 
                 }
@@ -337,15 +335,13 @@ public final class ClientLauncher {
         boolean wrapper = isUsingWrapper();
         Path javaBin;
         if (wrapper) javaBin = AvanguardStarter.wrapper;
-        else if(isDownloadJava)
-        {
+        else if (isDownloadJava) {
             //Linux и Mac не должны скачивать свою JVM
-            if(JVMHelper.OS_TYPE == OS.MUSTDIE)
+            if (JVMHelper.OS_TYPE == OS.MUSTDIE)
                 javaBin = IOHelper.resolveJavaBin(JavaBinPath);
             else
                 javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
-        }
-        else
+        } else
             javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
         args.add(javaBin.toString());
         args.add(MAGICAL_INTEL_OPTION);
@@ -463,9 +459,8 @@ public final class ClientLauncher {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
             HashedDir hdir = clientHDir.object;
-            for(ClientProfile.MarkedString s : Launcher.profile.getOptional())
-            {
-                if(params.updateOptional.contains(s)) s.mark = true;
+            for (ClientProfile.MarkedString s : Launcher.profile.getOptional()) {
+                if (params.updateOptional.contains(s)) s.mark = true;
                 else hdir.removeR(s.string);
             }
             verifyHDir(params.assetDir, assetHDir.object, assetMatcher, digest);
@@ -477,6 +472,7 @@ public final class ClientLauncher {
             launch(profile.object, params);
         }
     }
+
     @LauncherAPI
     public void launchLocal(SignedObjectHolder<HashedDir> assetHDir, SignedObjectHolder<HashedDir> clientHDir,
                             SignedObjectHolder<ClientProfile> profile, Params params) throws Throwable {
@@ -502,9 +498,8 @@ public final class ClientLauncher {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
             HashedDir hdir = clientHDir.object;
-            for(ClientProfile.MarkedString s : Launcher.profile.getOptional())
-            {
-                if(params.updateOptional.contains(s)) s.mark = true;
+            for (ClientProfile.MarkedString s : Launcher.profile.getOptional()) {
+                if (params.updateOptional.contains(s)) s.mark = true;
                 else hdir.removeR(s.string);
             }
             verifyHDir(params.assetDir, assetHDir.object, assetMatcher, digest);

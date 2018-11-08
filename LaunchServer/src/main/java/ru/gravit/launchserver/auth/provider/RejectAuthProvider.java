@@ -10,7 +10,7 @@ public final class RejectAuthProvider extends AuthProvider {
     private final String message;
 
     public RejectAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block,server);
+        super(block, server);
         message = VerifyHelper.verify(block.getEntryValue("message", StringConfigEntry.class), VerifyHelper.NOT_EMPTY,
                 "Auth error message can't be empty");
     }

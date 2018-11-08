@@ -13,6 +13,7 @@ import java.util.UUID;
 public class CheckServerResponse implements JsonResponseInterface {
     public String serverID;
     public String username;
+
     @Override
     public String getType() {
         return "checkServer";
@@ -24,17 +25,17 @@ public class CheckServerResponse implements JsonResponseInterface {
         try {
             uuid = LaunchServer.server.config.authHandler[0].checkServer(username, serverID);
         } catch (AuthException e) {
-            service.sendObject(ctx,new WebSocketService.ErrorResult(e.getMessage()));
+            service.sendObject(ctx, new WebSocketService.ErrorResult(e.getMessage()));
             return;
         } catch (Exception e) {
             LogHelper.error(e);
-            service.sendObject(ctx,new WebSocketService.ErrorResult("Internal authHandler error"));
+            service.sendObject(ctx, new WebSocketService.ErrorResult("Internal authHandler error"));
             return;
         }
-        service.sendObject(ctx,new Result());
+        service.sendObject(ctx, new Result());
     }
-    public class Result
-    {
+
+    public class Result {
         public String type = "success";
         public String requesttype = "checkServer";
     }

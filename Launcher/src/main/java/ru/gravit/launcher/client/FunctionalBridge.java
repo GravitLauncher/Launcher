@@ -14,18 +14,18 @@ import java.security.SignatureException;
 public class FunctionalBridge {
     @LauncherAPI
     public static LauncherSettings settings;
+
     @LauncherAPI
-    public HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) throws Exception
-    {
+    public HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) throws Exception {
         return () -> {
-            if(hdir == null)
-            {
+            if (hdir == null) {
                 Request.requestError(java.lang.String.format("Директории '%s' нет в кэше", dirName));
             }
             ClientLauncher.verifyHDir(dir, hdir.object, matcher, digest);
             return hdir;
         };
     }
+
     @LauncherAPI
     public LegacyLauncherRequest.Result offlineLauncherRequest() throws IOException, SignatureException {
         if (settings.lastDigest == null || settings.lastProfiles.isEmpty()) {
@@ -38,8 +38,9 @@ public class FunctionalBridge {
         //        settings.lastDigest, Launcher.getConfig().publicKey);
 
         // Return last sign and profiles
-        return new LegacyLauncherRequest.Result(null,settings.lastDigest,settings.lastProfiles);
+        return new LegacyLauncherRequest.Result(null, settings.lastDigest, settings.lastProfiles);
     }
+
     @FunctionalInterface
     public interface HashedDirRunnable {
         SignedObjectHolder<HashedDir> run() throws Exception;

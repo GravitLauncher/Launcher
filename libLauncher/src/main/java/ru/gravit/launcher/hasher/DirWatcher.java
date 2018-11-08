@@ -71,14 +71,12 @@ public final class DirWatcher implements Runnable, AutoCloseable {
         LogHelper.error(e);
         try {
             SafeExitJVMLegacy.exit(-123);
-        } catch (Throwable ignored)
-        {
+        } catch (Throwable ignored) {
 
         }
         try {
             SafeExitJVM.exit(-123);
-        } catch (Throwable ignored)
-        {
+        } catch (Throwable ignored) {
 
         }
         NativeJVMHalt halt = new NativeJVMHalt(-123);

@@ -40,6 +40,7 @@ public final class AuthServerRequest extends Request<Boolean> {
         auth_id = 0;
         title = "";
     }
+
     @LauncherAPI
     public AuthServerRequest(LauncherConfig config, String login, byte[] encryptedPassword, int auth_id) {
         super(config);
@@ -48,8 +49,9 @@ public final class AuthServerRequest extends Request<Boolean> {
         this.auth_id = auth_id;
         title = "";
     }
+
     @LauncherAPI
-    public AuthServerRequest(LauncherConfig config, String login, byte[] encryptedPassword, int auth_id,String title) {
+    public AuthServerRequest(LauncherConfig config, String login, byte[] encryptedPassword, int auth_id, String title) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
@@ -61,9 +63,10 @@ public final class AuthServerRequest extends Request<Boolean> {
     public AuthServerRequest(String login, byte[] encryptedPassword) {
         this(null, login, encryptedPassword);
     }
+
     @LauncherAPI
     public AuthServerRequest(String login, byte[] encryptedPassword, int auth_id) {
-        this(null, login, encryptedPassword,auth_id);
+        this(null, login, encryptedPassword, auth_id);
     }
 
     @Override

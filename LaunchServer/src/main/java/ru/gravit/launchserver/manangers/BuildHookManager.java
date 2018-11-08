@@ -64,6 +64,7 @@ public class BuildHookManager {
         for (Transformer transformer : CLASS_TRANSFORMER) result = transformer.transform(result, classname);
         return result;
     }
+
     public byte[] proGuardClassTransform(byte[] clazz, CharSequence classname) {
         byte[] result = clazz;
         for (Transformer transformer : POST_PROGUARD_HOOKS) result = transformer.transform(result, classname);
@@ -109,11 +110,12 @@ public class BuildHookManager {
     public void registerPostHook(PostBuildHook hook) {
         POST_HOOKS.add(hook);
     }
+
     public void registerProGuardHook(Transformer hook) {
         POST_PROGUARD_HOOKS.add(hook);
     }
-    public boolean isNeedPostProguardHook()
-    {
+
+    public boolean isNeedPostProguardHook() {
         return !POST_PROGUARD_HOOKS.isEmpty();
     }
 

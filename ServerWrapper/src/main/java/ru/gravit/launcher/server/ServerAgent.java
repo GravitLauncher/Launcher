@@ -10,8 +10,9 @@ import java.util.Collections;
 import java.util.jar.JarFile;
 
 public class ServerAgent {
-    private static boolean isAgentStarted=false;
+    private static boolean isAgentStarted = false;
     public static Instrumentation inst;
+
     public static final class StarterVisitor extends SimpleFileVisitor<Path> {
         private Instrumentation inst;
 
@@ -25,18 +26,21 @@ public class ServerAgent {
             return super.visitFile(file, attrs);
         }
     }
+
     public static void addJVMClassPath(String path) throws IOException {
-        LogHelper.debug("Load %s",path);
+        LogHelper.debug("Load %s", path);
         inst.appendToSystemClassLoaderSearch(new JarFile(path));
     }
+
     public static void addJVMClassPath(JarFile file) throws IOException {
-        LogHelper.debug("Load %s",file.getName());
+        LogHelper.debug("Load %s", file.getName());
         inst.appendToSystemClassLoaderSearch(file);
     }
-    public boolean isAgentStarted()
-    {
+
+    public boolean isAgentStarted() {
         return isAgentStarted;
     }
+
     public static long getObjSize(Object obj) {
         return inst.getObjectSize(obj);
     }

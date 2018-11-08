@@ -46,36 +46,36 @@ public class LauncherSettings {
     @LauncherAPI
     public List<SignedObjectHolder<ClientProfile>> lastProfiles = new LinkedList<>();
     @LauncherAPI
-    public Map<String,SignedObjectHolder<HashedDir>> lastHDirs = new HashMap<>(16);
+    public Map<String, SignedObjectHolder<HashedDir>> lastHDirs = new HashMap<>(16);
+
     @LauncherAPI
     public void load() throws SignatureException {
         LogHelper.debug("Loading settings file");
         try {
-            try(HInput input = new HInput(IOHelper.newInput(file)))
-            {
+            try (HInput input = new HInput(IOHelper.newInput(file))) {
                 read(input);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             LogHelper.error(e);
             setDefault();
         }
     }
+
     @LauncherAPI
     public void save() throws SignatureException {
         LogHelper.debug("Save settings file");
         try {
-            try(HOutput output = new HOutput(IOHelper.newOutput(file)))
-            {
+            try (HOutput output = new HOutput(IOHelper.newOutput(file))) {
                 write(output);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             LogHelper.error(e);
             setDefault();
         }
     }
+
     @LauncherAPI
-    public void read(HInput input) throws IOException, SignatureException
-    {
+    public void read(HInput input) throws IOException, SignatureException {
         int magic = input.readInt();
         if (magic != settingsMagic) {
             setDefault();
@@ -114,9 +114,10 @@ public class LauncherSettings {
         for (int i = 0; i < lastHDirsCount; i++) {
             String name = IOHelper.verifyFileName(input.readString(255));
             VerifyHelper.putIfAbsent(lastHDirs, name, new SignedObjectHolder<>(input, publicKey, HashedDir::new),
-            java.lang.String.format("Duplicate offline hashed dir: '%s'", name));
+                    java.lang.String.format("Duplicate offline hashed dir: '%s'", name));
         }
     }
+
     @LauncherAPI
     public void write(HOutput output) throws IOException {
         output.writeInt(settingsMagic);
@@ -156,14 +157,14 @@ public class LauncherSettings {
             entry.getValue().write(output);
         }
     }
+
     @LauncherAPI
-    public void setRAM(int ram)
-    {
+    public void setRAM(int ram) {
         this.ram = java.lang.Math.min(((ram / 256)) * 256, JVMHelper.RAM);
     }
+
     @LauncherAPI
-    public void setDefault()
-    {
+    public void setDefault() {
         // Auth settings
         login = null;
         rsaPassword = null;
@@ -182,6 +183,7 @@ public class LauncherSettings {
         lastProfiles.clear();
         lastHDirs.clear();
     }
+
     @LauncherAPI
     public byte[] setPassword(String password) throws BadPaddingException, IllegalBlockSizeException {
         byte[] encrypted = SecurityHelper.newRSAEncryptCipher(Launcher.getConfig().publicKey).doFinal(IOHelper.encode(password));

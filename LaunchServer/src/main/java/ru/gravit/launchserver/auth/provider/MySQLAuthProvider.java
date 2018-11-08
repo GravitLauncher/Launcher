@@ -24,7 +24,7 @@ public final class MySQLAuthProvider extends AuthProvider {
     private final boolean usePermission;
 
     public MySQLAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block,server);
+        super(block, server);
         mySQLHolder = new MySQLSourceConfig("authProviderPool", block);
 
         // Read query

@@ -13,47 +13,49 @@ public class ClientWebSocketService {
     public final GsonBuilder gsonBuilder;
     public final Gson gson;
     public final ClientJSONPoint point;
-    private HashMap<String,Class> requests;
-    private HashMap<String,Class> results;
+    private HashMap<String, Class> requests;
+    private HashMap<String, Class> results;
 
-    public ClientWebSocketService(GsonBuilder gsonBuilder,ClientJSONPoint point) {
+    public ClientWebSocketService(GsonBuilder gsonBuilder, ClientJSONPoint point) {
         requests = new HashMap<>();
         results = new HashMap<>();
         this.gsonBuilder = gsonBuilder;
         gsonBuilder.registerTypeAdapter(RequestInterface.class, new JsonRequestAdapter(this));
-        gsonBuilder.registerTypeAdapter(HashedEntry.class,new HashedEntryAdapter());
+        gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuilder.create();
         this.point = point;
         point.setService(this);
     }
-    public void processMessage(Reader reader)
-    {
-        ResultInterface result = gson.fromJson(reader,ResultInterface.class);
+
+    public void processMessage(Reader reader) {
+        ResultInterface result = gson.fromJson(reader, ResultInterface.class);
         result.process();
     }
-    public Class getRequestClass(String key)
-    {
+
+    public Class getRequestClass(String key) {
         return requests.get(key);
     }
-    public void registerRequest(String key, Class clazz)
-    {
-        requests.put(key,clazz);
+
+    public void registerRequest(String key, Class clazz) {
+        requests.put(key, clazz);
     }
-    public void registerRequests()
-    {
+
+    public void registerRequests() {
 
     }
-    public void registerResult(String key, Class clazz)
-    {
-        results.put(key,clazz);
+
+    public void registerResult(String key, Class clazz) {
+        results.put(key, clazz);
     }
-    public void registerResults()
-    {
+
+    public void registerResults() {
 
     }
+
     public void sendObjectAsync(Object obj) throws IOException {
         point.sendAsync(gson.toJson(obj));
     }
+
     public void sendObject(Object obj) throws IOException {
         point.send(gson.toJson(obj));
     }

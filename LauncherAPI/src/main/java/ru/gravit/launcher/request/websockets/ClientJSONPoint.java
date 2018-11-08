@@ -29,34 +29,34 @@ import javax.websocket.Session;
  */
 @ClientEndpoint
 public class ClientJSONPoint {
-	public Session session = null;
-	private ClientWebSocketService service;
+    public Session session = null;
+    private ClientWebSocketService service;
 
-	public void setService(ClientWebSocketService service) {
-		this.service = service;
-	}
+    public void setService(ClientWebSocketService service) {
+        this.service = service;
+    }
 
-	@OnOpen
-	public void onOpen(final Session session_r) {
-		session = session_r;
-		System.out.println("Connected to endpoint: " + session.getBasicRemote());
-	}
+    @OnOpen
+    public void onOpen(final Session session_r) {
+        session = session_r;
+        System.out.println("Connected to endpoint: " + session.getBasicRemote());
+    }
 
-	@OnError
-	public void processError(final Throwable t) {
-		t.printStackTrace();
-	}
+    @OnError
+    public void processError(final Throwable t) {
+        t.printStackTrace();
+    }
 
-	@OnMessage
-	public void processMessage(Reader message) {
-		service.processMessage(message);
-	}
-	
-	public void send(String js) throws IOException {
-		session.getBasicRemote().sendText(js);
-	}
-	
-	public void sendAsync(String js) throws IOException {
-		session.getAsyncRemote().sendText(js);
-	}
+    @OnMessage
+    public void processMessage(Reader message) {
+        service.processMessage(message);
+    }
+
+    public void send(String js) throws IOException {
+        session.getBasicRemote().sendText(js);
+    }
+
+    public void sendAsync(String js) throws IOException {
+        session.getAsyncRemote().sendText(js);
+    }
 }

@@ -307,7 +307,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
         // Get diff between local and remote dir
         SignedObjectHolder<HashedDir> remoteHDirHolder = new SignedObjectHolder<>(input, config.publicKey, HashedDir::new);
         HashedDir hackHackedDir = remoteHDirHolder.object;
-        Launcher.profile.pushOptional(hackHackedDir,!Launcher.profile.isUpdateFastCheck());
+        Launcher.profile.pushOptional(hackHackedDir, !Launcher.profile.isUpdateFastCheck());
         HashedDir.Diff diff = hackHackedDir.diff(localDir, matcher);
         totalSize = diff.mismatch.size();
         boolean compress = input.readBoolean();

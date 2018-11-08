@@ -106,7 +106,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         private final StringConfigEntry address;
         private final String bindAddress;
 
-        private Config(BlockConfigEntry block, Path coredir,LaunchServer server) {
+        private Config(BlockConfigEntry block, Path coredir, LaunchServer server) {
             super(block);
             address = block.getEntry("address", StringConfigEntry.class);
             port = VerifyHelper.verifyInt(block.getEntryValue("port", IntegerConfigEntry.class),
@@ -129,7 +129,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
                     block.getEntry("authHandlerConfig", BlockConfigEntry.class));
             authProvider = new AuthProvider[1];
             authProvider[0] = AuthProvider.newProvider(block.getEntryValue("authProvider", StringConfigEntry.class),
-                    block.getEntry("authProviderConfig", BlockConfigEntry.class),server);
+                    block.getEntry("authProviderConfig", BlockConfigEntry.class), server);
             textureProvider = TextureProvider.newProvider(block.getEntryValue("textureProvider", StringConfigEntry.class),
                     block.getEntry("textureProviderConfig", BlockConfigEntry.class));
             hwidHandler = HWIDHandler.newHandler(block.getEntryValue("hwidHandler", StringConfigEntry.class),
@@ -137,7 +137,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
             // Set misc config
             genMappings = block.getEntryValue("proguardPrintMappings", BooleanConfigEntry.class);
-            mirrors = block.getEntry("mirrors",ListConfigEntry.class);
+            mirrors = block.getEntry("mirrors", ListConfigEntry.class);
             launch4j = new ExeConf(block.getEntry("launch4J", BlockConfigEntry.class));
             sign = new SignConf(block.getEntry("signing", BlockConfigEntry.class), coredir);
             binaryName = block.getEntryValue("binaryName", StringConfigEntry.class);
@@ -410,7 +410,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         generateConfigIfNotExists();
         LogHelper.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = new Config(TextConfigReader.read(reader, true), dir,this);
+            config = new Config(TextConfigReader.read(reader, true), dir, this);
         }
         config.verify();
 
@@ -473,12 +473,12 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         // Close handlers & providers
         try {
-            for(AuthHandler h : config.authHandler) h.close();
+            for (AuthHandler h : config.authHandler) h.close();
         } catch (IOException e) {
             LogHelper.error(e);
         }
         try {
-            for(AuthProvider p : config.authProvider) p.close();
+            for (AuthProvider p : config.authProvider) p.close();
         } catch (IOException e) {
             LogHelper.error(e);
         }
@@ -501,7 +501,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         LogHelper.info("Creating LaunchServer config");
         Config newConfig;
         try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/config.cfg"))) {
-            newConfig = new Config(TextConfigReader.read(reader, false), dir,this);
+            newConfig = new Config(TextConfigReader.read(reader, false), dir, this);
         }
 
         // Set server address

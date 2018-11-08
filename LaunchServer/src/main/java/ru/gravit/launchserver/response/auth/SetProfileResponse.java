@@ -20,7 +20,7 @@ public class SetProfileResponse extends Response {
     public void reply() throws Exception {
         String client = input.readString(SerializeLimits.MAX_CLIENT);
         Client clientData = server.sessionManager.getClient(session);
-        if(!clientData.isAuth) requestError("You not auth");
+        if (!clientData.isAuth) requestError("You not auth");
         Collection<SignedObjectHolder<ClientProfile>> profiles = server.getProfiles();
         for (SignedObjectHolder<ClientProfile> p : profiles) {
             if (p.object.getTitle().equals(client)) {

@@ -9,6 +9,7 @@ import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 
 public class UpdateListResponse implements JsonResponseInterface {
     public String dir;
+
     @Override
     public String getType() {
         return "updateList";
@@ -16,15 +17,15 @@ public class UpdateListResponse implements JsonResponseInterface {
 
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
-        if(!client.isAuth) {
-            service.sendObject(ctx,new WebSocketService.ErrorResult("Access denied"));
+        if (!client.isAuth) {
+            service.sendObject(ctx, new WebSocketService.ErrorResult("Access denied"));
             return;
         }
         HashedDir hdir = LaunchServer.server.updatesDirMap.get(dir).object;
-        service.sendObject(ctx,new Result(hdir));
+        service.sendObject(ctx, new Result(hdir));
     }
-    class Result
-    {
+
+    class Result {
         public final String type;
         public final String requesttype;
         public final HashedDir dir;

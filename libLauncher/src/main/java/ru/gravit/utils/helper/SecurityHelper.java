@@ -33,7 +33,7 @@ import javax.crypto.spec.SecretKeySpec;
 import ru.gravit.launcher.LauncherAPI;
 
 public final class SecurityHelper {
-    
+
     public enum DigestAlgorithm {
         PLAIN("plain", -1), MD5("MD5", 128), SHA1("SHA-1", 160), SHA224("SHA-224", 224), SHA256("SHA-256", 256), SHA512("SHA-512", 512);
         private static final Map<String, DigestAlgorithm> ALGORITHMS;
@@ -78,9 +78,9 @@ public final class SecurityHelper {
     }
 
     // Algorithm constants
-    
+
     public static final String RSA_ALGO = "RSA";
-    
+
     public static final String RSA_SIGN_ALGO = "SHA256withRSA";
 
 
@@ -486,6 +486,7 @@ public final class SecurityHelper {
 
     private SecurityHelper() {
     }
+
     //AES
     public static byte[] encrypt(String seed, byte[] cleartext) throws Exception {
         byte[] rawKey = getRawKey(seed.getBytes());
@@ -520,6 +521,7 @@ public final class SecurityHelper {
         cipher.init(Cipher.DECRYPT_MODE, sKeySpec);
         return cipher.doFinal(encrypted);
     }
+
     public static byte[] HexToByte(String hexString) {
         int len = hexString.length() / 2;
         byte[] result = new byte[len];

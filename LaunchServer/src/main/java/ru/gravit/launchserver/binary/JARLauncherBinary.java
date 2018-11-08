@@ -98,6 +98,7 @@ public final class JARLauncherBinary extends LauncherBinary {
     private static ZipEntry newEntry(String fileName) {
         return newZipEntry(Launcher.RUNTIME_DIR + IOHelper.CROSS_SEPARATOR + fileName);
     }
+
     private static ZipEntry newGuardEntry(String fileName) {
         return newZipEntry(Launcher.GUARD_DIR + IOHelper.CROSS_SEPARATOR + fileName);
     }
@@ -145,13 +146,11 @@ public final class JARLauncherBinary extends LauncherBinary {
         } catch (ParseException e1) {
             e1.printStackTrace();
         }
-        if(server.buildHookManager.isNeedPostProguardHook())
-        {
+        if (server.buildHookManager.isNeedPostProguardHook()) {
             Path obfPath = Paths.get(server.config.binaryName + "-obf.jar");
             Path tmpPath = Paths.get(server.config.binaryName + "-tmp.jar");
-            IOHelper.move(obfPath,tmpPath);
-            try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(obfPath)))
-            {
+            IOHelper.move(obfPath, tmpPath);
+            try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(obfPath))) {
                 try (ZipInputStream input = new ZipInputStream(
                         IOHelper.newInput(tmpPath))) {
                     ZipEntry e = input.getNextEntry();

@@ -7,8 +7,9 @@ import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 
 public final class AcceptAuthProvider extends AuthProvider {
     private final boolean isAdminAccess;
+
     public AcceptAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block,server);
+        super(block, server);
         isAdminAccess = block.hasEntry("admin") ? block.getEntryValue("admin", BooleanConfigEntry.class) : false;
     }
 

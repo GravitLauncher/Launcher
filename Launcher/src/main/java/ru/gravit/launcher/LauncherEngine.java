@@ -135,8 +135,8 @@ public class LauncherEngine {
         bindings.put("DigestAlgorithmClass", SecurityHelper.DigestAlgorithm.class);
         bindings.put("VerifyHelperClass", VerifyHelper.class);
         bindings.put("DirBridgeClass", DirBridge.class);
-        bindings.put("FunctionalBridgeClass",FunctionalBridge.class);
-        bindings.put("LauncherSettingsClass",LauncherSettings.class);
+        bindings.put("FunctionalBridgeClass", FunctionalBridge.class);
+        bindings.put("LauncherSettingsClass", LauncherSettings.class);
 
         // Load JS API if available
         bindings.put("RingProgressIndicatorClass", RingProgressIndicator.class);
@@ -217,8 +217,8 @@ public class LauncherEngine {
         Launcher.modulesManager.postInitModules();
         invoker.invokeFunction("start", (Object) args);
     }
-    public static LauncherEngine clientInstance()
-    {
+
+    public static LauncherEngine clientInstance() {
         return new LauncherEngine();
     }
 }

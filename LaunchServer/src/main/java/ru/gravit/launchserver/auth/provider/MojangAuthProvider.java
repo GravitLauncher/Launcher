@@ -55,7 +55,7 @@ public final class MojangAuthProvider extends AuthProvider {
     }
 
     public MojangAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block,server);
+        super(block, server);
     }
 
     @Override

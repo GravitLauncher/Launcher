@@ -18,12 +18,12 @@ public class EchoResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service,ChannelHandlerContext ctx, Client client) {
-        LogHelper.info("Echo: %s, isAuth %s",echo,client.isAuth ? "true" : "false");
-        service.sendObject(ctx,new Result(echo));
+    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
+        LogHelper.info("Echo: %s, isAuth %s", echo, client.isAuth ? "true" : "false");
+        service.sendObject(ctx, new Result(echo));
     }
-    public class Result
-    {
+
+    public class Result {
         String echo;
 
         public Result(String echo) {
