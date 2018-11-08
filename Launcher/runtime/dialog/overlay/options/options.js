@@ -42,9 +42,45 @@ var options = {
 
         // Lookup autoEnter checkbox
         var holder = options.overlay.lookup("#holder");
-
         // Lookup apply settings button
         holder.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
     },
 
 };
+function updateOptional()
+{
+    var holder = options.overlay.lookup("#holderpane");
+    var nodelist = new java.util.ArrayList;
+    
+    holder.getChildren().forEach(function(node,i,arr) {
+        if(node instanceof javafx.scene.control.CheckBox)
+            nodelist.add(node);
+    });
+    nodelist.forEach(function(node,i,arr) {
+        holder.getChildren().remove(node);
+    });
+    var profile = profilesList[serverHolder.old].object;
+    var list = profile.getOptional();
+    var checkboxlist = new java.util.ArrayList;
+    list.forEach(function(modfile,i,arr) {
+         var testMod = new javafx.scene.control.CheckBox(modfile.string);
+         testMod.setSelected(modfile.mark);
+         //testMod.setLayoutY(2+3*i);
+         //testMod.setLayoutX(2);
+         testMod.setOnAction(function(event) {
+             var isSelected = event.getSource().isSelected();
+             if(isSelected)
+             {
+                 profile.markOptional(modfile.string);
+                 LogHelper.debug("Selected mod %s", modfile.string);
+             }
+             else
+             {
+                 profile.unmarkOptional(modfile.string);
+                 LogHelper.debug("Unselected mod %s", modfile.string);
+             }
+         });
+         checkboxlist.add(testMod);
+    });
+    holder.getChildren().addAll(checkboxlist);
+}

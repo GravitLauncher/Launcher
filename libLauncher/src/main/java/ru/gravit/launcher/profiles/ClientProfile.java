@@ -76,7 +76,9 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
 
     private final IntegerConfigEntry serverPort;
     public static class MarkedString {
+        @LauncherAPI
         public String string;
+        @LauncherAPI
         public boolean mark;
 
         public MarkedString(String string, boolean mark) {
