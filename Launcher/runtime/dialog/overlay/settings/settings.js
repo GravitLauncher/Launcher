@@ -31,7 +31,7 @@ var settingsClass = Java.extend(LauncherSettingsClass.static, {
 var settingsOverlay = {
 /* ===================== OVERLAY ===================== */
     overlay: null, ramLabel: null, dirLabel: null,
-    deleteDirPressedAgain: false, count = 0,
+    deleteDirPressedAgain: false, count: 0,
 
     initOverlay: function() {
         settingsOverlay.overlay = loadFXML("dialog/overlay/settings/settings.fxml");
