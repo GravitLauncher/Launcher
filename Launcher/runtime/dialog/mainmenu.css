@@ -10,10 +10,6 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-background-color: rgba(0, 0, 0, 0.5);
 }
 
-.heading{
-    -fx-text-fill: #555555;
-}
-
 #serverLabel{
 	-fx-text-fill: #fff;
 }
@@ -65,10 +61,6 @@ Button, CheckBox, ComboBox, RadioButton {
    -fx-background-color: transparent;
 }
 
-.toggle-button:disabled{
-	-fx-opacity: 1.0;
-}
-
 #serverinfo{
     -fx-background-color: transparent;
 }
@@ -85,7 +77,7 @@ Button, CheckBox, ComboBox, RadioButton {
 	-fx-pref-height: 50;
     -fx-background-image: url('images/icons/server.png');
 	-fx-padding: 0 0 0 40;
-    -fx-opacity: 0.8;
+    -fx-opacity: 0.7;
 	-fx-alignment: CENTER-LEFT;
 	-fx-text-fill: #fff;
 	-fx-translate-y: -1px;
@@ -98,7 +90,50 @@ Button, CheckBox, ComboBox, RadioButton {
 }
 #servercontainer .toggle-button:selected{
     -fx-opacity: 1;
-    -fx-background-image: url('images/icons/server_hover.png');
+    -fx-background-image: url('images/icons/server.png');
+}
+
+#discord_url{
+    -fx-opacity: 0.8;
+    -fx-background-color: transparent;
+    -fx-background-image: url('images/icons/discord.png');
+    -fx-background-repeat: no-repeat;
+}
+#settingsbtn{
+    -fx-opacity: 0.4;
+	-fx-background-position: center; 
+    -fx-background-color: transparent;
+	-fx-background-radius: 0;
+	-fx-background-repeat: no-repeat;
+    -fx-background-image: url('images/icons/settings.png');
+}
+#serverLaunch{
+	-fx-background-radius: 0;
+    -fx-font-weight: bold; 
+    -fx-font-size: 18pt;
+    -fx-background-color: #61B373;
+    -fx-text-fill: #ffffff;
+}
+#clientbtn{
+	-fx-background-radius: 0;
+    -fx-background-color: #61B373;
+    -fx-background-image: url('images/icons/options.png'); 
+    -fx-background-repeat: no-repeat;
+}
+#serverLaunch:hover, #serverLaunch:pressed, #clientbtn:hover, #clientbtn:pressed {
+    -fx-background-color: #74C085;
+}
+#settingsbtn:hover, #settingsbtn:pressed, #discord_url:hover, #discord_url:pressed, #hidebtn:hover, #hidebtn:pressed, #exitbtn:hover, #exitbtn:pressed { -fx-opacity: 1; }
+
+.toggle-button:disabled{
+	-fx-opacity: 1.0;
+}
+.menuPane {
+    -fx-background-color: rgba(0, 0, 0, 0.46);
+}
+
+.heading{
+    -fx-text-fill: #555555;
 }
 
 .scroll-pane {
@@ -133,35 +168,3 @@ Button, CheckBox, ComboBox, RadioButton {
 .scroll-pane > .corner {
     -fx-background-color: black;
 }
-
-#discord_url{
-    -fx-opacity: 0.8;
-    -fx-background-color: transparent;
-    -fx-background-image: url('images/icons/discord.png');
-    -fx-background-repeat: no-repeat;
-}
-#settingsbtn{
-    -fx-opacity: 0.4;
-	-fx-background-position: center; 
-    -fx-background-color: transparent;
-	-fx-background-radius: 0;
-	-fx-background-repeat: no-repeat;
-    -fx-background-image: url('images/icons/settings.png');
-}
-#serverLaunch{
-	-fx-background-radius: 0;
-    -fx-font-weight: bold; 
-    -fx-font-size: 18pt;
-    -fx-background-color: #61B373;
-    -fx-text-fill: #ffffff;
-}
-#clientbtn{
-	-fx-background-radius: 0;
-    -fx-background-color: #61B373;
-    -fx-background-image: url('images/icons/options.png'); 
-    -fx-background-repeat: no-repeat;
-}
-#serverLaunch:hover, #serverLaunch:pressed, #clientbtn:hover, #clientbtn:pressed {
-    -fx-background-color: #74C085;
-}
-#settingsbtn:hover, #settingsbtn:pressed, #discord_url:hover, #discord_url:pressed, #hidebtn:hover, #hidebtn:pressed, #exitbtn:hover, #exitbtn:pressed { -fx-opacity: 1; }

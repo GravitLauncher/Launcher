@@ -1,6 +1,5 @@
 var options = {
     file: DirBridge.dir.resolve("options.bin"), // options file
-    autoEnter: false, // Client
 
     /* options and overlay functions */
     load: function() {
@@ -39,17 +38,14 @@ var options = {
 
     initOverlay: function() {
         options.overlay = loadFXML("dialog/overlay/options/options.fxml");
-
-        // Lookup autoEnter checkbox
-        var holder = options.overlay.lookup("#holder");
-        // Lookup apply settings button
+		var holder = options.overlay.lookup("#holder");
         holder.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
     },
 
 };
 function updateOptional()
 {
-    var holder = options.overlay.lookup("#holderpane");
+    var holder = options.overlay.lookup("#modlist");
     var nodelist = new java.util.ArrayList;
     
     holder.getChildren().forEach(function(node,i,arr) {
@@ -64,6 +60,7 @@ function updateOptional()
     var checkboxlist = new java.util.ArrayList;
     list.forEach(function(modfile,i,arr) {
          var testMod = new javafx.scene.control.CheckBox(modfile.string);
+
          testMod.setSelected(modfile.mark);
          //testMod.setLayoutY(2+3*i);
          //testMod.setLayoutX(2);

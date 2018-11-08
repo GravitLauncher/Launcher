@@ -206,8 +206,6 @@ function verifyLauncher(e) {
                   }
             });
         }));
-
-
     }));
 }
 
@@ -419,4 +417,3 @@ launcher.loadScript("dialog/overlay/processing/processing.js");
 launcher.loadScript("dialog/overlay/settings/settings.js");
 launcher.loadScript("dialog/overlay/options/options.js");
 launcher.loadScript("dialog/overlay/update/update.js");
-

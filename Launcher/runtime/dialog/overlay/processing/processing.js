@@ -13,7 +13,7 @@ var processing = {
         processing.processingImage = new javafx.scene.image.Image(
             Launcher.getResourceURL("dialog/images/icons/loading.gif").toString());
         processing.errorImage = new javafx.scene.image.Image(
-            Launcher.getResourceURL("dialog/overlay/processing/error.png").toString());
+            Launcher.getResourceURL("dialog/images/icons/error.png").toString());
     },
 
     resetOverlay: function() {

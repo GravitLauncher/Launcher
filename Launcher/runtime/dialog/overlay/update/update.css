@@ -11,6 +11,10 @@
     -fx-text-fill: red;
 }
 
+.downloadPane {
+    -fx-background-color: rgba(0, 0, 0, 0.46);
+}
+
 /* Progress bar */
 .progress-bar {
     -fx-indeterminate-bar-flip: false;
@@ -26,7 +30,7 @@
 }
 
 .progress-bar > .bar {
-    -fx-background-image: url("../../images/downloader/cl_line.png");
+    -fx-background-image: url("../../images/downloader/line.png");
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-background-radius: 0;

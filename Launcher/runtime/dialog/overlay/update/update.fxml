@@ -10,25 +10,34 @@
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.1"
-      xmlns:fx="http://javafx.com/fxml/1">
-    <stylesheets>
-        <URL value="@update.css"/>
-    </stylesheets>
-    <ImageView fitHeight="400.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
-        <Image url="@../../images/downloader/background.png"/>
-    </ImageView>
-    <Label fx:id="description" layoutX="12.0" layoutY="267.0" prefHeight="98.0" prefWidth="576.0" text="..."
-           textFill="WHITE"/>
-    <ProgressBar fx:id="progress" layoutX="-1.0" layoutY="376.0" prefHeight="24.0" prefWidth="600.0" progress="1.0"/>
-    <!-- Update controls -->
-    <Label fx:id="utitle" alignment="TOP_LEFT" layoutX="15.0" layoutY="236.0" prefHeight="30.0" prefWidth="470.0"
-           text="Обновление..." textFill="WHITE">
-        <font>
-            <Font name="System Bold" size="20.0"/>
-        </font>
-    </Label>
-    <ImageView fitHeight="160.0" fitWidth="160.0" layoutX="219.0" layoutY="70.0" y="-6.0">
-        <Image url="@../../images/icons/loading.gif"/>
-    </ImageView>
+<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+     <ImageView fitHeight="400.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
+       <image>
+         <Image url="@../../images/background.png" />
+       </image>
+     </ImageView>
+      <Pane layoutY="28.0" prefHeight="372.0" prefWidth="600.0" styleClass="downloadPane" />
+      <ImageView fitHeight="12.0" fitWidth="11.0" layoutX="9.0" layoutY="8.0">
+         <image>
+            <Image url="@../../images/icons/logo_small.png" />
+         </image>
+      </ImageView>
+     <Label fx:id="description" layoutX="12.0" layoutY="267.0" prefHeight="98.0" prefWidth="576.0" text="..." textFill="WHITE" />
+     <ProgressBar fx:id="progress" disable="false" layoutX="-1.0" layoutY="376.0" opacity="1.0" prefHeight="24.0" prefWidth="600.0" progress="1.0" style="" />
+     <!-- Update controls -->
+     <Label fx:id="utitle" alignment="TOP_LEFT" layoutX="15.0" layoutY="236.0" prefHeight="30.0" prefWidth="470.0" text="Обновление..." textFill="WHITE">
+       <font>
+         <Font name="System Bold" size="20.0" />
+       </font>
+     </Label>
+      <ImageView fitHeight="160.0" fitWidth="160.0" layoutX="219.0" layoutY="70.0" y="-6.0">
+         <image>
+            <Image url="@../../images/icons/loading.gif" />
+         </image>
+      </ImageView>
+   </children>
+  <stylesheets>
+    <URL value="@update.css" />
+  </stylesheets>
 </Pane>

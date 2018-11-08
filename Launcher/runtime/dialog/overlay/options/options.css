@@ -17,12 +17,54 @@
     -fx-background-color: #74C085;
 }
 
+#holder > #modlist {
+    -fx-background-color: transparent;
+	
+}
+#holder > #modlist > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal, .scroll-bar:vertical{
+    -fx-background-color:transparent;
+}
+
+.increment-button, .decrement-button, .increment-arrow, .decrement-arrow {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(0, 0, 0, 0.19);
+    -fx-background-radius: 0;
+}
+
+.scroll-bar{
+    -fx-font-size: 6px;
+}
+
+.scroll-pane > .corner {
+    -fx-background-color: black;
+}
+
 .check-box{
 	-fx-background-color: transparent;
 	-fx-text-fill:#2c2c2c;
 	-fx-font-size: 13;
     -fx-background-image: url('../../images/icons/checkbox.png');
 	-fx-background-repeat: no-repeat;
+	-fx-padding: 0 0 10 0;
 }
 .check-box .mark {
     -fx-background-color: transparent;

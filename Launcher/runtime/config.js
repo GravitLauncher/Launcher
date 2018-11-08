@@ -5,8 +5,8 @@ var config = {
     icons: [ "favicon.png" ], // Window icon paths
 
     // Auth config
-    linkText: "GravitHome site", // Text for link under "Auth" button
-    linkURL: new java.net.URL("https://gravithome.ru/"), // URL for link under "Auth" button
+    linkText: "GravitLauncher", // Text for link under "Auth" button
+    linkURL: new java.net.URL("https://gravitlauncher.ml"), // URL for link under "Auth" button
 	
     // Menu config
     discord_url: new java.net.URL("https://discord.gg/bf7ZtwC"),
@@ -19,6 +19,7 @@ var config = {
 };
 
 // ====== DON'T TOUCH! ====== //
+
 DirBridge.dir = IOHelper.HOME_DIR.resolve(config.dir);
 if (!IOHelper.isDir(DirBridge.dir)) {
     java.nio.file.Files.createDirectory(DirBridge.dir);
@@ -27,3 +28,17 @@ DirBridge.defaultUpdatesDir = DirBridge.dir.resolve("updates");
 if (!IOHelper.isDir(DirBridge.defaultUpdatesDir)) {
     java.nio.file.Files.createDirectory(DirBridge.defaultUpdatesDir);
 }
+
+//====== SERVERS CONFIG ====== //
+var serversConfig = {
+    defaults: {
+        // Лозунг сервера
+        description: "Мир в котором возможно все"
+    },
+     getServerProperty: function(profile, property){
+        if(serversConfig[profile]==null || serversConfig[profile][property]==null){
+          return serversConfig.defaults[property];
+        }
+        return serversConfig[profile][property];
+    }
+};

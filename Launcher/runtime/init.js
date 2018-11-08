@@ -1,12 +1,5 @@
 var app, stage, scene, loginScene, menuScene;
-
 var rootPane, loginPane, authPane, menuPane;
-launcher.loadScript("servers.js");
-
-// internal
-function getPathDirHelper() {
-	return dir;
-}
 
 // Override application class
 var LauncherApp = Java.extend(JSApplication, {
