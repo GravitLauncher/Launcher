@@ -11,4 +11,5 @@ public class DirBridge {
     public static Path dirUpdates;
     @LauncherAPI
     public static Path defaultUpdatesDir;
+
 }

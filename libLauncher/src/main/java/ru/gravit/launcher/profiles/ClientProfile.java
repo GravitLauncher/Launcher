@@ -140,7 +140,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
         //  Updater and client watch service
         block.getEntry("update", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(update::add);
         block.getEntry("updateVerify", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateVerify::add);
-        block.getEntry("updateShared", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateVerify::add);
+        block.getEntry("updateShared", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateShared::add);
         block.getEntry("updateOptional", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(e -> updateOptional.add(new MarkedString(e)));
         block.getEntry("updateExclusions", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateExclusions::add);
         block.getEntry("enabledOptional", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(e -> updateOptional.stream().anyMatch(e1 -> e.equals(e1.string) && (e1.mark = true)));
