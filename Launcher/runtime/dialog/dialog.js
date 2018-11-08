@@ -172,7 +172,6 @@ function goSettings(event) {
     }
 
     // Show settings overlay
-    updateOptional();
     overlay.show(settingsOverlay.overlay, null);
 }
 
@@ -183,6 +182,7 @@ function goOptions(event) {
     }
 
     // Show options overlay
+    updateOptional();
     overlay.show(options.overlay, null);
 }
 
