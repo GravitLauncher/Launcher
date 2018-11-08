@@ -12,7 +12,6 @@
    <children>
      <Pane id="holder" layoutX="171.0" layoutY="28.0" prefHeight="371.0" prefWidth="428.0">
        <children>
-            <Button fx:id="apply" defaultButton="true" layoutX="315.0" layoutY="333.0" prefHeight="25.0" prefWidth="100.0" text="Применить" />
             <FlowPane id="modlist" orientation="VERTICAL" prefHeight="371.0">
                 <children>
                 </children>
@@ -20,6 +19,7 @@
                   <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                </padding>
             </FlowPane>
+           <Button fx:id="apply" defaultButton="true" layoutX="315.0" layoutY="333.0" prefHeight="25.0" prefWidth="100.0" text="Применить" />
         </children>
      </Pane>
    </children>
