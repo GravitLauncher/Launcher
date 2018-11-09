@@ -1,4 +1,4 @@
-package ru.gravit.launcher.gui.buttons;
+package ru.gravit.launcher.gui.indicator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,27 +13,17 @@ import javafx.scene.control.Control;
 
 import com.sun.javafx.css.converters.SizeConverter;
 import javafx.scene.control.ProgressIndicator;
-import ru.gravit.launcher.LauncherAPI;
 
-@LauncherAPI
 abstract class ProgressCircleIndicator extends ProgressIndicator {
-
-    @LauncherAPI
     public ProgressCircleIndicator() {
         this.getStylesheets().add(ProgressCircleIndicator.class.getResource("/runtime/launcher/overlay/update/circleprogress.css").toExternalForm());
     }
-
-    @LauncherAPI
     public final void setInnerCircleRadius(int value) {
         innerCircleRadiusProperty().set(value);
     }
-
-    @LauncherAPI
     public final DoubleProperty innerCircleRadiusProperty() {
         return innerCircleRadius;
     }
-
-    @LauncherAPI
     public final double getInnerCircleRadius() {
         return innerCircleRadiusProperty().get();
     }
@@ -82,13 +72,9 @@ abstract class ProgressCircleIndicator extends ProgressIndicator {
             STYLEABLES = Collections.unmodifiableList(styleables);
         }
     }
-
-    @LauncherAPI
     public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
         return StyleableProperties.STYLEABLES;
     }
-
-    @LauncherAPI
     @Override
     public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() {
         return StyleableProperties.STYLEABLES;

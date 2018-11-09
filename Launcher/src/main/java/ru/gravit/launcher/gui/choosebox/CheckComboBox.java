@@ -13,16 +13,13 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Skin;
 import javafx.util.StringConverter;
+
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.gui.choosebox.impl.CheckComboBoxSkin;
 
 public class CheckComboBox<T> extends ControlsFXControl {
-    @LauncherAPI
     private static class CheckComboBoxBitSetCheckModel<T> extends CheckBitSetModelBase<T> {
-        @LauncherAPI
         private final ObservableList<T> items;
-
-        @LauncherAPI
+        
         CheckComboBoxBitSetCheckModel(final ObservableList<T> items, final Map<T, BooleanProperty> itemBooleanMap) {
             super(itemBooleanMap);
 
@@ -32,19 +29,16 @@ public class CheckComboBox<T> extends ControlsFXControl {
             updateMap();
         }
 
-        @LauncherAPI
         @Override
         public T getItem(int index) {
             return items.get(index);
         }
 
-        @LauncherAPI
         @Override
         public int getItemCount() {
             return items.size();
         }
 
-        @LauncherAPI
         @Override
         public int getItemIndex(T item) {
             return items.indexOf(item);
@@ -53,17 +47,10 @@ public class CheckComboBox<T> extends ControlsFXControl {
 
     private final ObservableList<T> items;
     private final Map<T, BooleanProperty> itemBooleanMap;
-
     private CheckComboBoxSkin<T> checkComboBoxSkin;
-
-    @LauncherAPI
     private ObjectProperty<IndexedCheckModel<T>> checkModel = new SimpleObjectProperty<>(this, "checkModel");
-
-    @LauncherAPI
     private ObjectProperty<StringConverter<T>> converter = new SimpleObjectProperty<>(this,
             "converter");
-
-    @LauncherAPI
     private StringProperty title = new SimpleStringProperty(null);
 
     public CheckComboBox() {

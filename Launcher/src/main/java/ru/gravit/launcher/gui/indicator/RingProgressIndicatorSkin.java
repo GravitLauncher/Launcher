@@ -1,4 +1,4 @@
-package ru.gravit.launcher.gui.buttons;
+package ru.gravit.launcher.gui.indicator;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -18,7 +18,6 @@ import ru.gravit.launcher.LauncherAPI;
  *
  * @author Andrea Vacondio
  */
-@LauncherAPI
 public class RingProgressIndicatorSkin implements Skin<RingProgressIndicator> {
 
     private final RingProgressIndicator indicator;
@@ -29,7 +28,6 @@ public class RingProgressIndicatorSkin implements Skin<RingProgressIndicator> {
     private final Arc fillerArc = new Arc();
     private final RotateTransition transition = new RotateTransition(Duration.millis(2000), fillerArc);
 
-    @LauncherAPI
     public RingProgressIndicatorSkin(final RingProgressIndicator indicator) {
         this.indicator = indicator;
         initContainer(indicator);
@@ -108,20 +106,14 @@ public class RingProgressIndicatorSkin implements Skin<RingProgressIndicator> {
             transition.stop();
         }
     }
-
-    @LauncherAPI
     @Override
     public RingProgressIndicator getSkinnable() {
         return indicator;
     }
-
-    @LauncherAPI
     @Override
     public Node getNode() {
         return container;
     }
-
-    @LauncherAPI
     @Override
     public void dispose() {
         transition.stop();

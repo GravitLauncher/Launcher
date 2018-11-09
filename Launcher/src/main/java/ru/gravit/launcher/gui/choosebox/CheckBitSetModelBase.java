@@ -11,7 +11,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import ru.gravit.launcher.LauncherAPI;
 
 abstract class CheckBitSetModelBase<T> implements IndexedCheckModel<T> {
     private final Map<T, BooleanProperty> itemBooleanMap;
@@ -104,7 +103,6 @@ abstract class CheckBitSetModelBase<T> implements IndexedCheckModel<T> {
         });
     }
 
-    @LauncherAPI
     @Override
     public void check(int index) {
         if (index < 0 || index >= getItemCount())
@@ -121,21 +119,18 @@ abstract class CheckBitSetModelBase<T> implements IndexedCheckModel<T> {
         check(index);
     }
 
-    @LauncherAPI
     @Override
     public void checkAll() {
         for (int i = 0; i < getItemCount(); i++)
             check(i);
     }
 
-    @LauncherAPI
     @Override
     public void checkIndices(int... indices) {
         for (int indice : indices)
             check(indice);
     }
 
-    @LauncherAPI
     @Override
     public void clearCheck(int index) {
         if (index < 0 || index >= getItemCount())
@@ -147,69 +142,57 @@ abstract class CheckBitSetModelBase<T> implements IndexedCheckModel<T> {
                 new NonIterableChange.SimpleRemovedChange<>(changeIndex, changeIndex, index, checkedIndicesList));
     }
 
-    @LauncherAPI
     @Override
     public void clearCheck(T item) {
         int index = getItemIndex(item);
         clearCheck(index);
     }
 
-    @LauncherAPI
     @Override
     public void clearChecks() {
         for (int index = 0; index < checkedIndices.length(); index++)
             clearCheck(index);
     }
 
-    @LauncherAPI
     @Override
     public ObservableList<Integer> getCheckedIndices() {
         return checkedIndicesList;
     }
 
-    @LauncherAPI
     @Override
     public ObservableList<T> getCheckedItems() {
         return checkedItemsList;
     }
-
-    @LauncherAPI
+    
     @Override
     public abstract T getItem(int index);
 
-    @LauncherAPI
     BooleanProperty getItemBooleanProperty(T item) {
         return itemBooleanMap.get(item);
     }
 
-    @LauncherAPI
     @Override
     public abstract int getItemCount();
 
-    @LauncherAPI
     @Override
     public abstract int getItemIndex(T item);
 
-    @LauncherAPI
     @Override
     public boolean isChecked(int index) {
         return checkedIndices.get(index);
     }
 
-    @LauncherAPI
     @Override
     public boolean isChecked(T item) {
         int index = getItemIndex(item);
         return isChecked(index);
     }
 
-    @LauncherAPI
     @Override
     public boolean isEmpty() {
         return checkedIndices.isEmpty();
     }
 
-    @LauncherAPI
     @Override
     public void toggleCheckState(int index) {
         if (isChecked(index))
@@ -218,14 +201,12 @@ abstract class CheckBitSetModelBase<T> implements IndexedCheckModel<T> {
             check(index);
     }
 
-    @LauncherAPI
     @Override
     public void toggleCheckState(T item) {
         int index = getItemIndex(item);
         toggleCheckState(index);
     }
 
-    @LauncherAPI
     protected void updateMap() {
         itemBooleanMap.clear();
         for (int i = 0; i < getItemCount(); i++) {
