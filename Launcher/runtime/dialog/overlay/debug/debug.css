@@ -1,5 +1,3 @@
-@import url(../../styles/common.css);
-
 /* Output */
 #overlay > #output {
     -fx-background-color: white;

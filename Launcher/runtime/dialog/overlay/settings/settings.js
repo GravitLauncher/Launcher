@@ -24,9 +24,16 @@ var settingsClass = Java.extend(LauncherSettingsClass.static, {
         var encrypted = SecurityHelper.newRSAEncryptCipher(Launcher.getConfig().publicKey).doFinal(IOHelper.encode(password));
         //settings.password = encrypted;
         return encrypted;
-    }
+    },
 
 
+    setRAM: function(ram) {
+		if (ram>762&&ram<1024){
+        settings.ram = java.lang.Math["min(int,int)"](ram, JVMHelper.RAM);
+		}else{
+        settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, JVMHelper.RAM);
+		}
+    },
 });
 var settingsOverlay = {
 /* ===================== OVERLAY ===================== */
@@ -64,7 +71,6 @@ var settingsOverlay = {
             }
         });
 
-
         // Lookup fullScreen checkbox
         var fullScreenBox = holder.lookup("#fullScreen");
         fullScreenBox.setSelected(settings.fullScreen);
@@ -77,16 +83,17 @@ var settingsOverlay = {
 
         // Lookup RAM slider options
         var ramSlider = holder.lookup("#ramSlider");
-        ramSlider.setMin(0);
         ramSlider.setMax(JVMHelper.RAM);
         ramSlider.setSnapToTicks(true);
+        ramSlider.setShowTickMarks(true);
+        ramSlider.setShowTickLabels(true);
         ramSlider.setMinorTickCount(3);
-        //ramSlider.setMajorTickUnit(1024);
-        //ramSlider.setBlockIncrement(1024);
+        ramSlider.setMajorTickUnit(1024);
+        ramSlider.setBlockIncrement(1024);
         ramSlider.setValue(settings.ram);
         ramSlider.valueProperty()["addListener(javafx.beans.value.ChangeListener)"](function(o, ov, nv) {
             settings.setRAM(nv);
-            settingsOverlay.updateRAMLabel();
+            settings.updateRAMLabel();
         });
 
         // Lookup delete dir button

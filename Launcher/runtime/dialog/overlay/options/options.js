@@ -45,7 +45,7 @@ var options = {
 };
 function updateOptional()
 {
-    var holder = options.overlay.lookup("#modlist");
+    var holder = options.overlay.lookup("#modlist").getContent();
     var nodelist = new java.util.ArrayList;
     
     holder.getChildren().forEach(function(node,i,arr) {
@@ -62,8 +62,6 @@ function updateOptional()
          var testMod = new javafx.scene.control.CheckBox(modfile.string);
 
          testMod.setSelected(modfile.mark);
-         //testMod.setLayoutY(2+3*i);
-         //testMod.setLayoutX(2);
          testMod.setOnAction(function(event) {
              var isSelected = event.getSource().isSelected();
              if(isSelected)
