@@ -59,7 +59,17 @@ function updateOptional()
     var list = profile.getOptional();
     var checkboxlist = new java.util.ArrayList;
     list.forEach(function(modfile,i,arr) {
-         var testMod = new javafx.scene.control.CheckBox(modfile.string);
+         var modName = modfile.string;
+         if(optModNames.modName[modfile.string] != null){
+            modName = optModNames.modName[modfile.string];
+         } else if(optModNames.optAutoModName) {
+            //Попытка автоматически создать представляемое имя модификации.
+            modName = modName.replace(new RegExp("(.*?(\/))",'g'),'');
+            modName = modName.replace(new RegExp("(-|_|[\\d]|\\+).*",'g'),'');
+            //Первая буква - заглавная
+            modName = modName[0].toUpperCase() + modName.slice(1);
+         }
+         var testMod = new javafx.scene.control.CheckBox(modName);
 
          testMod.setSelected(modfile.mark);
          testMod.setOnAction(function(event) {
