@@ -270,7 +270,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         // Start LaunchServer
         Instant start = Instant.now();
         try {
-            try (LaunchServer lsrv = new LaunchServer(IOHelper.WORKING_DIR, false)) {
+            try (LaunchServer lsrv = new LaunchServer(IOHelper.WORKING_DIR)) {
                 lsrv.run();
             }
         } catch (Throwable exc) {
@@ -304,8 +304,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     public final RSAPublicKey publicKey;
 
     public final RSAPrivateKey privateKey;
-
-    public final boolean portable;
     // Launcher binary
 
     public final LauncherBinary launcherBinary;
@@ -340,10 +338,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
 
-    public LaunchServer(Path dir, boolean portable) throws IOException, InvalidKeySpecException {
-        //setScriptBindings();
-        this.portable = portable;
-
+    public LaunchServer(Path dir) throws IOException, InvalidKeySpecException {
         // Setup config locations
         this.dir = dir;
         configFile = dir.resolve("LaunchServer.cfg");
@@ -362,19 +357,16 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         // Set command handler
         CommandHandler localCommandHandler;
-        if (portable)
-            localCommandHandler = new StdCommandHandler(this, false);
-        else
-            try {
-                Class.forName("jline.Terminal");
+        try {
+            Class.forName("jline.Terminal");
 
-                // JLine2 available
-                localCommandHandler = new JLineCommandHandler(this);
-                LogHelper.info("JLine2 terminal enabled");
-            } catch (ClassNotFoundException ignored) {
-                localCommandHandler = new StdCommandHandler(this, true);
-                LogHelper.warning("JLine2 isn't in classpath, using std");
-            }
+            // JLine2 available
+            localCommandHandler = new JLineCommandHandler(this);
+            LogHelper.info("JLine2 terminal enabled");
+        } catch (ClassNotFoundException ignored) {
+            localCommandHandler = new StdCommandHandler(this, true);
+            LogHelper.warning("JLine2 isn't in classpath, using std");
+        }
         commandHandler = localCommandHandler;
 
         // Set key pair
@@ -505,13 +497,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         }
 
         // Set server address
-        if (portable) {
-            LogHelper.warning("Setting LaunchServer address to 'localhost'");
-            newConfig.setAddress("localhost");
-        } else {
-            LogHelper.println("LaunchServer address: ");
-            newConfig.setAddress(commandHandler.readLine());
-        }
+        LogHelper.println("LaunchServer address: ");
+        newConfig.setAddress(commandHandler.readLine());
 
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");
@@ -548,10 +535,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             throw new IllegalStateException("LaunchServer has been already started");
 
         // Add shutdown hook, then start LaunchServer
-        if (!portable) {
-            JVMHelper.RUNTIME.addShutdownHook(CommonHelper.newThread(null, false, this::close));
-            CommonHelper.newThread("Command Thread", true, commandHandler).start();
-        }
+        JVMHelper.RUNTIME.addShutdownHook(CommonHelper.newThread(null, false, this::close));
+        CommonHelper.newThread("Command Thread", true, commandHandler).start();
         rebindServerSocket();
     }
 
