@@ -66,7 +66,6 @@ import ru.gravit.launchserver.texture.TextureProvider;
 
 public final class LaunchServer implements Runnable, AutoCloseable {
     public static final class Config extends ConfigObject {
-
         public final int port;
 
         // Handlers & Providers
@@ -80,7 +79,10 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         public final HWIDHandler hwidHandler;
 
         // Misc options
-
+    	public final int threadCount;
+  
+    	public final int threadCoreCount;
+    	
         public final ExeConf launch4j;
 
         public final SignConf sign;
@@ -111,6 +113,11 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             address = block.getEntry("address", StringConfigEntry.class);
             port = VerifyHelper.verifyInt(block.getEntryValue("port", IntegerConfigEntry.class),
                     VerifyHelper.range(0, 65535), "Illegal LaunchServer port");
+            threadCoreCount = block.hasEntry("threadCoreCacheSize") ? VerifyHelper.verifyInt(block.getEntryValue("threadCoreCacheSize", IntegerConfigEntry.class),
+                    VerifyHelper.range(2, 100), "Illegal LaunchServer thread cache size") : 0;
+            int internalThreadCount = block.hasEntry("threadCacheSize") ? VerifyHelper.verifyInt(block.getEntryValue("threadCacheSize", IntegerConfigEntry.class),
+                    VerifyHelper.range(2, 100), "Illegal LaunchServer thread cache size") : (JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? (JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 6 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors()) : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2);
+            threadCount = threadCoreCount > internalThreadCount ? threadCoreCount : internalThreadCount;
             authRateLimit = VerifyHelper.verifyInt(block.getEntryValue("authRateLimit", IntegerConfigEntry.class),
                     VerifyHelper.range(0, 1000000), "Illegal authRateLimit");
             authRateLimitMilis = VerifyHelper.verifyInt(block.getEntryValue("authRateLimitMilis", IntegerConfigEntry.class),

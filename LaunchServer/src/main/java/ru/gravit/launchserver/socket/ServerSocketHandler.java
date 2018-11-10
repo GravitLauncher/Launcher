@@ -5,8 +5,10 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,7 +37,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
     // Instance
     private final LaunchServer server;
     private final AtomicReference<ServerSocket> serverSocket = new AtomicReference<>();
-    private final ExecutorService threadPool = Executors.newCachedThreadPool(THREAD_FACTORY);
+    private final ExecutorService threadPool;
 
     public final SessionManager sessionManager;
     private final AtomicLong idCounter = new AtomicLong(0L);
@@ -43,13 +45,16 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
     private volatile Listener listener;
 
     public ServerSocketHandler(LaunchServer server) {
-        this.server = server;
-        sessionManager = new SessionManager();
+        this(server, new SessionManager());
         GarbageManager.registerNeedGC(sessionManager);
     }
 
     public ServerSocketHandler(LaunchServer server, SessionManager sessionManager) {
         this.server = server;
+        threadPool = new ThreadPoolExecutor(server.config.threadCoreCount, Integer.MAX_VALUE,
+        		server.config.threadCount, TimeUnit.SECONDS,
+                new SynchronousQueue<Runnable>(),
+                THREAD_FACTORY);
         this.sessionManager = sessionManager;
     }
 
