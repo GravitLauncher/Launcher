@@ -3,16 +3,10 @@ def mainAgentName = "ru.gravit.launchserver.StarterAgent"
 
 repositories {
 	maven {
-		url "https://hub.spigotmc.org/nexus/content/repositories/snapshots"
-	}
-	maven {
 		url "http://maven.geomajas.org/"
 	}
 	maven {
 		url "https://oss.sonatype.org/content/repositories/snapshots"
-	}
-	maven {
-		url "http://repo.md-5.net/content/groups/public"
 	}
 }
 
@@ -41,8 +35,6 @@ jar {
 
 dependencies {
 	compile project(':libLauncher') // pack
-	compileOnly 'org.spigotmc:spigot-api:1.8-R0.1-SNAPSHOT' // api
-	compileOnly 'net.md-5:bungeecord-api:1.8-SNAPSHOT' // api
 	compileOnly 'org.ow2.asm:asm-debug-all:5.0.4'
 	bundleOnly 'org.ow2.asm:asm-all:5.0.4'
 	bundle 'org.apache.logging.log4j:log4j-core:2.9.0'
