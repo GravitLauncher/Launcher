@@ -66,7 +66,7 @@ public final class Launcher {
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
     public static int MAJOR = 4;
     public static int MINOR = 0;
-    public static int PATCH = 5;
+    public static int PATCH = 6;
     public static int BUILD = readBuildNumber();
     public static Version.Type RELEASE = Version.Type.BETA;
 
