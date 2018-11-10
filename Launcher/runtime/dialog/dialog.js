@@ -278,13 +278,10 @@ function updateProfilesList(profiles) {
     profiles.forEach(function (profile, i, arr) {
         pingers[profile.object] = new ServerPinger(profile.object.getServerSocketAddress(), profile.object.getVersion());
         var serverBtn = new javafx.scene.control.ToggleButton(profile);
-        (function () {
-            profilesList[serverBtn] = profile;
-            var hold = serverBtn;
-            serverBtn.setOnAction(function (event) {
-                serverHolder.set(hold);
-            });
-        })();
+        profilesList[serverBtn] = profile;
+        serverBtn.setOnAction(function (event) {
+            serverHolder.set(serverBtn);
+        });
         serverList.getChildren().add(serverBtn);
     });
     serverHolder.set(serverList.getChildren().get(0));

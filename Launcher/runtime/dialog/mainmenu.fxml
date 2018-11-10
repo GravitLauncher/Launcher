@@ -13,7 +13,7 @@
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="layout" maxHeight="-1.0" maxWidth="-1.0" prefHeight="400.0" prefWidth="600.0" visible="true" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<Pane fx:id="layout" maxHeight="-1.0" maxWidth="-1.0" prefHeight="400.0" prefWidth="600.0" visible="true" xmlns="http://javafx.com/javafx/8.0.20" xmlns:fx="http://javafx.com/fxml/1">
   <children>
     <ImageView id="background" fitHeight="400.0" fitWidth="600.0">
       <image>

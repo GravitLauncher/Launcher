@@ -14,7 +14,7 @@
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.20" xmlns:fx="http://javafx.com/fxml/1">
    <children>
      <Pane id="holder" layoutX="1.0" layoutY="28.0" prefHeight="371.0" prefWidth="598.0">
        <children>
