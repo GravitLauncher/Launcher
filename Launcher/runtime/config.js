@@ -42,3 +42,11 @@ var serversConfig = {
         return serversConfig[profile][property];
     }
 };
+
+var optModNames = {
+	optAutoModName: true,//Попытатся автоматически создать представляемое имя модификации
+	modName: {//"Путь до опц. модификации" : "Отображаемое клиенту имя модификации"
+	  "mods/(TEST)sampler-1.80.jar": "Sampler",
+	  "mods/(C)radioplayer-1.1-1.12.jar":"RadioPlayer"
+	}
+}
