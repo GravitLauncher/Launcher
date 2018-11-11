@@ -59,26 +59,26 @@ function updateOptional()
     var list = profile.getOptional();
     var checkboxlist = new java.util.ArrayList;
     list.forEach(function(modfile,i,arr) {
-      var modName = modfile.string, modDescription = "", subm = false;
-      if(optModNames.modInfo[modfile.string] != null){//Есть ли хоть какое ни будь представление описания модификации?
-         var optModN = optModNames.modInfo[modfile.string];
-         if(optModN.name != null)//Есть ли у модификации имя?
-            modName = optModN.name;
-         if(optModN.description != null) //Есть ли описание?
-            modDescription = optModN.description;
-         if(optModN.submod != null && optModN.submod == true)//Это суб-модификация?
-            subm = true;
-      } else if(optModNames.optAutoModName) {
-         //Попытка автоматически создать представляемое имя модификации.
-         modName = modName.replace(new RegExp("(.*?(\/))",'g'),'');
-         modName = modName.replace(new RegExp("(-|_|[\\d]|\\+).*",'g'),'');
-         //Первая буква - заглавная
-         modName = modName[0].toUpperCase() + modName.slice(1);
-      }
+		var modName = modfile.string, modDescription = "", subm = false;
+		if(optModNames.modInfo[modfile.string] != null){//Есть ли хоть какое ни будь представление описания модификации?
+			var optModN = optModNames.modInfo[modfile.string];
+			if(optModN.name != null)//Есть ли у модификации имя?
+				modName = optModN.name;
+			if(optModN.description != null) //Есть ли описание?
+				modDescription = optModN.description;
+			if(optModN.submod != null && optModN.submod == true)//Это суб-модификация?
+				subm = true;
+		} else if(optModNames.optAutoModName) {
+			//Попытка автоматически создать представляемое имя модификации.
+			modName = modName.replace(new RegExp("(.*?(\/))",'g'),'');
+			modName = modName.replace(new RegExp("(-|_|[\\d]|\\+).*",'g'),'');
+			//Первая буква - заглавная
+			modName = modName[0].toUpperCase() + modName.slice(1);
+		}
          var testMod = new javafx.scene.control.CheckBox(modName);
-       
-       if(subm)//Это суб-модификация?
-          testMod.setTranslateX(25);
+		 
+		 if(subm)//Это суб-модификация?
+			 testMod.setTranslateX(25);
 
          testMod.setSelected(modfile.mark);
          testMod.setOnAction(function(event) {
@@ -87,32 +87,70 @@ function updateOptional()
              {
                  profile.markOptional(modfile.string);
                  LogHelper.debug("Selected mod %s", modfile.string);
+                 optionalModTreeToggle(true, modfile.string);
              }
              else
              {
                  profile.unmarkOptional(modfile.string);
                  LogHelper.debug("Unselected mod %s", modfile.string);
+                 optionalModTreeToggle(false, modfile.string);
              }
+             upd = true;
+             updateOptional();
          });
-      checkboxlist.add(testMod);
+		checkboxlist.add(testMod);
         
-       if(modDescription != "") { //Добавляем оаисание
-          textDescr = new javafx.scene.text.Text(modDescription);
+		 if(modDescription != "") { //Добавляем оаисание
+			 textDescr = new javafx.scene.text.Text(modDescription);
              if(subm){//Это суб-модификация?
                 textDescr.setWrappingWidth(345);
                 textDescr.setTranslateX(50);
-          } else {
+			 } else {
                 textDescr.setWrappingWidth(370);
                 textDescr.setTranslateX(25);
-          }
-          textDescr.setTextAlignment(javafx.scene.text.TextAlignment.JUSTIFY);
-          textDescr.getStyleClass().add("description-text");
-          checkboxlist.add(textDescr);
-       }
-         sep = new javafx.scene.control.Separator();
-         sep.getStyleClass().add("separator");
-         checkboxlist.add(sep);
+			 }
+			 textDescr.setTextAlignment(javafx.scene.text.TextAlignment.JUSTIFY);
+			 textDescr.getStyleClass().add("description-text");
+			 checkboxlist.add(textDescr);
+		 }
+        sep = new javafx.scene.control.Separator();
+        sep.getStyleClass().add("separator");
+        checkboxlist.add(sep);
          
     });
+    if(upd) holder.getChildren().clear();
     holder.getChildren().addAll(checkboxlist);
 };
+function optionalModTreeToggle(enable, Imodfile) { //Переключение ветки модов
+    var profile = profilesList[serverHolder.old].object;
+    if(optModNames.modInfo[Imodfile] != null) {
+        var modInfo = optModNames.modInfo[Imodfile];
+        var modList = optModNames.modInfo;
+        
+        if(modInfo.group != null && modInfo.submod != null) {
+        
+            if(modInfo.submod == false){//Отключение core-модификации
+                Object.keys(modList).forEach(function(key, id) {
+                    if(modList[key] != null && modList[key].group != null && modList[key].submod != null) {
+                        if(modList[key].group == modInfo.group && modList[key].submod == true && enable == false) {
+                            profile.unmarkOptional(key);
+                            LogHelper.debug("Unselected subMod %s", key);
+                        }
+                    }
+                });
+            }
+            
+            if(modInfo.submod == true){//Включение суб-модификации (Без core суб-моды работать не будут, так что его нужно включать)
+                Object.keys(modList).forEach(function(key, id) {
+                    if(modList[key] != null && modList[key].group != null && modList[key].submod != null) {
+                        if(modList[key].group == modInfo.group && modList[key].submod == false && enable == true) {
+                            profile.markOptional(key);
+                            LogHelper.debug("Selected coreMod %s", key);
+                        }
+                    }
+                });
+            }
+            
+        }
+    }
+}
