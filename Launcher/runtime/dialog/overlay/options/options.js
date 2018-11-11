@@ -59,17 +59,26 @@ function updateOptional()
     var list = profile.getOptional();
     var checkboxlist = new java.util.ArrayList;
     list.forEach(function(modfile,i,arr) {
-	var modName = modfile.string;
-	if(optModNames.modName[modfile.string] != null){
-	    modName = optModNames.modName[modfile.string];
-	} else if(optModNames.optAutoModName) {
-	    //Попытка автоматически создать представляемое имя модификации.
-	    modName = modName.replace(new RegExp("(.*?(\/))",'g'),'');
-	    modName = modName.replace(new RegExp("(-|_|[\\d]|\\+).*",'g'),'');
-	    //Первая буква - заглавная
-	    modName = modName[0].toUpperCase() + modName.slice(1);
-	 }
+      var modName = modfile.string, modDescription = "", subm = false;
+      if(optModNames.modInfo[modfile.string] != null){//Есть ли хоть какое ни будь представление описания модификации?
+         var optModN = optModNames.modInfo[modfile.string];
+         if(optModN.name != null)//Есть ли у модификации имя?
+            modName = optModN.name;
+         if(optModN.description != null) //Есть ли описание?
+            modDescription = optModN.description;
+         if(optModN.submod != null && optModN.submod == true)//Это суб-модификация?
+            subm = true;
+      } else if(optModNames.optAutoModName) {
+         //Попытка автоматически создать представляемое имя модификации.
+         modName = modName.replace(new RegExp("(.*?(\/))",'g'),'');
+         modName = modName.replace(new RegExp("(-|_|[\\d]|\\+).*",'g'),'');
+         //Первая буква - заглавная
+         modName = modName[0].toUpperCase() + modName.slice(1);
+      }
          var testMod = new javafx.scene.control.CheckBox(modName);
+       
+       if(subm)//Это суб-модификация?
+          testMod.setTranslateX(25);
 
          testMod.setSelected(modfile.mark);
          testMod.setOnAction(function(event) {
@@ -85,7 +94,25 @@ function updateOptional()
                  LogHelper.debug("Unselected mod %s", modfile.string);
              }
          });
-         checkboxlist.add(testMod);
+      checkboxlist.add(testMod);
+        
+       if(modDescription != "") { //Добавляем оаисание
+          textDescr = new javafx.scene.text.Text(modDescription);
+             if(subm){//Это суб-модификация?
+                textDescr.setWrappingWidth(345);
+                textDescr.setTranslateX(50);
+          } else {
+                textDescr.setWrappingWidth(370);
+                textDescr.setTranslateX(25);
+          }
+          textDescr.setTextAlignment(javafx.scene.text.TextAlignment.JUSTIFY);
+          textDescr.getStyleClass().add("description-text");
+          checkboxlist.add(textDescr);
+       }
+         sep = new javafx.scene.control.Separator();
+         sep.getStyleClass().add("separator");
+         checkboxlist.add(sep);
+         
     });
     holder.getChildren().addAll(checkboxlist);
-}
+};
