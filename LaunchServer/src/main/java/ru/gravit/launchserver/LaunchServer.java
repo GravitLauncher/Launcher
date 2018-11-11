@@ -114,9 +114,9 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             port = VerifyHelper.verifyInt(block.getEntryValue("port", IntegerConfigEntry.class),
                     VerifyHelper.range(0, 65535), "Illegal LaunchServer port");
             threadCoreCount = block.hasEntry("threadCoreCacheSize") ? VerifyHelper.verifyInt(block.getEntryValue("threadCoreCacheSize", IntegerConfigEntry.class),
-                    VerifyHelper.range(2, 100), "Illegal LaunchServer thread cache size") : 0;
+                    VerifyHelper.range(0, 100), "Illegal LaunchServer inital thread pool cache size") : 0;
             int internalThreadCount = block.hasEntry("threadCacheSize") ? VerifyHelper.verifyInt(block.getEntryValue("threadCacheSize", IntegerConfigEntry.class),
-                    VerifyHelper.range(2, 100), "Illegal LaunchServer thread cache size") : (JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors());
+                    VerifyHelper.range(2, 100), "Illegal LaunchServer thread pool cache size") : (JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors());
             threadCount = threadCoreCount > internalThreadCount ? threadCoreCount : internalThreadCount;
             authRateLimit = VerifyHelper.verifyInt(block.getEntryValue("authRateLimit", IntegerConfigEntry.class),
                     VerifyHelper.range(0, 1000000), "Illegal authRateLimit");
