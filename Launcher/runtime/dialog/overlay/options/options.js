@@ -43,6 +43,7 @@ var options = {
     },
 
 };
+var upd = false; //Переменная обноеления интерфейса.
 function updateOptional()
 {
     var holder = options.overlay.lookup("#modlist").getContent();
