@@ -61,10 +61,9 @@
 .check-box{
 	-fx-background-color: transparent;
 	-fx-text-fill:#2c2c2c;
-	-fx-font-size: 13;
+	-fx-font-size: 13px;
     -fx-background-image: url('../../images/icons/checkbox.png');
 	-fx-background-repeat: no-repeat;
-	-fx-padding: 0 0 10 0;
 }
 .check-box .mark {
     -fx-background-color: transparent;
@@ -82,4 +81,14 @@
 }
 .check-box:selected .box {
     -fx-background-color: transparent;
+}
+
+.description-text {
+	-fx-font-smoothing-type: lcd;
+ 	-fx-fill: #8c8c8c;
+ 	-fx-font-size: 12px;
+}
+.separator *.line {
+	-fx-border-color: transparent;
+	-fx-border-width: 0 0 10 0;
 }
