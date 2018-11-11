@@ -1,11 +1,14 @@
 package ru.gravit.launcher.client;
 
+import javafx.concurrent.Task;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.update.LegacyLauncherRequest;
+import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
+import ru.gravit.utils.helper.CommonHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,6 +17,8 @@ import java.security.SignatureException;
 public class FunctionalBridge {
     @LauncherAPI
     public static LauncherSettings settings;
+    @LauncherAPI
+    public static RequestWorker worker;
 
     @LauncherAPI
     public HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) throws Exception {
@@ -44,5 +49,15 @@ public class FunctionalBridge {
     @FunctionalInterface
     public interface HashedDirRunnable {
         SignedObjectHolder<HashedDir> run() throws Exception;
+    }
+    @LauncherAPI
+    public void makeJsonRequest(RequestInterface request, Runnable callback)
+    {
+
+    }
+    @LauncherAPI
+    public void startTask(Task task)
+    {
+        worker.queue.offer(task);
     }
 }

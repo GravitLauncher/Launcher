@@ -95,11 +95,11 @@ function newTask(r) {
 }
 
 function newRequestTask(request) {
-    return newTask(function() request.request());
+    FunctionalBridge.makeRequest(request,)
 }
 
 function startTask(task) {
-    CommonHelper.newThread("FX Task Thread", true, task).start();
+    FunctionalBridge.startTask(task);
 }
 
 function openURL(url) {
