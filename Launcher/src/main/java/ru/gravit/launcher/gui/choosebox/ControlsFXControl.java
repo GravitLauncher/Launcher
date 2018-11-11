@@ -1,7 +1,6 @@
 package ru.gravit.launcher.gui.choosebox;
 
 import javafx.scene.control.Control;
-import ru.gravit.launcher.LauncherAPI;
 
 abstract class ControlsFXControl extends Control {
 
@@ -11,7 +10,6 @@ abstract class ControlsFXControl extends Control {
 
     }
 
-    @LauncherAPI
     protected final String getUserAgentStylesheet(Class<?> clazz, String fileName) {
 
         if (stylesheet == null)

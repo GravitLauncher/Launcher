@@ -1,4 +1,4 @@
-package ru.gravit.launcher.gui.buttons;
+package ru.gravit.launcher.gui.indicator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +16,6 @@ import com.sun.javafx.css.converters.SizeConverter;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.utils.helper.LogHelper;
 
-@LauncherAPI
 public class RingProgressIndicator extends ProgressCircleIndicator {
     public RingProgressIndicator() {
         LogHelper.debug("Setting JVM dir name");
@@ -24,7 +23,6 @@ public class RingProgressIndicator extends ProgressCircleIndicator {
         this.getStyleClass().add("ringindicator");
     }
 
-    @LauncherAPI
     @Override
     protected Skin<?> createDefaultSkin() {
         return new RingProgressIndicatorSkin(this);
@@ -91,7 +89,6 @@ public class RingProgressIndicator extends ProgressCircleIndicator {
         }
     }
 
-    @LauncherAPI
     @Override
     public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() {
         return StyleableProperties.STYLEABLES;

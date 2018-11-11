@@ -1,4 +1,4 @@
-package ru.gravit.launcher.gui.choosebox.impl;
+package ru.gravit.launcher.gui.choosebox;
 
 import java.util.Collections;
 
@@ -16,8 +16,6 @@ import javafx.scene.control.Skin;
 import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.input.KeyCode;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.gui.choosebox.CheckComboBox;
-import ru.gravit.launcher.gui.choosebox.IndexedCheckModel;
 
 public class CheckComboBoxSkin<T> extends BehaviorSkinBase<CheckComboBox<T>, BehaviorBase<CheckComboBox<T>>> {
 
@@ -75,8 +73,7 @@ public class CheckComboBoxSkin<T> extends BehaviorSkinBase<CheckComboBox<T>, Beh
 
         getChildren().add(comboBox);
     }
-
-    @LauncherAPI
+    
     private String buildString() {
         final StringBuilder sb = new StringBuilder();
         for (int i = 0, max = selectedItems.size(); i < max; i++) {
@@ -133,7 +130,6 @@ public class CheckComboBoxSkin<T> extends BehaviorSkinBase<CheckComboBox<T>, Beh
         return comboBox.prefWidth(height);
     }
 
-    @LauncherAPI
     private Skin<?> createComboBoxListViewSkin(ComboBox<T> comboBox) {
         final ComboBoxListViewSkin<T> comboBoxListViewSkin = new ComboBoxListViewSkin<T>(comboBox) {
             @Override
