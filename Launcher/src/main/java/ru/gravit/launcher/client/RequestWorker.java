@@ -18,9 +18,13 @@ public class RequestWorker implements Runnable {
     public void run() {
         while (!Thread.interrupted())
         {
-            Task task = queue.poll();
-            if (task != null) {
+            try {
+                Task task;
+                task = queue.take();
                 task.run();
+            } catch (InterruptedException e) {
+                LogHelper.error(e);
+                return;
             }
         }
     }

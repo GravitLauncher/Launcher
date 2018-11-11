@@ -9,6 +9,7 @@ import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -58,6 +59,10 @@ public class FunctionalBridge {
     @LauncherAPI
     public void startTask(Task task)
     {
-        worker.queue.offer(task);
+        try {
+            worker.queue.put(task);
+        } catch (InterruptedException e) {
+            LogHelper.error(e);
+        }
     }
 }
