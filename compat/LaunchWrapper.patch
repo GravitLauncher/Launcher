@@ -7,7 +7,7 @@ index f4e83af..d3a6d7f 100644
          addClassLoaderExclusion("net.minecraft.launchwrapper.");
  
 +        // classloader launcher exclusions
-+        addClassLoaderExclusion("launcher.");
++        addClassLoaderExclusion("ru.gravit.launcher.");
 +        addClassLoaderExclusion("com.mojang.");
 +        addClassLoaderExclusion("com.google.gson.");
 +        addClassLoaderExclusion("org.json.");
