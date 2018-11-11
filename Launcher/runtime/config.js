@@ -49,6 +49,7 @@ var optModNames = {
      /*"mods/ModName-1.1.jar": {
         name: "ModName", //Наименование модификации (Отображаемое в лаунчере)
         description:"Лучший в своём роде ModName.", //Описание модификации
+	group: 1, //Группа (Используется для ветки зависемых модификаций. К примеру: у NEI [submod: false и group: 1], а у NeiAddons и NeiPlugins [submod: true group: 1])
         submod: false //Это суб-модификация? (будет произведён отступ от левого края для выделения)
      },*/
    },
