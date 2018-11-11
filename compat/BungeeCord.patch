@@ -203,9 +203,9 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 +        <dependency>
 +            <groupId>launcher</groupId>
 +            <artifactId>clientside</artifactId>
-+            <version>15.4+</version>
++            <version>4+</version>
 +            <scope>system</scope>
-+            <systemPath>C:/Users/Administrator/Files/Projects/Launcher15.2/Launcher.jar</systemPath>
++            <systemPath>$HOME$/Launcher/Launcher/build/libs/Launcher.jar</systemPath>
          </dependency>
      </dependencies>
  
