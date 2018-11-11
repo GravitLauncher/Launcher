@@ -8,8 +8,6 @@ import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.utils.helper.LogHelper;
 
-import java.util.UUID;
-
 public class CheckServerResponse implements JsonResponseInterface {
     public String serverID;
     public String username;
@@ -21,9 +19,8 @@ public class CheckServerResponse implements JsonResponseInterface {
 
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
-        UUID uuid;
         try {
-            uuid = LaunchServer.server.config.authHandler[0].checkServer(username, serverID);
+            LaunchServer.server.config.authHandler[0].checkServer(username, serverID);
         } catch (AuthException e) {
             service.sendObject(ctx, new WebSocketService.ErrorResult(e.getMessage()));
             return;

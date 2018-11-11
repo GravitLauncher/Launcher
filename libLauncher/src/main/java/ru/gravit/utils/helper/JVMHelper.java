@@ -115,7 +115,7 @@ public final class JVMHelper {
         return list;
     }
 
-    public static void checkStackTrace(Class mainClass) {
+    public static void checkStackTrace(Class<?> mainClass) {
         LogHelper.debug("Testing stacktrace");
         Exception e = new Exception("Testing stacktrace");
         StackTraceElement[] list = e.getStackTrace();

@@ -265,7 +265,7 @@ public final class HashedDir extends HashedEntry {
         return diff;
     }
 
-    private HashedDir sideCompare(HashedDir other, FileNameMatcher matcher, Deque<String> path, boolean mismatchList) {
+    public HashedDir sideCompare(HashedDir other, FileNameMatcher matcher, Deque<String> path, boolean mismatchList) {
         HashedDir diff = new HashedDir();
         for (Entry<String, HashedEntry> mapEntry : map.entrySet()) {
             String name = mapEntry.getKey();

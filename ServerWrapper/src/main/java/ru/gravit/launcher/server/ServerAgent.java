@@ -14,12 +14,6 @@ public class ServerAgent {
     public static Instrumentation inst;
 
     public static final class StarterVisitor extends SimpleFileVisitor<Path> {
-        private Instrumentation inst;
-
-        public StarterVisitor(Instrumentation inst) {
-            this.inst = inst;
-        }
-
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toFile().getName().endsWith(".jar")) addJVMClassPath(new JarFile(file.toFile()));
@@ -51,7 +45,7 @@ public class ServerAgent {
         isAgentStarted = true;
 
         try {
-            Files.walkFileTree(Paths.get("libraries"), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new StarterVisitor(inst));
+            Files.walkFileTree(Paths.get("libraries"), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new StarterVisitor());
         } catch (IOException e) {
             e.printStackTrace(System.err);
         }

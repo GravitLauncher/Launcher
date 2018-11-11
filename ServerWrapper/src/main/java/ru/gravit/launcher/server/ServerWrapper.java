@@ -38,6 +38,7 @@ public class ServerWrapper {
         try {
             LauncherConfig cfg = Launcher.getConfig();
             Boolean auth = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), 0, config.title).request();
+            if (auth == null) throw new Exception("Non auth!"); // security check 
             ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
             for (SignedObjectHolder<ClientProfile> p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.object.getTitle());
