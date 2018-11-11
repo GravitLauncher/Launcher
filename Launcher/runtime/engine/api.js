@@ -95,7 +95,7 @@ function newTask(r) {
 }
 
 function newRequestTask(request) {
-    FunctionalBridge.makeRequest(request,)
+    FunctionalBridge.makeRequest(request);
 }
 
 function startTask(task) {
