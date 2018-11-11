@@ -6,7 +6,8 @@ import java.security.*;
 public class LauncherSSLContext {
     public SSLServerSocketFactory ssf;
     public SSLSocketFactory sf;
-    private SSLContext sc;
+    @SuppressWarnings("unused")
+	private SSLContext sc;
 
     public LauncherSSLContext(KeyStore ks, String keypassword) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
         TrustManager[] trustAllCerts = new TrustManager[]{

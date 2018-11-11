@@ -23,6 +23,7 @@ import ru.gravit.utils.helper.LogHelper;
 
 import java.util.HashMap;
 
+@SuppressWarnings({"unused", "rawtypes"})
 public class WebSocketService {
     public final ChannelGroup channels;
 
@@ -30,9 +31,8 @@ public class WebSocketService {
         this.channels = channels;
         this.server = server;
         this.gsonBuiler = gson;
-        this.
-                gsonBuiler.registerTypeAdapter(JsonResponseInterface.class, new JsonResponseAdapter(this));
-        gsonBuiler.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
+        this.gsonBuiler.registerTypeAdapter(JsonResponseInterface.class, new JsonResponseAdapter(this));
+        this.gsonBuiler.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuiler.create();
     }
 

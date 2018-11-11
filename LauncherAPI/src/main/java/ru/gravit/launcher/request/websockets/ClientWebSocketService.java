@@ -13,8 +13,8 @@ public class ClientWebSocketService {
     public final GsonBuilder gsonBuilder;
     public final Gson gson;
     public final ClientJSONPoint point;
-    private HashMap<String, Class> requests;
-    private HashMap<String, Class> results;
+    private HashMap<String, Class<RequestInterface>> requests;
+    private HashMap<String, Class<ResultInterface>> results;
 
     public ClientWebSocketService(GsonBuilder gsonBuilder, ClientJSONPoint point) {
         requests = new HashMap<>();
@@ -32,11 +32,11 @@ public class ClientWebSocketService {
         result.process();
     }
 
-    public Class getRequestClass(String key) {
+    public Class<RequestInterface> getRequestClass(String key) {
         return requests.get(key);
     }
 
-    public void registerRequest(String key, Class clazz) {
+    public void registerRequest(String key, Class<RequestInterface> clazz) {
         requests.put(key, clazz);
     }
 
@@ -44,7 +44,7 @@ public class ClientWebSocketService {
 
     }
 
-    public void registerResult(String key, Class clazz) {
+    public void registerResult(String key, Class<ResultInterface> clazz) {
         results.put(key, clazz);
     }
 

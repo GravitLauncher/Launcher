@@ -44,9 +44,10 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+@SuppressWarnings({"unused", "rawtypes"})
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private static final String WEBSOCKET_PATH = "/api";
-    private static SSLServerSocketFactory ssf;
+	private static SSLServerSocketFactory ssf;
     private static final ThreadFactory THREAD_FACTORY = r -> CommonHelper.newThread("Network Thread", true, r);
 
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
@@ -55,7 +56,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private final ExecutorService threadPool = Executors.newCachedThreadPool(THREAD_FACTORY);
 
     // API
-    private final Map<String, Response.Factory> customResponses = new ConcurrentHashMap<>(2);
+	private final Map<String, Response.Factory> customResponses = new ConcurrentHashMap<>(2);
     private final AtomicLong idCounter = new AtomicLong(0L);
     private Set<Socket> sockets;
     private volatile Listener listener;

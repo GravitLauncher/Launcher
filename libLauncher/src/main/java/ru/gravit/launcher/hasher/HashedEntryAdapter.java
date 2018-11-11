@@ -15,7 +15,7 @@ public class HashedEntryAdapter implements JsonSerializer<HashedEntry>, JsonDese
     @Override
     public HashedEntry deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
-        Class cls = null;
+        Class<?> cls = null;
         if (typename.equals("dir")) cls = HashedDir.class;
         if (typename.equals("file")) cls = HashedFile.class;
 
