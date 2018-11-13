@@ -182,7 +182,7 @@ function goOptions(event) {
     }
 
     // Show options overlay
-    updateOptional();
+    options.update();
     overlay.show(options.overlay, null);
 }
 
