@@ -93,7 +93,7 @@ var settingsOverlay = {
         ramSlider.setValue(settings.ram);
         ramSlider.valueProperty()["addListener(javafx.beans.value.ChangeListener)"](function(o, ov, nv) {
             settings.setRAM(nv);
-            settings.updateRAMLabel();
+            settingsOverlay.updateRAMLabel();
         });
 
         // Lookup delete dir button
