@@ -9,10 +9,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.WriterConfig;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -22,12 +21,25 @@ import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
 
 public final class IndexAssetCommand extends Command {
+    private static Gson gson = new Gson();
+    private static JsonParser parser = new JsonParser();
+    public static class IndexObject
+    {
+        long size;
+
+        public IndexObject(long size, String hash) {
+            this.size = size;
+            this.hash = hash;
+        }
+
+        String hash;
+    }
     private static final class IndexAssetVisitor extends SimpleFileVisitor<Path> {
-        private final JsonObject objects;
+        private final JsonArray objects;
         private final Path inputAssetDir;
         private final Path outputAssetDir;
 
-        private IndexAssetVisitor(JsonObject objects, Path inputAssetDir, Path outputAssetDir) {
+        private IndexAssetVisitor(JsonArray objects, Path inputAssetDir, Path outputAssetDir) {
             this.objects = objects;
             this.inputAssetDir = inputAssetDir;
             this.outputAssetDir = outputAssetDir;
@@ -40,7 +52,8 @@ public final class IndexAssetCommand extends Command {
 
             // Add to index and copy file
             String digest = SecurityHelper.toHex(SecurityHelper.digest(DigestAlgorithm.SHA1, file));
-            objects.add(name, Json.object().add("size", attrs.size()).add("hash", digest));
+            IndexObject obj = new IndexObject(attrs.size(),digest);
+            objects.add(gson.toJsonTree(obj));
             IOHelper.copy(file, resolveObjectFile(outputAssetDir, digest));
 
             // Continue visiting
@@ -93,14 +106,15 @@ public final class IndexAssetCommand extends Command {
         Files.createDirectory(outputAssetDir);
 
         // Index objects
-        JsonObject objects = Json.object();
+        JsonArray objects = new JsonArray();
         LogHelper.subInfo("Indexing objects");
         IOHelper.walk(inputAssetDir, new IndexAssetVisitor(objects, inputAssetDir, outputAssetDir), false);
 
         // Write index file
         LogHelper.subInfo("Writing asset index file: '%s'", indexFileName);
+
         try (BufferedWriter writer = IOHelper.newWriter(resolveIndexFile(outputAssetDir, indexFileName))) {
-            Json.object().add(OBJECTS_DIR, objects).writeTo(writer, WriterConfig.MINIMAL);
+            writer.write(gson.toJson(objects));
         }
 
         // Finished
