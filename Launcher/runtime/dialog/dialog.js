@@ -182,7 +182,7 @@ function goOptions(event) {
     }
 
     // Show options overlay
-    updateOptional();
+    options.update();
     overlay.show(options.overlay, null);
 }
 
@@ -198,6 +198,7 @@ function verifyLauncher(e) {
         }
         overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
             settings.lastProfiles = result.profiles;
+            options.load();
             // Update profiles list and hide overlay
             updateProfilesList(result.profiles);
             overlay.hide(0, function() {
