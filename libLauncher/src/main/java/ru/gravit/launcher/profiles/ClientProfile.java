@@ -117,7 +117,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     private final BooleanConfigEntry useWhitelist;
     // Client launcher
     private final StringConfigEntry mainClass;
-    private final ListConfigEntry jvmArgs;
+    private final List<String> jvmArgs= new ArrayList<>();
     private final ListConfigEntry classPath;
     private final ListConfigEntry clientArgs;
 
@@ -150,7 +150,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
         // Client launcher
         mainClass = block.getEntry("mainClass", StringConfigEntry.class);
         classPath = block.getEntry("classPath", ListConfigEntry.class);
-        jvmArgs = block.getEntry("jvmArgs", ListConfigEntry.class);
+        block.getEntry("jvmArgs", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(jvmArgs::add);
         clientArgs = block.getEntry("clientArgs", ListConfigEntry.class);
         whitelist = block.getEntry("whitelist", ListConfigEntry.class);
     }
@@ -204,7 +204,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
 
     @LauncherAPI
     public String[] getJvmArgs() {
-        return jvmArgs.stream(StringConfigEntry.class).toArray(String[]::new);
+        return jvmArgs.toArray(new String[0]);
     }
 
     @LauncherAPI
@@ -309,7 +309,6 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
         VerifyHelper.verifyInt(getServerPort(), VerifyHelper.range(0, 65535), "Illegal server port: " + getServerPort());
 
         // Client launcher
-        jvmArgs.verifyOfType(ConfigEntry.Type.STRING);
         classPath.verifyOfType(ConfigEntry.Type.STRING);
         clientArgs.verifyOfType(ConfigEntry.Type.STRING);
         VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Main class can't be empty");
