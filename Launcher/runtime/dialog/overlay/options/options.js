@@ -98,21 +98,26 @@ var options = {
             var checkBoxList = new java.util.ArrayList;
             var modConfigKeys = Object.keys(optModNames.modInfo);
             var dModsIds = [];
+            
+            modConfigKeys.forEach(function(key, id) {//По умолчанию индекс у ветви = 1. Выставляем его у всех неуказанных.
+                    if(optModNames.modInfo[key].subTreeLevel == null) 
+                        optModNames.modInfo[key].subTreeLevel = 1;
+            });
 
             for (var ik = 0, l = modConfigKeys.length + 1; ik <= l; ik++) {
                 list.forEach(function(modFile) {
                     if((modConfigKeys[ik] === modFile.string) || (ik == modConfigKeys.length+1 && dModsIds.indexOf(modFile.string) == -1)) {
                         dModsIds.push(modFile.string);
 
-                        var modName = modFile.string, modDescription = "", subm = false;
+                        var modName = modFile.string, modDescription = "", subLevel = 1;
                         if(optModNames.modInfo[modFile.string] != null){//Есть ли хоть какое-нибудь представление описания модификации?
                             var optModN = optModNames.modInfo[modFile.string];
                             if(optModN.name != null)//Есть ли у модификации имя?
                                 modName = optModN.name;
                             if(optModN.description != null) //Есть ли описание?
                                 modDescription = optModN.description;
-                            if(optModN.subMod != null && optModN.subMod == true)//Это суб-модификация?
-                                subm = true;
+                            if(optModN.subTreeLevel != null && optModN.subTreeLevel > 1)//Это суб-модификация?
+                                subLevel = optModN.subTreeLevel;
                         } else if(optModNames.optAutoModName) {
                             //Попытка автоматически создать представляемое имя модификации.
                             modName = modName.replace(new RegExp("(.*?(\/))",'g'),'');
@@ -122,8 +127,9 @@ var options = {
                         }
                          var testMod = new javafx.scene.control.CheckBox(modName);
 
-                         if(subm)//Это суб-модификация?
-                             testMod.setTranslateX(25);
+                        if(subLevel > 1)
+                            for(var i = 1; i < subLevel; i++)//Выделение субмодификаций сдвигом.
+                                testMod.setTranslateX(25*i);
 
                          testMod.setSelected(modFile.mark);
                          testMod.setOnAction(function(event) {
@@ -146,12 +152,14 @@ var options = {
 
                          if(modDescription != "") { //Добавляем описание?
                              textDescr = new javafx.scene.text.Text(modDescription);
-                             if(subm){//Это суб-модификация?
-                                textDescr.setWrappingWidth(345);
-                                textDescr.setTranslateX(50);
+                             if(subLevel > 1) {
+                                 for(var i = 1; i < subLevel; i++){
+                                    textDescr.setWrappingWidth(370-(25*i));
+                                    textDescr.setTranslateX(25+(25*i));
+                                 }
                              } else {
-                                textDescr.setWrappingWidth(370);
-                                textDescr.setTranslateX(25);
+                                 textDescr.setWrappingWidth(370);
+                                 textDescr.setTranslateX(25);
                              }
                              textDescr.setTextAlignment(javafx.scene.text.TextAlignment.JUSTIFY);
                              textDescr.getStyleClass().add("description-text");
@@ -171,37 +179,47 @@ var options = {
             if(optModNames.modInfo[ImodFile] != null) {
                 var modInfo = optModNames.modInfo[ImodFile];
                 var modList = optModNames.modInfo;
+                var modIDs = Object.keys(modList);
 
-                if(modInfo.group != null && modInfo.subMod != null) {
+                if(modInfo.subTreeLevel != null) {
 
-                    if(modInfo.subMod == false){//Отключение core-модификации
-                        Object.keys(modList).forEach(function(key, id) {
-                            if(modList[key] != null && modList[key].group != null && modList[key].subMod != null) {
-                                if(modList[key].group == modInfo.group && modList[key].subMod == true && enable == false) {
+                    if(modInfo.subTreeLevel >= 1){//Отключение core-модификации
+                        var stop = false;
+                        modIDs.forEach(function(key, id) {
+                            if(modList[key] != null && modList[key].subTreeLevel != null) {
+                                if( modList[key].subTreeLevel > modInfo.subTreeLevel && modIDs.indexOf(key) > modIDs.indexOf(ImodFile) && enable == false && stop == false) {
                                     profile.unmarkOptional(key);
                                     LogHelper.debug("Unselected subMod %s", key);
+                                } else if(modIDs.indexOf(key) > modIDs.indexOf(ImodFile) && modList[key].subTreeLevel <= modInfo.subTreeLevel && stop == false) {
+                                    //LogHelper.debug("STOP disable!! " + key);
+                                    stop = true;
                                 }
                             }
                         });
                     }
 
-                    if(modInfo.subMod == false){//Включение core-модификации (Все core-модификации с той же группой будут отключены. К примеру 2 миникарты)
-                        Object.keys(modList).forEach(function(key, id) {
-                            if(modList[key] != null && modList[key].group != null) {
-                                if(modList[key].group == modInfo.group && modList[key].subMod == false && enable == true && key != ImodFile) {
+                    if(modInfo.onlyOne == true){//Включение onlyOne-модификации (Все onlyOne-модификации с той же группой будут отключены. К примеру 2 миникарты)
+                        modIDs.forEach(function(key, id) {
+                            if(modList[key] != null && modList[key].onlyOneGroup != null) {
+                                if(modList[key].onlyOneGroup == modInfo.onlyOneGroup && modList[key].onlyOne == true && enable == true && key != ImodFile) {
                                     profile.unmarkOptional(key);
-                                    LogHelper.debug("Unselected coreMod %s", key);
+                                    LogHelper.debug("Unselected Mod (onlyOne toggle) %s", key);
+                                    options.treeToggle(false, key); //И все его подмодификации канут в Лету..
                                 }
                             }
                         });
                     }
 
-                    if(modInfo.subMod == true){//Включение суб-модификации (Без core суб-моды работать не будут, так что его нужно включать)
-                        Object.keys(modList).forEach(function(key, id) {
-                            if(modList[key] != null && modList[key].group != null && modList[key].subMod != null) {
-                                if(modList[key].group == modInfo.group && modList[key].subMod == false && enable == true) {
+                    if(modInfo.subTreeLevel > 1){//Включение суб-модификации (Без core суб-моды работать не будут, так что его нужно включать) (Включаем всю ветку зависимости)
+                        var reverseModList = Object.keys(modList).reverse();
+                        var tsl = modInfo.subTreeLevel-1;
+                        reverseModList.forEach(function(key, id) {
+                            if(modList[key] != null && modList[key].subTreeLevel != null) {
+                                if(modList[key].subTreeLevel == tsl && modIDs.indexOf(key) < modIDs.indexOf(ImodFile) && enable == true) {
                                     profile.markOptional(key);
                                     LogHelper.debug("Selected coreMod %s", key);
+                                    options.treeToggle(true, key); //Для срабатывания onlyOne-модификаций.
+                                    tsl--;
                                 }
                             }
                         });
