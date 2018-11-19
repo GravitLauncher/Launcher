@@ -276,19 +276,24 @@ function updateProfilesList(profiles) {
     profilesList = [];
     // Set profiles items
     serverList.getChildren().clear();
+    var index = 0;
     profiles.forEach(function (profile, i, arr) {
         pingers[profile.object] = new ServerPinger(profile.object.getServerSocketAddress(), profile.object.getVersion());
         var serverBtn = new javafx.scene.control.ToggleButton(profile);
         (function () {
             profilesList[serverBtn] = profile;
             var hold = serverBtn;
+            var hIndex = index;
             serverBtn.setOnAction(function (event) {
                 serverHolder.set(hold);
+                settings.profile = hIndex;
             });
         })();
         serverList.getChildren().add(serverBtn);
+        index++;
     });
-    serverHolder.set(serverList.getChildren().get(0));
+    LogHelper.debug("Load selected %d profile",settings.profile);
+    serverHolder.set(serverList.getChildren().get(settings.profile));
 }
 
 function pingServer(btn) {
