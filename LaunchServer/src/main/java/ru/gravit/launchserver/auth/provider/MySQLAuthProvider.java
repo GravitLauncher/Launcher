@@ -20,6 +20,7 @@ import ru.gravit.launchserver.auth.MySQLSourceConfig;
 public final class MySQLAuthProvider extends AuthProvider {
     private final MySQLSourceConfig mySQLHolder;
     private final String query;
+    private final String message;
     private final String[] queryParams;
     private final boolean usePermission;
 
@@ -31,6 +32,7 @@ public final class MySQLAuthProvider extends AuthProvider {
         query = VerifyHelper.verify(block.getEntryValue("query", StringConfigEntry.class),
                 VerifyHelper.NOT_EMPTY, "MySQL query can't be empty");
         usePermission = block.hasEntry("usePermission") ? block.getEntryValue("usePermission", BooleanConfigEntry.class) : false;
+        message = block.hasEntry("message") ? block.getEntryValue("message", StringConfigEntry.class) : "Incorrect username or password";
         queryParams = block.getEntry("queryParams", ListConfigEntry.class).
                 stream(StringConfigEntry.class).toArray(String[]::new);
     }
@@ -46,7 +48,7 @@ public final class MySQLAuthProvider extends AuthProvider {
         // Execute SQL query
         s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
         try (ResultSet set = s.executeQuery()) {
-            return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(set.getLong(2)) : new ClientPermissions()) : authError("Incorrect username or password");
+            return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(set.getLong(2)) : new ClientPermissions()) : authError(message);
         }
     }
 
