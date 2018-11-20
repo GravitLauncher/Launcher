@@ -93,6 +93,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         public final int authRateLimitMilis;
 
+        public final ListConfigEntry authLimitExclusions;
+
         public final String authRejectString;
 
         public final String projectName;
@@ -122,13 +124,13 @@ public final class LaunchServer implements Runnable, AutoCloseable {
                     VerifyHelper.range(0, 1000000), "Illegal authRateLimit");
             authRateLimitMilis = VerifyHelper.verifyInt(block.getEntryValue("authRateLimitMilis", IntegerConfigEntry.class),
                     VerifyHelper.range(10, 10000000), "Illegal authRateLimitMillis");
+            authLimitExclusions = block.hasEntry("authLimitExclusions") ? block.getEntry("authLimitExclusions", ListConfigEntry.class) : null;
             bindAddress = block.hasEntry("bindAddress") ?
                     block.getEntryValue("bindAddress", StringConfigEntry.class) : getAddress();
             authRejectString = block.hasEntry("authRejectString") ?
                     block.getEntryValue("authRejectString", StringConfigEntry.class) : "Вы превысили лимит авторизаций. Подождите некоторое время перед повторной попыткой";
             whitelistRejectString = block.hasEntry("whitelistRejectString") ?
                     block.getEntryValue("whitelistRejectString", StringConfigEntry.class) : "Вас нет в белом списке";
-
 
             // Set handlers & providers
             authHandler = new AuthHandler[1];
