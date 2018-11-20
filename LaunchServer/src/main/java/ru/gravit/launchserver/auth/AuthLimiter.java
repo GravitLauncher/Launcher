@@ -59,7 +59,7 @@ public class AuthLimiter implements NeedGarbageCollection {
     public AuthLimiter(LaunchServer srv) {
         map = new HashMap<>();
         excludeIps = new ArrayList<>();
-        srv.config.authLimitExclusions.stream(StringConfigEntry.class).forEach(excludeIps::add);
+        if (srv.config.authLimitExclusions != null) srv.config.authLimitExclusions.stream(StringConfigEntry.class).forEach(excludeIps::add);
         rateLimit = srv.config.authRateLimit;
         rateLimitMilis = srv.config.authRateLimitMilis;
     }
