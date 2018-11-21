@@ -11,7 +11,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
-import ru.gravit.launcher.LauncherAPI;
 
 /**
  * Skin of the ring progress indicator where an arc grows and by the progress value up to 100% where the arc becomes a ring.
