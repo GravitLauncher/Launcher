@@ -62,7 +62,7 @@ public class SignerJar implements AutoCloseable {
     /**
      * Helper output stream that also sends the data to the given {@link com.google.common.hash.Hasher}.
      */
-    private static class HashingOutputStream extends OutputStream {
+    static class HashingOutputStream extends OutputStream {
         private final OutputStream out;
         private final MessageDigest hasher;
 
@@ -132,7 +132,7 @@ public class SignerJar implements AutoCloseable {
     private final String keyAlias;
 
     private final String password;
-    private final Map<String, String> manifestAttributes;
+    public final Map<String, String> manifestAttributes;
     private String manifestHash;
     private String manifestMainHash;
 
@@ -241,7 +241,7 @@ public class SignerJar implements AutoCloseable {
      * @param value value of the attribute
      */
     public void addManifestAttribute(String name, String value) {
-        manifestAttributes.put(name, value);
+        manifestAttributes.put(name.trim(), value.trim());
     }
 
 
