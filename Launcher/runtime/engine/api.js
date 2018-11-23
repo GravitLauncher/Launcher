@@ -67,18 +67,18 @@ var EnvHelper = EnvHelperClass.static;
 var SecurityHelper = SecurityHelperClass.static;
 var DigestAlgorithm = DigestAlgorithmClass.static;
 var VerifyHelper = VerifyHelperClass.static;
-var CheckComboBox = CheckComboBoxClass.static;
-var CheckModel = CheckModelClass.static;
-var IndexedCheckModel = IndexedCheckModelClass.static;
-var CheckComboBoxSkin = CheckComboBoxSkinClass.static;
-var RingProgressIndicator = RingProgressIndicatorClass.static;
-var RingProgressIndicatorSkin = RingProgressIndicatorSkinClass.static;
 var LauncherSettings = LauncherSettingsClass.static;
 
 // Helper JS class API imports
 var JSApplication = null;
 if (typeof JSApplicationClass !== 'undefined') {
     JSApplication = JSApplicationClass.static;
+    var CheckComboBox = CheckComboBoxClass.static;
+    var CheckModel = CheckModelClass.static;
+    var IndexedCheckModel = IndexedCheckModelClass.static;
+    var CheckComboBoxSkin = CheckComboBoxSkinClass.static;
+    var RingProgressIndicator = RingProgressIndicatorClass.static;
+    var RingProgressIndicatorSkin = RingProgressIndicatorSkinClass.static;
 }
 
 // API wrapper
