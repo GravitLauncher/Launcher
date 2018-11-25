@@ -53,9 +53,7 @@ public abstract class AuthHandler extends ConfigObject implements AutoCloseable 
         super(block);
     }
 
-
     public abstract UUID auth(AuthProviderResult authResult) throws IOException;
-
 
     public abstract UUID checkServer(String username, String serverID) throws IOException;
 

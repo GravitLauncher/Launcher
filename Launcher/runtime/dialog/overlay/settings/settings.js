@@ -37,7 +37,7 @@ var settingsClass = Java.extend(LauncherSettingsClass.static, {
 });
 var settingsOverlay = {
 /* ===================== OVERLAY ===================== */
-    overlay: null, ramLabel: null, dirLabel: null,
+    overlay: null, ramLabel: null, dirLabel: null, transferDialog: null,
     deleteDirPressedAgain: false, count: 0,
 
     initOverlay: function() {
@@ -56,6 +56,10 @@ var settingsOverlay = {
         settingsOverlay.dirLabel.setOnAction(function(event)
             app.getHostServices().showDocument(settings.updatesDir.toUri()));
         settingsOverlay.updateDirLabel();
+
+        // Lokup transferDialog pane
+        settingsOverlay.transferDialog = holder.lookup("#transferDialog");
+        settingsOverlay.transferDialog.setVisible(false);
 		
 		// Lookup change dir button
         holder.lookup("#changeDir").setOnAction(function(event) {
@@ -66,6 +70,7 @@ var settingsOverlay = {
             // Set new result
             var newDir = chooser.showDialog(stage);
             if (newDir !== null) {
+                settingsOverlay.transferCatalogDialog();
                 settings.updatesDir = newDir.toPath();
                 settingsOverlay.updateDirLabel();
             }
@@ -130,6 +135,15 @@ var settingsOverlay = {
 
         // Lookup apply settings button
         holder.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
+    },
+
+    transferCatalogDialog: function() {
+        settingsOverlay.transferDialog.setVisible(true);
+        settingsOverlay.transferDialog.lookup("#cancelTransfer").setOnAction(function(event) settingsOverlay.transferDialog.setVisible(false));
+        settingsOverlay.transferDialog.lookup("#applyTransfer").setOnAction(function(event) {
+            //Здесь могла быть ваша реклама, либо DirBridge.move();
+            settingsOverlay.transferDialog.setVisible(false);
+        });
     },
 
     updateRAMLabel: function() {

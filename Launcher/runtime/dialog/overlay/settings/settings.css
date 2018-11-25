@@ -1,6 +1,9 @@
 #holder {
 	-fx-background-color: #fff;
 }
+#holder > #transferDialog {
+    -fx-background-color: RGBA(0, 0, 0, 0.9);
+}
 /* Labels */
 #holder > #settingsTitle {
     -fx-font-size: 14pt;
@@ -37,14 +40,14 @@
 }
 
 /* Dir options */
-#holder > #deleteDir {
+#holder > #deleteDir, #cancelTransfer {
     -fx-background-color: #CE5757;
     -fx-text-fill: white;
     -fx-background-radius: 0;
 }
 
-#holder > #deleteDir:hover,
-#holder > #deleteDir:focused {
+#holder > #deleteDir:hover,#cancelTransfer:hover,
+#holder > #deleteDir:focused,#cancelTransfer:focused {
     -fx-opacity: 0.8;
 }
 
@@ -63,13 +66,13 @@
     -fx-opacity: 0.8;
 }
 
-#holder > #apply{
+#holder > #apply,#applyTransfer{
     -fx-background-color: #61B373;
     -fx-text-fill: #fff;
     -fx-background-radius: 0;
 }
-#holder > #apply:hover,
-#holder > #apply:focused{
+#holder > #apply:hover,#applyTransfer:hover,
+#holder > #apply:focused,#applyTransfer:focused{
     -fx-background-color: #74C085;
 }
 
