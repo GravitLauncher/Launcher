@@ -14,7 +14,6 @@ import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
 
 public final class UnindexAssetCommand extends Command {
-    private static Gson gson = new Gson();
     private static JsonParser parser = new JsonParser();
     public UnindexAssetCommand(LaunchServer server) {
         super(server);

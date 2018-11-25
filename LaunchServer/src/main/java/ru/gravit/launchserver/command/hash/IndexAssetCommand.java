@@ -11,7 +11,6 @@ import java.util.Collections;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -22,7 +21,6 @@ import ru.gravit.launchserver.command.CommandException;
 
 public final class IndexAssetCommand extends Command {
     private static Gson gson = new Gson();
-    private static JsonParser parser = new JsonParser();
     public static class IndexObject
     {
         long size;

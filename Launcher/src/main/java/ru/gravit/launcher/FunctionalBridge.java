@@ -1,14 +1,14 @@
-package ru.gravit.launcher.client;
+package ru.gravit.launcher;
 
 import javafx.concurrent.Task;
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.client.ClientLauncher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
-import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
@@ -57,7 +57,7 @@ public class FunctionalBridge {
 
     }
     @LauncherAPI
-    public void startTask(Task task)
+    public void startTask(@SuppressWarnings("rawtypes") Task task)
     {
         try {
             worker.queue.put(task);

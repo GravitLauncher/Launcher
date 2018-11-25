@@ -1,4 +1,4 @@
-package ru.gravit.launcher.client;
+package ru.gravit.launcher;
 
 import java.util.concurrent.atomic.AtomicReference;
 

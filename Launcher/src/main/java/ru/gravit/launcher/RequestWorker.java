@@ -1,6 +1,5 @@
-package ru.gravit.launcher.client;
+package ru.gravit.launcher;
 
-import javafx.concurrent.Task;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.util.concurrent.BlockingQueue;

@@ -1,13 +1,7 @@
 package ru.gravit.launchserver.auth.provider;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -16,7 +10,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.HTTPRequest;
-import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 
 public final class MojangAuthProvider extends AuthProvider {

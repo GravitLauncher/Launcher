@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class JsonHWIDHandler extends HWIDHandler {
-    private static final int TIMEOUT = Integer.parseInt(
-            System.getProperty("launcher.connection.timeout", Integer.toString(1500)));
     private static final Gson gson = new Gson();
 
-    private final URL url;
+    @SuppressWarnings("unused")
+	private final URL url;
     private final URL urlBan;
     private final URL urlUnBan;
+    @SuppressWarnings("unused")
     private final URL urlGet;
 
     public class banRequest
