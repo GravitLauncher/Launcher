@@ -32,14 +32,6 @@ public final class Launcher {
     // Used to determine from clientside is launched from launcher
     public static final AtomicBoolean LAUNCHED = new AtomicBoolean(false);
 
-    static int readBuildNumber() {
-        try {
-            return Integer.valueOf(IOHelper.request(IOHelper.getResourceURL("buildnumber")));
-        } catch (IOException ignored) {
-            return 0; // Maybe dev env?
-        }
-    }
-
     private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
     @LauncherAPI
     public static ModulesManagerInterface modulesManager = null;
@@ -67,7 +59,7 @@ public final class Launcher {
     public static int MAJOR = 4;
     public static int MINOR = 0;
     public static int PATCH = 8;
-    public static int BUILD = readBuildNumber();
+    public static int BUILD = 0;
     public static Version.Type RELEASE = Version.Type.STABLE;
 
     @LauncherAPI
