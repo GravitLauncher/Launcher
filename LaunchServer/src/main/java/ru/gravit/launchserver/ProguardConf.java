@@ -7,7 +7,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
@@ -33,17 +32,16 @@ public class ProguardConf {
     public final ArrayList<String> confStrs;
 
     public ProguardConf(LaunchServer srv) {
-        LaunchServer srv1 = srv;
-        proguard = srv1.dir.resolve("proguard");
+        proguard = srv.dir.resolve("proguard");
         config = proguard.resolve("proguard.config");
         mappings = proguard.resolve("mappings.pro");
         words = proguard.resolve("random.pro");
         confStrs = new ArrayList<>();
         prepare(false);
-        if (srv1.config.genMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
+        if (srv.config.genMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
-        confStrs.add("-injar \'" + Paths.get(".").toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + "-nonObf.jar\'");
-        confStrs.add("-outjar \'" + Paths.get(".").toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + ".jar\'");
+        confStrs.add("-injar \'" + srv.dir.toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + "-nonObf.jar\'");
+        confStrs.add("-outjar \'" + srv.dir.toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + (srv.config.buildPostTransform.enabled ? "-obf.jar\'" : ".jar\'"));
         confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add(readConf());
 

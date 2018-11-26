@@ -119,7 +119,7 @@ public final class JARLauncherBinary extends LauncherBinary {
 
     public JARLauncherBinary(LaunchServer server) throws IOException {
         super(server, server.dir.resolve(server.config.binaryName + "-nonObf.jar"),
-                server.dir.resolve(server.config.binaryName + (server.config.buildPostTransform.enabled ? ".jar" : "-obf.jar")));
+                server.dir.resolve(server.config.binaryName + ".jar"));
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         guardDir = server.dir.resolve("guard");
         initScriptFile = runtimeDir.resolve(Launcher.INIT_SCRIPT_FILE);
