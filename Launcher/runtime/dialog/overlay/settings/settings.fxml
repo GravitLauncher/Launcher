@@ -47,6 +47,17 @@
 		 
          <Button fx:id="apply" defaultButton="true" layoutX="486.0" layoutY="335.0" prefHeight="23.0" prefWidth="100.0" text="Применить" />
 			<Text layoutX="17.0" layoutY="19.0">Выделение памяти: </Text>
+            <Pane fx:id="transferDialog" prefHeight="371.0" prefWidth="598.0">
+               <children>
+                  <Text fill="WHITE" layoutX="99.0" layoutY="155.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Перенести все данные в новую директорию?" wrappingWidth="400.13671875">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Button fx:id="applyTransfer" layoutX="130.0" layoutY="186.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="124.0" text="Да, перенести!" />
+                  <Button fx:id="cancelTransfer" layoutX="344.0" layoutY="186.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="124.0" text="Нет, не нужно." />
+               </children>
+            </Pane>
 
        </children>
      </Pane>

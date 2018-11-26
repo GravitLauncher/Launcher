@@ -79,7 +79,7 @@ var options = {
 
     initOverlay: function() {
         options.overlay = loadFXML("dialog/overlay/options/options.fxml");
-		var holder = options.overlay.lookup("#holder");
+        var holder = options.overlay.lookup("#holder");
         holder.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
     },
     update: function() {
@@ -188,8 +188,10 @@ var options = {
                         modIDs.forEach(function(key, id) {
                             if(modList[key] != null && modList[key].subTreeLevel != null) {
                                 if( modList[key].subTreeLevel > modInfo.subTreeLevel && modIDs.indexOf(key) > modIDs.indexOf(ImodFile) && enable == false && stop == false) {
-                                    profile.unmarkOptional(key);
-                                    LogHelper.debug("Unselected subMod %s", key);
+                                    if(options.modExists(key)){
+                                        profile.unmarkOptional(key);
+                                        LogHelper.debug("Unselected subMod %s", key);
+                                    }
                                 } else if(modIDs.indexOf(key) > modIDs.indexOf(ImodFile) && modList[key].subTreeLevel <= modInfo.subTreeLevel && stop == false) {
                                     //LogHelper.debug("STOP disable!! " + key);
                                     stop = true;
@@ -202,8 +204,10 @@ var options = {
                         modIDs.forEach(function(key, id) {
                             if(modList[key] != null && modList[key].onlyOneGroup != null) {
                                 if(modList[key].onlyOneGroup == modInfo.onlyOneGroup && modList[key].onlyOne == true && enable == true && key != ImodFile) {
-                                    profile.unmarkOptional(key);
-                                    LogHelper.debug("Unselected Mod (onlyOne toggle) %s", key);
+                                    if(options.modExists(key)) {
+                                        profile.unmarkOptional(key);
+                                        LogHelper.debug("Unselected Mod (onlyOne toggle) %s", key);
+                                    }
                                     options.treeToggle(false, key); //И все его подмодификации канут в Лету..
                                 }
                             }
@@ -216,8 +220,10 @@ var options = {
                         reverseModList.forEach(function(key, id) {
                             if(modList[key] != null && modList[key].subTreeLevel != null) {
                                 if(modList[key].subTreeLevel == tsl && modIDs.indexOf(key) < modIDs.indexOf(ImodFile) && enable == true) {
-                                    profile.markOptional(key);
-                                    LogHelper.debug("Selected coreMod %s", key);
+                                    if(options.modExists(key)) {
+                                        profile.markOptional(key);
+                                        LogHelper.debug("Selected coreMod %s", key);
+                                    }
                                     options.treeToggle(true, key); //Для срабатывания onlyOne-модификаций.
                                     tsl--;
                                 }
@@ -227,6 +233,17 @@ var options = {
 
                 }
             }
+    },
+    modExists: function(key){
+        var profile = profilesList[serverHolder.old].object;
+        var list = profile.getOptional();
+        var result = false;
+        list.forEach(function(modFile) {
+            if(modFile.string === key) {
+                result = true;
+            }
+        });
+        return result;
     }
 
 };
