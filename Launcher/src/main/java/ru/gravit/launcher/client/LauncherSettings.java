@@ -97,6 +97,7 @@ public class LauncherSettings {
 
         // Client settings
         updatesDir = IOHelper.toPath(input.readString(0));
+        DirBridge.dirUpdates = updatesDir;
         autoEnter = input.readBoolean();
         fullScreen = input.readBoolean();
         setRAM(input.readLength(JVMHelper.RAM));
