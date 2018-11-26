@@ -17,10 +17,8 @@ import java.util.*;
 
 import javax.swing.JOptionPane;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.WriterConfig;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import ru.gravit.launcher.*;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
@@ -42,6 +40,7 @@ import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 
 public final class ClientLauncher {
+    private static Gson gson = new Gson();
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
         private final Collection<Path> result;
 
@@ -170,7 +169,6 @@ public final class ClientLauncher {
     private static final Path NATIVES_DIR = IOHelper.toPath("natives");
     private static final Path RESOURCEPACKS_DIR = IOHelper.toPath("resourcepacks");
     private static PublicURLClassLoader classLoader;
-
     private static void addClientArgs(Collection<String> args, ClientProfile profile, Params params) {
         PlayerProfile pp = params.pp;
 
@@ -185,16 +183,16 @@ public final class ClientLauncher {
             if (version.compareTo(ClientProfile.Version.MC1710) >= 0) {
                 // Add user properties
                 Collections.addAll(args, "--userType", "mojang");
-                JsonObject properties = Json.object();
+                JsonObject properties = new JsonObject();
                 if (pp.skin != null) {
-                    properties.add(Launcher.SKIN_URL_PROPERTY, Json.array(pp.skin.url));
-                    properties.add(Launcher.SKIN_DIGEST_PROPERTY, Json.array(SecurityHelper.toHex(pp.skin.digest)));
+                    properties.addProperty(Launcher.SKIN_URL_PROPERTY, pp.skin.url);
+                    properties.addProperty(Launcher.SKIN_DIGEST_PROPERTY, SecurityHelper.toHex(pp.skin.digest));
                 }
                 if (pp.cloak != null) {
-                    properties.add(Launcher.CLOAK_URL_PROPERTY, Json.array(pp.cloak.url));
-                    properties.add(Launcher.CLOAK_DIGEST_PROPERTY, Json.array(SecurityHelper.toHex(pp.cloak.digest)));
+                    properties.addProperty(Launcher.CLOAK_URL_PROPERTY, pp.cloak.url);
+                    properties.addProperty(Launcher.CLOAK_DIGEST_PROPERTY, SecurityHelper.toHex(pp.cloak.digest));
                 }
-                Collections.addAll(args, "--userProperties", properties.toString(WriterConfig.MINIMAL));
+                Collections.addAll(args, "--userProperties", ClientLauncher.gson.toJson(properties));
 
                 // Add asset index
                 Collections.addAll(args, "--assetIndex", profile.getAssetIndex());

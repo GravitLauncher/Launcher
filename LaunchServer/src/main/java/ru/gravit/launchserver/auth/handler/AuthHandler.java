@@ -44,7 +44,6 @@ public abstract class AuthHandler extends ConfigObject implements AutoCloseable 
             registerHandler("binaryFile", BinaryFileAuthHandler::new);
             registerHandler("textFile", TextFileAuthHandler::new);
             registerHandler("mysql", MySQLAuthHandler::new);
-            registerHandler("json", JsonAuthHandler::new);
             registredHandl = true;
         }
     }

@@ -212,6 +212,8 @@ public class LauncherEngine {
             throw new IllegalStateException("Launcher has been already started");
         Launcher.modulesManager.initModules();
         // Load init.js script
+        FunctionalBridge.worker = new RequestWorker();
+        CommonHelper.newThread("FX Task Worker", true, FunctionalBridge.worker);
         loadScript(Launcher.API_SCRIPT_FILE);
         loadScript(Launcher.CONFIG_SCRIPT_FILE);
         loadScript(Launcher.INIT_SCRIPT_FILE);
