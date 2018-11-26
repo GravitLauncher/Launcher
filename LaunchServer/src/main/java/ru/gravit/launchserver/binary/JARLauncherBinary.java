@@ -9,6 +9,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -20,6 +21,8 @@ import javassist.NotFoundException;
 import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -115,12 +118,12 @@ public final class JARLauncherBinary extends LauncherBinary {
 
 
     public JARLauncherBinary(LaunchServer server) throws IOException {
-        super(server, server.dir.resolve(server.config.binaryName + ".jar"),
-                server.dir.resolve(server.config.binaryName + (server.config.sign.enabled ? "-sign.jar" : "-obf.jar")));
+        super(server, server.dir.resolve(server.config.binaryName + "-nonObf.jar"),
+                server.dir.resolve(server.config.binaryName + (server.config.buildPostTransform.enabled ? ".jar" : "-obf.jar")));
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         guardDir = server.dir.resolve("guard");
         initScriptFile = runtimeDir.resolve(Launcher.INIT_SCRIPT_FILE);
-        obfJar = server.config.sign.enabled ? server.dir.resolve(server.config.binaryName + "-obf.jar")
+        obfJar = server.config.buildPostTransform.enabled ? server.dir.resolve(server.config.binaryName + "-obf.jar")
                 : syncBinaryFile;
         tryUnpackRuntime();
     }
@@ -176,22 +179,26 @@ public final class JARLauncherBinary extends LauncherBinary {
                 }
             }
         }
-        if (server.config.sign.enabled)
-            signBuild();
+        if (server.config.buildPostTransform.enabled)
+        	transformedBuild();
     }
 
-    private void signBuild() throws IOException {
-        try (SignerJar output = new SignerJar(IOHelper.newOutput(syncBinaryFile),
-                SignerJar.getStore(server.config.sign.key, server.config.sign.storepass, server.config.sign.algo),
-                server.config.sign.keyalias, server.config.sign.pass);
-             ZipInputStream input = new ZipInputStream(IOHelper.newInput(obfJar))) {
-            ZipEntry e = input.getNextEntry();
-            while (e != null) {
-                output.addFileContents(e, input);
-                e = input.getNextEntry();
-
-            }
-        }
+    private void transformedBuild() throws IOException {
+    	String cmd = CommonHelper.replace(server.config.buildPostTransform.script, "launcher-output", IOHelper.toAbsPathString(syncBinaryFile), "launcher-obf", IOHelper.toAbsPathString(obfJar), "launcher-nonObf", IOHelper.toAbsPathString(binaryFile));
+    	ProcessBuilder builder = new ProcessBuilder();
+    	builder.directory(IOHelper.toAbsPath(server.dir).toFile());
+    	builder.inheritIO();
+    	StringTokenizer st = new StringTokenizer(cmd);
+        String[] cmdarray = new String[st.countTokens()];
+        for (int i = 0; st.hasMoreTokens(); i++)
+            cmdarray[i] = st.nextToken();
+        builder.command(cmdarray);
+    	Process proc = builder.start();
+    	try {
+			LogHelper.debug("Transformer process return code: " + proc.waitFor());
+		} catch (InterruptedException e) {
+			LogHelper.error(e);
+		}
     }
 
     private void stdBuild() throws IOException {

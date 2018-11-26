@@ -85,7 +85,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     	
         public final ExeConf launch4j;
 
-        public final SignConf sign;
+        public final PostBuildTransformConf buildPostTransform;
 
         public final boolean compress;
 
@@ -148,7 +148,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             genMappings = block.getEntryValue("proguardPrintMappings", BooleanConfigEntry.class);
             mirrors = block.getEntry("mirrors", ListConfigEntry.class);
             launch4j = new ExeConf(block.getEntry("launch4J", BlockConfigEntry.class));
-            sign = new SignConf(block.getEntry("signing", BlockConfigEntry.class), coredir);
+            buildPostTransform = new PostBuildTransformConf(block.getEntry("buildExtendedOperation", BlockConfigEntry.class), coredir);
             binaryName = block.getEntryValue("binaryName", StringConfigEntry.class);
             projectName = block.hasEntry("projectName") ? block.getEntryValue("projectName", StringConfigEntry.class) : "Minecraft";
             compress = block.getEntryValue("compress", BooleanConfigEntry.class);
@@ -185,16 +185,16 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     public static class ExeConf extends ConfigObject {
         public final boolean enabled;
-        public String productName;
-        public String productVer;
-        public String fileDesc;
-        public String fileVer;
-        public String internalName;
-        public String copyright;
-        public String trademarks;
+        public final String productName;
+        public final String productVer;
+        public final String fileDesc;
+        public final String fileVer;
+        public final String internalName;
+        public final String copyright;
+        public final String trademarks;
 
-        public String txtFileVersion;
-        public String txtProductVersion;
+        public final String txtFileVersion;
+        public final String txtProductVersion;
 
         private ExeConf(BlockConfigEntry block) {
             super(block);
@@ -243,30 +243,14 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         }
     }
 
-    public static class SignConf extends ConfigObject {
+    public static class PostBuildTransformConf extends ConfigObject {
         public final boolean enabled;
-        public String algo;
-        public Path key;
-        public boolean hasStorePass;
-        public String storepass;
-        public boolean hasPass;
-        public String pass;
-        public String keyalias;
+        public String script;
 
-        private SignConf(BlockConfigEntry block, Path coredir) {
+        private PostBuildTransformConf(BlockConfigEntry block, Path coredir) {
             super(block);
             enabled = block.getEntryValue("enabled", BooleanConfigEntry.class);
-            storepass = null;
-            pass = null;
-            if (enabled) {
-                algo = block.hasEntry("storeType") ? block.getEntryValue("storeType", StringConfigEntry.class) : "JKS";
-                key = coredir.resolve(block.getEntryValue("keyFile", StringConfigEntry.class));
-                hasStorePass = block.hasEntry("keyStorePass");
-                if (hasStorePass) storepass = block.getEntryValue("keyStorePass", StringConfigEntry.class);
-                keyalias = block.getEntryValue("keyAlias", StringConfigEntry.class);
-                hasPass = block.hasEntry("keyPass");
-                if (hasPass) pass = block.getEntryValue("keyPass", StringConfigEntry.class);
-            }
+            script = enabled && block.hasEntry("script") ? block.getEntryValue("script", StringConfigEntry.class) : null;
         }
     }
 

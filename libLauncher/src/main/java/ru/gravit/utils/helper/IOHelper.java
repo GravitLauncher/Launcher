@@ -609,7 +609,7 @@ public final class IOHelper {
     }
 
     @LauncherAPI
-    public static String toAbs(Path path) {
+    public static String toAbsPathString(Path path) {
         return toAbsPath(path).toFile().getAbsolutePath();
     }
 

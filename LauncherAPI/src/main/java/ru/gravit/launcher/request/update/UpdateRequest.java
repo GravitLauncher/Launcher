@@ -40,6 +40,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
     public static final class State {
         @FunctionalInterface
         public interface Callback {
+        	@LauncherAPI
             void call(State state);
         }
 

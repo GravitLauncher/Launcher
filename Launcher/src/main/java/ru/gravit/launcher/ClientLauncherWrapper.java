@@ -14,7 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ClientLauncherWrapper {
-    @LauncherAPI
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
         JVMHelper.checkStackTrace(ClientLauncherWrapper.class);
