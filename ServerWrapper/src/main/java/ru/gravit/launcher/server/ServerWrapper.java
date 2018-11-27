@@ -76,6 +76,8 @@ public class ServerWrapper {
 
     public static void main(String[] args) throws Throwable {
         ServerWrapper wrapper = new ServerWrapper();
+        LogHelper.printVersion("ServerWrapper");
+        LogHelper.printLicense("ServerWrapper");
         modulesManager = new ModulesManager(wrapper);
         modulesManager.autoload(Paths.get("srv_modules")); //BungeeCord using modules dir
         Launcher.modulesManager = modulesManager;

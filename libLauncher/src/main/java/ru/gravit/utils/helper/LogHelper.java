@@ -117,6 +117,10 @@ public final class LogHelper {
     public static void printVersion(String product) {
         println(JANSI ? ansiFormatVersion(product) : formatVersion(product));
     }
+    @LauncherAPI
+    public static void printLicense(String product) {
+        println(JANSI ? ansiFormatLicense(product) : formatLicense(product));
+    }
 
     @LauncherAPI
     public static synchronized void println(String message) {
@@ -234,10 +238,20 @@ public final class LogHelper {
 
     private static String ansiFormatVersion(String product) {
         return new Ansi().bold(). // Setup
-                fgBright(Color.MAGENTA).a("sashok724's "). // sashok724's
+                fgBright(Color.MAGENTA).a("GravitLauncher "). // sashok724's
+                fgBright(Color.BLUE).a("(fork sashok724's Launcher) ").
                 fgBright(Color.CYAN).a(product). // Product
                 fgBright(Color.WHITE).a(" v").fgBright(Color.BLUE).a(Launcher.getVersion().toString()). // Version
                 fgBright(Color.WHITE).a(" (build #").fgBright(Color.RED).a(Launcher.getVersion().build).fgBright(Color.WHITE).a(')'). // Build#
+                reset().toString(); // To string
+    }
+
+    private static String ansiFormatLicense(String product) {
+        return new Ansi().bold(). // Setup
+                fgBright(Color.MAGENTA).a("License for "). // sashok724's
+                fgBright(Color.CYAN).a(product). // Product
+                fgBright(Color.WHITE).a(" GPLv3").fgBright(Color.WHITE).a(". SourceCode: "). // Version
+                fgBright(Color.YELLOW).a("https://github.com/GravitLauncher/Launcher").
                 reset().toString(); // To string
     }
 
@@ -249,7 +263,10 @@ public final class LogHelper {
     }
 
     private static String formatVersion(String product) {
-        return String.format("sashok724's %s v%s", product, Launcher.getVersion().toString());
+        return String.format("GravitLauncher (fork sashok724's Launcher) %s v%s", product, Launcher.getVersion().toString());
+    }
+    private static String formatLicense(String product) {
+        return String.format("License for %s GPLv3. SourceCode: https://github.com/GravitLauncher/Launcher", product);
     }
 
     static {
