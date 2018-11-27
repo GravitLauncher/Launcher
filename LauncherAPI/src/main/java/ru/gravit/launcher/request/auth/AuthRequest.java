@@ -14,7 +14,6 @@ import ru.gravit.launcher.request.auth.AuthRequest.Result;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
-import ru.zaxar163.GuardBind;
 
 public final class AuthRequest extends Request<Result> {
     public static final class Result {
@@ -72,9 +71,9 @@ public final class AuthRequest extends Request<Result> {
         if (Launcher.profile != null)
             output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.writeInt(auth_id);
-        output.writeLong(Launcher.isUsingAvanguard() ? GuardBind.avnGetHddId() : 0);
-        output.writeLong(Launcher.isUsingAvanguard() ? GuardBind.avnGetCpuid() : 0);
-        output.writeLong(Launcher.isUsingAvanguard() ? GuardBind.avnGetSmbiosId() : 0);
+        output.writeLong(0);
+        output.writeLong(0);
+        output.writeLong(0);
         output.writeByteArray(encryptedPassword, SecurityHelper.CRYPTO_MAX_LENGTH);
         output.flush();
 

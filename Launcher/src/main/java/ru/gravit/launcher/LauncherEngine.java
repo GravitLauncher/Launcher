@@ -217,11 +217,6 @@ public class LauncherEngine {
         loadScript(Launcher.INIT_SCRIPT_FILE);
         LogHelper.info("Invoking start() function");
         Invocable invoker = (Invocable) engine;
-        if (Launcher.isUsingAvanguard()) {
-            AvanguardStarter.start(DirBridge.dir);
-            AvanguardStarter.load();
-            AvanguardStarter.main(false);
-        }
         Launcher.modulesManager.postInitModules();
         invoker.invokeFunction("start", (Object) args);
     }

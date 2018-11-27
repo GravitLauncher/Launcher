@@ -254,7 +254,7 @@ public final class JARLauncherBinary extends LauncherBinary {
                     throw new IOException(String.format("Missing init script file ('%s')", Launcher.INIT_SCRIPT_FILE));
                 // Write launcher guard dir
                 IOHelper.walk(runtimeDir, new RuntimeDirVisitor(output, runtime), false);
-                IOHelper.walk(guardDir, new GuardDirVisitor(output, runtime), false);
+                //IOHelper.walk(guardDir, new GuardDirVisitor(output, runtime), false);
             }
             // Create launcher config file
             byte[] launcherConfigBytes;
