@@ -94,6 +94,10 @@ public class ServerWrapper {
             CommonHelper.newThread("Server Auth Thread", true, () -> ServerWrapper.loopAuth(wrapper, config.reconnectCount, config.reconnectSleep));
         modulesManager.initModules();
         String classname = config.mainclass.isEmpty() ? args[0] : config.mainclass;
+        if(classname.length() == 0)
+        {
+            LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.cfg or first commandline argument");
+        }
         Class<?> mainClass;
         if (config.customClassLoader) {
             @SuppressWarnings("unchecked")
@@ -106,7 +110,9 @@ public class ServerWrapper {
         String[] real_args = new String[args.length - 1];
         System.arraycopy(args, 1, real_args, 0, args.length - 1);
         modulesManager.postInitModules();
-        LogHelper.debug("Invoke main method");
+        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s",config.projectname,config.address,config.port,config.title);
+        LogHelper.info("Minecraft Version (for profile): %s",wrapper.profile.getVersion().name);
+        LogHelper.debug("Invoke main method %s", mainClass.getName());
         mainMethod.invoke(real_args);
     }
 
