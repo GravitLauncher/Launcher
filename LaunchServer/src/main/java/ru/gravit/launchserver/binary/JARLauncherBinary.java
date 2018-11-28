@@ -123,8 +123,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         guardDir = server.dir.resolve("guard");
         initScriptFile = runtimeDir.resolve(Launcher.INIT_SCRIPT_FILE);
-        obfJar = server.config.buildPostTransform.enabled ? server.dir.resolve(server.config.binaryName + "-obf.jar")
-                : syncBinaryFile;
+        obfJar = syncBinaryFile;
         tryUnpackRuntime();
     }
 
@@ -179,8 +178,8 @@ public final class JARLauncherBinary extends LauncherBinary {
                 }
             }
         }
-        if (server.config.buildPostTransform.enabled)
-        	transformedBuild();
+        //if (server.config.buildPostTransform.enabled)
+        //	transformedBuild();
     }
 
     private void transformedBuild() throws IOException {

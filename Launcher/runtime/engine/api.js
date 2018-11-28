@@ -2,7 +2,7 @@ var Launcher = LauncherClass.static;
 var LauncherConfig = LauncherConfigClass.static;
 var HTTPRequest = HTTPRequestClass.static;
 var DirBridge = DirBridgeClass.static;
-var FunctionalBridge = FunctionalBridgeClass.class;
+var FunctionalBridge = FunctionalBridgeClass.static;
 
 // Hasher class API imports
 var PlayerProfile = PlayerProfileClass.static;

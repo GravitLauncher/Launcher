@@ -169,6 +169,7 @@ var settingsOverlay = {
         settingsOverlay.dirLabel.setText(IOHelper.toString(settings.updatesDir));
     }
 };
+LogHelper.debug("Dir: %s", DirBridge.dir);
 var settings = new settingsClass;
 /* ====================== CLI PARAMS ===================== */
 var cliParams = {
