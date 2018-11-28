@@ -216,14 +216,10 @@ public class LauncherEngine {
         CommonHelper.newThread("FX Task Worker", true, FunctionalBridge.worker);
         loadScript(Launcher.API_SCRIPT_FILE);
         loadScript(Launcher.CONFIG_SCRIPT_FILE);
+        Thread.sleep(100);
         loadScript(Launcher.INIT_SCRIPT_FILE);
         LogHelper.info("Invoking start() function");
         Invocable invoker = (Invocable) engine;
-        if (Launcher.isUsingAvanguard()) {
-            AvanguardStarter.start(DirBridge.dir);
-            AvanguardStarter.load();
-            AvanguardStarter.main(false);
-        }
         Launcher.modulesManager.postInitModules();
         invoker.invokeFunction("start", (Object) args);
     }

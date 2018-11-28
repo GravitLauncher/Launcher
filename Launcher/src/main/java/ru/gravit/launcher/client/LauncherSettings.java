@@ -1,7 +1,8 @@
-package ru.gravit.launcher;
+package ru.gravit.launcher.client;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.client.DirBridge;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;

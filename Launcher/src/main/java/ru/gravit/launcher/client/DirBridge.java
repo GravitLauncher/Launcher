@@ -1,4 +1,4 @@
-package ru.gravit.launcher;
+package ru.gravit.launcher.client;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.utils.helper.IOHelper;

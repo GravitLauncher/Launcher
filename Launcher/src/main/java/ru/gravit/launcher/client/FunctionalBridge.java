@@ -1,8 +1,9 @@
-package ru.gravit.launcher;
+package ru.gravit.launcher.client;
 
 import javafx.concurrent.Task;
+import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.client.ClientLauncher;
+import ru.gravit.launcher.RequestWorker;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hwid.OshiHWIDProvider;
@@ -49,11 +50,6 @@ public class FunctionalBridge {
         // Return last sign and profiles
         return new LegacyLauncherRequest.Result(null, settings.lastDigest, settings.lastProfiles);
     }
-
-    @FunctionalInterface
-    public interface HashedDirRunnable {
-        SignedObjectHolder<HashedDir> run() throws Exception;
-    }
     @LauncherAPI
     public void makeJsonRequest(RequestInterface request, Runnable callback)
     {
@@ -72,5 +68,10 @@ public class FunctionalBridge {
     public HWID getHWID()
     {
         return hwidProvider.getHWID();
+    }
+
+    @FunctionalInterface
+    public interface HashedDirRunnable {
+        SignedObjectHolder<HashedDir> run() throws Exception;
     }
 }
