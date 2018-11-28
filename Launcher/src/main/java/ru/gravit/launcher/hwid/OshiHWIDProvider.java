@@ -40,6 +40,9 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
         hwid.serialNumber = getSerial();
         hwid.totalMemory = getTotalMemory();
         hwid.HWDiskSerial = getHWDisk();
+        LogHelper.debug("serialNumber %s",hwid.serialNumber);
+        LogHelper.debug("totalMemory %d",hwid.totalMemory);
+        LogHelper.debug("HWDiskSerial %s",hwid.HWDiskSerial);
         return hwid;
     }
 }
