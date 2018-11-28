@@ -5,6 +5,7 @@ import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.client.ClientLauncher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.hwid.OshiHWIDProvider;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.request.websockets.RequestInterface;
@@ -20,6 +21,8 @@ public class FunctionalBridge {
     public static LauncherSettings settings;
     @LauncherAPI
     public static RequestWorker worker;
+    @LauncherAPI
+    public static OshiHWIDProvider hwidProvider = new OshiHWIDProvider();
 
     @LauncherAPI
     public HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) throws Exception {
@@ -64,5 +67,10 @@ public class FunctionalBridge {
         } catch (InterruptedException e) {
             LogHelper.error(e);
         }
+    }
+    @LauncherAPI
+    public HWID getHWID()
+    {
+        return hwidProvider.getHWID();
     }
 }

@@ -2,6 +2,8 @@ package ru.gravit.launchserver.auth.hwid;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import ru.gravit.launcher.HWID;
+import ru.gravit.launcher.OshiHWID;
 import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -25,30 +27,20 @@ public final class JsonHWIDHandler extends HWIDHandler {
 
     public class banRequest
     {
-        long hwid_hdd;
-
-        public banRequest(long hwid_hdd, long hwid_cpu, long hwid_bios) {
-            this.hwid_hdd = hwid_hdd;
-            this.hwid_cpu = hwid_cpu;
-            this.hwid_bios = hwid_bios;
+        public banRequest(String hwid) {
+            this.hwid = hwid;
         }
-
-        long hwid_cpu;
-        long hwid_bios;
+        String hwid;
     }
     public class checkRequest
     {
-        public checkRequest(String username, long hwid_hdd, long hwid_cpu, long hwid_bios) {
+        public checkRequest(String username, String hwid) {
             this.username = username;
-            this.hwid_hdd = hwid_hdd;
-            this.hwid_cpu = hwid_cpu;
-            this.hwid_bios = hwid_bios;
+            this.hwid = hwid;
         }
 
         String username;
-        long hwid_hdd;
-        long hwid_cpu;
-        long hwid_bios;
+        String hwid;
 
     }
     public class Result
@@ -62,9 +54,7 @@ public final class JsonHWIDHandler extends HWIDHandler {
     }
     public class HWIDResult
     {
-        long hwid_hdd;
-        long hwid_cpu;
-        long hwid_bios;
+        String string;
     }
     public class HWIDRequest
     {
@@ -90,7 +80,7 @@ public final class JsonHWIDHandler extends HWIDHandler {
     @Override
     public void ban(List<HWID> l_hwid) throws HWIDException {
         for (HWID hwid : l_hwid) {
-            banRequest request = new banRequest(hwid.getHwid_hdd(),hwid.getHwid_cpu(),hwid.getHwid_bios());
+            banRequest request = new banRequest(hwid.getSerializeString());
             try {
                 JsonElement result = HTTPRequest.jsonRequest(gson.toJsonTree(request), urlBan);
                 Result r = gson.fromJson(result,Result.class);
@@ -104,7 +94,7 @@ public final class JsonHWIDHandler extends HWIDHandler {
 
     @Override
     public void check0(HWID hwid, String username) throws HWIDException {
-        checkRequest request = new checkRequest(username,hwid.getHwid_hdd(),hwid.getHwid_cpu(),hwid.getHwid_bios());
+        checkRequest request = new checkRequest(username,hwid.getSerializeString());
         try {
             JsonElement result = HTTPRequest.jsonRequest(gson.toJsonTree(request), urlBan);
             BannedResult r = gson.fromJson(result,BannedResult.class);
@@ -131,7 +121,7 @@ public final class JsonHWIDHandler extends HWIDHandler {
             HWIDResult[] r = gson.fromJson(result,HWIDResult[].class);
             for( HWIDResult hw : r)
             {
-                hwids.add(HWID.gen(hw.hwid_hdd,hw.hwid_bios,hw.hwid_cpu));
+                hwids.add(OshiHWID.gson.fromJson(hw.string,OshiHWID.class));
             }
         } catch (IOException e) {
             LogHelper.error(e);
@@ -143,7 +133,7 @@ public final class JsonHWIDHandler extends HWIDHandler {
     @Override
     public void unban(List<HWID> l_hwid) throws HWIDException {
         for (HWID hwid : l_hwid) {
-            banRequest request = new banRequest(hwid.getHwid_hdd(),hwid.getHwid_cpu(),hwid.getHwid_bios());
+            banRequest request = new banRequest(hwid.getSerializeString());
             try {
                 JsonElement result = HTTPRequest.jsonRequest(gson.toJsonTree(request), urlUnBan);
                 Result r = gson.fromJson(result,Result.class);

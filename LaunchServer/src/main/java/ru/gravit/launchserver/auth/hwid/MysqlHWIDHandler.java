@@ -1,5 +1,7 @@
 package ru.gravit.launchserver.auth.hwid;
 
+import ru.gravit.launcher.HWID;
+import ru.gravit.launcher.OshiHWID;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
@@ -22,7 +24,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
     private final String banMessage;
     private final String isBannedName;
     private final String loginName;
-    private final String hddName, cpuName, biosName;
+    private final String hwidName, cpuName, biosName;
     private final String[] queryParams;
     private final String queryUpd;
     private final String[] queryParamsUpd;
@@ -45,8 +47,8 @@ public class MysqlHWIDHandler extends HWIDHandler {
         loginName = VerifyHelper.verify(block.getEntryValue("loginName", StringConfigEntry.class),
                 VerifyHelper.NOT_EMPTY, "loginName can't be empty");
         banMessage = block.hasEntry("banMessage") ? block.getEntryValue("banMessage", StringConfigEntry.class) : "You HWID Banned";
-        hddName = VerifyHelper.verify(block.getEntryValue("hddName", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "hddName can't be empty");
+        hwidName = VerifyHelper.verify(block.getEntryValue("hwidName", StringConfigEntry.class),
+                VerifyHelper.NOT_EMPTY, "hwidName can't be empty");
         cpuName = VerifyHelper.verify(block.getEntryValue("cpuName", StringConfigEntry.class),
                 VerifyHelper.NOT_EMPTY, "cpuName can't be empty");
         biosName = VerifyHelper.verify(block.getEntryValue("biosName", StringConfigEntry.class),
@@ -72,7 +74,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
             Connection c = mySQLHolder.getConnection();
 
             PreparedStatement s = c.prepareStatement(query);
-            String[] replaceParams = {"hwid_hdd", String.valueOf(hwid.getHwid_hdd()), "hwid_cpu", String.valueOf(hwid.getHwid_cpu()), "hwid_bios", String.valueOf(hwid.getHwid_bios()), "login", username};
+            String[] replaceParams = {"hwid", String.valueOf(hwid.getSerializeString()), "login", username};
             for (int i = 0; i < queryParams.length; i++) {
                 s.setString(i + 1, CommonHelper.replace(queryParams[i], replaceParams));
             }
@@ -109,7 +111,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
         LogHelper.debug("Write HWID %s from username %s", hwid.toString(), username);
         try (PreparedStatement a = c.prepareStatement(queryUpd)) {
             //IF
-            String[] replaceParamsUpd = {"hwid_hdd", String.valueOf(hwid.getHwid_hdd()), "hwid_cpu", String.valueOf(hwid.getHwid_cpu()), "hwid_bios", String.valueOf(hwid.getHwid_bios()), "login", username};
+            String[] replaceParamsUpd = {"hwid", String.valueOf(hwid.getSerializeString()), "login", username};
             for (int i = 0; i < queryParamsUpd.length; i++) {
                 a.setString(i + 1, CommonHelper.replace(queryParamsUpd[i], replaceParamsUpd));
             }
@@ -130,7 +132,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
         }
         try (PreparedStatement a = c.prepareStatement(queryBan)) {
             //IF
-            String[] replaceParamsUpd = {"hwid_hdd", String.valueOf(hwid.getHwid_hdd()), "hwid_cpu", String.valueOf(hwid.getHwid_cpu()), "hwid_bios", String.valueOf(hwid.getHwid_bios()), "isBanned", isBanned ? "1" : "0"};
+            String[] replaceParamsUpd = {"hwid", String.valueOf(hwid.getSerializeString()), "isBanned", isBanned ? "1" : "0"};
             for (int i = 0; i < queryParamsBan.length; i++) {
                 a.setString(i + 1, CommonHelper.replace(queryParamsBan[i], replaceParamsUpd));
             }
@@ -166,19 +168,17 @@ public class MysqlHWIDHandler extends HWIDHandler {
             for (int i = 0; i < queryParamsSelect.length; i++) {
                 s.setString(i + 1, CommonHelper.replace(queryParamsSelect[i], replaceParams));
             }
-            long hdd, cpu, bios;
+            String hwid_str;
             try (ResultSet set = s.executeQuery()) {
                 if (!set.next()) {
                     LogHelper.error(new HWIDException("HWID not found"));
                     return new ArrayList<>();
                 }
-                hdd = set.getLong(hddName);
-                cpu = set.getLong(cpuName);
-                bios = set.getLong(biosName);
+                hwid_str = set.getString(hwidName);
             }
             ArrayList<HWID> list = new ArrayList<>();
-            HWID hwid = HWID.gen(hdd, bios, cpu);
-            if (hdd == 0 && cpu == 0 && bios == 0) {
+            HWID hwid = OshiHWID.gson.fromJson(hwid_str,OshiHWID.class);
+            if (hwid.isNull()) {
                 LogHelper.warning("Null HWID");
             } else {
                 list.add(hwid);

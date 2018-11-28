@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
+import ru.gravit.launcher.OshiHWID;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -19,7 +20,7 @@ import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
-import ru.gravit.launchserver.auth.hwid.HWID;
+import ru.gravit.launcher.HWID;
 import ru.gravit.launchserver.auth.hwid.HWIDException;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
@@ -45,9 +46,7 @@ public final class AuthResponse extends Response {
         if (isClient)
             client = input.readString(SerializeLimits.MAX_CLIENT);
         int auth_id = input.readInt();
-        long hwid_hdd = input.readLong();
-        long hwid_cpu = input.readLong();
-        long hwid_bios = input.readLong();
+        String hwid_str = input.readString(0);
         if (auth_id + 1 > server.config.authProvider.length || auth_id < 0) auth_id = 0;
         byte[] encryptedPassword = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
         // Decrypt password
@@ -93,7 +92,7 @@ public final class AuthResponse extends Response {
                     throw new AuthException("You profile not found");
                 }
             }
-            server.config.hwidHandler.check(HWID.gen(hwid_hdd, hwid_bios, hwid_cpu), result.username);
+            server.config.hwidHandler.check(OshiHWID.gson.fromJson(hwid_str,OshiHWID.class), result.username);
         } catch (AuthException | HWIDException e) {
             requestError(e.getMessage());
             return;
