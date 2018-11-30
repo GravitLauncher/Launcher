@@ -16,6 +16,9 @@ import java.util.List;
 public class ClientLauncherWrapper {
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
+        LogHelper.printLicense("Launcher");
+        LogHelper.info("Restart Launcher witch JavaAgent...");
+        LogHelper.info("If need debug output use -Dlauncher.debug=true");
         JVMHelper.checkStackTrace(ClientLauncherWrapper.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
@@ -38,7 +41,11 @@ public class ClientLauncherWrapper {
         if (!LogHelper.isDebugEnabled()) {
             Thread.sleep(3000);
             if (!process.isAlive()) {
-                LogHelper.error("Process error code: %d", process.exitValue());
+                int errorcode = process.exitValue();
+                if(errorcode != 0)
+                    LogHelper.error("Process exit witch error code: %d", errorcode);
+                else
+                    LogHelper.info("Process exit witch code 0");
             } else {
                 LogHelper.debug("Process started success");
             }

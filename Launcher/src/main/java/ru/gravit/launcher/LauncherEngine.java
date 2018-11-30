@@ -163,6 +163,7 @@ public class LauncherEngine {
         EnvHelper.checkDangerousParams();
         //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         LogHelper.printVersion("Launcher");
+        LogHelper.printLicense("Launcher");
         // Start Launcher
         Instant start = Instant.now();
         try {

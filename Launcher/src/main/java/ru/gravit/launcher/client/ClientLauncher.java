@@ -332,8 +332,8 @@ public final class ClientLauncher {
         List<String> args = new LinkedList<>();
         boolean wrapper = isUsingWrapper();
         Path javaBin;
-        if (wrapper) javaBin = AvanguardStarter.wrapper;
-        else if (isDownloadJava) {
+        /*if (wrapper) javaBin = AvanguardStarter.wrapper;
+        else*/ if (isDownloadJava) {
             //Linux и Mac не должны скачивать свою JVM
             if (JVMHelper.OS_TYPE == OS.MUSTDIE)
                 javaBin = IOHelper.resolveJavaBin(JavaBinPath);
@@ -403,11 +403,6 @@ public final class ClientLauncher {
         engine.loadScript(Launcher.API_SCRIPT_FILE);
         engine.loadScript(Launcher.CONFIG_SCRIPT_FILE);
         Launcher.modulesManager.preInitModules();
-        if (Launcher.isUsingAvanguard()) {
-            AvanguardStarter.start(DirBridge.dir);
-            AvanguardStarter.load();
-            AvanguardStarter.main(false);
-        }
         checkJVMBitsAndVersion();
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();
