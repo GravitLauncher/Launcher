@@ -4,11 +4,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class EnvHelper {
-    public static final String[] toTest;
-
-    static {
-        toTest = new String[]{"_JAVA_OPTIONS", "_JAVA_OPTS", "JAVA_OPTS", "JAVA_OPTIONS"};
-    }
+    public static final String[] toTest = {"_JAVA_OPTIONS", "_JAVA_OPTS", "JAVA_OPTS", "JAVA_OPTIONS"};
 
     public static void addEnv(ProcessBuilder builder) {
         Map<String, String> map = builder.environment();
