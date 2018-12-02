@@ -551,18 +551,6 @@ public final class ClientLauncher {
             throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
     }
 
-    // Hack: this will break patcher because there are 2 functions with one body...
-    @LauncherAPI
-    public static void verifyOffline(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) throws IOException {
-        if (matcher != null)
-            matcher = matcher.verifyOnly();
-
-        // Hash directory and compare (ignore update-only matcher entries, it will break offline-mode)
-        HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);
-        if (!hdir.diff(currentHDir, matcher).isSame())
-            throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
-    }
-
     private ClientLauncher() {
     }
 }
