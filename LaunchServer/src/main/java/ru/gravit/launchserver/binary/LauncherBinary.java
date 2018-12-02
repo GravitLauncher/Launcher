@@ -10,10 +10,10 @@ import ru.gravit.utils.helper.SecurityHelper;
 
 public abstract class LauncherBinary {
 
-    protected final LaunchServer server;
+    public final LaunchServer server;
 
-    protected final Path binaryFile;
-    protected final Path syncBinaryFile;
+    public final Path binaryFile;
+    public final Path syncBinaryFile;
     private volatile DigestBytesHolder binary;
     private volatile byte[] sign;
 

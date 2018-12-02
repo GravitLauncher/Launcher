@@ -10,6 +10,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.jar.JarFile;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -22,21 +23,21 @@ import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
+import ru.gravit.utils.helper.UnpackHelper;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.asm.ClassMetadataReader;
+import ru.gravit.launchserver.manangers.BuildHookManager.ZipBuildHook;
 import proguard.Configuration;
 import proguard.ConfigurationParser;
 import proguard.ParseException;
 import proguard.ProGuard;
 
 public final class JARLauncherBinary extends LauncherBinary {
-
-    public static final String[] guardFileList = {"Avanguard64.dll", "Avanguard32.dll", "wrapper64.exe", "wrapper32.exe"};
 
     private final class RuntimeDirVisitor extends SimpleFileVisitor<Path> {
         private final ZipOutputStream output;
@@ -68,7 +69,8 @@ public final class JARLauncherBinary extends LauncherBinary {
         }
     }
 
-    private final class GuardDirVisitor extends SimpleFileVisitor<Path> {
+    @SuppressWarnings("unused")
+	private final class GuardDirVisitor extends SimpleFileVisitor<Path> {
         private final ZipOutputStream output;
         private final Map<String, byte[]> guard;
 
@@ -106,25 +108,28 @@ public final class JARLauncherBinary extends LauncherBinary {
         return newZipEntry(Launcher.GUARD_DIR + IOHelper.CROSS_SEPARATOR + fileName);
     }
 
-
+    public final Path cleanJar;
     public final Path runtimeDir;
     public final Path guardDir;
-
-
     public final Path initScriptFile;
-
-
     public final Path obfJar;
-
-
+    public final Path obfOutJar;
+    public ClassMetadataReader reader;
+    
     public JARLauncherBinary(LaunchServer server) throws IOException {
-        super(server, server.dir.resolve(server.config.binaryName + ".jar"),
-                server.dir.resolve(server.config.binaryName + "-obf.jar"));
+        super(server, server.dir.resolve(server.config.binaryName + "-nonObf.jar"),
+                server.dir.resolve(server.config.binaryName + ".jar"));
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
-        guardDir = server.dir.resolve("guard");
+        guardDir = server.dir.resolve(Launcher.GUARD_DIR);
         initScriptFile = runtimeDir.resolve(Launcher.INIT_SCRIPT_FILE);
-        obfJar = syncBinaryFile;
+        obfJar = server.dir.resolve(server.config.binaryName + "-obfed.jar");
+        obfOutJar = server.config.buildPostTransform.enabled ? server.dir.resolve(server.config.binaryName + "-obf.jar") : syncBinaryFile;
+        cleanJar = server.dir.resolve(server.config.binaryName + "-clean.jar");
+        reader = new ClassMetadataReader();
+        UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), cleanJar);
+        reader.getCp().add(new JarFile(cleanJar.toFile()));
         tryUnpackRuntime();
+        tryUnpackGuard();
     }
 
     @Override
@@ -148,13 +153,10 @@ public final class JARLauncherBinary extends LauncherBinary {
         } catch (ParseException e1) {
             e1.printStackTrace();
         }
+        for (Runnable r : server.buildHookManager.getPostProguardRunHooks()) r.run();
         if (server.buildHookManager.isNeedPostProguardHook()) {
-            Path obfPath = Paths.get(server.config.binaryName + "-obf.jar");
-            Path tmpPath = Paths.get(server.config.binaryName + "-tmp.jar");
-            IOHelper.move(obfPath, tmpPath);
-            try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(obfPath))) {
-                try (ZipInputStream input = new ZipInputStream(
-                        IOHelper.newInput(tmpPath))) {
+            try (ZipInputStream input = new ZipInputStream(
+                    IOHelper.newInput(obfJar)); ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(obfOutJar))) {
                     ZipEntry e = input.getNextEntry();
                     while (e != null) {
                         String filename = e.getName();
@@ -167,23 +169,25 @@ public final class JARLauncherBinary extends LauncherBinary {
                                 IOHelper.transfer(input, outputStream);
                                 bytes = outputStream.toByteArray();
                             }
-                            bytes = server.buildHookManager.proGuardClassTransform(bytes, classname);
+                            bytes = server.buildHookManager.proGuardClassTransform(bytes, classname, this);
                             try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
                                 IOHelper.transfer(inputStream, output);
                             }
                         } else
                             IOHelper.transfer(input, output);
-                        e = input.getNextEntry();
+                        	e = input.getNextEntry();
                     }
-                }
+                    for (ZipBuildHook h : server.buildHookManager.getProguardBuildHooks()) h.build(output);
             }
+        } else {
+            IOHelper.move(obfJar, obfOutJar);
         }
-        //if (server.config.buildPostTransform.enabled)
-        //	transformedBuild();
+        if (server.config.buildPostTransform.enabled)
+        	transformedBuild();
     }
 
     private void transformedBuild() throws IOException {
-    	String cmd = CommonHelper.replace(server.config.buildPostTransform.script, "launcher-output", IOHelper.toAbsPathString(syncBinaryFile), "launcher-obf", IOHelper.toAbsPathString(obfJar), "launcher-nonObf", IOHelper.toAbsPathString(binaryFile));
+    	String cmd = CommonHelper.replace(server.config.buildPostTransform.script, "launcher-output", IOHelper.toAbsPathString(syncBinaryFile), "launcher-obf", IOHelper.toAbsPathString(obfOutJar), "launcher-nonObf", IOHelper.toAbsPathString(binaryFile));
     	ProcessBuilder builder = new ProcessBuilder();
     	builder.directory(IOHelper.toAbsPath(server.dir).toFile());
     	builder.inheritIO();
@@ -203,7 +207,7 @@ public final class JARLauncherBinary extends LauncherBinary {
     private void stdBuild() throws IOException {
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(binaryFile));
              JAConfigurator jaConfigurator = new JAConfigurator(AutogenConfig.class)) {
-            BuildContext context = new BuildContext(output, jaConfigurator);
+            BuildContext context = new BuildContext(output, jaConfigurator, this);
             server.buildHookManager.preHook(context);
             jaConfigurator.setAddress(server.config.getAddress());
             jaConfigurator.setPort(server.config.port);
@@ -214,7 +218,7 @@ public final class JARLauncherBinary extends LauncherBinary {
             jaConfigurator.setDownloadJava(server.config.isDownloadJava);
             server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
             try (ZipInputStream input = new ZipInputStream(
-                    IOHelper.newInput(IOHelper.getResourceURL("Launcher.jar")))) {
+                    IOHelper.newInput(cleanJar))) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
                     String filename = e.getName();
@@ -237,20 +241,19 @@ public final class JARLauncherBinary extends LauncherBinary {
                             IOHelper.transfer(input, outputStream);
                             bytes = outputStream.toByteArray();
                         }
-                        bytes = server.buildHookManager.classTransform(bytes, classname);
+                        bytes = server.buildHookManager.classTransform(bytes, classname, this);
                         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
                             IOHelper.transfer(inputStream, output);
                         }
                     } else
                         IOHelper.transfer(input, output);
-                    // }
                     e = input.getNextEntry();
                 }
             }
             // write additional classes
             for (Entry<String, byte[]> ent : server.buildHookManager.getIncludeClass().entrySet()) {
                 output.putNextEntry(newZipEntry(ent.getKey().replace('.', '/').concat(".class")));
-                output.write(server.buildHookManager.classTransform(ent.getValue(), ent.getKey()));
+                output.write(server.buildHookManager.classTransform(ent.getValue(), ent.getKey(), this));
             }
             // map for guard
             Map<String, byte[]> runtime = new HashMap<>(256);
