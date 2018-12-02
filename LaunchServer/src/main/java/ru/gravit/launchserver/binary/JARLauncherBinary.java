@@ -127,6 +127,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         initScriptFile = runtimeDir.resolve(Launcher.INIT_SCRIPT_FILE);
         obfJar = syncBinaryFile;
         tryUnpackRuntime();
+        tryUnpackGuard();
     }
 
     @Override
@@ -293,6 +294,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         // Unpack launcher guard files
         Files.createDirectory(runtimeDir);
         LogHelper.info("Unpacking launcher runtime files");
+        if (Launcher.class.getResource("/runtime.zip") == null) return;
         try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL("runtime.zip"))) {
             for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
                 if (entry.isDirectory())
@@ -312,6 +314,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         // Unpack launcher guard files
         Files.createDirectory(guardDir);
         LogHelper.info("Unpacking launcher native guard files");
+        if (Launcher.class.getResource("/guard.zip") == null) return;
         try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL("guard.zip"))) {
             for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
                 if (entry.isDirectory())
