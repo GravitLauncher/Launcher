@@ -2,10 +2,7 @@ package ru.gravit.launcher.request.auth;
 
 import java.io.IOException;
 
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.LauncherHWIDInterface;
+import ru.gravit.launcher.*;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.profiles.PlayerProfile;
@@ -33,10 +30,10 @@ public final class AuthRequest extends Request<Result> {
 
     private final byte[] encryptedPassword;
     private final int auth_id;
-    private final LauncherHWIDInterface hwid;
+    private final HWID hwid;
 
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, LauncherHWIDInterface hwid) {
+    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, HWID hwid) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
@@ -45,7 +42,7 @@ public final class AuthRequest extends Request<Result> {
     }
 
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, LauncherHWIDInterface hwid, int auth_id) {
+    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, HWID hwid, int auth_id) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
@@ -54,12 +51,12 @@ public final class AuthRequest extends Request<Result> {
     }
 
     @LauncherAPI
-    public AuthRequest(String login, byte[] encryptedPassword, LauncherHWIDInterface hwid) {
+    public AuthRequest(String login, byte[] encryptedPassword, HWID hwid) {
         this(null, login, encryptedPassword,hwid);
     }
 
     @LauncherAPI
-    public AuthRequest(String login, byte[] encryptedPassword, LauncherHWIDInterface hwid, int auth_id) {
+    public AuthRequest(String login, byte[] encryptedPassword, HWID hwid, int auth_id) {
         this(null, login, encryptedPassword, hwid, auth_id);
     }
 
@@ -75,7 +72,7 @@ public final class AuthRequest extends Request<Result> {
         if (Launcher.profile != null)
             output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.writeInt(auth_id);
-        output.writeString(hwid.getHWID().getSerializeString(),0);
+        output.writeString(hwid.getSerializeString(),0);
         //output.writeLong(0);
         //output.writeLong(0);
         //output.writeLong(0);

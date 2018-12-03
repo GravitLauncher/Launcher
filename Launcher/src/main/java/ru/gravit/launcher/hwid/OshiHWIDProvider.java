@@ -20,18 +20,38 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
         }
 
     }
+    public String getProcessorID()
+    {
+        try {
+            return systemInfo.getHardware().getProcessor().getProcessorID();
+        } catch (Exception e)
+        {
+            LogHelper.error(e);
+            return "";
+        }
+
+    }
     public String getHWDisk()
     {
-        for(HWDiskStore s : systemInfo.getHardware().getDiskStores())
+        try {
+            for (HWDiskStore s : systemInfo.getHardware().getDiskStores()) {
+                if (!s.getModel().contains("USB"))
+                    return s.getSerial();
+            }
+            return "";
+        } catch (Exception e)
         {
-            if(!s.getModel().contains("USB"))
-                return s.getSerial();
+            LogHelper.error(e);
+            return "";
         }
-        return "";
     }
     public long getTotalMemory()
     {
         return systemInfo.getHardware().getMemory().getTotal();
+    }
+    public long getAvailableMemory()
+    {
+        return systemInfo.getHardware().getMemory().getAvailable();
     }
 
     @Override
@@ -40,9 +60,11 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
         hwid.serialNumber = getSerial();
         hwid.totalMemory = getTotalMemory();
         hwid.HWDiskSerial = getHWDisk();
+        hwid.processorID = getProcessorID();
         LogHelper.debug("serialNumber %s",hwid.serialNumber);
         LogHelper.debug("totalMemory %d",hwid.totalMemory);
         LogHelper.debug("HWDiskSerial %s",hwid.HWDiskSerial);
+        LogHelper.debug("ProcessorID %s",hwid.processorID);
         return hwid;
     }
 }
