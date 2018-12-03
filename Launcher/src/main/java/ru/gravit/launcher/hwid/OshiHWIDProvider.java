@@ -1,7 +1,7 @@
 package ru.gravit.launcher.hwid;
 
 import oshi.SystemInfo;
-import oshi.hardware.HWDiskStore;
+import oshi.hardware.*;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.LauncherHWIDInterface;
 import ru.gravit.launcher.OshiHWID;
@@ -53,7 +53,22 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
     {
         return systemInfo.getHardware().getMemory().getAvailable();
     }
-
+    public void printHardwareInformation()
+    {
+        HardwareAbstractionLayer hardware = systemInfo.getHardware();
+        ComputerSystem computerSystem = hardware.getComputerSystem();
+        LogHelper.debug("ComputerSystem Model: %s Serial: %s",computerSystem.getModel(),computerSystem.getSerialNumber());
+        for (HWDiskStore s : systemInfo.getHardware().getDiskStores())
+        {
+            LogHelper.debug("HWDiskStore Serial: %s Model: %s Size: %d",s.getSerial(),s.getModel(),s.getSize());
+        }
+        for (UsbDevice s : systemInfo.getHardware().getUsbDevices(true))
+        {
+            LogHelper.debug("USBDevice Serial: %s Name: %s",s.getSerialNumber(),s.getName());
+        }
+        CentralProcessor processor = hardware.getProcessor();
+        LogHelper.debug("Processor Model: %s ID: %s",processor.getModel(),processor.getProcessorID());
+    }
     @Override
     public HWID getHWID() {
         OshiHWID hwid = new OshiHWID();
@@ -61,10 +76,7 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
         hwid.totalMemory = getTotalMemory();
         hwid.HWDiskSerial = getHWDisk();
         hwid.processorID = getProcessorID();
-        LogHelper.debug("serialNumber %s",hwid.serialNumber);
-        LogHelper.debug("totalMemory %d",hwid.totalMemory);
-        LogHelper.debug("HWDiskSerial %s",hwid.HWDiskSerial);
-        LogHelper.debug("ProcessorID %s",hwid.processorID);
+        printHardwareInformation();
         return hwid;
     }
 }
