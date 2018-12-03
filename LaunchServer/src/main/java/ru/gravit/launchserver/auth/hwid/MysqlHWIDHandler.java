@@ -24,7 +24,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
     private final String banMessage;
     private final String isBannedName;
     private final String loginName;
-    private final String hwidName, cpuName, biosName;
+    private final String hwidName;
     private final String[] queryParams;
     private final String queryUpd;
     private final String[] queryParamsUpd;
@@ -49,10 +49,6 @@ public class MysqlHWIDHandler extends HWIDHandler {
         banMessage = block.hasEntry("banMessage") ? block.getEntryValue("banMessage", StringConfigEntry.class) : "You HWID Banned";
         hwidName = VerifyHelper.verify(block.getEntryValue("hwidName", StringConfigEntry.class),
                 VerifyHelper.NOT_EMPTY, "hwidName can't be empty");
-        cpuName = VerifyHelper.verify(block.getEntryValue("cpuName", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "cpuName can't be empty");
-        biosName = VerifyHelper.verify(block.getEntryValue("biosName", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "biosName can't be empty");
 
         queryUpd = VerifyHelper.verify(block.getEntryValue("queryUpd", StringConfigEntry.class),
                 VerifyHelper.NOT_EMPTY, "MySQL queryUpd can't be empty");

@@ -7,11 +7,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.jar.JarFile;
 import java.util.Map.Entry;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -69,6 +70,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         }
     }
 
+    // TODO: new native security wrapper and library...
     @SuppressWarnings("unused")
 	private final class GuardDirVisitor extends SimpleFileVisitor<Path> {
         private final ZipOutputStream output;
@@ -187,15 +189,12 @@ public final class JARLauncherBinary extends LauncherBinary {
     }
 
     private void transformedBuild() throws IOException {
-    	String cmd = CommonHelper.replace(server.config.buildPostTransform.script, "launcher-output", IOHelper.toAbsPathString(syncBinaryFile), "launcher-obf", IOHelper.toAbsPathString(obfOutJar), "launcher-nonObf", IOHelper.toAbsPathString(binaryFile));
+    	List<String> cmd = new ArrayList<>(1);
+    	server.config.buildPostTransform.script.forEach(v -> CommonHelper.replace(v, "launcher-output", IOHelper.toAbsPathString(syncBinaryFile), "launcher-obf", IOHelper.toAbsPathString(obfJar), "launcher-nonObf", IOHelper.toAbsPathString(binaryFile)));
     	ProcessBuilder builder = new ProcessBuilder();
     	builder.directory(IOHelper.toAbsPath(server.dir).toFile());
     	builder.inheritIO();
-    	StringTokenizer st = new StringTokenizer(cmd);
-        String[] cmdarray = new String[st.countTokens()];
-        for (int i = 0; st.hasMoreTokens(); i++)
-            cmdarray[i] = st.nextToken();
-        builder.command(cmdarray);
+        builder.command(cmd);
     	Process proc = builder.start();
     	try {
 			LogHelper.debug("Transformer process return code: " + proc.waitFor());
@@ -297,6 +296,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         // Unpack launcher guard files
         Files.createDirectory(runtimeDir);
         LogHelper.info("Unpacking launcher runtime files");
+        if (Launcher.class.getResource("/runtime.zip") == null) return;
         try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL("runtime.zip"))) {
             for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
                 if (entry.isDirectory())
@@ -316,6 +316,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         // Unpack launcher guard files
         Files.createDirectory(guardDir);
         LogHelper.info("Unpacking launcher native guard files");
+        if (Launcher.class.getResource("/guard.zip") == null) return;
         try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL("guard.zip"))) {
             for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
                 if (entry.isDirectory())

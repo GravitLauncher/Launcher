@@ -26,7 +26,7 @@ public class FunctionalBridge {
     public static OshiHWIDProvider hwidProvider = new OshiHWIDProvider();
 
     @LauncherAPI
-    public HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) throws Exception {
+    public static HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) throws Exception {
         return () -> {
             if (hdir == null) {
                 Request.requestError(java.lang.String.format("Директории '%s' нет в кэше", dirName));
@@ -37,7 +37,7 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public LegacyLauncherRequest.Result offlineLauncherRequest() throws IOException, SignatureException {
+    public static LegacyLauncherRequest.Result offlineLauncherRequest() throws IOException, SignatureException {
         if (settings.lastDigest == null || settings.lastProfiles.isEmpty()) {
             Request.requestError("Запуск в оффлайн-режиме невозможен");
         }
@@ -51,12 +51,12 @@ public class FunctionalBridge {
         return new LegacyLauncherRequest.Result(null, settings.lastDigest, settings.lastProfiles);
     }
     @LauncherAPI
-    public void makeJsonRequest(RequestInterface request, Runnable callback)
+    public static void makeJsonRequest(RequestInterface request, Runnable callback)
     {
 
     }
     @LauncherAPI
-    public void startTask(@SuppressWarnings("rawtypes") Task task)
+    public static void startTask(Task task)
     {
         try {
             worker.queue.put(task);
@@ -65,7 +65,7 @@ public class FunctionalBridge {
         }
     }
     @LauncherAPI
-    public HWID getHWID()
+    public static HWID getHWID()
     {
         return hwidProvider.getHWID();
     }

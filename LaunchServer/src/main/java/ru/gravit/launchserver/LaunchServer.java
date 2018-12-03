@@ -18,6 +18,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -245,12 +246,14 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     public static class PostBuildTransformConf extends ConfigObject {
         public final boolean enabled;
-        public String script;
+        public List<String> script;
 
         private PostBuildTransformConf(BlockConfigEntry block, Path coredir) {
             super(block);
             enabled = block.getEntryValue("enabled", BooleanConfigEntry.class);
-            script = enabled && block.hasEntry("script") ? block.getEntryValue("script", StringConfigEntry.class) : null;
+            script = new ArrayList<>(1);
+            if (block.hasEntry("script"))
+            	block.getEntry("script", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(script::add);
         }
     }
 
