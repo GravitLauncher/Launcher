@@ -34,11 +34,15 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
     public String getHWDisk()
     {
         try {
+            HWDiskStore store = null;
+            long size = 0;
             for (HWDiskStore s : systemInfo.getHardware().getDiskStores()) {
-                if (!s.getModel().contains("USB"))
-                    return s.getSerial();
+                if (size < s.getSize()) {
+                    store = s;
+                    size = s.getSize();
+                }
             }
-            return "";
+            return store == null ? "" : store.getSerial();
         } catch (Exception e)
         {
             LogHelper.error(e);
