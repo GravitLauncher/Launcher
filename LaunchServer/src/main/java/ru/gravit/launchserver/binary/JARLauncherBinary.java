@@ -130,14 +130,12 @@ public final class JARLauncherBinary extends LauncherBinary {
         reader = new ClassMetadataReader();
         UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), cleanJar);
         reader.getCp().add(new JarFile(cleanJar.toFile()));
-        tryUnpackRuntime();
-        tryUnpackGuard();
+        tryUnpack();
     }
 
     @Override
     public void build() throws IOException {
-        tryUnpackRuntime();
-        tryUnpackGuard();
+        tryUnpack();
 
         // Build launcher binary
         LogHelper.info("Building launcher binary file");
@@ -287,44 +285,9 @@ public final class JARLauncherBinary extends LauncherBinary {
         }
     }
 
-
-    public void tryUnpackRuntime() throws IOException {
-        // Verify is guard dir unpacked
-        if (IOHelper.isDir(runtimeDir))
-            return; // Already unpacked
-
-        // Unpack launcher guard files
-        Files.createDirectory(runtimeDir);
-        LogHelper.info("Unpacking launcher runtime files");
-        if (Launcher.class.getResource("/runtime.zip") == null) return;
-        try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL("runtime.zip"))) {
-            for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
-                if (entry.isDirectory())
-                    continue; // Skip dirs
-
-                // Unpack guard file
-                IOHelper.transfer(input, runtimeDir.resolve(IOHelper.toPath(entry.getName())));
-            }
-        }
-    }
-
-    public void tryUnpackGuard() throws IOException {
-        // Verify is guard dir unpacked
-        if (IOHelper.isDir(guardDir))
-            return; // Already unpacked
-
-        // Unpack launcher guard files
-        Files.createDirectory(guardDir);
-        LogHelper.info("Unpacking launcher native guard files");
-        if (Launcher.class.getResource("/guard.zip") == null) return;
-        try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL("guard.zip"))) {
-            for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
-                if (entry.isDirectory())
-                    continue; // Skip dirs
-
-                // Unpack guard file
-                IOHelper.transfer(input, guardDir.resolve(IOHelper.toPath(entry.getName())));
-            }
-        }
+    public void tryUnpack() throws IOException {
+        LogHelper.info("Unpacking launcher native guard files and runtime");
+        UnpackHelper.unpackZipNoCheck("guard.zip", guardDir);
+        UnpackHelper.unpackZipNoCheck("runtime.zip", runtimeDir);
     }
 }

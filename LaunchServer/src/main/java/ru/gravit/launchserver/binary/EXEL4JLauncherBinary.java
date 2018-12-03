@@ -32,8 +32,7 @@ public final class EXEL4JLauncherBinary extends LauncherBinary {
 
     // URL constants
     private static final String DOWNLOAD_URL = "http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html"; // Oracle
-    // JRE
-    // 8
+    // JRE 8
 
     // File constants
     private final Path faviconFile;
