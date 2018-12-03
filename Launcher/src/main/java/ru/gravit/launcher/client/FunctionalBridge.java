@@ -55,8 +55,9 @@ public class FunctionalBridge {
     {
 
     }
+
     @LauncherAPI
-    public static void startTask(Task task)
+    public static void startTask(@SuppressWarnings("rawtypes") Task task)
     {
         try {
             worker.queue.put(task);

@@ -25,7 +25,7 @@ public class BuildHookManager {
 
     @FunctionalInterface
     public static interface Transformer {
-        byte[] transform(byte[] input, CharSequence classname, JARLauncherBinary data);
+        byte[] transform(byte[] input, String classname, JARLauncherBinary data);
     }
 
     private boolean BUILDRUNTIME;
@@ -95,13 +95,13 @@ public class BuildHookManager {
         return BUILDRUNTIME;
     }
 
-    public byte[] classTransform(byte[] clazz, CharSequence classname, JARLauncherBinary reader) {
+    public byte[] classTransform(byte[] clazz, String classname, JARLauncherBinary reader) {
         byte[] result = clazz;
         for (Transformer transformer : CLASS_TRANSFORMER) result = transformer.transform(result, classname, reader);
         return result;
     }
 
-    public byte[] proGuardClassTransform(byte[] clazz, CharSequence classname, JARLauncherBinary reader) {
+    public byte[] proGuardClassTransform(byte[] clazz, String classname, JARLauncherBinary reader) {
         byte[] result = clazz;
         for (Transformer transformer : POST_PROGUARD_HOOKS) result = transformer.transform(result, classname, reader);
         return result;

@@ -14,7 +14,7 @@ import ru.gravit.launchserver.manangers.BuildHookManager.Transformer;
 public class NodeTransformer implements Transformer {
 	@FunctionalInterface
 	public static interface ClassNodeTransformer {
-		void transform(ClassNode node, CharSequence classname, JARLauncherBinary data);
+		void transform(ClassNode node, String classname, JARLauncherBinary data);
 	}
 	
 	private final List<ClassNodeTransformer> transLst;
@@ -28,7 +28,7 @@ public class NodeTransformer implements Transformer {
 	}
 	
 	@Override
-	public byte[] transform(byte[] input, CharSequence classname, JARLauncherBinary data) {
+	public byte[] transform(byte[] input, String classname, JARLauncherBinary data) {
 		ClassReader cr = new ClassReader(input);
 		ClassNode cn = new ClassNode();
 		cr.accept(cn, ClassReader.EXPAND_FRAMES);

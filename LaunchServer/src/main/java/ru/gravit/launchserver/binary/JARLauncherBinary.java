@@ -162,7 +162,7 @@ public final class JARLauncherBinary extends LauncherBinary {
                         String filename = e.getName();
                         output.putNextEntry(IOHelper.newZipEntry(e.getName()));
                         if (filename.endsWith(".class")) {
-                            CharSequence classname = filename.replace('/', '.').subSequence(0,
+                            String classname = filename.replace('/', '.').substring(0,
                                     filename.length() - ".class".length());
                             byte[] bytes;
                             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(2048)) {
@@ -231,7 +231,7 @@ public final class JARLauncherBinary extends LauncherBinary {
                         continue;
                     }
                     if (filename.endsWith(".class")) {
-                        CharSequence classname = filename.replace('/', '.').subSequence(0,
+                        String classname = filename.replace('/', '.').substring(0,
                                 filename.length() - ".class".length());
                         byte[] bytes;
                         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(2048)) {
