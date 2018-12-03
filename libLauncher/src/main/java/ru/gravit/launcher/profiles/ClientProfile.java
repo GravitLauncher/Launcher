@@ -15,8 +15,7 @@ import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.launcher.serialize.config.entry.*;
 
 @SuppressWarnings("ComparableImplementedButEqualsNotOverridden")
-public final class
-ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
+public final class ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     @LauncherAPI
     public enum Version {
         MC147("1.4.7", 51),
@@ -63,6 +62,8 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     @LauncherAPI
     public static final StreamObject.Adapter<ClientProfile> RO_ADAPTER = input -> new ClientProfile(input, true);
 
+    public static final boolean profileCaseSensitive = Boolean.getBoolean("launcher.clientProfile.caseSensitive");
+    
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
     // Version
@@ -278,8 +279,8 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
 
     @LauncherAPI
     public boolean isWhitelistContains(String username) {
-        if (!useWhitelist.getValue()) return true;
-        return whitelist.stream().anyMatch(e -> e.equalsIgnoreCase(username)); // TODO case sensitive on/off
+        if (!useWhitelist) return true;
+        return whitelist.stream().anyMatch(profileCaseSensitive ? e -> e.equals(username) : e -> e.equalsIgnoreCase(username));
     }
 
     @LauncherAPI

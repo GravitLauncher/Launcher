@@ -64,7 +64,6 @@ public final class JVMHelper {
         try {
             MethodHandles.publicLookup(); // Just to initialize class
         } catch (Throwable exc) {
-            LogHelper.error("Unsafe field is not initialized");
             throw new InternalError(exc);
         }
     }
