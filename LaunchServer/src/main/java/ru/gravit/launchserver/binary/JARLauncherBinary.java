@@ -160,7 +160,7 @@ public final class JARLauncherBinary extends LauncherBinary {
                     ZipEntry e = input.getNextEntry();
                     while (e != null) {
                         String filename = e.getName();
-                        output.putNextEntry(e);
+                        output.putNextEntry(IOHelper.newZipEntry(e.getName()));
                         if (filename.endsWith(".class")) {
                             CharSequence classname = filename.replace('/', '.').subSequence(0,
                                     filename.length() - ".class".length());
@@ -224,7 +224,7 @@ public final class JARLauncherBinary extends LauncherBinary {
                         continue;
                     }
                     try {
-                        output.putNextEntry(e);
+                        output.putNextEntry(IOHelper.newZipEntry(e.getName()));
                     } catch (ZipException ex) {
                         LogHelper.error(ex);
                         e = input.getNextEntry();
