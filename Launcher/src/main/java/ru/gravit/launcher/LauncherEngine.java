@@ -215,7 +215,7 @@ public class LauncherEngine {
         Launcher.modulesManager.initModules();
         // Load init.js script
         FunctionalBridge.worker = new RequestWorker();
-        CommonHelper.newThread("FX Task Worker", true, FunctionalBridge.worker);
+        CommonHelper.newThread("FX Task Worker", true, FunctionalBridge.worker).start();
         loadScript(Launcher.API_SCRIPT_FILE);
         loadScript(Launcher.CONFIG_SCRIPT_FILE);
         LogHelper.debug("Dir: %s", DirBridge.dir);

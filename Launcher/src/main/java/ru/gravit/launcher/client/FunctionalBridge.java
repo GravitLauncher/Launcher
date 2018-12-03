@@ -65,7 +65,7 @@ public class FunctionalBridge {
         }
     }
     @LauncherAPI
-    public HWID getHWID()
+    public static HWID getHWID()
     {
         return hwidProvider.getHWID();
     }

@@ -13,6 +13,7 @@ public class RequestWorker implements Runnable {
     public BlockingQueue<Runnable> queue;
     @Override
     public void run() {
+        LogHelper.debug("FX Task Thread start");
         while (!Thread.interrupted())
         {
             try {
@@ -24,5 +25,6 @@ public class RequestWorker implements Runnable {
                 return;
             }
         }
+        LogHelper.debug("FX Task Thread done");
     }
 }
