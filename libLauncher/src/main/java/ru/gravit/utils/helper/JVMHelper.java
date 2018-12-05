@@ -100,16 +100,15 @@ public final class JVMHelper {
     public static URL[] getClassPathURL() {
         String[] cp = System.getProperty("java.class.path").split(File.pathSeparator);
         URL[] list = new URL[cp.length];
-        int it = 0;
-        for (String s : cp) {
+        
+        for(int i = 0; i < cp.length; i++) {
             URL url = null;
             try {
-                url = new URL(s);
+                url = new URL(cp[i]);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
-            list[it] = url;
-            it++;
+            list[i] = url;
         }
         return list;
     }
