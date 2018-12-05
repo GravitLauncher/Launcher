@@ -1,14 +1,14 @@
 package ru.gravit.launcher.serialize.signed;
 
+import java.io.IOException;
+import java.security.SignatureException;
+import java.util.Arrays;
+
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.utils.helper.SecurityHelper;
-
-import java.io.IOException;
-import java.security.SignatureException;
-import java.util.Arrays;
 
 public class DigestBytesHolder extends StreamObject {
     protected final byte[] bytes;

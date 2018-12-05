@@ -12,13 +12,14 @@ import java.util.regex.Pattern;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.profiles.ClientProfile;
 
 public final class ServerPinger {
     private JsonParser parser = new JsonParser();

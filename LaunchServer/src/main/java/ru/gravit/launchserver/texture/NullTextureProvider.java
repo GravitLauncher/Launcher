@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.profiles.Texture;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class NullTextureProvider extends TextureProvider {
     private volatile TextureProvider provider;

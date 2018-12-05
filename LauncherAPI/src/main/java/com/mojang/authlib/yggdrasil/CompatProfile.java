@@ -4,8 +4,8 @@ import java.util.UUID;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.launcher.profiles.PlayerProfile;
+import ru.gravit.utils.helper.SecurityHelper;
 
 @SuppressWarnings("unused")
 @LauncherAPI

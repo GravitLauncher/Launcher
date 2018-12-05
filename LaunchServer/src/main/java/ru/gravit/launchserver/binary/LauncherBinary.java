@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import ru.gravit.launcher.serialize.signed.DigestBytesHolder;
-import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
 public abstract class LauncherBinary {

@@ -1,10 +1,10 @@
 package ru.gravit.launcher.client;
 
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.IOHelper;
-
 import java.io.IOException;
 import java.nio.file.Path;
+
+import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.utils.helper.IOHelper;
 
 public class DirBridge {
     @LauncherAPI

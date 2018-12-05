@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.ConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class TextConfigReader {
     @LauncherAPI

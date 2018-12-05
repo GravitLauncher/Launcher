@@ -31,7 +31,7 @@ public class NodeTransformer implements Transformer {
 	public byte[] transform(byte[] input, String classname, JARLauncherBinary data) {
 		ClassReader cr = new ClassReader(input);
 		ClassNode cn = new ClassNode();
-		cr.accept(cn, ClassReader.EXPAND_FRAMES);
+		cr.accept(cn, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
 		for (ClassNodeTransformer tr : transLst) tr.transform(cn, classname, data);
 		ClassWriter cw = new SafeClassWriter(data.reader, ClassWriter.COMPUTE_MAXS);
 		cn.accept(cw);

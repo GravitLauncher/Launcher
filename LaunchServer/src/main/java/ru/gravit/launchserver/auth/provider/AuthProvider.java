@@ -5,12 +5,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.auth.handler.AuthHandler;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
+import ru.gravit.launchserver.auth.handler.AuthHandler;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public abstract class AuthProvider extends ConfigObject implements AutoCloseable {
     private static final Map<String, ServerAdapter<AuthProvider>> AUTH_PROVIDERS = new ConcurrentHashMap<>(8);
