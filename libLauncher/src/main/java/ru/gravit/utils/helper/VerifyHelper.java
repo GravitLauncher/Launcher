@@ -22,7 +22,7 @@ public final class VerifyHelper {
     @LauncherAPI
     public static final Predicate<String> NOT_EMPTY = s -> !s.isEmpty();
     @LauncherAPI
-    public static final Pattern USERNAME_PATTERN = Pattern.compile(Boolean.parseBoolean(System.getProperty("username.russian", "true")) ? "[a-zA-Zа-яА-Я0-9_.\\-]{1,16}" : "[a-zA-Z0-9-_\\\\.]{1,16}");
+    public static final Pattern USERNAME_PATTERN = Pattern.compile(Boolean.parseBoolean(System.getProperty("username.russian", "true")) ? "[a-zA-Zа-яА-Я0-9_.\\-]{3,16}" : "[a-zA-Z0-9-_\\\\.]{3,16}");
     private static final Pattern SERVERID_PATTERN = Pattern.compile("-?[0-9a-f]{1,40}");
 
     @LauncherAPI
