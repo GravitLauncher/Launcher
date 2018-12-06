@@ -7,11 +7,11 @@ import java.net.URL;
 import java.util.Objects;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 
 public final class Texture extends StreamObject {
     private static final SecurityHelper.DigestAlgorithm DIGEST_ALGO = SecurityHelper.DigestAlgorithm.SHA256;

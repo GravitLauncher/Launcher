@@ -1,14 +1,14 @@
 package ru.gravit.launchserver.response.update;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.signed.DigestBytesHolder;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.Client;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 public final class LauncherResponse extends Response {
 

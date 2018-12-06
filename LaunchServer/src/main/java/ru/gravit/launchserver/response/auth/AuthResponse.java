@@ -8,11 +8,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
 import ru.gravit.launcher.OshiHWID;
-import ru.gravit.launchserver.socket.Client;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
@@ -25,6 +20,11 @@ import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
+import ru.gravit.launchserver.socket.Client;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class AuthResponse extends Response {
     private static String echo(int length) {

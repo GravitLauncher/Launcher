@@ -13,7 +13,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Skin;
 import javafx.util.StringConverter;
-
 import ru.gravit.launcher.LauncherAPI;
 
 public class CheckComboBox<T> extends ControlsFXControl {

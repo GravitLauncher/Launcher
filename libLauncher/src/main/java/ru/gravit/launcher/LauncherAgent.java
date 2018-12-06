@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.jar.JarFile;
 
 import javassist.bytecode.ClassFile;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.transformers.SystemClassLoaderTransformer;
+import ru.gravit.utils.helper.LogHelper;
 
 @LauncherAPI
 public class LauncherAgent {

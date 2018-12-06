@@ -1,10 +1,10 @@
 package ru.gravit.launchserver.auth.provider;
 
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class RejectAuthProvider extends AuthProvider {
     private final String message;

@@ -10,12 +10,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class LauncherConfig extends StreamObject {
     @LauncherAPI

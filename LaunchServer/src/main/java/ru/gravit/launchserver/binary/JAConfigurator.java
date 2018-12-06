@@ -1,21 +1,29 @@
-package ru.gravit.launchserver.binary;
+	package ru.gravit.launchserver.binary;
 
 import java.io.IOException;
 
-import javassist.*;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtMethod;
+import javassist.NotFoundException;
 
 public class JAConfigurator implements AutoCloseable {
-    ClassPool pool = ClassPool.getDefault();
-    CtClass ctClass;
-    CtConstructor ctConstructor;
-    CtMethod initModuleMethod;
+    public ClassPool pool;
+    public CtClass ctClass;
+    public CtConstructor ctConstructor;
+    public CtMethod initModuleMethod;
     String classname;
     StringBuilder body;
     StringBuilder moduleBody;
     int autoincrement;
 
-    public JAConfigurator(Class<?> configclass) throws NotFoundException {
-        classname = configclass.getName();
+    public JAConfigurator(String configclass, JARLauncherBinary jarLauncherBinary) throws NotFoundException {
+    	pool = new ClassPool(false);
+    	pool.insertClassPath(jarLauncherBinary.cleanJar.toFile().getAbsolutePath());
+    	pool.appendSystemPath();
+        classname = configclass;
         ctClass = pool.get(classname);
         ctConstructor = ctClass.getDeclaredConstructor(null);
         initModuleMethod = ctClass.getDeclaredMethod("initModules");

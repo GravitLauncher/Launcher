@@ -3,11 +3,11 @@ package ru.gravit.launcher.request;
 import java.io.IOException;
 
 import ru.gravit.launcher.hasher.HashedEntry;
-import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.EnumSerializer;
 import ru.gravit.launcher.serialize.stream.StreamObject;
+import ru.gravit.utils.helper.IOHelper;
 
 public final class UpdateAction extends StreamObject {
     public enum Type implements EnumSerializer.Itf {

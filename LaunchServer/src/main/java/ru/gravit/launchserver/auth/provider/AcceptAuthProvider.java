@@ -1,10 +1,10 @@
 package ru.gravit.launchserver.auth.provider;
 
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.ClientPermissions;
 import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 
 public final class AcceptAuthProvider extends AuthProvider {
     private final boolean isAdminAccess;

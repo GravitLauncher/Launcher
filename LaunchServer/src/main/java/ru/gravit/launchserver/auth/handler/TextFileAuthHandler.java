@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.TextConfigReader;
 import ru.gravit.launcher.serialize.config.TextConfigWriter;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.ConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.ConfigEntry.Type;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class TextFileAuthHandler extends FileAuthHandler {
     private static StringConfigEntry cc(String value) {

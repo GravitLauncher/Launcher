@@ -3,10 +3,6 @@ package ru.gravit.launchserver.binary;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import ru.gravit.launcher.Launcher;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.launchserver.LaunchServer;
 import net.sf.launch4j.Builder;
 import net.sf.launch4j.Log;
 import net.sf.launch4j.config.Config;
@@ -14,6 +10,10 @@ import net.sf.launch4j.config.ConfigPersister;
 import net.sf.launch4j.config.Jre;
 import net.sf.launch4j.config.LanguageID;
 import net.sf.launch4j.config.VersionInfo;
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 public final class EXEL4JLauncherBinary extends LauncherBinary {
     private final static class Launch4JLog extends Log {
@@ -32,8 +32,7 @@ public final class EXEL4JLauncherBinary extends LauncherBinary {
 
     // URL constants
     private static final String DOWNLOAD_URL = "http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html"; // Oracle
-    // JRE
-    // 8
+    // JRE 8
 
     // File constants
     private final Path faviconFile;

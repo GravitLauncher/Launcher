@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javafx.beans.property.*;
+import com.sun.javafx.css.converters.SizeConverter;
+
+import javafx.beans.property.DoubleProperty;
 import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableProperty;
 import javafx.scene.control.Control;
-
-import com.sun.javafx.css.converters.SizeConverter;
 import javafx.scene.control.ProgressIndicator;
 
 abstract class ProgressCircleIndicator extends ProgressIndicator {

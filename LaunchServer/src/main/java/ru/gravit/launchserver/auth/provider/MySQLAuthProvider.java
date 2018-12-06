@@ -5,17 +5,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.ClientPermissions;
+import ru.gravit.launchserver.auth.MySQLSourceConfig;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
-import ru.gravit.launchserver.auth.AuthException;
-import ru.gravit.launchserver.auth.MySQLSourceConfig;
 
 public final class MySQLAuthProvider extends AuthProvider {
     private final MySQLSourceConfig mySQLHolder;

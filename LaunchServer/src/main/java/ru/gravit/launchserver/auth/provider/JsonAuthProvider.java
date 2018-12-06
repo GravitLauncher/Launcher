@@ -5,13 +5,14 @@ import java.net.URL;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.ClientPermissions;
 import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 
 public final class JsonAuthProvider extends AuthProvider {
     private final Gson gson = new Gson();

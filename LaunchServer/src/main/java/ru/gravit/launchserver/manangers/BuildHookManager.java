@@ -4,41 +4,49 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipOutputStream;
 
 import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.modules.TestClientModule;
 import ru.gravit.launchserver.binary.BuildContext;
 import ru.gravit.launchserver.binary.JAConfigurator;
+import ru.gravit.launchserver.binary.JARLauncherBinary;
 
 public class BuildHookManager {
     @FunctionalInterface
-    public interface PostBuildHook {
+    public static interface ZipBuildHook {
+        void build(ZipOutputStream context);
+    }
+
+    @FunctionalInterface
+    public static interface BuildHook {
         void build(BuildContext context);
     }
 
     @FunctionalInterface
-    public interface PreBuildHook {
-        void build(BuildContext context);
-    }
-
-    @FunctionalInterface
-    public interface Transformer {
-        byte[] transform(byte[] input, CharSequence classname);
+    public static interface Transformer {
+        byte[] transform(byte[] input, String classname, JARLauncherBinary data);
     }
 
     private boolean BUILDRUNTIME;
-    private final Set<PostBuildHook> POST_HOOKS;
+    private final Set<BuildHook> POST_HOOKS;
+    private final Set<Runnable> POST_PROGUARDRUN_HOOKS;
     private final Set<Transformer> POST_PROGUARD_HOOKS;
-    private final Set<PreBuildHook> PRE_HOOKS;
+    private final Set<BuildHook> PRE_HOOKS;
+    private final Set<ZipBuildHook> POST_PROGUARD_BUILDHOOKS;
     private final Set<Transformer> CLASS_TRANSFORMER;
     private final Set<String> CLASS_BLACKLIST;
     private final Set<String> MODULE_CLASS;
     private final Map<String, byte[]> INCLUDE_CLASS;
+    private final NodeTransformer noder;
+    private final NodeTransformer proguardNoder;
 
     public BuildHookManager() {
         POST_HOOKS = new HashSet<>(4);
+        POST_PROGUARDRUN_HOOKS = new HashSet<>(4);
         POST_PROGUARD_HOOKS = new HashSet<>(4);
         PRE_HOOKS = new HashSet<>(4);
+        POST_PROGUARD_BUILDHOOKS = new HashSet<>(4);
         CLASS_BLACKLIST = new HashSet<>(4);
         MODULE_CLASS = new HashSet<>(4);
         INCLUDE_CLASS = new HashMap<>(4);
@@ -49,9 +57,37 @@ public class BuildHookManager {
         registerIgnoredClass("META-INF/LICENSE");
         registerIgnoredClass("META-INF/NOTICE");
         registerClientModuleClass(TestClientModule.class.getName());
+        noder = new NodeTransformer();
+        registerClassTransformer(noder);
+        proguardNoder = new NodeTransformer();
+        registerProGuardHook(proguardNoder);
     }
 
-    public void autoRegisterIgnoredClass(String clazz) {
+    public NodeTransformer getProguardNoder() {
+		return proguardNoder;
+	}
+
+	public NodeTransformer getNoder() {
+		return noder;
+	}
+
+	public Set<ZipBuildHook> getProguardBuildHooks() {
+		return POST_PROGUARD_BUILDHOOKS;
+	}
+
+	public Set<Runnable> getPostProguardRunHooks() {
+		return POST_PROGUARDRUN_HOOKS;
+	}
+    
+    public void addPostProguardRunHook(Runnable hook) {
+    	POST_PROGUARDRUN_HOOKS.add(hook);
+    }
+    
+    public void addPostProguardRunHook(ZipBuildHook hook) {
+    	POST_PROGUARD_BUILDHOOKS.add(hook);
+    }
+
+	public void autoRegisterIgnoredClass(String clazz) {
         CLASS_BLACKLIST.add(clazz.replace('.', '/').concat(".class"));
     }
 
@@ -59,15 +95,15 @@ public class BuildHookManager {
         return BUILDRUNTIME;
     }
 
-    public byte[] classTransform(byte[] clazz, CharSequence classname) {
+    public byte[] classTransform(byte[] clazz, String classname, JARLauncherBinary reader) {
         byte[] result = clazz;
-        for (Transformer transformer : CLASS_TRANSFORMER) result = transformer.transform(result, classname);
+        for (Transformer transformer : CLASS_TRANSFORMER) result = transformer.transform(result, classname, reader);
         return result;
     }
 
-    public byte[] proGuardClassTransform(byte[] clazz, CharSequence classname) {
+    public byte[] proGuardClassTransform(byte[] clazz, String classname, JARLauncherBinary reader) {
         byte[] result = clazz;
-        for (Transformer transformer : POST_PROGUARD_HOOKS) result = transformer.transform(result, classname);
+        for (Transformer transformer : POST_PROGUARD_HOOKS) result = transformer.transform(result, classname, reader);
         return result;
     }
 
@@ -80,15 +116,18 @@ public class BuildHookManager {
     }
 
     public boolean isContainsBlacklist(String clazz) {
-        return CLASS_BLACKLIST.contains(clazz);
+    	for (String classB : CLASS_BLACKLIST) {
+    		if (clazz.startsWith(classB)) return true;
+    	}
+    	return false;
     }
 
     public void postHook(BuildContext context) {
-        for (PostBuildHook hook : POST_HOOKS) hook.build(context);
+        for (BuildHook hook : POST_HOOKS) hook.build(context);
     }
 
     public void preHook(BuildContext context) {
-        for (PreBuildHook hook : PRE_HOOKS) hook.build(context);
+        for (BuildHook hook : PRE_HOOKS) hook.build(context);
     }
 
     public void registerAllClientModuleClass(JAConfigurator cfg) {
@@ -107,7 +146,7 @@ public class BuildHookManager {
         CLASS_BLACKLIST.add(clazz);
     }
 
-    public void registerPostHook(PostBuildHook hook) {
+    public void registerPostHook(BuildHook hook) {
         POST_HOOKS.add(hook);
     }
 
@@ -116,10 +155,10 @@ public class BuildHookManager {
     }
 
     public boolean isNeedPostProguardHook() {
-        return !POST_PROGUARD_HOOKS.isEmpty();
+        return POST_PROGUARD_HOOKS.size() > 1 || !POST_PROGUARDRUN_HOOKS.isEmpty() || !POST_PROGUARD_BUILDHOOKS.isEmpty() || !proguardNoder.getTransLst().isEmpty();
     }
 
-    public void registerPreHook(PreBuildHook hook) {
+    public void registerPreHook(BuildHook hook) {
         PRE_HOOKS.add(hook);
     }
 

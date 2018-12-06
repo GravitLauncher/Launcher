@@ -10,13 +10,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
+import ru.gravit.launcher.modules.ModulesManagerInterface;
 import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.launcher.modules.ModulesManagerInterface;
-import ru.gravit.launcher.serialize.HInput;
 
 public final class Launcher {
 

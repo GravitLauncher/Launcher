@@ -8,18 +8,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.TextConfigReader;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.ConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.ConfigEntry.Type;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class FileAuthProvider extends DigestAuthProvider {
     private static final class Entry extends ConfigObject {
