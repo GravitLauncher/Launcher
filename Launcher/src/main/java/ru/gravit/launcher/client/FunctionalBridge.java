@@ -69,6 +69,11 @@ public class FunctionalBridge {
     {
         return hwidProvider.getHWID();
     }
+    @LauncherAPI
+    public static long getTotalMemory()
+    {
+        return hwidProvider.getTotalMemory() >> 20;
+    }
 
     @FunctionalInterface
     public interface HashedDirRunnable {
