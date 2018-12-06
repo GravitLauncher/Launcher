@@ -2,12 +2,12 @@ package ru.gravit.launchserver.response.update;
 
 import java.io.IOException;
 
-import ru.gravit.launchserver.binary.LauncherBinary;
-import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.binary.LauncherBinary;
 import ru.gravit.launchserver.response.Response;
+import ru.gravit.utils.helper.SecurityHelper;
 
 public final class LegacyLauncherResponse extends Response {
 

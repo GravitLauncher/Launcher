@@ -1,8 +1,5 @@
 package ru.gravit.utils;
 
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,6 +9,9 @@ import java.util.Observable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 public class HttpDownloader extends Observable {
     public static final int BUFER_SIZE = 8192;

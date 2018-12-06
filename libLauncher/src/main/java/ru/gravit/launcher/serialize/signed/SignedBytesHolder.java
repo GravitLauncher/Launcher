@@ -6,10 +6,10 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
+import ru.gravit.utils.helper.SecurityHelper;
 
 public class SignedBytesHolder extends StreamObject {
     protected final byte[] bytes;

@@ -33,19 +33,16 @@ import java.util.zip.CRC32;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.launcher.serialize.config.entry.*;
-import ru.gravit.launchserver.manangers.MirrorManager;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.TextConfigReader;
 import ru.gravit.launcher.serialize.config.TextConfigWriter;
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.auth.AuthLimiter;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
@@ -59,11 +56,18 @@ import ru.gravit.launchserver.command.handler.CommandHandler;
 import ru.gravit.launchserver.command.handler.JLineCommandHandler;
 import ru.gravit.launchserver.command.handler.StdCommandHandler;
 import ru.gravit.launchserver.manangers.BuildHookManager;
+import ru.gravit.launchserver.manangers.MirrorManager;
 import ru.gravit.launchserver.manangers.ModulesManager;
 import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.TextureProvider;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class LaunchServer implements Runnable, AutoCloseable {
     public static final class Config extends ConfigObject {

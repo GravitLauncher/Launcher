@@ -9,9 +9,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class BlockConfigEntry extends ConfigEntry<Map<String, ConfigEntry<?>>> {
     private static Map<String, ConfigEntry<?>> readMap(HInput input, boolean ro) throws IOException {

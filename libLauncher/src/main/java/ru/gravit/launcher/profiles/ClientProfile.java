@@ -2,17 +2,27 @@ package ru.gravit.launcher.profiles;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.config.ConfigObject;
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launcher.serialize.stream.StreamObject;
-import ru.gravit.launcher.serialize.config.entry.*;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
 @SuppressWarnings("ComparableImplementedButEqualsNotOverridden")
 public final class ClientProfile extends ConfigObject implements Comparable<ClientProfile> {

@@ -7,9 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import ru.gravit.utils.HttpDownloader;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.ClientProfile.Version;
 import ru.gravit.launcher.serialize.config.TextConfigReader;
@@ -18,6 +15,9 @@ import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
+import ru.gravit.utils.HttpDownloader;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 public final class DownloadClientCommand extends Command {
 

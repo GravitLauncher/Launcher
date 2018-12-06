@@ -6,9 +6,9 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import ru.gravit.launcher.HWID;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public abstract class HWIDHandler extends ConfigObject implements AutoCloseable {
     private static final Map<String, Adapter<HWIDHandler>> HW_HANDLERS = new ConcurrentHashMap<>(4);

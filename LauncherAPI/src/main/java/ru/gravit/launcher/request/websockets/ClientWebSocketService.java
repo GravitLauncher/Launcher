@@ -1,13 +1,14 @@
 package ru.gravit.launcher.request.websockets;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import ru.gravit.launcher.hasher.HashedEntry;
-import ru.gravit.launcher.hasher.HashedEntryAdapter;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import ru.gravit.launcher.hasher.HashedEntry;
+import ru.gravit.launcher.hasher.HashedEntryAdapter;
 
 public class ClientWebSocketService {
     public final GsonBuilder gsonBuilder;

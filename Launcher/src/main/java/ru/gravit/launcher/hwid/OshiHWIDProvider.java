@@ -1,7 +1,11 @@
 package ru.gravit.launcher.hwid;
 
 import oshi.SystemInfo;
-import oshi.hardware.*;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.ComputerSystem;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.UsbDevice;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.LauncherHWIDInterface;
 import ru.gravit.launcher.OshiHWID;

@@ -12,8 +12,6 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntry.Type;
 import ru.gravit.launcher.profiles.ClientProfile;
-import ru.gravit.launchserver.socket.Client;
-import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.request.UpdateAction;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
@@ -21,6 +19,8 @@ import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.Response;
+import ru.gravit.launchserver.socket.Client;
+import ru.gravit.utils.helper.IOHelper;
 
 public final class UpdateResponse extends Response {
 

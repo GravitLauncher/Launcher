@@ -1,9 +1,9 @@
 package ru.gravit.launcher;
 
-import ru.gravit.utils.helper.LogHelper;
-
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import ru.gravit.utils.helper.LogHelper;
 
 public class RequestWorker implements Runnable {
     public RequestWorker()

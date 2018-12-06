@@ -2,9 +2,10 @@ package ru.gravit.launcher.request.auth;
 
 import java.io.IOException;
 
-import ru.gravit.launcher.*;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.launcher.HWID;
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
@@ -12,6 +13,8 @@ import ru.gravit.launcher.request.auth.AuthRequest.Result;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class AuthRequest extends Request<Result> {
     public static final class Result {
