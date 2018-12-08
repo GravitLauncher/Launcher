@@ -127,7 +127,7 @@ public final class JARLauncherBinary extends LauncherBinary {
 		runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
 		guardDir = server.dir.resolve(Launcher.GUARD_DIR);
 		initScriptFile = runtimeDir.resolve(Launcher.INIT_SCRIPT_FILE);
-		obfJar = server.dir.resolve(server.config.binaryName + "-obfed.jar");
+		obfJar = server.dir.resolve(server.config.binaryName + "-obfPre.jar");
 		obfOutJar = server.config.buildPostTransform.enabled ? server.dir.resolve(server.config.binaryName + "-obf.jar")
 				: syncBinaryFile;
 		cleanJar = server.dir.resolve(server.config.binaryName + "-clean.jar");

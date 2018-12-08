@@ -357,7 +357,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         CommandHandler localCommandHandler;
         try {
             Class.forName("jline.Terminal");
-
             // JLine2 available
             localCommandHandler = new JLineCommandHandler(this);
             LogHelper.info("JLine2 terminal enabled");
@@ -379,7 +378,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             KeyPair pair = SecurityHelper.genRSAKeyPair();
             publicKey = (RSAPublicKey) pair.getPublic();
             privateKey = (RSAPrivateKey) pair.getPrivate();
-
+            Files.deleteIfExists(publicKeyFile);
+            Files.deleteIfExists(privateKeyFile);
             // Write key pair files
             LogHelper.info("Writing RSA keypair files");
             IOHelper.write(publicKeyFile, publicKey.getEncoded());
@@ -447,7 +447,11 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     }
 
     private LauncherBinary binary() {
-        if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
+    	try {
+    		Class.forName("net.sf.launch4j.Builder");
+            if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
+    	} catch (ClassNotFoundException ignored) {
+    	}
         return new EXELauncherBinary(this);
     }
 

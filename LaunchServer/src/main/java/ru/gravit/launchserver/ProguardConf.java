@@ -41,7 +41,7 @@ public class ProguardConf {
         confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add("-injar \'" + srv.dir.toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + "-nonObf.jar\'");
-        confStrs.add("-outjar \'" + srv.dir.toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + "-obfed.jar\'");
+        confStrs.add("-outjar \'" + srv.dir.toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + "-obfPre.jar\'");
         confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add(readConf());
 
