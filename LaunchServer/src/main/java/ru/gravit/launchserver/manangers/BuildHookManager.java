@@ -154,10 +154,6 @@ public class BuildHookManager {
         POST_PROGUARD_HOOKS.add(hook);
     }
 
-    public boolean isNeedPostProguardHook() {
-        return POST_PROGUARD_HOOKS.size() > 1 || !POST_PROGUARDRUN_HOOKS.isEmpty() || !POST_PROGUARD_BUILDHOOKS.isEmpty() || !proguardNoder.getTransLst().isEmpty();
-    }
-
     public void registerPreHook(BuildHook hook) {
         PRE_HOOKS.add(hook);
     }

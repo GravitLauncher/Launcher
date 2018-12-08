@@ -105,8 +105,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         public final String projectName;
 
         public final String whitelistRejectString;
-
-        public final boolean genMappings;
         public final boolean isUsingWrapper;
         public final boolean isDownloadJava;
 
@@ -150,7 +148,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
                     block.getEntry("hwidHandlerConfig", BlockConfigEntry.class));
 
             // Set misc config
-            genMappings = block.getEntryValue("proguardPrintMappings", BooleanConfigEntry.class);
             mirrors = block.getEntry("mirrors", ListConfigEntry.class);
             launch4j = new ExeConf(block.getEntry("launch4J", BlockConfigEntry.class));
             buildPostTransform = new PostBuildTransformConf(block.getEntry("buildExtendedOperation", BlockConfigEntry.class), coredir);
