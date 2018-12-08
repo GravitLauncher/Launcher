@@ -129,14 +129,14 @@ public class AntiDecomp {
 	public static byte[] antiDecomp(final byte[] input, ClassMetadataReader reader) {
 		ClassReader cr = new ClassReader(input);
 		ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-		cr.accept(new AObfClassVisitor(cw), ClassReader.SKIP_DEBUG | ClassReader.EXPAND_FRAMES);
+		cr.accept(new AObfClassVisitor(cw), ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
 		return cw.toByteArray();
 	}
 
 	public static byte[] expAntiDecomp(byte[] input, ClassMetadataReader reader) {
 		ClassReader cr = new ClassReader(input);
 		ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-		cr.accept(new ObfClassVisitor(cw), ClassReader.SKIP_DEBUG | ClassReader.EXPAND_FRAMES);
+		cr.accept(new ObfClassVisitor(cw), ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
 		return cw.toByteArray();
 	}
 }
