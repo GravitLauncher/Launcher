@@ -41,6 +41,7 @@ import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 import ru.gravit.utils.helper.UnpackHelper;
 
+// TODO: exclusions impl
 public final class JARLauncherBinary extends LauncherBinary {
 
 	private final class RuntimeDirVisitor extends SimpleFileVisitor<Path> {
