@@ -258,7 +258,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         }
     }
 
-    public static void main(String... args) throws Throwable {
+    @SuppressWarnings("resource")
+	public static void main(String... args) throws Throwable {
         JVMHelper.checkStackTrace(LaunchServer.class);
         JVMHelper.verifySystemProperties(LaunchServer.class, true);
         LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
@@ -268,9 +269,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         // Start LaunchServer
         Instant start = Instant.now();
         try {
-            try (LaunchServer lsrv = new LaunchServer(IOHelper.WORKING_DIR)) {
-                lsrv.run();
-            }
+        	new LaunchServer(IOHelper.WORKING_DIR).run();
         } catch (Throwable exc) {
             LogHelper.error(exc);
             return;
