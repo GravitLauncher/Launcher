@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.asm;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -16,9 +17,10 @@ import org.objectweb.asm.commons.AdviceAdapter;
 public class AntiDecomp {
 	private static final Class<?>[] exceptionsL = {
 			Throwable.class, Exception.class, Error.class, InternalError.class, RuntimeException.class, NullPointerException.class, 
-			AssertionError.class, NoClassDefFoundError.class, IOException.class, NoSuchFieldException.class
+			AssertionError.class, NoClassDefFoundError.class, IOException.class, NoSuchFieldException.class, SecurityException.class, InvocationTargetException.class
 		};
 	private static class ObfClassVisitor extends ClassVisitor {
+		private Random r = new SecureRandom();
 		private ObfClassVisitor(ClassVisitor classVisitor) {
 			super(Opcodes.ASM7, classVisitor);
 		}
@@ -27,7 +29,6 @@ public class AntiDecomp {
 		public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 			return new AdviceAdapter(Opcodes.ASM7, super.visitMethod(access, name, desc, signature, exceptions), access,
 					name, desc) {
-				private Random r = new SecureRandom();
 				
 				@Override
 				public void onMethodEnter() {
@@ -48,9 +49,10 @@ public class AntiDecomp {
 					super.visitLabel(lbl15);
 					super.visitInsn(POP);
 					this.jumpLabel(lbl25);
-					// lbl2: pop;
+					// lbl2: pop; pop2
 					super.visitLabel(lbl2);
 					super.visitInsn(POP);
+					super.visitInsn(POP2);
 					// lbl25:
 					super.visitLabel(lbl25);
 				}
@@ -67,6 +69,7 @@ public class AntiDecomp {
 	}
 
 	private static class AObfClassVisitor extends ClassVisitor {
+		private Random r = new SecureRandom();
 		private AObfClassVisitor(ClassVisitor classVisitor) {
 			super(Opcodes.ASM7, classVisitor);
 		}
@@ -75,7 +78,6 @@ public class AntiDecomp {
 		public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 			return new AdviceAdapter(Opcodes.ASM7, super.visitMethod(access, name, desc, signature, exceptions), access,
 					name, desc) {
-				private Random r = new SecureRandom();
 				
 				@Override
 				public void onMethodEnter() {
@@ -129,14 +131,14 @@ public class AntiDecomp {
 	public static byte[] antiDecomp(final byte[] input, ClassMetadataReader reader) {
 		ClassReader cr = new ClassReader(input);
 		ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-		cr.accept(new AObfClassVisitor(cw), ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+		cr.accept(new AObfClassVisitor(cw), ClassReader.SKIP_DEBUG | ClassReader.EXPAND_FRAMES);
 		return cw.toByteArray();
 	}
 
 	public static byte[] expAntiDecomp(byte[] input, ClassMetadataReader reader) {
 		ClassReader cr = new ClassReader(input);
 		ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-		cr.accept(new ObfClassVisitor(cw), ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+		cr.accept(new ObfClassVisitor(cw), ClassReader.SKIP_DEBUG | ClassReader.EXPAND_FRAMES);
 		return cw.toByteArray();
 	}
 }
