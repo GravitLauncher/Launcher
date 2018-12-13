@@ -293,8 +293,11 @@ function updateProfilesList(profiles) {
         index++;
     });
     LogHelper.debug("Load selected %d profile",settings.profile);
-    if(profiles.length > 0)
+    if(profiles.length > 0) {
+    	if(settings.profile >= profiles.length)
+    		settings.profile = profiles.length-1;
         serverHolder.set(serverList.getChildren().get(settings.profile));
+    }
 }
 
 function pingServer(btn) {
