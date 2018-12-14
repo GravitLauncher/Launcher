@@ -31,7 +31,6 @@ import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.asm.AntiDecomp;
 import ru.gravit.launchserver.asm.ClassMetadataReader;
 import ru.gravit.launchserver.manangers.BuildHookManager.ZipBuildHook;
 import ru.gravit.utils.helper.CommonHelper;
@@ -172,7 +171,7 @@ public final class JARLauncherBinary extends LauncherBinary {
 						IOHelper.transfer(input, outputStream);
 						bytes = outputStream.toByteArray();
 					}
-					bytes = AntiDecomp.antiDecomp(server.buildHookManager.proGuardClassTransform(bytes, classname, this), reader);
+					bytes = server.buildHookManager.proGuardClassTransform(bytes, classname, this);
 					try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
 						IOHelper.transfer(inputStream, output);
 					}
