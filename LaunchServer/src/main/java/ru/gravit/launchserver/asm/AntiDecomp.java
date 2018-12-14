@@ -19,55 +19,6 @@ public class AntiDecomp {
 			Throwable.class, Exception.class, Error.class, InternalError.class, RuntimeException.class, NullPointerException.class, 
 			AssertionError.class, NoClassDefFoundError.class, IOException.class, NoSuchFieldException.class, SecurityException.class, InvocationTargetException.class
 		};
-	private static class ObfClassVisitor extends ClassVisitor {
-		private Random r = new SecureRandom();
-		private ObfClassVisitor(ClassVisitor classVisitor) {
-			super(Opcodes.ASM7, classVisitor);
-		}
-
-		@Override
-		public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-			return new AdviceAdapter(Opcodes.ASM7, super.visitMethod(access, name, desc, signature, exceptions), access,
-					name, desc) {
-				
-				@Override
-				public void onMethodEnter() {
-					antiDecomp();
-				}
-
-				public void antiDecomp() {
-					Label lbl1 = super.newLabel(), lbl15 = super.newLabel(), lbl2 = super.newLabel(),
-							lbl25 = super.newLabel();
-
-					// try-catch блок с lbl1 до lbl2 с переходом на lbl2 при java/lang/Exception
-					this.visitException(lbl1, lbl2, lbl2);
-
-					// lbl1: iconst_0
-					super.visitLabel(lbl1);
-					super.visitInsn(ICONST_0);
-					// lbl15: pop; goto lbl25
-					super.visitLabel(lbl15);
-					super.visitInsn(POP);
-					this.jumpLabel(lbl25);
-					// lbl2: pop; pop2
-					super.visitLabel(lbl2);
-					super.visitInsn(POP);
-					super.visitInsn(POP2);
-					// lbl25:
-					super.visitLabel(lbl25);
-				}
-
-				public void visitException(Label st, Label en, Label h) {
-					super.visitTryCatchBlock(st, en, h, Type.getInternalName(exceptionsL[r.nextInt(exceptionsL.length-1)]));
-				}
-
-				public void jumpLabel(Label to) {
-					super.visitJumpInsn(GOTO, to);
-				}
-			};
-		}
-	}
-
 	private static class AObfClassVisitor extends ClassVisitor {
 		private Random r = new SecureRandom();
 		private AObfClassVisitor(ClassVisitor classVisitor) {
@@ -132,13 +83,6 @@ public class AntiDecomp {
 		ClassReader cr = new ClassReader(input);
 		ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 		cr.accept(new AObfClassVisitor(cw), ClassReader.SKIP_DEBUG | ClassReader.EXPAND_FRAMES);
-		return cw.toByteArray();
-	}
-
-	public static byte[] expAntiDecomp(byte[] input, ClassMetadataReader reader) {
-		ClassReader cr = new ClassReader(input);
-		ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-		cr.accept(new ObfClassVisitor(cw), ClassReader.SKIP_DEBUG | ClassReader.EXPAND_FRAMES);
 		return cw.toByteArray();
 	}
 }

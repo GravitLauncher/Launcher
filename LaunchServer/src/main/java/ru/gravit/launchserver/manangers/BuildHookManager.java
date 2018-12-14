@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.zip.ZipOutputStream;
 
 import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.modules.TestClientModule;
+import ru.gravit.launchserver.asm.ClassMetadataReader;
 import ru.gravit.launchserver.binary.BuildContext;
 import ru.gravit.launchserver.binary.JAConfigurator;
 import ru.gravit.launchserver.binary.JARLauncherBinary;
@@ -26,6 +28,11 @@ public class BuildHookManager {
     @FunctionalInterface
     public static interface Transformer {
         byte[] transform(byte[] input, String classname, JARLauncherBinary data);
+    }
+
+    @FunctionalInterface
+    public static interface ReaderTransformer {
+        byte[] transform(byte[] input, String classname, ClassMetadataReader data);
     }
 
     private boolean BUILDRUNTIME;
@@ -160,5 +167,13 @@ public class BuildHookManager {
 
     public void setBuildRuntime(boolean runtime) {
         BUILDRUNTIME = runtime;
+    }
+    
+    public static Transformer wrap(BiFunction<byte[], ClassMetadataReader, byte[]> func) {
+    	return (code, name, binaryCls) -> func.apply(code, binaryCls.reader);
+    }
+    
+    public static Transformer wrap(ReaderTransformer func) {
+    	return (code, name, binaryCls) -> func.transform(code, name, binaryCls.reader);
     }
 }
