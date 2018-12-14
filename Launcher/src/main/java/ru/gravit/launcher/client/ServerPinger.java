@@ -10,18 +10,19 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.profiles.ClientProfile;
 
 public final class ServerPinger {
+    private JsonParser parser = new JsonParser();
     public static final class Result {
         @LauncherAPI
         public final int onlinePlayers;
@@ -184,10 +185,10 @@ public final class ServerPinger {
         }
 
         // Parse JSON response
-        JsonObject object = Json.parse(response).asObject();
-        JsonObject playersObject = object.get("players").asObject();
-        int online = playersObject.get("online").asInt();
-        int max = playersObject.get("max").asInt();
+        JsonObject object = parser.parse(response).getAsJsonObject();
+        JsonObject playersObject = object.get("players").getAsJsonObject();
+        int online = playersObject.get("online").getAsInt();
+        int max = playersObject.get("max").getAsInt();
 
         // Return ping status
         return new Result(online, max, response);

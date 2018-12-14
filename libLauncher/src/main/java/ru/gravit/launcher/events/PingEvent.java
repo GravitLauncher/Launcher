@@ -1,8 +1,8 @@
 package ru.gravit.launcher.events;
 
-import ru.gravit.utils.event.EventInterface;
-
 import java.util.UUID;
+
+import ru.gravit.utils.event.EventInterface;
 
 //Пустое событие
 //Все обработчики обязаны его игнорировать

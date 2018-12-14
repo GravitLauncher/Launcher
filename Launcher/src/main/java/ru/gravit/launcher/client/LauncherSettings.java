@@ -1,16 +1,5 @@
 package ru.gravit.launcher.client;
 
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.launcher.profiles.ClientProfile;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
-import ru.gravit.utils.helper.*;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.SignatureException;
@@ -19,6 +8,22 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public class LauncherSettings {
     public static int settingsMagic = 0xc0de7;

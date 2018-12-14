@@ -18,6 +18,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,19 +33,16 @@ import java.util.zip.CRC32;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.launcher.serialize.config.entry.*;
-import ru.gravit.launchserver.manangers.MirrorManager;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.TextConfigReader;
 import ru.gravit.launcher.serialize.config.TextConfigWriter;
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.auth.AuthLimiter;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
@@ -58,11 +56,18 @@ import ru.gravit.launchserver.command.handler.CommandHandler;
 import ru.gravit.launchserver.command.handler.JLineCommandHandler;
 import ru.gravit.launchserver.command.handler.StdCommandHandler;
 import ru.gravit.launchserver.manangers.BuildHookManager;
+import ru.gravit.launchserver.manangers.MirrorManager;
 import ru.gravit.launchserver.manangers.ModulesManager;
 import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.TextureProvider;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class LaunchServer implements Runnable, AutoCloseable {
     public static final class Config extends ConfigObject {
@@ -85,7 +90,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     	
         public final ExeConf launch4j;
 
-        public final SignConf sign;
+        public final PostBuildTransformConf buildPostTransform;
 
         public final boolean compress;
 
@@ -148,7 +153,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             genMappings = block.getEntryValue("proguardPrintMappings", BooleanConfigEntry.class);
             mirrors = block.getEntry("mirrors", ListConfigEntry.class);
             launch4j = new ExeConf(block.getEntry("launch4J", BlockConfigEntry.class));
-            sign = new SignConf(block.getEntry("signing", BlockConfigEntry.class), coredir);
+            buildPostTransform = new PostBuildTransformConf(block.getEntry("buildExtendedOperation", BlockConfigEntry.class), coredir);
             binaryName = block.getEntryValue("binaryName", StringConfigEntry.class);
             projectName = block.hasEntry("projectName") ? block.getEntryValue("projectName", StringConfigEntry.class) : "Minecraft";
             compress = block.getEntryValue("compress", BooleanConfigEntry.class);
@@ -185,16 +190,16 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     public static class ExeConf extends ConfigObject {
         public final boolean enabled;
-        public String productName;
-        public String productVer;
-        public String fileDesc;
-        public String fileVer;
-        public String internalName;
-        public String copyright;
-        public String trademarks;
+        public final String productName;
+        public final String productVer;
+        public final String fileDesc;
+        public final String fileVer;
+        public final String internalName;
+        public final String copyright;
+        public final String trademarks;
 
-        public String txtFileVersion;
-        public String txtProductVersion;
+        public final String txtFileVersion;
+        public final String txtProductVersion;
 
         private ExeConf(BlockConfigEntry block) {
             super(block);
@@ -243,30 +248,16 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         }
     }
 
-    public static class SignConf extends ConfigObject {
+    public static class PostBuildTransformConf extends ConfigObject {
         public final boolean enabled;
-        public String algo;
-        public Path key;
-        public boolean hasStorePass;
-        public String storepass;
-        public boolean hasPass;
-        public String pass;
-        public String keyalias;
+        public List<String> script;
 
-        private SignConf(BlockConfigEntry block, Path coredir) {
+        private PostBuildTransformConf(BlockConfigEntry block, Path coredir) {
             super(block);
             enabled = block.getEntryValue("enabled", BooleanConfigEntry.class);
-            storepass = null;
-            pass = null;
-            if (enabled) {
-                algo = block.hasEntry("storeType") ? block.getEntryValue("storeType", StringConfigEntry.class) : "JKS";
-                key = coredir.resolve(block.getEntryValue("keyFile", StringConfigEntry.class));
-                hasStorePass = block.hasEntry("keyStorePass");
-                if (hasStorePass) storepass = block.getEntryValue("keyStorePass", StringConfigEntry.class);
-                keyalias = block.getEntryValue("keyAlias", StringConfigEntry.class);
-                hasPass = block.hasEntry("keyPass");
-                if (hasPass) pass = block.getEntryValue("keyPass", StringConfigEntry.class);
-            }
+            script = new ArrayList<>(1);
+            if (block.hasEntry("script"))
+            	block.getEntry("script", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(script::add);
         }
     }
 

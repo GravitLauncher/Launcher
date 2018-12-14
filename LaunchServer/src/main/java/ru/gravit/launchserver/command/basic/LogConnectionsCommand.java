@@ -1,8 +1,8 @@
 package ru.gravit.launchserver.command.basic;
 
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
+import ru.gravit.utils.helper.LogHelper;
 
 public final class LogConnectionsCommand extends Command {
     public LogConnectionsCommand(LaunchServer server) {

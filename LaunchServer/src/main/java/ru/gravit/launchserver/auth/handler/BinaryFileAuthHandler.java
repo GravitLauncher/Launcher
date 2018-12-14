@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.utils.helper.IOHelper;
 
 public final class BinaryFileAuthHandler extends FileAuthHandler {
     public BinaryFileAuthHandler(BlockConfigEntry block) {

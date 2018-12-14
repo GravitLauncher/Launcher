@@ -2,11 +2,10 @@ package ru.gravit.launcher.request.auth;
 
 import java.io.IOException;
 
+import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
@@ -14,6 +13,8 @@ import ru.gravit.launcher.request.auth.AuthRequest.Result;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class AuthRequest extends Request<Result> {
     public static final class Result {
@@ -32,31 +33,34 @@ public final class AuthRequest extends Request<Result> {
 
     private final byte[] encryptedPassword;
     private final int auth_id;
+    private final HWID hwid;
 
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword) {
+    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, HWID hwid) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
+        this.hwid = hwid;
         auth_id = 0;
     }
 
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, int auth_id) {
+    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, HWID hwid, int auth_id) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
+        this.hwid = hwid;
         this.auth_id = auth_id;
     }
 
     @LauncherAPI
-    public AuthRequest(String login, byte[] encryptedPassword) {
-        this(null, login, encryptedPassword);
+    public AuthRequest(String login, byte[] encryptedPassword, HWID hwid) {
+        this(null, login, encryptedPassword,hwid);
     }
 
     @LauncherAPI
-    public AuthRequest(String login, byte[] encryptedPassword, int auth_id) {
-        this(null, login, encryptedPassword, auth_id);
+    public AuthRequest(String login, byte[] encryptedPassword, HWID hwid, int auth_id) {
+        this(null, login, encryptedPassword, hwid, auth_id);
     }
 
     @Override
@@ -71,9 +75,10 @@ public final class AuthRequest extends Request<Result> {
         if (Launcher.profile != null)
             output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.writeInt(auth_id);
-        output.writeLong(0);
-        output.writeLong(0);
-        output.writeLong(0);
+        output.writeString(hwid.getSerializeString(),0);
+        //output.writeLong(0);
+        //output.writeLong(0);
+        //output.writeLong(0);
         output.writeByteArray(encryptedPassword, SecurityHelper.CRYPTO_MAX_LENGTH);
         output.flush();
 

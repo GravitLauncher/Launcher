@@ -6,11 +6,11 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public abstract class AuthHandler extends ConfigObject implements AutoCloseable {
     private static final Map<String, Adapter<AuthHandler>> AUTH_HANDLERS = new ConcurrentHashMap<>(4);
@@ -44,7 +44,6 @@ public abstract class AuthHandler extends ConfigObject implements AutoCloseable 
             registerHandler("binaryFile", BinaryFileAuthHandler::new);
             registerHandler("textFile", TextFileAuthHandler::new);
             registerHandler("mysql", MySQLAuthHandler::new);
-            registerHandler("json", JsonAuthHandler::new);
             registredHandl = true;
         }
     }

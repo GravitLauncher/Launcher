@@ -1,11 +1,5 @@
 package ru.gravit.launcher;
 
-import ru.gravit.launcher.client.ClientLauncher;
-import ru.gravit.utils.helper.EnvHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,8 +7,13 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import ru.gravit.launcher.client.ClientLauncher;
+import ru.gravit.utils.helper.EnvHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
+
 public class ClientLauncherWrapper {
-    @LauncherAPI
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");

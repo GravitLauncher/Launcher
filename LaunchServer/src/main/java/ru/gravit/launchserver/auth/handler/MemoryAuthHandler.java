@@ -4,10 +4,10 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.UUID;
 
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 
 public final class MemoryAuthHandler extends CachedAuthHandler {
     private static String toUsername(UUID uuid) {

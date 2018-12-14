@@ -23,9 +23,6 @@ import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedFile;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.request.UpdateAction;
@@ -34,12 +31,16 @@ import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 
 public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> {
 
     public static final class State {
         @FunctionalInterface
         public interface Callback {
+        	@LauncherAPI
             void call(State state);
         }
 

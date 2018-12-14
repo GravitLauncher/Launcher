@@ -1,17 +1,20 @@
 package ru.gravit.launchserver.socket.websocket;
 
+import java.util.HashMap;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import ru.gravit.launcher.hasher.HashedEntry;
+import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.json.EchoResponse;
-import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseAdapter;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.socket.websocket.json.auth.AuthResponse;
@@ -20,8 +23,6 @@ import ru.gravit.launchserver.socket.websocket.json.auth.JoinServerResponse;
 import ru.gravit.launchserver.socket.websocket.json.update.LauncherResponse;
 import ru.gravit.launchserver.socket.websocket.json.update.UpdateListResponse;
 import ru.gravit.utils.helper.LogHelper;
-
-import java.util.HashMap;
 
 @SuppressWarnings({"unused", "rawtypes"})
 public class WebSocketService {

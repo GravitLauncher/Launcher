@@ -4,18 +4,20 @@ import java.io.BufferedReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Map;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonObject.Member;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 public final class UnindexAssetCommand extends Command {
+    private static JsonParser parser = new JsonParser();
     public UnindexAssetCommand(LaunchServer server) {
         super(server);
     }
@@ -49,17 +51,17 @@ public final class UnindexAssetCommand extends Command {
         JsonObject objects;
         LogHelper.subInfo("Reading asset index file: '%s'", indexFileName);
         try (BufferedReader reader = IOHelper.newReader(IndexAssetCommand.resolveIndexFile(inputAssetDir, indexFileName))) {
-            objects = Json.parse(reader).asObject().get(IndexAssetCommand.OBJECTS_DIR).asObject();
+            objects = parser.parse(reader).getAsJsonObject().get("objects").getAsJsonObject();
         }
 
         // Restore objects
         LogHelper.subInfo("Unindexing %d objects", objects.size());
-        for (Member member : objects) {
-            String name = member.getName();
+        for (Map.Entry<String, JsonElement> member : objects.entrySet()) {
+            String name = member.getKey();
             LogHelper.subInfo("Unindexing: '%s'", name);
 
             // Copy hashed file to target
-            String hash = member.getValue().asObject().get("hash").asString();
+            String hash = member.getValue().getAsJsonObject().get("hash").getAsString();
             Path source = IndexAssetCommand.resolveObjectFile(inputAssetDir, hash);
             IOHelper.copy(source, outputAssetDir.resolve(name));
         }

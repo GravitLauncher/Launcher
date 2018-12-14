@@ -29,9 +29,9 @@ var settingsClass = Java.extend(LauncherSettingsClass.static, {
 
     setRAM: function(ram) {
 		if (ram>762&&ram<1024){
-        settings.ram = java.lang.Math["min(int,int)"](ram, JVMHelper.RAM);
+        settings.ram = java.lang.Math["min(int,int)"](ram, FunctionalBridge.getTotalMemory());
 		}else{
-        settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, JVMHelper.RAM);
+        settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, FunctionalBridge.getTotalMemory());
 		}
     },
 });
@@ -169,6 +169,7 @@ var settingsOverlay = {
         settingsOverlay.dirLabel.setText(IOHelper.toString(settings.updatesDir));
     }
 };
+LogHelper.debug("Dir: %s", DirBridge.dir);
 var settings = new settingsClass;
 /* ====================== CLI PARAMS ===================== */
 var cliParams = {

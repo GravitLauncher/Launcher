@@ -3,12 +3,12 @@ package ru.gravit.launchserver.response.profile;
 import java.io.IOException;
 import java.util.Arrays;
 
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.Response;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public final class BatchProfileByUsernameResponse extends Response {
 

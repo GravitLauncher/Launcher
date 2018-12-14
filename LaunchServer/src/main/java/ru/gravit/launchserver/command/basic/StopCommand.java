@@ -1,8 +1,8 @@
 package ru.gravit.launchserver.command.basic;
 
-import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
+import ru.gravit.utils.helper.JVMHelper;
 
 public final class StopCommand extends Command {
     public StopCommand(LaunchServer server) {

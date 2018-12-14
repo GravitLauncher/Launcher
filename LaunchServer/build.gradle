@@ -35,13 +35,11 @@ jar {
 
 dependencies {
 	compile project(':libLauncher') // pack
-	compileOnly 'org.ow2.asm:asm-debug-all:5.0.4'
-	bundleOnly 'org.ow2.asm:asm-all:5.0.4'
-	bundle 'org.apache.logging.log4j:log4j-core:2.9.0'
+	bundle 'org.ow2.asm:asm-commons:7.0'
+	bundle 'org.ow2.asm:asm-util:7.0'
 	bundle 'mysql:mysql-connector-java:8.0.12'
 	bundle 'jline:jline:2.14.6'
 	bundle 'net.sf.proguard:proguard-base:6.0.3'
-	bundle 'org.bouncycastle:bcpkix-jdk15on:1.49'
 	bundle 'org.fusesource.jansi:jansi:1.17.1'
 	bundle 'commons-io:commons-io:2.6'
 	bundle 'org.javassist:javassist:3.23.1-GA'

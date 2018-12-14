@@ -9,13 +9,14 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
 import ru.gravit.utils.helper.IOHelper;
 
 public class HTTPRequest {
     private static final int TIMEOUT = 10;
+    private static final JsonParser parser = new JsonParser();
 
     public static int sendCrashreport(String strurl, byte[] data) throws IOException {
         URL url = new URL(strurl);
@@ -36,7 +37,7 @@ public class HTTPRequest {
         return sendCrashreport(strurl, data.getBytes(IOHelper.UNICODE_CHARSET));
     }
 
-    public static JsonValue jsonRequest(JsonObject request, URL url) throws IOException {
+    public static JsonElement jsonRequest(JsonElement request, URL url) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoInput(true);
         connection.setDoOutput(true);
@@ -58,7 +59,7 @@ public class HTTPRequest {
             reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
         else
             reader = new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8);
-        JsonValue content = Json.parse(reader);
+        JsonElement content = parser.parse(reader);
         return content;
     }
 }

@@ -2,8 +2,8 @@ package ru.gravit.launchserver.command;
 
 import java.util.UUID;
 
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.utils.helper.VerifyHelper;
 
 public abstract class Command {
 

@@ -77,9 +77,8 @@ function offlineUpdateRequest(dirName, dir, matcher, digest) {
             return;
         }
 
-        // Verify dir with matcher using ClientLauncher's API
-        ClientLauncher.verifyHDir(dir, hdir.object, matcher, digest);
-        return hdir;
+        // Verify dir with matcher using FunctionalBridge`s API
+        return FunctionalBridge.offlineUpdateRequest(dir, hdir, matcher, digest).run();
     };
 }
 

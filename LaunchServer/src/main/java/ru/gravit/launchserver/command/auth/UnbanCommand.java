@@ -2,8 +2,8 @@ package ru.gravit.launchserver.command.auth;
 
 import java.util.List;
 
+import ru.gravit.launcher.HWID;
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.auth.hwid.HWID;
 import ru.gravit.launchserver.command.Command;
 
 public class UnbanCommand extends Command {

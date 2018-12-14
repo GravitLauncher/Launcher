@@ -8,12 +8,12 @@ import java.util.UUID;
 
 import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launcher.managers.GarbageManager;
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
+import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 
 public abstract class CachedAuthHandler extends AuthHandler implements NeedGarbageCollection {
     public static final class Entry {

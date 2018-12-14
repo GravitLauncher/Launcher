@@ -4,9 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.utils.helper.IOHelper;
 
 public abstract class StreamObject {
     /* public StreamObject(HInput input) */

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.sun.javafx.css.converters.SizeConverter;
+
 import javafx.beans.property.DoubleProperty;
 import javafx.css.CssMetaData;
 import javafx.css.Styleable;
@@ -11,8 +13,6 @@ import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableProperty;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
-
-import com.sun.javafx.css.converters.SizeConverter;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.utils.helper.LogHelper;
 

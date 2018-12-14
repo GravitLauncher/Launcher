@@ -2,21 +2,30 @@ package ru.gravit.launcher.profiles;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.config.ConfigObject;
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launcher.serialize.stream.StreamObject;
-import ru.gravit.launcher.serialize.config.entry.*;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
 @SuppressWarnings("ComparableImplementedButEqualsNotOverridden")
-public final class
-ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
+public final class ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     @LauncherAPI
     public enum Version {
         MC147("1.4.7", 51),
@@ -63,18 +72,20 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     @LauncherAPI
     public static final StreamObject.Adapter<ClientProfile> RO_ADAPTER = input -> new ClientProfile(input, true);
 
+    public static final boolean profileCaseSensitive = Boolean.getBoolean("launcher.clientProfile.caseSensitive");
+    
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
     // Version
-    private final StringConfigEntry version;
+    private String version;
 
-    private final StringConfigEntry assetIndex;
+    private final String assetIndex;
     // Client
-    private final IntegerConfigEntry sortIndex;
-    private final StringConfigEntry title;
-    private final StringConfigEntry serverAddress;
+    private final int sortIndex;
+    private String title;
+    private final String serverAddress;
 
-    private final IntegerConfigEntry serverPort;
+    private final int serverPort;
 
     public static class MarkedString {
         @LauncherAPI
@@ -112,30 +123,30 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
     private final List<String> updateShared = new ArrayList<>();
     private final List<String> updateVerify = new ArrayList<>();
     private final Set<MarkedString> updateOptional = new HashSet<>();
-    private final BooleanConfigEntry updateFastCheck;
+    private final boolean updateFastCheck;
 
-    private final BooleanConfigEntry useWhitelist;
+    private final boolean useWhitelist;
     // Client launcher
-    private final StringConfigEntry mainClass;
-    private final ListConfigEntry jvmArgs;
-    private final ListConfigEntry classPath;
-    private final ListConfigEntry clientArgs;
+    private final String mainClass;
+    private final List<String> jvmArgs = new ArrayList<>();
+    private final List<String> classPath = new ArrayList<>();
+    private final List<String> clientArgs = new ArrayList<>();
 
-    private final ListConfigEntry whitelist;
+    private final List<String> whitelist = new ArrayList<>();
 
     @LauncherAPI
     public ClientProfile(BlockConfigEntry block) {
         super(block);
 
         // Version
-        version = block.getEntry("version", StringConfigEntry.class);
-        assetIndex = block.getEntry("assetIndex", StringConfigEntry.class);
+        version = block.getEntryValue("version", StringConfigEntry.class);
+        assetIndex = block.getEntryValue("assetIndex", StringConfigEntry.class);
 
         // Client
-        sortIndex = block.getEntry("sortIndex", IntegerConfigEntry.class);
-        title = block.getEntry("title", StringConfigEntry.class);
-        serverAddress = block.getEntry("serverAddress", StringConfigEntry.class);
-        serverPort = block.getEntry("serverPort", IntegerConfigEntry.class);
+        sortIndex = block.getEntryValue("sortIndex", IntegerConfigEntry.class);
+        title = block.getEntryValue("title", StringConfigEntry.class);
+        serverAddress = block.getEntryValue("serverAddress", StringConfigEntry.class);
+        serverPort = block.getEntryValue("serverPort", IntegerConfigEntry.class);
 
         //  Updater and client watch service
         block.getEntry("update", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(update::add);
@@ -144,15 +155,15 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
         block.getEntry("updateOptional", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(e -> updateOptional.add(new MarkedString(e)));
         block.getEntry("updateExclusions", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateExclusions::add);
         block.getEntry("enabledOptional", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(e -> updateOptional.stream().anyMatch(e1 -> e.equals(e1.string) && (e1.mark = true)));
-        updateFastCheck = block.getEntry("updateFastCheck", BooleanConfigEntry.class);
-        useWhitelist = block.getEntry("useWhitelist", BooleanConfigEntry.class);
+        updateFastCheck = block.getEntryValue("updateFastCheck", BooleanConfigEntry.class);
+        useWhitelist = block.getEntryValue("useWhitelist", BooleanConfigEntry.class);
 
         // Client launcher
-        mainClass = block.getEntry("mainClass", StringConfigEntry.class);
-        classPath = block.getEntry("classPath", ListConfigEntry.class);
-        jvmArgs = block.getEntry("jvmArgs", ListConfigEntry.class);
-        clientArgs = block.getEntry("clientArgs", ListConfigEntry.class);
-        whitelist = block.getEntry("whitelist", ListConfigEntry.class);
+        mainClass = block.getEntryValue("mainClass", StringConfigEntry.class);
+        block.getEntry("classPath", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(classPath::add);
+        block.getEntry("jvmArgs", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(jvmArgs::add);
+        block.getEntry("clientArgs", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(clientArgs::add);
+        block.getEntry("whitelist", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(whitelist::add);
     }
 
     @LauncherAPI
@@ -167,7 +178,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
 
     @LauncherAPI
     public String getAssetIndex() {
-        return assetIndex.getValue();
+        return assetIndex;
     }
 
     @LauncherAPI
@@ -177,12 +188,12 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
 
     @LauncherAPI
     public String[] getClassPath() {
-        return classPath.stream(StringConfigEntry.class).toArray(String[]::new);
+        return classPath.toArray(new String[0]);
     }
 
     @LauncherAPI
     public String[] getClientArgs() {
-        return clientArgs.stream(StringConfigEntry.class).toArray(String[]::new);
+        return clientArgs.toArray(new String[0]);
     }
 
     @LauncherAPI
@@ -204,17 +215,17 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
 
     @LauncherAPI
     public String[] getJvmArgs() {
-        return jvmArgs.stream(StringConfigEntry.class).toArray(String[]::new);
+        return jvmArgs.toArray(new String[0]);
     }
 
     @LauncherAPI
     public String getMainClass() {
-        return mainClass.getValue();
+        return mainClass;
     }
 
     @LauncherAPI
     public String getServerAddress() {
-        return serverAddress.getValue();
+        return serverAddress;
     }
 
     @LauncherAPI
@@ -248,7 +259,7 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
 
     @LauncherAPI
     public int getServerPort() {
-        return serverPort.getValue();
+        return serverPort;
     }
 
     @LauncherAPI
@@ -258,43 +269,43 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
 
     @LauncherAPI
     public int getSortIndex() {
-        return sortIndex.getValue();
+        return sortIndex;
     }
 
     @LauncherAPI
     public String getTitle() {
-        return title.getValue();
+        return title;
     }
 
     @LauncherAPI
     public Version getVersion() {
-        return Version.byName(version.getValue());
+        return Version.byName(version);
     }
 
     @LauncherAPI
     public boolean isUpdateFastCheck() {
-        return updateFastCheck.getValue();
+        return updateFastCheck;
     }
 
     @LauncherAPI
     public boolean isWhitelistContains(String username) {
-        if (!useWhitelist.getValue()) return true;
-        return whitelist.stream(StringConfigEntry.class).anyMatch(e -> e.equalsIgnoreCase(username));
+        if (!useWhitelist) return true;
+        return whitelist.stream().anyMatch(profileCaseSensitive ? e -> e.equals(username) : e -> e.equalsIgnoreCase(username));
     }
 
     @LauncherAPI
     public void setTitle(String title) {
-        this.title.setValue(title);
+        this.title = title;
     }
 
     @LauncherAPI
     public void setVersion(Version version) {
-        this.version.setValue(version.name);
+        this.version = version.name;
     }
 
     @Override
     public String toString() {
-        return title.getValue();
+        return title;
     }
 
     @LauncherAPI
@@ -309,9 +320,6 @@ ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
         VerifyHelper.verifyInt(getServerPort(), VerifyHelper.range(0, 65535), "Illegal server port: " + getServerPort());
 
         // Client launcher
-        jvmArgs.verifyOfType(ConfigEntry.Type.STRING);
-        classPath.verifyOfType(ConfigEntry.Type.STRING);
-        clientArgs.verifyOfType(ConfigEntry.Type.STRING);
         VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Main class can't be empty");
     }
 }
