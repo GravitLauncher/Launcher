@@ -105,6 +105,21 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
         f.close();
     }
 
+    public void loadModuleFull(URL jarpath) throws ClassNotFoundException, IllegalAccessException, InstantiationException, URISyntaxException, IOException {
+        JarFile f = new JarFile(Paths.get(jarpath.toURI()).toString());
+        Manifest m = f.getManifest();
+        String mainclass = m.getMainAttributes().getValue("Main-Class");
+        classloader.addURL(jarpath);
+        Class<?> moduleclass = Class.forName(mainclass, true, classloader);
+        Module module = (Module) moduleclass.newInstance();
+        modules.add(module);
+        module.preInit(context);
+        module.init(context);
+        module.postInit(context);
+        LogHelper.info("Module %s version: %s loaded", module.getName(), module.getVersion());
+        f.close();
+    }
+    
     @Override
 
     public void loadModule(URL jarpath, String classname, boolean preload) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
