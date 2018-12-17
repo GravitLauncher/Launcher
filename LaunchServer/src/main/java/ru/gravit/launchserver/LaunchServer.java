@@ -105,8 +105,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         public final String projectName;
 
         public final String whitelistRejectString;
-
-        public final boolean genMappings;
         public final boolean isUsingWrapper;
         public final boolean isDownloadJava;
 
@@ -150,7 +148,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
                     block.getEntry("hwidHandlerConfig", BlockConfigEntry.class));
 
             // Set misc config
-            genMappings = block.getEntryValue("proguardPrintMappings", BooleanConfigEntry.class);
             mirrors = block.getEntry("mirrors", ListConfigEntry.class);
             launch4j = new ExeConf(block.getEntry("launch4J", BlockConfigEntry.class));
             buildPostTransform = new PostBuildTransformConf(block.getEntry("buildExtendedOperation", BlockConfigEntry.class), coredir);
@@ -261,7 +258,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         }
     }
 
-    public static void main(String... args) throws Throwable {
+    @SuppressWarnings("resource")
+	public static void main(String... args) throws Throwable {
         JVMHelper.checkStackTrace(LaunchServer.class);
         JVMHelper.verifySystemProperties(LaunchServer.class, true);
         LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
@@ -271,9 +269,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         // Start LaunchServer
         Instant start = Instant.now();
         try {
-            try (LaunchServer lsrv = new LaunchServer(IOHelper.WORKING_DIR)) {
-                lsrv.run();
-            }
+        	new LaunchServer(IOHelper.WORKING_DIR).run();
         } catch (Throwable exc) {
             LogHelper.error(exc);
             return;
@@ -360,7 +356,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         CommandHandler localCommandHandler;
         try {
             Class.forName("jline.Terminal");
-
             // JLine2 available
             localCommandHandler = new JLineCommandHandler(this);
             LogHelper.info("JLine2 terminal enabled");
@@ -382,7 +377,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             KeyPair pair = SecurityHelper.genRSAKeyPair();
             publicKey = (RSAPublicKey) pair.getPublic();
             privateKey = (RSAPrivateKey) pair.getPrivate();
-
+            Files.deleteIfExists(publicKeyFile);
+            Files.deleteIfExists(privateKeyFile);
             // Write key pair files
             LogHelper.info("Writing RSA keypair files");
             IOHelper.write(publicKeyFile, publicKey.getEncoded());
@@ -450,7 +446,11 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     }
 
     private LauncherBinary binary() {
-        if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
+    	try {
+    		Class.forName("net.sf.launch4j.Builder");
+            if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
+    	} catch (ClassNotFoundException ignored) {
+    	}
         return new EXELauncherBinary(this);
     }
 
