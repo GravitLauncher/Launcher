@@ -17,13 +17,14 @@ configurations {
 	bundleOnly
 	bundle
 	hikari
-	bundle.extendsFrom bundleOnly
-	compileOnly.extendsFrom bundle, hikari
+	pack
+	bundleOnly.extendsFrom bundle
+	compile.extendsFrom bundle, hikari, pack
 }
 
 jar {
 	dependsOn parent.childProjects.Launcher.tasks.build, parent.childProjects.Launcher.tasks.genRuntimeJS, parent.childProjects.Launcher.tasks.jar
-	from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
+	from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
 	from(parent.childProjects.Launcher.tasks.jar.archivePath, parent.childProjects.Launcher.tasks.genRuntimeJS.archivePath)
 	manifest.attributes("Main-Class": mainClassName,
 		"Premain-Class": mainAgentName,
@@ -34,7 +35,7 @@ jar {
 }
 
 dependencies {
-	compile project(':libLauncher') // pack
+	pack project(':libLauncher') // pack
 	bundle 'org.ow2.asm:asm-commons:7.0'
 	bundle 'org.ow2.asm:asm-util:7.0'
 	bundle 'mysql:mysql-connector-java:8.0.12'
@@ -70,7 +71,7 @@ task hikari(type: Copy) {
 task dumpLibs(type: Copy) {
 	dependsOn tasks.hikari
 	into "$buildDir/libs/libraries"
-	from configurations.bundle
+	from configurations.bundleOnly
 }
 
 build.dependsOn tasks.dumpLibs
