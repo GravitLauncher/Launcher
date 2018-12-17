@@ -21,7 +21,7 @@
 			<Text fill="#8c8c8c" layoutX="38.0" layoutY="95.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер" wrappingWidth="533.0000102519989" y="15.0" />
          <CheckBox fx:id="fullScreen" layoutX="13.0" layoutY="185.0" text="Клиент в полный экран" />
             <Text fill="#8c8c8c" layoutX="38.0" layoutY="200.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение данной функции позволяет запустить игру сразу в полноэкранном режиме" wrappingWidth="533.0000102519989" y="15.0" />
-         <CheckBox id="debug" layoutX="13.0" layoutY="124.0" text="Режим Откладки" />
+         <CheckBox id="debug" layoutX="13.0" layoutY="124.0" text="Режим Отладки" />
 			<Text fill="#8c8c8c" layoutX="38.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Режим отладки позволяет просмотреть лог запуска и работы программы в реальном времени прямо из лаунчера, что упрощает поиск нужной информации" wrappingWidth="533.0000016447157" y="15.0" />
 		 
          <!-- RAM settings -->
