@@ -382,7 +382,7 @@ public final class ClientLauncher {
             Collections.addAll(args, "-Djava.class.path=".concat(pathLauncher), "-noverify"); // Add Class Path
         else
         {
-            Collections.addAll(args, "-cp");
+            Collections.addAll(args, "-noverify", "-cp");
             Collections.addAll(args, pathLauncher);
         }
         Collections.addAll(args, ClientLauncher.class.getName());
