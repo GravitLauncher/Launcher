@@ -29,7 +29,7 @@ public class BuildContext {
     public void pushJarFile(ZipInputStream input) throws IOException {
         ZipEntry e = input.getNextEntry();
         while (e != null) {
-            output.putNextEntry(e);
+            output.putNextEntry(IOHelper.newZipEntry(e));
             IOHelper.transfer(input, output);
             e = input.getNextEntry();
         }
@@ -42,7 +42,7 @@ public class BuildContext {
                 e = input.getNextEntry();
                 continue;
             }
-            output.putNextEntry(e);
+            output.putNextEntry(IOHelper.newZipEntry(e));
             IOHelper.transfer(input, output);
             e = input.getNextEntry();
         }

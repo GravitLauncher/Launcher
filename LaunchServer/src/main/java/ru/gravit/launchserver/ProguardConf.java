@@ -1,8 +1,8 @@
 package ru.gravit.launchserver;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -10,9 +10,13 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
+import ru.gravit.launcher.serialize.config.TextConfigReader;
+import ru.gravit.launcher.serialize.config.TextConfigWriter;
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.UnpackHelper;
 
 public class ProguardConf {
     private static final String charsFirst = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
@@ -38,10 +42,10 @@ public class ProguardConf {
         words = proguard.resolve("random.pro");
         confStrs = new ArrayList<>();
         prepare(false);
-        if (srv.config.genMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
+        confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add("-injar \'" + srv.dir.toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + "-nonObf.jar\'");
-        confStrs.add("-outjar \'" + srv.dir.toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + "-obfed.jar\'");
+        confStrs.add("-outjar \'" + srv.dir.toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + "-obfPre.jar\'");
         confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add(readConf());
 
@@ -50,16 +54,12 @@ public class ProguardConf {
     private void genConfig(boolean force) throws IOException {
         if (IOHelper.exists(config) && !force) return;
         Files.deleteIfExists(config);
-        config.toFile().createNewFile();
-        try (OutputStream out = IOHelper.newOutput(config); InputStream in = IOHelper.newInput(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/proguard.cfg"))) {
-            IOHelper.transfer(in, out);
-        }
+        UnpackHelper.unpack(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/proguard.cfg"), config);
     }
 
     public void genWords(boolean force) throws IOException {
         if (IOHelper.exists(words) && !force) return;
         Files.deleteIfExists(words);
-        words.toFile().createNewFile();
         SecureRandom rand = SecurityHelper.newRandom();
         rand.setSeed(SecureRandom.getSeed(32));
         try (PrintWriter out = new PrintWriter(new OutputStreamWriter(IOHelper.newOutput(words), IOHelper.UNICODE_CHARSET))) {

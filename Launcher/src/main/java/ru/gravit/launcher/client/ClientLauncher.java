@@ -379,10 +379,10 @@ public final class ClientLauncher {
         Collections.addAll(args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
         Collections.addAll(args, "-javaagent:".concat(pathLauncher));
         if(wrapper)
-            Collections.addAll(args, "-Djava.class.path=".concat(pathLauncher)); // Add Class Path
+            Collections.addAll(args, "-Djava.class.path=".concat(pathLauncher), "-noverify"); // Add Class Path
         else
         {
-            Collections.addAll(args, "-cp");
+            Collections.addAll(args, "-noverify", "-cp");
             Collections.addAll(args, pathLauncher);
         }
         Collections.addAll(args, ClientLauncher.class.getName());

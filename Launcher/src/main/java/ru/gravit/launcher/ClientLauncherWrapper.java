@@ -30,10 +30,7 @@ public class ClientLauncherWrapper {
         args.add(javaBin.toString());
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
-        Collections.addAll(args, "-javaagent:".concat(pathLauncher));
-        Collections.addAll(args, "-cp");
-        Collections.addAll(args, pathLauncher);
-        Collections.addAll(args, LauncherEngine.class.getName());
+        Collections.addAll(args, "-noverify", "-javaagent:".concat(pathLauncher), "-cp", pathLauncher, LauncherEngine.class.getName());
         EnvHelper.addEnv(processBuilder);
         LogHelper.debug("Commandline: " + args);
         processBuilder.command(args);

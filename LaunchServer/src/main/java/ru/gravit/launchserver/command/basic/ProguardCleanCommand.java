@@ -1,5 +1,8 @@
 package ru.gravit.launchserver.command.basic;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 
@@ -19,7 +22,8 @@ public class ProguardCleanCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) {
+    public void invoke(String... args) throws IOException {
         server.proguardConf.prepare(true);
+        Files.deleteIfExists(server.proguardConf.mappings);
     }
 }
