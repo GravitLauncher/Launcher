@@ -59,8 +59,8 @@ public final class Launcher {
     public static int MAJOR = 4;
     public static int MINOR = 1;
     public static int PATCH = 0;
-    public static int BUILD = 1;
-    public static Version.Type RELEASE = Version.Type.DEV;
+    public static int BUILD = 2;
+    public static Version.Type RELEASE = Version.Type.BETA;
 
     @LauncherAPI
     public static LauncherConfig getConfig() {
