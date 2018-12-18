@@ -22,8 +22,7 @@ jar {
 
 dependencies {
     compile project(':LauncherAPI')
-    compile 'org.javassist:javassist:3.23.1-GA'
-    compile group: 'com.github.oshi', name: 'oshi-core', version: '3.11.0'
+    compile 'com.github.oshi:oshi-core:3.11.0'
 }
 
 task genRuntimeJS(type: Zip) {

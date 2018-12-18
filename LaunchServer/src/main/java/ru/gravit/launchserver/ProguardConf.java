@@ -1,7 +1,5 @@
 package ru.gravit.launchserver;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -10,9 +8,6 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
-import ru.gravit.launcher.serialize.config.TextConfigReader;
-import ru.gravit.launcher.serialize.config.TextConfigWriter;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;

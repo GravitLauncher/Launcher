@@ -59,6 +59,7 @@ public final class DownloadClientCommand extends Command {
         }
         client.setTitle(dirName);
         client.block.getEntry("dir", StringConfigEntry.class).setValue(dirName);
+        client.block.getEntry("title", StringConfigEntry.class).setValue(dirName);
         try (BufferedWriter writer = IOHelper.newWriter(IOHelper.resolveIncremental(server.profilesDir,
                 dirName, "cfg"))) {
             TextConfigWriter.write(client.block, writer, true);
