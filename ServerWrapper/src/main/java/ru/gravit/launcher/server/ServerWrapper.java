@@ -119,7 +119,7 @@ public class ServerWrapper {
             }
             else
             {
-                LogHelper.info("Found %d custom classpath elements");
+                LogHelper.info("Found %d custom classpath elements",cp.length);
                 for(String c : cp)
                     ServerAgent.addJVMClassPath(c);
             }
