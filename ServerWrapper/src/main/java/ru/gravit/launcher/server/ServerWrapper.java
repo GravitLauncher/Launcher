@@ -109,7 +109,7 @@ public class ServerWrapper {
         if(config.customClassPath)
         {
             String[] cp = config.classpath.split(":");
-            if(ServerAgent.inst == null)
+            if(!ServerAgent.isAgentStarted())
             {
                 LogHelper.warning("JavaAgent not found. Using URLClassLoader");
                 URL[] urls = Arrays.stream(cp).map(Paths::get).map(IOHelper::toURL).toArray(URL[]::new);
@@ -126,7 +126,7 @@ public class ServerWrapper {
         }
         if(config.autoloadLibraries)
         {
-            if(ServerAgent.inst == null)
+            if(!ServerAgent.isAgentStarted())
             {
                 throw new UnsupportedOperationException("JavaAgent not found, autoloadLibraries not available");
             }
@@ -142,6 +142,7 @@ public class ServerWrapper {
         modulesManager.postInitModules();
         LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s",config.projectname,config.address,config.port,config.title);
         LogHelper.info("Minecraft Version (for profile): %s",wrapper.profile.getVersion().name);
+        LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
         mainMethod.invoke(real_args);
     }

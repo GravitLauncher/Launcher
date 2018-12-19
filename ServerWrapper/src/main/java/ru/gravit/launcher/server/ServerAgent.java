@@ -35,7 +35,7 @@ public class ServerAgent {
         inst.appendToSystemClassLoaderSearch(file);
     }
 
-    public boolean isAgentStarted() {
+    public static boolean isAgentStarted() {
         return isAgentStarted;
     }
 
