@@ -27,6 +27,8 @@ public final class LogHelper {
     @LauncherAPI
     public static final String DEBUG_PROPERTY = "launcher.debug";
     @LauncherAPI
+    public static final String STACKTRACE_PROPERTY = "launcher.stacktrace";
+    @LauncherAPI
     public static final String NO_JANSI_PROPERTY = "launcher.noJAnsi";
     @LauncherAPI
     public static final boolean JANSI;
@@ -34,6 +36,7 @@ public final class LogHelper {
     // Output settings
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US);
     private static final AtomicBoolean DEBUG_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEBUG_PROPERTY));
+    private static final AtomicBoolean STACKTRACE_ENABLED = new AtomicBoolean(Boolean.getBoolean(STACKTRACE_PROPERTY));
     private static final Set<Output> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
     private static final Output STD_OUTPUT;
 
@@ -73,7 +76,7 @@ public final class LogHelper {
 
     @LauncherAPI
     public static void error(Throwable exc) {
-        error(isDebugEnabled() ? toString(exc) : exc.toString());
+        error(isStacktraceEnabled() ? toString(exc) : exc.toString());
     }
 
     @LauncherAPI
@@ -104,6 +107,16 @@ public final class LogHelper {
     @LauncherAPI
     public static void setDebugEnabled(boolean debugEnabled) {
         DEBUG_ENABLED.set(debugEnabled);
+    }
+
+    @LauncherAPI
+    public static boolean isStacktraceEnabled() {
+        return STACKTRACE_ENABLED.get();
+    }
+
+    @LauncherAPI
+    public static void setStacktraceEnabled(boolean stacktraceEnabled) {
+        STACKTRACE_ENABLED.set(stacktraceEnabled);
     }
 
     @LauncherAPI

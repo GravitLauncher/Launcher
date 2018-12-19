@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
 import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.profiles.ClientProfile;
@@ -48,10 +49,7 @@ import ru.gravit.launchserver.auth.AuthLimiter;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.hwid.HWIDHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
-import ru.gravit.launchserver.binary.EXEL4JLauncherBinary;
-import ru.gravit.launchserver.binary.EXELauncherBinary;
-import ru.gravit.launchserver.binary.JARLauncherBinary;
-import ru.gravit.launchserver.binary.LauncherBinary;
+import ru.gravit.launchserver.binary.*;
 import ru.gravit.launchserver.command.handler.CommandHandler;
 import ru.gravit.launchserver.command.handler.JLineCommandHandler;
 import ru.gravit.launchserver.command.handler.StdCommandHandler;
@@ -112,6 +110,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         public final String binaryName;
         private final StringConfigEntry address;
         private final String bindAddress;
+        public final LauncherConfig.LauncherEnvironment env;
 
         private Config(BlockConfigEntry block, Path coredir, LaunchServer server) {
             super(block);
@@ -157,6 +156,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
             isUsingWrapper = block.getEntryValue("isUsingWrapper", BooleanConfigEntry.class);
             isDownloadJava = block.getEntryValue("isDownloadJava", BooleanConfigEntry.class);
+            env = LauncherConfig.LauncherEnvironment.STD;
         }
 
 

@@ -216,6 +216,7 @@ public final class JARLauncherBinary extends LauncherBinary {
 			jaConfigurator.setClientPort(32148 + SecurityHelper.newRandom().nextInt(512));
 			jaConfigurator.setUsingWrapper(server.config.isUsingWrapper);
 			jaConfigurator.setDownloadJava(server.config.isDownloadJava);
+			jaConfigurator.setEnv(server.config.env);
 			server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
 			try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(cleanJar))) {
 				ZipEntry e = input.getNextEntry();

@@ -56,6 +56,20 @@ public final class LauncherConfig extends StreamObject {
         secretKeyClient = config.secretKeyClient;
         isDownloadJava = config.isDownloadJava;
         isUsingWrapper = config.isUsingWrapper;
+        LauncherEnvironment env;
+        if(config.env == 0) env = LauncherEnvironment.DEV;
+        else if(config.env == 1) env = LauncherEnvironment.DEBUG;
+        else if(config.env == 2) env = LauncherEnvironment.STD;
+        else if(config.env == 3) env = LauncherEnvironment.PROD;
+        else env = LauncherEnvironment.STD;
+        if(env == LauncherEnvironment.PROD) {
+            LogHelper.setStacktraceEnabled(false);
+            LogHelper.setDebugEnabled(false);
+        }
+        if(env == LauncherEnvironment.DEV || env == LauncherEnvironment.DEBUG)
+        {
+            LogHelper.setDebugEnabled(true);
+        }
         // Read signed runtime
         int count = input.readLength(0);
         Map<String, byte[]> localResources = new HashMap<>(count);
@@ -107,5 +121,10 @@ public final class LauncherConfig extends StreamObject {
             output.writeString(entry.getKey(), 255);
             output.writeByteArray(entry.getValue(), SecurityHelper.CRYPTO_MAX_LENGTH);
         }
+    }
+
+    public enum LauncherEnvironment
+    {
+        DEV,DEBUG,STD,PROD
     }
 }

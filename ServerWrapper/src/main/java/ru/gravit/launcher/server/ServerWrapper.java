@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import ru.gravit.launcher.Launcher;
@@ -21,6 +23,7 @@ import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
+import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -31,8 +34,13 @@ import ru.gravit.utils.helper.SecurityHelper;
 
 public class ServerWrapper {
     public static ModulesManager modulesManager;
-    public static Path configFile;
     public static Config config;
+    public static PublicURLClassLoader ucp;
+    public static ClassLoader loader;
+
+    public static Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir","modules"));
+    public static Path configFile = Paths.get(System.getProperty("serverwrapper.configFile","ServerWrapper.cfg"));
+    public static Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile","public.key"));
 
     public static boolean auth(ServerWrapper wrapper) {
         try {
@@ -79,15 +87,14 @@ public class ServerWrapper {
         LogHelper.printVersion("ServerWrapper");
         LogHelper.printLicense("ServerWrapper");
         modulesManager = new ModulesManager(wrapper);
-        modulesManager.autoload(Paths.get("srv_modules")); //BungeeCord using modules dir
+        modulesManager.autoload(modulesDir);
         Launcher.modulesManager = modulesManager;
-        configFile = Paths.get("ServerWrapper.cfg");
         modulesManager.preInitModules();
         generateConfigIfNotExists();
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = new Config(TextConfigReader.read(reader, true));
         }
-        LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(Paths.get("public.key"))), new HashMap<>(), config.projectname);
+        LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
         Launcher.setConfig(cfg);
         if (config.syncAuth) auth(wrapper);
         else
@@ -99,19 +106,43 @@ public class ServerWrapper {
             LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.cfg or first commandline argument");
         }
         Class<?> mainClass;
-        if (config.customClassLoader) {
-            @SuppressWarnings("unchecked")
-            Class<ClassLoader> classloader_class = (Class<ClassLoader>) Class.forName(config.classloader);
-            ClassLoader loader = classloader_class.getConstructor(ClassLoader.class).newInstance(ClassLoader.getSystemClassLoader());
-            Thread.currentThread().setContextClassLoader(loader);
-            mainClass = Class.forName(classname, false, loader);
-        } else mainClass = Class.forName(classname);
+        if(config.customClassPath)
+        {
+            String[] cp = config.classpath.split(":");
+            if(!ServerAgent.isAgentStarted())
+            {
+                LogHelper.warning("JavaAgent not found. Using URLClassLoader");
+                URL[] urls = Arrays.stream(cp).map(Paths::get).map(IOHelper::toURL).toArray(URL[]::new);
+                ucp = new PublicURLClassLoader(urls);
+                Thread.currentThread().setContextClassLoader(ucp);
+                loader = ucp;
+            }
+            else
+            {
+                LogHelper.info("Found %d custom classpath elements",cp.length);
+                for(String c : cp)
+                    ServerAgent.addJVMClassPath(c);
+            }
+        }
+        if(config.autoloadLibraries)
+        {
+            if(!ServerAgent.isAgentStarted())
+            {
+                throw new UnsupportedOperationException("JavaAgent not found, autoloadLibraries not available");
+            }
+            Path librariesDir = Paths.get(config.librariesDir);
+            LogHelper.info("Load libraries");
+            ServerAgent.loadLibraries(librariesDir);
+        }
+        if(loader != null) mainClass = Class.forName(classname,true, loader);
+        else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         String[] real_args = new String[args.length - 1];
         System.arraycopy(args, 1, real_args, 0, args.length - 1);
         modulesManager.postInitModules();
         LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s",config.projectname,config.address,config.port,config.title);
         LogHelper.info("Minecraft Version (for profile): %s",wrapper.profile.getVersion().name);
+        LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
         mainMethod.invoke(real_args);
     }
@@ -143,9 +174,11 @@ public class ServerWrapper {
         public int port;
         public int reconnectCount;
         public int reconnectSleep;
-        public boolean customClassLoader;
+        public boolean customClassPath;
+        public boolean autoloadLibraries;
         public boolean syncAuth;
-        public String classloader;
+        public String classpath;
+        public String librariesDir;
         public String mainclass;
         public String login;
         public String password;
@@ -158,9 +191,12 @@ public class ServerWrapper {
             login = block.getEntryValue("login", StringConfigEntry.class);
             password = block.getEntryValue("password", StringConfigEntry.class);
             port = block.getEntryValue("port", IntegerConfigEntry.class);
-            customClassLoader = block.getEntryValue("customClassLoader", BooleanConfigEntry.class);
-            if (customClassLoader)
-                classloader = block.getEntryValue("classloader", StringConfigEntry.class);
+            customClassPath = block.getEntryValue("customClassPath", BooleanConfigEntry.class);
+            autoloadLibraries = block.getEntryValue("autoloadLibraries", BooleanConfigEntry.class);
+            if (customClassPath)
+                classpath = block.getEntryValue("classpath", StringConfigEntry.class);
+            if (autoloadLibraries)
+                librariesDir = block.getEntryValue("librariesDir", StringConfigEntry.class);
             mainclass = block.getEntryValue("MainClass", StringConfigEntry.class);
             reconnectCount = block.hasEntry("reconnectCount") ? block.getEntryValue("reconnectCount", IntegerConfigEntry.class) : 1;
             reconnectSleep = block.hasEntry("reconnectSleep") ? block.getEntryValue("reconnectSleep", IntegerConfigEntry.class) : 30000;
