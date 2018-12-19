@@ -7,11 +7,9 @@ public interface ModulesManagerInterface {
 
     void load(Module module);
 
-    void load(Module module, boolean preload);
+    void loadModule(URL jarpath) throws Exception;
 
-    void loadModule(URL jarpath, boolean preload) throws Exception;
-
-    void loadModule(URL jarpath, String classname, boolean preload) throws Exception;
+    void loadModule(URL jarpath, String classname) throws Exception;
 
     void postInitModules();
 
@@ -21,5 +19,5 @@ public interface ModulesManagerInterface {
 
     void sort();
 
-    void registerModule(Module module, boolean preload);
+    void registerModule(Module module, boolean preload); // hacky method for client
 }

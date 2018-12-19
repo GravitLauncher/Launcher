@@ -25,16 +25,15 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             try {
-                JarFile f = new JarFile(file.toString());
+                JarFile f = new JarFile(file.toFile());
                 Manifest m = f.getManifest();
                 String mainclass = m.getMainAttributes().getValue("Main-Class");
-                loadModule(file.toUri().toURL(), mainclass, true);
+                loadModule(file.toUri().toURL(), mainclass);
                 f.close();
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
             }
 
-            // Return result
             return super.visitFile(file, attrs);
         }
     }
@@ -87,21 +86,14 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
         modules.add(module);
     }
 
-    @Override
-
-    public void load(Module module, boolean preload) {
-        load(module);
-        if (!preload) module.init(context);
-    }
-
 
     @Override
 
-    public void loadModule(URL jarpath, boolean preload) throws ClassNotFoundException, IllegalAccessException, InstantiationException, URISyntaxException, IOException {
+    public void loadModule(URL jarpath) throws ClassNotFoundException, IllegalAccessException, InstantiationException, URISyntaxException, IOException {
         JarFile f = new JarFile(Paths.get(jarpath.toURI()).toString());
         Manifest m = f.getManifest();
         String mainclass = m.getMainAttributes().getValue("Main-Class");
-        loadModule(jarpath, mainclass, preload);
+        loadModule(jarpath, mainclass);
         f.close();
     }
 
@@ -122,13 +114,11 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     
     @Override
 
-    public void loadModule(URL jarpath, String classname, boolean preload) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public void loadModule(URL jarpath, String classname) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         classloader.addURL(jarpath);
         Class<?> moduleclass = Class.forName(classname, true, classloader);
         Module module = (Module) moduleclass.newInstance();
         modules.add(module);
-        module.preInit(context);
-        if (!preload) module.init(context);
         LogHelper.info("Module %s version: %s loaded", module.getName(), module.getVersion());
     }
 
@@ -161,7 +151,7 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     @Override
 
     public void registerModule(Module module, boolean preload) {
-        load(module, preload);
+        load(module);
         LogHelper.info("Module %s version: %s registered", module.getName(), module.getVersion());
     }
 }
