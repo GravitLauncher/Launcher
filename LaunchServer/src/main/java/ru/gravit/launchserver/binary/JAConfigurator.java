@@ -8,8 +8,9 @@ import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.NotFoundException;
+import ru.gravit.launcher.LauncherConfig;
 
-public class JAConfigurator implements AutoCloseable {
+    public class JAConfigurator implements AutoCloseable {
     public ClassPool pool;
     public CtClass ctClass;
     public CtConstructor ctConstructor;
@@ -90,6 +91,28 @@ public class JAConfigurator implements AutoCloseable {
     public void setPort(int port) {
         body.append("this.port = ");
         body.append(port);
+        body.append(";");
+    }
+    public void setEnv(LauncherConfig.LauncherEnvironment env) {
+        int i = 2;
+        switch(env)
+        {
+
+            case DEV:
+                i = 0;
+                break;
+            case DEBUG:
+                i = 1;
+                break;
+            case STD:
+                i = 2;
+                break;
+            case PROD:
+                i = 3;
+                break;
+        }
+        body.append("this.env = ");
+        body.append(i);
         body.append(";");
     }
 
