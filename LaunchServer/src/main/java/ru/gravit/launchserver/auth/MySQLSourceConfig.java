@@ -105,19 +105,13 @@ public final class MySQLSourceConfig extends ConfigObject implements AutoCloseab
                 Class.forName("com.zaxxer.hikari.HikariDataSource");
                 hikari = true; // Used for shutdown. Not instanceof because of possible classpath error
                 HikariConfig cfg = new HikariConfig();
-                cfg.setUsername(username);
-                cfg.setPassword(password);
                 cfg.setDataSource(mysqlSource);
                 cfg.setPoolName(poolName);
-                cfg.setMinimumIdle(0);
                 cfg.setMaximumPoolSize(MAX_POOL_SIZE);
-                cfg.setIdleTimeout(TIMEOUT * 1000L);
                 // Set HikariCP pool
-                HikariDataSource hikariSource = new HikariDataSource(cfg);
                 // Replace source with hds
-                source = hikariSource;
+                source = new HikariDataSource(cfg);
                 LogHelper.info("HikariCP pooling enabled for '%s'", poolName);
-                return hikariSource.getConnection();
             } catch (ClassNotFoundException ignored) {
                 LogHelper.warning("HikariCP isn't in classpath for '%s'", poolName);
             }
