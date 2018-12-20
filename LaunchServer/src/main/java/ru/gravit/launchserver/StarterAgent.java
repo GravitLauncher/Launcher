@@ -28,8 +28,16 @@ public class StarterAgent {
             return super.visitFile(file, attrs);
         }
     }
+    public static Instrumentation inst;
+    private static boolean isStarted = false;
+    public static boolean isAgentStarted()
+    {
+        return isStarted;
+    }
 
     public static void premain(String agentArgument, Instrumentation inst) {
+        StarterAgent.inst = inst;
+        isStarted = true;
         try {
             Files.walkFileTree(Paths.get("libraries"), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new StarterVisitor(inst));
         } catch (IOException e) {
