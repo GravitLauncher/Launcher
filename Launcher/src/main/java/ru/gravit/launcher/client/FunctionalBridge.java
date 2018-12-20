@@ -8,6 +8,8 @@ import javafx.concurrent.Task;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.RequestWorker;
+import ru.gravit.launcher.managers.HasherManager;
+import ru.gravit.launcher.managers.HasherStore;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hwid.OshiHWIDProvider;
@@ -74,6 +76,11 @@ public class FunctionalBridge {
     public static long getTotalMemory()
     {
         return hwidProvider.getTotalMemory() >> 20;
+    }
+    @LauncherAPI
+    public static HasherStore getDefaultHasherStore()
+    {
+        return HasherManager.getDefaultStore();
     }
 
     @FunctionalInterface
