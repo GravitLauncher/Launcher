@@ -133,6 +133,11 @@ import ru.gravit.launcher.LauncherConfig;
         body.append(b ? "true" : "false");
         body.append(";");
     }
+    public void setWarningMissArchJava(boolean b) {
+        body.append("this.isWarningMissArchJava = ");
+        body.append(b ? "true" : "false");
+        body.append(";");
+    }
 
     public ClassPool getPool() {
         return pool;

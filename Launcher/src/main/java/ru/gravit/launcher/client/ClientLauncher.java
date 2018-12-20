@@ -257,6 +257,7 @@ public final class ClientLauncher {
         if (JVMHelper.JVM_BITS != JVMHelper.OS_BITS) {
             String error = String.format("У Вас установлена Java %d, но Ваша система определена как %d. Установите Java правильной разрядности", JVMHelper.JVM_BITS, JVMHelper.OS_BITS);
             LogHelper.error(error);
+            if(Launcher.getConfig().isWarningMissArchJava)
             JOptionPane.showMessageDialog(null, error);
         }
         String jvmVersion = JVMHelper.RUNTIME_MXBEAN.getVmVersion();
@@ -264,6 +265,7 @@ public final class ClientLauncher {
         if (jvmVersion.startsWith("10.") || jvmVersion.startsWith("9.") || jvmVersion.startsWith("11.")) {
             String error = String.format("У Вас установлена Java %s. Для правильной работы необходима Java 8", JVMHelper.RUNTIME_MXBEAN.getVmVersion());
             LogHelper.error(error);
+            if(Launcher.getConfig().isWarningMissArchJava)
             JOptionPane.showMessageDialog(null, error);
         }
     }

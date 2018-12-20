@@ -113,6 +113,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         private final StringConfigEntry address;
         private final String bindAddress;
         public final LauncherConfig.LauncherEnvironment env;
+        public final boolean isWarningMissArchJava;
 
         private Config(BlockConfigEntry block, Path coredir, LaunchServer server) {
             super(block);
@@ -159,6 +160,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
             isUsingWrapper = block.getEntryValue("isUsingWrapper", BooleanConfigEntry.class);
             isDownloadJava = block.getEntryValue("isDownloadJava", BooleanConfigEntry.class);
+            isWarningMissArchJava = block.getEntryValue("isWarningMissArchJava", BooleanConfigEntry.class);
             env = LauncherConfig.LauncherEnvironment.STD;
         }
 
