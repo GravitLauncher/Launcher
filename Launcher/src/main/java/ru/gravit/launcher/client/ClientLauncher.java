@@ -1,5 +1,23 @@
 package ru.gravit.launcher.client;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import ru.gravit.launcher.*;
+import ru.gravit.launcher.hasher.DirWatcher;
+import ru.gravit.launcher.hasher.FileNameMatcher;
+import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.launcher.profiles.PlayerProfile;
+import ru.gravit.launcher.request.update.LegacyLauncherRequest;
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
+import ru.gravit.launcher.serialize.stream.StreamObject;
+import ru.gravit.utils.PublicURLClassLoader;
+import ru.gravit.utils.helper.*;
+import ru.gravit.utils.helper.JVMHelper.OS;
+
+import javax.swing.*;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.invoke.MethodHandle;
@@ -16,45 +34,11 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.JOptionPane;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherAgent;
-import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.LauncherEngine;
-import ru.gravit.launcher.hasher.DirWatcher;
-import ru.gravit.launcher.hasher.FileNameMatcher;
-import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.launcher.profiles.ClientProfile;
-import ru.gravit.launcher.profiles.PlayerProfile;
-import ru.gravit.launcher.request.update.LegacyLauncherRequest;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
-import ru.gravit.launcher.serialize.stream.StreamObject;
-import ru.gravit.utils.PublicURLClassLoader;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.EnvHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.JVMHelper.OS;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
+import java.util.*;
 
 public final class ClientLauncher {
     private static Gson gson = new Gson();
+
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
         private final Collection<Path> result;
 
@@ -183,6 +167,7 @@ public final class ClientLauncher {
     private static final Path NATIVES_DIR = IOHelper.toPath("natives");
     private static final Path RESOURCEPACKS_DIR = IOHelper.toPath("resourcepacks");
     private static PublicURLClassLoader classLoader;
+
     private static void addClientArgs(Collection<String> args, ClientProfile profile, Params params) {
         PlayerProfile pp = params.pp;
 
@@ -257,16 +242,16 @@ public final class ClientLauncher {
         if (JVMHelper.JVM_BITS != JVMHelper.OS_BITS) {
             String error = String.format("У Вас установлена Java %d, но Ваша система определена как %d. Установите Java правильной разрядности", JVMHelper.JVM_BITS, JVMHelper.OS_BITS);
             LogHelper.error(error);
-            if(Launcher.getConfig().isWarningMissArchJava)
-            JOptionPane.showMessageDialog(null, error);
+            if (Launcher.getConfig().isWarningMissArchJava)
+                JOptionPane.showMessageDialog(null, error);
         }
         String jvmVersion = JVMHelper.RUNTIME_MXBEAN.getVmVersion();
         LogHelper.info(jvmVersion);
         if (jvmVersion.startsWith("10.") || jvmVersion.startsWith("9.") || jvmVersion.startsWith("11.")) {
             String error = String.format("У Вас установлена Java %s. Для правильной работы необходима Java 8", JVMHelper.RUNTIME_MXBEAN.getVmVersion());
             LogHelper.error(error);
-            if(Launcher.getConfig().isWarningMissArchJava)
-            JOptionPane.showMessageDialog(null, error);
+            if (Launcher.getConfig().isWarningMissArchJava)
+                JOptionPane.showMessageDialog(null, error);
         }
     }
 
@@ -349,7 +334,8 @@ public final class ClientLauncher {
         boolean wrapper = isUsingWrapper();
         Path javaBin;
         /*if (wrapper) javaBin = AvanguardStarter.wrapper;
-        else*/ if (isDownloadJava) {
+        else*/
+        if (isDownloadJava) {
             //Linux и Mac не должны скачивать свою JVM
             if (JVMHelper.OS_TYPE == OS.MUSTDIE)
                 javaBin = IOHelper.resolveJavaBin(JavaBinPath);
@@ -380,10 +366,9 @@ public final class ClientLauncher {
         Collections.addAll(args, profile.object.getJvmArgs());
         Collections.addAll(args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
         Collections.addAll(args, "-javaagent:".concat(pathLauncher));
-        if(wrapper)
+        if (wrapper)
             Collections.addAll(args, "-Djava.class.path=".concat(pathLauncher)); // Add Class Path
-        else
-        {
+        else {
             Collections.addAll(args, "-cp");
             Collections.addAll(args, pathLauncher);
         }

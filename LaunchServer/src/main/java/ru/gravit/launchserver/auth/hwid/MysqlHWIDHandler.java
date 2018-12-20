@@ -1,12 +1,5 @@
 package ru.gravit.launchserver.auth.hwid;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.OshiHWID;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
@@ -16,6 +9,13 @@ import ru.gravit.launchserver.auth.MySQLSourceConfig;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MysqlHWIDHandler extends HWIDHandler {
     private final MySQLSourceConfig mySQLHolder;
@@ -172,7 +172,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
                 hwid_str = set.getString(hwidName);
             }
             ArrayList<HWID> list = new ArrayList<>();
-            HWID hwid = OshiHWID.gson.fromJson(hwid_str,OshiHWID.class);
+            HWID hwid = OshiHWID.gson.fromJson(hwid_str, OshiHWID.class);
             if (hwid.isNull()) {
                 LogHelper.warning("Null HWID");
             } else {

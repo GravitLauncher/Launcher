@@ -1,36 +1,5 @@
 package ru.gravit.launchserver;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.SocketAddress;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.KeyPair;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.zip.CRC32;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.hasher.HashedDir;
@@ -39,17 +8,16 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.TextConfigReader;
 import ru.gravit.launcher.serialize.config.TextConfigWriter;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.*;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.auth.AuthLimiter;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.hwid.HWIDHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
-import ru.gravit.launchserver.binary.*;
+import ru.gravit.launchserver.binary.EXEL4JLauncherBinary;
+import ru.gravit.launchserver.binary.EXELauncherBinary;
+import ru.gravit.launchserver.binary.JARLauncherBinary;
+import ru.gravit.launchserver.binary.LauncherBinary;
 import ru.gravit.launchserver.command.handler.CommandHandler;
 import ru.gravit.launchserver.command.handler.JLineCommandHandler;
 import ru.gravit.launchserver.command.handler.StdCommandHandler;
@@ -60,12 +28,26 @@ import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.TextureProvider;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.helper.*;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.SocketAddress;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.KeyPair;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.zip.CRC32;
 
 public final class LaunchServer implements Runnable, AutoCloseable {
     public static final class Config extends ConfigObject {
@@ -82,10 +64,10 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         public final HWIDHandler hwidHandler;
 
         // Misc options
-    	public final int threadCount;
-  
-    	public final int threadCoreCount;
-    	
+        public final int threadCount;
+
+        public final int threadCoreCount;
+
         public final ExeConf launch4j;
 
         public final PostBuildTransformConf buildPostTransform;
@@ -259,7 +241,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             enabled = block.getEntryValue("enabled", BooleanConfigEntry.class);
             script = new ArrayList<>(1);
             if (block.hasEntry("script"))
-            	block.getEntry("script", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(script::add);
+                block.getEntry("script", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(script::add);
         }
     }
 

@@ -1,9 +1,9 @@
 package ru.gravit.launcher.hasher;
 
+import ru.gravit.launcher.LauncherAPI;
+
 import java.util.Arrays;
 import java.util.Collection;
-
-import ru.gravit.launcher.LauncherAPI;
 
 public final class FileNameMatcher {
     private static final String[] NO_ENTRIES = new String[0];

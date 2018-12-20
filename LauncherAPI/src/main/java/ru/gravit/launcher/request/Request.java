@@ -1,9 +1,5 @@
 package ru.gravit.launcher.request;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
@@ -11,6 +7,10 @@ import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Request<R> {
     private static final long session = SecurityHelper.secureRandom.nextLong();

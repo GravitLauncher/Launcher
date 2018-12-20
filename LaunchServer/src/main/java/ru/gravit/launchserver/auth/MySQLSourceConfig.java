@@ -1,14 +1,8 @@
 package ru.gravit.launchserver.auth;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
@@ -16,6 +10,10 @@ import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public final class MySQLSourceConfig extends ConfigObject implements AutoCloseable {
 

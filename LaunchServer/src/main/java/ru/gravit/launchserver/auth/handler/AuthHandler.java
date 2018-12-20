@@ -1,16 +1,16 @@
 package ru.gravit.launchserver.auth.handler;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AuthHandler extends ConfigObject implements AutoCloseable {
     private static final Map<String, Adapter<AuthHandler>> AUTH_HANDLERS = new ConcurrentHashMap<>(4);

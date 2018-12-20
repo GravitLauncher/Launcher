@@ -1,12 +1,12 @@
 package ru.gravit.launcher.request;
 
-import java.io.IOException;
-
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
+
+import java.io.IOException;
 
 public final class PingRequest extends Request<Void> {
 

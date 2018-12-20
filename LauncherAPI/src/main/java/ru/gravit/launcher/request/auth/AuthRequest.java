@@ -1,7 +1,5 @@
 package ru.gravit.launcher.request.auth;
 
-import java.io.IOException;
-
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
@@ -15,6 +13,8 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
 
 public final class AuthRequest extends Request<Result> {
     public static final class Result {
@@ -55,7 +55,7 @@ public final class AuthRequest extends Request<Result> {
 
     @LauncherAPI
     public AuthRequest(String login, byte[] encryptedPassword, HWID hwid) {
-        this(null, login, encryptedPassword,hwid);
+        this(null, login, encryptedPassword, hwid);
     }
 
     @LauncherAPI
@@ -75,7 +75,7 @@ public final class AuthRequest extends Request<Result> {
         if (Launcher.profile != null)
             output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
         output.writeInt(auth_id);
-        output.writeString(hwid.getSerializeString(),0);
+        output.writeString(hwid.getSerializeString(), 0);
         //output.writeLong(0);
         //output.writeLong(0);
         //output.writeLong(0);

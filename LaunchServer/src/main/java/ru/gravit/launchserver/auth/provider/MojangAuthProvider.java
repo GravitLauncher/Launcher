@@ -1,17 +1,16 @@
 package ru.gravit.launchserver.auth.provider;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.utils.HTTPRequest;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 import java.util.regex.Pattern;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.utils.HTTPRequest;
 
 public final class MojangAuthProvider extends AuthProvider {
     private static final Pattern UUID_REGEX = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
@@ -29,8 +28,8 @@ public final class MojangAuthProvider extends AuthProvider {
     public MojangAuthProvider(BlockConfigEntry block, LaunchServer server) {
         super(block, server);
     }
-    public class mojangAuth
-    {
+
+    public class mojangAuth {
         public mojangAuth(String username, String password) {
             this.username = username;
             this.password = password;
@@ -44,13 +43,14 @@ public final class MojangAuthProvider extends AuthProvider {
         String password;
 
     }
+
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws Exception {
-        mojangAuth mojangAuth = new mojangAuth(login,password);
+        mojangAuth mojangAuth = new mojangAuth(login, password);
         JsonElement request = gson.toJsonTree(mojangAuth);
 
         // Verify there's no error
-        JsonObject response = HTTPRequest.jsonRequest(request,URL).getAsJsonObject();
+        JsonObject response = HTTPRequest.jsonRequest(request, URL).getAsJsonObject();
         if (response == null)
             authError("Empty com.mojang response");
         JsonElement errorMessage = response.get("errorMessage");

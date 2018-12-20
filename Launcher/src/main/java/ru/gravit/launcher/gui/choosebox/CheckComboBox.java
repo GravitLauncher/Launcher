@@ -1,13 +1,6 @@
 package ru.gravit.launcher.gui.choosebox;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -15,10 +8,13 @@ import javafx.scene.control.Skin;
 import javafx.util.StringConverter;
 import ru.gravit.launcher.LauncherAPI;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CheckComboBox<T> extends ControlsFXControl {
     private static class CheckComboBoxBitSetCheckModel<T> extends CheckBitSetModelBase<T> {
         private final ObservableList<T> items;
-        
+
         CheckComboBoxBitSetCheckModel(final ObservableList<T> items, final Map<T, BooleanProperty> itemBooleanMap) {
             super(itemBooleanMap);
 

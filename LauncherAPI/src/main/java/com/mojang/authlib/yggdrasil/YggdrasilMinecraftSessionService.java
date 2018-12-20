@@ -1,11 +1,5 @@
 package com.mojang.authlib.yggdrasil;
 
-import java.net.InetAddress;
-import java.util.Base64;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.UUID;
-
 import com.google.common.collect.Iterables;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -18,7 +12,6 @@ import com.mojang.authlib.minecraft.BaseMinecraftSessionService;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.auth.CheckServerRequest;
@@ -27,6 +20,12 @@ import ru.gravit.launcher.request.uuid.ProfileByUUIDRequest;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+
+import java.net.InetAddress;
+import java.util.Base64;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.UUID;
 
 public final class YggdrasilMinecraftSessionService extends BaseMinecraftSessionService {
     public static final JsonParser JSON_PARSER = new JsonParser();

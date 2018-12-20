@@ -1,17 +1,13 @@
 package ru.gravit.launcher.serialize.config.entry;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
 
 public final class BlockConfigEntry extends ConfigEntry<Map<String, ConfigEntry<?>>> {
     private static Map<String, ConfigEntry<?>> readMap(HInput input, boolean ro) throws IOException {

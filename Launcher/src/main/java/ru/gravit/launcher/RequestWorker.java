@@ -1,21 +1,21 @@
 package ru.gravit.launcher;
 
+import ru.gravit.utils.helper.LogHelper;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import ru.gravit.utils.helper.LogHelper;
-
 public class RequestWorker implements Runnable {
-    public RequestWorker()
-    {
+    public RequestWorker() {
         queue = new LinkedBlockingQueue<>(64);
     }
+
     public BlockingQueue<Runnable> queue;
+
     @Override
     public void run() {
         LogHelper.debug("FX Task Thread start");
-        while (!Thread.interrupted())
-        {
+        while (!Thread.interrupted()) {
             try {
                 Runnable task;
                 task = queue.take();

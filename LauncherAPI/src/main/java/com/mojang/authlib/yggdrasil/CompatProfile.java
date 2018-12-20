@@ -1,11 +1,11 @@
 package com.mojang.authlib.yggdrasil;
 
-import java.util.UUID;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.utils.helper.SecurityHelper;
+
+import java.util.UUID;
 
 @SuppressWarnings("unused")
 @LauncherAPI

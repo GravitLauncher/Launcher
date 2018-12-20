@@ -1,10 +1,5 @@
 package ru.gravit.launchserver.socket;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.net.Socket;
-import java.net.SocketException;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.serialize.HInput;
@@ -15,6 +10,11 @@ import ru.gravit.launchserver.response.Response;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.Socket;
+import java.net.SocketException;
 
 public final class ResponseThread implements Runnable {
     class Handshake {

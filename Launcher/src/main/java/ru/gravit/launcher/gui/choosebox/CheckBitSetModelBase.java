@@ -1,16 +1,15 @@
 package ru.gravit.launcher.gui.choosebox;
 
-import java.util.BitSet;
-import java.util.Map;
-
 import com.sun.javafx.collections.MappingChange;
 import com.sun.javafx.collections.NonIterableChange;
 import com.sun.javafx.scene.control.ReadOnlyUnbackedObservableList;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+
+import java.util.BitSet;
+import java.util.Map;
 
 abstract class CheckBitSetModelBase<T> implements IndexedCheckModel<T> {
     private final Map<T, BooleanProperty> itemBooleanMap;
@@ -163,7 +162,7 @@ abstract class CheckBitSetModelBase<T> implements IndexedCheckModel<T> {
     public ObservableList<T> getCheckedItems() {
         return checkedItemsList;
     }
-    
+
     @Override
     public abstract T getItem(int index);
 

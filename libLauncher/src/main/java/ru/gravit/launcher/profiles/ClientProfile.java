@@ -1,22 +1,18 @@
 package ru.gravit.launcher.profiles;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.*;
-
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.config.ConfigObject;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.*;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.*;
 
 @SuppressWarnings("ComparableImplementedButEqualsNotOverridden")
 public final class ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
@@ -67,7 +63,7 @@ public final class ClientProfile extends ConfigObject implements Comparable<Clie
     public static final StreamObject.Adapter<ClientProfile> RO_ADAPTER = input -> new ClientProfile(input, true);
 
     public static final boolean profileCaseSensitive = Boolean.getBoolean("launcher.clientProfile.caseSensitive");
-    
+
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
     // Version
@@ -228,7 +224,9 @@ public final class ClientProfile extends ConfigObject implements Comparable<Clie
     }
 
     @LauncherAPI
-    public Collection<String> getShared() { return updateShared; }
+    public Collection<String> getShared() {
+        return updateShared;
+    }
 
     @LauncherAPI
     public void markOptional(String opt) {

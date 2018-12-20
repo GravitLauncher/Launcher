@@ -1,18 +1,13 @@
 package ru.gravit.launcher.serialize.config;
 
+import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.serialize.config.entry.*;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.ConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 
 public final class TextConfigWriter {
     @LauncherAPI

@@ -1,26 +1,6 @@
 package ru.gravit.launcher;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.net.URL;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.script.Bindings;
-import javax.script.Invocable;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
-
-import ru.gravit.launcher.client.ClientLauncher;
-import ru.gravit.launcher.client.ClientModuleManager;
-import ru.gravit.launcher.client.DirBridge;
-import ru.gravit.launcher.client.FunctionalBridge;
-import ru.gravit.launcher.client.LauncherSettings;
-import ru.gravit.launcher.client.ServerPinger;
+import ru.gravit.launcher.client.*;
 import ru.gravit.launcher.gui.choosebox.CheckComboBox;
 import ru.gravit.launcher.gui.choosebox.CheckComboBoxSkin;
 import ru.gravit.launcher.gui.choosebox.CheckModel;
@@ -34,11 +14,7 @@ import ru.gravit.launcher.hasher.HashedFile;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.profiles.Texture;
-import ru.gravit.launcher.request.CustomRequest;
-import ru.gravit.launcher.request.PingRequest;
-import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.RequestException;
-import ru.gravit.launcher.request.RequestType;
+import ru.gravit.launcher.request.*;
 import ru.gravit.launcher.request.auth.AuthRequest;
 import ru.gravit.launcher.request.auth.CheckServerRequest;
 import ru.gravit.launcher.request.auth.JoinServerRequest;
@@ -54,24 +30,23 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.TextConfigReader;
 import ru.gravit.launcher.serialize.config.TextConfigWriter;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.ConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.*;
 import ru.gravit.launcher.serialize.signed.SignedBytesHolder;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launcher.serialize.stream.EnumSerializer;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.utils.HTTPRequest;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.EnvHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.helper.*;
+
+import javax.script.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.net.URL;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LauncherEngine {
     @LauncherAPI

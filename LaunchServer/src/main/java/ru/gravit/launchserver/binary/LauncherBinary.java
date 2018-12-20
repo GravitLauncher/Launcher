@@ -1,12 +1,12 @@
 package ru.gravit.launchserver.binary;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
 import ru.gravit.launcher.serialize.signed.DigestBytesHolder;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+
+import java.io.IOException;
+import java.nio.file.Path;
 
 public abstract class LauncherBinary {
 

@@ -1,5 +1,7 @@
 package ru.gravit.utils.helper;
 
+import ru.gravit.launcher.LauncherAPI;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.DoublePredicate;
@@ -7,8 +9,6 @@ import java.util.function.IntPredicate;
 import java.util.function.LongPredicate;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
-import ru.gravit.launcher.LauncherAPI;
 
 public final class VerifyHelper {
     @LauncherAPI

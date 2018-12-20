@@ -1,11 +1,7 @@
 package ru.gravit.launchserver.auth.provider;
 
-import java.io.IOException;
-import java.net.URL;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launchserver.LaunchServer;
@@ -14,17 +10,20 @@ import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
+import java.io.IOException;
+import java.net.URL;
+
 public final class JsonAuthProvider extends AuthProvider {
     private final Gson gson = new Gson();
     private final URL url;
-    public class authResult
-    {
+
+    public class authResult {
         String username;
         String error;
         long permissions;
     }
-    public class authRequest
-    {
+
+    public class authRequest {
         public authRequest(String username, String password, String ip) {
             this.username = username;
             this.password = password;
@@ -44,7 +43,7 @@ public final class JsonAuthProvider extends AuthProvider {
 
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws IOException {
-        authRequest authRequest = new authRequest(login,password,ip);
+        authRequest authRequest = new authRequest(login, password, ip);
         JsonElement request = gson.toJsonTree(authRequest);
         JsonElement content = HTTPRequest.jsonRequest(request, url);
         if (!content.isJsonObject())

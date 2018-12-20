@@ -1,5 +1,8 @@
 package ru.gravit.launcher.serialize;
 
+import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.utils.helper.IOHelper;
+
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -7,9 +10,6 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.UUID;
-
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.IOHelper;
 
 public final class HInput implements AutoCloseable {
     @LauncherAPI

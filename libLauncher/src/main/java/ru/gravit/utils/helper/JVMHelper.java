@@ -1,5 +1,7 @@
 package ru.gravit.utils.helper;
 
+import ru.gravit.launcher.LauncherAPI;
+
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
@@ -10,8 +12,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
-
-import ru.gravit.launcher.LauncherAPI;
 
 public final class JVMHelper {
     @SuppressWarnings("unused")
@@ -100,8 +100,8 @@ public final class JVMHelper {
     public static URL[] getClassPathURL() {
         String[] cp = System.getProperty("java.class.path").split(File.pathSeparator);
         URL[] list = new URL[cp.length];
-        
-        for(int i = 0; i < cp.length; i++) {
+
+        for (int i = 0; i < cp.length; i++) {
             URL url = null;
             try {
                 url = new URL(cp[i]);

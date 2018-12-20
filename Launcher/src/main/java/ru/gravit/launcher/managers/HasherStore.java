@@ -17,8 +17,8 @@ import java.util.Map;
 
 public class HasherStore {
     public Map<String, HasherStoreEnity> store;
-    public class HasherStoreEnity
-    {
+
+    public class HasherStoreEnity {
         @LauncherAPI
         public HashedDir hdir;
         @LauncherAPI
@@ -26,44 +26,41 @@ public class HasherStore {
         @LauncherAPI
         public Collection<String> shared;
     }
+
     @LauncherAPI
-    public void addProfileUpdateDir(ClientProfile profile, Path dir, HashedDir hdir)
-    {
+    public void addProfileUpdateDir(ClientProfile profile, Path dir, HashedDir hdir) {
         HasherStoreEnity e = new HasherStoreEnity();
         e.hdir = hdir;
         e.dir = dir;
         e.shared = profile.getShared();
 
-        store.put(profile.getTitle(),e);
+        store.put(profile.getTitle(), e);
     }
+
     @LauncherAPI
-    public void copyCompareFilesTo(String name, Path targetDir, HashedDir targetHDir, String[] shared)
-    {
-        store.forEach((key,e) -> {
-            if(key.equals(name)) return;
-            FileNameMatcher nm = new FileNameMatcher(shared,null,null);
-            HashedDir compare = targetHDir.sideCompare(e.hdir,nm, new LinkedList<>(), true);
-            compare.map().forEach((arg1,arg2) -> recurseCopy(arg1,arg2,name,targetDir,e.dir));
+    public void copyCompareFilesTo(String name, Path targetDir, HashedDir targetHDir, String[] shared) {
+        store.forEach((key, e) -> {
+            if (key.equals(name)) return;
+            FileNameMatcher nm = new FileNameMatcher(shared, null, null);
+            HashedDir compare = targetHDir.sideCompare(e.hdir, nm, new LinkedList<>(), true);
+            compare.map().forEach((arg1, arg2) -> recurseCopy(arg1, arg2, name, targetDir, e.dir));
         });
     }
+
     @LauncherAPI
-    public void recurseCopy(String filename, HashedEntry entry, String name, Path targetDir, Path sourceDir)
-    {
-        if(!IOHelper.isDir(targetDir)) {
+    public void recurseCopy(String filename, HashedEntry entry, String name, Path targetDir, Path sourceDir) {
+        if (!IOHelper.isDir(targetDir)) {
             try {
                 Files.createDirectories(targetDir);
             } catch (IOException e1) {
                 LogHelper.error(e1);
             }
         }
-        if(entry.getType().equals(HashedEntry.Type.DIR))
-        {
-            ((HashedDir)entry).map().forEach((arg1,arg2) -> recurseCopy(arg1,arg2,name,targetDir.resolve(filename),sourceDir.resolve(filename)));
-        }
-        else if(entry.getType().equals(HashedEntry.Type.FILE))
-        {
+        if (entry.getType().equals(HashedEntry.Type.DIR)) {
+            ((HashedDir) entry).map().forEach((arg1, arg2) -> recurseCopy(arg1, arg2, name, targetDir.resolve(filename), sourceDir.resolve(filename)));
+        } else if (entry.getType().equals(HashedEntry.Type.FILE)) {
             try {
-                IOHelper.copy(sourceDir.resolve(filename),targetDir.resolve(filename));
+                IOHelper.copy(sourceDir.resolve(filename), targetDir.resolve(filename));
             } catch (IOException e) {
                 LogHelper.error(e);
             }

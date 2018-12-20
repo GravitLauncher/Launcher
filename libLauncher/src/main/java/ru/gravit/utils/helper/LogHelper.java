@@ -1,10 +1,13 @@
 package ru.gravit.utils.helper;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Color;
+import org.fusesource.jansi.AnsiConsole;
+import org.fusesource.jansi.AnsiOutputStream;
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.LauncherAPI;
+
+import java.io.*;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,14 +17,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Color;
-import org.fusesource.jansi.AnsiConsole;
-import org.fusesource.jansi.AnsiOutputStream;
-
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
 
 public final class LogHelper {
     @LauncherAPI
@@ -130,6 +125,7 @@ public final class LogHelper {
     public static void printVersion(String product) {
         println(JANSI ? ansiFormatVersion(product) : formatVersion(product));
     }
+
     @LauncherAPI
     public static void printLicense(String product) {
         println(JANSI ? ansiFormatLicense(product) : formatLicense(product));
@@ -278,6 +274,7 @@ public final class LogHelper {
     private static String formatVersion(String product) {
         return String.format("GravitLauncher (fork sashok724's Launcher) %s v%s", product, Launcher.getVersion().toString());
     }
+
     private static String formatLicense(String product) {
         return String.format("License for %s GPLv3. SourceCode: https://github.com/GravitLauncher/Launcher", product);
     }

@@ -1,23 +1,13 @@
 package ru.gravit.launcher.ssl;
 
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.UnrecoverableKeyException;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
+import javax.net.ssl.*;
+import java.security.*;
 
 public class LauncherSSLContext {
     public SSLServerSocketFactory ssf;
     public SSLSocketFactory sf;
     @SuppressWarnings("unused")
-	private SSLContext sc;
+    private SSLContext sc;
 
     public LauncherSSLContext(KeyStore ks, String keypassword) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
         TrustManager[] trustAllCerts = new TrustManager[]{

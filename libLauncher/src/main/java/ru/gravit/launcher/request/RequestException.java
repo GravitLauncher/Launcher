@@ -1,8 +1,8 @@
 package ru.gravit.launcher.request;
 
-import java.io.IOException;
-
 import ru.gravit.launcher.LauncherAPI;
+
+import java.io.IOException;
 
 public final class RequestException extends IOException {
     private static final long serialVersionUID = 7558237657082664821L;

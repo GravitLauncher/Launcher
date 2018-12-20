@@ -1,12 +1,12 @@
 package ru.gravit.launcher.serialize.config;
 
-import java.io.IOException;
-import java.util.Objects;
-
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launcher.serialize.stream.StreamObject;
+
+import java.io.IOException;
+import java.util.Objects;
 
 public abstract class ConfigObject extends StreamObject {
     @FunctionalInterface

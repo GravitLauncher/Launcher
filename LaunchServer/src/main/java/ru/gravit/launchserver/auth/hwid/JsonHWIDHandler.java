@@ -1,13 +1,7 @@
 package ru.gravit.launchserver.auth.hwid;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.OshiHWID;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
@@ -16,25 +10,30 @@ import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 public final class JsonHWIDHandler extends HWIDHandler {
     private static final Gson gson = new Gson();
 
     @SuppressWarnings("unused")
-	private final URL url;
+    private final URL url;
     private final URL urlBan;
     private final URL urlUnBan;
     @SuppressWarnings("unused")
     private final URL urlGet;
 
-    public class banRequest
-    {
+    public class banRequest {
         public banRequest(String hwid) {
             this.hwid = hwid;
         }
+
         String hwid;
     }
-    public class checkRequest
-    {
+
+    public class checkRequest {
         public checkRequest(String username, String hwid) {
             this.username = username;
             this.hwid = hwid;
@@ -44,21 +43,21 @@ public final class JsonHWIDHandler extends HWIDHandler {
         String hwid;
 
     }
-    public class Result
-    {
+
+    public class Result {
         String error;
     }
-    public class BannedResult
-    {
+
+    public class BannedResult {
         boolean isBanned;
         String error;
     }
-    public class HWIDResult
-    {
+
+    public class HWIDResult {
         String string;
     }
-    public class HWIDRequest
-    {
+
+    public class HWIDRequest {
         public HWIDRequest(String username) {
             this.username = username;
         }
@@ -84,8 +83,8 @@ public final class JsonHWIDHandler extends HWIDHandler {
             banRequest request = new banRequest(hwid.getSerializeString());
             try {
                 JsonElement result = HTTPRequest.jsonRequest(gson.toJsonTree(request), urlBan);
-                Result r = gson.fromJson(result,Result.class);
-                if(r.error != null) throw new HWIDException(r.error);
+                Result r = gson.fromJson(result, Result.class);
+                if (r.error != null) throw new HWIDException(r.error);
             } catch (IOException e) {
                 LogHelper.error(e);
                 throw new HWIDException("HWID service error");
@@ -95,11 +94,11 @@ public final class JsonHWIDHandler extends HWIDHandler {
 
     @Override
     public void check0(HWID hwid, String username) throws HWIDException {
-        checkRequest request = new checkRequest(username,hwid.getSerializeString());
+        checkRequest request = new checkRequest(username, hwid.getSerializeString());
         try {
             JsonElement result = HTTPRequest.jsonRequest(gson.toJsonTree(request), urlBan);
-            BannedResult r = gson.fromJson(result,BannedResult.class);
-            if(r.error != null) throw new HWIDException(r.error);
+            BannedResult r = gson.fromJson(result, BannedResult.class);
+            if (r.error != null) throw new HWIDException(r.error);
             boolean isBanned = r.isBanned;
             if (isBanned) throw new HWIDException("You will BANNED!");
         } catch (IOException e) {
@@ -119,10 +118,9 @@ public final class JsonHWIDHandler extends HWIDHandler {
         HWIDRequest request = new HWIDRequest(username);
         try {
             JsonElement result = HTTPRequest.jsonRequest(gson.toJsonTree(request), urlBan);
-            HWIDResult[] r = gson.fromJson(result,HWIDResult[].class);
-            for( HWIDResult hw : r)
-            {
-                hwids.add(OshiHWID.gson.fromJson(hw.string,OshiHWID.class));
+            HWIDResult[] r = gson.fromJson(result, HWIDResult[].class);
+            for (HWIDResult hw : r) {
+                hwids.add(OshiHWID.gson.fromJson(hw.string, OshiHWID.class));
             }
         } catch (IOException e) {
             LogHelper.error(e);
@@ -137,8 +135,8 @@ public final class JsonHWIDHandler extends HWIDHandler {
             banRequest request = new banRequest(hwid.getSerializeString());
             try {
                 JsonElement result = HTTPRequest.jsonRequest(gson.toJsonTree(request), urlUnBan);
-                Result r = gson.fromJson(result,Result.class);
-                if(r.error != null) throw new HWIDException(r.error);
+                Result r = gson.fromJson(result, Result.class);
+                if (r.error != null) throw new HWIDException(r.error);
             } catch (IOException e) {
                 LogHelper.error(e);
                 throw new HWIDException("HWID service error");

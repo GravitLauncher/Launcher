@@ -1,10 +1,10 @@
 package ru.gravit.launcher;
 
+import ru.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.jar.JarFile;
-
-import ru.gravit.utils.helper.LogHelper;
 
 @LauncherAPI
 public class LauncherAgent {

@@ -1,5 +1,9 @@
 package ru.gravit.utils.downloader;
 
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,11 +17,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 
 public class Downloader implements Runnable {
     @FunctionalInterface

@@ -1,6 +1,25 @@
 package ru.gravit.launcher.server;
 
 
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.launcher.request.auth.AuthServerRequest;
+import ru.gravit.launcher.request.update.ProfilesRequest;
+import ru.gravit.launcher.serialize.config.ConfigObject;
+import ru.gravit.launcher.serialize.config.TextConfigReader;
+import ru.gravit.launcher.serialize.config.TextConfigWriter;
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
+import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
+import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
+import ru.gravit.utils.PublicURLClassLoader;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -13,34 +32,15 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.request.auth.AuthServerRequest;
-import ru.gravit.launcher.serialize.config.ConfigObject;
-import ru.gravit.launcher.serialize.config.TextConfigReader;
-import ru.gravit.launcher.serialize.config.TextConfigWriter;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
-import ru.gravit.utils.PublicURLClassLoader;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.launcher.profiles.ClientProfile;
-import ru.gravit.launcher.request.update.ProfilesRequest;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
-import ru.gravit.utils.helper.SecurityHelper;
-
 public class ServerWrapper {
     public static ModulesManager modulesManager;
     public static Config config;
     public static PublicURLClassLoader ucp;
     public static ClassLoader loader;
 
-    public static Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir","modules"));
-    public static Path configFile = Paths.get(System.getProperty("serverwrapper.configFile","ServerWrapper.cfg"));
-    public static Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile","public.key"));
+    public static Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
+    public static Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapper.cfg"));
+    public static Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile", "public.key"));
 
     public static boolean auth(ServerWrapper wrapper) {
         try {
@@ -101,47 +101,40 @@ public class ServerWrapper {
             CommonHelper.newThread("Server Auth Thread", true, () -> ServerWrapper.loopAuth(wrapper, config.reconnectCount, config.reconnectSleep));
         modulesManager.initModules();
         String classname = config.mainclass.isEmpty() ? args[0] : config.mainclass;
-        if(classname.length() == 0)
-        {
+        if (classname.length() == 0) {
             LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.cfg or first commandline argument");
         }
         Class<?> mainClass;
-        if(config.customClassPath)
-        {
+        if (config.customClassPath) {
             String[] cp = config.classpath.split(":");
-            if(!ServerAgent.isAgentStarted())
-            {
+            if (!ServerAgent.isAgentStarted()) {
                 LogHelper.warning("JavaAgent not found. Using URLClassLoader");
                 URL[] urls = Arrays.stream(cp).map(Paths::get).map(IOHelper::toURL).toArray(URL[]::new);
                 ucp = new PublicURLClassLoader(urls);
                 Thread.currentThread().setContextClassLoader(ucp);
                 loader = ucp;
-            }
-            else
-            {
-                LogHelper.info("Found %d custom classpath elements",cp.length);
-                for(String c : cp)
+            } else {
+                LogHelper.info("Found %d custom classpath elements", cp.length);
+                for (String c : cp)
                     ServerAgent.addJVMClassPath(c);
             }
         }
-        if(config.autoloadLibraries)
-        {
-            if(!ServerAgent.isAgentStarted())
-            {
+        if (config.autoloadLibraries) {
+            if (!ServerAgent.isAgentStarted()) {
                 throw new UnsupportedOperationException("JavaAgent not found, autoloadLibraries not available");
             }
             Path librariesDir = Paths.get(config.librariesDir);
             LogHelper.info("Load libraries");
             ServerAgent.loadLibraries(librariesDir);
         }
-        if(loader != null) mainClass = Class.forName(classname,true, loader);
+        if (loader != null) mainClass = Class.forName(classname, true, loader);
         else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         String[] real_args = new String[args.length - 1];
         System.arraycopy(args, 1, real_args, 0, args.length - 1);
         modulesManager.postInitModules();
-        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s",config.projectname,config.address,config.port,config.title);
-        LogHelper.info("Minecraft Version (for profile): %s",wrapper.profile.getVersion().name);
+        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s", config.projectname, config.address, config.port, config.title);
+        LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
         mainMethod.invoke(real_args);

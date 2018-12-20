@@ -1,10 +1,10 @@
 package ru.gravit.launcher.server;
 
+import ru.gravit.launcher.modules.SimpleModuleManager;
+import ru.gravit.utils.PublicURLClassLoader;
+
 import java.net.URL;
 import java.util.ArrayList;
-
-import ru.gravit.utils.PublicURLClassLoader;
-import ru.gravit.launcher.modules.SimpleModuleManager;
 
 public class ModulesManager extends SimpleModuleManager {
     public ModulesManager(ServerWrapper wrapper) {

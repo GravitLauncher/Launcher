@@ -42,33 +42,33 @@ public class ServerAgent {
     public static long getObjSize(Object obj) {
         return inst.getObjectSize(obj);
     }
-    public static Boolean isAutoloadLibraries = Boolean.getBoolean(System.getProperty("serverwrapper,agentlibrariesload","false"));
-    public static Boolean isAgentProxy = Boolean.getBoolean(System.getProperty("serverwrapper,agentproxy","false"));
+
+    public static Boolean isAutoloadLibraries = Boolean.getBoolean(System.getProperty("serverwrapper,agentlibrariesload", "false"));
+    public static Boolean isAgentProxy = Boolean.getBoolean(System.getProperty("serverwrapper,agentproxy", "false"));
+
     public static void premain(String agentArgument, Instrumentation instrumentation) {
         LogHelper.debug("Server Agent");
         inst = instrumentation;
         isAgentStarted = true;
-        if(isAutoloadLibraries)
-        {
+        if (isAutoloadLibraries) {
             Path libraries = Paths.get("libraries");
-            if(IOHelper.exists(libraries)) loadLibraries(libraries);
+            if (IOHelper.exists(libraries)) loadLibraries(libraries);
         }
-        if(isAgentProxy)
-        {
+        if (isAgentProxy) {
             String proxyClassName = System.getProperty("serverwrapper,agentproxyclass");
             Class proxyClass;
             try {
                 proxyClass = Class.forName(proxyClassName);
                 MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(proxyClass, "premain", MethodType.methodType(void.class, String.class, Instrumentation.class));
-                Object[] args = {agentArgument,instrumentation};
+                Object[] args = {agentArgument, instrumentation};
                 mainMethod.invoke(args);
             } catch (Throwable e) {
                 e.printStackTrace();
             }
         }
     }
-    public static void loadLibraries(Path dir)
-    {
+
+    public static void loadLibraries(Path dir) {
         try {
             Files.walkFileTree(dir, Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new StarterVisitor());
         } catch (IOException e) {

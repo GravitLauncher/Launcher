@@ -1,21 +1,5 @@
 package ru.gravit.launcher.request.update;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.SignatureException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.LinkedList;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Queue;
-import java.util.zip.InflaterInputStream;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
@@ -35,12 +19,28 @@ import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.SignatureException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.LinkedList;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.zip.InflaterInputStream;
+
 public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> {
 
     public static final class State {
         @FunctionalInterface
         public interface Callback {
-        	@LauncherAPI
+            @LauncherAPI
             void call(State state);
         }
 

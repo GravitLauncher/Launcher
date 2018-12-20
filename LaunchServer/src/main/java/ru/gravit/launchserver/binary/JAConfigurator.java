@@ -1,16 +1,11 @@
-	package ru.gravit.launchserver.binary;
+package ru.gravit.launchserver.binary;
+
+import javassist.*;
+import ru.gravit.launcher.LauncherConfig;
 
 import java.io.IOException;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtMethod;
-import javassist.NotFoundException;
-import ru.gravit.launcher.LauncherConfig;
-
-    public class JAConfigurator implements AutoCloseable {
+public class JAConfigurator implements AutoCloseable {
     public ClassPool pool;
     public CtClass ctClass;
     public CtConstructor ctConstructor;
@@ -21,9 +16,9 @@ import ru.gravit.launcher.LauncherConfig;
     int autoincrement;
 
     public JAConfigurator(String configclass, JARLauncherBinary jarLauncherBinary) throws NotFoundException {
-    	pool = new ClassPool(false);
-    	pool.insertClassPath(jarLauncherBinary.cleanJar.toFile().getAbsolutePath());
-    	pool.appendSystemPath();
+        pool = new ClassPool(false);
+        pool.insertClassPath(jarLauncherBinary.cleanJar.toFile().getAbsolutePath());
+        pool.appendSystemPath();
         classname = configclass;
         ctClass = pool.get(classname);
         ctConstructor = ctClass.getDeclaredConstructor(null);
@@ -93,10 +88,10 @@ import ru.gravit.launcher.LauncherConfig;
         body.append(port);
         body.append(";");
     }
+
     public void setEnv(LauncherConfig.LauncherEnvironment env) {
         int i = 2;
-        switch(env)
-        {
+        switch (env) {
 
             case DEV:
                 i = 0;
@@ -133,6 +128,7 @@ import ru.gravit.launcher.LauncherConfig;
         body.append(b ? "true" : "false");
         body.append(";");
     }
+
     public void setWarningMissArchJava(boolean b) {
         body.append("this.isWarningMissArchJava = ");
         body.append(b ? "true" : "false");

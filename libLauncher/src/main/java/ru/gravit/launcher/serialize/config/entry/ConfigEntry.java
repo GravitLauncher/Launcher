@@ -1,14 +1,14 @@
 package ru.gravit.launcher.serialize.config.entry;
 
-import java.io.IOException;
-import java.util.Objects;
-
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.EnumSerializer;
 import ru.gravit.launcher.serialize.stream.EnumSerializer.Itf;
 import ru.gravit.launcher.serialize.stream.StreamObject;
+
+import java.io.IOException;
+import java.util.Objects;
 
 public abstract class ConfigEntry<V> extends StreamObject {
     @LauncherAPI

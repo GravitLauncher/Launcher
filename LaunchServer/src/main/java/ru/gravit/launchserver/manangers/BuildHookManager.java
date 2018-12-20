@@ -1,16 +1,16 @@
 package ru.gravit.launchserver.manangers;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipOutputStream;
-
 import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.modules.TestClientModule;
 import ru.gravit.launchserver.binary.BuildContext;
 import ru.gravit.launchserver.binary.JAConfigurator;
 import ru.gravit.launchserver.binary.JARLauncherBinary;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipOutputStream;
 
 public class BuildHookManager {
     @FunctionalInterface
@@ -64,30 +64,30 @@ public class BuildHookManager {
     }
 
     public NodeTransformer getProguardNoder() {
-		return proguardNoder;
-	}
+        return proguardNoder;
+    }
 
-	public NodeTransformer getNoder() {
-		return noder;
-	}
+    public NodeTransformer getNoder() {
+        return noder;
+    }
 
-	public Set<ZipBuildHook> getProguardBuildHooks() {
-		return POST_PROGUARD_BUILDHOOKS;
-	}
+    public Set<ZipBuildHook> getProguardBuildHooks() {
+        return POST_PROGUARD_BUILDHOOKS;
+    }
 
-	public Set<Runnable> getPostProguardRunHooks() {
-		return POST_PROGUARDRUN_HOOKS;
-	}
-    
+    public Set<Runnable> getPostProguardRunHooks() {
+        return POST_PROGUARDRUN_HOOKS;
+    }
+
     public void addPostProguardRunHook(Runnable hook) {
-    	POST_PROGUARDRUN_HOOKS.add(hook);
-    }
-    
-    public void addPostProguardRunHook(ZipBuildHook hook) {
-    	POST_PROGUARD_BUILDHOOKS.add(hook);
+        POST_PROGUARDRUN_HOOKS.add(hook);
     }
 
-	public void autoRegisterIgnoredClass(String clazz) {
+    public void addPostProguardRunHook(ZipBuildHook hook) {
+        POST_PROGUARD_BUILDHOOKS.add(hook);
+    }
+
+    public void autoRegisterIgnoredClass(String clazz) {
         CLASS_BLACKLIST.add(clazz.replace('.', '/').concat(".class"));
     }
 
@@ -116,10 +116,10 @@ public class BuildHookManager {
     }
 
     public boolean isContainsBlacklist(String clazz) {
-    	for (String classB : CLASS_BLACKLIST) {
-    		if (clazz.startsWith(classB)) return true;
-    	}
-    	return false;
+        for (String classB : CLASS_BLACKLIST) {
+            if (clazz.startsWith(classB)) return true;
+        }
+        return false;
     }
 
     public void postHook(BuildContext context) {

@@ -105,14 +105,17 @@ public class RingProgressIndicatorSkin implements Skin<RingProgressIndicator> {
             transition.stop();
         }
     }
+
     @Override
     public RingProgressIndicator getSkinnable() {
         return indicator;
     }
+
     @Override
     public Node getNode() {
         return container;
     }
+
     @Override
     public void dispose() {
         transition.stop();

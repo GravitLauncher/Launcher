@@ -1,8 +1,8 @@
 package ru.gravit.utils;
 
-import java.util.Objects;
-
 import ru.gravit.launcher.LauncherAPI;
+
+import java.util.Objects;
 
 public class Version {
     @LauncherAPI

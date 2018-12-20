@@ -1,34 +1,5 @@
 package ru.gravit.launchserver.socket;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.TrustManager;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -53,10 +24,33 @@ import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.TrustManager;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+
 @SuppressWarnings({"unused", "rawtypes"})
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private static final String WEBSOCKET_PATH = "/api";
-	private static SSLServerSocketFactory ssf;
+    private static SSLServerSocketFactory ssf;
     private static final ThreadFactory THREAD_FACTORY = r -> CommonHelper.newThread("Network Thread", true, r);
 
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
@@ -65,7 +59,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private final ExecutorService threadPool = Executors.newCachedThreadPool(THREAD_FACTORY);
 
     // API
-	private final Map<String, Response.Factory> customResponses = new ConcurrentHashMap<>(2);
+    private final Map<String, Response.Factory> customResponses = new ConcurrentHashMap<>(2);
     private final AtomicLong idCounter = new AtomicLong(0L);
     private Set<Socket> sockets;
     private volatile Listener listener;

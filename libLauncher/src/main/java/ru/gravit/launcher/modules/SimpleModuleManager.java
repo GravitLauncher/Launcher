@@ -1,21 +1,17 @@
 package ru.gravit.launcher.modules;
 
+import ru.gravit.utils.PublicURLClassLoader;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-import ru.gravit.utils.PublicURLClassLoader;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 
 public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseable {
     protected final class ModulesVisitor extends SimpleFileVisitor<Path> {
@@ -119,7 +115,7 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
         LogHelper.info("Module %s version: %s loaded", module.getName(), module.getVersion());
         f.close();
     }
-    
+
     @Override
 
     public void loadModule(URL jarpath, String classname, boolean preload) throws ClassNotFoundException, IllegalAccessException, InstantiationException {

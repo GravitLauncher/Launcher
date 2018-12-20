@@ -1,11 +1,7 @@
 package ru.gravit.launcher.hwid;
 
 import oshi.SystemInfo;
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.ComputerSystem;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.UsbDevice;
+import oshi.hardware.*;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.LauncherHWIDInterface;
 import ru.gravit.launcher.OshiHWID;
@@ -13,30 +9,28 @@ import ru.gravit.utils.helper.LogHelper;
 
 public class OshiHWIDProvider implements LauncherHWIDInterface {
     public static SystemInfo systemInfo = new SystemInfo();
-    public String getSerial()
-    {
+
+    public String getSerial() {
         try {
             return systemInfo.getHardware().getComputerSystem().getSerialNumber();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             LogHelper.error(e);
             return "";
         }
 
     }
-    public String getProcessorID()
-    {
+
+    public String getProcessorID() {
         try {
             return systemInfo.getHardware().getProcessor().getProcessorID();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             LogHelper.error(e);
             return "";
         }
 
     }
-    public String getHWDisk()
-    {
+
+    public String getHWDisk() {
         try {
             HWDiskStore store = null;
             long size = 0;
@@ -47,36 +41,34 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
                 }
             }
             return store == null ? "" : store.getSerial();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             LogHelper.error(e);
             return "";
         }
     }
-    public long getTotalMemory()
-    {
+
+    public long getTotalMemory() {
         return systemInfo.getHardware().getMemory().getTotal();
     }
-    public long getAvailableMemory()
-    {
+
+    public long getAvailableMemory() {
         return systemInfo.getHardware().getMemory().getAvailable();
     }
-    public void printHardwareInformation()
-    {
+
+    public void printHardwareInformation() {
         HardwareAbstractionLayer hardware = systemInfo.getHardware();
         ComputerSystem computerSystem = hardware.getComputerSystem();
-        LogHelper.debug("ComputerSystem Model: %s Serial: %s",computerSystem.getModel(),computerSystem.getSerialNumber());
-        for (HWDiskStore s : systemInfo.getHardware().getDiskStores())
-        {
-            LogHelper.debug("HWDiskStore Serial: %s Model: %s Size: %d",s.getSerial(),s.getModel(),s.getSize());
+        LogHelper.debug("ComputerSystem Model: %s Serial: %s", computerSystem.getModel(), computerSystem.getSerialNumber());
+        for (HWDiskStore s : systemInfo.getHardware().getDiskStores()) {
+            LogHelper.debug("HWDiskStore Serial: %s Model: %s Size: %d", s.getSerial(), s.getModel(), s.getSize());
         }
-        for (UsbDevice s : systemInfo.getHardware().getUsbDevices(true))
-        {
-            LogHelper.debug("USBDevice Serial: %s Name: %s",s.getSerialNumber(),s.getName());
+        for (UsbDevice s : systemInfo.getHardware().getUsbDevices(true)) {
+            LogHelper.debug("USBDevice Serial: %s Name: %s", s.getSerialNumber(), s.getName());
         }
         CentralProcessor processor = hardware.getProcessor();
-        LogHelper.debug("Processor Model: %s ID: %s",processor.getModel(),processor.getProcessorID());
+        LogHelper.debug("Processor Model: %s ID: %s", processor.getModel(), processor.getProcessorID());
     }
+
     @Override
     public HWID getHWID() {
         OshiHWID hwid = new OshiHWID();

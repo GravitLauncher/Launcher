@@ -1,10 +1,10 @@
 package ru.gravit.launchserver.auth.hwid;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AcceptHWIDHandler extends HWIDHandler {
 

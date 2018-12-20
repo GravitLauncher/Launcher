@@ -1,15 +1,15 @@
 package ru.gravit.launchserver.texture;
 
+import ru.gravit.launcher.profiles.Texture;
+import ru.gravit.launcher.serialize.config.ConfigObject;
+import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+import ru.gravit.utils.helper.VerifyHelper;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import ru.gravit.launcher.profiles.Texture;
-import ru.gravit.launcher.serialize.config.ConfigObject;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.utils.helper.VerifyHelper;
 
 public abstract class TextureProvider extends ConfigObject implements AutoCloseable {
     private static final Map<String, Adapter<TextureProvider>> TEXTURE_PROVIDERS = new ConcurrentHashMap<>(2);

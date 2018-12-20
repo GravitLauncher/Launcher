@@ -1,7 +1,5 @@
 package ru.gravit.launchserver.socket.websocket.json.auth;
 
-import java.util.Collection;
-
 import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.profiles.ClientProfile;
@@ -16,6 +14,8 @@ import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.util.Collection;
 
 public class AuthResponse implements JsonResponseInterface {
     public String login;

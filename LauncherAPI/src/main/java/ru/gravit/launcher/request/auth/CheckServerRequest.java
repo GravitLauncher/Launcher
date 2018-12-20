@@ -1,7 +1,5 @@
 package ru.gravit.launcher.request.auth;
 
-import java.io.IOException;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
@@ -13,6 +11,8 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
 
 public final class CheckServerRequest extends Request<PlayerProfile> {
     private final String username;

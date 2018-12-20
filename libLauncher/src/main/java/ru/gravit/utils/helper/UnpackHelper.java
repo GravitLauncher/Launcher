@@ -18,7 +18,7 @@ public class UnpackHelper {
         Files.deleteIfExists(target);
         Files.createFile(target);
         try (InputStream in = IOHelper.newInput(resource)) {
-        	IOHelper.transfer(in, target);
+            IOHelper.transfer(in, target);
         }
         return true;
     }
@@ -47,24 +47,24 @@ public class UnpackHelper {
         }
         return true;
     }
-    
+
     public static boolean unpackZipNoCheck(String resource, Path target) throws IOException {
         try {
-        	if (Files.isDirectory(target))
-    			return false;
-        	Files.deleteIfExists(target);
-        	Files.createDirectory(target);
-        	try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL(resource))) {
-            	for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
-                	if (entry.isDirectory())
-                		continue; // Skip dirs
-                	// Unpack file
-                	IOHelper.transfer(input, target.resolve(IOHelper.toPath(entry.getName())));
-            	}
-        	}
-        	return true;
+            if (Files.isDirectory(target))
+                return false;
+            Files.deleteIfExists(target);
+            Files.createDirectory(target);
+            try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL(resource))) {
+                for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
+                    if (entry.isDirectory())
+                        continue; // Skip dirs
+                    // Unpack file
+                    IOHelper.transfer(input, target.resolve(IOHelper.toPath(entry.getName())));
+                }
+            }
+            return true;
         } catch (NoSuchFileException e) {
-        	return true;
+            return true;
         }
     }
 }

@@ -1,8 +1,8 @@
 package ru.gravit.launcher;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.application.Application;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("AbstractClassNeverImplemented")
 public abstract class JSApplication extends Application {

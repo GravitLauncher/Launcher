@@ -1,7 +1,6 @@
 package ru.gravit.launchserver.socket.websocket;
 
 import com.google.gson.GsonBuilder;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.DefaultChannelGroup;

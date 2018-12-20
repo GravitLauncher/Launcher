@@ -1,21 +1,17 @@
 package ru.gravit.launcher;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.util.*;
 
 public final class LauncherConfig extends StreamObject {
     @LauncherAPI
@@ -59,17 +55,16 @@ public final class LauncherConfig extends StreamObject {
         isUsingWrapper = config.isUsingWrapper;
         isWarningMissArchJava = config.isWarningMissArchJava;
         LauncherEnvironment env;
-        if(config.env == 0) env = LauncherEnvironment.DEV;
-        else if(config.env == 1) env = LauncherEnvironment.DEBUG;
-        else if(config.env == 2) env = LauncherEnvironment.STD;
-        else if(config.env == 3) env = LauncherEnvironment.PROD;
+        if (config.env == 0) env = LauncherEnvironment.DEV;
+        else if (config.env == 1) env = LauncherEnvironment.DEBUG;
+        else if (config.env == 2) env = LauncherEnvironment.STD;
+        else if (config.env == 3) env = LauncherEnvironment.PROD;
         else env = LauncherEnvironment.STD;
-        if(env == LauncherEnvironment.PROD) {
+        if (env == LauncherEnvironment.PROD) {
             LogHelper.setStacktraceEnabled(false);
             LogHelper.setDebugEnabled(false);
         }
-        if(env == LauncherEnvironment.DEV || env == LauncherEnvironment.DEBUG)
-        {
+        if (env == LauncherEnvironment.DEV || env == LauncherEnvironment.DEBUG) {
             LogHelper.setDebugEnabled(true);
         }
         // Read signed runtime
@@ -127,8 +122,7 @@ public final class LauncherConfig extends StreamObject {
         }
     }
 
-    public enum LauncherEnvironment
-    {
-        DEV,DEBUG,STD,PROD
+    public enum LauncherEnvironment {
+        DEV, DEBUG, STD, PROD
     }
 }

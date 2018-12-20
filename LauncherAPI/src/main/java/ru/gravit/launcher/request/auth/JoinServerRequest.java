@@ -1,7 +1,5 @@
 package ru.gravit.launcher.request.auth;
 
-import java.io.IOException;
-
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.request.Request;
@@ -11,6 +9,8 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
 
 public final class JoinServerRequest extends Request<Boolean> {
 

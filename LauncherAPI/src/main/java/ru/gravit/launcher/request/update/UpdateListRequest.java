@@ -1,10 +1,5 @@
 package ru.gravit.launcher.request.update;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.request.Request;
@@ -12,6 +7,11 @@ import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.IOHelper;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class UpdateListRequest extends Request<Set<String>> {
     @LauncherAPI

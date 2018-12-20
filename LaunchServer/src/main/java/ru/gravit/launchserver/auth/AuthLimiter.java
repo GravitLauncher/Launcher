@@ -1,12 +1,12 @@
 package ru.gravit.launchserver.auth;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launchserver.LaunchServer;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class AuthLimiter implements NeedGarbageCollection {
     static class AuthEntry {
@@ -54,12 +54,13 @@ public class AuthLimiter implements NeedGarbageCollection {
     public final int rateLimitMilis;
 
     private final HashMap<String, AuthEntry> map;
-	private final List<String> excludeIps;
+    private final List<String> excludeIps;
 
     public AuthLimiter(LaunchServer srv) {
         map = new HashMap<>();
         excludeIps = new ArrayList<>();
-        if (srv.config.authLimitExclusions != null) srv.config.authLimitExclusions.stream(StringConfigEntry.class).forEach(excludeIps::add);
+        if (srv.config.authLimitExclusions != null)
+            srv.config.authLimitExclusions.stream(StringConfigEntry.class).forEach(excludeIps::add);
         rateLimit = srv.config.authRateLimit;
         rateLimitMilis = srv.config.authRateLimitMilis;
     }
@@ -72,7 +73,7 @@ public class AuthLimiter implements NeedGarbageCollection {
     }
 
     public boolean isLimit(String ip) {
-    	if (excludeIps.contains(ip)) return false;
+        if (excludeIps.contains(ip)) return false;
         if (map.containsKey(ip)) {
             AuthEntry rate = map.get(ip);
             long currenttime = System.currentTimeMillis();

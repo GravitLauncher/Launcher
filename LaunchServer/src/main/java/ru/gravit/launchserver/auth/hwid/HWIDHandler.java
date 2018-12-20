@@ -1,14 +1,14 @@
 package ru.gravit.launchserver.auth.hwid;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.serialize.config.ConfigObject;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class HWIDHandler extends ConfigObject implements AutoCloseable {
     private static final Map<String, Adapter<HWIDHandler>> HW_HANDLERS = new ConcurrentHashMap<>(4);

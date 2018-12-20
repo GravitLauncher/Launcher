@@ -1,5 +1,15 @@
 package ru.gravit.launchserver.command.hash;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.command.Command;
+import ru.gravit.launchserver.command.CommandException;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -9,21 +19,10 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.command.Command;
-import ru.gravit.launchserver.command.CommandException;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
-
 public final class IndexAssetCommand extends Command {
     private static Gson gson = new Gson();
-    public static class IndexObject
-    {
+
+    public static class IndexObject {
         long size;
 
         public IndexObject(long size, String hash) {
@@ -33,6 +32,7 @@ public final class IndexAssetCommand extends Command {
 
         String hash;
     }
+
     private static final class IndexAssetVisitor extends SimpleFileVisitor<Path> {
         private final JsonArray objects;
         private final Path inputAssetDir;
@@ -51,7 +51,7 @@ public final class IndexAssetCommand extends Command {
 
             // Add to index and copy file
             String digest = SecurityHelper.toHex(SecurityHelper.digest(DigestAlgorithm.SHA1, file));
-            IndexObject obj = new IndexObject(attrs.size(),digest);
+            IndexObject obj = new IndexObject(attrs.size(), digest);
             objects.add(gson.toJsonTree(obj));
             IOHelper.copy(file, resolveObjectFile(outputAssetDir, digest));
 

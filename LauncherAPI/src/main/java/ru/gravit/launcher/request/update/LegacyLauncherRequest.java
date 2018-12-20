@@ -1,13 +1,5 @@
 package ru.gravit.launcher.request.update;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.security.SignatureException;
-import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
@@ -22,6 +14,14 @@ import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.security.SignatureException;
+import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public final class LegacyLauncherRequest extends Request<Result> {
     public static final class Result {

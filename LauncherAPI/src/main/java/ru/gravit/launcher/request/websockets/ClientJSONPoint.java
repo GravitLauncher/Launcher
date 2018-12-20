@@ -1,13 +1,8 @@
 package ru.gravit.launcher.request.websockets;
 
+import javax.websocket.*;
 import java.io.IOException;
 import java.io.Reader;
-
-import javax.websocket.ClientEndpoint;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
 
 /*
  * public class Client {

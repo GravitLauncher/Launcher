@@ -1,22 +1,18 @@
 package ru.gravit.launchserver.socket;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class ServerSocketHandler implements Runnable, AutoCloseable {
     public interface Listener {
@@ -52,7 +48,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
     public ServerSocketHandler(LaunchServer server, SessionManager sessionManager) {
         this.server = server;
         threadPool = new ThreadPoolExecutor(server.config.threadCoreCount, Integer.MAX_VALUE,
-        		server.config.threadCount, TimeUnit.SECONDS,
+                server.config.threadCount, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),
                 THREAD_FACTORY);
         this.sessionManager = sessionManager;

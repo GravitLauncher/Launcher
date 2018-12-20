@@ -1,14 +1,14 @@
 package ru.gravit.launcher.serialize.config.entry;
 
+import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.serialize.HOutput;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
 
 public final class ListConfigEntry extends ConfigEntry<List<ConfigEntry<?>>> {
     private static List<ConfigEntry<?>> readList(HInput input, boolean ro) throws IOException {

@@ -1,12 +1,5 @@
 package ru.gravit.launchserver.response.auth;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.UUID;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-
 import ru.gravit.launcher.OshiHWID;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
@@ -25,6 +18,12 @@ import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.UUID;
 
 public final class AuthResponse extends Response {
     private static String echo(int length) {
@@ -91,7 +90,7 @@ public final class AuthResponse extends Response {
                     throw new AuthException("You profile not found");
                 }
             }
-            server.config.hwidHandler.check(OshiHWID.gson.fromJson(hwid_str,OshiHWID.class), result.username);
+            server.config.hwidHandler.check(OshiHWID.gson.fromJson(hwid_str, OshiHWID.class), result.username);
         } catch (AuthException | HWIDException e) {
             requestError(e.getMessage());
             return;

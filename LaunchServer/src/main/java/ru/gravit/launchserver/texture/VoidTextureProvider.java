@@ -1,9 +1,9 @@
 package ru.gravit.launchserver.texture;
 
-import java.util.UUID;
-
 import ru.gravit.launcher.profiles.Texture;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
+
+import java.util.UUID;
 
 public final class VoidTextureProvider extends TextureProvider {
     public VoidTextureProvider(BlockConfigEntry block) {

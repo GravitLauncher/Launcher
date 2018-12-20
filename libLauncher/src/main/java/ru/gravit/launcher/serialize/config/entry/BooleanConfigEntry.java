@@ -1,10 +1,10 @@
 package ru.gravit.launcher.serialize.config.entry;
 
-import java.io.IOException;
-
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
+
+import java.io.IOException;
 
 public final class BooleanConfigEntry extends ConfigEntry<Boolean> {
     @LauncherAPI

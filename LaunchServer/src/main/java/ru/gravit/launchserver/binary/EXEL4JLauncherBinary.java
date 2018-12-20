@@ -1,19 +1,15 @@
 package ru.gravit.launchserver.binary;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
 import net.sf.launch4j.Builder;
 import net.sf.launch4j.Log;
-import net.sf.launch4j.config.Config;
-import net.sf.launch4j.config.ConfigPersister;
-import net.sf.launch4j.config.Jre;
-import net.sf.launch4j.config.LanguageID;
-import net.sf.launch4j.config.VersionInfo;
+import net.sf.launch4j.config.*;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
+
+import java.io.IOException;
+import java.nio.file.Path;
 
 public final class EXEL4JLauncherBinary extends LauncherBinary {
     private final static class Launch4JLog extends Log {

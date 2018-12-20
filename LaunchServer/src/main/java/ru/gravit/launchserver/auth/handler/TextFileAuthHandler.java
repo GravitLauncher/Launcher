@@ -1,13 +1,5 @@
 package ru.gravit.launchserver.auth.handler;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
 import ru.gravit.launcher.serialize.config.TextConfigReader;
 import ru.gravit.launcher.serialize.config.TextConfigWriter;
 import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
@@ -16,6 +8,14 @@ import ru.gravit.launcher.serialize.config.entry.ConfigEntry.Type;
 import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public final class TextFileAuthHandler extends FileAuthHandler {
     private static StringConfigEntry cc(String value) {

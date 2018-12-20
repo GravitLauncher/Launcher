@@ -1,14 +1,13 @@
 package ru.gravit.utils.helper;
 
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import ru.gravit.launcher.LauncherAPI;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
-
-import ru.gravit.launcher.LauncherAPI;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class CommonHelper {
     @LauncherAPI

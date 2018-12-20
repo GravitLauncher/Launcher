@@ -1,13 +1,13 @@
 package ru.gravit.launcher.serialize.signed;
 
+import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.serialize.stream.StreamObject;
+
 import java.io.IOException;
 import java.security.SignatureException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.stream.StreamObject;
 
 public final class SignedObjectHolder<O extends StreamObject> extends SignedBytesHolder {
     @LauncherAPI

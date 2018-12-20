@@ -1,9 +1,5 @@
 package ru.gravit.launcher.request.update;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.profiles.ClientProfile;
@@ -12,6 +8,10 @@ import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public final class ProfilesRequest extends Request<ProfilesRequest.Result> {
 

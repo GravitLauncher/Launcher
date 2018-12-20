@@ -1,48 +1,21 @@
 package ru.gravit.launchserver.command.handler;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
-import ru.gravit.launchserver.command.auth.AuthCommand;
-import ru.gravit.launchserver.command.auth.BanCommand;
-import ru.gravit.launchserver.command.auth.UUIDToUsernameCommand;
-import ru.gravit.launchserver.command.auth.UnbanCommand;
-import ru.gravit.launchserver.command.auth.UsernameToUUIDCommand;
-import ru.gravit.launchserver.command.basic.BuildCommand;
-import ru.gravit.launchserver.command.basic.ClearCommand;
-import ru.gravit.launchserver.command.basic.DebugCommand;
-import ru.gravit.launchserver.command.basic.GCCommand;
-import ru.gravit.launchserver.command.basic.HelpCommand;
-import ru.gravit.launchserver.command.basic.LogConnectionsCommand;
-import ru.gravit.launchserver.command.basic.ProguardCleanCommand;
-import ru.gravit.launchserver.command.basic.RebindCommand;
-import ru.gravit.launchserver.command.basic.RegenProguardDictCommand;
-import ru.gravit.launchserver.command.basic.RemoveMappingsProguardCommand;
-import ru.gravit.launchserver.command.basic.StopCommand;
-import ru.gravit.launchserver.command.basic.TestCommand;
-import ru.gravit.launchserver.command.basic.VersionCommand;
-import ru.gravit.launchserver.command.hash.DownloadAssetCommand;
-import ru.gravit.launchserver.command.hash.DownloadClientCommand;
-import ru.gravit.launchserver.command.hash.IndexAssetCommand;
-import ru.gravit.launchserver.command.hash.SyncBinariesCommand;
-import ru.gravit.launchserver.command.hash.SyncProfilesCommand;
-import ru.gravit.launchserver.command.hash.SyncUpdatesCommand;
-import ru.gravit.launchserver.command.hash.UnindexAssetCommand;
+import ru.gravit.launchserver.command.auth.*;
+import ru.gravit.launchserver.command.basic.*;
+import ru.gravit.launchserver.command.hash.*;
 import ru.gravit.launchserver.command.modules.LoadModuleCommand;
 import ru.gravit.launchserver.command.modules.ModulesCommand;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class CommandHandler implements Runnable {
     private static String[] parse(CharSequence line) throws CommandException {

@@ -1,9 +1,5 @@
 package ru.gravit.launcher.request.uuid;
 
-import java.io.IOException;
-import java.util.Objects;
-import java.util.UUID;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
@@ -13,6 +9,10 @@ import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
+
+import java.io.IOException;
+import java.util.Objects;
+import java.util.UUID;
 
 public final class ProfileByUUIDRequest extends Request<PlayerProfile> {
     private final UUID uuid;
