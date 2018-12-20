@@ -12,7 +12,7 @@ import java.util.List;
 
 public class NodeTransformer implements Transformer {
     @FunctionalInterface
-    public static interface ClassNodeTransformer {
+    public interface ClassNodeTransformer {
         void transform(ClassNode node, String classname, JARLauncherBinary data);
     }
 

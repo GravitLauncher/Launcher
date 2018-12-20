@@ -14,17 +14,17 @@ import java.util.zip.ZipOutputStream;
 
 public class BuildHookManager {
     @FunctionalInterface
-    public static interface ZipBuildHook {
+    public interface ZipBuildHook {
         void build(ZipOutputStream context);
     }
 
     @FunctionalInterface
-    public static interface BuildHook {
+    public interface BuildHook {
         void build(BuildContext context);
     }
 
     @FunctionalInterface
-    public static interface Transformer {
+    public interface Transformer {
         byte[] transform(byte[] input, String classname, JARLauncherBinary data);
     }
 

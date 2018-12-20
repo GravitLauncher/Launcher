@@ -82,6 +82,7 @@ public class ServerWrapper {
         return false;
     }
 
+    @SuppressWarnings("ConfusingArgumentToVarargsMethod")
     public static void main(String[] args) throws Throwable {
         ServerWrapper wrapper = new ServerWrapper();
         LogHelper.printVersion("ServerWrapper");

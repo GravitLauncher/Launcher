@@ -49,7 +49,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
         this.server = server;
         threadPool = new ThreadPoolExecutor(server.config.threadCoreCount, Integer.MAX_VALUE,
                 server.config.threadCount, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(),
+                new SynchronousQueue<>(),
                 THREAD_FACTORY);
         this.sessionManager = sessionManager;
     }

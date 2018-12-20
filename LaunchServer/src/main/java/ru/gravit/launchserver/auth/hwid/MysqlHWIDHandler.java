@@ -94,7 +94,6 @@ public class MysqlHWIDHandler extends HWIDHandler {
                 }
                 if (needWrite) {
                     writeHWID(hwid, username, c);
-                    return;
                 }
             }
         } catch (SQLException e) {
