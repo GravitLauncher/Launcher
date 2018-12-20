@@ -20,7 +20,7 @@ var config = {
 
 // ====== DON'T TOUCH! ====== //
 
-DirBridge.dir = IOHelper.HOME_DIR.resolve(config.dir);
+DirBridge.dir = DirBridge.getLauncherDir(config.dir);
 if (!IOHelper.isDir(DirBridge.dir)) {
     java.nio.file.Files.createDirectory(DirBridge.dir);
 }
