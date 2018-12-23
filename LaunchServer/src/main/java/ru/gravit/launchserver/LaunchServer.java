@@ -1,5 +1,6 @@
 package ru.gravit.launchserver;
 
+import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.hasher.HashedDir;
@@ -299,6 +300,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         modulesManager = new ModulesManager(this);
         modulesManager.autoload(dir.resolve("modules"));
         modulesManager.preInitModules();
+        initGson();
 
         // Read LaunchServer config
         generateConfigIfNotExists();
@@ -348,6 +350,13 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         // post init modules
         modulesManager.postInitModules();
+    }
+
+    public static void initGson()
+    {
+        if(Launcher.gson != null) return;
+        Launcher.gsonBuilder = new GsonBuilder();
+        Launcher.gson = Launcher.gsonBuilder.create();
     }
 
     private LauncherBinary binary() {

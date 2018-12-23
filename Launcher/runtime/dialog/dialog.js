@@ -225,24 +225,24 @@ function doAuth(login, rsaPassword) {
 }
 
 function doUpdate(profile, pp, accessToken) {
-var digest = profile.object.isUpdateFastCheck();
+var digest = profile.isUpdateFastCheck();
     overlay.swap(0, update.overlay, function(event) {
 
             // Update asset dir
             update.resetOverlay("Обновление файлов ресурсов");
-            var assetDirName = profile.object.block.getEntryValue("assetDir", StringConfigEntryClass);
+            var assetDirName = profile.block.getEntryValue("assetDir", StringConfigEntryClass);
             var assetDir = settings.updatesDir.resolve(assetDirName);
-            var assetMatcher = profile.object.getAssetUpdateMatcher();
-            makeSetProfileRequest(profile.object, function() {
-                ClientLauncher.setProfile(profile.object);
+            var assetMatcher = profile.getAssetUpdateMatcher();
+            makeSetProfileRequest(profile, function() {
+                ClientLauncher.setProfile(profile);
                 makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
                     settings.lastHDirs.put(assetDirName, assetHDir);
 
                     // Update client dir
                     update.resetOverlay("Обновление файлов клиента");
-                    var clientDirName = profile.object.block.getEntryValue("dir", StringConfigEntryClass);
+                    var clientDirName = profile.block.getEntryValue("dir", StringConfigEntryClass);
                     var clientDir = settings.updatesDir.resolve(clientDirName);
-                    var clientMatcher = profile.object.getClientUpdateMatcher();
+                    var clientMatcher = profile.getClientUpdateMatcher();
                     makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
                         settings.lastHDirs.put(clientDirName, clientHDir);
                         doLaunchClient(assetDir, assetHDir, clientDir, clientHDir, profile, pp, accessToken);
@@ -278,7 +278,7 @@ function updateProfilesList(profiles) {
     serverList.getChildren().clear();
     var index = 0;
     profiles.forEach(function (profile, i, arr) {
-        pingers[profile.object] = new ServerPinger(profile.object.getServerSocketAddress(), profile.object.getVersion());
+        pingers[profile] = new ServerPinger(profile.getServerSocketAddress(), profile.getVersion());
         var serverBtn = new javafx.scene.control.ToggleButton(profile);
         (function () {
             profilesList[serverBtn] = profile;
@@ -303,7 +303,7 @@ function updateProfilesList(profiles) {
 function pingServer(btn) {
     var profile = profilesList[btn];
     setServerStatus("...");
-    var task = newTask(function() pingers[profile.object].ping());
+    var task = newTask(function() pingers[profile].ping());
     task.setOnSucceeded(function(event) {
         var result = task.getValue();
         if(btn==serverHolder.old){

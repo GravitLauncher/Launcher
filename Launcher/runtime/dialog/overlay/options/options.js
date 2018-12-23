@@ -35,9 +35,9 @@ var options = {
             var sortIndex = input.readInt();
             var profile = null;
             settings.lastProfiles.forEach(function(hprofile,i,arr) {
-                if(hprofile.object.getSortIndex() == sortIndex)
+                if(hprofile.getSortIndex() == sortIndex)
                 {
-                    profile = hprofile.object;
+                    profile = hprofile;
                 }
             });
             for(var j = 0; j < listSize; j++)
@@ -62,7 +62,7 @@ var options = {
         output.writeInt(config.settingsMagic);
         output.writeInt(settings.lastProfiles.length);
         settings.lastProfiles.forEach(function(hprofile,i,arr) {
-            var profile = hprofile.object;
+            var profile = hprofile;
             LogHelper.debug("Save options %s",profile.getTitle());
             var list = profile.getOptional();
             output.writeInt(list.size());
