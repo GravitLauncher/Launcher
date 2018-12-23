@@ -25,6 +25,18 @@ public abstract class AuthHandler implements AutoCloseable {
         VerifyHelper.putIfAbsent(AUTH_HANDLERS, name, Objects.requireNonNull(adapter, "adapter"),
                 String.format("Auth handler has been already registered: '%s'", name));
     }
+    public static Class getHandlerClass(String name)
+    {
+        return AUTH_HANDLERS.get(name);
+    }
+    public static String getHandlerName(Class clazz)
+    {
+        for(Map.Entry<String,Class> e: AUTH_HANDLERS.entrySet())
+        {
+            if(e.getValue().equals(clazz)) return e.getKey();
+        }
+        return null;
+    }
 
     public static void registerHandlers() {
         if (!registredHandl) {

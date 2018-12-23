@@ -38,4 +38,17 @@ public abstract class TextureProvider implements AutoCloseable {
 
 
     public abstract Texture getSkinTexture(UUID uuid, String username, String client) throws IOException;
+
+    public static Class getProviderClass(String name)
+    {
+        return TEXTURE_PROVIDERS.get(name);
+    }
+    public static String getProviderName(Class clazz)
+    {
+        for(Map.Entry<String,Class> e: TEXTURE_PROVIDERS.entrySet())
+        {
+            if(e.getValue().equals(clazz)) return e.getKey();
+        }
+        return null;
+    }
 }

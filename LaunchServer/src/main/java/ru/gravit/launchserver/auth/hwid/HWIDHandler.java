@@ -43,4 +43,17 @@ public abstract class HWIDHandler implements AutoCloseable {
     public abstract List<HWID> getHwid(String username) throws HWIDException;
 
     public abstract void unban(List<HWID> hwid) throws HWIDException;
+
+    public static Class getHandlerClass(String name)
+    {
+        return HW_HANDLERS.get(name);
+    }
+    public static String getHandlerName(Class clazz)
+    {
+        for(Map.Entry<String,Class> e: HW_HANDLERS.entrySet())
+        {
+            if(e.getValue().equals(clazz)) return e.getKey();
+        }
+        return null;
+    }
 }

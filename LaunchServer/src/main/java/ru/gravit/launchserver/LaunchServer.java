@@ -10,8 +10,11 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.auth.AuthLimiter;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
+import ru.gravit.launchserver.auth.handler.MemoryAuthHandler;
+import ru.gravit.launchserver.auth.hwid.AcceptHWIDHandler;
 import ru.gravit.launchserver.auth.hwid.HWIDHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
+import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
 import ru.gravit.launchserver.binary.EXEL4JLauncherBinary;
 import ru.gravit.launchserver.binary.EXELauncherBinary;
 import ru.gravit.launchserver.binary.JARLauncherBinary;
@@ -19,6 +22,10 @@ import ru.gravit.launchserver.binary.LauncherBinary;
 import ru.gravit.launchserver.command.handler.CommandHandler;
 import ru.gravit.launchserver.command.handler.JLineCommandHandler;
 import ru.gravit.launchserver.command.handler.StdCommandHandler;
+import ru.gravit.launchserver.config.AuthHandlerAdapter;
+import ru.gravit.launchserver.config.AuthProviderAdapter;
+import ru.gravit.launchserver.config.HWIDHandlerAdapter;
+import ru.gravit.launchserver.config.TextureProviderAdapter;
 import ru.gravit.launchserver.manangers.BuildHookManager;
 import ru.gravit.launchserver.manangers.MirrorManager;
 import ru.gravit.launchserver.manangers.ModulesManager;
@@ -361,6 +368,10 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         if(Launcher.gson != null) return;
         Launcher.gsonBuilder = new GsonBuilder();
         Launcher.gsonBuilder.setPrettyPrinting();
+        Launcher.gsonBuilder.registerTypeAdapter(AuthProvider.class, new AuthProviderAdapter());
+        Launcher.gsonBuilder.registerTypeAdapter(TextureProvider.class, new TextureProviderAdapter());
+        Launcher.gsonBuilder.registerTypeAdapter(AuthHandler.class, new AuthHandlerAdapter());
+        Launcher.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
         Launcher.gson = Launcher.gsonBuilder.create();
     }
 
@@ -412,6 +423,11 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         newConfig.launch4j = new ExeConf();
         newConfig.buildPostTransform = new PostBuildTransformConf();
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
+        newConfig.authHandler = new AuthHandler[]{new MemoryAuthHandler()};
+        newConfig.hwidHandler = new AcceptHWIDHandler();
+        newConfig.authProvider = new AuthProvider[]{new RejectAuthProvider()};
+        newConfig.port = 7420;
+        newConfig.bindAddress = "0.0.0.0";
         //try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/config.cfg"))) {
         //    newConfig = Launcher.gson.fromJson(reader,Config.class);
         //}

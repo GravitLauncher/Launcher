@@ -50,4 +50,17 @@ public abstract class AuthProvider implements AutoCloseable {
 
     @Override
     public abstract void close() throws IOException;
+
+    public static Class getProviderClass(String name)
+    {
+        return AUTH_PROVIDERS.get(name);
+    }
+    public static String getProviderName(Class clazz)
+    {
+        for(Map.Entry<String,Class> e: AUTH_PROVIDERS.entrySet())
+        {
+            if(e.getValue().equals(clazz)) return e.getKey();
+        }
+        return null;
+    }
 }
