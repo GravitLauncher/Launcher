@@ -50,105 +50,56 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
 public final class LaunchServer implements Runnable, AutoCloseable {
-    public static final class Config extends ConfigObject {
-        public final int port;
+    public static final class Config {
+        public int port;
 
         // Handlers & Providers
 
-        public final AuthHandler[] authHandler;
+        public AuthHandler[] authHandler;
 
-        public final AuthProvider[] authProvider;
+        public AuthProvider[] authProvider;
 
-        public final TextureProvider textureProvider;
+        public TextureProvider textureProvider;
 
-        public final HWIDHandler hwidHandler;
+        public HWIDHandler hwidHandler;
 
         // Misc options
-        public final int threadCount;
+        public int threadCount;
 
-        public final int threadCoreCount;
+        public int threadCoreCount;
 
-        public final ExeConf launch4j;
+        public ExeConf launch4j;
 
-        public final PostBuildTransformConf buildPostTransform;
+        public PostBuildTransformConf buildPostTransform;
 
-        public final boolean compress;
+        public boolean compress;
 
-        public final int authRateLimit;
+        public int authRateLimit;
 
-        public final int authRateLimitMilis;
+        public int authRateLimitMilis;
 
-        public final ListConfigEntry authLimitExclusions;
+        public String[] authLimitExclusions;
 
-        public final String authRejectString;
+        public String authRejectString;
 
-        public final String projectName;
+        public String projectName;
 
-        public final String whitelistRejectString;
+        public String whitelistRejectString;
 
-        public final boolean genMappings;
-        public final boolean isUsingWrapper;
-        public final boolean isDownloadJava;
+        public boolean genMappings;
+        public boolean isUsingWrapper;
+        public boolean isDownloadJava;
 
-        public ListConfigEntry mirrors;
-        public final String binaryName;
-        private final StringConfigEntry address;
-        private final String bindAddress;
-        public final LauncherConfig.LauncherEnvironment env;
-        public final boolean isWarningMissArchJava;
-
-        private Config(BlockConfigEntry block, Path coredir, LaunchServer server) {
-            super(block);
-            address = block.getEntry("address", StringConfigEntry.class);
-            port = VerifyHelper.verifyInt(block.getEntryValue("port", IntegerConfigEntry.class),
-                    VerifyHelper.range(0, 65535), "Illegal LaunchServer port");
-            threadCoreCount = block.hasEntry("threadCoreCacheSize") ? VerifyHelper.verifyInt(block.getEntryValue("threadCoreCacheSize", IntegerConfigEntry.class),
-                    VerifyHelper.range(0, 100), "Illegal LaunchServer inital thread pool cache size") : 0;
-            int internalThreadCount = block.hasEntry("threadCacheSize") ? VerifyHelper.verifyInt(block.getEntryValue("threadCacheSize", IntegerConfigEntry.class),
-                    VerifyHelper.range(2, 100), "Illegal LaunchServer thread pool cache size") : (JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors());
-            threadCount = threadCoreCount > internalThreadCount ? threadCoreCount : internalThreadCount;
-            authRateLimit = VerifyHelper.verifyInt(block.getEntryValue("authRateLimit", IntegerConfigEntry.class),
-                    VerifyHelper.range(0, 1000000), "Illegal authRateLimit");
-            authRateLimitMilis = VerifyHelper.verifyInt(block.getEntryValue("authRateLimitMilis", IntegerConfigEntry.class),
-                    VerifyHelper.range(10, 10000000), "Illegal authRateLimitMillis");
-            authLimitExclusions = block.hasEntry("authLimitExclusions") ? block.getEntry("authLimitExclusions", ListConfigEntry.class) : null;
-            bindAddress = block.hasEntry("bindAddress") ?
-                    block.getEntryValue("bindAddress", StringConfigEntry.class) : getAddress();
-            authRejectString = block.hasEntry("authRejectString") ?
-                    block.getEntryValue("authRejectString", StringConfigEntry.class) : "Вы превысили лимит авторизаций. Подождите некоторое время перед повторной попыткой";
-            whitelistRejectString = block.hasEntry("whitelistRejectString") ?
-                    block.getEntryValue("whitelistRejectString", StringConfigEntry.class) : "Вас нет в белом списке";
-
-            // Set handlers & providers
-            authHandler = new AuthHandler[1];
-            authHandler[0] = AuthHandler.newHandler(block.getEntryValue("authHandler", StringConfigEntry.class),
-                    block.getEntry("authHandlerConfig", BlockConfigEntry.class));
-            authProvider = new AuthProvider[1];
-            authProvider[0] = AuthProvider.newProvider(block.getEntryValue("authProvider", StringConfigEntry.class),
-                    block.getEntry("authProviderConfig", BlockConfigEntry.class), server);
-            textureProvider = TextureProvider.newProvider(block.getEntryValue("textureProvider", StringConfigEntry.class),
-                    block.getEntry("textureProviderConfig", BlockConfigEntry.class));
-            hwidHandler = HWIDHandler.newHandler(block.getEntryValue("hwidHandler", StringConfigEntry.class),
-                    block.getEntry("hwidHandlerConfig", BlockConfigEntry.class));
-
-            // Set misc config
-            genMappings = block.getEntryValue("proguardPrintMappings", BooleanConfigEntry.class);
-            mirrors = block.getEntry("mirrors", ListConfigEntry.class);
-            launch4j = new ExeConf(block.getEntry("launch4J", BlockConfigEntry.class));
-            buildPostTransform = new PostBuildTransformConf(block.getEntry("buildExtendedOperation", BlockConfigEntry.class), coredir);
-            binaryName = block.getEntryValue("binaryName", StringConfigEntry.class);
-            projectName = block.hasEntry("projectName") ? block.getEntryValue("projectName", StringConfigEntry.class) : "Minecraft";
-            compress = block.getEntryValue("compress", BooleanConfigEntry.class);
-
-            isUsingWrapper = block.getEntryValue("isUsingWrapper", BooleanConfigEntry.class);
-            isDownloadJava = block.getEntryValue("isDownloadJava", BooleanConfigEntry.class);
-            isWarningMissArchJava = block.getEntryValue("isWarningMissArchJava", BooleanConfigEntry.class);
-            env = LauncherConfig.LauncherEnvironment.STD;
-        }
+        public String[] mirrors;
+        public String binaryName;
+        private String address;
+        private String bindAddress;
+        public LauncherConfig.LauncherEnvironment env;
+        public boolean isWarningMissArchJava;
 
 
         public String getAddress() {
-            return address.getValue();
+            return address;
         }
 
 
@@ -163,7 +114,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
 
         public void setAddress(String address) {
-            this.address.setValue(address);
+            this.address = address;
         }
 
 
@@ -172,40 +123,18 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         }
     }
 
-    public static class ExeConf extends ConfigObject {
-        public final boolean enabled;
-        public final String productName;
-        public final String productVer;
-        public final String fileDesc;
-        public final String fileVer;
-        public final String internalName;
-        public final String copyright;
-        public final String trademarks;
+    public static class ExeConf {
+        public boolean enabled;
+        public String productName;
+        public String productVer;
+        public String fileDesc;
+        public String fileVer;
+        public String internalName;
+        public String copyright;
+        public String trademarks;
 
-        public final String txtFileVersion;
-        public final String txtProductVersion;
-
-        private ExeConf(BlockConfigEntry block) {
-            super(block);
-            enabled = block.getEntryValue("enabled", BooleanConfigEntry.class);
-            productName = block.hasEntry("productName") ? block.getEntryValue("productName", StringConfigEntry.class)
-                    : "sashok724's Launcher v3 mod by Gravit";
-            productVer = block.hasEntry("productVer") ? block.getEntryValue("productVer", StringConfigEntry.class)
-                    : "1.0.0.0";
-            fileDesc = block.hasEntry("fileDesc") ? block.getEntryValue("fileDesc", StringConfigEntry.class)
-                    : "sashok724's Launcher v3 mod by Gravit";
-            fileVer = block.hasEntry("fileVer") ? block.getEntryValue("fileVer", StringConfigEntry.class) : "1.0.0.0";
-            internalName = block.hasEntry("internalName") ? block.getEntryValue("internalName", StringConfigEntry.class)
-                    : "Launcher";
-            copyright = block.hasEntry("copyright") ? block.getEntryValue("copyright", StringConfigEntry.class)
-                    : "© sashok724 LLC";
-            trademarks = block.hasEntry("trademarks") ? block.getEntryValue("trademarks", StringConfigEntry.class)
-                    : "This product is licensed under MIT License";
-            txtFileVersion = block.hasEntry("txtFileVersion") ? block.getEntryValue("txtFileVersion", StringConfigEntry.class)
-                    : String.format("%s, build %d", Launcher.getVersion().getVersionString(), Launcher.getVersion().build);
-            txtProductVersion = block.hasEntry("txtProductVersion") ? block.getEntryValue("txtProductVersion", StringConfigEntry.class)
-                    : String.format("%s, build %d", Launcher.getVersion().getVersionString(), Launcher.getVersion().build);
-        }
+        public String txtFileVersion;
+        public String txtProductVersion;
     }
 
     private final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
@@ -232,17 +161,9 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         }
     }
 
-    public static class PostBuildTransformConf extends ConfigObject {
-        public final boolean enabled;
+    public static class PostBuildTransformConf {
+        public boolean enabled;
         public List<String> script;
-
-        private PostBuildTransformConf(BlockConfigEntry block, Path coredir) {
-            super(block);
-            enabled = block.getEntryValue("enabled", BooleanConfigEntry.class);
-            script = new ArrayList<>(1);
-            if (block.hasEntry("script"))
-                block.getEntry("script", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(script::add);
-        }
     }
 
     public static void main(String... args) throws Throwable {
@@ -399,7 +320,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         mirrorManager = new MirrorManager();
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
-        config.mirrors.stream(StringConfigEntry.class).forEach(s -> {
+        Arrays.stream(config.mirrors).forEach(s -> {
             try {
                 mirrorManager.addMirror(s);
             } catch (MalformedURLException e) {

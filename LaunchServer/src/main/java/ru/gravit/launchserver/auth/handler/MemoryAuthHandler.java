@@ -1,8 +1,6 @@
 package ru.gravit.launchserver.auth.handler;
 
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
 import java.nio.ByteBuffer;
@@ -27,11 +25,6 @@ public final class MemoryAuthHandler extends CachedAuthHandler {
     private static UUID toUUID(String username) {
         ByteBuffer buffer = ByteBuffer.wrap(Arrays.copyOf(IOHelper.encodeASCII(username), 16));
         return new UUID(buffer.getLong(), buffer.getLong()); // MOST, LEAST
-    }
-
-    public MemoryAuthHandler(BlockConfigEntry block) {
-        super(block);
-        LogHelper.warning("Usage of MemoryAuthHandler isn't recommended!");
     }
 
     @Override

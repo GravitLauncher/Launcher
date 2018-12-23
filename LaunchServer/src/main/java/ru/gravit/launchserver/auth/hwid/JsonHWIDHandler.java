@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.OshiHWID;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -19,11 +17,11 @@ public final class JsonHWIDHandler extends HWIDHandler {
     private static final Gson gson = new Gson();
 
     @SuppressWarnings("unused")
-    private final URL url;
-    private final URL urlBan;
-    private final URL urlUnBan;
+    private URL url;
+    private URL urlBan;
+    private URL urlUnBan;
     @SuppressWarnings("unused")
-    private final URL urlGet;
+    private URL urlGet;
 
     public class banRequest {
         public banRequest(String hwid) {
@@ -63,18 +61,6 @@ public final class JsonHWIDHandler extends HWIDHandler {
         }
 
         String username;
-    }
-
-    JsonHWIDHandler(BlockConfigEntry block) {
-        super(block);
-        String configUrl = block.getEntryValue("url", StringConfigEntry.class);
-        String configUrlBan = block.getEntryValue("urlBan", StringConfigEntry.class);
-        String configUrlUnBan = block.getEntryValue("urlUnBan", StringConfigEntry.class);
-        String configUrlGet = block.getEntryValue("urlGet", StringConfigEntry.class);
-        url = IOHelper.convertToURL(configUrl);
-        urlBan = IOHelper.convertToURL(configUrlBan);
-        urlUnBan = IOHelper.convertToURL(configUrlUnBan);
-        urlGet = IOHelper.convertToURL(configUrlGet);
     }
 
     @Override

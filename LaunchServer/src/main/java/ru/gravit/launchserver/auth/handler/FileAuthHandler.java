@@ -3,9 +3,6 @@ package ru.gravit.launchserver.auth.handler;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.*;
@@ -96,12 +93,12 @@ public abstract class FileAuthHandler extends AuthHandler {
     }
 
 
-    public final Path file;
+    public Path file;
 
-    public final Path fileTmp;
+    public Path fileTmp;
 
 
-    public final boolean offlineUUIDs;
+    public boolean offlineUUIDs;
     // Instance
     private final SecureRandom random = SecurityHelper.newRandom();
 
@@ -110,24 +107,6 @@ public abstract class FileAuthHandler extends AuthHandler {
     private final Map<UUID, Entry> entryMap = new HashMap<>(256);
 
     private final Map<String, UUID> usernamesMap = new HashMap<>(256);
-
-
-    protected FileAuthHandler(BlockConfigEntry block) {
-        super(block);
-        file = IOHelper.toPath(block.getEntryValue("file", StringConfigEntry.class));
-        fileTmp = IOHelper.toPath(block.getEntryValue("file", StringConfigEntry.class) + ".tmp");
-        offlineUUIDs = block.getEntryValue("offlineUUIDs", BooleanConfigEntry.class);
-
-        // Read auth handler file
-        if (IOHelper.isFile(file)) {
-            LogHelper.info("Reading auth handler file: '%s'", file);
-            try {
-                readAuthFile();
-            } catch (IOException e) {
-                LogHelper.error(e);
-            }
-        }
-    }
 
 
     protected final void addAuth(UUID uuid, Entry entry) {

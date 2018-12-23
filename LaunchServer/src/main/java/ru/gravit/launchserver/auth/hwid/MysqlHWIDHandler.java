@@ -2,13 +2,9 @@ package ru.gravit.launchserver.auth.hwid;
 
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.OshiHWID;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.ListConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launchserver.auth.MySQLSourceConfig;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,50 +14,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MysqlHWIDHandler extends HWIDHandler {
-    private final MySQLSourceConfig mySQLHolder;
-    private final String query;
-    private final String banMessage;
-    private final String isBannedName;
-    private final String loginName;
-    private final String hwidName;
-    private final String[] queryParams;
-    private final String queryUpd;
-    private final String[] queryParamsUpd;
-    private final String queryBan;
-    private final String[] queryParamsBan;
-    private final String querySelect;
-    private final String[] queryParamsSelect;
-
-    public MysqlHWIDHandler(BlockConfigEntry block) {
-        super(block);
-        mySQLHolder = new MySQLSourceConfig("hwidHandlerPool", block);
-
-        // Read query
-        query = VerifyHelper.verify(block.getEntryValue("query", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "MySQL query can't be empty");
-        queryParams = block.getEntry("queryParams", ListConfigEntry.class).
-                stream(StringConfigEntry.class).toArray(String[]::new);
-        isBannedName = VerifyHelper.verify(block.getEntryValue("isBannedName", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "isBannedName can't be empty");
-        loginName = VerifyHelper.verify(block.getEntryValue("loginName", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "loginName can't be empty");
-        banMessage = block.hasEntry("banMessage") ? block.getEntryValue("banMessage", StringConfigEntry.class) : "You HWID Banned";
-        hwidName = VerifyHelper.verify(block.getEntryValue("hwidName", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "hwidName can't be empty");
-
-        queryUpd = VerifyHelper.verify(block.getEntryValue("queryUpd", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "MySQL queryUpd can't be empty");
-        queryParamsUpd = block.getEntry("queryParamsUpd", ListConfigEntry.class).
-                stream(StringConfigEntry.class).toArray(String[]::new);
-        queryBan = VerifyHelper.verify(block.getEntryValue("queryBan", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "MySQL queryBan can't be empty");
-        queryParamsBan = block.getEntry("queryParamsBan", ListConfigEntry.class).
-                stream(StringConfigEntry.class).toArray(String[]::new);
-        querySelect = VerifyHelper.verify(block.getEntryValue("querySelect", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "MySQL queryUpd can't be empty");
-        queryParamsSelect = block.getEntry("queryParamsSelect", ListConfigEntry.class).
-                stream(StringConfigEntry.class).toArray(String[]::new);
-    }
+    private MySQLSourceConfig mySQLHolder;
+    private String query;
+    private String banMessage;
+    private String isBannedName;
+    private String loginName;
+    private String hwidName;
+    private String[] queryParams;
+    private String queryUpd;
+    private String[] queryParamsUpd;
+    private String queryBan;
+    private String[] queryParamsBan;
+    private String querySelect;
+    private String[] queryParamsSelect;
 
     @Override
     public void check0(HWID hwid, String username) throws HWIDException {

@@ -1,8 +1,6 @@
 package ru.gravit.launchserver.auth.hwid;
 
 import ru.gravit.launcher.HWID;
-import ru.gravit.launcher.serialize.config.ConfigObject;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.utils.helper.VerifyHelper;
 
 import java.util.List;
@@ -10,19 +8,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class HWIDHandler extends ConfigObject implements AutoCloseable {
-    private static final Map<String, Adapter<HWIDHandler>> HW_HANDLERS = new ConcurrentHashMap<>(4);
+public abstract class HWIDHandler implements AutoCloseable {
+    private static final Map<String, Class> HW_HANDLERS = new ConcurrentHashMap<>(4);
     private static boolean registredHandl = false;
 
 
-    public static HWIDHandler newHandler(String name, BlockConfigEntry block) {
-        Adapter<HWIDHandler> authHandlerAdapter = VerifyHelper.getMapValue(HW_HANDLERS, name,
-                String.format("Unknown HWID handler: '%s'", name));
-        return authHandlerAdapter.convert(block);
-    }
-
-
-    public static void registerHandler(String name, Adapter<HWIDHandler> adapter) {
+    public static void registerHandler(String name, Class adapter) {
         VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(HW_HANDLERS, name, Objects.requireNonNull(adapter, "adapter"),
                 String.format("HWID handler has been already registered: '%s'", name));
@@ -30,15 +21,11 @@ public abstract class HWIDHandler extends ConfigObject implements AutoCloseable 
 
     public static void registerHandlers() {
         if (!registredHandl) {
-            registerHandler("accept", AcceptHWIDHandler::new);
-            registerHandler("mysql", MysqlHWIDHandler::new);
-            registerHandler("json", JsonHWIDHandler::new);
+            registerHandler("accept", AcceptHWIDHandler.class);
+            registerHandler("mysql", MysqlHWIDHandler.class);
+            registerHandler("json", JsonHWIDHandler.class);
             registredHandl = true;
         }
-    }
-
-    protected HWIDHandler(BlockConfigEntry block) {
-        super(block);
     }
 
     public abstract void ban(List<HWID> hwid) throws HWIDException;

@@ -3,10 +3,6 @@ package ru.gravit.launcher.profiles;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.config.ConfigObject;
-import ru.gravit.launcher.serialize.config.entry.*;
-import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
@@ -15,7 +11,7 @@ import java.net.InetSocketAddress;
 import java.util.*;
 
 @SuppressWarnings("ComparableImplementedButEqualsNotOverridden")
-public final class ClientProfile extends ConfigObject implements Comparable<ClientProfile> {
+public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     public enum Version {
         MC147("1.4.7", 51),
@@ -59,9 +55,6 @@ public final class ClientProfile extends ConfigObject implements Comparable<Clie
         }
     }
 
-    @LauncherAPI
-    public static final StreamObject.Adapter<ClientProfile> RO_ADAPTER = input -> new ClientProfile(input, true);
-
     public static final boolean profileCaseSensitive = Boolean.getBoolean("launcher.clientProfile.caseSensitive");
 
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
@@ -69,13 +62,13 @@ public final class ClientProfile extends ConfigObject implements Comparable<Clie
     // Version
     private String version;
 
-    private final String assetIndex;
+    private String assetIndex;
     // Client
-    private final int sortIndex;
+    private int sortIndex;
     private String title;
-    private final String serverAddress;
+    private String serverAddress;
 
-    private final int serverPort;
+    private int serverPort;
 
     public static class MarkedString {
         @LauncherAPI
@@ -113,53 +106,16 @@ public final class ClientProfile extends ConfigObject implements Comparable<Clie
     private final List<String> updateShared = new ArrayList<>();
     private final List<String> updateVerify = new ArrayList<>();
     private final Set<MarkedString> updateOptional = new HashSet<>();
-    private final boolean updateFastCheck;
+    private boolean updateFastCheck;
 
-    private final boolean useWhitelist;
+    private boolean useWhitelist;
     // Client launcher
-    private final String mainClass;
+    private String mainClass;
     private final List<String> jvmArgs = new ArrayList<>();
     private final List<String> classPath = new ArrayList<>();
     private final List<String> clientArgs = new ArrayList<>();
 
     private final List<String> whitelist = new ArrayList<>();
-
-    @LauncherAPI
-    public ClientProfile(BlockConfigEntry block) {
-        super(block);
-
-        // Version
-        version = block.getEntryValue("version", StringConfigEntry.class);
-        assetIndex = block.getEntryValue("assetIndex", StringConfigEntry.class);
-
-        // Client
-        sortIndex = block.getEntryValue("sortIndex", IntegerConfigEntry.class);
-        title = block.getEntryValue("title", StringConfigEntry.class);
-        serverAddress = block.getEntryValue("serverAddress", StringConfigEntry.class);
-        serverPort = block.getEntryValue("serverPort", IntegerConfigEntry.class);
-
-        //  Updater and client watch service
-        block.getEntry("update", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(update::add);
-        block.getEntry("updateVerify", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateVerify::add);
-        block.getEntry("updateShared", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateShared::add);
-        block.getEntry("updateOptional", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(e -> updateOptional.add(new MarkedString(e)));
-        block.getEntry("updateExclusions", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(updateExclusions::add);
-        block.getEntry("enabledOptional", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(e -> updateOptional.stream().anyMatch(e1 -> e.equals(e1.string) && (e1.mark = true)));
-        updateFastCheck = block.getEntryValue("updateFastCheck", BooleanConfigEntry.class);
-        useWhitelist = block.getEntryValue("useWhitelist", BooleanConfigEntry.class);
-
-        // Client launcher
-        mainClass = block.getEntryValue("mainClass", StringConfigEntry.class);
-        block.getEntry("classPath", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(classPath::add);
-        block.getEntry("jvmArgs", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(jvmArgs::add);
-        block.getEntry("clientArgs", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(clientArgs::add);
-        block.getEntry("whitelist", ListConfigEntry.class).stream(StringConfigEntry.class).forEach(whitelist::add);
-    }
-
-    @LauncherAPI
-    public ClientProfile(HInput input, boolean ro) throws IOException {
-        this(new BlockConfigEntry(input, ro));
-    }
 
     @Override
     public int compareTo(ClientProfile o) {

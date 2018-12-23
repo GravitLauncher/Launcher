@@ -1,6 +1,5 @@
 package ru.gravit.launchserver.auth.handler;
 
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.VerifyHelper;
 
@@ -10,10 +9,6 @@ import java.util.UUID;
 
 public final class NullAuthHandler extends AuthHandler {
     private volatile AuthHandler handler;
-
-    public NullAuthHandler(BlockConfigEntry block) {
-        super(block);
-    }
 
     @Override
     public UUID auth(AuthProviderResult authResult) throws IOException {

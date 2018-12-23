@@ -1,9 +1,6 @@
 package ru.gravit.launchserver.auth.handler;
 
 import ru.gravit.launcher.NeedGarbageCollection;
-import ru.gravit.launcher.managers.GarbageManager;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -35,13 +32,6 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
     private final Map<UUID, Entry> entryCache = new HashMap<>(1024);
 
     private final Map<String, UUID> usernamesCache = new HashMap<>(1024);
-
-
-    protected CachedAuthHandler(BlockConfigEntry block) {
-        super(block);
-        if (block.hasEntry("garbage"))
-            if (block.getEntryValue("garbage", BooleanConfigEntry.class)) GarbageManager.registerNeedGC(this);
-    }
 
 
     protected void addEntry(Entry entry) {

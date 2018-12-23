@@ -1,6 +1,8 @@
 package ru.gravit.launcher.server;
 
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.profiles.ClientProfile;
@@ -20,9 +22,7 @@ import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -37,6 +37,8 @@ public class ServerWrapper {
     public static Config config;
     public static PublicURLClassLoader ucp;
     public static ClassLoader loader;
+    private static Gson gson;
+    private static GsonBuilder gsonBuiler;
 
     public static Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
     public static Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapper.cfg"));
@@ -91,9 +93,13 @@ public class ServerWrapper {
         modulesManager.autoload(modulesDir);
         Launcher.modulesManager = modulesManager;
         modulesManager.preInitModules();
+        LogHelper.debug("Read LaunchWrapper.cfg");
+        gsonBuiler = new GsonBuilder();
+        gson = gsonBuiler.create();
         generateConfigIfNotExists();
-        try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = new Config(TextConfigReader.read(reader, true));
+        try(Reader reader = IOHelper.newReader(configFile))
+        {
+            config = gson.fromJson(reader,Config.class);
         }
         LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
         Launcher.setConfig(cfg);
@@ -148,20 +154,22 @@ public class ServerWrapper {
         // Create new config
         LogHelper.info("Creating LaunchWrapper config");
         Config newConfig;
-        try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/ServerWrapper.cfg"))) {
-            newConfig = new Config(TextConfigReader.read(reader, false));
+        try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/ServerWrapper.cfg")))
+        {
+            newConfig = gson.fromJson(reader,Config.class);
         }
 
         LogHelper.warning("Title is not set. Please show ServerWrapper.cfg");
 
         // Write LaunchServer config
         LogHelper.info("Writing LaunchWrapper config file");
-        try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
-            TextConfigWriter.write(newConfig.block, writer, true);
+        try(Writer writer = IOHelper.newWriter(configFile))
+        {
+            gson.toJson(newConfig,writer);
         }
     }
 
-    public static final class Config extends ConfigObject {
+    public static final class Config {
         public String title;
         public String projectname;
         public String address;
@@ -176,26 +184,6 @@ public class ServerWrapper {
         public String mainclass;
         public String login;
         public String password;
-
-        protected Config(BlockConfigEntry block) {
-            super(block);
-            title = block.getEntryValue("title", StringConfigEntry.class);
-            address = block.getEntryValue("address", StringConfigEntry.class);
-            projectname = block.getEntryValue("projectName", StringConfigEntry.class);
-            login = block.getEntryValue("login", StringConfigEntry.class);
-            password = block.getEntryValue("password", StringConfigEntry.class);
-            port = block.getEntryValue("port", IntegerConfigEntry.class);
-            customClassPath = block.getEntryValue("customClassPath", BooleanConfigEntry.class);
-            autoloadLibraries = block.getEntryValue("autoloadLibraries", BooleanConfigEntry.class);
-            if (customClassPath)
-                classpath = block.getEntryValue("classpath", StringConfigEntry.class);
-            if (autoloadLibraries)
-                librariesDir = block.getEntryValue("librariesDir", StringConfigEntry.class);
-            mainclass = block.getEntryValue("MainClass", StringConfigEntry.class);
-            reconnectCount = block.hasEntry("reconnectCount") ? block.getEntryValue("reconnectCount", IntegerConfigEntry.class) : 1;
-            reconnectSleep = block.hasEntry("reconnectSleep") ? block.getEntryValue("reconnectSleep", IntegerConfigEntry.class) : 30000;
-            syncAuth = block.hasEntry("syncAuth") ? block.getEntryValue("syncAuth", BooleanConfigEntry.class) : true;
-        }
     }
 
     public ClientProfile profile;

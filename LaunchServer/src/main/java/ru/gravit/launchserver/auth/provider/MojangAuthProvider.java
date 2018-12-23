@@ -3,8 +3,6 @@ package ru.gravit.launchserver.auth.provider;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.HTTPRequest;
 
 import java.net.MalformedURLException;
@@ -23,10 +21,6 @@ public final class MojangAuthProvider extends AuthProvider {
         } catch (MalformedURLException e) {
             throw new InternalError(e);
         }
-    }
-
-    public MojangAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block, server);
     }
 
     public class mojangAuth {

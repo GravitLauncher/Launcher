@@ -2,7 +2,6 @@ package ru.gravit.launchserver.auth.handler;
 
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
@@ -11,9 +10,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public final class BinaryFileAuthHandler extends FileAuthHandler {
-    public BinaryFileAuthHandler(BlockConfigEntry block) {
-        super(block);
-    }
 
     @Override
     protected void readAuthFile() throws IOException {

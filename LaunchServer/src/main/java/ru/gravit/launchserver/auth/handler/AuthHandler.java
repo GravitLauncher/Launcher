@@ -1,7 +1,5 @@
 package ru.gravit.launchserver.auth.handler;
 
-import ru.gravit.launcher.serialize.config.ConfigObject;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.VerifyHelper;
@@ -12,8 +10,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AuthHandler extends ConfigObject implements AutoCloseable {
-    private static final Map<String, Adapter<AuthHandler>> AUTH_HANDLERS = new ConcurrentHashMap<>(4);
+public abstract class AuthHandler implements AutoCloseable {
+    private static final Map<String, Class> AUTH_HANDLERS = new ConcurrentHashMap<>(4);
     private static boolean registredHandl = false;
 
 
@@ -22,14 +20,7 @@ public abstract class AuthHandler extends ConfigObject implements AutoCloseable 
     }
 
 
-    public static AuthHandler newHandler(String name, BlockConfigEntry block) {
-        Adapter<AuthHandler> authHandlerAdapter = VerifyHelper.getMapValue(AUTH_HANDLERS, name,
-                String.format("Unknown auth handler: '%s'", name));
-        return authHandlerAdapter.convert(block);
-    }
-
-
-    public static void registerHandler(String name, Adapter<AuthHandler> adapter) {
+    public static void registerHandler(String name, Class adapter) {
         VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(AUTH_HANDLERS, name, Objects.requireNonNull(adapter, "adapter"),
                 String.format("Auth handler has been already registered: '%s'", name));
@@ -37,20 +28,14 @@ public abstract class AuthHandler extends ConfigObject implements AutoCloseable 
 
     public static void registerHandlers() {
         if (!registredHandl) {
-            registerHandler("null", NullAuthHandler::new);
-            registerHandler("memory", MemoryAuthHandler::new);
+            registerHandler("null", NullAuthHandler.class);
+            registerHandler("memory", MemoryAuthHandler.class);
 
             // Auth handler that doesn't do nothing :D
-            registerHandler("binaryFile", BinaryFileAuthHandler::new);
-            registerHandler("textFile", TextFileAuthHandler::new);
-            registerHandler("mysql", MySQLAuthHandler::new);
+            registerHandler("binaryFile", BinaryFileAuthHandler.class);
+            registerHandler("mysql", MySQLAuthHandler.class);
             registredHandl = true;
         }
-    }
-
-
-    protected AuthHandler(BlockConfigEntry block) {
-        super(block);
     }
 
     public abstract UUID auth(AuthProviderResult authResult) throws IOException;

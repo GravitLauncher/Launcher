@@ -1,20 +1,11 @@
 package ru.gravit.launchserver.auth.provider;
 
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
-import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 
 public abstract class DigestAuthProvider extends AuthProvider {
-    private final DigestAlgorithm digest;
-
-
-    protected DigestAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block, server);
-        digest = DigestAlgorithm.byName(block.getEntryValue("digest", StringConfigEntry.class));
-    }
+    private DigestAlgorithm digest;
 
 
     protected final void verifyDigest(String validDigest, String password) throws AuthException {

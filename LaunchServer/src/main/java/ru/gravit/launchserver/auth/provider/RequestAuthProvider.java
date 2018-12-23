@@ -1,9 +1,5 @@
 package ru.gravit.launchserver.auth.provider;
 
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
-import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.ClientPermissions;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
@@ -15,18 +11,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class RequestAuthProvider extends AuthProvider {
-    private final String url;
-    private final Pattern response;
-    private final boolean usePermission;
-
-    public RequestAuthProvider(BlockConfigEntry block, LaunchServer server) {
-        super(block, server);
-        url = block.getEntryValue("url", StringConfigEntry.class);
-        response = Pattern.compile(block.getEntryValue("response", StringConfigEntry.class));
-        usePermission = block.hasEntry("usePermission") ? block.getEntryValue("usePermission", BooleanConfigEntry.class) : false;
-        // Verify is valid URL
-        IOHelper.verifyURL(getFormattedURL("urlAuthLogin", "urlAuthPassword", "127.0.0.1"));
-    }
+    private String url;
+    private Pattern response;
+    private boolean usePermission;
 
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws IOException {
