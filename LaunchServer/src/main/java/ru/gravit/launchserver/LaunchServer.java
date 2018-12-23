@@ -1,6 +1,7 @@
 package ru.gravit.launchserver;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.hasher.HashedDir;
@@ -89,7 +90,9 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         public String[] mirrors;
         public String binaryName;
+        @Expose
         private String address;
+        @Expose
         private String bindAddress;
         public LauncherConfig.LauncherEnvironment env;
         public boolean isWarningMissArchJava;
@@ -301,6 +304,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         modulesManager.autoload(dir.resolve("modules"));
         modulesManager.preInitModules();
         initGson();
+        LogHelper.setStacktraceEnabled(true);
 
         // Read LaunchServer config
         generateConfigIfNotExists();
@@ -356,6 +360,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     {
         if(Launcher.gson != null) return;
         Launcher.gsonBuilder = new GsonBuilder();
+        Launcher.gsonBuilder.setPrettyPrinting();
         Launcher.gson = Launcher.gsonBuilder.create();
     }
 
@@ -402,10 +407,14 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         // Create new config
         LogHelper.info("Creating LaunchServer config");
-        Config newConfig;
-        try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/config.cfg"))) {
-            newConfig = Launcher.gson.fromJson(reader,Config.class);
-        }
+        Config newConfig = new Config();
+        newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml"};
+        newConfig.launch4j = new ExeConf();
+        newConfig.buildPostTransform = new PostBuildTransformConf();
+        newConfig.env = LauncherConfig.LauncherEnvironment.STD;
+        //try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/config.cfg"))) {
+        //    newConfig = Launcher.gson.fromJson(reader,Config.class);
+        //}
 
         // Set server address
         LogHelper.println("LaunchServer address: ");

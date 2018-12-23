@@ -45,18 +45,6 @@ var SignedBytesHolder = SignedBytesHolderClass.static;
 var SignedObjectHolder = SignedObjectHolderClass.static;
 var EnumSerializer = EnumSerializerClass.static;
 
-// Config serialization class bindings
-var ConfigObject = ConfigObjectClass.static;
-var ConfigObjectAdapter = ConfigObjectAdapterClass.static;
-var BlockConfigEntry = BlockConfigEntryClass.static;
-var BooleanConfigEntry = BooleanConfigEntryClass.static;
-var IntegerConfigEntry = IntegerConfigEntryClass.static;
-var ListConfigEntry = ListConfigEntryClass.static;
-var StringConfigEntry = StringConfigEntryClass.static;
-var ConfigEntryType = ConfigEntryTypeClass.static;
-var TextConfigReader = TextConfigReaderClass.static;
-var TextConfigWriter = TextConfigWriterClass.static;
-
 // Helper class API imports
 var CommonHelper = CommonHelperClass.static;
 var IOHelper = IOHelperClass.static;
