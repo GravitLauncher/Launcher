@@ -42,7 +42,7 @@ public abstract class AuthProvider implements AutoCloseable {
     }
 
     public AuthHandler getAccociateHandler(int this_position) {
-        return server.config.authHandler[this_position];
+        return server.config.authHandler[0];
     }
 
 

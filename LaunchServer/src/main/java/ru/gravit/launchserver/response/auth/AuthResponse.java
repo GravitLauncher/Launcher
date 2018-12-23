@@ -92,6 +92,7 @@ public final class AuthResponse extends Response {
             }
             server.config.hwidHandler.check(OshiHWID.gson.fromJson(hwid_str, OshiHWID.class), result.username);
         } catch (AuthException | HWIDException e) {
+            if(e.getMessage() == null) LogHelper.error(e);
             requestError(e.getMessage());
             return;
         } catch (Exception e) {

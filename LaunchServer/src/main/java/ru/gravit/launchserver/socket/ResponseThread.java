@@ -112,6 +112,7 @@ public final class ResponseThread implements Runnable {
                 respond(handshake.type, input, output, handshake.session, IOHelper.getIP(socket.getRemoteSocketAddress()));
             } catch (RequestException e) {
                 LogHelper.subDebug(String.format("#%d Request error: %s", handshake.session, e.getMessage()));
+                if(e.getMessage() == null) LogHelper.error(e);
                 output.writeString(e.getMessage(), 0);
             }
         } catch (Exception e) {

@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.auth.handler;
 
+import com.google.gson.annotations.Expose;
 import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.CommonHelper;
@@ -28,9 +29,9 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
             this.serverID = serverID == null ? null : VerifyHelper.verifyServerID(serverID);
         }
     }
-
+    @Expose(serialize = false, deserialize = false)
     private final Map<UUID, Entry> entryCache = new HashMap<>(1024);
-
+    @Expose(serialize = false, deserialize = false)
     private final Map<String, UUID> usernamesCache = new HashMap<>(1024);
 
 
