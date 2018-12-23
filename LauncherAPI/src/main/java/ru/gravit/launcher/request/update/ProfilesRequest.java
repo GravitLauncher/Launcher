@@ -17,9 +17,9 @@ public final class ProfilesRequest extends Request<ProfilesRequest.Result> {
 
     public static final class Result {
         @LauncherAPI
-        public final List<SignedObjectHolder<ClientProfile>> profiles;
+        public final List<ClientProfile> profiles;
 
-        private Result(List<SignedObjectHolder<ClientProfile>> profiles) {
+        private Result(List<ClientProfile> profiles) {
             this.profiles = Collections.unmodifiableList(profiles);
         }
     }
@@ -46,7 +46,7 @@ public final class ProfilesRequest extends Request<ProfilesRequest.Result> {
         readError(input);
 
         int count = input.readLength(0);
-        List<SignedObjectHolder<ClientProfile>> profiles = new ArrayList<>(count);
+        List<ClientProfile> profiles = new ArrayList<>(count);
         for (int i = 0; i < count; i++)
             profiles.add(new SignedObjectHolder<>(input, config.publicKey, ClientProfile.RO_ADAPTER));
 

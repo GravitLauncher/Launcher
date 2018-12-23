@@ -1,5 +1,7 @@
 package ru.gravit.launcher;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.modules.ModulesManagerInterface;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
@@ -61,6 +63,8 @@ public final class Launcher {
     public static int PATCH = 0;
     public static int BUILD = 3;
     public static Version.Type RELEASE = Version.Type.DEV;
+    public static GsonBuilder gsonBuilder;
+    public static Gson gson;
 
     @LauncherAPI
     public static LauncherConfig getConfig() {

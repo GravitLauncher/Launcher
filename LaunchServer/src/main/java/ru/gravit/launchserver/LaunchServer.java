@@ -5,10 +5,6 @@ import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.profiles.ClientProfile;
-import ru.gravit.launcher.serialize.config.ConfigObject;
-import ru.gravit.launcher.serialize.config.TextConfigReader;
-import ru.gravit.launcher.serialize.config.TextConfigWriter;
-import ru.gravit.launcher.serialize.config.entry.*;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.auth.AuthLimiter;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
@@ -138,9 +134,9 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     }
 
     private final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
-        private final Collection<SignedObjectHolder<ClientProfile>> result;
+        private final Collection<ClientProfile> result;
 
-        private ProfilesFileVisitor(Collection<SignedObjectHolder<ClientProfile>> result) {
+        private ProfilesFileVisitor(Collection<ClientProfile> result) {
             this.result = result;
         }
 
@@ -151,12 +147,12 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             // Read profile
             ClientProfile profile;
             try (BufferedReader reader = IOHelper.newReader(file)) {
-                profile = new ClientProfile(TextConfigReader.read(reader, true));
+                profile = Launcher.gson.fromJson(reader,ClientProfile.class);
             }
             profile.verify();
 
             // Add SIGNED profile to result list
-            result.add(new SignedObjectHolder<>(profile, privateKey));
+            result.add(profile);
             return super.visitFile(file, attrs);
         }
     }
@@ -240,7 +236,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     // Updates and profiles
-    private volatile List<SignedObjectHolder<ClientProfile>> profilesList;
+    private volatile List<ClientProfile> profilesList;
 
     public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
 
@@ -308,7 +304,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         generateConfigIfNotExists();
         LogHelper.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = new Config(TextConfigReader.read(reader, true), dir, this);
+            config = Launcher.gson.fromJson(reader,Config.class);
         }
         config.verify();
 
@@ -399,7 +395,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         LogHelper.info("Creating LaunchServer config");
         Config newConfig;
         try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/config.cfg"))) {
-            newConfig = new Config(TextConfigReader.read(reader, false), dir, this);
+            newConfig = Launcher.gson.fromJson(reader,Config.class);
         }
 
         // Set server address
@@ -409,13 +405,13 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");
         try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
-            TextConfigWriter.write(newConfig.block, writer, true);
+            Launcher.gson.toJson(newConfig,writer);
         }
     }
 
 
     @SuppressWarnings("ReturnOfCollectionOrArrayField")
-    public Collection<SignedObjectHolder<ClientProfile>> getProfiles() {
+    public Collection<ClientProfile> getProfiles() {
         return profilesList;
     }
 
@@ -464,11 +460,11 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     public void syncProfilesDir() throws IOException {
         LogHelper.info("Syncing profiles dir");
-        List<SignedObjectHolder<ClientProfile>> newProfies = new LinkedList<>();
+        List<ClientProfile> newProfies = new LinkedList<>();
         IOHelper.walk(profilesDir, new ProfilesFileVisitor(newProfies), false);
 
         // Sort and set new profiles
-        newProfies.sort(Comparator.comparing(a -> a.object));
+        newProfies.sort(Comparator.comparing(a -> a));
         profilesList = Collections.unmodifiableList(newProfies);
     }
 

@@ -8,14 +8,6 @@ import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.auth.AuthServerRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
-import ru.gravit.launcher.serialize.config.ConfigObject;
-import ru.gravit.launcher.serialize.config.TextConfigReader;
-import ru.gravit.launcher.serialize.config.TextConfigWriter;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
@@ -50,11 +42,11 @@ public class ServerWrapper {
             Boolean auth = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), 0, config.title).request();
             if (auth == null) throw new Exception("Non auth!"); // security check 
             ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
-            for (SignedObjectHolder<ClientProfile> p : result.profiles) {
-                LogHelper.debug("Get profile: %s", p.object.getTitle());
-                if (p.object.getTitle().equals(config.title)) {
-                    wrapper.profile = p.object;
-                    Launcher.profile = p.object;
+            for (ClientProfile p : result.profiles) {
+                LogHelper.debug("Get profile: %s", p.getTitle());
+                if (p.getTitle().equals(config.title)) {
+                    wrapper.profile = p;
+                    Launcher.profile = p;
                     LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
                     break;
                 }
