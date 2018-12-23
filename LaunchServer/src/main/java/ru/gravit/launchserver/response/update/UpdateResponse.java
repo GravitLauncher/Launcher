@@ -42,10 +42,9 @@ public final class UpdateResponse extends Response {
             requestError("Assess denied");
             return;
         }
-        for (SignedObjectHolder<ClientProfile> p : server.getProfiles()) {
-            ClientProfile profile = p.object;
-            if (!clientData.profile.getTitle().equals(profile.getTitle())) continue;
-            if (!profile.isWhitelistContains(clientData.username)) {
+        for (ClientProfile p : server.getProfiles()) {
+            if (!clientData.profile.getTitle().equals(p.getTitle())) continue;
+            if (!p.isWhitelistContains(clientData.username)) {
                 requestError("You don't download this folder");
                 return;
             }

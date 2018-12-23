@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.response.update;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
@@ -29,11 +30,11 @@ public final class ProfilesResponse extends Response {
             return;
         }
         writeNoError(output);
-        Collection<SignedObjectHolder<ClientProfile>> profiles = server.getProfiles();
+        Collection<ClientProfile> profiles = server.getProfiles();
         output.writeLength(profiles.size(), 0);
-        for (SignedObjectHolder<ClientProfile> profile : profiles) {
-            LogHelper.debug("Writted profile: %s", profile.object.getTitle());
-            profile.write(output);
+        for (ClientProfile profile : profiles) {
+            LogHelper.debug("Writted profile: %s", profile.getTitle());
+            output.writeString(Launcher.gson.toJson(profile),0);
         }
     }
 }

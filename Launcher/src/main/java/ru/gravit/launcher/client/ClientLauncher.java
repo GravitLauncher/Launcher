@@ -292,7 +292,7 @@ public final class ClientLauncher {
     @LauncherAPI
     public static Process launch(
             SignedObjectHolder<HashedDir> assetHDir, SignedObjectHolder<HashedDir> clientHDir,
-            SignedObjectHolder<ClientProfile> profile, Params params, boolean pipeOutput) throws Throwable {
+            ClientProfile profile, Params params, boolean pipeOutput) throws Throwable {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
         CommonHelper.newThread("Client params writter", false, () ->
@@ -314,7 +314,7 @@ public final class ClientLauncher {
                     }
                     try (HOutput output = new HOutput(client.getOutputStream())) {
                         params.write(output);
-                        profile.write(output);
+                        output.writeString(Launcher.gson.toJson(profile),0);
                         assetHDir.write(output);
                         clientHDir.write(output);
                     }
@@ -363,7 +363,7 @@ public final class ClientLauncher {
         }
         // Add classpath and main class
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
-        Collections.addAll(args, profile.object.getJvmArgs());
+        Collections.addAll(args, profile.getJvmArgs());
         Collections.addAll(args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
         Collections.addAll(args, "-javaagent:".concat(pathLauncher));
         if (wrapper)
@@ -412,7 +412,7 @@ public final class ClientLauncher {
         // Read and delete params file
         LogHelper.debug("Reading ClientLauncher params");
         Params params;
-        SignedObjectHolder<ClientProfile> profile;
+        ClientProfile profile;
         SignedObjectHolder<HashedDir> assetHDir, clientHDir;
         RSAPublicKey publicKey = Launcher.getConfig().publicKey;
         try {
@@ -420,7 +420,7 @@ public final class ClientLauncher {
                 socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                 try (HInput input = new HInput(socket.getInputStream())) {
                     params = new Params(input);
-                    profile = new SignedObjectHolder<>(input, publicKey, ClientProfile.RO_ADAPTER);
+                    profile = gson.fromJson(input.readString(0),ClientProfile.class);
 
                     // Read hdirs
                     assetHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
@@ -432,26 +432,26 @@ public final class ClientLauncher {
             System.exit(-98);
             return;
         }
-        Launcher.profile = profile.object;
+        Launcher.profile = profile;
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         //TODO: GO TO DIGEST
         //SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherDigest, publicKey);
-        LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.object.getClassPath());
+        LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
         for (Path classpathURL : classPath) {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
         }
-        URL[] classpathurls = resolveClassPath(params.clientDir, profile.object.getClassPath());
+        URL[] classpathurls = resolveClassPath(params.clientDir, profile.getClassPath());
         classLoader = new PublicURLClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
         classLoader.nativePath = params.clientDir.resolve(NATIVES_DIR).toString();
         PublicURLClassLoader.systemclassloader = classLoader;
         // Start client with WatchService monitoring
-        boolean digest = !profile.object.isUpdateFastCheck();
+        boolean digest = !profile.isUpdateFastCheck();
         LogHelper.debug("Starting JVM and client WatchService");
-        FileNameMatcher assetMatcher = profile.object.getAssetUpdateMatcher();
-        FileNameMatcher clientMatcher = profile.object.getClientUpdateMatcher();
+        FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
+        FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
         try (DirWatcher assetWatcher = new DirWatcher(params.assetDir, assetHDir.object, assetMatcher, digest);
              DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir.object, clientMatcher, digest)) {
             // Verify current state of all dirs
@@ -467,30 +467,30 @@ public final class ClientLauncher {
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
-            launch(profile.object, params);
+            launch(profile, params);
         }
     }
 
     @LauncherAPI
     public void launchLocal(SignedObjectHolder<HashedDir> assetHDir, SignedObjectHolder<HashedDir> clientHDir,
-                            SignedObjectHolder<ClientProfile> profile, Params params) throws Throwable {
+                            ClientProfile profile, Params params) throws Throwable {
         RSAPublicKey publicKey = Launcher.getConfig().publicKey;
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherDigest, publicKey);
-        LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.object.getClassPath());
+        LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
         for (Path classpathURL : classPath) {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
         }
-        URL[] classpathurls = resolveClassPath(params.clientDir, profile.object.getClassPath());
+        URL[] classpathurls = resolveClassPath(params.clientDir, profile.getClassPath());
         classLoader = new PublicURLClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
         classLoader.nativePath = params.clientDir.resolve(NATIVES_DIR).toString();
         PublicURLClassLoader.systemclassloader = classLoader;
         // Start client with WatchService monitoring
-        boolean digest = !profile.object.isUpdateFastCheck();
+        boolean digest = !profile.isUpdateFastCheck();
         LogHelper.debug("Starting JVM and client WatchService");
-        FileNameMatcher assetMatcher = profile.object.getAssetUpdateMatcher();
-        FileNameMatcher clientMatcher = profile.object.getClientUpdateMatcher();
+        FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
+        FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
         try (DirWatcher assetWatcher = new DirWatcher(params.assetDir, assetHDir.object, assetMatcher, digest);
              DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir.object, clientMatcher, digest)) {
             // Verify current state of all dirs
@@ -506,7 +506,7 @@ public final class ClientLauncher {
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
-            launch(profile.object, params);
+            launch(profile, params);
         }
     }
 

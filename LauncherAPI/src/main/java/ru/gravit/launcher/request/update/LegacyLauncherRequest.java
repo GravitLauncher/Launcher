@@ -26,11 +26,11 @@ import java.util.List;
 public final class LegacyLauncherRequest extends Request<Result> {
     public static final class Result {
         @LauncherAPI
-        public final List<SignedObjectHolder<ClientProfile>> profiles;
+        public final List<ClientProfile> profiles;
         private final byte[] binary;
         private final byte[] sign;
 
-        public Result(byte[] binary, byte[] sign, List<SignedObjectHolder<ClientProfile>> profiles) {
+        public Result(byte[] binary, byte[] sign, List<ClientProfile> profiles) {
             this.binary = binary == null ? null : binary.clone();
             this.sign = sign.clone();
             this.profiles = Collections.unmodifiableList(profiles);
@@ -116,9 +116,12 @@ public final class LegacyLauncherRequest extends Request<Result> {
 
         // Read clients profiles list
         int count = input.readLength(0);
-        List<SignedObjectHolder<ClientProfile>> profiles = new ArrayList<>(count);
+        List<ClientProfile> profiles = new ArrayList<>(count);
         for (int i = 0; i < count; i++)
-            profiles.add(new SignedObjectHolder<>(input, publicKey, ClientProfile.RO_ADAPTER));
+        {
+            String prof = input.readString(0);
+            profiles.add(Launcher.gson.fromJson(prof,ClientProfile.class));
+        }
 
         // Return request result
         return new Result(null, sign, profiles);

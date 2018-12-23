@@ -3,11 +3,6 @@ package ru.gravit.launchserver.auth;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import ru.gravit.launcher.serialize.config.ConfigObject;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.BooleanConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.IntegerConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
@@ -15,7 +10,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public final class MySQLSourceConfig extends ConfigObject implements AutoCloseable {
+public final class MySQLSourceConfig implements AutoCloseable {
 
     public static final int TIMEOUT = VerifyHelper.verifyInt(
             Integer.parseUnsignedInt(System.getProperty("launcher.mysql.idleTimeout", Integer.toString(5000))),
@@ -28,13 +23,13 @@ public final class MySQLSourceConfig extends ConfigObject implements AutoCloseab
     private final String poolName;
 
     // Config
-    private final String address;
-    private final int port;
-    private final boolean useSSL;
-    private final boolean verifyCertificates;
-    private final String username;
-    private final String password;
-    private final String database;
+    private String address;
+    private int port;
+    private boolean useSSL;
+    private boolean verifyCertificates;
+    private String username;
+    private String password;
+    private String database;
     private String timeZone;
 
     // Cache
@@ -42,23 +37,8 @@ public final class MySQLSourceConfig extends ConfigObject implements AutoCloseab
     private boolean hikari;
 
 
-    public MySQLSourceConfig(String poolName, BlockConfigEntry block) {
-        super(block);
+    public MySQLSourceConfig(String poolName) {
         this.poolName = poolName;
-        address = VerifyHelper.verify(block.getEntryValue("address", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "MySQL address can't be empty");
-        port = VerifyHelper.verifyInt(block.getEntryValue("port", IntegerConfigEntry.class),
-                VerifyHelper.range(0, 65535), "Illegal MySQL port");
-        username = VerifyHelper.verify(block.getEntryValue("username", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "MySQL username can't be empty");
-        password = block.getEntryValue("password", StringConfigEntry.class);
-        database = VerifyHelper.verify(block.getEntryValue("database", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "MySQL database can't be empty");
-        timeZone = block.hasEntry("timezone") ? VerifyHelper.verify(block.getEntryValue("timezone", StringConfigEntry.class),
-                VerifyHelper.NOT_EMPTY, "MySQL time zone can't be empty") : null;
-        // Password shouldn't be verified
-        useSSL = block.hasEntry("useSSL") ? block.getEntryValue("useSSL", BooleanConfigEntry.class) : true;
-        verifyCertificates = block.hasEntry("verifyCertificates") ? block.getEntryValue("verifyCertificates", BooleanConfigEntry.class) : false;
     }
 
     @Override

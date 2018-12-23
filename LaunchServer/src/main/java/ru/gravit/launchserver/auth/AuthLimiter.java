@@ -1,10 +1,10 @@
 package ru.gravit.launchserver.auth;
 
 import ru.gravit.launcher.NeedGarbageCollection;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launchserver.LaunchServer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -60,7 +60,7 @@ public class AuthLimiter implements NeedGarbageCollection {
         map = new HashMap<>();
         excludeIps = new ArrayList<>();
         if (srv.config.authLimitExclusions != null)
-            srv.config.authLimitExclusions.stream(StringConfigEntry.class).forEach(excludeIps::add);
+            excludeIps.addAll(Arrays.asList(srv.config.authLimitExclusions));
         rateLimit = srv.config.authRateLimit;
         rateLimitMilis = srv.config.authRateLimitMilis;
     }

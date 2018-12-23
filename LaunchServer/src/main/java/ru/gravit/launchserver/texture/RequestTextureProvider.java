@@ -2,8 +2,6 @@ package ru.gravit.launchserver.texture;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.profiles.Texture;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -32,19 +30,9 @@ public final class RequestTextureProvider extends TextureProvider {
     }
 
     // Instance
-    private final String skinURL;
+    private String skinURL;
 
-    private final String cloakURL;
-
-    public RequestTextureProvider(BlockConfigEntry block) {
-        super(block);
-        skinURL = block.getEntryValue("skinsURL", StringConfigEntry.class);
-        cloakURL = block.getEntryValue("cloaksURL", StringConfigEntry.class);
-
-        // Verify
-        IOHelper.verifyURL(getTextureURL(skinURL, ZERO_UUID, "skinUsername", ""));
-        IOHelper.verifyURL(getTextureURL(cloakURL, ZERO_UUID, "cloakUsername", ""));
-    }
+    private String cloakURL;
 
     @Override
     public void close() {

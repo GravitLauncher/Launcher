@@ -35,7 +35,6 @@ public abstract class AuthProvider implements AutoCloseable {
             // Auth providers that doesn't do nothing :D
             registerProvider("com.mojang", MojangAuthProvider.class);
             registerProvider("mysql", MySQLAuthProvider.class);
-            registerProvider("file", FileAuthProvider.class);
             registerProvider("request", RequestAuthProvider.class);
             registerProvider("json", JsonAuthProvider.class);
             registredProv = true;

@@ -27,10 +27,6 @@ import ru.gravit.launcher.request.uuid.ProfileByUUIDRequest;
 import ru.gravit.launcher.request.uuid.ProfileByUsernameRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.config.ConfigObject;
-import ru.gravit.launcher.serialize.config.TextConfigReader;
-import ru.gravit.launcher.serialize.config.TextConfigWriter;
-import ru.gravit.launcher.serialize.config.entry.*;
 import ru.gravit.launcher.serialize.signed.SignedBytesHolder;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launcher.serialize.stream.EnumSerializer;
@@ -95,18 +91,6 @@ public class LauncherEngine {
         bindings.put("SignedBytesHolderClass", SignedBytesHolder.class);
         bindings.put("SignedObjectHolderClass", SignedObjectHolder.class);
         bindings.put("EnumSerializerClass", EnumSerializer.class);
-
-        // Set config serialization class bindings
-        bindings.put("ConfigObjectClass", ConfigObject.class);
-        bindings.put("ConfigObjectAdapterClass", ConfigObject.Adapter.class);
-        bindings.put("BlockConfigEntryClass", BlockConfigEntry.class);
-        bindings.put("BooleanConfigEntryClass", BooleanConfigEntry.class);
-        bindings.put("IntegerConfigEntryClass", IntegerConfigEntry.class);
-        bindings.put("ListConfigEntryClass", ListConfigEntry.class);
-        bindings.put("StringConfigEntryClass", StringConfigEntry.class);
-        bindings.put("ConfigEntryTypeClass", ConfigEntry.Type.class);
-        bindings.put("TextConfigReaderClass", TextConfigReader.class);
-        bindings.put("TextConfigWriterClass", TextConfigWriter.class);
 
         // Set helper class bindings
         bindings.put("CommonHelperClass", CommonHelper.class);

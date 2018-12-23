@@ -56,13 +56,13 @@ public class AuthResponse implements JsonResponseInterface {
                 AuthProvider.authError(String.format("Illegal result: '%s'", result.username));
                 return;
             }
-            Collection<SignedObjectHolder<ClientProfile>> profiles = LaunchServer.server.getProfiles();
-            for (SignedObjectHolder<ClientProfile> p : profiles) {
-                if (p.object.getTitle().equals(client)) {
-                    if (!p.object.isWhitelistContains(login)) {
+            Collection<ClientProfile> profiles = LaunchServer.server.getProfiles();
+            for (ClientProfile p : profiles) {
+                if (p.getTitle().equals(client)) {
+                    if (!p.isWhitelistContains(login)) {
                         throw new AuthException(LaunchServer.server.config.whitelistRejectString);
                     }
-                    clientData.profile = p.object;
+                    clientData.profile = p;
                 }
             }
             if (clientData.profile == null) {

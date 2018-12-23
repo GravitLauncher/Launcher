@@ -77,13 +77,13 @@ public final class AuthResponse extends Response {
                 return;
             }
             if (isClient) {
-                Collection<SignedObjectHolder<ClientProfile>> profiles = server.getProfiles();
-                for (SignedObjectHolder<ClientProfile> p : profiles) {
-                    if (p.object.getTitle().equals(client)) {
-                        if (!p.object.isWhitelistContains(login)) {
+                Collection<ClientProfile> profiles = server.getProfiles();
+                for (ClientProfile p : profiles) {
+                    if (p.getTitle().equals(client)) {
+                        if (!p.isWhitelistContains(login)) {
                             throw new AuthException(server.config.whitelistRejectString);
                         }
-                        clientData.profile = p.object;
+                        clientData.profile = p;
                     }
                 }
                 if (clientData.profile == null) {

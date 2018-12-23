@@ -1,10 +1,8 @@
 package ru.gravit.launchserver.command.hash;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.ClientProfile.Version;
-import ru.gravit.launcher.serialize.config.TextConfigReader;
-import ru.gravit.launcher.serialize.config.TextConfigWriter;
-import ru.gravit.launcher.serialize.config.entry.StringConfigEntry;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
@@ -55,14 +53,12 @@ public final class DownloadClientCommand extends Command {
         ClientProfile client;
         String profilePath = String.format("ru/gravit/launchserver/defaults/profile%s.cfg", version.name);
         try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL(profilePath))) {
-            client = new ClientProfile(TextConfigReader.read(reader, false));
+            client = Launcher.gson.fromJson(reader,ClientProfile.class);
         }
         client.setTitle(dirName);
-        client.block.getEntry("dir", StringConfigEntry.class).setValue(dirName);
-        client.block.getEntry("title", StringConfigEntry.class).setValue(dirName);
         try (BufferedWriter writer = IOHelper.newWriter(IOHelper.resolveIncremental(server.profilesDir,
                 dirName, "cfg"))) {
-            TextConfigWriter.write(client.block, writer, true);
+            Launcher.gson.toJson(client,writer);
         }
 
         // Finished

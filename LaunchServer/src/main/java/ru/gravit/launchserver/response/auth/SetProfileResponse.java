@@ -21,14 +21,14 @@ public class SetProfileResponse extends Response {
         String client = input.readString(SerializeLimits.MAX_CLIENT);
         Client clientData = server.sessionManager.getClient(session);
         if (!clientData.isAuth) requestError("You not auth");
-        Collection<SignedObjectHolder<ClientProfile>> profiles = server.getProfiles();
-        for (SignedObjectHolder<ClientProfile> p : profiles) {
-            if (p.object.getTitle().equals(client)) {
-                if (!p.object.isWhitelistContains(clientData.username)) {
+        Collection<ClientProfile> profiles = server.getProfiles();
+        for (ClientProfile p : profiles) {
+            if (p.getTitle().equals(client)) {
+                if (!p.isWhitelistContains(clientData.username)) {
                     requestError(server.config.whitelistRejectString);
                     return;
                 }
-                clientData.profile = p.object;
+                clientData.profile = p;
                 writeNoError(output);
                 output.writeBoolean(true);
                 break;

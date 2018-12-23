@@ -1,7 +1,6 @@
 package ru.gravit.launchserver.texture;
 
 import ru.gravit.launcher.profiles.Texture;
-import ru.gravit.launcher.serialize.config.entry.BlockConfigEntry;
 import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
@@ -10,10 +9,6 @@ import java.util.UUID;
 
 public final class NullTextureProvider extends TextureProvider {
     private volatile TextureProvider provider;
-
-    public NullTextureProvider(BlockConfigEntry block) {
-        super(block);
-    }
 
     @Override
     public void close() throws IOException {

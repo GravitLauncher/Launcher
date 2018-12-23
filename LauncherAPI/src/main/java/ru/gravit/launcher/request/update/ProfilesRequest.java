@@ -1,5 +1,6 @@
 package ru.gravit.launcher.request.update;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.profiles.ClientProfile;
@@ -48,8 +49,10 @@ public final class ProfilesRequest extends Request<ProfilesRequest.Result> {
         int count = input.readLength(0);
         List<ClientProfile> profiles = new ArrayList<>(count);
         for (int i = 0; i < count; i++)
-            profiles.add(new SignedObjectHolder<>(input, config.publicKey, ClientProfile.RO_ADAPTER));
-
+        {
+            String prof = input.readString(0);
+            profiles.add(Launcher.gson.fromJson(prof,ClientProfile.class));
+        }
         // Return request result
         return new Result(profiles);
     }
