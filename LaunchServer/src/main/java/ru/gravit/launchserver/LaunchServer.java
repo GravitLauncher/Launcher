@@ -32,6 +32,7 @@ import ru.gravit.launchserver.manangers.ModulesManager;
 import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
+import ru.gravit.launchserver.texture.RequestTextureProvider;
 import ru.gravit.launchserver.texture.TextureProvider;
 import ru.gravit.utils.helper.*;
 
@@ -60,7 +61,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         // Handlers & Providers
 
-        public AuthHandler[] authHandler;
+        public AuthHandler  authHandler;
 
         public AuthProvider[] authProvider;
 
@@ -127,6 +128,18 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         public void verify() {
             VerifyHelper.verify(getAddress(), VerifyHelper.NOT_EMPTY, "LaunchServer address can't be empty");
+            if(authHandler == null)
+            {
+                throw new NullPointerException("AuthHandler must not be null");
+            }
+            if(authProvider == null || authProvider[0] == null)
+            {
+                throw new NullPointerException("AuthProvider must not be null");
+            }
+            if(textureProvider == null)
+            {
+                throw new NullPointerException("TextureProvider must not be null");
+            }
         }
     }
 
@@ -392,7 +405,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         // Close handlers & providers
         try {
-            for (AuthHandler h : config.authHandler) h.close();
+            config.authHandler.close();
         } catch (IOException e) {
             LogHelper.error(e);
         }
@@ -423,9 +436,11 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         newConfig.launch4j = new ExeConf();
         newConfig.buildPostTransform = new PostBuildTransformConf();
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
-        newConfig.authHandler = new AuthHandler[]{new MemoryAuthHandler()};
+        newConfig.authHandler = new MemoryAuthHandler();
         newConfig.hwidHandler = new AcceptHWIDHandler();
-        newConfig.authProvider = new AuthProvider[]{new RejectAuthProvider()};
+
+        newConfig.authProvider = new AuthProvider[]{new RejectAuthProvider("Технические работы")};
+        newConfig.textureProvider = new RequestTextureProvider("http://example.com/skins/%username%.png","http://example.com/cloaks/%username%.png");
         newConfig.port = 7420;
         newConfig.bindAddress = "0.0.0.0";
         //try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/config.cfg"))) {

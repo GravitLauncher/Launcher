@@ -20,7 +20,7 @@ public class CheckServerResponse implements JsonResponseInterface {
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
         try {
-            LaunchServer.server.config.authHandler[0].checkServer(username, serverID);
+            LaunchServer.server.config.authHandler.checkServer(username, serverID);
         } catch (AuthException e) {
             service.sendObject(ctx, new WebSocketService.ErrorResult(e.getMessage()));
             return;

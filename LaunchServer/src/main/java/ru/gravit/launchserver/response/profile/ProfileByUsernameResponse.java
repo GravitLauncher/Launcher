@@ -13,7 +13,7 @@ import java.util.UUID;
 public final class ProfileByUsernameResponse extends Response {
 
     public static void writeProfile(LaunchServer server, HOutput output, String username, String client) throws IOException {
-        UUID uuid = server.config.authHandler[0].usernameToUUID(username);
+        UUID uuid = server.config.authHandler.usernameToUUID(username);
         if (uuid == null) {
             output.writeBoolean(false);
             return;

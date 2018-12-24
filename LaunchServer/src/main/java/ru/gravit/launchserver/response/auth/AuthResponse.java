@@ -107,7 +107,7 @@ public final class AuthResponse extends Response {
         // Authenticate on server (and get UUID)
         UUID uuid;
         try {
-            uuid = provider.getAccociateHandler(auth_id).auth(result);
+            uuid = server.config.authHandler.auth(result);
         } catch (AuthException e) {
             requestError(e.getMessage());
             return;

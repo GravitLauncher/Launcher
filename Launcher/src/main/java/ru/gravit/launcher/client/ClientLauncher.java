@@ -1,6 +1,7 @@
 package ru.gravit.launcher.client;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import ru.gravit.launcher.*;
 import ru.gravit.launcher.hasher.DirWatcher;
@@ -400,6 +401,7 @@ public final class ClientLauncher {
     public static void main(String... args) throws Throwable {
         Launcher.modulesManager = new ClientModuleManager(null);
         LauncherConfig.getAutogenConfig().initModules(); //INIT
+        initGson();
         LauncherEngine engine = LauncherEngine.clientInstance();
         engine.loadScript(Launcher.API_SCRIPT_FILE);
         engine.loadScript(Launcher.CONFIG_SCRIPT_FILE);
@@ -534,6 +536,13 @@ public final class ClientLauncher {
             result.add(path);
         }
         return result;
+    }
+
+    public static void initGson()
+    {
+        if(Launcher.gson != null) return;
+        Launcher.gsonBuilder = new GsonBuilder();
+        Launcher.gson = Launcher.gsonBuilder.create();
     }
 
     @LauncherAPI

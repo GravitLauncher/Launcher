@@ -11,7 +11,15 @@ import java.io.IOException;
 import java.util.UUID;
 
 public final class RequestTextureProvider extends TextureProvider {
+    public RequestTextureProvider() {
+    }
+
     private static final UUID ZERO_UUID = new UUID(0, 0);
+
+    public RequestTextureProvider(String skinURL, String cloakURL) {
+        this.skinURL = skinURL;
+        this.cloakURL = cloakURL;
+    }
 
     private static Texture getTexture(String url, boolean cloak) throws IOException {
         LogHelper.debug("Getting texture: '%s'", url);

@@ -29,7 +29,7 @@ public final class UsernameToUUIDCommand extends Command {
         String username = parseUsername(args[0]);
 
         // Get UUID by username
-        UUID uuid = server.config.authHandler[0].usernameToUUID(username);
+        UUID uuid = server.config.authHandler.usernameToUUID(username);
         if (uuid == null)
             throw new CommandException(String.format("Unknown username: '%s'", username));
 

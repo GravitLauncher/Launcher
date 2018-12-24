@@ -1,5 +1,6 @@
 package ru.gravit.launcher;
 
+import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.client.*;
 import ru.gravit.launcher.gui.choosebox.CheckComboBox;
 import ru.gravit.launcher.gui.choosebox.CheckComboBoxSkin;
@@ -130,6 +131,7 @@ public class LauncherEngine {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
         // Start Launcher
+        initGson();
         Instant start = Instant.now();
         try {
             new LauncherEngine().start(args);
@@ -139,6 +141,13 @@ public class LauncherEngine {
         }
         Instant end = Instant.now();
         LogHelper.debug("Launcher started in %dms", Duration.between(start, end).toMillis());
+    }
+
+    public static void initGson()
+    {
+        if(Launcher.gson != null) return;
+        Launcher.gsonBuilder = new GsonBuilder();
+        Launcher.gson = Launcher.gsonBuilder.create();
     }
 
     // Instance

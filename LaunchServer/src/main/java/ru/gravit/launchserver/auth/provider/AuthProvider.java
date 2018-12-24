@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.auth.provider;
 
+import com.google.gson.annotations.Expose;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
@@ -13,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class AuthProvider implements AutoCloseable {
     private static final Map<String, Class> AUTH_PROVIDERS = new ConcurrentHashMap<>(8);
     private static boolean registredProv = false;
-    private LaunchServer server;
+    private transient LaunchServer server = LaunchServer.server;
 
 
     public static AuthProviderResult authError(String message) throws AuthException {
@@ -33,7 +34,7 @@ public abstract class AuthProvider implements AutoCloseable {
             registerProvider("reject", RejectAuthProvider.class);
 
             // Auth providers that doesn't do nothing :D
-            registerProvider("com.mojang", MojangAuthProvider.class);
+            registerProvider("mojang", MojangAuthProvider.class);
             registerProvider("mysql", MySQLAuthProvider.class);
             registerProvider("request", RequestAuthProvider.class);
             registerProvider("json", JsonAuthProvider.class);
@@ -42,7 +43,7 @@ public abstract class AuthProvider implements AutoCloseable {
     }
 
     public AuthHandler getAccociateHandler(int this_position) {
-        return server.config.authHandler[0];
+        return server.config.authHandler;
     }
 
 

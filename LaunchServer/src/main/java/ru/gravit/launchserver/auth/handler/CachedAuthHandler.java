@@ -29,10 +29,8 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
             this.serverID = serverID == null ? null : VerifyHelper.verifyServerID(serverID);
         }
     }
-    @Expose(serialize = false, deserialize = false)
-    private final Map<UUID, Entry> entryCache = new HashMap<>(1024);
-    @Expose(serialize = false, deserialize = false)
-    private final Map<String, UUID> usernamesCache = new HashMap<>(1024);
+    private transient final Map<UUID, Entry> entryCache = new HashMap<>(1024);
+    private transient final Map<String, UUID> usernamesCache = new HashMap<>(1024);
 
 
     protected void addEntry(Entry entry) {
