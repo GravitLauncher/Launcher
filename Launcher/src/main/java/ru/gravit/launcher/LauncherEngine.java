@@ -132,6 +132,7 @@ public class LauncherEngine {
         LogHelper.printLicense("Launcher");
         // Start Launcher
         initGson();
+        LogHelper.setStacktraceEnabled(true);
         Instant start = Instant.now();
         try {
             new LauncherEngine().start(args);

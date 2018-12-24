@@ -20,7 +20,7 @@ public final class MySQLSourceConfig implements AutoCloseable {
             VerifyHelper.POSITIVE, "launcher.mysql.maxPoolSize can't be <= 0");
 
     // Instance
-    private final String poolName;
+    private  transient final String poolName;
 
     // Config
     private String address;
@@ -33,8 +33,8 @@ public final class MySQLSourceConfig implements AutoCloseable {
     private String timeZone;
 
     // Cache
-    private DataSource source;
-    private boolean hikari;
+    private transient DataSource source;
+    private transient boolean hikari;
 
 
     public MySQLSourceConfig(String poolName) {

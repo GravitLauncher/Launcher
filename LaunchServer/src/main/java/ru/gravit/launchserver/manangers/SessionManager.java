@@ -10,7 +10,7 @@ public class SessionManager implements NeedGarbageCollection {
 
     public static final long SESSION_TIMEOUT = 10 * 60 * 1000; // 10 минут
     public static final boolean NON_GARBAGE_SERVER = true;
-    private Set<Client> clientSet = new HashSet<>(128);
+    private HashSet<Client> clientSet = new HashSet<>(128);
 
 
     public boolean addClient(Client client) {
@@ -51,5 +51,13 @@ public class SessionManager implements NeedGarbageCollection {
         }
         Client newClient = new Client(session);
         clientSet.add(newClient);
+    }
+    public Set<Client> getSessions()
+    {
+        return clientSet;
+    }
+    public void loadSessions(Set<Client> set)
+    {
+        clientSet.addAll(set);
     }
 }

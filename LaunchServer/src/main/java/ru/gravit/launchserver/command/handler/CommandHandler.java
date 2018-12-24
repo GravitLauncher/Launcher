@@ -5,6 +5,7 @@ import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
 import ru.gravit.launchserver.command.auth.*;
 import ru.gravit.launchserver.command.basic.*;
+import ru.gravit.launchserver.command.dump.DumpSessionsCommand;
 import ru.gravit.launchserver.command.hash.*;
 import ru.gravit.launchserver.command.modules.LoadModuleCommand;
 import ru.gravit.launchserver.command.modules.ModulesCommand;
@@ -102,6 +103,9 @@ public abstract class CommandHandler implements Runnable {
         registerCommand("uuidToUsername", new UUIDToUsernameCommand(server));
         registerCommand("ban", new BanCommand(server));
         registerCommand("unban", new UnbanCommand(server));
+
+        //Register dump commands
+        registerCommand("dumpSessions", new DumpSessionsCommand(server));
     }
 
 
