@@ -53,13 +53,13 @@ public final class DownloadClientCommand extends Command {
         ClientProfile client;
         String profilePath = String.format("ru/gravit/launchserver/defaults/profile%s.cfg", version.name);
         try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL(profilePath))) {
-            client = Launcher.gson.fromJson(reader,ClientProfile.class);
+            client = LaunchServer.gson.fromJson(reader,ClientProfile.class);
         }
         client.setTitle(dirName);
         client.setDir(dirName);
         try (BufferedWriter writer = IOHelper.newWriter(IOHelper.resolveIncremental(server.profilesDir,
                 dirName, "cfg"))) {
-            Launcher.gson.toJson(client,writer);
+            LaunchServer.gson.toJson(client,writer);
         }
 
         // Finished

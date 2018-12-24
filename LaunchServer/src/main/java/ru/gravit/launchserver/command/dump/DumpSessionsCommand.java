@@ -7,6 +7,7 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -35,17 +36,25 @@ public class DumpSessionsCommand extends Command {
         verifyArgs(args,2);
         if(args[0].equals("unload"))
         {
+            LogHelper.info("Sessions write to %s",args[1]);
+            Set<Client> clientSet = server.sessionManager.getSessions();
             try(Writer writer = IOHelper.newWriter(Paths.get(args[1])))
             {
-                Launcher.gson.toJson(server.sessionManager.getSessions(),writer);
+                LaunchServer.gson.toJson(clientSet,writer);
             }
+            LogHelper.subInfo("Write %d sessions",clientSet.size());
         } else if(args[0].equals("load"))
         {
+            LogHelper.info("Sessions read from %s",args[1]);
+            int size = 0;
             try(Reader reader = IOHelper.newReader(Paths.get(args[1])))
             {
                 Type setType = new TypeToken<HashSet<Client>>(){}.getType();
-                server.sessionManager.loadSessions(Launcher.gson.fromJson(reader,setType));
+                Set<Client> clientSet = LaunchServer.gson.fromJson(reader,setType);
+                size = clientSet.size();
+                server.sessionManager.loadSessions(clientSet);
             }
+            LogHelper.subInfo("Readed %d sessions",size);
         }
     }
 }

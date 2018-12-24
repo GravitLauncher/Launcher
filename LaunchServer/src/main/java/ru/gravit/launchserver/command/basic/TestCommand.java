@@ -39,7 +39,7 @@ public class TestCommand extends Command {
             ClientProfile profile = new ClientProfile("1.7.10","asset1.7.10",0,"Test1.7.10","localhost",25565,true,false,"net.minecraft.launchwrapper.Launch");
             try(Writer writer = IOHelper.newWriter(LaunchServer.server.dir.resolve("profiles").resolve("Test.cfg")))
             {
-                Launcher.gson.toJson(profile,writer);
+                LaunchServer.gson.toJson(profile,writer);
             }
 
 

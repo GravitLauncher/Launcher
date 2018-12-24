@@ -1,5 +1,6 @@
 package ru.gravit.launchserver;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import ru.gravit.launcher.Launcher;
@@ -262,6 +263,9 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
 
+    public static Gson gson;
+    public static GsonBuilder gsonBuilder;
+
     public LaunchServer(Path dir) throws IOException, InvalidKeySpecException {
         // Setup config locations
         this.dir = dir;
@@ -380,12 +384,20 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     {
         if(Launcher.gson != null) return;
         Launcher.gsonBuilder = new GsonBuilder();
-        Launcher.gsonBuilder.setPrettyPrinting();
         Launcher.gsonBuilder.registerTypeAdapter(AuthProvider.class, new AuthProviderAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(TextureProvider.class, new TextureProviderAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(AuthHandler.class, new AuthHandlerAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
         Launcher.gson = Launcher.gsonBuilder.create();
+
+        //Human readable
+        LaunchServer.gsonBuilder = new GsonBuilder();
+        LaunchServer.gsonBuilder.setPrettyPrinting();
+        LaunchServer.gsonBuilder.registerTypeAdapter(AuthProvider.class, new AuthProviderAdapter());
+        LaunchServer.gsonBuilder.registerTypeAdapter(TextureProvider.class, new TextureProviderAdapter());
+        LaunchServer.gsonBuilder.registerTypeAdapter(AuthHandler.class, new AuthHandlerAdapter());
+        LaunchServer.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
+        LaunchServer.gson = LaunchServer.gsonBuilder.create();
     }
 
     private LauncherBinary binary() {
@@ -454,7 +466,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");
         try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
-            Launcher.gson.toJson(newConfig,writer);
+            LaunchServer.gson.toJson(newConfig,writer);
         }
     }
 
