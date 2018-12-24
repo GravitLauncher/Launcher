@@ -230,7 +230,7 @@ var digest = profile.isUpdateFastCheck();
 
             // Update asset dir
             update.resetOverlay("Обновление файлов ресурсов");
-            var assetDirName = profile.block.getEntryValue("assetDir", StringConfigEntryClass);
+            var assetDirName = profile.getAssetDir();
             var assetDir = settings.updatesDir.resolve(assetDirName);
             var assetMatcher = profile.getAssetUpdateMatcher();
             makeSetProfileRequest(profile, function() {
@@ -240,7 +240,7 @@ var digest = profile.isUpdateFastCheck();
 
                     // Update client dir
                     update.resetOverlay("Обновление файлов клиента");
-                    var clientDirName = profile.block.getEntryValue("dir", StringConfigEntryClass);
+                    var clientDirName = profile.getDir();
                     var clientDir = settings.updatesDir.resolve(clientDirName);
                     var clientMatcher = profile.getClientUpdateMatcher();
                     makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {

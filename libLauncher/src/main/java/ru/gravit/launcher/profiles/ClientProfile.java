@@ -12,6 +12,21 @@ import java.util.*;
 
 @SuppressWarnings("ComparableImplementedButEqualsNotOverridden")
 public final class ClientProfile implements Comparable<ClientProfile> {
+    public ClientProfile(String version, String assetIndex, int sortIndex, String title, String serverAddress, int serverPort, boolean updateFastCheck, boolean useWhitelist, String mainClass) {
+        this.version = version;
+        this.assetIndex = assetIndex;
+        this.sortIndex = sortIndex;
+        this.title = title;
+        this.serverAddress = serverAddress;
+        this.serverPort = serverPort;
+        this.updateFastCheck = updateFastCheck;
+        this.useWhitelist = useWhitelist;
+        this.mainClass = mainClass;
+    }
+
+    public ClientProfile() {
+    }
+
     @LauncherAPI
     public enum Version {
         MC147("1.4.7", 51),
@@ -60,14 +75,23 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
     // Version
+    @LauncherAPI
     private String version;
-
+    @LauncherAPI
     private String assetIndex;
-    // Client
-    private int sortIndex;
-    private String title;
-    private String serverAddress;
 
+    @LauncherAPI
+    private String dir;
+    @LauncherAPI
+    private String assetDir;
+    // Client
+    @LauncherAPI
+    private int sortIndex;
+    @LauncherAPI
+    private String title;
+    @LauncherAPI
+    private String serverAddress;
+    @LauncherAPI
     private int serverPort;
 
     public static class MarkedString {
@@ -101,20 +125,30 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     //  Updater and client watch service
+    @LauncherAPI
     private final List<String> update = new ArrayList<>();
+    @LauncherAPI
     private final List<String> updateExclusions = new ArrayList<>();
+    @LauncherAPI
     private final List<String> updateShared = new ArrayList<>();
+    @LauncherAPI
     private final List<String> updateVerify = new ArrayList<>();
+    @LauncherAPI
     private final Set<MarkedString> updateOptional = new HashSet<>();
+    @LauncherAPI
     private boolean updateFastCheck;
-
+    @LauncherAPI
     private boolean useWhitelist;
     // Client launcher
+    @LauncherAPI
     private String mainClass;
+    @LauncherAPI
     private final List<String> jvmArgs = new ArrayList<>();
+    @LauncherAPI
     private final List<String> classPath = new ArrayList<>();
+    @LauncherAPI
     private final List<String> clientArgs = new ArrayList<>();
-
+    @LauncherAPI
     private final List<String> whitelist = new ArrayList<>();
 
     @Override
@@ -140,6 +174,14 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     public String[] getClientArgs() {
         return clientArgs.toArray(new String[0]);
+    }
+    @LauncherAPI
+    public String getDir() {
+        return dir;
+    }
+    @LauncherAPI
+    public String getAssetDir() {
+        return assetDir;
     }
 
     @LauncherAPI
