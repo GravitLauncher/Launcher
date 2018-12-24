@@ -13,6 +13,7 @@ import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import ru.gravit.launchserver.auth.hwid.AcceptHWIDHandler;
 import ru.gravit.launchserver.auth.hwid.HWIDHandler;
+import ru.gravit.launchserver.auth.permissions.JsonFilePermissionsHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
 import ru.gravit.launchserver.binary.EXEL4JLauncherBinary;
@@ -26,10 +27,7 @@ import ru.gravit.launchserver.config.AuthHandlerAdapter;
 import ru.gravit.launchserver.config.AuthProviderAdapter;
 import ru.gravit.launchserver.config.HWIDHandlerAdapter;
 import ru.gravit.launchserver.config.TextureProviderAdapter;
-import ru.gravit.launchserver.manangers.BuildHookManager;
-import ru.gravit.launchserver.manangers.MirrorManager;
-import ru.gravit.launchserver.manangers.ModulesManager;
-import ru.gravit.launchserver.manangers.SessionManager;
+import ru.gravit.launchserver.manangers.*;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.RequestTextureProvider;
@@ -349,6 +347,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
                 e.printStackTrace();
             }
         });
+        JsonFilePermissionsHandler.init();
+        PermissionsManager.registerPermissionsFunction(JsonFilePermissionsHandler::getPermissions);
 
         // init modules
         modulesManager.initModules();

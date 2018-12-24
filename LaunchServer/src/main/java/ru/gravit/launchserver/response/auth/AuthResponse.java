@@ -87,7 +87,7 @@ public final class AuthResponse extends Response {
                     }
                 }
                 if (clientData.profile == null) {
-                    throw new AuthException("You profile not found");
+                    throw new AuthException("Your profile is not found");
                 }
             }
             server.config.hwidHandler.check(OshiHWID.gson.fromJson(hwid_str, OshiHWID.class), result.username);

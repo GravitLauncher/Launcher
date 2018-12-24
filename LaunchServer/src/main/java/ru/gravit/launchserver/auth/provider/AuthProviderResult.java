@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.auth.provider;
 
 import ru.gravit.launchserver.auth.ClientPermissions;
+import ru.gravit.launchserver.manangers.PermissionsManager;
 
 
 public class AuthProviderResult {
@@ -11,7 +12,7 @@ public class AuthProviderResult {
     public AuthProviderResult(String username, String accessToken) {
         this.username = username;
         this.accessToken = accessToken;
-        permissions = ClientPermissions.DEFAULT;
+        permissions = PermissionsManager.getPermissions(username);
     }
 
     public AuthProviderResult(String username, String accessToken, ClientPermissions permissions) {

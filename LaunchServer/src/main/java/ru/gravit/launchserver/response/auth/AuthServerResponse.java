@@ -67,14 +67,15 @@ public final class AuthServerResponse extends Response {
             Collection<ClientProfile> profiles = server.getProfiles();
             for (ClientProfile p : profiles) {
                 if (p.getTitle().equals(client)) {
-                    if (!p.isWhitelistContains(login)) {
-                        throw new AuthException(server.config.whitelistRejectString);
-                    }
                     clientData.profile = p;
                 }
             }
             if (clientData.profile == null) {
-                throw new AuthException("You profile not found");
+                throw new AuthException("Your profile is not found");
+            }
+            if(!clientData.permissions.canServer)
+            {
+                throw new AuthException("Your account cannot be a server");
             }
             clientData.type = Client.Type.SERVER;
             clientData.username = result.username;
