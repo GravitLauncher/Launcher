@@ -5,6 +5,7 @@ import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
 import ru.gravit.launchserver.command.auth.*;
 import ru.gravit.launchserver.command.basic.*;
+import ru.gravit.launchserver.command.dump.DumpEntryCacheCommand;
 import ru.gravit.launchserver.command.dump.DumpSessionsCommand;
 import ru.gravit.launchserver.command.hash.*;
 import ru.gravit.launchserver.command.modules.LoadModuleCommand;
@@ -106,6 +107,7 @@ public abstract class CommandHandler implements Runnable {
 
         //Register dump commands
         registerCommand("dumpSessions", new DumpSessionsCommand(server));
+        registerCommand("dumpEntryCache", new DumpEntryCacheCommand(server));
     }
 
 

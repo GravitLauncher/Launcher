@@ -104,8 +104,25 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
 
     public synchronized void garbageCollection() {
         entryCache.clear();
+        usernamesCache.clear();
     }
 
+    public Map<UUID, Entry> getEntryCache() {
+        return entryCache;
+    }
+
+    public Map<String, UUID> getUsernamesCache() {
+        return usernamesCache;
+    }
+
+    public void loadEntryCache(Map<UUID, Entry> map)
+    {
+        entryCache.putAll(map);
+    }
+    public void loadUsernameCache(Map<String, UUID> map)
+    {
+        usernamesCache.putAll(map);
+    }
 
     protected abstract boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException;
 
