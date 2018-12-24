@@ -444,7 +444,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         // Create new config
         LogHelper.info("Creating LaunchServer config");
         Config newConfig = new Config();
-        newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml"};
+        newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/"};
         newConfig.launch4j = new ExeConf();
         newConfig.buildPostTransform = new PostBuildTransformConf();
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
