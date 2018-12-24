@@ -190,7 +190,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         JVMHelper.verifySystemProperties(LaunchServer.class, true);
         LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");
-        LogHelper.printLicense("LauncherServer");
+        LogHelper.printLicense("LaunchServer");
 
         // Start LaunchServer
         Instant start = Instant.now();
@@ -269,7 +269,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     public LaunchServer(Path dir) throws IOException, InvalidKeySpecException {
         // Setup config locations
         this.dir = dir;
-        configFile = dir.resolve("LaunchServer.cfg");
+        configFile = dir.resolve("LaunchServer.conf");
         publicKeyFile = dir.resolve("public.key");
         privateKeyFile = dir.resolve("private.key");
         updatesDir = dir.resolve("updates");
@@ -451,10 +451,13 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         newConfig.authHandler = new MemoryAuthHandler();
         newConfig.hwidHandler = new AcceptHWIDHandler();
 
-        newConfig.authProvider = new AuthProvider[]{new RejectAuthProvider("Технические работы")};
+        newConfig.authProvider = new AuthProvider[]{new RejectAuthProvider("Настройте authProvider")};
         newConfig.textureProvider = new RequestTextureProvider("http://example.com/skins/%username%.png","http://example.com/cloaks/%username%.png");
         newConfig.port = 7420;
         newConfig.bindAddress = "0.0.0.0";
+        newConfig.authRejectString = "Превышен лимит авторизаций";
+        newConfig.binaryName = "Launcher";
+        newConfig.whitelistRejectString = "Вас нет в белом списке";
         //try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/config.cfg"))) {
         //    newConfig = Launcher.gson.fromJson(reader,Config.class);
         //}
