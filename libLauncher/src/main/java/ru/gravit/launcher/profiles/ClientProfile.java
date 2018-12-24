@@ -179,6 +179,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public String getDir() {
         return dir;
     }
+
+    public void setDir(String dir) {
+        this.dir = dir;
+    }
     @LauncherAPI
     public String getAssetDir() {
         return assetDir;
