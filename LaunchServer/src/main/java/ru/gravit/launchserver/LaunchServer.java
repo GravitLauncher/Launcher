@@ -77,7 +77,7 @@ import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
-public final class LaunchServer implements Runnable, AutoCloseable {
+public final class LaunchServer implements Runnable {
     public static final class Config {
         public int port;
 
@@ -236,9 +236,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         // Start LaunchServer
         Instant start = Instant.now();
         try {
-            try (LaunchServer lsrv = new LaunchServer(IOHelper.WORKING_DIR)) {
-                lsrv.run();
-            }
+            new LaunchServer(IOHelper.WORKING_DIR).run();
         } catch (Throwable exc) {
             LogHelper.error(exc);
             return;
@@ -469,7 +467,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         launcherEXEBinary.build();
     }
 
-    @Override
     public void close() {
         serverSocketHandler.close();
 
