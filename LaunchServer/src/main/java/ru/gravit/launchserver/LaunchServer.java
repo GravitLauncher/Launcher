@@ -118,6 +118,18 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             return bindAddress;
         }
 
+        public void setProjectName(String projectName) {
+            this.projectName = projectName;
+        }
+
+        public void setBinaryName(String binaryName) {
+            this.binaryName = binaryName;
+        }
+
+        public void setEnv(LauncherConfig.LauncherEnvironment env) {
+            this.env = env;
+        }
+
 
         public SocketAddress getSocketAddress() {
             return new InetSocketAddress(bindAddress, port);
@@ -478,6 +490,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         // Set server address
         LogHelper.println("LaunchServer address: ");
         newConfig.setAddress(commandHandler.readLine());
+        LogHelper.println("LaunchServer projectName: ");
+        newConfig.setProjectName(commandHandler.readLine());
 
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");

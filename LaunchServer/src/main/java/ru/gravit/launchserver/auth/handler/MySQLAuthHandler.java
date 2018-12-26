@@ -15,13 +15,25 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
     private String usernameColumn;
     private String accessTokenColumn;
     private String serverIDColumn;
+    private String table;
 
     // Prepared SQL queries
-    private String queryByUUIDSQL;
-    private String queryByUsernameSQL;
-    private String updateAuthSQL;
-    private String updateServerIDSQL;
-
+    private transient String queryByUUIDSQL;
+    private transient String queryByUsernameSQL;
+    private transient String updateAuthSQL;
+    private transient String updateServerIDSQL;
+    public MySQLAuthHandler()
+    {
+        // Prepare SQL queries
+        queryByUUIDSQL = String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s=? LIMIT 1",
+                uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, table, uuidColumn);
+        queryByUsernameSQL = String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s=? LIMIT 1",
+                uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, table, usernameColumn);
+        updateAuthSQL = String.format("UPDATE %s SET %s=?, %s=?, %s=NULL WHERE %s=? LIMIT 1",
+                table, usernameColumn, accessTokenColumn, serverIDColumn, uuidColumn);
+        updateServerIDSQL = String.format("UPDATE %s SET %s=? WHERE %s=? LIMIT 1",
+                table, serverIDColumn, uuidColumn);
+    }
     @Override
     public void close() {
         mySQLHolder.close();
