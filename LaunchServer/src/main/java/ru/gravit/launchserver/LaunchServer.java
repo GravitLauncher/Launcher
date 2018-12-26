@@ -56,11 +56,23 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     public static final class Config {
         public int port;
 
+        private String address;
+
+        private String bindAddress;
+
+        public String projectName;
+
+        public String[] mirrors;
+
+        public String binaryName;
+
+        public LauncherConfig.LauncherEnvironment env;
+
         // Handlers & Providers
 
-        public AuthHandler  authHandler;
-
         public AuthProvider[] authProvider;
+
+        public AuthHandler  authHandler;
 
         public PermissionsHandler permissionsHandler;
 
@@ -87,7 +99,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         public String authRejectString;
 
-        public String projectName;
 
         public String whitelistRejectString;
 
@@ -95,13 +106,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         public boolean isUsingWrapper;
         public boolean isDownloadJava;
 
-        public String[] mirrors;
-        public String binaryName;
-        @Expose
-        private String address;
-        @Expose
-        private String bindAddress;
-        public LauncherConfig.LauncherEnvironment env;
         public boolean isWarningMissArchJava;
 
 
