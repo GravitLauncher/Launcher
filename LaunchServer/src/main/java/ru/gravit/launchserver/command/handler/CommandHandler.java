@@ -117,6 +117,7 @@ public abstract class CommandHandler implements Runnable {
         registerCommand("config", new ConfigCommand(server));
         registerCommand("configHelp", new ConfigHelpCommand(server));
         registerCommand("configList", new ConfigListCommand(server));
+        registerCommand("swapAuthProvider", new SwapAuthProviderCommand(server));
     }
 
 
