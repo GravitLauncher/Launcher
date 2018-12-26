@@ -53,9 +53,13 @@ public class SwapAuthProviderCommand extends Command {
         } else if(args[1].equals("undo"))
         {
             if(providersCache[index] == null) LogHelper.error("Cache clean. Undo impossible");
-            server.config.authProvider[index].close();
-            server.config.authProvider[index] = providersCache[index];
-            providersCache[index] = null;
+            else
+            {
+                server.config.authProvider[index].close();
+                server.config.authProvider[index] = providersCache[index];
+                providersCache[index] = null;
+            }
+
         }
     }
 }
