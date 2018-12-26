@@ -4,25 +4,25 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.utils.helper.LogHelper;
 
-public class ReloadCommand extends Command {
-    public ReloadCommand(LaunchServer server) {
+public class ReloadAllCommand extends Command {
+    public ReloadAllCommand(LaunchServer server) {
         super(server);
     }
 
     @Override
     public String getArgsDescription() {
-        return "[name]";
+        return "";
     }
 
     @Override
     public String getUsageDescription() {
-        return "Reload provider/handler/module config";
+        return "Reload all provider/handler/module config";
     }
 
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args,1);
-        LogHelper.info("Reload %s config",args[0]);
-        server.reloadManager.reload(args[0]);
+        LogHelper.info("Reload all config");
+        server.reloadManager.reloadAll();
     }
 }

@@ -28,4 +28,10 @@ public class ReloadManager {
     public void reload(String name) throws Exception {
         RELOADABLES.get(name).reload();
     }
+    public void printReloadables()
+    {
+        LogHelper.info("Print reloadables");
+        RELOADABLES.forEach((k,v) -> LogHelper.subInfo(k));
+        LogHelper.info("Found %d reloadables", RELOADABLES.size());
+    }
 }

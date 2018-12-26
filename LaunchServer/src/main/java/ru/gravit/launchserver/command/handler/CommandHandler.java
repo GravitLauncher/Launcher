@@ -10,6 +10,9 @@ import ru.gravit.launchserver.command.dump.DumpSessionsCommand;
 import ru.gravit.launchserver.command.hash.*;
 import ru.gravit.launchserver.command.modules.LoadModuleCommand;
 import ru.gravit.launchserver.command.modules.ModulesCommand;
+import ru.gravit.launchserver.command.service.ReloadAllCommand;
+import ru.gravit.launchserver.command.service.ReloadCommand;
+import ru.gravit.launchserver.command.service.ReloadInfoCommand;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
@@ -108,6 +111,11 @@ public abstract class CommandHandler implements Runnable {
         //Register dump commands
         registerCommand("dumpSessions", new DumpSessionsCommand(server));
         registerCommand("dumpEntryCache", new DumpEntryCacheCommand(server));
+
+        //Register service commands
+        registerCommand("reload",new ReloadCommand(server));
+        registerCommand("reloadAll",new ReloadAllCommand(server));
+        registerCommand("reloadInfo",new ReloadInfoCommand(server));
     }
 
 
