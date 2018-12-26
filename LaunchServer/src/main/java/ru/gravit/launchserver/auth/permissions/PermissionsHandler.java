@@ -30,6 +30,8 @@ public abstract class PermissionsHandler {
     public static void registerHandlers() {
         if (!registredHandl) {
             registerHandler("json", JsonFilePermissionsHandler.class);
+            registerHandler("config", ConfigPermissionsHandler.class);
+            registerHandler("default", DefaultPermissionsHandler.class);
             registredHandl = true;
         }
     }
