@@ -263,6 +263,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     public final ReloadManager reloadManager;
 
+    public final ReconfigurableManager reconfigurableManager;
+
 
     public final BuildHookManager buildHookManager;
 
@@ -367,6 +369,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         sessionManager = new SessionManager();
         mirrorManager = new MirrorManager();
         reloadManager = new ReloadManager();
+        reconfigurableManager = new ReconfigurableManager();
+
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
         if(config.permissionsHandler instanceof Reloadable)
