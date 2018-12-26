@@ -4,8 +4,8 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.utils.helper.LogHelper;
 
-public class ReloadInfoCommand extends Command {
-    public ReloadInfoCommand(LaunchServer server) {
+public class ReloadListCommand extends Command {
+    public ReloadListCommand(LaunchServer server) {
         super(server);
     }
 

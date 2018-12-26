@@ -113,7 +113,7 @@ public abstract class CommandHandler implements Runnable {
         //Register service commands
         registerCommand("reload",new ReloadCommand(server));
         registerCommand("reloadAll",new ReloadAllCommand(server));
-        registerCommand("reloadInfo",new ReloadInfoCommand(server));
+        registerCommand("reloadList",new ReloadListCommand(server));
         registerCommand("config", new ConfigCommand(server));
         registerCommand("configHelp", new ConfigHelpCommand(server));
         registerCommand("configList", new ConfigListCommand(server));
