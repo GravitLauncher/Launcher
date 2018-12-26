@@ -33,7 +33,7 @@ public class ServerWrapper {
     private static GsonBuilder gsonBuiler;
 
     public static Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
-    public static Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapper.cfg"));
+    public static Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
     public static Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile", "public.key"));
 
     public static boolean auth(ServerWrapper wrapper) {
@@ -85,7 +85,7 @@ public class ServerWrapper {
         modulesManager.autoload(modulesDir);
         Launcher.modulesManager = modulesManager;
         modulesManager.preInitModules();
-        LogHelper.debug("Read LaunchWrapper.cfg");
+        LogHelper.debug("Read ServerWrapperConfig.json");
         gsonBuiler = new GsonBuilder();
         gson = gsonBuiler.create();
         generateConfigIfNotExists();
@@ -144,17 +144,23 @@ public class ServerWrapper {
             return;
 
         // Create new config
-        LogHelper.info("Creating LaunchWrapper config");
-        Config newConfig;
-        try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/ServerWrapper.cfg")))
-        {
-            newConfig = gson.fromJson(reader,Config.class);
-        }
+        LogHelper.info("Creating ServerWrapper config");
+        Config newConfig= new Config();
+        newConfig.title = "Your profile title";
+        newConfig.projectname = "MineCraft";
+        newConfig.address = "localhost";
+        newConfig.port = 7240;
+        newConfig.login = "login";
+        newConfig.password = "password";
+        //try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/ServerWrapper.cfg")))
+        //{
+        //    newConfig = gson.fromJson(reader,Config.class);
+        //}
 
         LogHelper.warning("Title is not set. Please show ServerWrapper.cfg");
 
         // Write LaunchServer config
-        LogHelper.info("Writing LaunchWrapper config file");
+        LogHelper.info("Writing ServerWrapper config file");
         try(Writer writer = IOHelper.newWriter(configFile))
         {
             gson.toJson(newConfig,writer);
