@@ -1,7 +1,6 @@
 package ru.gravit.launchserver.auth.permissions;
 
 import ru.gravit.launchserver.auth.ClientPermissions;
-import ru.gravit.launchserver.socket.Client;
 
 public class ConfigPermissionsHandler extends PermissionsHandler {
     public boolean isAdmin = false;

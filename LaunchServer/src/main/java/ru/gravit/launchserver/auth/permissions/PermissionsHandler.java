@@ -1,27 +1,27 @@
 package ru.gravit.launchserver.auth.permissions;
 
-import ru.gravit.launchserver.auth.ClientPermissions;
-import ru.gravit.utils.helper.VerifyHelper;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ru.gravit.launchserver.auth.ClientPermissions;
+import ru.gravit.utils.helper.VerifyHelper;
+
 public abstract class PermissionsHandler {
-    private static final Map<String, Class> PERMISSIONS_HANDLERS = new ConcurrentHashMap<>(4);
+    private static final Map<String, Class<? extends PermissionsHandler>> PERMISSIONS_HANDLERS = new ConcurrentHashMap<>(4);
     private static boolean registredHandl = false;
-    public static void registerHandler(String name, Class adapter) {
+    public static void registerHandler(String name, Class<? extends PermissionsHandler> adapter) {
         VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(PERMISSIONS_HANDLERS, name, Objects.requireNonNull(adapter, "adapter"),
                 String.format("Auth handler has been already registered: '%s'", name));
     }
-    public static Class getHandlerClass(String name)
+    public static Class<? extends PermissionsHandler> getHandlerClass(String name)
     {
         return PERMISSIONS_HANDLERS.get(name);
     }
-    public static String getHandlerName(Class clazz)
+    public static String getHandlerName(Class<? extends PermissionsHandler> clazz)
     {
-        for(Map.Entry<String,Class> e: PERMISSIONS_HANDLERS.entrySet())
+        for(Map.Entry<String,Class<? extends PermissionsHandler>> e: PERMISSIONS_HANDLERS.entrySet())
         {
             if(e.getValue().equals(clazz)) return e.getKey();
         }

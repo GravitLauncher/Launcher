@@ -1,17 +1,17 @@
 package ru.gravit.launchserver.auth.hwid;
 
-import ru.gravit.launcher.HWID;
-import ru.gravit.launcher.OshiHWID;
-import ru.gravit.launchserver.auth.MySQLSourceConfig;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.LogHelper;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import ru.gravit.launcher.HWID;
+import ru.gravit.launcher.OshiHWID;
+import ru.gravit.launchserver.auth.MySQLSourceConfig;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 public class MysqlHWIDHandler extends HWIDHandler {
     private MySQLSourceConfig mySQLHolder;

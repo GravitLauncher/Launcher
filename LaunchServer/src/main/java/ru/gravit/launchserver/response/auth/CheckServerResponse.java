@@ -1,5 +1,8 @@
 package ru.gravit.launchserver.response.auth;
 
+import java.io.IOException;
+import java.util.UUID;
+
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
@@ -9,9 +12,6 @@ import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
-
-import java.io.IOException;
-import java.util.UUID;
 
 public final class CheckServerResponse extends Response {
 

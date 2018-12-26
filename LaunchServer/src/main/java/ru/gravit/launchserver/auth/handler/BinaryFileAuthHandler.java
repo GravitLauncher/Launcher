@@ -1,13 +1,13 @@
 package ru.gravit.launchserver.auth.handler;
 
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.utils.helper.IOHelper;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.utils.helper.IOHelper;
 
 public final class BinaryFileAuthHandler extends FileAuthHandler {
 

@@ -1,6 +1,5 @@
 package ru.gravit.launchserver.auth.provider;
 
-import ru.gravit.launchserver.auth.ClientPermissions;
 import ru.gravit.utils.helper.SecurityHelper;
 
 public final class AcceptAuthProvider extends AuthProvider {

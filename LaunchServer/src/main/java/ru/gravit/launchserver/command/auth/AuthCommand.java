@@ -1,12 +1,12 @@
 package ru.gravit.launchserver.command.auth;
 
+import java.util.UUID;
+
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.utils.helper.LogHelper;
-
-import java.util.UUID;
 
 public final class AuthCommand extends Command {
     public AuthCommand(LaunchServer server) {

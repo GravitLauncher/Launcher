@@ -1,14 +1,15 @@
 package ru.gravit.launchserver.manangers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
+
 import ru.gravit.launchserver.asm.SafeClassWriter;
 import ru.gravit.launchserver.binary.JARLauncherBinary;
 import ru.gravit.launchserver.manangers.BuildHookManager.Transformer;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class NodeTransformer implements Transformer {
     @FunctionalInterface

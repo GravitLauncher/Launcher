@@ -1,18 +1,24 @@
 package ru.gravit.launchserver.config;
 
-import com.google.gson.*;
-import ru.gravit.launchserver.auth.handler.AuthHandler;
-import ru.gravit.launchserver.auth.provider.AuthProvider;
-import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
-
 import java.lang.reflect.Type;
+
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
+import ru.gravit.launchserver.auth.provider.AuthProvider;
 
 public class AuthProviderAdapter implements JsonSerializer<AuthProvider>, JsonDeserializer<AuthProvider> {
     private static final String PROP_NAME = "type";
     @Override
     public AuthProvider deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
-        Class<AuthProvider> cls = AuthProvider.getProviderClass(typename);
+        Class<? extends AuthProvider> cls = AuthProvider.getProviderClass(typename);
 
 
         return (AuthProvider) context.deserialize(json, cls);

@@ -1,14 +1,14 @@
 package ru.gravit.launchserver.auth.provider;
 
-import ru.gravit.launchserver.auth.ClientPermissions;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import ru.gravit.launchserver.auth.ClientPermissions;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 
 public final class RequestAuthProvider extends AuthProvider {
     private String url;

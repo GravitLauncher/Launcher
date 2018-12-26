@@ -1,9 +1,14 @@
 package ru.gravit.launchserver.binary;
 
-import javassist.*;
-import ru.gravit.launcher.LauncherConfig;
-
 import java.io.IOException;
+
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtMethod;
+import javassist.NotFoundException;
+import ru.gravit.launcher.LauncherConfig;
 
 public class JAConfigurator implements AutoCloseable {
     public ClassPool pool;

@@ -1,20 +1,6 @@
 package ru.gravit.launchserver.binary;
 
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
-import proguard.Configuration;
-import proguard.ConfigurationParser;
-import proguard.ParseException;
-import proguard.ProGuard;
-import ru.gravit.launcher.AutogenConfig;
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.asm.ClassMetadataReader;
-import ru.gravit.launchserver.manangers.BuildHookManager.ZipBuildHook;
-import ru.gravit.utils.helper.*;
-import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
+import static ru.gravit.utils.helper.IOHelper.newZipEntry;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,7 +20,25 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static ru.gravit.utils.helper.IOHelper.newZipEntry;
+import javassist.CannotCompileException;
+import javassist.NotFoundException;
+import proguard.Configuration;
+import proguard.ConfigurationParser;
+import proguard.ParseException;
+import proguard.ProGuard;
+import ru.gravit.launcher.AutogenConfig;
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.asm.ClassMetadataReader;
+import ru.gravit.launchserver.manangers.BuildHookManager.ZipBuildHook;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
+import ru.gravit.utils.helper.UnpackHelper;
 
 public final class JARLauncherBinary extends LauncherBinary {
 

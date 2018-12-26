@@ -1,11 +1,11 @@
 package ru.gravit.launchserver.command.handler;
 
+import java.io.IOException;
+
 import jline.console.ConsoleReader;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.LogHelper.Output;
-
-import java.io.IOException;
 
 public final class JLineCommandHandler extends CommandHandler {
     private final class JLineOutput implements Output {

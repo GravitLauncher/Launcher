@@ -1,17 +1,17 @@
 package ru.gravit.launchserver.auth.hwid;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import ru.gravit.launcher.HWID;
-import ru.gravit.launcher.OshiHWID;
-import ru.gravit.utils.HTTPRequest;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+
+import ru.gravit.launcher.HWID;
+import ru.gravit.launcher.OshiHWID;
+import ru.gravit.utils.HTTPRequest;
+import ru.gravit.utils.helper.LogHelper;
 
 public final class JsonHWIDHandler extends HWIDHandler {
     private static final Gson gson = new Gson();

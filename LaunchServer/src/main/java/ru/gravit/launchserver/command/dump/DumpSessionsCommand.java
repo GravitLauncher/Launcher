@@ -1,20 +1,19 @@
 package ru.gravit.launchserver.command.dump;
 
-import com.google.gson.reflect.TypeToken;
-import javafx.scene.media.MediaException;
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.command.Command;
-import ru.gravit.launchserver.socket.Client;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.google.gson.reflect.TypeToken;
+
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.command.Command;
+import ru.gravit.launchserver.socket.Client;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 public class DumpSessionsCommand extends Command {
     public DumpSessionsCommand(LaunchServer server) {
