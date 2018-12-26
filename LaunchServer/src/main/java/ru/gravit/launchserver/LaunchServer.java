@@ -1,8 +1,39 @@
 package ru.gravit.launchserver;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.SocketAddress;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.KeyPair;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.zip.CRC32;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
+
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.hasher.HashedDir;
@@ -22,37 +53,33 @@ import ru.gravit.launchserver.binary.EXEL4JLauncherBinary;
 import ru.gravit.launchserver.binary.EXELauncherBinary;
 import ru.gravit.launchserver.binary.JARLauncherBinary;
 import ru.gravit.launchserver.binary.LauncherBinary;
+import ru.gravit.launchserver.binary.ProguardConf;
 import ru.gravit.launchserver.command.handler.CommandHandler;
 import ru.gravit.launchserver.command.handler.JLineCommandHandler;
 import ru.gravit.launchserver.command.handler.StdCommandHandler;
-import ru.gravit.launchserver.config.*;
-import ru.gravit.launchserver.manangers.*;
+import ru.gravit.launchserver.config.AuthHandlerAdapter;
+import ru.gravit.launchserver.config.AuthProviderAdapter;
+import ru.gravit.launchserver.config.HWIDHandlerAdapter;
+import ru.gravit.launchserver.config.PermissionsHandlerAdapter;
+import ru.gravit.launchserver.config.TextureProviderAdapter;
+import ru.gravit.launchserver.manangers.BuildHookManager;
+import ru.gravit.launchserver.manangers.MirrorManager;
+import ru.gravit.launchserver.manangers.ModulesManager;
+import ru.gravit.launchserver.manangers.ReconfigurableManager;
+import ru.gravit.launchserver.manangers.ReloadManager;
+import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.RequestTextureProvider;
 import ru.gravit.launchserver.texture.TextureProvider;
-import ru.gravit.utils.helper.*;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.VerifyHelper;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.SocketAddress;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.KeyPair;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.zip.CRC32;
-
-public final class LaunchServer implements Runnable, AutoCloseable {
+public final class LaunchServer implements Runnable {
     public static final class Config {
         public int port;
 
@@ -211,9 +238,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         // Start LaunchServer
         Instant start = Instant.now();
         try {
-            try (LaunchServer lsrv = new LaunchServer(IOHelper.WORKING_DIR)) {
-                lsrv.run();
-            }
+            new LaunchServer(IOHelper.WORKING_DIR).run();
         } catch (Throwable exc) {
             LogHelper.error(exc);
             return;
@@ -464,7 +489,12 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     }
 
     private LauncherBinary binary() {
-        if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
+    	try {
+    		Class.forName("net.sf.launch4j.Builder");
+            if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
+    	} catch (ClassNotFoundException ignored) {
+    		LogHelper.warning("Launch4J isn't in classpath.");
+    	}
         return new EXELauncherBinary(this);
     }
 
@@ -474,7 +504,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         launcherEXEBinary.build();
     }
 
-    @Override
     public void close() {
         serverSocketHandler.close();
 

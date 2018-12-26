@@ -1,19 +1,20 @@
 package ru.gravit.launchserver.command.hash;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.command.Command;
-import ru.gravit.launchserver.command.CommandException;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-
 import java.io.BufferedReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.command.Command;
+import ru.gravit.launchserver.command.CommandException;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 public final class UnindexAssetCommand extends Command {
     private static JsonParser parser = new JsonParser();

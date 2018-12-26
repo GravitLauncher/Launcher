@@ -1,5 +1,13 @@
 package ru.gravit.launchserver.response.update;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.zip.DeflaterOutputStream;
+
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntry.Type;
@@ -13,14 +21,6 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.IOHelper;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Path;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.zip.DeflaterOutputStream;
 
 public final class UpdateResponse extends Response {
 

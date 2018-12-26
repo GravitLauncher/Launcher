@@ -8,7 +8,6 @@ import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 
 import java.util.ArrayList;
 import java.util.Collections;

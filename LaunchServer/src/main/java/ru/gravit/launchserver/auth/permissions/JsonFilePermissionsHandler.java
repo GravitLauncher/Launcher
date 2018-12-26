@@ -1,12 +1,5 @@
 package ru.gravit.launchserver.auth.permissions;
 
-import com.google.gson.reflect.TypeToken;
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launchserver.Reloadable;
-import ru.gravit.launchserver.auth.ClientPermissions;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -15,6 +8,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.gson.reflect.TypeToken;
+
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launchserver.Reloadable;
+import ru.gravit.launchserver.auth.ClientPermissions;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 public class JsonFilePermissionsHandler extends PermissionsHandler implements Reloadable {
     public String filename = "permissions.json";

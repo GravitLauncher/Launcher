@@ -56,8 +56,8 @@ public class ServerAgent {
             if (IOHelper.exists(libraries)) loadLibraries(libraries);
         }
         if (isAgentProxy) {
-            String proxyClassName = System.getProperty("serverwrapper,agentproxyclass");
-            Class proxyClass;
+            String proxyClassName = System.getProperty("serverwrapper.agentproxyclass");
+            Class<?> proxyClass;
             try {
                 proxyClass = Class.forName(proxyClassName);
                 MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(proxyClass, "premain", MethodType.methodType(void.class, String.class, Instrumentation.class));

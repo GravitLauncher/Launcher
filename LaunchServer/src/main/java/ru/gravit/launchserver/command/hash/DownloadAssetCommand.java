@@ -1,15 +1,15 @@
 package ru.gravit.launchserver.command.hash;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+
 import ru.gravit.launcher.profiles.ClientProfile.Version;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.utils.HttpDownloader;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
 
 public final class DownloadAssetCommand extends Command {
 

@@ -1,16 +1,16 @@
 package ru.gravit.launchserver.manangers;
 
-import ru.gravit.launcher.AutogenConfig;
-import ru.gravit.launcher.modules.TestClientModule;
-import ru.gravit.launchserver.binary.BuildContext;
-import ru.gravit.launchserver.binary.JAConfigurator;
-import ru.gravit.launchserver.binary.JARLauncherBinary;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipOutputStream;
+
+import ru.gravit.launcher.AutogenConfig;
+import ru.gravit.launcher.modules.TestClientModule;
+import ru.gravit.launchserver.binary.BuildContext;
+import ru.gravit.launchserver.binary.JAConfigurator;
+import ru.gravit.launchserver.binary.JARLauncherBinary;
 
 public class BuildHookManager {
     @FunctionalInterface

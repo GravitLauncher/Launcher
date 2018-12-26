@@ -1,12 +1,12 @@
 package ru.gravit.launchserver.command.auth;
 
+import java.io.IOException;
+import java.util.UUID;
+
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
 import ru.gravit.utils.helper.LogHelper;
-
-import java.io.IOException;
-import java.util.UUID;
 
 public final class UsernameToUUIDCommand extends Command {
     public UsernameToUUIDCommand(LaunchServer server) {

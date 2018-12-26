@@ -1,10 +1,10 @@
 package ru.gravit.launchserver.manangers;
 
-import ru.gravit.launcher.NeedGarbageCollection;
-import ru.gravit.launchserver.socket.Client;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import ru.gravit.launcher.NeedGarbageCollection;
+import ru.gravit.launchserver.socket.Client;
 
 public class SessionManager implements NeedGarbageCollection {
 

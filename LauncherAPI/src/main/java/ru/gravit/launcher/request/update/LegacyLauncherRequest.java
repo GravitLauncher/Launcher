@@ -9,7 +9,6 @@ import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.request.update.LegacyLauncherRequest.Result;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;

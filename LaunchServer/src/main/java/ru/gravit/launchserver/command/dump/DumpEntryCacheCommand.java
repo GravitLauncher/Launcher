@@ -1,21 +1,16 @@
 package ru.gravit.launchserver.command.dump;
 
-import com.google.gson.reflect.TypeToken;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.UUID;
+
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.handler.CachedAuthHandler;
 import ru.gravit.launchserver.command.Command;
-import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
-
-import java.io.Reader;
-import java.io.Writer;
-import java.lang.reflect.Type;
-import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 public class DumpEntryCacheCommand extends Command {
     public DumpEntryCacheCommand(LaunchServer server) {

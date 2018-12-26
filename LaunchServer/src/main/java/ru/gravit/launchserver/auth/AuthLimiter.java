@@ -1,12 +1,12 @@
 package ru.gravit.launchserver.auth;
 
-import ru.gravit.launcher.NeedGarbageCollection;
-import ru.gravit.launchserver.LaunchServer;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import ru.gravit.launcher.NeedGarbageCollection;
+import ru.gravit.launchserver.LaunchServer;
 
 public class AuthLimiter implements NeedGarbageCollection {
     static class AuthEntry {
