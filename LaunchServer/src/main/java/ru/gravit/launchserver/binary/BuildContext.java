@@ -38,7 +38,7 @@ public class BuildContext {
                 e = input.getNextEntry();
                 continue;
             }
-            output.putNextEntry(e);
+            output.putNextEntry(IOHelper.newZipEntry(e));
             IOHelper.transfer(input, output);
             fileList.add(e.getName());
             e = input.getNextEntry();
@@ -52,7 +52,7 @@ public class BuildContext {
                 e = input.getNextEntry();
                 continue;
             }
-            output.putNextEntry(e);
+            output.putNextEntry(IOHelper.newZipEntry(e));
             IOHelper.transfer(input, output);
             fileList.add(e.getName());
             e = input.getNextEntry();

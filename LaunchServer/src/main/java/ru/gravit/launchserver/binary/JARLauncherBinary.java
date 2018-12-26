@@ -126,7 +126,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         guardDir = server.dir.resolve(Launcher.GUARD_DIR);
         initScriptFile = runtimeDir.resolve(Launcher.INIT_SCRIPT_FILE);
-        obfJar = server.dir.resolve(server.config.binaryName + "-obfed.jar");
+        obfJar = server.dir.resolve(server.config.binaryName + "-obfPre.jar");
         obfOutJar = server.config.buildPostTransform.enabled ? server.dir.resolve(server.config.binaryName + "-obf.jar")
                 : syncBinaryFile;
         cleanJar = server.dir.resolve(server.config.binaryName + "-clean.jar");
@@ -162,7 +162,7 @@ public final class JARLauncherBinary extends LauncherBinary {
             ZipEntry e = input.getNextEntry();
             while (e != null) {
                 String filename = e.getName();
-                output.putNextEntry(IOHelper.newZipEntry(e.getName()));
+                output.putNextEntry(IOHelper.newZipEntry(e));
                 if (filename.endsWith(".class")) {
                     String classname = filename.replace('/', '.').substring(0, filename.length() - ".class".length());
                     byte[] bytes;
@@ -226,7 +226,7 @@ public final class JARLauncherBinary extends LauncherBinary {
                         continue;
                     }
                     try {
-                        output.putNextEntry(IOHelper.newZipEntry(e.getName()));
+                        output.putNextEntry(IOHelper.newZipEntry(e));
                     } catch (ZipException ex) {
                         LogHelper.error(ex);
                         e = input.getNextEntry();

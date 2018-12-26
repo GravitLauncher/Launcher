@@ -53,6 +53,7 @@ import ru.gravit.launchserver.binary.EXEL4JLauncherBinary;
 import ru.gravit.launchserver.binary.EXELauncherBinary;
 import ru.gravit.launchserver.binary.JARLauncherBinary;
 import ru.gravit.launchserver.binary.LauncherBinary;
+import ru.gravit.launchserver.binary.ProguardConf;
 import ru.gravit.launchserver.command.handler.CommandHandler;
 import ru.gravit.launchserver.command.handler.JLineCommandHandler;
 import ru.gravit.launchserver.command.handler.StdCommandHandler;
@@ -457,7 +458,12 @@ public final class LaunchServer implements Runnable {
     }
 
     private LauncherBinary binary() {
-        if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
+    	try {
+    		Class.forName("net.sf.launch4j.Builder");
+            if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
+    	} catch (ClassNotFoundException ignored) {
+    		LogHelper.warning("Launch4J isn't in classpath.");
+    	}
         return new EXELauncherBinary(this);
     }
 
