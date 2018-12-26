@@ -61,8 +61,8 @@ public final class Launcher {
     public static int MAJOR = 4;
     public static int MINOR = 1;
     public static int PATCH = 0;
-    public static int BUILD = 4;
-    public static Version.Type RELEASE = Version.Type.EXPERIMENTAL;
+    public static int BUILD = 5;
+    public static Version.Type RELEASE = Version.Type.BETA;
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
 
