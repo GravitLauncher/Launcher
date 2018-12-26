@@ -12,15 +12,22 @@ import ru.gravit.utils.helper.SecurityHelper;
 
 public final class RequestAuthProvider extends AuthProvider {
     private String url;
-    private Pattern response;
+    private transient Pattern pattern;
+    private String response;
     private boolean usePermission;
+
+    @Override
+    public void init()
+    {
+        pattern = Pattern.compile(response);
+    }
 
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws IOException {
         String currentResponse = IOHelper.request(new URL(getFormattedURL(login, password, ip)));
 
         // Match username
-        Matcher matcher = response.matcher(currentResponse);
+        Matcher matcher = pattern.matcher(currentResponse);
         return matcher.matches() && matcher.groupCount() >= 1 ?
                 new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(Long.getLong(matcher.group("permission"))) : new ClientPermissions()) :
                 authError(currentResponse);

@@ -553,7 +553,7 @@ public final class LaunchServer implements Runnable {
         newConfig.authProvider = new AuthProvider[]{new RejectAuthProvider("Настройте authProvider")};
         newConfig.textureProvider = new RequestTextureProvider("http://example.com/skins/%username%.png","http://example.com/cloaks/%username%.png");
         newConfig.permissionsHandler = new JsonFilePermissionsHandler();
-        newConfig.port = 7420;
+        newConfig.port = 7240;
         newConfig.bindAddress = "0.0.0.0";
         newConfig.authRejectString = "Превышен лимит авторизаций";
         newConfig.binaryName = "Launcher";
