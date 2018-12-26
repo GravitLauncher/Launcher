@@ -64,4 +64,8 @@ public abstract class AuthProvider implements AutoCloseable {
         }
         return null;
     }
+    public void init()
+    {
+
+    }
 }

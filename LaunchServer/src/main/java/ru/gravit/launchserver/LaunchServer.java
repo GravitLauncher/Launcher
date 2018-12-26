@@ -354,6 +354,11 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             config = Launcher.gson.fromJson(reader,Config.class);
         }
         config.verify();
+        for(AuthProvider provider : config.authProvider)
+        {
+            provider.init();
+        }
+        config.authHandler.init();
 
         // build hooks, anti-brutforce and other
         buildHookManager = new BuildHookManager();
