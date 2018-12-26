@@ -242,6 +242,7 @@ public final class JARLauncherBinary extends LauncherBinary {
                         }
                     } else
                         IOHelper.transfer(input, output);
+                    context.fileList.add(filename);
                     e = input.getNextEntry();
                 }
             }
