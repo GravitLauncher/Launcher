@@ -261,6 +261,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     public final MirrorManager mirrorManager;
 
+    public final ReloadManager reloadManager;
+
 
     public final BuildHookManager buildHookManager;
 
@@ -359,6 +361,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         proguardConf = new ProguardConf(this);
         sessionManager = new SessionManager();
         mirrorManager = new MirrorManager();
+        reloadManager = new ReloadManager();
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
         Arrays.stream(config.mirrors).forEach(s -> {
