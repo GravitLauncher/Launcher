@@ -394,6 +394,27 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             }
         });
 
+        if(config.permissionsHandler instanceof Reconfigurable)
+            reconfigurableManager.registerReconfigurable("permissionsHandler",(Reconfigurable) config.permissionsHandler);
+        if(config.authHandler instanceof Reconfigurable)
+            reconfigurableManager.registerReconfigurable("authHandler",(Reconfigurable) config.authHandler);
+        for(int i=0;i<config.authProvider.length;++i)
+        {
+            AuthProvider provider = config.authProvider[i];
+            if(provider instanceof Reconfigurable)
+                reconfigurableManager.registerReconfigurable("authHandler".concat(String.valueOf(i)),(Reconfigurable) provider);
+        }
+        if(config.textureProvider instanceof Reconfigurable)
+            reconfigurableManager.registerReconfigurable("textureProvider",(Reconfigurable) config.textureProvider);
+
+        Arrays.stream(config.mirrors).forEach(s -> {
+            try {
+                mirrorManager.addMirror(s);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        });
+
         // init modules
         modulesManager.initModules();
 
