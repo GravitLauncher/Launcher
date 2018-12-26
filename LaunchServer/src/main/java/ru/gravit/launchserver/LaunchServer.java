@@ -15,6 +15,7 @@ import ru.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import ru.gravit.launchserver.auth.hwid.AcceptHWIDHandler;
 import ru.gravit.launchserver.auth.hwid.HWIDHandler;
 import ru.gravit.launchserver.auth.permissions.JsonFilePermissionsHandler;
+import ru.gravit.launchserver.auth.permissions.PermissionsHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
 import ru.gravit.launchserver.binary.EXEL4JLauncherBinary;
@@ -24,10 +25,7 @@ import ru.gravit.launchserver.binary.LauncherBinary;
 import ru.gravit.launchserver.command.handler.CommandHandler;
 import ru.gravit.launchserver.command.handler.JLineCommandHandler;
 import ru.gravit.launchserver.command.handler.StdCommandHandler;
-import ru.gravit.launchserver.config.AuthHandlerAdapter;
-import ru.gravit.launchserver.config.AuthProviderAdapter;
-import ru.gravit.launchserver.config.HWIDHandlerAdapter;
-import ru.gravit.launchserver.config.TextureProviderAdapter;
+import ru.gravit.launchserver.config.*;
 import ru.gravit.launchserver.manangers.*;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
@@ -63,6 +61,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         public AuthHandler  authHandler;
 
         public AuthProvider[] authProvider;
+
+        public PermissionsHandler permissionsHandler;
 
         public TextureProvider textureProvider;
 
@@ -280,6 +280,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         AuthProvider.registerProviders();
         TextureProvider.registerProviders();
         HWIDHandler.registerHandlers();
+        PermissionsHandler.registerHandlers();
         Response.registerResponses();
         LaunchServer.server = this;
 
@@ -351,8 +352,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
                 e.printStackTrace();
             }
         });
-        JsonFilePermissionsHandler.init();
-        PermissionsManager.registerPermissionsFunction(JsonFilePermissionsHandler::getPermissions);
 
         // init modules
         modulesManager.initModules();
@@ -387,6 +386,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         Launcher.gsonBuilder.registerTypeAdapter(AuthProvider.class, new AuthProviderAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(TextureProvider.class, new TextureProviderAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(AuthHandler.class, new AuthHandlerAdapter());
+        Launcher.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new PermissionsHandlerAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
         Launcher.gson = Launcher.gsonBuilder.create();
 
@@ -396,6 +396,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         LaunchServer.gsonBuilder.registerTypeAdapter(AuthProvider.class, new AuthProviderAdapter());
         LaunchServer.gsonBuilder.registerTypeAdapter(TextureProvider.class, new TextureProviderAdapter());
         LaunchServer.gsonBuilder.registerTypeAdapter(AuthHandler.class, new AuthHandlerAdapter());
+        LaunchServer.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new PermissionsHandlerAdapter());
         LaunchServer.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
         LaunchServer.gson = LaunchServer.gsonBuilder.create();
     }
@@ -460,6 +461,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
         newConfig.authProvider = new AuthProvider[]{new RejectAuthProvider("Настройте authProvider")};
         newConfig.textureProvider = new RequestTextureProvider("http://example.com/skins/%username%.png","http://example.com/cloaks/%username%.png");
+        newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.port = 7420;
         newConfig.bindAddress = "0.0.0.0";
         newConfig.authRejectString = "Превышен лимит авторизаций";
