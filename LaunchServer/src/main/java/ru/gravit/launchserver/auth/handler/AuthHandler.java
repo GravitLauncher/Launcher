@@ -65,4 +65,9 @@ public abstract class AuthHandler implements AutoCloseable {
 
 
     public abstract String uuidToUsername(UUID uuid) throws IOException;
+
+    public void init()
+    {
+
+    }
 }

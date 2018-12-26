@@ -22,7 +22,8 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
     private transient String queryByUsernameSQL;
     private transient String updateAuthSQL;
     private transient String updateServerIDSQL;
-    public MySQLAuthHandler()
+    @Override
+    public void init()
     {
         // Prepare SQL queries
         queryByUUIDSQL = String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s=? LIMIT 1",

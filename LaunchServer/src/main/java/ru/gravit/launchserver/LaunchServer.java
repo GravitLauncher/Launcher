@@ -287,6 +287,8 @@ public final class LaunchServer implements Runnable {
 
     public final ReloadManager reloadManager;
 
+    public final ReconfigurableManager reconfigurableManager;
+
 
     public final BuildHookManager buildHookManager;
 
@@ -378,6 +380,11 @@ public final class LaunchServer implements Runnable {
             config = Launcher.gson.fromJson(reader,Config.class);
         }
         config.verify();
+        for(AuthProvider provider : config.authProvider)
+        {
+            provider.init();
+        }
+        config.authHandler.init();
 
         // build hooks, anti-brutforce and other
         buildHookManager = new BuildHookManager();
@@ -386,6 +393,8 @@ public final class LaunchServer implements Runnable {
         sessionManager = new SessionManager();
         mirrorManager = new MirrorManager();
         reloadManager = new ReloadManager();
+        reconfigurableManager = new ReconfigurableManager();
+
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
         if(config.permissionsHandler instanceof Reloadable)
@@ -400,6 +409,27 @@ public final class LaunchServer implements Runnable {
         }
         if(config.textureProvider instanceof Reloadable)
             reloadManager.registerReloadable("textureProvider",(Reloadable) config.textureProvider);
+
+        Arrays.stream(config.mirrors).forEach(s -> {
+            try {
+                mirrorManager.addMirror(s);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        });
+
+        if(config.permissionsHandler instanceof Reconfigurable)
+            reconfigurableManager.registerReconfigurable("permissionsHandler",(Reconfigurable) config.permissionsHandler);
+        if(config.authHandler instanceof Reconfigurable)
+            reconfigurableManager.registerReconfigurable("authHandler",(Reconfigurable) config.authHandler);
+        for(int i=0;i<config.authProvider.length;++i)
+        {
+            AuthProvider provider = config.authProvider[i];
+            if(provider instanceof Reconfigurable)
+                reconfigurableManager.registerReconfigurable("authHandler".concat(String.valueOf(i)),(Reconfigurable) provider);
+        }
+        if(config.textureProvider instanceof Reconfigurable)
+            reconfigurableManager.registerReconfigurable("textureProvider",(Reconfigurable) config.textureProvider);
 
         Arrays.stream(config.mirrors).forEach(s -> {
             try {
