@@ -364,6 +364,19 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         reloadManager = new ReloadManager();
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
+        if(config.permissionsHandler instanceof Reloadable)
+            reloadManager.registerReloadable("permissionsHandler",(Reloadable) config.permissionsHandler);
+        if(config.authHandler instanceof Reloadable)
+            reloadManager.registerReloadable("authHandler",(Reloadable) config.authHandler);
+        for(int i=0;i<config.authProvider.length;++i)
+        {
+            AuthProvider provider = config.authProvider[i];
+            if(provider instanceof Reloadable)
+                reloadManager.registerReloadable("authHandler".concat(String.valueOf(i)),(Reloadable) provider);
+        }
+        if(config.textureProvider instanceof Reloadable)
+            reloadManager.registerReloadable("textureProvider",(Reloadable) config.textureProvider);
+
         Arrays.stream(config.mirrors).forEach(s -> {
             try {
                 mirrorManager.addMirror(s);
