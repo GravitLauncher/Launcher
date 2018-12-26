@@ -65,6 +65,7 @@ import ru.gravit.launchserver.config.TextureProviderAdapter;
 import ru.gravit.launchserver.manangers.BuildHookManager;
 import ru.gravit.launchserver.manangers.MirrorManager;
 import ru.gravit.launchserver.manangers.ModulesManager;
+import ru.gravit.launchserver.manangers.ReconfigurableManager;
 import ru.gravit.launchserver.manangers.ReloadManager;
 import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.launchserver.response.Response;

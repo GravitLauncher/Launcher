@@ -23,7 +23,8 @@ public class SwapAuthProviderCommand extends Command {
         return "Change authProvider";
     }
 
-    @Override
+    @SuppressWarnings("resource")
+	@Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args,2);
         if(providersCache == null) providersCache = new AuthProvider[server.config.authProvider.length];
@@ -32,7 +33,7 @@ public class SwapAuthProviderCommand extends Command {
         {
             if(providersCache[index] == null)
             {
-                AcceptAuthProvider provider = new AcceptAuthProvider();
+				AcceptAuthProvider provider = new AcceptAuthProvider();
                 providersCache[index] = server.config.authProvider[index];
                 server.config.authProvider[index] = provider;
                 LogHelper.info("AuthProvider[%d] is AcceptAuthProvider",index);
