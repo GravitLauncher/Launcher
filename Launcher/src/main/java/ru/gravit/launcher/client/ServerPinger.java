@@ -130,7 +130,7 @@ public final class ServerPinger {
         // Verify all parts
         String magic = splitted[0];
         if (!magic.equals(LEGACY_PING_HOST_MAGIC))
-            throw new IOException("Magic string mismatch: " + magic);
+            throw new IOException("Magic file mismatch: " + magic);
         int protocol = Integer.parseInt(splitted[1]);
         if (protocol != version.protocol)
             throw new IOException("Protocol mismatch: " + protocol);

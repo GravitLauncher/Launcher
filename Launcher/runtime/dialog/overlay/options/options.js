@@ -93,38 +93,22 @@ var options = {
             nodelist.forEach(function(node,i,arr) {
                 holder.getChildren().remove(node);
             });
-            var profile = profilesList[serverHolder.old].object;
+            var profile = profilesList[serverHolder.old];
             var list = profile.getOptional();
             var checkBoxList = new java.util.ArrayList;
-            var modConfigKeys = Object.keys(optModNames.modInfo);
             var dModsIds = [];
-            
-            modConfigKeys.forEach(function(key, id) {//По умолчанию индекс у ветви = 1. Выставляем его у всех неуказанных.
-                    if(optModNames.modInfo[key].subTreeLevel == null) 
-                        optModNames.modInfo[key].subTreeLevel = 1;
-            });
 
-            for (var ik = 0, l = modConfigKeys.length + 1; ik <= l; ik++) {
-                list.forEach(function(modFile) {
-                    if((modConfigKeys[ik] === modFile.string) || (ik == modConfigKeys.length+1 && dModsIds.indexOf(modFile.string) == -1)) {
-                        dModsIds.push(modFile.string);
+            list.forEach(function(modFile) {
+                    dModsIds.push(modFile.string);
 
-                        var modName = modFile.string, modDescription = "", subLevel = 1;
-                        if(optModNames.modInfo[modFile.string] != null){//Есть ли хоть какое-нибудь представление описания модификации?
-                            var optModN = optModNames.modInfo[modFile.string];
-                            if(optModN.name != null)//Есть ли у модификации имя?
-                                modName = optModN.name;
-                            if(optModN.description != null) //Есть ли описание?
-                                modDescription = optModN.description;
-                            if(optModN.subTreeLevel != null && optModN.subTreeLevel > 1)//Это суб-модификация?
-                                subLevel = optModN.subTreeLevel;
-                        } else if(optModNames.optAutoModName) {
-                            //Попытка автоматически создать представляемое имя модификации.
-                            modName = modName.replace(new RegExp("(.*?(\/))",'g'),'');
-                            modName = modName.replace(new RegExp("(-|_|[\\d]|\\+).*",'g'),'');
-                            //Первая буква - заглавная
-                            modName = modName[0].toUpperCase() + modName.slice(1);
-                        }
+                        var modName = modFile.file, modDescription = "", subLevel = 1;
+
+                        if(modFile.name != null)//Есть ли у модификации имя?
+                            modName = modFile.name;
+                        if(modFile.info != null) //Есть ли описание?
+                            modDescription = modFile.info;
+                        if(modFile.subTreeLevel != null && modFile.subTreeLevel > 1)//Это суб-модификация?
+                            subLevel = modFile.subTreeLevel;
                          var testMod = new javafx.scene.control.CheckBox(modName);
 
                         if(subLevel > 1)
@@ -136,15 +120,15 @@ var options = {
                              var isSelected = event.getSource().isSelected();
                              if(isSelected)
                              {
-                                 profile.markOptional(modFile.string);
-                                 LogHelper.debug("Selected mod %s", modFile.string);
-                                 options.treeToggle(true, modFile.string);
+                                 profile.markOptional(modFile.file);
+                                 LogHelper.debug("Selected mod %s", modFile.file);
+                                 options.treeToggle(true, modFile.file);
                              }
                              else
                              {
-                                 profile.unmarkOptional(modFile.string);
-                                 LogHelper.debug("Unselected mod %s", modFile.string);
-                                 options.treeToggle(false, modFile.string);
+                                 profile.unmarkOptional(modFile.file);
+                                 LogHelper.debug("Unselected mod %s", modFile.file);
+                                 options.treeToggle(false, modFile.file);
                              }
                              options.update();
                          });
@@ -168,31 +152,27 @@ var options = {
                         sep = new javafx.scene.control.Separator();
                         sep.getStyleClass().add("separator");
                         checkBoxList.add(sep);
-                    }
                 });
-            }
             holder.getChildren().clear();
             holder.getChildren().addAll(checkBoxList);
     },
     treeToggle: function(enable, ImodFile) {
-            var profile = profilesList[serverHolder.old].object;
-            if(optModNames.modInfo[ImodFile] != null) {
-                var modInfo = optModNames.modInfo[ImodFile];
-                var modList = optModNames.modInfo;
-                var modIDs = Object.keys(modList);
+            var profile = profilesList[serverHolder.old];
+            var modInfo = profile.getOptionalFile(ImodFile);
+                var modList = profile.getOptional();
 
                 if(modInfo.subTreeLevel != null) {
 
                     if(modInfo.subTreeLevel >= 1){//Отключение core-модификации
                         var stop = false;
-                        modIDs.forEach(function(key, id) {
-                            if(modList[key] != null && modList[key].subTreeLevel != null) {
-                                if( modList[key].subTreeLevel > modInfo.subTreeLevel && modIDs.indexOf(key) > modIDs.indexOf(ImodFile) && enable == false && stop == false) {
-                                    if(options.modExists(key)){
-                                        profile.unmarkOptional(key);
-                                        LogHelper.debug("Unselected subMod %s", key);
+                        modList.forEach(function(elem, id) {
+                            if(elem != null && elem.subTreeLevel != null) {
+                                if( elem.subTreeLevel > modInfo.subTreeLevel && enable == false && stop == false) {
+                                    if(options.modExists(elem.file)){
+                                        profile.unmarkOptional(elem.file);
+                                        LogHelper.debug("Unselected subMod %s", elem.file);
                                     }
-                                } else if(modIDs.indexOf(key) > modIDs.indexOf(ImodFile) && modList[key].subTreeLevel <= modInfo.subTreeLevel && stop == false) {
+                                } else if(elem.subTreeLevel <= modInfo.subTreeLevel && stop == false) {
                                     //LogHelper.debug("STOP disable!! " + key);
                                     stop = true;
                                 }
@@ -201,27 +181,26 @@ var options = {
                     }
 
                     if(modInfo.onlyOne == true){//Включение onlyOne-модификации (Все onlyOne-модификации с той же группой будут отключены. К примеру 2 миникарты)
-                        modIDs.forEach(function(key, id) {
-                            if(modList[key] != null && modList[key].onlyOneGroup != null) {
-                                if(modList[key].onlyOneGroup == modInfo.onlyOneGroup && modList[key].onlyOne == true && enable == true && key != ImodFile) {
-                                    if(options.modExists(key)) {
-                                        profile.unmarkOptional(key);
-                                        LogHelper.debug("Unselected Mod (onlyOne toggle) %s", key);
+                        modList.forEach(function(elem, id) {
+                            if(elem != null && elem.onlyOneGroup != null) {
+                                if(elem.onlyOneGroup == modInfo.onlyOneGroup && elem.onlyOne == true && enable == true && key != ImodFile) {
+                                    if(options.modExists(elem.file)) {
+                                        profile.unmarkOptional(elem.file);
+                                        LogHelper.debug("Unselected Mod (onlyOne toggle) %s", elem.file);
                                     }
-                                    options.treeToggle(false, key); //И все его подмодификации канут в Лету..
+                                    options.treeToggle(false, elem.file); //И все его подмодификации канут в Лету..
                                 }
                             }
                         });
                     }
 
                     if(modInfo.subTreeLevel > 1){//Включение суб-модификации (Без core суб-моды работать не будут, так что его нужно включать) (Включаем всю ветку зависимости)
-                        var reverseModList = Object.keys(modList).reverse();
                         var tsl = modInfo.subTreeLevel-1;
-                        reverseModList.forEach(function(key, id) {
-                            if(modList[key] != null && modList[key].subTreeLevel != null) {
-                                if(modList[key].subTreeLevel == tsl && modIDs.indexOf(key) < modIDs.indexOf(ImodFile) && enable == true) {
-                                    if(options.modExists(key)) {
-                                        profile.markOptional(key);
+                        modList.forEach(function(elem, id) {
+                            if(elem != null && elem.subTreeLevel != null) {
+                                if(elem.subTreeLevel == tsl && enable == true) {
+                                    if(options.modExists(elem)) {
+                                        profile.markOptional(elem.file);
                                         LogHelper.debug("Selected coreMod %s", key);
                                     }
                                     options.treeToggle(true, key); //Для срабатывания onlyOne-модификаций.
@@ -232,14 +211,13 @@ var options = {
                     }
 
                 }
-            }
     },
     modExists: function(key){
-        var profile = profilesList[serverHolder.old].object;
+        var profile = profilesList[serverHolder.old];
         var list = profile.getOptional();
         var result = false;
         list.forEach(function(modFile) {
-            if(modFile.string === key) {
+            if(modFile.file === key) {
                 result = true;
             }
         });

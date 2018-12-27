@@ -68,7 +68,7 @@ public abstract class CommandHandler implements Runnable {
                 if (wasQuoted || builder.length() > 0)
                     result.add(builder.toString());
 
-                // Reset string builder
+                // Reset file builder
                 wasQuoted = false;
                 builder.setLength(0);
                 continue;

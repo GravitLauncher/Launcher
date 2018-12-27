@@ -68,7 +68,7 @@ public final class EXEL4JLauncherBinary extends LauncherBinary {
 
     private void setConfig() {
         Config config = new Config();
-        // Set string options
+        // Set file options
         config.setChdir(".");
         config.setErrTitle("JVM Error");
         config.setDownloadUrl(DOWNLOAD_URL);

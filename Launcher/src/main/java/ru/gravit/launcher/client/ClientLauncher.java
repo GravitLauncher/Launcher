@@ -66,7 +66,7 @@ public final class ClientLauncher {
         @LauncherAPI
         public final PlayerProfile pp;
         @LauncherAPI
-        public final Set<ClientProfile.MarkedString> updateOptional;
+        public final Set<ClientProfile.OptionalFile> updateOptional;
         @LauncherAPI
         public final String accessToken;
         @LauncherAPI
@@ -86,7 +86,7 @@ public final class ClientLauncher {
                       boolean autoEnter, boolean fullScreen, int ram, int width, int height) {
             this.launcherDigest = launcherDigest.clone();
             this.updateOptional = new HashSet<>();
-            for (ClientProfile.MarkedString s : Launcher.profile.getOptional()) {
+            for (ClientProfile.OptionalFile s : Launcher.profile.getOptional()) {
                 if (s.mark) updateOptional.add(s);
             }
             // Client paths
@@ -111,7 +111,7 @@ public final class ClientLauncher {
             updateOptional = new HashSet<>();
             int len = input.readLength(128);
             for (int i = 0; i < len; ++i) {
-                updateOptional.add(new ClientProfile.MarkedString(input.readString(512), true));
+                updateOptional.add(new ClientProfile.OptionalFile(input.readString(512), true));
             }
             // Client params
             pp = new PlayerProfile(input);
@@ -132,8 +132,8 @@ public final class ClientLauncher {
             output.writeString(assetDir.toString(), 0);
             output.writeString(clientDir.toString(), 0);
             output.writeLength(updateOptional.size(), 128);
-            for (ClientProfile.MarkedString s : updateOptional) {
-                output.writeString(s.string, 512);
+            for (ClientProfile.OptionalFile s : updateOptional) {
+                output.writeString(s.file, 512);
             }
             // Client params
             pp.write(output);
@@ -459,9 +459,9 @@ public final class ClientLauncher {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
             HashedDir hdir = clientHDir.object;
-            for (ClientProfile.MarkedString s : Launcher.profile.getOptional()) {
+            for (ClientProfile.OptionalFile s : Launcher.profile.getOptional()) {
                 if (params.updateOptional.contains(s)) s.mark = true;
-                else hdir.removeR(s.string);
+                else hdir.removeR(s.file);
             }
             verifyHDir(params.assetDir, assetHDir.object, assetMatcher, digest);
             verifyHDir(params.clientDir, hdir, clientMatcher, digest);
@@ -498,9 +498,9 @@ public final class ClientLauncher {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
             HashedDir hdir = clientHDir.object;
-            for (ClientProfile.MarkedString s : Launcher.profile.getOptional()) {
+            for (ClientProfile.OptionalFile s : Launcher.profile.getOptional()) {
                 if (params.updateOptional.contains(s)) s.mark = true;
-                else hdir.removeR(s.string);
+                else hdir.removeR(s.file);
             }
             verifyHDir(params.assetDir, assetHDir.object, assetMatcher, digest);
             verifyHDir(params.clientDir, hdir, clientMatcher, digest);

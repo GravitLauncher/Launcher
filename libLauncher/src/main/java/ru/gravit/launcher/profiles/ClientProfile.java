@@ -94,19 +94,29 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     private int serverPort;
 
-    public static class MarkedString {
+    public static class OptionalFile {
         @LauncherAPI
-        public String string;
+        public String file;
         @LauncherAPI
         public boolean mark;
+        @LauncherAPI
+        public String name;
+        @LauncherAPI
+        public String info;
+        @LauncherAPI
+        public int sunTreeLevel = 1;
+        @LauncherAPI
+        public boolean onlyOne = false;
+        @LauncherAPI
+        public int onlyOneGroup = 1;
 
-        public MarkedString(String string, boolean mark) {
-            this.string = string;
+        public OptionalFile(String file, boolean mark) {
+            this.file = file;
             this.mark = mark;
         }
 
-        public MarkedString(String string) {
-            this.string = string;
+        public OptionalFile(String file) {
+            this.file = file;
             this.mark = false;
         }
 
@@ -114,13 +124,13 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            MarkedString that = (MarkedString) o;
-            return Objects.equals(string, that.string);
+            OptionalFile that = (OptionalFile) o;
+            return Objects.equals(file, that.file);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(string);
+            return Objects.hash(file);
         }
     }
 
@@ -134,7 +144,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     private final List<String> updateVerify = new ArrayList<>();
     @LauncherAPI
-    private final Set<MarkedString> updateOptional = new HashSet<>();
+    private final Set<OptionalFile> updateOptional = new HashSet<>();
     @LauncherAPI
     private boolean updateFastCheck;
     @LauncherAPI
@@ -221,8 +231,15 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     @LauncherAPI
-    public Set<MarkedString> getOptional() {
+    public Set<OptionalFile> getOptional() {
         return updateOptional;
+    }
+    @LauncherAPI
+    public OptionalFile getOptionalFile(String file)
+    {
+        for(OptionalFile f : updateOptional)
+            if(f.file.equals(file)) return f;
+        return null;
     }
 
     @LauncherAPI
@@ -232,25 +249,25 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     @LauncherAPI
     public void markOptional(String opt) {
-        if (!updateOptional.contains(new MarkedString(opt)))
+        if (!updateOptional.contains(new OptionalFile(opt)))
             throw new SecurityException(String.format("Optional mod %s not found in optionalList", opt));
         updateOptional.forEach(e -> {
-            if (e.string.equals(opt)) e.mark = true;
+            if (e.file.equals(opt)) e.mark = true;
         });
     }
 
     @LauncherAPI
     public void unmarkOptional(String opt) {
-        if (!updateOptional.contains(new MarkedString(opt)))
+        if (!updateOptional.contains(new OptionalFile(opt)))
             throw new SecurityException(String.format("Optional mod %s not found in optionalList", opt));
         updateOptional.forEach(e -> {
-            if (e.string.equals(opt)) e.mark = false;
+            if (e.file.equals(opt)) e.mark = false;
         });
     }
 
     public void pushOptional(HashedDir dir, boolean digest) throws IOException {
-        for (MarkedString opt : updateOptional) {
-            if (!opt.mark) dir.removeR(opt.string);
+        for (OptionalFile opt : updateOptional) {
+            if (!opt.mark) dir.removeR(opt.file);
         }
     }
 

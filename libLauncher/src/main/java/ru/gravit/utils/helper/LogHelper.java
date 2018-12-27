@@ -252,7 +252,7 @@ public final class LogHelper {
                 fgBright(Color.CYAN).a(product). // Product
                 fgBright(Color.WHITE).a(" v").fgBright(Color.BLUE).a(Launcher.getVersion().toString()). // Version
                 fgBright(Color.WHITE).a(" (build #").fgBright(Color.RED).a(Launcher.getVersion().build).fgBright(Color.WHITE).a(')'). // Build#
-                reset().toString(); // To string
+                reset().toString(); // To file
     }
 
     private static String ansiFormatLicense(String product) {
@@ -261,7 +261,7 @@ public final class LogHelper {
                 fgBright(Color.CYAN).a(product). // Product
                 fgBright(Color.WHITE).a(" GPLv3").fgBright(Color.WHITE).a(". SourceCode: "). // Version
                 fgBright(Color.YELLOW).a("https://github.com/GravitLauncher/Launcher").
-                reset().toString(); // To string
+                reset().toString(); // To file
     }
 
     private static String formatLog(Level level, String message, String dateTime, boolean sub) {
