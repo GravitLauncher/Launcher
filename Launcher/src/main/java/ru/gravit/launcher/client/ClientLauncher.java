@@ -2,6 +2,7 @@ package ru.gravit.launcher.client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import ru.gravit.launcher.*;
 import ru.gravit.launcher.hasher.DirWatcher;
@@ -168,7 +169,13 @@ public final class ClientLauncher {
     private static final Path NATIVES_DIR = IOHelper.toPath("natives");
     private static final Path RESOURCEPACKS_DIR = IOHelper.toPath("resourcepacks");
     private static PublicURLClassLoader classLoader;
-
+    public static class ClientUserProperties
+    {
+        String[] skinURL;
+        String[] skinDigest;
+        String[] cloakURL;
+        String[] cloakDigest;
+    }
     private static void addClientArgs(Collection<String> args, ClientProfile profile, Params params) {
         PlayerProfile pp = params.pp;
 
@@ -183,14 +190,14 @@ public final class ClientLauncher {
             if (version.compareTo(ClientProfile.Version.MC1710) >= 0) {
                 // Add user properties
                 Collections.addAll(args, "--userType", "mojang");
-                JsonObject properties = new JsonObject();
+                ClientUserProperties properties = new ClientUserProperties();
                 if (pp.skin != null) {
-                    properties.addProperty(Launcher.SKIN_URL_PROPERTY, pp.skin.url);
-                    properties.addProperty(Launcher.SKIN_DIGEST_PROPERTY, SecurityHelper.toHex(pp.skin.digest));
+                    properties.skinURL = new String[]{pp.skin.url};
+                    properties.skinDigest = new String[]{SecurityHelper.toHex(pp.skin.digest)};
                 }
                 if (pp.cloak != null) {
-                    properties.addProperty(Launcher.CLOAK_URL_PROPERTY, pp.cloak.url);
-                    properties.addProperty(Launcher.CLOAK_DIGEST_PROPERTY, SecurityHelper.toHex(pp.cloak.digest));
+                    properties.cloakURL = new String[]{pp.cloak.url};
+                    properties.cloakDigest = new String[]{SecurityHelper.toHex(pp.cloak.digest)};
                 }
                 Collections.addAll(args, "--userProperties", ClientLauncher.gson.toJson(properties));
 
