@@ -122,13 +122,11 @@ var options = {
                              {
                                  profile.markOptional(modFile.file);
                                  LogHelper.debug("Selected mod %s", modFile.file);
-                                 options.treeToggle(true, modFile.file);
                              }
                              else
                              {
                                  profile.unmarkOptional(modFile.file);
                                  LogHelper.debug("Unselected mod %s", modFile.file);
-                                 options.treeToggle(false, modFile.file);
                              }
                              options.update();
                          });
@@ -155,73 +153,6 @@ var options = {
                 });
             holder.getChildren().clear();
             holder.getChildren().addAll(checkBoxList);
-    },
-    treeToggle: function(enable, ImodFile) {
-            var profile = profilesList[serverHolder.old];
-            var modInfo = profile.getOptionalFile(ImodFile);
-                var modList = profile.getOptional();
-
-                if(modInfo.subTreeLevel != null) {
-
-                    if(modInfo.subTreeLevel >= 1){//Отключение core-модификации
-                        var stop = false;
-                        modList.forEach(function(elem, id) {
-                            if(elem != null && elem.subTreeLevel != null) {
-                                if( elem.subTreeLevel > modInfo.subTreeLevel && enable == false && stop == false) {
-                                    if(options.modExists(elem.file)){
-                                        profile.unmarkOptional(elem.file);
-                                        LogHelper.debug("Unselected subMod %s", elem.file);
-                                    }
-                                } else if(elem.subTreeLevel <= modInfo.subTreeLevel && stop == false) {
-                                    //LogHelper.debug("STOP disable!! " + key);
-                                    stop = true;
-                                }
-                            }
-                        });
-                    }
-
-                    if(modInfo.onlyOne == true){//Включение onlyOne-модификации (Все onlyOne-модификации с той же группой будут отключены. К примеру 2 миникарты)
-                        modList.forEach(function(elem, id) {
-                            if(elem != null && elem.onlyOneGroup != null) {
-                                if(elem.onlyOneGroup == modInfo.onlyOneGroup && elem.onlyOne == true && enable == true && key != ImodFile) {
-                                    if(options.modExists(elem.file)) {
-                                        profile.unmarkOptional(elem.file);
-                                        LogHelper.debug("Unselected Mod (onlyOne toggle) %s", elem.file);
-                                    }
-                                    options.treeToggle(false, elem.file); //И все его подмодификации канут в Лету..
-                                }
-                            }
-                        });
-                    }
-
-                    if(modInfo.subTreeLevel > 1){//Включение суб-модификации (Без core суб-моды работать не будут, так что его нужно включать) (Включаем всю ветку зависимости)
-                        var tsl = modInfo.subTreeLevel-1;
-                        modList.forEach(function(elem, id) {
-                            if(elem != null && elem.subTreeLevel != null) {
-                                if(elem.subTreeLevel == tsl && enable == true) {
-                                    if(options.modExists(elem)) {
-                                        profile.markOptional(elem.file);
-                                        LogHelper.debug("Selected coreMod %s", key);
-                                    }
-                                    options.treeToggle(true, key); //Для срабатывания onlyOne-модификаций.
-                                    tsl--;
-                                }
-                            }
-                        });
-                    }
-
-                }
-    },
-    modExists: function(key){
-        var profile = profilesList[serverHolder.old];
-        var list = profile.getOptional();
-        var result = false;
-        list.forEach(function(modFile) {
-            if(modFile.file === key) {
-                result = true;
-            }
-        });
-        return result;
     }
 
 };

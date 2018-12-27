@@ -290,6 +290,7 @@ function updateProfilesList(profiles) {
             });
         })();
         serverList.getChildren().add(serverBtn);
+        if(profile.getOptional() != null) profile.updateOptionalGraph();
         index++;
     });
     LogHelper.debug("Load selected %d profile",settings.profile);

@@ -104,11 +104,17 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         @LauncherAPI
         public String info;
         @LauncherAPI
-        public int sunTreeLevel = 1;
+        public String[] dependenciesFile;
         @LauncherAPI
-        public boolean onlyOne = false;
+        public String[] conflictFile;
         @LauncherAPI
-        public int onlyOneGroup = 1;
+        public transient OptionalFile[] dependencies;
+        @LauncherAPI
+        public transient OptionalFile[] conflict;
+        @LauncherAPI
+        public int subTreeLevel = 1;
+        @LauncherAPI
+        public transient Set<OptionalFile> dependenciesCount;
 
         public OptionalFile(String file, boolean mark) {
             this.file = file;
@@ -235,6 +241,31 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return updateOptional;
     }
     @LauncherAPI
+    public void updateOptionalGraph()
+    {
+        for(OptionalFile file : updateOptional)
+        {
+            if(file.dependenciesFile != null)
+            {
+                file.dependencies = new OptionalFile[file.dependenciesFile.length];
+                for(int i=0;i<file.dependenciesFile.length;++i)
+                {
+                    file.dependencies[i] = getOptionalFile(file.dependenciesFile[i]);
+                }
+            }
+            if(file.conflictFile != null)
+            {
+                file.conflict = new OptionalFile[file.conflictFile.length];
+                for(int i=0;i<file.conflictFile.length;++i)
+                {
+                    file.conflict[i] = getOptionalFile(file.conflictFile[i]);
+                }
+            }
+
+        }
+    }
+
+    @LauncherAPI
     public OptionalFile getOptionalFile(String file)
     {
         for(OptionalFile f : updateOptional)
@@ -251,18 +282,71 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public void markOptional(String opt) {
         if (!updateOptional.contains(new OptionalFile(opt)))
             throw new SecurityException(String.format("Optional mod %s not found in optionalList", opt));
-        updateOptional.forEach(e -> {
-            if (e.file.equals(opt)) e.mark = true;
-        });
+        OptionalFile file = getOptionalFile(opt);
+        markOptional(file);
+    }
+    @LauncherAPI
+    public void markOptional(OptionalFile file)
+    {
+
+        if(file.mark) return;
+        file.mark = true;
+        if(file.dependencies != null)
+        {
+            for(OptionalFile dep : file.dependencies)
+            {
+                if(dep.dependenciesCount == null) dep.dependenciesCount = new HashSet<>();
+                dep.dependenciesCount.add(file);
+                markOptional(dep);
+            }
+        }
+        if(file.conflict != null)
+        {
+            for(OptionalFile conflict : file.conflict)
+            {
+                unmarkOptional(conflict);
+            }
+        }
     }
 
     @LauncherAPI
     public void unmarkOptional(String opt) {
         if (!updateOptional.contains(new OptionalFile(opt)))
             throw new SecurityException(String.format("Optional mod %s not found in optionalList", opt));
-        updateOptional.forEach(e -> {
-            if (e.file.equals(opt)) e.mark = false;
-        });
+        OptionalFile file = getOptionalFile(opt);
+        unmarkOptional(file);
+    }
+    @LauncherAPI
+    public void unmarkOptional(OptionalFile file)
+    {
+        if(!file.mark) return;
+        file.mark = false;
+        if(file.dependenciesCount != null)
+        {
+            for(OptionalFile f : file.dependenciesCount)
+            {
+                unmarkOptional(f);
+            }
+            file.dependenciesCount.clear();
+            file.dependenciesCount = null;
+        }
+        if(file.dependencies != null)
+        {
+            for(OptionalFile f : file.dependencies)
+            {
+                if(!f.mark) continue;
+                if(f.dependenciesCount == null)
+                {
+                    unmarkOptional(f);
+                }
+                else if(f.dependenciesCount.size() <= 1)
+                {
+                    f.dependenciesCount.clear();
+                    f.dependenciesCount = null;
+                    unmarkOptional(f);
+                }
+            }
+        }
     }
 
     public void pushOptional(HashedDir dir, boolean digest) throws IOException {
