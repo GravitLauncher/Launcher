@@ -69,7 +69,7 @@ var options = {
             output.writeInt(profile.getSortIndex());
             list.forEach(function(modFile,j,arr2) {
                 output.writeBoolean(modFile.mark);
-                output.writeString(modFile.string, 0);
+                output.writeString(modFile.file, 0);
             });
         });
     },
