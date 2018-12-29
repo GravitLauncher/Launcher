@@ -8,7 +8,19 @@ import ru.gravit.launcher.OshiHWID;
 import ru.gravit.utils.helper.LogHelper;
 
 public class OshiHWIDProvider implements LauncherHWIDInterface {
-    public static SystemInfo systemInfo = new SystemInfo();
+    public SystemInfo systemInfo;
+    public boolean noHWID;
+    public OshiHWIDProvider()
+    {
+        try {
+            systemInfo = new SystemInfo();
+            noHWID = false;
+        } catch(Throwable e)
+        {
+            LogHelper.error(e);
+            noHWID = true;
+        }
+    }
 
     public String getSerial() {
         try {
@@ -48,25 +60,34 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
     }
 
     public long getTotalMemory() {
+        if(noHWID) return -1;
         return systemInfo.getHardware().getMemory().getTotal();
     }
 
     public long getAvailableMemory() {
+        if(noHWID) return -1;
         return systemInfo.getHardware().getMemory().getAvailable();
     }
 
     public void printHardwareInformation() {
-        HardwareAbstractionLayer hardware = systemInfo.getHardware();
-        ComputerSystem computerSystem = hardware.getComputerSystem();
-        LogHelper.debug("ComputerSystem Model: %s Serial: %s", computerSystem.getModel(), computerSystem.getSerialNumber());
-        for (HWDiskStore s : systemInfo.getHardware().getDiskStores()) {
-            LogHelper.debug("HWDiskStore Serial: %s Model: %s Size: %d", s.getSerial(), s.getModel(), s.getSize());
+        try
+        {
+            HardwareAbstractionLayer hardware = systemInfo.getHardware();
+            ComputerSystem computerSystem = hardware.getComputerSystem();
+            LogHelper.debug("ComputerSystem Model: %s Serial: %s", computerSystem.getModel(), computerSystem.getSerialNumber());
+            for (HWDiskStore s : systemInfo.getHardware().getDiskStores()) {
+                LogHelper.debug("HWDiskStore Serial: %s Model: %s Size: %d", s.getSerial(), s.getModel(), s.getSize());
+            }
+            for (UsbDevice s : systemInfo.getHardware().getUsbDevices(true)) {
+                LogHelper.debug("USBDevice Serial: %s Name: %s", s.getSerialNumber(), s.getName());
+            }
+            CentralProcessor processor = hardware.getProcessor();
+            LogHelper.debug("Processor Model: %s ID: %s", processor.getModel(), processor.getProcessorID());
+        } catch (Throwable e)
+        {
+            LogHelper.error(e);
         }
-        for (UsbDevice s : systemInfo.getHardware().getUsbDevices(true)) {
-            LogHelper.debug("USBDevice Serial: %s Name: %s", s.getSerialNumber(), s.getName());
-        }
-        CentralProcessor processor = hardware.getProcessor();
-        LogHelper.debug("Processor Model: %s ID: %s", processor.getModel(), processor.getProcessorID());
+
     }
 
     @Override
