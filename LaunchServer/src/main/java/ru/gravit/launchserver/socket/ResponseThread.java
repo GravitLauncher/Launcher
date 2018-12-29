@@ -117,18 +117,19 @@ public final class ResponseThread implements Runnable {
             context.type = handshake.type;
 
             // Start response
-            socketHookManager.preHook(context);
-            try {
-                respond(handshake.type, input, output, handshake.session, context.ip);
-                socketHookManager.postHook(context);
-            } catch (RequestException e) {
-                if(server.socketHookManager.errorHook(context,e))
-                {
-                    LogHelper.subDebug(String.format("#%d Request error: %s", handshake.session, e.getMessage()));
-                    if(e.getMessage() == null) LogHelper.error(e);
-                    output.writeString(e.getMessage(), 0);
+            if(socketHookManager.preHook(context))
+            {
+                try {
+                    respond(handshake.type, input, output, handshake.session, context.ip);
+                    socketHookManager.postHook(context);
+                } catch (RequestException e) {
+                    if(server.socketHookManager.errorHook(context,e))
+                    {
+                        LogHelper.subDebug(String.format("#%d Request error: %s", handshake.session, e.getMessage()));
+                        if(e.getMessage() == null) LogHelper.error(e);
+                        output.writeString(e.getMessage(), 0);
+                    }
                 }
-
             }
         } catch (Exception e) {
             savedError = e;
