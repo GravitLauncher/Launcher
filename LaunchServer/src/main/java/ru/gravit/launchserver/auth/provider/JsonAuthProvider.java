@@ -11,7 +11,7 @@ import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.SecurityHelper;
 
 public final class JsonAuthProvider extends AuthProvider {
-    private Gson gson = new Gson();
+    private static Gson gson = new Gson();
     private URL url;
 
     public class authResult {

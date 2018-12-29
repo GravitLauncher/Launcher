@@ -14,7 +14,7 @@ import ru.gravit.utils.HTTPRequest;
 public final class MojangAuthProvider extends AuthProvider {
     private static final Pattern UUID_REGEX = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
     private static final URL URL;
-    private final Gson gson = new Gson();
+    private static final Gson gson = new Gson();
 
     static {
         try {

@@ -62,12 +62,7 @@ import ru.gravit.launchserver.config.AuthProviderAdapter;
 import ru.gravit.launchserver.config.HWIDHandlerAdapter;
 import ru.gravit.launchserver.config.PermissionsHandlerAdapter;
 import ru.gravit.launchserver.config.TextureProviderAdapter;
-import ru.gravit.launchserver.manangers.BuildHookManager;
-import ru.gravit.launchserver.manangers.MirrorManager;
-import ru.gravit.launchserver.manangers.ModulesManager;
-import ru.gravit.launchserver.manangers.ReconfigurableManager;
-import ru.gravit.launchserver.manangers.ReloadManager;
-import ru.gravit.launchserver.manangers.SessionManager;
+import ru.gravit.launchserver.manangers.*;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.RequestTextureProvider;
@@ -280,6 +275,8 @@ public final class LaunchServer implements Runnable {
     public final AuthLimiter limiter;
 
     public final SessionManager sessionManager;
+
+    public final SocketHookManager socketHookManager;
     // Server
 
     public final ModulesManager modulesManager;
@@ -395,6 +392,7 @@ public final class LaunchServer implements Runnable {
         mirrorManager = new MirrorManager();
         reloadManager = new ReloadManager();
         reconfigurableManager = new ReconfigurableManager();
+        socketHookManager = new SocketHookManager();
 
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);

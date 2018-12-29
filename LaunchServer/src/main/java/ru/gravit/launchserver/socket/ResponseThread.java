@@ -11,6 +11,7 @@ import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.manangers.SessionManager;
+import ru.gravit.launchserver.manangers.SocketHookManager;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -31,11 +32,13 @@ public final class ResponseThread implements Runnable {
     private final Socket socket;
 
     private final SessionManager sessions;
+    private final SocketHookManager socketHookManager;
 
-    public ResponseThread(LaunchServer server, long id, Socket socket, SessionManager sessionManager) throws SocketException {
+    public ResponseThread(LaunchServer server, long id, Socket socket, SessionManager sessionManager, SocketHookManager socketHookManager) throws SocketException {
         this.server = server;
         this.socket = socket;
         sessions = sessionManager;
+        this.socketHookManager = socketHookManager;
         // Fix socket flags
         IOHelper.setSocketFlags(socket);
     }
@@ -106,14 +109,26 @@ public final class ResponseThread implements Runnable {
                 cancelled = true;
                 return;
             }
+            SocketContext context = new SocketContext();
+            context.input = input;
+            context.output = output;
+            context.ip = IOHelper.getIP(socket.getRemoteSocketAddress());
+            context.session = handshake.session;
+            context.type = handshake.type;
 
             // Start response
+            socketHookManager.preHook(context);
             try {
-                respond(handshake.type, input, output, handshake.session, IOHelper.getIP(socket.getRemoteSocketAddress()));
+                respond(handshake.type, input, output, handshake.session, context.ip);
+                socketHookManager.postHook(context);
             } catch (RequestException e) {
-                LogHelper.subDebug(String.format("#%d Request error: %s", handshake.session, e.getMessage()));
-                if(e.getMessage() == null) LogHelper.error(e);
-                output.writeString(e.getMessage(), 0);
+                if(server.socketHookManager.errorHook(context,e))
+                {
+                    LogHelper.subDebug(String.format("#%d Request error: %s", handshake.session, e.getMessage()));
+                    if(e.getMessage() == null) LogHelper.error(e);
+                    output.writeString(e.getMessage(), 0);
+                }
+
             }
         } catch (Exception e) {
             savedError = e;
