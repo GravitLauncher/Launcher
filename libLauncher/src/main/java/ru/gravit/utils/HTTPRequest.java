@@ -14,7 +14,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public class HTTPRequest {
-    private static final int TIMEOUT = 10;
+    private static final int TIMEOUT = 10000;
     private static final JsonParser parser = new JsonParser();
 
     public static int sendCrashreport(String strurl, byte[] data) throws IOException {
