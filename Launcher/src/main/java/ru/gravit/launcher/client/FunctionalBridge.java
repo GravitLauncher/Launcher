@@ -18,6 +18,7 @@ import ru.gravit.utils.helper.LogHelper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.SignatureException;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FunctionalBridge {
     @LauncherAPI
@@ -26,6 +27,8 @@ public class FunctionalBridge {
     public static RequestWorker worker;
     @LauncherAPI
     public static OshiHWIDProvider hwidProvider = new OshiHWIDProvider();
+    @LauncherAPI
+    public static AtomicReference<HWID> hwid = new AtomicReference<>();
 
     @LauncherAPI
     public static HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) throws Exception {
@@ -69,7 +72,9 @@ public class FunctionalBridge {
 
     @LauncherAPI
     public static HWID getHWID() {
-        return hwidProvider.getHWID();
+        HWID hhwid = hwid.get();
+        if(hhwid == null) hwid.set(hwidProvider.getHWID());
+        return hhwid;
     }
 
     @LauncherAPI

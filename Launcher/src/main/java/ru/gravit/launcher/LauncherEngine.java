@@ -191,6 +191,7 @@ public class LauncherEngine {
         // Load init.js script
         FunctionalBridge.worker = new RequestWorker();
         CommonHelper.newThread("FX Task Worker", true, FunctionalBridge.worker).start();
+        CommonHelper.newThread("GetHWID Thread",true, FunctionalBridge::getHWID).start();
         loadScript(Launcher.API_SCRIPT_FILE);
         loadScript(Launcher.CONFIG_SCRIPT_FILE);
         LogHelper.debug("Dir: %s", DirBridge.dir);
