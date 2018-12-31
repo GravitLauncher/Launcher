@@ -38,19 +38,20 @@ dependencies {
 	pack project(':libLauncher') // pack
 	bundle 'org.ow2.asm:asm-commons:7.0'
 	bundle 'org.ow2.asm:asm-util:7.0'
-	bundle 'mysql:mysql-connector-java:8.0.12'
+	bundle 'mysql:mysql-connector-java:8.0.13'
 	bundle 'jline:jline:2.14.6'
 	bundle 'net.sf.proguard:proguard-base:6.0.3'
 	bundle 'org.fusesource.jansi:jansi:1.17.1'
 	bundle 'commons-io:commons-io:2.6'
+	bundle 'commons-codec:commons-codec:1.11'
 	bundle 'org.javassist:javassist:3.23.1-GA'
-	bundle 'io.netty:netty-all:4.1.29.Final'
+	bundle 'io.netty:netty-all:4.1.32.Final'
 	
 	bundle 'org.slf4j:slf4j-simple:1.7.25'
 	bundle 'org.slf4j:slf4j-api:1.7.25'
 
 	hikari 'io.micrometer:micrometer-core:1.0.6'
-	hikari('hikari-cp:hikari-cp:2.6.0') {
+	hikari('com.zaxxer:HikariCP:3.2.0') {
 		exclude group: 'javassist'
 		exclude group: 'io.micrometer'
 		exclude group: 'org.slf4j'
