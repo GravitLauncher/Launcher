@@ -13,7 +13,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 public abstract class AuthProvider implements AutoCloseable {
     private static final Map<String, Class<? extends AuthProvider>> AUTH_PROVIDERS = new ConcurrentHashMap<>(8);
     private static boolean registredProv = false;
-    private transient LaunchServer server = LaunchServer.server;
+    protected transient LaunchServer server = LaunchServer.server;
 
 
     public static AuthProviderResult authError(String message) throws AuthException {

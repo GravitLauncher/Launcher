@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.VerifyHelper;
@@ -13,6 +14,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 public abstract class AuthHandler implements AutoCloseable {
     private static final Map<String, Class<? extends AuthHandler>> AUTH_HANDLERS = new ConcurrentHashMap<>(4);
     private static boolean registredHandl = false;
+    private transient LaunchServer server = LaunchServer.server;
 
 
     public static UUID authError(String message) throws AuthException {

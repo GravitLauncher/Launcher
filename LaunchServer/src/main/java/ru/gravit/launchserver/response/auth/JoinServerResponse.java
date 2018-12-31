@@ -28,6 +28,7 @@ public final class JoinServerResponse extends Response {
         debug("Username: '%s', Access token: %s, Server ID: %s", username, accessToken, serverID);
         boolean success;
         try {
+            server.authHookManager.joinServerHook(username,accessToken,serverID);
             success = server.config.authHandler.joinServer(username, accessToken, serverID);
         } catch (AuthException e) {
             requestError(e.getMessage());
