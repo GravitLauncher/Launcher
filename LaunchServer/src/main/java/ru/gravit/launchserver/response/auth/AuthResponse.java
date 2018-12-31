@@ -35,7 +35,24 @@ public final class AuthResponse extends Response {
     public AuthResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
         super(server, session, input, output, ip);
     }
+    public static class AuthContext
+    {
+        public AuthContext(long session, String login, int password_lenght, String client, String hwid, boolean isServerAuth) {
+            this.session = session;
+            this.login = login;
+            this.password_lenght = password_lenght;
+            this.client = client;
+            this.hwid = hwid;
+            this.isServerAuth = isServerAuth;
+        }
 
+        public long session;
+        public String login;
+        public int password_lenght; //Use AuthProvider for get password
+        public String client;
+        public String hwid;
+        public boolean isServerAuth;
+    }
     @Override
     public void reply() throws Exception {
         String login = input.readString(SerializeLimits.MAX_LOGIN);
@@ -63,7 +80,9 @@ public final class AuthResponse extends Response {
         AuthProvider provider = server.config.authProvider[auth_id];
         Client clientData = server.sessionManager.getClient(session);
         clientData.type = Client.Type.USER;
+        AuthContext context = new AuthContext(session,login,password.length(),client,hwid_str,false);
         try {
+            server.authHookManager.preHook(context,clientData);
             if (server.limiter.isLimit(ip)) {
                 AuthProvider.authError(server.config.authRejectString);
                 return;
@@ -91,6 +110,7 @@ public final class AuthResponse extends Response {
                 }
             }
             server.config.hwidHandler.check(OshiHWID.gson.fromJson(hwid_str, OshiHWID.class), result.username);
+            server.authHookManager.postHook(context,clientData);
         } catch (AuthException | HWIDException e) {
             if(e.getMessage() == null) LogHelper.error(e);
             requestError(e.getMessage());

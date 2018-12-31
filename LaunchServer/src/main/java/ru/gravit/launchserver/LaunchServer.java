@@ -277,6 +277,8 @@ public final class LaunchServer implements Runnable {
     public final SessionManager sessionManager;
 
     public final SocketHookManager socketHookManager;
+
+    public final AuthHookManager authHookManager;
     // Server
 
     public final ModulesManager modulesManager;
@@ -393,6 +395,7 @@ public final class LaunchServer implements Runnable {
         reloadManager = new ReloadManager();
         reconfigurableManager = new ReconfigurableManager();
         socketHookManager = new SocketHookManager();
+        authHookManager = new AuthHookManager();
 
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
@@ -538,11 +541,13 @@ public final class LaunchServer implements Runnable {
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.copyright = "© GravitLauncher Team";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Launcher.getVersion().getVersionString());
-        newConfig.launch4j.fileVer = Launcher.getVersion().getVersionString();
+        newConfig.launch4j.fileVer = Launcher.getVersion().getVersionString().concat(".").concat(String.valueOf(Launcher.getVersion().patch));
         newConfig.launch4j.internalName = "Launcher";
         newConfig.launch4j.trademarks = "This product is licensed under GPLv3";
         newConfig.launch4j.txtFileVersion = "%s, build %d";
         newConfig.launch4j.txtProductVersion = "%s, build %d";
+        newConfig.launch4j.productName = "GravitLauncher";
+        newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
         newConfig.buildPostTransform = new PostBuildTransformConf();
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.authHandler = new MemoryAuthHandler();
