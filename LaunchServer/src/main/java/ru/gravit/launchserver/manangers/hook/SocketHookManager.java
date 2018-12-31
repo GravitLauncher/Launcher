@@ -1,4 +1,4 @@
-package ru.gravit.launchserver.manangers;
+package ru.gravit.launchserver.manangers.hook;
 
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launchserver.socket.SocketContext;

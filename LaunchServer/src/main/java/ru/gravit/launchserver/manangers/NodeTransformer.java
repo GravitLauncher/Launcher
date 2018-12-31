@@ -9,7 +9,7 @@ import org.objectweb.asm.tree.ClassNode;
 
 import ru.gravit.launchserver.asm.SafeClassWriter;
 import ru.gravit.launchserver.binary.JARLauncherBinary;
-import ru.gravit.launchserver.manangers.BuildHookManager.Transformer;
+import ru.gravit.launchserver.manangers.hook.BuildHookManager.Transformer;
 
 public class NodeTransformer implements Transformer {
     @FunctionalInterface

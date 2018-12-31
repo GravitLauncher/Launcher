@@ -1,4 +1,4 @@
-package ru.gravit.launchserver.manangers;
+package ru.gravit.launchserver.manangers.hook;
 
 import ru.gravit.launchserver.response.auth.AuthResponse;
 import ru.gravit.launchserver.socket.Client;

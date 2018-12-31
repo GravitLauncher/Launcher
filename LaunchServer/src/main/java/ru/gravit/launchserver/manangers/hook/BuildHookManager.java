@@ -1,4 +1,4 @@
-package ru.gravit.launchserver.manangers;
+package ru.gravit.launchserver.manangers.hook;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +11,7 @@ import ru.gravit.launcher.modules.TestClientModule;
 import ru.gravit.launchserver.binary.BuildContext;
 import ru.gravit.launchserver.binary.JAConfigurator;
 import ru.gravit.launchserver.binary.JARLauncherBinary;
+import ru.gravit.launchserver.manangers.NodeTransformer;
 
 public class BuildHookManager {
     @FunctionalInterface

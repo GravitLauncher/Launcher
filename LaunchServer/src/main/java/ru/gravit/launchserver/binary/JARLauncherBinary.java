@@ -32,7 +32,7 @@ import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.asm.ClassMetadataReader;
-import ru.gravit.launchserver.manangers.BuildHookManager.ZipBuildHook;
+import ru.gravit.launchserver.manangers.hook.BuildHookManager.ZipBuildHook;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;

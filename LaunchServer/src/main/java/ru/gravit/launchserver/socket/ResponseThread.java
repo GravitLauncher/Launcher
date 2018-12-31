@@ -11,7 +11,7 @@ import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.manangers.SessionManager;
-import ru.gravit.launchserver.manangers.SocketHookManager;
+import ru.gravit.launchserver.manangers.hook.SocketHookManager;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
