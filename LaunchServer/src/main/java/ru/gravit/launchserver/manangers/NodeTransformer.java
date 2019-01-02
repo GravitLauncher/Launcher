@@ -33,7 +33,7 @@ public class NodeTransformer implements Transformer {
         ClassNode cn = new ClassNode();
         cr.accept(cn, ClassReader.SKIP_DEBUG);
         for (ClassNodeTransformer tr : transLst) tr.transform(cn, classname, data);
-        ClassWriter cw = new SafeClassWriter(data.reader, ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new SafeClassWriter(data.reader, ClassWriter.COMPUTE_FRAMES);
         cn.accept(cw);
         return cw.toByteArray();
     }
