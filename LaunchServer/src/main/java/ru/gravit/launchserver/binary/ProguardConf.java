@@ -51,7 +51,6 @@ public class ProguardConf {
     private void genConfig(boolean force) throws IOException {
         if (IOHelper.exists(config) && !force) return;
         Files.deleteIfExists(config);
-        config.toFile().createNewFile();
         try (OutputStream out = IOHelper.newOutput(config); InputStream in = IOHelper.newInput(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/proguard.cfg"))) {
             IOHelper.transfer(in, out);
         }
