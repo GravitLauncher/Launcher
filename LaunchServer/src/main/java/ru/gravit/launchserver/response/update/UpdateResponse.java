@@ -42,13 +42,17 @@ public final class UpdateResponse extends Response {
             requestError("Assess denied");
             return;
         }
-        for (ClientProfile p : server.getProfiles()) {
-            if (!clientData.profile.getTitle().equals(p.getTitle())) continue;
-            if (!p.isWhitelistContains(clientData.username)) {
-                requestError("You don't download this folder");
-                return;
+        if(!clientData.permissions.canAdmin)
+        {
+            for (ClientProfile p : server.getProfiles()) {
+                if (!clientData.profile.getTitle().equals(p.getTitle())) continue;
+                if (!p.isWhitelistContains(clientData.username)) {
+                    requestError("You don't download this folder");
+                    return;
+                }
             }
         }
+
         writeNoError(output);
 
         // Write update hdir
