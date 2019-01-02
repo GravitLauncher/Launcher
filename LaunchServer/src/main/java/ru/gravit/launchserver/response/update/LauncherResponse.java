@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launcher.serialize.signed.DigestBytesHolder;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.Response;
@@ -25,7 +26,7 @@ public final class LauncherResponse extends Response {
             return;
         }
         Client client = server.sessionManager.getOrNewClient(session);
-        byte[] digest = input.readByteArray(0);
+        byte[] digest = input.readByteArray(SerializeLimits.MAX_DIGEST);
         if (!Arrays.equals(bytes.getDigest(), digest)) {
             writeNoError(output);
             output.writeBoolean(true);
