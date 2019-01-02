@@ -133,7 +133,8 @@ public final class ResponseThread implements Runnable {
             }
         } catch (Exception e) {
             savedError = e;
-            LogHelper.error(e);
+            if(server.socketHookManager.fatalErrorHook(socket,e))
+                LogHelper.error(e);
         } finally {
             IOHelper.close(socket);
             if (!cancelled)
