@@ -61,7 +61,7 @@ public final class AuthResponse extends Response {
         if (isClient)
             client = input.readString(SerializeLimits.MAX_CLIENT);
         int auth_id = input.readInt();
-        String hwid_str = input.readString(0);
+        String hwid_str = input.readString(SerializeLimits.MAX_HWID_STR);
         if (auth_id + 1 > server.config.authProvider.length || auth_id < 0) auth_id = 0;
         byte[] encryptedPassword = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
         // Decrypt password

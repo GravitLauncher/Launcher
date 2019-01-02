@@ -17,4 +17,6 @@ public class SerializeLimits {
     public static final byte EXPECTED_BYTE = 0b01010101;
     @LauncherAPI
     public static final int MAX_DIGEST = 512;
+    @LauncherAPI
+    public static final int MAX_HWID_STR = 1024;
 }
