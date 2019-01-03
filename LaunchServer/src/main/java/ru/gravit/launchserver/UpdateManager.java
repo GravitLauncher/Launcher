@@ -27,7 +27,7 @@ public final class UpdateManager extends TimerTask {
 	
 	UpdateManager(LaunchServer lsrv) {
 		this.srv = lsrv;
-		this.cl = new FCL(srv);
+		this.cl = srv.config.criticalCallbacks ? new FCL(srv) : null;
 		t = srv.config.criticalCallbacks ? new Timer("Updater", true) : null;
 		if (srv.config.criticalCallbacks) t.schedule(this, 60000, 60000);
 		String[] updU = lsrv.config.updateMirror.split(":");

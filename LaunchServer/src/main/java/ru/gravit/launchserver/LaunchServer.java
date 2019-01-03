@@ -552,7 +552,7 @@ public final class LaunchServer implements Runnable {
         Config newConfig = new Config();
         newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/"};
         newConfig.updateMirror = "gravitlauncher.ml:7245";
-        newConfig.criticalCallbacks = true;
+        newConfig.criticalCallbacks = false;
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.copyright = "© GravitLauncher Team";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Launcher.getVersion().getVersionString());
