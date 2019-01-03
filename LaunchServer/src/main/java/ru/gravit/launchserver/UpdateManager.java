@@ -16,7 +16,8 @@ public final class UpdateManager extends TimerTask {
 	private final LaunchServer srv;
 	private final FCL cl;
 	public final Timer t;
-	private final URL updU;
+	private final String updUH;
+	private final int updUP;
 	private int lastNum = 0;
 	
 	public interface Callback {
@@ -30,7 +31,9 @@ public final class UpdateManager extends TimerTask {
 		this.cl = new FCL(srv);
 		t = new Timer("Updater", true);
 		if (srv.config.criticalCallbacks) t.schedule(this, 60000, 60000);
-		updU = new URL(srv.config.updateMirror);
+		String[] updU = lsrv.config.updateMirror.split(":");
+		updUH = updU[0];
+		updUP = Integer.parseInt(updU[1]);
 		checkVer();
 	}
 	
@@ -77,7 +80,7 @@ public final class UpdateManager extends TimerTask {
 	}
 
 	private Socket getSocket() throws IOException {
-		return new Socket(updU.getHost(), updU.getPort());
+		return new Socket(updUH, updUP);
 	}
 
 	private void checkVer() {

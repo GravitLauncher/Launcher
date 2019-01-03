@@ -545,7 +545,7 @@ public final class LaunchServer implements Runnable {
         LogHelper.info("Creating LaunchServer config");
         Config newConfig = new Config();
         newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/"};
-        newConfig.updateMirror = "gravitlauncher.ml:57977";
+        newConfig.updateMirror = "gravitlauncher.ml:7245";
         newConfig.criticalCallbacks = true;
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.copyright = "© GravitLauncher Team";
