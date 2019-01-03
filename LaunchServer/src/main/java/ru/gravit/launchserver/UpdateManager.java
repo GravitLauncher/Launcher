@@ -25,10 +25,10 @@ public final class UpdateManager extends TimerTask {
 		void post(LaunchServer lsrv);
 	}
 	
-	UpdateManager(LaunchServer lsrv) throws MalformedURLException {
+	UpdateManager(LaunchServer lsrv) {
 		this.srv = lsrv;
 		this.cl = new FCL(srv);
-		t = new Timer("Updater", true);
+		t = srv.config.criticalCallbacks ? new Timer("Updater", true) : null;
 		if (srv.config.criticalCallbacks) t.schedule(this, 60000, 60000);
 		String[] updU = lsrv.config.updateMirror.split(":");
 		updUH = updU[0];
