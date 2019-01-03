@@ -106,6 +106,7 @@ public class ServerWrapper {
         }
         Class<?> mainClass;
         if (config.customClassPath) {
+            if(config.classpath == null) throw new UnsupportedOperationException("classpath is null, customClassPath not available");
             String[] cp = config.classpath.split(":");
             if (!ServerAgent.isAgentStarted()) {
                 LogHelper.warning("JavaAgent not found. Using URLClassLoader");
@@ -123,6 +124,7 @@ public class ServerWrapper {
             if (!ServerAgent.isAgentStarted()) {
                 throw new UnsupportedOperationException("JavaAgent not found, autoloadLibraries not available");
             }
+            if(config.librariesDir == null) throw new UnsupportedOperationException("librariesDir is null, autoloadLibraries not available");
             Path librariesDir = Paths.get(config.librariesDir);
             LogHelper.info("Load libraries");
             ServerAgent.loadLibraries(librariesDir);
