@@ -23,7 +23,7 @@ public class ClassMetadataReader {
         String superClassName;
 
         public CheckSuperClassVisitor() {
-            super(Opcodes.ASM5);
+            super(Opcodes.ASM7);
         }
 
         @Override
@@ -57,10 +57,13 @@ public class ClassMetadataReader {
 
     public byte[] getClassData(String className) throws IOException {
         for (JarFile f : cp) {
-            if (f.getEntry(className + ".class") != null)
+            if (f.getEntry(className + ".class") != null) {
+                byte[] bytes = null;
                 try (InputStream in = f.getInputStream(f.getEntry(className + ".class"))) {
-                    return IOHelper.read(in);
+                    bytes = IOHelper.read(in);
                 }
+                return bytes;
+            }
         }
         return IOHelper.read(IOHelper.getResourceURL(className + ".class"));
     }
