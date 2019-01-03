@@ -89,6 +89,10 @@ public final class LaunchServer implements Runnable {
 
         public String[] mirrors;
 
+        public String updateMirror;
+        
+        public boolean criticalCallbacks;
+        
         public String binaryName;
 
         public LauncherConfig.LauncherEnvironment env;
@@ -399,7 +403,6 @@ public final class LaunchServer implements Runnable {
         reconfigurableManager = new ReconfigurableManager();
         socketHookManager = new SocketHookManager();
         authHookManager = new AuthHookManager();
-
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
         if(config.permissionsHandler instanceof Reloadable)
@@ -468,6 +471,7 @@ public final class LaunchServer implements Runnable {
 
         // post init modules
         modulesManager.postInitModules();
+        new UpdateManager(this);
     }
 
     public static void initGson()
@@ -541,6 +545,8 @@ public final class LaunchServer implements Runnable {
         LogHelper.info("Creating LaunchServer config");
         Config newConfig = new Config();
         newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/"};
+        newConfig.updateMirror = "gravitlauncher.ml:57977";
+        newConfig.criticalCallbacks = true;
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.copyright = "© GravitLauncher Team";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Launcher.getVersion().getVersionString());

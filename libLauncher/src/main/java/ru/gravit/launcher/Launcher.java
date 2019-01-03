@@ -58,11 +58,11 @@ public final class Launcher {
     public static final String CONFIG_SCRIPT_FILE = "config.js";
 
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
-    public static int MAJOR = 4;
-    public static int MINOR = 1;
-    public static int PATCH = 0;
-    public static int BUILD = 7;
-    public static Version.Type RELEASE = Version.Type.BETA;
+    public static final int MAJOR = 4;
+    public static final int MINOR = 1;
+    public static final int PATCH = 0;
+    public static final int BUILD = 7;
+    public static final Version.Type RELEASE = Version.Type.BETA;
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
 
