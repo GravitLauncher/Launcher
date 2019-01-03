@@ -156,6 +156,9 @@ public class ServerWrapper {
         newConfig.login = "login";
         newConfig.password = "password";
         newConfig.mainclass = "";
+        newConfig.syncAuth = true;
+        newConfig.reconnectCount = 10;
+        newConfig.reconnectSleep = 1000;
         //try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/ServerWrapper.cfg")))
         //{
         //    newConfig = gson.fromJson(reader,Config.class);
