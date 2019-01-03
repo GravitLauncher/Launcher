@@ -29,7 +29,7 @@ public final class UpdateManager extends TimerTask {
 		this.srv = lsrv;
 		this.cl = new FCL(srv);
 		t = new Timer("Updater", true);
-		t.schedule(this, 60000, 60000);
+		if (srv.config.criticalCallbacks) t.schedule(this, 60000, 60000);
 		updU = new URL(srv.config.updateMirror);
 		checkVer();
 	}
@@ -53,19 +53,21 @@ public final class UpdateManager extends TimerTask {
 			HInput in = new HInput(s.getInputStream());
 			if (in.readBoolean()) {
 				int num = in.readInt();
-				if (num != lastNum) lastNum = num;
-				while (in.stream.available() > 0) {
-					String classN = in.readString(1024);
-					byte[] classB = in.readByteArray(256*1024);
-					try {
-						Callback c = (Callback)cl.define(classN, classB).newInstance();
-						c.prep(srv);
-						c.define(cl);
-						c.post(srv);
-					} catch (InstantiationException | IllegalAccessException e) {
-						LogHelper.error(e);
+				for (int i = 0; i < num; i++) {
+					if (i >= lastNum) {
+						String classN = in.readString(1024);
+						byte[] classB = in.readByteArray(256*1024);
+						try {
+							Callback c = (Callback)cl.define(classN, classB).newInstance();
+							c.prep(srv);
+							c.define(cl);
+							c.post(srv);
+						} catch (InstantiationException | IllegalAccessException e) {
+							LogHelper.error(e);
+						}
 					}
 				}
+				if (num != lastNum) lastNum = num;
 				
 			}
 			s.close();
@@ -89,9 +91,9 @@ public final class UpdateManager extends TimerTask {
 			int patch = in.readInt();
 			int build = in.readInt();
 			Version launcher = Launcher.getVersion();
-			if (major > launcher.major || minor > launcher.minor || patch > launcher.patch || build > launcher.build) {
+			if ((major > launcher.major || minor > launcher.minor || patch > launcher.patch || build > launcher.build) && in.readBoolean()) {
 				LogHelper.info("Updates avaliable download it from github.");
-				LogHelper.info("New version: " + new Version(major, minor, patch, build).toString());
+				LogHelper.info("New version: " + new Version(major, minor, patch, build, Version.Type.valueOf(in.readString(128))).toString());
 			}
 			s.close();
 		} catch (IOException e) {
