@@ -27,7 +27,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
         void onDisconnect(Exception e);
 
 
-        boolean onHandshake(long session, Integer type);
+        boolean onHandshake(long session, int type);
     }
 
     private static final ThreadFactory THREAD_FACTORY = r -> CommonHelper.newThread("Network Thread", true, r);
@@ -76,7 +76,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
             listener.onDisconnect(e);
     }
 
-    /*package*/ boolean onHandshake(long session, Integer type) {
+    /*package*/ boolean onHandshake(long session, int type) {
         return listener == null || listener.onHandshake(session, type);
     }
 
