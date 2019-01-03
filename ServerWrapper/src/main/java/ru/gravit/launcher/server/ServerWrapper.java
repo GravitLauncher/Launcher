@@ -134,7 +134,7 @@ public class ServerWrapper {
         System.arraycopy(args, 1, real_args, 0, args.length - 1);
         modulesManager.postInitModules();
         LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s", config.projectname, config.address, config.port, config.title);
-        LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile.getVersion().name);
+        LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
         mainMethod.invoke(real_args);
