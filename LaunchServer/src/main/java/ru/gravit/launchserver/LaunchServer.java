@@ -384,7 +384,6 @@ public final class LaunchServer implements Runnable {
         modulesManager.autoload(dir.resolve("modules"));
         modulesManager.preInitModules();
         initGson();
-        LogHelper.setStacktraceEnabled(true);
 
         // Read LaunchServer config
         generateConfigIfNotExists();
