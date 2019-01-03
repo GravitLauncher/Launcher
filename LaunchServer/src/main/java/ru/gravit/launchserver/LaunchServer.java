@@ -3,6 +3,8 @@ package ru.gravit.launchserver;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
+import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.SocketAddress;
@@ -10,6 +12,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.KeyPair;
@@ -18,6 +21,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,6 +75,7 @@ import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.RequestTextureProvider;
 import ru.gravit.launchserver.texture.TextureProvider;
 import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -240,7 +245,7 @@ public final class LaunchServer implements Runnable {
         // Start LaunchServer
         Instant start = Instant.now();
         try {
-            new LaunchServer(IOHelper.WORKING_DIR).run();
+            new LaunchServer(IOHelper.WORKING_DIR, args).run();
         } catch (Throwable exc) {
             LogHelper.error(exc);
             return;
@@ -253,7 +258,8 @@ public final class LaunchServer implements Runnable {
 
     public final Path dir;
 
-
+	public final List<String> args;
+    
     public final Path configFile;
 
     public final Path publicKeyFile;
@@ -317,9 +323,9 @@ public final class LaunchServer implements Runnable {
     public static Gson gson;
     public static GsonBuilder gsonBuilder;
 
-    public LaunchServer(Path dir) throws IOException, InvalidKeySpecException {
-        // Setup config locations
+    public LaunchServer(Path dir, String[] args) throws IOException, InvalidKeySpecException {
         this.dir = dir;
+        this.args = Arrays.asList(args);
         configFile = dir.resolve("LaunchServer.conf");
         publicKeyFile = dir.resolve("public.key");
         privateKeyFile = dir.resolve("private.key");
@@ -679,4 +685,27 @@ public final class LaunchServer implements Runnable {
         }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
     }
+    
+    public void restart() {
+    	ProcessBuilder builder = new ProcessBuilder();
+    	List<String> args = new ArrayList<>();
+        args.add(IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home"))).toString());
+    	args.addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());
+    	args.addAll(args);
+    	EnvHelper.addEnv(builder);
+        builder.directory(this.dir.toFile());
+        builder.inheritIO();
+        builder.redirectErrorStream(true);
+        builder.redirectOutput(Redirect.PIPE);
+        try {
+			builder.start();
+		} catch (IOException e) {
+			LogHelper.error(e);
+		}
+    }
+
+	public void fullyRestart() {
+    	server.restart();
+        JVMHelper.RUNTIME.exit(0);
+	}
 }
