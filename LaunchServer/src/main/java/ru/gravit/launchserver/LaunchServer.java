@@ -2,9 +2,9 @@ package ru.gravit.launchserver;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
-import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.SocketAddress;
@@ -12,7 +12,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.KeyPair;
@@ -75,7 +74,6 @@ import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.RequestTextureProvider;
 import ru.gravit.launchserver.texture.TextureProvider;
 import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -141,6 +139,8 @@ public final class LaunchServer implements Runnable {
         public boolean isDownloadJava;
 
         public boolean isWarningMissArchJava;
+
+		public String startScript;
 
 
         public String getAddress() {
@@ -564,6 +564,7 @@ public final class LaunchServer implements Runnable {
         newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
         newConfig.buildPostTransform = new PostBuildTransformConf();
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
+        newConfig.startScript = "." + File.separator + "start.sh";
         newConfig.authHandler = new MemoryAuthHandler();
         newConfig.hwidHandler = new AcceptHWIDHandler();
 
@@ -688,10 +689,7 @@ public final class LaunchServer implements Runnable {
     public void restart() {
     	ProcessBuilder builder = new ProcessBuilder();
     	List<String> args = new ArrayList<>();
-        args.add(IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home"))).toString());
-    	args.addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());
-    	args.addAll(args);
-    	EnvHelper.addEnv(builder);
+    	args.add(config.startScript);
         builder.directory(this.dir.toFile());
         builder.inheritIO();
         builder.redirectErrorStream(true);
@@ -704,7 +702,7 @@ public final class LaunchServer implements Runnable {
     }
 
 	public void fullyRestart() {
-    	server.restart();
+    	restart();
         JVMHelper.RUNTIME.exit(0);
 	}
 }
