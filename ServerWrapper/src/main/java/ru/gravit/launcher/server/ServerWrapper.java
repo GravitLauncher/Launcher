@@ -87,6 +87,7 @@ public class ServerWrapper {
         modulesManager.preInitModules();
         LogHelper.debug("Read ServerWrapperConfig.json");
         gsonBuiler = new GsonBuilder();
+        gsonBuiler.setPrettyPrinting();
         gson = gsonBuiler.create();
         generateConfigIfNotExists();
         try(Reader reader = IOHelper.newReader(configFile))
@@ -99,7 +100,7 @@ public class ServerWrapper {
         else
             CommonHelper.newThread("Server Auth Thread", true, () -> ServerWrapper.loopAuth(wrapper, config.reconnectCount, config.reconnectSleep));
         modulesManager.initModules();
-        String classname = config.mainclass.isEmpty() ? args[0] : config.mainclass;
+        String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
         if (classname.length() == 0) {
             LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.cfg or first commandline argument");
         }
@@ -152,6 +153,7 @@ public class ServerWrapper {
         newConfig.port = 7240;
         newConfig.login = "login";
         newConfig.password = "password";
+        newConfig.mainclass = "";
         //try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/ServerWrapper.cfg")))
         //{
         //    newConfig = gson.fromJson(reader,Config.class);
