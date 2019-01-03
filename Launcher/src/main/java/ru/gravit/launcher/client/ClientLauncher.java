@@ -2,8 +2,6 @@ package ru.gravit.launcher.client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import ru.gravit.launcher.*;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
@@ -358,6 +356,7 @@ public final class ClientLauncher {
             args.add("-Xmx" + params.ram + 'M');
         }
         args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
+        args.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled())));
         if (LauncherConfig.ADDRESS_OVERRIDE != null)
             args.add(JVMHelper.jvmProperty(LauncherConfig.ADDRESS_OVERRIDE_PROPERTY, LauncherConfig.ADDRESS_OVERRIDE));
         if (JVMHelper.OS_TYPE == OS.MUSTDIE) {

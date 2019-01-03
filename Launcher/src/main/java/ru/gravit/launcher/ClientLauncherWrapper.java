@@ -30,6 +30,7 @@ public class ClientLauncherWrapper {
         args.add(javaBin.toString());
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
+        args.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled())));
         Collections.addAll(args, "-javaagent:".concat(pathLauncher));
         Collections.addAll(args, "-cp");
         Collections.addAll(args, pathLauncher);
