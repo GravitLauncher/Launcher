@@ -15,7 +15,7 @@ public final class RestartCommand extends Command {
 
     @Override
     public String getUsageDescription() {
-        return "Stop LaunchServer";
+        return "Restart LaunchServer";
     }
 
     @Override
