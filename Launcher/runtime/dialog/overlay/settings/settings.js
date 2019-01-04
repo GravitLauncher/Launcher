@@ -142,8 +142,8 @@ var settingsOverlay = {
             settings.updatesDir = newDir;
             DirBridge.dirUpdates = settings.updatesDir;
             settingsOverlay.updateDirLabel();
-            settingsOverlay.transferDialog.setVisible(false));
-        }
+            settingsOverlay.transferDialog.setVisible(false);
+        });
         settingsOverlay.transferDialog.lookup("#applyTransfer").setOnAction(function(event) {
             //Здесь могла быть ваша реклама, либо DirBridge.move();
             DirBridge.move(newDir);
