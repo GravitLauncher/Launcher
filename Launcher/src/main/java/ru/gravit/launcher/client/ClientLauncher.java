@@ -9,6 +9,7 @@ import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
+import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
@@ -80,6 +81,8 @@ public final class ClientLauncher {
         @LauncherAPI
         public final int height;
         private final byte[] launcherDigest;
+        @LauncherAPI
+        public final long session;
 
         @LauncherAPI
         public Params(byte[] launcherDigest, Path assetDir, Path clientDir, PlayerProfile pp, String accessToken,
@@ -100,11 +103,13 @@ public final class ClientLauncher {
             this.ram = ram;
             this.width = width;
             this.height = height;
+            this.session = Request.getSession();
         }
 
         @LauncherAPI
         public Params(HInput input) throws Exception {
             launcherDigest = input.readByteArray(0);
+            session = input.readLong();
             // Client paths
             assetDir = IOHelper.toPath(input.readString(0));
             clientDir = IOHelper.toPath(input.readString(0));
@@ -128,6 +133,7 @@ public final class ClientLauncher {
         @Override
         public void write(HOutput output) throws IOException {
             output.writeByteArray(launcherDigest, 0);
+            output.writeLong(session);
             // Client paths
             output.writeString(assetDir.toString(), 0);
             output.writeString(clientDir.toString(), 0);
@@ -443,6 +449,7 @@ public final class ClientLauncher {
             return;
         }
         Launcher.profile = profile;
+        Request.setSession(params.session);
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");

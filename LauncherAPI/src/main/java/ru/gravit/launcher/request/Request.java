@@ -13,7 +13,15 @@ import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Request<R> {
-    private static final long session = SecurityHelper.secureRandom.nextLong();
+    private static long session = SecurityHelper.secureRandom.nextLong();
+
+    public static void setSession(long session) {
+        Request.session = session;
+    }
+    public static long getSession()
+    {
+        return Request.session;
+    }
 
     @LauncherAPI
     public static void requestError(String message) throws RequestException {
