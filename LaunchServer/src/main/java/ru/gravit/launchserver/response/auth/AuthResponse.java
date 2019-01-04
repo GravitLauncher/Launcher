@@ -140,5 +140,6 @@ public final class AuthResponse extends Response {
         // Write profile and UUID
         ProfileByUUIDResponse.getProfile(server, uuid, result.username, client).write(output);
         output.writeASCII(result.accessToken, -SecurityHelper.TOKEN_STRING_LENGTH);
+        clientData.permissions.write(output);
     }
 }

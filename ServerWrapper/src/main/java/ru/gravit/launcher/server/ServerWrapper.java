@@ -3,6 +3,7 @@ package ru.gravit.launcher.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.profiles.ClientProfile;
@@ -29,6 +30,7 @@ public class ServerWrapper {
     public static Config config;
     public static PublicURLClassLoader ucp;
     public static ClassLoader loader;
+    public static ClientPermissions permissions;
     private static Gson gson;
     private static GsonBuilder gsonBuiler;
 
@@ -39,8 +41,7 @@ public class ServerWrapper {
     public static boolean auth(ServerWrapper wrapper) {
         try {
             LauncherConfig cfg = Launcher.getConfig();
-            Boolean auth = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), 0, config.title).request();
-            if (auth == null) throw new Exception("Non auth!"); // security check 
+            ServerWrapper.permissions = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), 0, config.title).request();
             ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
             for (ClientProfile p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.getTitle());

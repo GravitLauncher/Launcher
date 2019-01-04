@@ -1,5 +1,6 @@
 package ru.gravit.launcher.request.auth;
 
+import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.profiles.PlayerProfile;
@@ -13,7 +14,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 
-public final class AuthServerRequest extends Request<Boolean> {
+public final class AuthServerRequest extends Request<ClientPermissions> {
     public static final class Result {
         @LauncherAPI
         public final PlayerProfile pp;
@@ -75,7 +76,7 @@ public final class AuthServerRequest extends Request<Boolean> {
     }
 
     @Override
-    protected Boolean requestDo(HInput input, HOutput output) throws IOException {
+    protected ClientPermissions requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(login, SerializeLimits.MAX_LOGIN);
         output.writeString(title, SerializeLimits.MAX_CLIENT);
         output.writeInt(auth_id);
@@ -84,6 +85,6 @@ public final class AuthServerRequest extends Request<Boolean> {
 
         // Read UUID and access token
         readError(input);
-        return true;
+        return new ClientPermissions(input);
     }
 }

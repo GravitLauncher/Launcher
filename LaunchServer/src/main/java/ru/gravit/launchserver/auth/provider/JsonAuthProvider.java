@@ -6,7 +6,7 @@ import java.net.URL;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
-import ru.gravit.launchserver.auth.ClientPermissions;
+import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.SecurityHelper;
 

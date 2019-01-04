@@ -1,9 +1,6 @@
 package ru.gravit.launcher.request.auth;
 
-import ru.gravit.launcher.HWID;
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.*;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
@@ -22,10 +19,13 @@ public final class AuthRequest extends Request<Result> {
         public final PlayerProfile pp;
         @LauncherAPI
         public final String accessToken;
+        @LauncherAPI
+        public final ClientPermissions permissions;
 
-        private Result(PlayerProfile pp, String accessToken) {
+        private Result(PlayerProfile pp, String accessToken, ClientPermissions permissions) {
             this.pp = pp;
             this.accessToken = accessToken;
+            this.permissions = permissions;
         }
     }
 
@@ -86,6 +86,7 @@ public final class AuthRequest extends Request<Result> {
         readError(input);
         PlayerProfile pp = new PlayerProfile(input);
         String accessToken = input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH);
-        return new Result(pp, accessToken);
+        ClientPermissions permissions = new ClientPermissions(input);
+        return new Result(pp, accessToken,permissions);
     }
 }
