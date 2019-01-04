@@ -71,9 +71,6 @@ var settingsOverlay = {
             var newDir = chooser.showDialog(stage);
             if (newDir !== null) {
                 settingsOverlay.transferCatalogDialog(newDir.toPath());
-                settings.updatesDir = newDir.toPath();
-                DirBridge.dirUpdates = settings.updatesDir;
-                settingsOverlay.updateDirLabel();
             }
         });
 
@@ -140,10 +137,19 @@ var settingsOverlay = {
 
     transferCatalogDialog: function(newDir) {
         settingsOverlay.transferDialog.setVisible(true);
-        settingsOverlay.transferDialog.lookup("#cancelTransfer").setOnAction(function(event) settingsOverlay.transferDialog.setVisible(false));
+        settingsOverlay.transferDialog.lookup("#cancelTransfer").setOnAction(function(event)
+        {
+            settings.updatesDir = newDir;
+            DirBridge.dirUpdates = settings.updatesDir;
+            settingsOverlay.updateDirLabel();
+            settingsOverlay.transferDialog.setVisible(false));
+        }
         settingsOverlay.transferDialog.lookup("#applyTransfer").setOnAction(function(event) {
             //Здесь могла быть ваша реклама, либо DirBridge.move();
             DirBridge.move(newDir);
+            settings.updatesDir = newDir;
+            DirBridge.dirUpdates = settings.updatesDir;
+            settingsOverlay.updateDirLabel();
             settingsOverlay.transferDialog.setVisible(false);
         });
     },
