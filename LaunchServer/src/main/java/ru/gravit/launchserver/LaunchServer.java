@@ -2,7 +2,9 @@ package ru.gravit.launchserver;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.SocketAddress;
@@ -18,6 +20,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -88,7 +91,7 @@ public final class LaunchServer implements Runnable {
         public String projectName;
 
         public String[] mirrors;
-
+        
         public String binaryName;
 
         public LauncherConfig.LauncherEnvironment env;
@@ -132,6 +135,8 @@ public final class LaunchServer implements Runnable {
         public boolean isDownloadJava;
 
         public boolean isWarningMissArchJava;
+
+		public String startScript;
 
 
         public String getAddress() {
@@ -236,7 +241,7 @@ public final class LaunchServer implements Runnable {
         // Start LaunchServer
         Instant start = Instant.now();
         try {
-            new LaunchServer(IOHelper.WORKING_DIR).run();
+            new LaunchServer(IOHelper.WORKING_DIR, args).run();
         } catch (Throwable exc) {
             LogHelper.error(exc);
             return;
@@ -249,7 +254,8 @@ public final class LaunchServer implements Runnable {
 
     public final Path dir;
 
-
+	public final List<String> args;
+    
     public final Path configFile;
 
     public final Path publicKeyFile;
@@ -300,7 +306,6 @@ public final class LaunchServer implements Runnable {
 
     public final CommandHandler commandHandler;
 
-
     public final ServerSocketHandler serverSocketHandler;
 
     private final AtomicBoolean started = new AtomicBoolean(false);
@@ -313,9 +318,9 @@ public final class LaunchServer implements Runnable {
     public static Gson gson;
     public static GsonBuilder gsonBuilder;
 
-    public LaunchServer(Path dir) throws IOException, InvalidKeySpecException {
-        // Setup config locations
+    public LaunchServer(Path dir, String[] args) throws IOException, InvalidKeySpecException {
         this.dir = dir;
+        this.args = Arrays.asList(args);
         configFile = dir.resolve("LaunchServer.conf");
         publicKeyFile = dir.resolve("public.key");
         privateKeyFile = dir.resolve("private.key");
@@ -398,7 +403,6 @@ public final class LaunchServer implements Runnable {
         reconfigurableManager = new ReconfigurableManager();
         socketHookManager = new SocketHookManager();
         authHookManager = new AuthHookManager();
-
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
         if(config.permissionsHandler instanceof Reloadable)
@@ -552,6 +556,7 @@ public final class LaunchServer implements Runnable {
         newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
         newConfig.buildPostTransform = new PostBuildTransformConf();
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
+        newConfig.startScript = "." + File.separator + "start.sh";
         newConfig.authHandler = new MemoryAuthHandler();
         newConfig.hwidHandler = new AcceptHWIDHandler();
 
@@ -672,4 +677,25 @@ public final class LaunchServer implements Runnable {
         }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
     }
+    
+    public void restart() {
+    	ProcessBuilder builder = new ProcessBuilder();
+    	List<String> args = new ArrayList<>();
+    	if (config.startScript != null) args.add(config.startScript);
+    	else throw new IllegalArgumentException ("Please create start script and link it as startScript in config.");
+        builder.directory(this.dir.toFile());
+        builder.inheritIO();
+        builder.redirectErrorStream(true);
+        builder.redirectOutput(Redirect.PIPE);
+        try {
+			builder.start();
+		} catch (IOException e) {
+			LogHelper.error(e);
+		}
+    }
+
+	public void fullyRestart() {
+    	restart();
+        JVMHelper.RUNTIME.exit(0);
+	}
 }

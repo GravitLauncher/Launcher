@@ -29,6 +29,7 @@ import ru.gravit.launchserver.command.basic.ProguardCleanCommand;
 import ru.gravit.launchserver.command.basic.RebindCommand;
 import ru.gravit.launchserver.command.basic.RegenProguardDictCommand;
 import ru.gravit.launchserver.command.basic.RemoveMappingsProguardCommand;
+import ru.gravit.launchserver.command.basic.RestartCommand;
 import ru.gravit.launchserver.command.basic.StopCommand;
 import ru.gravit.launchserver.command.basic.TestCommand;
 import ru.gravit.launchserver.command.basic.VersionCommand;
@@ -105,6 +106,7 @@ public abstract class CommandHandler implements Runnable {
         registerCommand("version", new VersionCommand(server));
         registerCommand("build", new BuildCommand(server));
         registerCommand("stop", new StopCommand(server));
+        registerCommand("restart", new RestartCommand(server));
         registerCommand("rebind", new RebindCommand(server));
         registerCommand("debug", new DebugCommand(server));
         registerCommand("clear", new ClearCommand(server));
