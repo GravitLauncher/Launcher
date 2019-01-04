@@ -73,6 +73,7 @@ public final class AuthServerResponse extends Response {
             if (clientData.profile == null) {
                 throw new AuthException("Your profile is not found");
             }
+            clientData.permissions = server.config.permissionsHandler.getPermissions(login);
             if(!clientData.permissions.canServer)
             {
                 throw new AuthException("Your account cannot be a server");
