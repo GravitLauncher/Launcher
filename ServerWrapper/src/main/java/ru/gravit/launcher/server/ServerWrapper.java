@@ -77,6 +77,13 @@ public class ServerWrapper {
         return false;
     }
 
+    public static void initGson()
+    {
+        if(Launcher.gson != null) return;
+        Launcher.gsonBuilder = new GsonBuilder();
+        Launcher.gson = Launcher.gsonBuilder.create();
+    }
+
     @SuppressWarnings("ConfusingArgumentToVarargsMethod")
     public static void main(String[] args) throws Throwable {
         ServerWrapper wrapper = new ServerWrapper();
@@ -90,6 +97,7 @@ public class ServerWrapper {
         gsonBuiler = new GsonBuilder();
         gsonBuiler.setPrettyPrinting();
         gson = gsonBuiler.create();
+        initGson();
         generateConfigIfNotExists();
         try(Reader reader = IOHelper.newReader(configFile))
         {
