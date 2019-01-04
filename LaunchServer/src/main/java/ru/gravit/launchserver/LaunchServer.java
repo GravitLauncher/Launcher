@@ -91,10 +91,6 @@ public final class LaunchServer implements Runnable {
         public String projectName;
 
         public String[] mirrors;
-
-        public String updateMirror;
-        
-        public boolean criticalCallbacks;
         
         public String binaryName;
 
@@ -310,7 +306,6 @@ public final class LaunchServer implements Runnable {
 
     public final CommandHandler commandHandler;
 
-
     public final ServerSocketHandler serverSocketHandler;
 
     private final AtomicBoolean started = new AtomicBoolean(false);
@@ -476,7 +471,6 @@ public final class LaunchServer implements Runnable {
 
         // post init modules
         modulesManager.postInitModules();
-        new UpdateManager(this);
     }
 
     public static void initGson()
@@ -550,8 +544,6 @@ public final class LaunchServer implements Runnable {
         LogHelper.info("Creating LaunchServer config");
         Config newConfig = new Config();
         newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/"};
-        newConfig.updateMirror = "gravitlauncher.ml:7245";
-        newConfig.criticalCallbacks = false;
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.copyright = "© GravitLauncher Team";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Launcher.getVersion().getVersionString());
