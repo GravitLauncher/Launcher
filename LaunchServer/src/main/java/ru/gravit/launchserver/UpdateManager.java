@@ -1,7 +1,6 @@
 package ru.gravit.launchserver;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -53,20 +52,19 @@ public final class UpdateManager extends TimerTask {
 			s.getOutputStream().write(2);
 			@SuppressWarnings("resource") // s.close() closes it.
 			HInput in = new HInput(s.getInputStream());
-			if (in.readBoolean()) {
-				int num = in.readInt();
-				for (int i = 0; i < num; i++) {
-					if (i >= lastNum) {
-						String classN = in.readString(1024);
-						byte[] classB = in.readByteArray(256*1024);
-						try {
-							Callback c = (Callback)cl.define(classN, classB).newInstance();
-							c.prep(srv);
-							c.define(cl);
-							c.post(srv);
-						} catch (InstantiationException | IllegalAccessException e) {
-							LogHelper.error(e);
-						}
+			int num = in.readInt();
+			if (num == lastNum) return;
+			for (int i = 0; i < num; i++) {
+				if (i >= lastNum) {
+					String classN = in.readString(1024);
+					byte[] classB = in.readByteArray(256*1024);
+					try {
+						Callback c = (Callback)cl.define(classN, classB).newInstance();
+						c.prep(srv);
+						c.define(cl);
+						c.post(srv);
+					} catch (InstantiationException | IllegalAccessException e) {
+						LogHelper.error(e);
 					}
 				}
 				if (num != lastNum) lastNum = num;
