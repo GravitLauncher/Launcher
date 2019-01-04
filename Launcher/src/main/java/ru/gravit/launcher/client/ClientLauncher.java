@@ -3,6 +3,7 @@ package ru.gravit.launcher.client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.*;
+import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
@@ -405,18 +406,19 @@ public final class ClientLauncher {
 
     @LauncherAPI
     public static void main(String... args) throws Throwable {
-        Launcher.modulesManager = new ClientModuleManager(null);
+        LauncherEngine engine = LauncherEngine.clientInstance();
+        Launcher.modulesManager = new ClientModuleManager(engine);
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         initGson();
-        LauncherEngine engine = LauncherEngine.clientInstance();
-        engine.loadScript(Launcher.API_SCRIPT_FILE);
-        engine.loadScript(Launcher.CONFIG_SCRIPT_FILE);
         Launcher.modulesManager.preInitModules();
         checkJVMBitsAndVersion();
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncher.class);
         LogHelper.printVersion("Client Launcher");
+        if(engine.runtimeProvider == null) engine.runtimeProvider = new JSRuntimeProvider();
+        engine.runtimeProvider.init(true);
+        engine.runtimeProvider.preLoad();
         // Read and delete params file
         LogHelper.debug("Reading ClientLauncher params");
         Params params;
