@@ -114,6 +114,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         @LauncherAPI
         public int subTreeLevel = 1;
         @LauncherAPI
+        public boolean isAdminOnly = false;
+        @LauncherAPI
         public transient Set<OptionalFile> dependenciesCount;
 
         public OptionalFile(String file, boolean mark) {
@@ -261,7 +263,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
                     file.conflict[i] = getOptionalFile(file.conflictFile[i]);
                 }
             }
-
         }
     }
 

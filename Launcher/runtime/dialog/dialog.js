@@ -214,7 +214,7 @@ function doAuth(login, rsaPassword) {
     processing.resetOverlay();
     overlay.show(processing.overlay, function (event) {
         makeAuthRequest(login, rsaPassword, function (result) {
-            loginData = { pp: result.pp , accessToken: result.accessToken};
+            loginData = { pp: result.pp , accessToken: result.accessToken, permissions: result.permissions};
 
             overlay.hide(0, function () {
                 setCurrentScene(menuScene);

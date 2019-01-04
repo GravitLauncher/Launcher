@@ -102,7 +102,8 @@ var options = {
                     dModsIds.push(modFile.string);
 
                         var modName = modFile.file, modDescription = "", subLevel = 1;
-
+                        if(modFile.isAdminOnly && !loginData.permissions.canAdmin)
+                            return;
                         if(modFile.name != null)//Есть ли у модификации имя?
                             modName = modFile.name;
                         if(modFile.info != null) //Есть ли описание?
