@@ -51,6 +51,7 @@ public class ServerWrapper {
                     break;
                 }
             }
+            if(wrapper.profile == null) LogHelper.warning("Your profile not found");
             return true;
         } catch (Throwable e) {
             LogHelper.error(e);
