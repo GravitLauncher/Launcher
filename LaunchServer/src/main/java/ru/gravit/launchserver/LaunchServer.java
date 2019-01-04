@@ -568,9 +568,9 @@ public final class LaunchServer implements Runnable {
         newConfig.authRejectString = "Превышен лимит авторизаций";
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
-        //try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/config.cfg"))) {
-        //    newConfig = Launcher.gson.fromJson(reader,Config.class);
-        //}
+        
+        newConfig.threadCoreCount = 0; // on your own
+        newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
 
         // Set server address
         LogHelper.println("LaunchServer address: ");
