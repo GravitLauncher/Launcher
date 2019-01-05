@@ -109,17 +109,12 @@ public class MainBuildTask implements LauncherBuildTask {
     public MainBuildTask() {
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         guardDir = server.dir.resolve(Launcher.GUARD_DIR);
-        binaryFile = server.dir.resolve(server.config.binaryName + "-main_task.jar");
+        binaryFile = server.dir.resolve(server.config.binaryName + "-main.jar");
     }
 
     @Override
     public String getName() {
-        return "main";
-    }
-
-    @Override
-    public int priority() {
-        return 0;
+        return "MainBuild";
     }
 
     @Override

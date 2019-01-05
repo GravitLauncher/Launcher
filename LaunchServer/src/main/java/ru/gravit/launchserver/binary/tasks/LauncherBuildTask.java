@@ -5,7 +5,6 @@ import java.nio.file.Path;
 
 public interface LauncherBuildTask {
     String getName();
-    int priority();
     Path process(Path inputFile) throws IOException;
     boolean allowDelete();
 }

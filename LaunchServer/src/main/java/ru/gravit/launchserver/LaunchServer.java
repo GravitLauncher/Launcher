@@ -135,6 +135,7 @@ public final class LaunchServer implements Runnable {
         public boolean isDownloadJava;
 
         public boolean isWarningMissArchJava;
+        public boolean enabledProGuard;
 
 		public String startScript;
 
@@ -570,6 +571,7 @@ public final class LaunchServer implements Runnable {
         newConfig.whitelistRejectString = "Вас нет в белом списке";
         
         newConfig.threadCoreCount = 0; // on your own
+        newConfig.enabledProGuard = true;
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
 
         // Set server address

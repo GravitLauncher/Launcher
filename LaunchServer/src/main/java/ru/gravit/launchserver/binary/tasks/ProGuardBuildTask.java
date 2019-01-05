@@ -13,12 +13,7 @@ public class ProGuardBuildTask implements LauncherBuildTask {
     public static LaunchServer server = LaunchServer.server;
     @Override
     public String getName() {
-        return "proguard";
-    }
-
-    @Override
-    public int priority() {
-        return 1;
+        return "ProGuard";
     }
 
     @Override

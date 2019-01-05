@@ -12,12 +12,7 @@ public class UnpackBuildTask implements LauncherBuildTask {
     public static LaunchServer server = LaunchServer.server;
     @Override
     public String getName() {
-        return "unpack clean";
-    }
-
-    @Override
-    public int priority() {
-        return -1;
+        return "UnpackFromResources";
     }
 
     @Override

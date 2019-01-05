@@ -53,7 +53,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         tasks = new ArrayList<>();
         tasks.add(new UnpackBuildTask());
         tasks.add(new MainBuildTask());
-        tasks.add(new ProGuardBuildTask());
+        if(server.config.enabledProGuard) tasks.add(new ProGuardBuildTask());
         syncBinaryFile = server.dir.resolve(server.config.binaryName + ".jar");
         /*runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         guardDir = server.dir.resolve(Launcher.GUARD_DIR);
@@ -73,17 +73,23 @@ public final class JARLauncherBinary extends LauncherBinary {
         LogHelper.info("Building launcher binary file");
         Path thisPath = null;
         boolean isNeedDelete = false;
+        long time_start = System.currentTimeMillis();
+        long time_this = time_start;
         for(LauncherBuildTask task : tasks)
         {
             LogHelper.subInfo("Task %s",task.getName());
             Path oldPath = thisPath;
             thisPath = task.process(oldPath);
+            long time_task_end = System.currentTimeMillis();
+            long time_task = time_task_end - time_this;
+            time_this = time_task_end;
             if(isNeedDelete) Files.delete(oldPath);
             isNeedDelete = task.allowDelete();
-            LogHelper.subInfo("Task %s processed",task.getName());
+            LogHelper.subInfo("Task %s processed from %d millis",task.getName(), time_task);
         }
+        long time_end = System.currentTimeMillis();
         IOHelper.move(thisPath, syncBinaryFile);
-        LogHelper.info("Build successful");
+        LogHelper.info("Build successful from %d millis",time_end - time_start);
 
         // ProGuard
 
