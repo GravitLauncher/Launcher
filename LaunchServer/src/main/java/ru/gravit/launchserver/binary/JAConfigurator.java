@@ -9,6 +9,7 @@ import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.NotFoundException;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launchserver.binary.tasks.MainBuildTask;
 
 public class JAConfigurator implements AutoCloseable {
     public ClassPool pool;
@@ -20,7 +21,7 @@ public class JAConfigurator implements AutoCloseable {
     StringBuilder moduleBody;
     int autoincrement;
 
-    public JAConfigurator(String configclass, JARLauncherBinary jarLauncherBinary) throws NotFoundException {
+    public JAConfigurator(String configclass, MainBuildTask jarLauncherBinary) throws NotFoundException {
         pool = new ClassPool(false);
         pool.insertClassPath(jarLauncherBinary.cleanJar.toFile().getAbsolutePath());
         pool.appendSystemPath();

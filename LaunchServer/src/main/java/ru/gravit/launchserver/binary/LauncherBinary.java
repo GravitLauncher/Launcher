@@ -12,23 +12,19 @@ public abstract class LauncherBinary {
 
     public final LaunchServer server;
 
-    public final Path binaryFile;
-    public final Path syncBinaryFile;
+    public Path syncBinaryFile;
     private volatile DigestBytesHolder binary;
     private volatile byte[] sign;
 
 
     protected LauncherBinary(LaunchServer server, Path binaryFile) {
         this.server = server;
-        this.binaryFile = binaryFile;
         syncBinaryFile = binaryFile;
     }
 
 
-    protected LauncherBinary(LaunchServer server, Path binaryFile, Path syncBinaryFile) {
+    protected LauncherBinary(LaunchServer server) {
         this.server = server;
-        this.binaryFile = binaryFile;
-        this.syncBinaryFile = syncBinaryFile;
     }
 
 
@@ -36,7 +32,7 @@ public abstract class LauncherBinary {
 
 
     public final boolean exists() {
-        return IOHelper.isFile(syncBinaryFile);
+        return syncBinaryFile != null && IOHelper.isFile(syncBinaryFile);
     }
 
 

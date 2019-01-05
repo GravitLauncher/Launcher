@@ -15,9 +15,9 @@ public class EXELauncherBinary extends LauncherBinary {
 
     @Override
     public void build() throws IOException {
-        if (IOHelper.isFile(binaryFile)) {
+        if (IOHelper.isFile(syncBinaryFile)) {
             LogHelper.subWarning("Deleting obsolete launcher EXE binary file");
-            Files.delete(binaryFile);
+            Files.delete(syncBinaryFile);
         }
     }
 

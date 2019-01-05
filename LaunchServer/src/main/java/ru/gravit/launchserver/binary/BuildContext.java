@@ -8,16 +8,17 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import ru.gravit.launchserver.binary.tasks.MainBuildTask;
 import ru.gravit.utils.helper.IOHelper;
 
 public class BuildContext {
     public final ZipOutputStream output;
     public final JAConfigurator config;
-    public final JARLauncherBinary data;
+    public final MainBuildTask data;
     public final HashSet<String> fileList;
 
 
-    public BuildContext(ZipOutputStream output, JAConfigurator config, JARLauncherBinary data) {
+    public BuildContext(ZipOutputStream output, JAConfigurator config, MainBuildTask data) {
         this.output = output;
         this.config = config;
         this.data = data;

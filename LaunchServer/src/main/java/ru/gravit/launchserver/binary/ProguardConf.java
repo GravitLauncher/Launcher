@@ -30,22 +30,29 @@ public class ProguardConf {
     public final Path config;
     public final Path mappings;
     public final Path words;
+    public final Path outputJar;
     public final ArrayList<String> confStrs;
+    public transient final LaunchServer srv;
 
     public ProguardConf(LaunchServer srv) {
         proguard = srv.dir.resolve("proguard");
         config = proguard.resolve("proguard.config");
         mappings = proguard.resolve("mappings.pro");
         words = proguard.resolve("random.pro");
+        outputJar = srv.dir.resolve(srv.config.binaryName + "-obfPre.jar");
         confStrs = new ArrayList<>();
+        this.srv = srv;
+    }
+    public void buildConfig(Path inputJar)
+    {
+        confStrs.clear();
         prepare(false);
         if (srv.config.genMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
-        confStrs.add("-injar \'" + srv.dir.toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + "-nonObf.jar\'");
-        confStrs.add("-outjar \'" + srv.dir.toAbsolutePath() + IOHelper.PLATFORM_SEPARATOR + srv.config.binaryName + "-obfPre.jar\'");
+        confStrs.add("-injar \'" + inputJar.toAbsolutePath() + "\'");
+        confStrs.add("-outjar \'" + outputJar.toAbsolutePath() + "\'");
         confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add(readConf());
-
     }
 
     private void genConfig(boolean force) throws IOException {

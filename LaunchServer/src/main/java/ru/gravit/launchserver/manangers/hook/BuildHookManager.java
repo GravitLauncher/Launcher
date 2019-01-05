@@ -11,6 +11,7 @@ import ru.gravit.launcher.modules.TestClientModule;
 import ru.gravit.launchserver.binary.BuildContext;
 import ru.gravit.launchserver.binary.JAConfigurator;
 import ru.gravit.launchserver.binary.JARLauncherBinary;
+import ru.gravit.launchserver.binary.tasks.MainBuildTask;
 import ru.gravit.launchserver.manangers.NodeTransformer;
 
 public class BuildHookManager {
@@ -26,7 +27,7 @@ public class BuildHookManager {
 
     @FunctionalInterface
     public interface Transformer {
-        byte[] transform(byte[] input, String classname, JARLauncherBinary data);
+        byte[] transform(byte[] input, String classname, MainBuildTask data);
     }
 
     private boolean BUILDRUNTIME;
@@ -96,13 +97,13 @@ public class BuildHookManager {
         return BUILDRUNTIME;
     }
 
-    public byte[] classTransform(byte[] clazz, String classname, JARLauncherBinary reader) {
+    public byte[] classTransform(byte[] clazz, String classname, MainBuildTask reader) {
         byte[] result = clazz;
         for (Transformer transformer : CLASS_TRANSFORMER) result = transformer.transform(result, classname, reader);
         return result;
     }
 
-    public byte[] proGuardClassTransform(byte[] clazz, String classname, JARLauncherBinary reader) {
+    public byte[] proGuardClassTransform(byte[] clazz, String classname, MainBuildTask reader) {
         byte[] result = clazz;
         for (Transformer transformer : POST_PROGUARD_HOOKS) result = transformer.transform(result, classname, reader);
         return result;

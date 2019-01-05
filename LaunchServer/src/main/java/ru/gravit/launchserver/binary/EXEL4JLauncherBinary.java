@@ -41,12 +41,13 @@ public final class EXEL4JLauncherBinary extends LauncherBinary {
     public EXEL4JLauncherBinary(LaunchServer server) {
         super(server, server.dir.resolve(server.config.binaryName + ".exe"));
         faviconFile = server.dir.resolve("favicon.ico");
-        setConfig();
+        //setConfig();
     }
 
     @Override
     public void build() throws IOException {
         LogHelper.info("Building launcher EXE binary file (Using Launch4J)");
+        setConfig();
 
         // Set favicon path
         Config config = ConfigPersister.getInstance().getConfig();
@@ -99,14 +100,14 @@ public final class EXEL4JLauncherBinary extends LauncherBinary {
         info.setTxtFileVersion(formatVars(server.config.launch4j.txtFileVersion));
         info.setTxtProductVersion(formatVars(server.config.launch4j.txtProductVersion));
         // Prepare version info (misc)
-        info.setOriginalFilename(binaryFile.getFileName().toString());
+        info.setOriginalFilename(syncBinaryFile.getFileName().toString());
         info.setLanguage(LanguageID.RUSSIAN);
         config.setVersionInfo(info);
 
         // Set JAR wrapping options
         config.setDontWrapJar(false);
         config.setJar(server.launcherBinary.syncBinaryFile.toFile());
-        config.setOutfile(binaryFile.toFile());
+        config.setOutfile(syncBinaryFile.toFile());
 
         // Return prepared config
         ConfigPersister.getInstance().setAntConfig(config, null);
