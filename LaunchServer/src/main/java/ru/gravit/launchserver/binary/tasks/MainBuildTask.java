@@ -207,6 +207,12 @@ public class MainBuildTask implements LauncherBuildTask {
         }
         return binaryFile;
     }
+
+    @Override
+    public boolean allowDelete() {
+        return true;
+    }
+
     public void tryUnpack() throws IOException {
         LogHelper.info("Unpacking launcher native guard files and runtime");
         UnpackHelper.unpackZipNoCheck("guard.zip", guardDir);

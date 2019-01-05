@@ -36,4 +36,9 @@ public class ProGuardBuildTask implements LauncherBuildTask {
         }
         return server.proguardConf.outputJar;
     }
+
+    @Override
+    public boolean allowDelete() {
+        return true;
+    }
 }

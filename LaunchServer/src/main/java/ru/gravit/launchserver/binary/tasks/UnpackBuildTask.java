@@ -27,4 +27,9 @@ public class UnpackBuildTask implements LauncherBuildTask {
         UnpackHelper.unpack(url, result);
         return result;
     }
+
+    @Override
+    public boolean allowDelete() {
+        return false;
+    }
 }

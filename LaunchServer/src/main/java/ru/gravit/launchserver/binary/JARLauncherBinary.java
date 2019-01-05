@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -53,6 +54,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         tasks.add(new UnpackBuildTask());
         tasks.add(new MainBuildTask());
         tasks.add(new ProGuardBuildTask());
+        syncBinaryFile = server.dir.resolve(server.config.binaryName + ".jar");
         /*runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         guardDir = server.dir.resolve(Launcher.GUARD_DIR);
         initScriptFile = runtimeDir.resolve(Launcher.INIT_SCRIPT_FILE);
@@ -70,13 +72,17 @@ public final class JARLauncherBinary extends LauncherBinary {
         // Build launcher binary
         LogHelper.info("Building launcher binary file");
         Path thisPath = null;
+        boolean isNeedDelete = false;
         for(LauncherBuildTask task : tasks)
         {
             LogHelper.subInfo("Task %s",task.getName());
-            thisPath = task.process(thisPath);
+            Path oldPath = thisPath;
+            thisPath = task.process(oldPath);
+            if(isNeedDelete) Files.delete(oldPath);
+            isNeedDelete = task.allowDelete();
             LogHelper.subInfo("Task %s processed",task.getName());
         }
-        syncBinaryFile = thisPath;
+        IOHelper.move(thisPath, syncBinaryFile);
         LogHelper.info("Build successful");
 
         // ProGuard
