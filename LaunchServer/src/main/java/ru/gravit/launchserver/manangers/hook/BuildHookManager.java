@@ -10,9 +10,7 @@ import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.modules.TestClientModule;
 import ru.gravit.launchserver.binary.BuildContext;
 import ru.gravit.launchserver.binary.JAConfigurator;
-import ru.gravit.launchserver.binary.JARLauncherBinary;
 import ru.gravit.launchserver.binary.tasks.MainBuildTask;
-import ru.gravit.launchserver.manangers.NodeTransformer;
 
 public class BuildHookManager {
     @FunctionalInterface
@@ -40,8 +38,6 @@ public class BuildHookManager {
     private final Set<String> CLASS_BLACKLIST;
     private final Set<String> MODULE_CLASS;
     private final Map<String, byte[]> INCLUDE_CLASS;
-    private final NodeTransformer noder;
-    private final NodeTransformer proguardNoder;
 
     public BuildHookManager() {
         POST_HOOKS = new HashSet<>(4);
@@ -59,18 +55,6 @@ public class BuildHookManager {
         registerIgnoredClass("META-INF/LICENSE");
         registerIgnoredClass("META-INF/NOTICE");
         registerClientModuleClass(TestClientModule.class.getName());
-        noder = new NodeTransformer();
-        registerClassTransformer(noder);
-        proguardNoder = new NodeTransformer();
-        registerProGuardHook(proguardNoder);
-    }
-
-    public NodeTransformer getProguardNoder() {
-        return proguardNoder;
-    }
-
-    public NodeTransformer getNoder() {
-        return noder;
     }
 
     public Set<ZipBuildHook> getProguardBuildHooks() {
@@ -157,7 +141,7 @@ public class BuildHookManager {
     }
 
     public boolean isNeedPostProguardHook() {
-        return POST_PROGUARD_HOOKS.size() > 1 || !POST_PROGUARDRUN_HOOKS.isEmpty() || !POST_PROGUARD_BUILDHOOKS.isEmpty() || !proguardNoder.getTransLst().isEmpty();
+        return POST_PROGUARD_HOOKS.size() > 1 || !POST_PROGUARDRUN_HOOKS.isEmpty() || !POST_PROGUARD_BUILDHOOKS.isEmpty();
     }
 
     public void registerPreHook(BuildHook hook) {
