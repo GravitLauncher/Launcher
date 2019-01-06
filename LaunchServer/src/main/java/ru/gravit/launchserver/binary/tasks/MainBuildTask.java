@@ -33,8 +33,6 @@ import static ru.gravit.utils.helper.IOHelper.newZipEntry;
 
 public class MainBuildTask implements LauncherBuildTask {
     public static LaunchServer server = LaunchServer.server;
-    public final Path runtimeDir;
-    public final Path guardDir;
     public final Path binaryFile;
     public Path cleanJar;
     private final class RuntimeDirVisitor extends SimpleFileVisitor<Path> {
@@ -48,14 +46,14 @@ public class MainBuildTask implements LauncherBuildTask {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            String dirName = IOHelper.toString(runtimeDir.relativize(dir));
+            String dirName = IOHelper.toString(UnpackBuildTask.runtimeDir.relativize(dir));
             output.putNextEntry(newEntry(dirName + '/'));
             return super.preVisitDirectory(dir, attrs);
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            String fileName = IOHelper.toString(runtimeDir.relativize(file));
+            String fileName = IOHelper.toString(UnpackBuildTask.runtimeDir.relativize(file));
             runtime.put(fileName, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, file));
 
             // Create zip entry and transfer contents
@@ -80,14 +78,14 @@ public class MainBuildTask implements LauncherBuildTask {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            String dirName = IOHelper.toString(guardDir.relativize(dir));
+            String dirName = IOHelper.toString(UnpackBuildTask.guardDir.relativize(dir));
             output.putNextEntry(newGuardEntry(dirName + '/'));
             return super.preVisitDirectory(dir, attrs);
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            String fileName = IOHelper.toString(guardDir.relativize(file));
+            String fileName = IOHelper.toString(UnpackBuildTask.guardDir.relativize(file));
             guard.put(fileName, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, file));
 
             // Create zip entry and transfer contents
@@ -107,8 +105,6 @@ public class MainBuildTask implements LauncherBuildTask {
         return newZipEntry(Launcher.GUARD_DIR + IOHelper.CROSS_SEPARATOR + fileName);
     }
     public MainBuildTask() {
-        runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
-        guardDir = server.dir.resolve(Launcher.GUARD_DIR);
         binaryFile = server.dir.resolve(server.config.binaryName + "-main.jar");
     }
 
@@ -176,7 +172,7 @@ public class MainBuildTask implements LauncherBuildTask {
             Map<String, byte[]> runtime = new HashMap<>(256);
             if (server.buildHookManager.buildRuntime()) {
                 // Write launcher guard dir
-                IOHelper.walk(runtimeDir, new RuntimeDirVisitor(output, runtime), false);
+                IOHelper.walk(UnpackBuildTask.runtimeDir, new RuntimeDirVisitor(output, runtime), false);
                 // IOHelper.walk(guardDir, new GuardDirVisitor(output, runtime), false);
             }
             // Create launcher config file
@@ -206,11 +202,5 @@ public class MainBuildTask implements LauncherBuildTask {
     @Override
     public boolean allowDelete() {
         return true;
-    }
-
-    public void tryUnpack() throws IOException {
-        LogHelper.info("Unpacking launcher native guard files and runtime");
-        UnpackHelper.unpackZipNoCheck("guard.zip", guardDir);
-        UnpackHelper.unpackZipNoCheck("runtime.zip", runtimeDir);
     }
 }
