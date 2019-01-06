@@ -9,6 +9,7 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import ru.gravit.launchserver.binary.tasks.MainBuildTask;
 import ru.gravit.launchserver.binary.tasks.ProGuardBuildTask;
+import ru.gravit.launchserver.binary.tasks.StripLineNumbersTask;
 import ru.gravit.launchserver.binary.tasks.UnpackBuildTask;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -22,6 +23,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         tasks.add(new UnpackBuildTask(server));
         tasks.add(new MainBuildTask(server));
         if(server.config.enabledProGuard) tasks.add(new ProGuardBuildTask(server));
+        if(server.config.stripLineNumbers) tasks.add(new StripLineNumbersTask(server));
         syncBinaryFile = server.dir.resolve(server.config.binaryName + ".jar");
     }
 

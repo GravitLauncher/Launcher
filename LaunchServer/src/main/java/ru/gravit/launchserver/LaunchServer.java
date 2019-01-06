@@ -86,7 +86,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 public final class LaunchServer implements Runnable {
     public static final class Config {
-        public int port;
+		public int port;
 
         private String address;
 
@@ -131,7 +131,6 @@ public final class LaunchServer implements Runnable {
 
         public String authRejectString;
 
-
         public String whitelistRejectString;
 
         public boolean genMappings;
@@ -140,6 +139,7 @@ public final class LaunchServer implements Runnable {
 
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
+        public boolean stripLineNumbers;
 
 		public String startScript;
 
@@ -577,8 +577,8 @@ public final class LaunchServer implements Runnable {
         
         newConfig.threadCoreCount = 0; // on your own
         newConfig.enabledProGuard = true;
+        newConfig.stripLineNumbers = false;
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
-
         // Set server address
         LogHelper.println("LaunchServer address: ");
         newConfig.setAddress(commandHandler.readLine());
