@@ -11,9 +11,11 @@ import java.nio.file.Path;
 
 public class UnpackBuildTask implements LauncherBuildTask {
     private final LaunchServer server;
+	private final Path result;
     
     public UnpackBuildTask(LaunchServer server) {
 		this.server = server;
+		result = server.dir.resolve(server.config.binaryName + "-clean.jar");
 	}
 
     @Override
@@ -23,9 +25,8 @@ public class UnpackBuildTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputFile) throws IOException {
-        Path result = server.dir.resolve(server.config.binaryName + "-clean.jar");
-        URL url = IOHelper.getResourceURL("Launcher.jar");
-        UnpackHelper.unpack(url, result);
+        UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), result);
+        tryUnpack();
         return result;
     }
 
