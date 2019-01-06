@@ -6,7 +6,6 @@ import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.UnpackHelper;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Path;
 
 public class UnpackBuildTask implements LauncherBuildTask {
