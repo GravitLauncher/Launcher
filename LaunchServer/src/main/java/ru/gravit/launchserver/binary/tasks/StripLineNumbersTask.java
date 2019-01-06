@@ -17,13 +17,10 @@ import ru.gravit.launchserver.asm.SafeClassWriter;
 import ru.gravit.utils.helper.IOHelper;
 
 public class StripLineNumbersTask implements LauncherBuildTask {
-
 	private final LaunchServer server;
-	private final ClassMetadataReader reader;
 	
 	public StripLineNumbersTask(LaunchServer server) {
 		this.server = server;
-		reader = new ClassMetadataReader();
 	}
 
 	@Override
@@ -34,26 +31,27 @@ public class StripLineNumbersTask implements LauncherBuildTask {
 	@Override
 	public Path process(Path inputFile) throws IOException {
 		Path out = server.dir.resolve(server.config.projectName + "-stripped.jar");
-        reader.getCp().add(new JarFile(inputFile.toFile()));
-		try (ZipInputStream input = IOHelper.newZipInput(inputFile);
-            ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
-            ZipEntry e = input.getNextEntry();
-            while (e != null) {
-                String filename = e.getName();
-                output.putNextEntry(IOHelper.newZipEntry(e));
-                if (filename.endsWith(".class")) {
-                    byte[] bytes = null;
-                    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(2048)) {
-                        IOHelper.transfer(input, outputStream);
-                        bytes = outputStream.toByteArray();
-                    }
-                    output.write(classFix(bytes, reader));
-                } else
-                    IOHelper.transfer(input, output);
-                e = input.getNextEntry();
-            }
-        }
-		reader.close();
+		try (ClassMetadataReader reader = new ClassMetadataReader()) {
+			reader.getCp().add(new JarFile(inputFile.toFile()));
+			try (ZipInputStream input = IOHelper.newZipInput(inputFile);
+					ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
+            	ZipEntry e = input.getNextEntry();
+            	while (e != null) {
+                	String filename = e.getName();
+                	output.putNextEntry(IOHelper.newZipEntry(e));
+                	if (filename.endsWith(".class")) {
+                    	byte[] bytes = null;
+                    	try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(2048)) {
+                        	IOHelper.transfer(input, outputStream);
+                        	bytes = outputStream.toByteArray();
+                    	}
+                    	output.write(classFix(bytes, reader));
+                	} else
+                    	IOHelper.transfer(input, output);
+                	e = input.getNextEntry();
+            	}
+        	}
+		}
 		return out;
 	}
 
