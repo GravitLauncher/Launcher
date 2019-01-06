@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import ru.gravit.launchserver.binary.tasks.MainBuildTask;
@@ -16,6 +17,9 @@ import ru.gravit.utils.helper.LogHelper;
 
 public final class JARLauncherBinary extends LauncherBinary {
     public ArrayList<LauncherBuildTask> tasks;
+    public final Path runtimeDir;
+    public final Path guardDir;
+
     public JARLauncherBinary(LaunchServer server) throws IOException {
         super(server);
         tasks = new ArrayList<>();
@@ -24,6 +28,8 @@ public final class JARLauncherBinary extends LauncherBinary {
         if(server.config.enabledProGuard) tasks.add(new ProGuardBuildTask(server));
         if(server.config.stripLineNumbers) tasks.add(new StripLineNumbersTask(server));
         syncBinaryFile = server.dir.resolve(server.config.binaryName + ".jar");
+        runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
+        guardDir = server.dir.resolve(Launcher.GUARD_DIR);
     }
 
     @Override

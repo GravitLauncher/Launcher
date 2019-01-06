@@ -282,7 +282,7 @@ public final class LaunchServer implements Runnable {
     public final RSAPrivateKey privateKey;
     // Launcher binary
 
-    public final LauncherBinary launcherBinary;
+    public final JARLauncherBinary launcherBinary;
 
     public final LauncherBinary launcherEXEBinary;
     // HWID ban + anti-brutforce

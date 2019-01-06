@@ -279,9 +279,6 @@ public final class ClientLauncher {
     }
 
     private static void launch(ClientProfile profile, Params params) throws Throwable {
-        // Add natives path
-        //JVMHelper.addNativePath(params.clientDir.resolve(NATIVES_DIR));
-
         // Add client args
         Collection<String> args = new LinkedList<>();
         if (profile.getVersion().compareTo(ClientProfile.Version.MC164) >= 0)
