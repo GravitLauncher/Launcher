@@ -41,17 +41,14 @@ public final class MinecraftProfileTexture {
         this.hash = hash;
     }
 
-    @SuppressWarnings("unused")
     public String getHash() {
         return hash;
     }
 
-    @SuppressWarnings({"unused", "SameReturnValue"})
     public String getMetadata(String key) {
         return null;
     }
 
-    @SuppressWarnings("unused")
     public String getUrl() {
         return url;
     }

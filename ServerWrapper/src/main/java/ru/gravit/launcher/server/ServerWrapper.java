@@ -85,8 +85,7 @@ public class ServerWrapper {
         Launcher.gson = Launcher.gsonBuilder.create();
     }
 
-    @SuppressWarnings("ConfusingArgumentToVarargsMethod")
-    public static void main(String[] args) throws Throwable {
+    public static void main(String... args) throws Throwable {
         ServerWrapper wrapper = new ServerWrapper();
         LogHelper.printVersion("ServerWrapper");
         LogHelper.printLicense("ServerWrapper");

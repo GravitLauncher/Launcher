@@ -65,7 +65,11 @@ import ru.gravit.launchserver.config.AuthProviderAdapter;
 import ru.gravit.launchserver.config.HWIDHandlerAdapter;
 import ru.gravit.launchserver.config.PermissionsHandlerAdapter;
 import ru.gravit.launchserver.config.TextureProviderAdapter;
-import ru.gravit.launchserver.manangers.*;
+import ru.gravit.launchserver.manangers.MirrorManager;
+import ru.gravit.launchserver.manangers.ModulesManager;
+import ru.gravit.launchserver.manangers.ReconfigurableManager;
+import ru.gravit.launchserver.manangers.ReloadManager;
+import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.launchserver.manangers.hook.AuthHookManager;
 import ru.gravit.launchserver.manangers.hook.BuildHookManager;
 import ru.gravit.launchserver.manangers.hook.SocketHookManager;
@@ -264,7 +268,8 @@ public final class LaunchServer implements Runnable {
     public final Path privateKeyFile;
 
     public final Path updatesDir;
-    public static LaunchServer server;
+    
+    public static LaunchServer server = null;
 
     public final Path profilesDir;
     // Server config
@@ -587,8 +592,6 @@ public final class LaunchServer implements Runnable {
         }
     }
 
-
-    @SuppressWarnings("ReturnOfCollectionOrArrayField")
     public Collection<ClientProfile> getProfiles() {
         return profilesList;
     }

@@ -14,7 +14,6 @@ import java.util.Locale;
 import java.util.Map;
 
 public final class JVMHelper {
-    @SuppressWarnings("unused")
     @LauncherAPI
     public enum OS {
         MUSTDIE("mustdie"), LINUX("linux"), MACOSX("macosx");
@@ -84,7 +83,6 @@ public final class JVMHelper {
     }
 
     @LauncherAPI
-    @SuppressWarnings("CallToSystemGC")
     public static void fullGC() {
         RUNTIME.gc();
         RUNTIME.runFinalization();
@@ -122,7 +120,6 @@ public final class JVMHelper {
         }
     }
 
-    @SuppressWarnings("CallToSystemGetenv")
     private static int getCorrectOSArch() {
         // As always, mustdie must die
         if (OS_TYPE == OS.MUSTDIE)

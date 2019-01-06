@@ -1,10 +1,10 @@
 package ru.gravit.launchserver.manangers.hook;
 
-import ru.gravit.launchserver.response.auth.AuthResponse;
-import ru.gravit.launchserver.socket.Client;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import ru.gravit.launchserver.response.auth.AuthResponse;
+import ru.gravit.launchserver.socket.Client;
 
 public class AuthHookManager {
     private Set<AuthPreHook> PRE_HOOKS = new HashSet<>();

@@ -84,7 +84,6 @@ public final class LauncherConfig extends StreamObject {
     }
 
     @LauncherAPI
-    @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
     public LauncherConfig(String address, int port, RSAPublicKey publicKey, Map<String, byte[]> runtime, String projectname) {
         this.address = InetSocketAddress.createUnresolved(address, port);
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
@@ -97,7 +96,6 @@ public final class LauncherConfig extends StreamObject {
     }
 
     @LauncherAPI
-    @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
     public LauncherConfig(String address, int port, RSAPublicKey publicKey, Map<String, byte[]> runtime) {
         this.address = InetSocketAddress.createUnresolved(address, port);
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");

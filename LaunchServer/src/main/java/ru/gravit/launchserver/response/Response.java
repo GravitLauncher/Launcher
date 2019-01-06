@@ -104,8 +104,7 @@ public abstract class Response {
     public abstract void reply() throws Exception;
 
 
-    @SuppressWarnings("MethodMayBeStatic") // Intentionally not static
-    protected final void writeNoError(HOutput output) throws IOException {
+    protected static final void writeNoError(HOutput output) throws IOException {
         output.writeString("", 0);
     }
 }

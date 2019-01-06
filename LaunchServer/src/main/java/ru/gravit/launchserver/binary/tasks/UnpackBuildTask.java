@@ -1,16 +1,21 @@
 package ru.gravit.launchserver.binary.tasks;
 
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.UnpackHelper;
-
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.UnpackHelper;
+
 public class UnpackBuildTask implements LauncherBuildTask {
-    public static LaunchServer server = LaunchServer.server;
-    @Override
+    private final LaunchServer server;
+    
+    public UnpackBuildTask(LaunchServer server) {
+		this.server = server;
+	}
+
+	@Override
     public String getName() {
         return "UnpackFromResources";
     }

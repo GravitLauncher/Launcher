@@ -10,27 +10,23 @@ import ru.gravit.utils.helper.LogHelper;
 // Used by 1.6.4 and below versions
 @LauncherAPI
 public final class LegacyBridge {
-    @SuppressWarnings("unused")
     public static boolean checkServer(String username, String serverID) throws Exception {
         LogHelper.debug("LegacyBridge.checkServer, Username: '%s', Server ID: %s", username, serverID);
         return new CheckServerRequest(username, serverID).request() != null;
     }
 
-    @SuppressWarnings("unused")
     public static String getCloakURL(String username) {
         LogHelper.debug("LegacyBridge.getCloakURL: '%s'", username);
         return CommonHelper.replace(System.getProperty("launcher.legacy.cloaksURL",
                 "http://skins.minecraft.net/MinecraftCloaks/%username%.png"), "username", IOHelper.urlEncode(username));
     }
 
-    @SuppressWarnings("unused")
     public static String getSkinURL(String username) {
         LogHelper.debug("LegacyBridge.getSkinURL: '%s'", username);
         return CommonHelper.replace(System.getProperty("launcher.legacy.skinsURL",
                 "http://skins.minecraft.net/MinecraftSkins/%username%.png"), "username", IOHelper.urlEncode(username));
     }
 
-    @SuppressWarnings("unused")
     public static String joinServer(String username, String accessToken, String serverID) {
 
         // Join server

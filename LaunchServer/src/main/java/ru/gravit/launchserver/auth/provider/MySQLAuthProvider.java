@@ -5,8 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launcher.ClientPermissions;
+import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.MySQLSourceConfig;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.SecurityHelper;

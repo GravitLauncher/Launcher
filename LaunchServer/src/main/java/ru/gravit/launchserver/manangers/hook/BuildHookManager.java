@@ -10,7 +10,6 @@ import ru.gravit.launcher.AutogenConfig;
 import ru.gravit.launcher.modules.TestClientModule;
 import ru.gravit.launchserver.binary.BuildContext;
 import ru.gravit.launchserver.binary.JAConfigurator;
-import ru.gravit.launchserver.binary.JARLauncherBinary;
 import ru.gravit.launchserver.binary.tasks.MainBuildTask;
 import ru.gravit.launchserver.manangers.NodeTransformer;
 

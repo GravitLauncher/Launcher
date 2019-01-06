@@ -12,7 +12,6 @@ public class JsonRequestAdapter implements JsonSerializer<RequestInterface>, Jso
         this.service = service;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public RequestInterface deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();

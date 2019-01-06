@@ -1,21 +1,7 @@
 package ru.gravit.launchserver.binary.tasks;
 
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
-import ru.gravit.launcher.AutogenConfig;
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.binary.BuildContext;
-import ru.gravit.launchserver.binary.JAConfigurator;
-import ru.gravit.launchserver.binary.JARLauncherBinary;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.UnpackHelper;
+import static ru.gravit.utils.helper.IOHelper.newZipEntry;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -29,14 +15,26 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static ru.gravit.utils.helper.IOHelper.newZipEntry;
+import javassist.CannotCompileException;
+import javassist.NotFoundException;
+import ru.gravit.launcher.AutogenConfig;
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.binary.BuildContext;
+import ru.gravit.launchserver.binary.JAConfigurator;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.UnpackHelper;
 
 public class MainBuildTask implements LauncherBuildTask {
-    public static LaunchServer server = LaunchServer.server;
     public final Path runtimeDir;
     public final Path guardDir;
     public final Path binaryFile;
     public Path cleanJar;
+	private final LaunchServer server;
     private final class RuntimeDirVisitor extends SimpleFileVisitor<Path> {
         private final ZipOutputStream output;
         private final Map<String, byte[]> runtime;
@@ -106,7 +104,8 @@ public class MainBuildTask implements LauncherBuildTask {
     private static ZipEntry newGuardEntry(String fileName) {
         return newZipEntry(Launcher.GUARD_DIR + IOHelper.CROSS_SEPARATOR + fileName);
     }
-    public MainBuildTask() {
+    public MainBuildTask(LaunchServer srv) {
+    	server = srv;
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         guardDir = server.dir.resolve(Launcher.GUARD_DIR);
         binaryFile = server.dir.resolve(server.config.binaryName + "-main.jar");
