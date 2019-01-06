@@ -48,34 +48,5 @@ public final class JARLauncherBinary extends LauncherBinary {
         long time_end = System.currentTimeMillis();
         IOHelper.move(thisPath, syncBinaryFile);
         LogHelper.info("Build successful from %d millis",time_end - time_start);
-
-        // ProGuard
-
-        /*for (Runnable r : server.buildHookManager.getPostProguardRunHooks())
-            r.run();
-        try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(obfJar));
-             ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(obfOutJar))) {
-            ZipEntry e = input.getNextEntry();
-            while (e != null) {
-                String filename = e.getName();
-                output.putNextEntry(IOHelper.newZipEntry(e));
-                if (filename.endsWith(".class")) {
-                    String classname = filename.replace('/', '.').substring(0, filename.length() - ".class".length());
-                    byte[] bytes;
-                    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(2048)) {
-                        IOHelper.transfer(input, outputStream);
-                        bytes = outputStream.toByteArray();
-                    }
-                    //bytes = server.buildHookManager.proGuardClassTransform(bytes, classname, this);
-                    try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
-                        IOHelper.transfer(inputStream, output);
-                    }
-                } else
-                    IOHelper.transfer(input, output);
-                e = input.getNextEntry();
-            }
-            for (ZipBuildHook h : server.buildHookManager.getProguardBuildHooks())
-                h.build(output);
-        }*/
     }
 }
