@@ -47,7 +47,7 @@ public final class JARLauncherBinary extends LauncherBinary {
             long time_task_end = System.currentTimeMillis();
             long time_task = time_task_end - time_this;
             time_this = time_task_end;
-            if(isNeedDelete) Files.delete(oldPath);
+            if (isNeedDelete) Files.delete(oldPath);
             isNeedDelete = task.allowDelete();
             LogHelper.subInfo("Task %s processed from %d millis",task.getName(), time_task);
         }

@@ -195,6 +195,7 @@ public class MainBuildTask implements LauncherBuildTask {
         } catch (CannotCompileException | NotFoundException e) {
             LogHelper.error(e);
         }
+        reader.close();
         return binaryFile;
     }
 

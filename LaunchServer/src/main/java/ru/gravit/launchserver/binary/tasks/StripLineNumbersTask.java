@@ -53,6 +53,7 @@ public class StripLineNumbersTask implements LauncherBuildTask {
                 e = input.getNextEntry();
             }
         }
+		reader.close();
 		return out;
 	}
 

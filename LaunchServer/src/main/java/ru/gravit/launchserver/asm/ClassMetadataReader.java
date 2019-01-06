@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.asm;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import ru.gravit.utils.helper.IOHelper;
  * Позволяет искать методы внутри незагруженных классов и общие суперклассы для
  * чего угодно. Работает через поиск class-файлов в classpath.
  */
-public class ClassMetadataReader {
+public class ClassMetadataReader implements Closeable {
     private class CheckSuperClassVisitor extends ClassVisitor {
 
         String superClassName;
@@ -95,5 +96,10 @@ public class ClassMetadataReader {
         Collections.reverse(superclasses);
         return superclasses;
     }
+
+	@Override
+	public void close() throws IOException {
+		cp.stream().forEach(IOHelper::close);		
+	}
 
 }
