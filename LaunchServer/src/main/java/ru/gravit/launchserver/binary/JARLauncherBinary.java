@@ -15,7 +15,6 @@ import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 public final class JARLauncherBinary extends LauncherBinary {
-    //public ClassMetadataReader reader;
     public ArrayList<LauncherBuildTask> tasks;
     public JARLauncherBinary(LaunchServer server) throws IOException {
         super(server);
@@ -29,7 +28,6 @@ public final class JARLauncherBinary extends LauncherBinary {
 
     @Override
     public void build() throws IOException {
-        // Build launcher binary
         LogHelper.info("Building launcher binary file");
         Path thisPath = null;
         boolean isNeedDelete = false;
