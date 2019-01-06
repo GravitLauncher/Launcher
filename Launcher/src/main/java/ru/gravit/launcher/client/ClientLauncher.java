@@ -335,16 +335,12 @@ public final class ClientLauncher {
                 LogHelper.error(e);
             }
         }).start();
-        // Resolve java bin and set permissions
-        LogHelper.debug("Resolving JVM binary");
-        //Path javaBin = IOHelper.resolveJavaBin(jvmDir);
         checkJVMBitsAndVersion();
         // Fill CLI arguments
         List<String> args = new LinkedList<>();
         boolean wrapper = isUsingWrapper();
-        Path javaBin;
-        /*if (wrapper) javaBin = AvanguardStarter.wrapper;
-        else*/
+        LogHelper.debug("Resolving JVM binary");
+        Path javaBin = null;
         if (isDownloadJava) {
             //Linux и Mac не должны скачивать свою JVM
             if (JVMHelper.OS_TYPE == OS.MUSTDIE)
