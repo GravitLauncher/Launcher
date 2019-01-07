@@ -411,7 +411,7 @@ var serverHolder = {
     set: function(btn){
         pingServer(btn);
         serverLabel.setText("СЕРВЕР " + profilesList[btn]);
-        serverDescription.setText(serversConfig.getServerProperty(profilesList[btn], "description"));
+        serverDescription.setText(profilesList[btn].info);
         btn.setSelected(true);
         btn.setDisable(true);
         if(serverHolder.old!=null){
