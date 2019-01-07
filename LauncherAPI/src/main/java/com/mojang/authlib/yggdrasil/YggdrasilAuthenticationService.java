@@ -10,7 +10,6 @@ import ru.gravit.utils.helper.LogHelper;
 import java.net.Proxy;
 
 public final class YggdrasilAuthenticationService implements AuthenticationService {
-    @SuppressWarnings("UnusedParameters")
     public YggdrasilAuthenticationService(Proxy proxy, String clientToken) {
         LogHelper.debug("Patched AuthenticationService created: '%s'", clientToken);
     }

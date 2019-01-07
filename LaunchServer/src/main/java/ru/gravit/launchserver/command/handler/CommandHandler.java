@@ -44,7 +44,13 @@ import ru.gravit.launchserver.command.hash.SyncUpdatesCommand;
 import ru.gravit.launchserver.command.hash.UnindexAssetCommand;
 import ru.gravit.launchserver.command.modules.LoadModuleCommand;
 import ru.gravit.launchserver.command.modules.ModulesCommand;
-import ru.gravit.launchserver.command.service.*;
+import ru.gravit.launchserver.command.service.ConfigCommand;
+import ru.gravit.launchserver.command.service.ConfigHelpCommand;
+import ru.gravit.launchserver.command.service.ConfigListCommand;
+import ru.gravit.launchserver.command.service.ReloadAllCommand;
+import ru.gravit.launchserver.command.service.ReloadCommand;
+import ru.gravit.launchserver.command.service.ReloadListCommand;
+import ru.gravit.launchserver.command.service.SwapAuthProviderCommand;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 

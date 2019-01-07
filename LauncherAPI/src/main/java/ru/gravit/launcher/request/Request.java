@@ -54,7 +54,6 @@ public abstract class Request<R> {
     }
 
     @LauncherAPI
-    @SuppressWarnings("DesignForExtension")
     public R request() throws Exception {
         if (!started.compareAndSet(false, true))
             throw new IllegalStateException("Request already started");

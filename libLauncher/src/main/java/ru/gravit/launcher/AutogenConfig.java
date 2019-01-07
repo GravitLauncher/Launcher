@@ -5,7 +5,8 @@ public class AutogenConfig {
     public String address;
     public int port;
     public int clientPort;
-    private boolean isInitModules;
+    @SuppressWarnings("unused")
+	private boolean isInitModules;
     public boolean isUsingWrapper;
     public boolean isDownloadJava; //Выставление этого флага требует модификации runtime части
     public String secretKeyClient;
@@ -17,11 +18,8 @@ public class AutogenConfig {
     // 3 - Production (дебаг выключен, минимальный объем сообщений, stacktrace не выводится)
 
     AutogenConfig() {
-
     }
 
-    @SuppressWarnings("UnnecessaryReturnStatement")
     public void initModules() {
-        if (isInitModules) return;
     }
 }

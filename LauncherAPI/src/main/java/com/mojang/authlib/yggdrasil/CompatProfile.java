@@ -7,7 +7,6 @@ import ru.gravit.utils.helper.SecurityHelper;
 
 import java.util.UUID;
 
-@SuppressWarnings("unused")
 @LauncherAPI
 public final class CompatProfile {
     public static final String SKIN_URL_PROPERTY = Launcher.SKIN_URL_PROPERTY;

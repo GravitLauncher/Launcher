@@ -1,11 +1,11 @@
 package ru.gravit.launchserver.manangers.hook;
 
-import ru.gravit.launcher.request.RequestException;
-import ru.gravit.launchserver.socket.SocketContext;
-
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
+
+import ru.gravit.launcher.request.RequestException;
+import ru.gravit.launchserver.socket.SocketContext;
 
 public class SocketHookManager {
     @FunctionalInterface

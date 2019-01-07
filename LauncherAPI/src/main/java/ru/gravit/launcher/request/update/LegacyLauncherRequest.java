@@ -93,7 +93,6 @@ public final class LegacyLauncherRequest extends Request<Result> {
     }
 
     @Override
-    @SuppressWarnings("CallToSystemExit")
     protected Result requestDo(HInput input, HOutput output) throws Exception {
         output.writeBoolean(EXE_BINARY);
         output.flush();

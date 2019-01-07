@@ -1,21 +1,7 @@
 package ru.gravit.launchserver.binary.tasks;
 
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
-import ru.gravit.launcher.AutogenConfig;
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.binary.BuildContext;
-import ru.gravit.launchserver.binary.JAConfigurator;
-import ru.gravit.launchserver.binary.JARLauncherBinary;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.UnpackHelper;
+import static ru.gravit.utils.helper.IOHelper.newZipEntry;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -24,17 +10,31 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static ru.gravit.utils.helper.IOHelper.newZipEntry;
+import javassist.CannotCompileException;
+import javassist.NotFoundException;
+import ru.gravit.launcher.AutogenConfig;
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.asm.ClassMetadataReader;
+import ru.gravit.launchserver.binary.BuildContext;
+import ru.gravit.launchserver.binary.JAConfigurator;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 
 public class MainBuildTask implements LauncherBuildTask {
-    public static LaunchServer server = LaunchServer.server;
     public final Path binaryFile;
     public Path cleanJar;
+	private final LaunchServer server;
+	public final ClassMetadataReader reader;
     private final class RuntimeDirVisitor extends SimpleFileVisitor<Path> {
         private final ZipOutputStream output;
         private final Map<String, byte[]> runtime;
@@ -46,14 +46,14 @@ public class MainBuildTask implements LauncherBuildTask {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            String dirName = IOHelper.toString(UnpackBuildTask.runtimeDir.relativize(dir));
+            String dirName = IOHelper.toString(server.launcherBinary.runtimeDir.relativize(dir));
             output.putNextEntry(newEntry(dirName + '/'));
             return super.preVisitDirectory(dir, attrs);
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            String fileName = IOHelper.toString(UnpackBuildTask.runtimeDir.relativize(file));
+            String fileName = IOHelper.toString(server.launcherBinary.runtimeDir.relativize(file));
             runtime.put(fileName, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, file));
 
             // Create zip entry and transfer contents
@@ -65,8 +65,6 @@ public class MainBuildTask implements LauncherBuildTask {
         }
     }
 
-    // TODO: new native security wrapper and library...
-    @SuppressWarnings("unused")
     private final class GuardDirVisitor extends SimpleFileVisitor<Path> {
         private final ZipOutputStream output;
         private final Map<String, byte[]> guard;
@@ -78,14 +76,14 @@ public class MainBuildTask implements LauncherBuildTask {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            String dirName = IOHelper.toString(UnpackBuildTask.guardDir.relativize(dir));
+            String dirName = IOHelper.toString(server.launcherBinary.guardDir.relativize(dir));
             output.putNextEntry(newGuardEntry(dirName + '/'));
             return super.preVisitDirectory(dir, attrs);
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            String fileName = IOHelper.toString(UnpackBuildTask.guardDir.relativize(file));
+            String fileName = IOHelper.toString(server.launcherBinary.guardDir.relativize(file));
             guard.put(fileName, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, file));
 
             // Create zip entry and transfer contents
@@ -104,8 +102,11 @@ public class MainBuildTask implements LauncherBuildTask {
     private static ZipEntry newGuardEntry(String fileName) {
         return newZipEntry(Launcher.GUARD_DIR + IOHelper.CROSS_SEPARATOR + fileName);
     }
-    public MainBuildTask() {
+
+    public MainBuildTask(LaunchServer srv) {
+    	server = srv;
         binaryFile = server.dir.resolve(server.config.binaryName + "-main.jar");
+        reader = new ClassMetadataReader();
     }
 
     @Override
@@ -120,7 +121,7 @@ public class MainBuildTask implements LauncherBuildTask {
              JAConfigurator jaConfigurator = new JAConfigurator(AutogenConfig.class.getName(), this)) {
             jaConfigurator.pool.insertClassPath(cleanJar.toFile().getAbsolutePath());
             BuildContext context = new BuildContext(output, jaConfigurator, this);
-            server.buildHookManager.preHook(context);
+            server.buildHookManager.hook(context);
             jaConfigurator.setAddress(server.config.getAddress());
             jaConfigurator.setPort(server.config.port);
             jaConfigurator.setProjectName(server.config.projectName);
@@ -130,6 +131,7 @@ public class MainBuildTask implements LauncherBuildTask {
             jaConfigurator.setDownloadJava(server.config.isDownloadJava);
             jaConfigurator.setEnv(server.config.env);
             server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
+            reader.getCp().add(new JarFile(cleanJar.toFile()));
             try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(cleanJar))) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
@@ -145,7 +147,7 @@ public class MainBuildTask implements LauncherBuildTask {
                         e = input.getNextEntry();
                         continue;
                     }
-                    /*if (filename.endsWith(".class")) {
+                    if (filename.endsWith(".class")) {
                         String classname = filename.replace('/', '.').substring(0,
                                 filename.length() - ".class".length());
                         byte[] bytes;
@@ -154,10 +156,8 @@ public class MainBuildTask implements LauncherBuildTask {
                             bytes = outputStream.toByteArray();
                         }
                         bytes = server.buildHookManager.classTransform(bytes, classname, this);
-                        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
-                            IOHelper.transfer(inputStream, output);
-                        }
-                    } else */
+                        output.write(bytes);
+                    } else 
                         IOHelper.transfer(input, output);
                     context.fileList.add(filename);
                     e = input.getNextEntry();
@@ -172,8 +172,8 @@ public class MainBuildTask implements LauncherBuildTask {
             Map<String, byte[]> runtime = new HashMap<>(256);
             if (server.buildHookManager.buildRuntime()) {
                 // Write launcher guard dir
-                IOHelper.walk(UnpackBuildTask.runtimeDir, new RuntimeDirVisitor(output, runtime), false);
-                // IOHelper.walk(guardDir, new GuardDirVisitor(output, runtime), false);
+                IOHelper.walk(server.launcherBinary.runtimeDir, new RuntimeDirVisitor(output, runtime), false);
+                IOHelper.walk(server.launcherBinary.guardDir, new GuardDirVisitor(output, runtime), false);
             }
             // Create launcher config file
             byte[] launcherConfigBytes;
@@ -192,10 +192,10 @@ public class MainBuildTask implements LauncherBuildTask {
             output.putNextEntry(e);
             jaConfigurator.compile();
             output.write(jaConfigurator.getBytecode());
-            server.buildHookManager.postHook(context);
         } catch (CannotCompileException | NotFoundException e) {
             LogHelper.error(e);
         }
+        reader.close();
         return binaryFile;
     }
 

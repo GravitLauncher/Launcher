@@ -46,7 +46,6 @@ public class ServerAgent {
     public static Boolean isAutoloadLibraries = Boolean.getBoolean(System.getProperty("serverwrapper,agentlibrariesload", "false"));
     public static Boolean isAgentProxy = Boolean.getBoolean(System.getProperty("serverwrapper,agentproxy", "false"));
 
-    @SuppressWarnings("JavaLangInvokeHandleSignature")
     public static void premain(String agentArgument, Instrumentation instrumentation) {
         LogHelper.debug("Server Agent");
         inst = instrumentation;

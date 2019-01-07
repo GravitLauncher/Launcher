@@ -17,11 +17,9 @@ import ru.gravit.utils.helper.LogHelper;
 public final class JsonHWIDHandler extends HWIDHandler {
     private static final Gson gson = new Gson();
 
-    @SuppressWarnings("unused")
     private URL url;
     private URL urlBan;
     private URL urlUnBan;
-    @SuppressWarnings("unused")
     private URL urlGet;
 
     public class banRequest {

@@ -65,7 +65,11 @@ import ru.gravit.launchserver.config.AuthProviderAdapter;
 import ru.gravit.launchserver.config.HWIDHandlerAdapter;
 import ru.gravit.launchserver.config.PermissionsHandlerAdapter;
 import ru.gravit.launchserver.config.TextureProviderAdapter;
-import ru.gravit.launchserver.manangers.*;
+import ru.gravit.launchserver.manangers.MirrorManager;
+import ru.gravit.launchserver.manangers.ModulesManager;
+import ru.gravit.launchserver.manangers.ReconfigurableManager;
+import ru.gravit.launchserver.manangers.ReloadManager;
+import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.launchserver.manangers.hook.AuthHookManager;
 import ru.gravit.launchserver.manangers.hook.BuildHookManager;
 import ru.gravit.launchserver.manangers.hook.SocketHookManager;
@@ -82,7 +86,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 public final class LaunchServer implements Runnable {
     public static final class Config {
-        public int port;
+		public int port;
 
         private String address;
 
@@ -127,7 +131,6 @@ public final class LaunchServer implements Runnable {
 
         public String authRejectString;
 
-
         public String whitelistRejectString;
 
         public boolean genMappings;
@@ -136,6 +139,7 @@ public final class LaunchServer implements Runnable {
 
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
+        public boolean stripLineNumbers;
 
 		public String startScript;
 
@@ -264,7 +268,8 @@ public final class LaunchServer implements Runnable {
     public final Path privateKeyFile;
 
     public final Path updatesDir;
-    public static LaunchServer server;
+    
+    public static LaunchServer server = null;
 
     public final Path profilesDir;
     // Server config
@@ -277,7 +282,7 @@ public final class LaunchServer implements Runnable {
     public final RSAPrivateKey privateKey;
     // Launcher binary
 
-    public final LauncherBinary launcherBinary;
+    public final JARLauncherBinary launcherBinary;
 
     public final LauncherBinary launcherEXEBinary;
     // HWID ban + anti-brutforce
@@ -572,8 +577,8 @@ public final class LaunchServer implements Runnable {
         
         newConfig.threadCoreCount = 0; // on your own
         newConfig.enabledProGuard = true;
+        newConfig.stripLineNumbers = false;
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
-
         // Set server address
         LogHelper.println("LaunchServer address: ");
         newConfig.setAddress(commandHandler.readLine());
@@ -587,8 +592,6 @@ public final class LaunchServer implements Runnable {
         }
     }
 
-
-    @SuppressWarnings("ReturnOfCollectionOrArrayField")
     public Collection<ClientProfile> getProfiles() {
         return profilesList;
     }

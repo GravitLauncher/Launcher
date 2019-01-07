@@ -279,9 +279,6 @@ public final class ClientLauncher {
     }
 
     private static void launch(ClientProfile profile, Params params) throws Throwable {
-        // Add natives path
-        //JVMHelper.addNativePath(params.clientDir.resolve(NATIVES_DIR));
-
         // Add client args
         Collection<String> args = new LinkedList<>();
         if (profile.getVersion().compareTo(ClientProfile.Version.MC164) >= 0)
@@ -338,16 +335,12 @@ public final class ClientLauncher {
                 LogHelper.error(e);
             }
         }).start();
-        // Resolve java bin and set permissions
-        LogHelper.debug("Resolving JVM binary");
-        //Path javaBin = IOHelper.resolveJavaBin(jvmDir);
         checkJVMBitsAndVersion();
         // Fill CLI arguments
         List<String> args = new LinkedList<>();
         boolean wrapper = isUsingWrapper();
-        Path javaBin;
-        /*if (wrapper) javaBin = AvanguardStarter.wrapper;
-        else*/
+        LogHelper.debug("Resolving JVM binary");
+        Path javaBin = null;
         if (isDownloadJava) {
             //Linux и Mac не должны скачивать свою JVM
             if (JVMHelper.OS_TYPE == OS.MUSTDIE)

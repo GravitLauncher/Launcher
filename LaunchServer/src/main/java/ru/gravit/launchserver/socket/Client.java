@@ -1,7 +1,7 @@
 package ru.gravit.launchserver.socket;
 
-import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.ClientPermissions;
+import ru.gravit.launcher.profiles.ClientProfile;
 
 public class Client {
     public long session;

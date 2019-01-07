@@ -7,7 +7,7 @@ import java.lang.instrument.Instrumentation;
 import java.util.jar.JarFile;
 
 @LauncherAPI
-public class LauncherAgent {
+public final class LauncherAgent {
     private static boolean isAgentStarted = false;
     public static Instrumentation inst;
 

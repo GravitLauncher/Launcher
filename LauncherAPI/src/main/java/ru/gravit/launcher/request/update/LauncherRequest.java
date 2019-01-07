@@ -83,7 +83,6 @@ public final class LauncherRequest extends Request<LauncherRequest.Result> {
     }
 
     @Override
-    @SuppressWarnings("CallToSystemExit")
     protected Result requestDo(HInput input, HOutput output) throws Exception {
         Path launcherPath = IOHelper.getCodeSource(LauncherRequest.class);
         byte[] digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);

@@ -1,17 +1,22 @@
 package ru.gravit.launchserver.binary.tasks;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 import proguard.Configuration;
 import proguard.ConfigurationParser;
 import proguard.ParseException;
 import proguard.ProGuard;
 import ru.gravit.launchserver.LaunchServer;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
 public class ProGuardBuildTask implements LauncherBuildTask {
-    public static LaunchServer server = LaunchServer.server;
-    @Override
+    private final LaunchServer server;
+
+    public ProGuardBuildTask(LaunchServer server) {
+    	this.server = server;
+    }
+
+	@Override
     public String getName() {
         return "ProGuard";
     }

@@ -1,7 +1,7 @@
 package ru.gravit.launchserver.auth.provider;
 
-import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launcher.ClientPermissions;
+import ru.gravit.launchserver.LaunchServer;
 
 
 public class AuthProviderResult {

@@ -19,7 +19,6 @@ public final class RestartCommand extends Command {
     }
 
     @Override
-    @SuppressWarnings("CallToSystemExit")
     public void invoke(String... args) {
     	server.fullyRestart();
     }
