@@ -50,8 +50,8 @@ import ru.gravit.launchserver.fileserver.FileServerHandler;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.websocket.WebSocketFrameHandler;
 import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 @SuppressWarnings({"unused", "rawtypes"})
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {

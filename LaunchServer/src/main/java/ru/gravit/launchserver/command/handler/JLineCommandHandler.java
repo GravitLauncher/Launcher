@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import jline.console.ConsoleReader;
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.LogHelper.Output;
+import ru.gravit.utils.logging.LogHelper;
+import ru.gravit.utils.logging.LogHelper.Output;
 
 public final class JLineCommandHandler extends CommandHandler {
     private final class JLineOutput implements Output {

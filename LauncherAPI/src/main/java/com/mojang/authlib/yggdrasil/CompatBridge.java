@@ -8,7 +8,7 @@ import ru.gravit.launcher.request.uuid.BatchProfileByUsernameRequest;
 import ru.gravit.launcher.request.uuid.ProfileByUUIDRequest;
 import ru.gravit.launcher.request.uuid.ProfileByUsernameRequest;
 import ru.gravit.launcher.serialize.SerializeLimits;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.util.UUID;
 

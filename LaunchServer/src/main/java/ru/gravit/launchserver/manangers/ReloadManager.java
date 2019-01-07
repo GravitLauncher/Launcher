@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import ru.gravit.launchserver.Reloadable;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class ReloadManager {
     private final HashMap<String,Reloadable> RELOADABLES = new HashMap<>();

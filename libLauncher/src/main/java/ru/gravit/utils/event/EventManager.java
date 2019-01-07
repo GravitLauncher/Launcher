@@ -1,7 +1,7 @@
 package ru.gravit.utils.event;
 
 import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;

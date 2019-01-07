@@ -9,7 +9,7 @@ import javafx.css.StyleableProperty;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;

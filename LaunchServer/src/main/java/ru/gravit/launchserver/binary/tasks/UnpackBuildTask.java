@@ -2,8 +2,8 @@ package ru.gravit.launchserver.binary.tasks;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.UnpackHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

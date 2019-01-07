@@ -5,7 +5,8 @@ import com.mojang.authlib.AuthenticationService;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.UserAuthentication;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import ru.gravit.utils.helper.LogHelper;
+
+import ru.gravit.utils.logging.LogHelper;
 
 import java.net.Proxy;
 

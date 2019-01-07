@@ -14,7 +14,7 @@ import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
 import ru.gravit.utils.HttpDownloader;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class DownloadClientCommand extends Command {
 

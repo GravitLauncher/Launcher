@@ -2,7 +2,7 @@ package ru.gravit.launchserver.command.service;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class ConfigCommand extends Command {
     public ConfigCommand(LaunchServer server) {

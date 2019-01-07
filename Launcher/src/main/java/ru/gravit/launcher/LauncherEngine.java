@@ -5,6 +5,7 @@ import ru.gravit.launcher.client.*;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.gui.RuntimeProvider;
 import ru.gravit.utils.helper.*;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.time.Duration;
 import java.time.Instant;

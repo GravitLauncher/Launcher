@@ -1,7 +1,7 @@
 package ru.gravit.utils;
 
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;

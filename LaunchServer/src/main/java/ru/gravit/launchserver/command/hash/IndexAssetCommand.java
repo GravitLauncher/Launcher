@@ -16,9 +16,9 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class IndexAssetCommand extends Command {
     private static Gson gson = new Gson();

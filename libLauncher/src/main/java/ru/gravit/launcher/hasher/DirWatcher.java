@@ -8,7 +8,7 @@ import ru.gravit.utils.NativeJVMHalt;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.JVMHelper.OS;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.*;

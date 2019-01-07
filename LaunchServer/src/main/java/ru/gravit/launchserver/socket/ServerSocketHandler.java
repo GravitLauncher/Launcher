@@ -16,7 +16,7 @@ import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class ServerSocketHandler implements Runnable, AutoCloseable {
     public interface Listener {

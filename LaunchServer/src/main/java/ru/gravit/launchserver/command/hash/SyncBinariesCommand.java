@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class SyncBinariesCommand extends Command {
     public SyncBinariesCommand(LaunchServer server) {

@@ -5,8 +5,8 @@ import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.EnumSerializer;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

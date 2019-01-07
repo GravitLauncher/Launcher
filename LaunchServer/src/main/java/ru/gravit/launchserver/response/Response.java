@@ -23,7 +23,7 @@ import ru.gravit.launchserver.response.update.LegacyLauncherResponse;
 import ru.gravit.launchserver.response.update.ProfilesResponse;
 import ru.gravit.launchserver.response.update.UpdateListResponse;
 import ru.gravit.launchserver.response.update.UpdateResponse;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public abstract class Response {
     @FunctionalInterface

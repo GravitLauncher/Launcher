@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import ru.gravit.launchserver.Reconfigurable;
 import ru.gravit.launchserver.auth.AuthException;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class RejectAuthProvider extends AuthProvider implements Reconfigurable {
     public RejectAuthProvider() {

@@ -14,8 +14,8 @@ import ru.gravit.launchserver.manangers.SessionManager;
 import ru.gravit.launchserver.manangers.hook.SocketHookManager;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class ResponseThread implements Runnable {
     class Handshake {

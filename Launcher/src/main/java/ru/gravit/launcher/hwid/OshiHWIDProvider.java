@@ -5,7 +5,7 @@ import oshi.hardware.*;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.LauncherHWIDInterface;
 import ru.gravit.launcher.OshiHWID;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class OshiHWIDProvider implements LauncherHWIDInterface {
     public SystemInfo systemInfo;

@@ -8,7 +8,7 @@ import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.profiles.Texture;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class RequestTextureProvider extends TextureProvider {
     public RequestTextureProvider() {

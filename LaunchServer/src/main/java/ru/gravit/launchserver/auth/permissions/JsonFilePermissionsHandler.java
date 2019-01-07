@@ -15,7 +15,7 @@ import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.Reloadable;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class JsonFilePermissionsHandler extends PermissionsHandler implements Reloadable {
     public String filename = "permissions.json";

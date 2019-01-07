@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import ru.gravit.launchserver.Reconfigurable;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class ReconfigurableManager {
     private final HashMap<String, Reconfigurable> RECONFIGURABLE = new HashMap<>();

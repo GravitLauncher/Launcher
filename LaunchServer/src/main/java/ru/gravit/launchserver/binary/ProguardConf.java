@@ -12,8 +12,8 @@ import java.util.ArrayList;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class ProguardConf {
     private static final String charsFirst = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";

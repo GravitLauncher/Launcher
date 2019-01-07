@@ -12,8 +12,8 @@ import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.io.*;
 import java.lang.invoke.MethodHandle;

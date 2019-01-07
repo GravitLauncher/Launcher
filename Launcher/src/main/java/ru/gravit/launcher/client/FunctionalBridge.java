@@ -13,7 +13,7 @@ import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

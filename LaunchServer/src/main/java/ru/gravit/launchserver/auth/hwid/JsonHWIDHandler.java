@@ -12,7 +12,7 @@ import com.google.gson.JsonElement;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.OshiHWID;
 import ru.gravit.utils.HTTPRequest;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class JsonHWIDHandler extends HWIDHandler {
     private static final Gson gson = new Gson();

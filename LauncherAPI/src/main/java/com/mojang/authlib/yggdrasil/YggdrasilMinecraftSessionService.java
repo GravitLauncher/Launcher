@@ -18,8 +18,8 @@ import ru.gravit.launcher.request.auth.CheckServerRequest;
 import ru.gravit.launcher.request.auth.JoinServerRequest;
 import ru.gravit.launcher.request.uuid.ProfileByUUIDRequest;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.net.InetAddress;
 import java.util.Base64;

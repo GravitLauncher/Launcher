@@ -11,7 +11,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
     public static LaunchServer server;

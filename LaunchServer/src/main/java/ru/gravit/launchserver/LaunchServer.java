@@ -80,9 +80,9 @@ import ru.gravit.launchserver.texture.TextureProvider;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class LaunchServer implements Runnable {
     public static final class Config {

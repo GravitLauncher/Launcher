@@ -9,9 +9,9 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.Client;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class JoinServerResponse extends Response {
 

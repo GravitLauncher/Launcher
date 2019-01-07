@@ -5,7 +5,7 @@ import java.nio.file.Files;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class EXELauncherBinary extends LauncherBinary {
 

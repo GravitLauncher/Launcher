@@ -1,4 +1,4 @@
-package ru.gravit.utils.helper;
+package ru.gravit.utils.logging;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
@@ -6,6 +6,7 @@ import org.fusesource.jansi.AnsiConsole;
 import org.fusesource.jansi.AnsiOutputStream;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.utils.helper.IOHelper;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -34,7 +35,8 @@ public final class LogHelper {
     private static final AtomicBoolean STACKTRACE_ENABLED = new AtomicBoolean(Boolean.getBoolean(STACKTRACE_PROPERTY));
     private static final Set<Output> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
     private static final Output STD_OUTPUT;
-
+    public static ILogHandler handler = null;
+    
     private LogHelper() {
     }
 
@@ -71,7 +73,7 @@ public final class LogHelper {
 
     @LauncherAPI
     public static void error(Throwable exc) {
-        error(isStacktraceEnabled() ? toString(exc) : exc.toString());
+    	error(handler.canExc(exc) ? handler.exc(exc) : isStacktraceEnabled() ? toString(exc) : exc.toString());
     }
 
     @LauncherAPI
@@ -117,8 +119,8 @@ public final class LogHelper {
     @LauncherAPI
     public static void log(Level level, String message, boolean sub) {
         String dateTime = DATE_TIME_FORMATTER.format(LocalDateTime.now());
-        println(JANSI ? ansiFormatLog(level, dateTime, message, sub) :
-                formatLog(level, message, dateTime, sub));
+        println(JANSI ? ansiFormatLog(level, dateTime, handler.process(message), sub) :
+                formatLog(level, handler.process(message), dateTime, sub));
     }
 
     @LauncherAPI
@@ -279,7 +281,7 @@ public final class LogHelper {
         return String.format("License for %s GPLv3. SourceCode: https://github.com/GravitLauncher/Launcher", product);
     }
 
-    static {
+	static {
         // Use JAnsi if available
         boolean jansi;
         try {

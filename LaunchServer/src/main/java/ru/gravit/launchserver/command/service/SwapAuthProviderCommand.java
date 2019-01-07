@@ -5,7 +5,7 @@ import ru.gravit.launchserver.auth.provider.AcceptAuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
 import ru.gravit.launchserver.command.Command;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class SwapAuthProviderCommand extends Command {
     public AuthProvider[] providersCache;

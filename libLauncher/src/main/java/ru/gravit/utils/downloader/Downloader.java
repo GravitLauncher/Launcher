@@ -1,7 +1,7 @@
 package ru.gravit.utils.downloader;
 
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedInputStream;

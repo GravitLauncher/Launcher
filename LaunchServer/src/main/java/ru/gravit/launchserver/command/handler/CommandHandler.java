@@ -51,8 +51,8 @@ import ru.gravit.launchserver.command.service.ReloadAllCommand;
 import ru.gravit.launchserver.command.service.ReloadCommand;
 import ru.gravit.launchserver.command.service.ReloadListCommand;
 import ru.gravit.launchserver.command.service.SwapAuthProviderCommand;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public abstract class CommandHandler implements Runnable {
     private static String[] parse(CharSequence line) throws CommandException {

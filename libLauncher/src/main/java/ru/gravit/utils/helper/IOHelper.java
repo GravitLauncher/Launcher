@@ -2,6 +2,7 @@ package ru.gravit.utils.helper;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.utils.logging.LogHelper;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;

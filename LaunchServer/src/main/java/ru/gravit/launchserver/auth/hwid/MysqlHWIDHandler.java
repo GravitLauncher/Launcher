@@ -11,7 +11,7 @@ import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.OshiHWID;
 import ru.gravit.launchserver.auth.MySQLSourceConfig;
 import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class MysqlHWIDHandler extends HWIDHandler {
     private MySQLSourceConfig mySQLHolder;

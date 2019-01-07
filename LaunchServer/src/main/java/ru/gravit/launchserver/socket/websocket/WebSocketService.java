@@ -22,7 +22,7 @@ import ru.gravit.launchserver.socket.websocket.json.auth.CheckServerResponse;
 import ru.gravit.launchserver.socket.websocket.json.auth.JoinServerResponse;
 import ru.gravit.launchserver.socket.websocket.json.update.LauncherResponse;
 import ru.gravit.launchserver.socket.websocket.json.update.UpdateListResponse;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 @SuppressWarnings({"unused", "rawtypes"})
 public class WebSocketService {

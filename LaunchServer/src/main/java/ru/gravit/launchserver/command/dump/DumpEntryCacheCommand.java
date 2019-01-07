@@ -10,7 +10,7 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.handler.CachedAuthHandler;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class DumpEntryCacheCommand extends Command {
     public DumpEntryCacheCommand(LaunchServer server) {

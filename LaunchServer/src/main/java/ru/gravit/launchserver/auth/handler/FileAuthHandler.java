@@ -17,9 +17,9 @@ import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public abstract class FileAuthHandler extends AuthHandler {
     public static final class Entry extends StreamObject {

@@ -27,8 +27,8 @@ import ru.gravit.launchserver.asm.ClassMetadataReader;
 import ru.gravit.launchserver.binary.BuildContext;
 import ru.gravit.launchserver.binary.JAConfigurator;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public class MainBuildTask implements LauncherBuildTask {
     public final Path binaryFile;

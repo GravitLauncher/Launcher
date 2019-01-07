@@ -7,7 +7,7 @@ import java.util.Set;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class SyncUpdatesCommand extends Command {
     public SyncUpdatesCommand(LaunchServer server) {

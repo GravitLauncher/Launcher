@@ -4,7 +4,7 @@ import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class GCCommand extends Command {
     public GCCommand(LaunchServer server) {

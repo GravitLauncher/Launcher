@@ -13,7 +13,7 @@ import ru.gravit.launchserver.binary.tasks.ProGuardBuildTask;
 import ru.gravit.launchserver.binary.tasks.StripLineNumbersTask;
 import ru.gravit.launchserver.binary.tasks.UnpackBuildTask;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 public final class JARLauncherBinary extends LauncherBinary {
     public ArrayList<LauncherBuildTask> tasks;

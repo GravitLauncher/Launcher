@@ -1,6 +1,7 @@
 package ru.gravit.utils.helper;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.io.File;
 import java.lang.invoke.MethodHandles;

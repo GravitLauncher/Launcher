@@ -8,6 +8,7 @@ import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.helper.*;
+import ru.gravit.utils.logging.LogHelper;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;

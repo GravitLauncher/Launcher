@@ -2,7 +2,7 @@ package ru.gravit.launcher.modules;
 
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

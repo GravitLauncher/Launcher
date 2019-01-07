@@ -18,6 +18,7 @@ import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.*;
 import ru.gravit.utils.helper.JVMHelper.OS;
+import ru.gravit.utils.logging.LogHelper;
 
 import javax.swing.*;
 import java.io.IOException;

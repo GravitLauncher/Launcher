@@ -6,7 +6,7 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.logging.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;

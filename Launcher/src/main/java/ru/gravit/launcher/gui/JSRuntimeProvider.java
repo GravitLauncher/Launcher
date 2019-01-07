@@ -37,6 +37,7 @@ import ru.gravit.launcher.serialize.stream.EnumSerializer;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.utils.HTTPRequest;
 import ru.gravit.utils.helper.*;
+import ru.gravit.utils.logging.LogHelper;
 
 import javax.script.*;
 import java.io.BufferedReader;
