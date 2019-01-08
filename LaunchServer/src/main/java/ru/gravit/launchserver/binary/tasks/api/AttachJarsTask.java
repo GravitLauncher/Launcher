@@ -51,7 +51,7 @@ public class AttachJarsTask implements LauncherBuildTask {
 			ZipEntry e = input.getNextEntry();
 				while (e != null) {
 					String filename = e.getName();
-					if (exclusions.stream().noneMatch(exc -> filename.startsWith(exc))) {
+					if (exclusions.stream().noneMatch(filename::startsWith)) {
 						output.putNextEntry(IOHelper.newZipEntry(e));
 						IOHelper.transfer(input, output);
 					}

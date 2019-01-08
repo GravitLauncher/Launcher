@@ -140,7 +140,8 @@ public final class LaunchServer implements Runnable {
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
         public boolean stripLineNumbers;
-
+		public boolean deleteTempFiles;
+        
 		public String startScript;
 
 
@@ -576,9 +577,11 @@ public final class LaunchServer implements Runnable {
         newConfig.whitelistRejectString = "Вас нет в белом списке";
         
         newConfig.threadCoreCount = 0; // on your own
+        newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
+        
         newConfig.enabledProGuard = true;
         newConfig.stripLineNumbers = false;
-        newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
+        newConfig.deleteTempFiles = false;
         // Set server address
         LogHelper.println("LaunchServer address: ");
         newConfig.setAddress(commandHandler.readLine());
