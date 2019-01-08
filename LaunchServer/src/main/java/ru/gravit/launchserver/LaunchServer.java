@@ -260,6 +260,8 @@ public final class LaunchServer implements Runnable {
 
     public final Path dir;
 
+	public final Path launcherLibraries;
+
 	public final List<String> args;
     
     public final Path configFile;
@@ -327,7 +329,8 @@ public final class LaunchServer implements Runnable {
 
     public LaunchServer(Path dir, String[] args) throws IOException, InvalidKeySpecException {
         this.dir = dir;
-        Files.createDirectories(dir);
+        launcherLibraries = dir.resolve("launcher-libraries");
+        if (!Files.isDirectory(launcherLibraries)) Files.createDirectory(launcherLibraries);
         this.args = Arrays.asList(args);
         configFile = dir.resolve("LaunchServer.conf");
         publicKeyFile = dir.resolve("public.key");

@@ -1,19 +1,37 @@
-package ru.gravit.launchserver.binary.tasks.api;
+package ru.gravit.launchserver.binary.tasks;
 
 import java.io.IOException;
+import java.lang.instrument.Instrumentation;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import ru.gravit.utils.helper.IOHelper;
 
 public class AttachJarsTask implements LauncherBuildTask {
+    private static final class ListFileVisitor extends SimpleFileVisitor<Path> {
+        private final List<Path> lst;
 
+        private ListFileVisitor(List<Path> lst) {
+            this.lst = lst;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (file.toFile().getName().endsWith(".jar"))
+                lst.add(file);
+            return super.visitFile(file, attrs);
+        }
+    }
+	
 	private final LaunchServer srv;
 	private final List<Path> jars;
 	private final List<String> exclusions;
@@ -40,13 +58,16 @@ public class AttachJarsTask implements LauncherBuildTask {
 				IOHelper.transfer(input, output);
 				e = input.getNextEntry();
 			}
-			attach(output);
+			List<Path> coreAttach = new ArrayList<>();
+			IOHelper.walk(srv.launcherLibraries, new ListFileVisitor(coreAttach), true);
+			attach(output, coreAttach);
+			attach(output, jars);
 		}
 		return outputFile;
 	}
 
-	private void attach(ZipOutputStream output) throws IOException {
-		for (Path p : jars) {
+	private void attach(ZipOutputStream output, List<Path> lst) throws IOException {
+		for (Path p : lst) {
 			try (ZipInputStream input = IOHelper.newZipInput(p)) {
 			ZipEntry e = input.getNextEntry();
 				while (e != null) {

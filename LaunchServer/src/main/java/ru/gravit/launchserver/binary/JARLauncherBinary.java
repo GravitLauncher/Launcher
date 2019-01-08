@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.binary.tasks.AttachJarsTask;
 import ru.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import ru.gravit.launchserver.binary.tasks.MainBuildTask;
 import ru.gravit.launchserver.binary.tasks.ProGuardBuildTask;
@@ -40,6 +41,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         tasks.add(new UnpackBuildTask(server));
         tasks.add(new MainBuildTask(server));
         if(server.config.enabledProGuard) tasks.add(new ProGuardBuildTask(server));
+        tasks.add(new AttachJarsTask(server));
         if(server.config.stripLineNumbers) tasks.add(new StripLineNumbersTask(server));
     }
     
