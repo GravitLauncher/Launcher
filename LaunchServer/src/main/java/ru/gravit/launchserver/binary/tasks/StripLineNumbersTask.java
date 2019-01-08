@@ -25,12 +25,12 @@ public class StripLineNumbersTask implements LauncherBuildTask {
 
 	@Override
 	public String getName() {
-		return "Strip debug task";
+		return "StripDebug";
 	}
 
 	@Override
 	public Path process(Path inputFile) throws IOException {
-		Path out = server.dir.resolve(server.config.projectName + "-stripped.jar");
+		Path out = server.launcherBinary.nextPath("stripped");
 		try (ClassMetadataReader reader = new ClassMetadataReader()) {
 			reader.getCp().add(new JarFile(inputFile.toFile()));
 			try (ZipInputStream input = IOHelper.newZipInput(inputFile);

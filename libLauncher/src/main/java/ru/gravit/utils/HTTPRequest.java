@@ -13,7 +13,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class HTTPRequest {
+public final class HTTPRequest {
     private static final int TIMEOUT = 10000;
     private static final JsonParser parser = new JsonParser();
 
@@ -61,4 +61,8 @@ public class HTTPRequest {
         JsonElement content = parser.parse(reader);
         return content;
     }
+    
+    private HTTPRequest() {
+    }
+}
 }

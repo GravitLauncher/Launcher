@@ -8,6 +8,7 @@ import proguard.ConfigurationParser;
 import proguard.ParseException;
 import proguard.ProGuard;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.utils.helper.LogHelper;
 
 public class ProGuardBuildTask implements LauncherBuildTask {
     private final LaunchServer server;
@@ -23,18 +24,18 @@ public class ProGuardBuildTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputFile) throws IOException {
-        Configuration proguard_cfg = new Configuration();
-        server.proguardConf.buildConfig(inputFile);
-        ConfigurationParser parser = new ConfigurationParser(server.proguardConf.confStrs.toArray(new String[0]),
+        Path outputJar = server.launcherBinary.nextLowerPath(this);
+    	Configuration proguard_cfg = new Configuration();
+        ConfigurationParser parser = new ConfigurationParser(server.proguardConf.buildConfig(inputFile, outputJar),
                 server.proguardConf.proguard.toFile(), System.getProperties());
         try {
             parser.parse(proguard_cfg);
             ProGuard proGuard = new ProGuard(proguard_cfg);
             proGuard.execute();
-        } catch (ParseException e1) {
-            e1.printStackTrace();
+        } catch (ParseException e) {
+            LogHelper.error(e);
         }
-        return server.proguardConf.outputJar;
+        return outputJar;
     }
 
     @Override

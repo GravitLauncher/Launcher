@@ -3,7 +3,7 @@ package ru.gravit.utils.helper;
 import java.util.Locale;
 import java.util.Map;
 
-public class EnvHelper {
+public final class EnvHelper {
     public static final String[] toTest = {"_JAVA_OPTIONS", "_JAVA_OPTS", "JAVA_OPTS", "JAVA_OPTIONS"};
 
     public static void addEnv(ProcessBuilder builder) {

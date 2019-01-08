@@ -4,7 +4,7 @@ import ru.gravit.launcher.LauncherAPI;
 
 import java.util.Objects;
 
-public class Version {
+public final class Version {
     @LauncherAPI
     public final int major;
     @LauncherAPI

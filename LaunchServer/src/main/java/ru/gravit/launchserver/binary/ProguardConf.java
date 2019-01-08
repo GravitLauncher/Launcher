@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
@@ -30,8 +31,6 @@ public class ProguardConf {
     public final Path config;
     public final Path mappings;
     public final Path words;
-    public final Path outputJar;
-    public final ArrayList<String> confStrs;
     public transient final LaunchServer srv;
 
     public ProguardConf(LaunchServer srv) {
@@ -39,13 +38,11 @@ public class ProguardConf {
         config = proguard.resolve("proguard.config");
         mappings = proguard.resolve("mappings.pro");
         words = proguard.resolve("random.pro");
-        outputJar = srv.dir.resolve(srv.config.binaryName + "-obfPre.jar");
-        confStrs = new ArrayList<>();
         this.srv = srv;
     }
-    public void buildConfig(Path inputJar)
+    public String[] buildConfig(Path inputJar, Path outputJar)
     {
-        confStrs.clear();
+    	List<String> confStrs = new ArrayList<>();
         prepare(false);
         if (srv.config.genMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
@@ -53,6 +50,7 @@ public class ProguardConf {
         confStrs.add("-outjar \'" + outputJar.toAbsolutePath() + "\'");
         confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add(readConf());
+        return confStrs.toArray(new String[0]);
     }
 
     private void genConfig(boolean force) throws IOException {

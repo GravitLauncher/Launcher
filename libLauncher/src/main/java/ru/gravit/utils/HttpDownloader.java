@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class HttpDownloader extends Observable {
+public final class HttpDownloader extends Observable {
     public static final int BUFER_SIZE = 8192;
     public static final int INTERVAL = 300;
     public AtomicInteger writed = new AtomicInteger(0);

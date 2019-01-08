@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class UnpackHelper {
+public final class UnpackHelper {
     public static boolean unpack(URL resource, Path target) throws IOException {
         if (IOHelper.isFile(target)) {
             if (matches(target, resource)) return false;
