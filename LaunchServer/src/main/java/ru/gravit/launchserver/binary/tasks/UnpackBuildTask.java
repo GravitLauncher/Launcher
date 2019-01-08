@@ -14,7 +14,7 @@ public class UnpackBuildTask implements LauncherBuildTask {
     
     public UnpackBuildTask(LaunchServer server) {
 		this.server = server;
-		result = server.dir.resolve(server.config.binaryName + "-clean.jar");
+		result = server.launcherBinary.buildDir.resolve(server.config.binaryName + "-clean.jar");
 	}
 
     @Override

@@ -65,4 +65,3 @@ public final class HTTPRequest {
     private HTTPRequest() {
     }
 }
-}

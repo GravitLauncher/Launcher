@@ -18,24 +18,24 @@ import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 public final class JARLauncherBinary extends LauncherBinary {
-    public ArrayList<LauncherBuildTask> tasks;
 	public final AtomicLong count;
     public final Path runtimeDir;
     public final Path guardDir;
     public final Path buildDir;
-
+    public ArrayList<LauncherBuildTask> tasks;
+    
     public JARLauncherBinary(LaunchServer server) throws IOException {
         super(server);
-        tasks = new ArrayList<>();
-        tasks.add(new UnpackBuildTask(server));
-        tasks.add(new MainBuildTask(server));
-        if(server.config.enabledProGuard) tasks.add(new ProGuardBuildTask(server));
-        if(server.config.stripLineNumbers) tasks.add(new StripLineNumbersTask(server));
         count = new AtomicLong(0);
         syncBinaryFile = server.dir.resolve(server.config.binaryName + ".jar");
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         guardDir = server.dir.resolve(Launcher.GUARD_DIR);
         buildDir = server.dir.resolve("build");
+        tasks = new ArrayList<>();
+        tasks.add(new UnpackBuildTask(server));
+        tasks.add(new MainBuildTask(server));
+        if(server.config.enabledProGuard) tasks.add(new ProGuardBuildTask(server));
+        if(server.config.stripLineNumbers) tasks.add(new StripLineNumbersTask(server));
     }
 
     @Override
