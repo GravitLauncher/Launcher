@@ -23,7 +23,6 @@ public class JAConfigurator implements AutoCloseable {
 
     public JAConfigurator(String configclass, MainBuildTask jarLauncherBinary) throws NotFoundException {
         pool = new ClassPool(false);
-        pool.insertClassPath(jarLauncherBinary.cleanJar.toFile().getAbsolutePath());
         pool.appendSystemPath();
         classname = configclass;
         ctClass = pool.get(classname);
