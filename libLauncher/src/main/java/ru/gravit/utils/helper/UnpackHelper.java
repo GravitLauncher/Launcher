@@ -16,7 +16,7 @@ public final class UnpackHelper {
             if (matches(target, resource)) return false;
         }
         Files.deleteIfExists(target);
-        Files.createFile(target);
+        IOHelper.createParentDirs(target);
         try (InputStream in = IOHelper.newInput(resource)) {
             IOHelper.transfer(in, target);
         }

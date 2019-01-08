@@ -32,6 +32,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         guardDir = server.dir.resolve(Launcher.GUARD_DIR);
         buildDir = server.dir.resolve("build");
         tasks = new ArrayList<>();
+        Files.createDirectory(buildDir);
     }
 
     @Override
