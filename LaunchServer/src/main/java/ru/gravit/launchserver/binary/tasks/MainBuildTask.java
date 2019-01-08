@@ -133,7 +133,7 @@ public class MainBuildTask implements LauncherBuildTask {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
                     String filename = e.getName();
-                    if (server.buildHookManager.isContainsBlacklist(filename)) {
+                    if (server.buildHookManager.isContainsBlacklist(filename) || e.isDirectory()) {
                         e = input.getNextEntry();
                         continue;
                     }

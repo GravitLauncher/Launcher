@@ -10,33 +10,38 @@ import java.util.zip.ZipOutputStream;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.ClassNode;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.asm.ClassMetadataReader;
 import ru.gravit.launchserver.asm.SafeClassWriter;
 import ru.gravit.utils.helper.IOHelper;
 
-public class StripLineNumbersTask implements LauncherBuildTask {
+public class AdditionalFixesApplyTask implements LauncherBuildTask {
 	private final LaunchServer server;
 	
-	public StripLineNumbersTask(LaunchServer server) {
+	public AdditionalFixesApplyTask(LaunchServer server) {
 		this.server = server;
 	}
 
 	@Override
 	public String getName() {
-		return "StripDebug";
+		return "AdditionalFixesApply";
 	}
 
 	@Override
 	public Path process(Path inputFile) throws IOException {
-		Path out = server.launcherBinary.nextPath("stripped");
+		Path out = server.launcherBinary.nextPath("post-fixed");
 		try (ClassMetadataReader reader = new ClassMetadataReader()) {
 			reader.getCp().add(new JarFile(inputFile.toFile()));
 			try (ZipInputStream input = IOHelper.newZipInput(inputFile);
 					ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
             	ZipEntry e = input.getNextEntry();
             	while (e != null) {
+            		if (e.isDirectory()) {
+            			e = input.getNextEntry();
+            			continue;
+            		}
                 	String filename = e.getName();
                 	output.putNextEntry(IOHelper.newZipEntry(e));
                 	if (filename.endsWith(".class")) {
@@ -45,7 +50,7 @@ public class StripLineNumbersTask implements LauncherBuildTask {
                         	IOHelper.transfer(input, outputStream);
                         	bytes = outputStream.toByteArray();
                     	}
-                    	output.write(classFix(bytes, reader));
+                    	output.write(classFix(bytes, reader, server.config.stripLineNumbers));
                 	} else
                     	IOHelper.transfer(input, output);
                 	e = input.getNextEntry();
@@ -55,10 +60,13 @@ public class StripLineNumbersTask implements LauncherBuildTask {
 		return out;
 	}
 
-	private static byte[] classFix(byte[] bytes, ClassMetadataReader reader) {
+	private static byte[] classFix(byte[] bytes, ClassMetadataReader reader, boolean stripNumbers) {
 		ClassReader cr = new ClassReader(bytes);
+		ClassNode cn = new ClassNode();
+		cr.accept(cn, stripNumbers ? (ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES) : ClassReader.SKIP_FRAMES);
+		
 		ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-		cr.accept(cw, ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+		cn.accept(cw);
 		return cw.toByteArray();
 	}
 

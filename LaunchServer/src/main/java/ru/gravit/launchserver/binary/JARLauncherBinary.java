@@ -1,9 +1,13 @@
 package ru.gravit.launchserver.binary;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import ru.gravit.launcher.Launcher;
@@ -12,18 +16,34 @@ import ru.gravit.launchserver.binary.tasks.AttachJarsTask;
 import ru.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import ru.gravit.launchserver.binary.tasks.MainBuildTask;
 import ru.gravit.launchserver.binary.tasks.ProGuardBuildTask;
-import ru.gravit.launchserver.binary.tasks.StripLineNumbersTask;
+import ru.gravit.launchserver.binary.tasks.AdditionalFixesApplyTask;
 import ru.gravit.launchserver.binary.tasks.UnpackBuildTask;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 public final class JARLauncherBinary extends LauncherBinary {
+    private static final class ListFileVisitor extends SimpleFileVisitor<Path> {
+        private final List<Path> lst;
+
+        private ListFileVisitor(List<Path> lst) {
+            this.lst = lst;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (file.toFile().getName().endsWith(".jar"))
+                lst.add(file);
+            return super.visitFile(file, attrs);
+        }
+    }
+	
 	public final AtomicLong count;
     public final Path runtimeDir;
     public final Path guardDir;
     public final Path buildDir;
-    public ArrayList<LauncherBuildTask> tasks;
+    public List<LauncherBuildTask> tasks;
+    public List<Path> coreLibs;
     
     public JARLauncherBinary(LaunchServer server) throws IOException {
         super(server);
@@ -33,6 +53,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         guardDir = server.dir.resolve(Launcher.GUARD_DIR);
         buildDir = server.dir.resolve("build");
         tasks = new ArrayList<>();
+        coreLibs = new ArrayList<>();
         Files.createDirectory(buildDir);
     }
 
@@ -40,15 +61,17 @@ public final class JARLauncherBinary extends LauncherBinary {
     public void init() {
         tasks.add(new UnpackBuildTask(server));
         tasks.add(new MainBuildTask(server));
-        if(server.config.enabledProGuard) tasks.add(new ProGuardBuildTask(server));
+        tasks.add(new ProGuardBuildTask(server));
         tasks.add(new AttachJarsTask(server));
-        if(server.config.stripLineNumbers) tasks.add(new StripLineNumbersTask(server));
+        tasks.add(new AdditionalFixesApplyTask(server));
     }
     
     @Override
     public void build() throws IOException {
         LogHelper.info("Building launcher binary file");
         count.set(0);
+    	coreLibs.clear();
+		IOHelper.walk(server.launcherLibraries, new ListFileVisitor(coreLibs), true);
         Path thisPath = null;
         boolean isNeedDelete = false;
         long time_start = System.currentTimeMillis();
@@ -61,7 +84,7 @@ public final class JARLauncherBinary extends LauncherBinary {
             long time_task_end = System.currentTimeMillis();
             long time_task = time_task_end - time_this;
             time_this = time_task_end;
-            if (isNeedDelete && server.config.deleteTempFiles) Files.delete(oldPath);
+            if (isNeedDelete && server.config.deleteTempFiles) Files.deleteIfExists(oldPath);
             isNeedDelete = task.allowDelete();
             LogHelper.subInfo("Task %s processed from %d millis",task.getName(), time_task);
         }
@@ -72,7 +95,7 @@ public final class JARLauncherBinary extends LauncherBinary {
     }
     
     public String nextName(String taskName) {
-    	return String.format("%s-%s-%d.jar", server.config.projectName, taskName, count.getAndIncrement());
+    	return String.format("Launcher-%s-%d.jar", server.config.projectName, taskName, count.getAndIncrement());
     }
     
     public Path nextPath(String taskName) {

@@ -1,14 +1,9 @@
 package ru.gravit.launchserver.binary.tasks;
 
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -17,21 +12,6 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
 
 public class AttachJarsTask implements LauncherBuildTask {
-    private static final class ListFileVisitor extends SimpleFileVisitor<Path> {
-        private final List<Path> lst;
-
-        private ListFileVisitor(List<Path> lst) {
-            this.lst = lst;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (file.toFile().getName().endsWith(".jar"))
-                lst.add(file);
-            return super.visitFile(file, attrs);
-        }
-    }
-	
 	private final LaunchServer srv;
 	private final List<Path> jars;
 	private final List<String> exclusions;
@@ -40,6 +20,7 @@ public class AttachJarsTask implements LauncherBuildTask {
 		this.srv = srv;
 		jars = new ArrayList<>();
 		exclusions = new ArrayList<>();
+		exclusions.add("META-INF");
 	}
 
 	@Override
@@ -54,13 +35,15 @@ public class AttachJarsTask implements LauncherBuildTask {
 				ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputFile))) {
 			ZipEntry e = input.getNextEntry();
 			while (e != null) {
+        		if (e.isDirectory() || srv.buildHookManager.isContainsBlacklist(e.getName())) {
+        			e = input.getNextEntry();
+        			continue;
+        		}
 				output.putNextEntry(IOHelper.newZipEntry(e));
 				IOHelper.transfer(input, output);
 				e = input.getNextEntry();
 			}
-			List<Path> coreAttach = new ArrayList<>();
-			IOHelper.walk(srv.launcherLibraries, new ListFileVisitor(coreAttach), true);
-			attach(output, coreAttach);
+			attach(output, srv.launcherBinary.coreLibs);
 			attach(output, jars);
 		}
 		return outputFile;
@@ -72,7 +55,7 @@ public class AttachJarsTask implements LauncherBuildTask {
 			ZipEntry e = input.getNextEntry();
 				while (e != null) {
 					String filename = e.getName();
-					if (exclusions.stream().noneMatch(filename::startsWith)) {
+					if (exclusions.stream().noneMatch(filename::startsWith) && !srv.buildHookManager.isContainsBlacklist(filename)) {
 						output.putNextEntry(IOHelper.newZipEntry(e));
 						IOHelper.transfer(input, output);
 					}

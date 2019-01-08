@@ -1,30 +1,28 @@
-package ru.gravit.launchserver.binary.tasks.api;
+package ru.gravit.launchserver.binary.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import ru.gravit.launchserver.binary.tasks.LauncherBuildTask;
-
 public final class TaskUtil {
 	public static void addCounted(List<LauncherBuildTask> tasks, int count, Predicate<LauncherBuildTask> pred, LauncherBuildTask taskAdd) {
-		List<Integer> indexes = new ArrayList<>();
+		List<LauncherBuildTask> indexes = new ArrayList<>();
 		tasks.stream().filter(pred).forEach(e -> {
-			indexes.add(tasks.indexOf(e)+count);
+			indexes.add(e);
 		});
 		indexes.forEach(e -> {
-			tasks.add(e, taskAdd);
+			tasks.add(tasks.indexOf(e)+count, taskAdd);
 		});
 	}
 	
 	public static void replaceCounted(List<LauncherBuildTask> tasks, int count, Predicate<LauncherBuildTask> pred, LauncherBuildTask taskRep) {
-		List<Integer> indexes = new ArrayList<>();
+		List<LauncherBuildTask> indexes = new ArrayList<>();
 		tasks.stream().filter(pred).forEach(e -> {
-			indexes.add(tasks.indexOf(e)+count);
+			indexes.add(e);
 		});
 		indexes.forEach(e -> {
-			tasks.set(e, taskRep);
+			tasks.set(tasks.indexOf(e)+count, taskRep);
 		});
 	}
 	
