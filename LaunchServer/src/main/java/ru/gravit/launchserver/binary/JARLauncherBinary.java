@@ -32,12 +32,16 @@ public final class JARLauncherBinary extends LauncherBinary {
         guardDir = server.dir.resolve(Launcher.GUARD_DIR);
         buildDir = server.dir.resolve("build");
         tasks = new ArrayList<>();
+    }
+
+    @Override
+    public void init() {
         tasks.add(new UnpackBuildTask(server));
         tasks.add(new MainBuildTask(server));
         if(server.config.enabledProGuard) tasks.add(new ProGuardBuildTask(server));
         if(server.config.stripLineNumbers) tasks.add(new StripLineNumbersTask(server));
     }
-
+    
     @Override
     public void build() throws IOException {
         LogHelper.info("Building launcher binary file");

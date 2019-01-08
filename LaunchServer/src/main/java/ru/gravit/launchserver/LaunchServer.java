@@ -460,6 +460,9 @@ public final class LaunchServer implements Runnable {
         // Set launcher EXE binary
         launcherBinary = new JARLauncherBinary(this);
         launcherEXEBinary = binary();
+        
+        launcherBinary.init();
+        launcherEXEBinary.init();
         syncLauncherBinaries();
 
         // Sync updates dir
