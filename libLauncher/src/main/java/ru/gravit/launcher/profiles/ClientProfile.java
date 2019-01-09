@@ -16,6 +16,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.assetIndex = assetIndex;
         this.sortIndex = sortIndex;
         this.title = title;
+        this.info = info;
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
         this.updateFastCheck = updateFastCheck;
@@ -88,6 +89,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private int sortIndex;
     @LauncherAPI
     private String title;
+    @LauncherAPI
+    private String info;
     @LauncherAPI
     private String serverAddress;
     @LauncherAPI
@@ -376,6 +379,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     @LauncherAPI
+    public String getInfo() {
+        return info;
+    }
+
+    @LauncherAPI
     public Version getVersion() {
         return Version.byName(version);
     }
@@ -397,6 +405,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     @LauncherAPI
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    @LauncherAPI
     public void setVersion(Version version) {
         this.version = version.name;
     }
@@ -414,6 +427,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
         // Client
         VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Profile title can't be empty");
+        VerifyHelper.verify(getInfo(), VerifyHelper.NOT_EMPTY, "Profile info can't be empty");
         VerifyHelper.verify(getServerAddress(), VerifyHelper.NOT_EMPTY, "Server address can't be empty");
         VerifyHelper.verifyInt(getServerPort(), VerifyHelper.range(0, 65535), "Illegal server port: " + getServerPort());
 
@@ -435,7 +449,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 		result = prime * result + ((serverAddress == null) ? 0 : serverAddress.hashCode());
 		result = prime * result + serverPort;
 		result = prime * result + sortIndex;
-		result = prime * result + ((title == null) ? 0 : title.hashCode());
+        result = prime * result + ((title == null) ? 0 : title.hashCode());
+        result = prime * result + ((info == null) ? 0 : info.hashCode());
 		result = prime * result + ((update == null) ? 0 : update.hashCode());
 		result = prime * result + ((updateExclusions == null) ? 0 : updateExclusions.hashCode());
 		result = prime * result + (updateFastCheck ? 1231 : 1237);
@@ -502,10 +517,15 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 		if (sortIndex != other.sortIndex)
 			return false;
 		if (title == null) {
-			if (other.title != null)
-				return false;
-		} else if (!title.equals(other.title))
-			return false;
+            if (other.title != null)
+                return false;
+        } else if (!title.equals(other.title))
+            return false;
+        if (info == null) {
+            if (other.info != null)
+                return false;
+        } else if (!info.equals(other.info))
+            return false;
 		if (update == null) {
 			if (other.update != null)
 				return false;
