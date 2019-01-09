@@ -35,7 +35,7 @@ jar {
 }
 
 dependencies {
-	pack project(':libLauncher') // pack
+	bundle project(':libLauncher')
 	bundle 'org.ow2.asm:asm-commons:7.0'
 	bundle 'org.ow2.asm:asm-util:7.0'
 	bundle 'mysql:mysql-connector-java:8.0.13'
