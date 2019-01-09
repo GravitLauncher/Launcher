@@ -12,6 +12,7 @@ import java.util.Collections;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
+import com.google.gson.JsonObject;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
@@ -35,11 +36,11 @@ public final class IndexAssetCommand extends Command {
     }
 
     private static final class IndexAssetVisitor extends SimpleFileVisitor<Path> {
-        private final JsonArray objects;
+        private final JsonObject objects;
         private final Path inputAssetDir;
         private final Path outputAssetDir;
 
-        private IndexAssetVisitor(JsonArray objects, Path inputAssetDir, Path outputAssetDir) {
+        private IndexAssetVisitor(JsonObject objects, Path inputAssetDir, Path outputAssetDir) {
             this.objects = objects;
             this.inputAssetDir = inputAssetDir;
             this.outputAssetDir = outputAssetDir;
@@ -53,7 +54,7 @@ public final class IndexAssetCommand extends Command {
             // Add to index and copy file
             String digest = SecurityHelper.toHex(SecurityHelper.digest(DigestAlgorithm.SHA1, file));
             IndexObject obj = new IndexObject(attrs.size(), digest);
-            objects.add(gson.toJsonTree(obj));
+            objects.add(name, gson.toJsonTree(obj));
             IOHelper.copy(file, resolveObjectFile(outputAssetDir, digest));
 
             // Continue visiting
@@ -106,7 +107,7 @@ public final class IndexAssetCommand extends Command {
         Files.createDirectory(outputAssetDir);
 
         // Index objects
-        JsonArray objects = new JsonArray();
+        JsonObject objects = new JsonObject();
         LogHelper.subInfo("Indexing objects");
         IOHelper.walk(inputAssetDir, new IndexAssetVisitor(objects, inputAssetDir, outputAssetDir), false);
 
@@ -114,7 +115,9 @@ public final class IndexAssetCommand extends Command {
         LogHelper.subInfo("Writing asset index file: '%s'", indexFileName);
 
         try (BufferedWriter writer = IOHelper.newWriter(resolveIndexFile(outputAssetDir, indexFileName))) {
-            writer.write(gson.toJson(objects));
+            JsonObject result = new JsonObject();
+            result.add("objects",objects);
+            writer.write(gson.toJson(result));
         }
 
         // Finished
