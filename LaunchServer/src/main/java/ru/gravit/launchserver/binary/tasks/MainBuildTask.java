@@ -117,6 +117,14 @@ public class MainBuildTask implements LauncherBuildTask {
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar));
              JAConfigurator jaConfigurator = new JAConfigurator(AutogenConfig.class.getName(), this)) {
             jaConfigurator.pool.insertClassPath(inputJar.toFile().getAbsolutePath());
+            server.launcherBinary.coreLibs.stream().map(e -> e.toFile().getAbsolutePath())
+            .forEach(t -> {
+				try {
+					jaConfigurator.pool.appendClassPath(t);
+				} catch (NotFoundException e2) {
+					LogHelper.error(e2);
+				}
+			});
             BuildContext context = new BuildContext(output, jaConfigurator, this);
             server.buildHookManager.hook(context);
             jaConfigurator.setAddress(server.config.getAddress());
@@ -129,6 +137,13 @@ public class MainBuildTask implements LauncherBuildTask {
             jaConfigurator.setEnv(server.config.env);
             server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
             reader.getCp().add(new JarFile(inputJar.toFile()));
+            server.launcherBinary.coreLibs.forEach(e -> {
+				try {
+					reader.getCp().add(new JarFile(e.toFile()));
+				} catch (IOException e1) {
+					LogHelper.error(e1);
+				}
+			});
             try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputJar))) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {

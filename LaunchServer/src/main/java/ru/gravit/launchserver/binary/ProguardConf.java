@@ -48,6 +48,9 @@ public class ProguardConf {
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add("-injar \'" + inputJar.toAbsolutePath() + "\'");
         confStrs.add("-outjar \'" + outputJar.toAbsolutePath() + "\'");
+        srv.launcherBinary.coreLibs.stream()
+        	.map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
+        	.forEach(confStrs::add);
         confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add(readConf());
         return confStrs.toArray(new String[0]);
