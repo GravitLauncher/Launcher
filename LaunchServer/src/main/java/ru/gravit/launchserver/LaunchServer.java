@@ -119,8 +119,6 @@ public final class LaunchServer implements Runnable {
 
         public ExeConf launch4j;
 
-        public PostBuildTransformConf buildPostTransform;
-
         public boolean compress;
 
         public int authRateLimit;
@@ -230,11 +228,6 @@ public final class LaunchServer implements Runnable {
             result.add(profile);
             return super.visitFile(file, attrs);
         }
-    }
-
-    public static class PostBuildTransformConf {
-        public boolean enabled;
-        public List<String> script;
     }
 
     public static void main(String... args) throws Throwable {
@@ -571,9 +564,8 @@ public final class LaunchServer implements Runnable {
         newConfig.launch4j.txtProductVersion = "%s, build %d";
         newConfig.launch4j.productName = "GravitLauncher";
         newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
-        newConfig.buildPostTransform = new PostBuildTransformConf();
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
-        newConfig.startScript = "." + File.separator + "start.sh";
+        newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.authHandler = new MemoryAuthHandler();
         newConfig.hwidHandler = new AcceptHWIDHandler();
 

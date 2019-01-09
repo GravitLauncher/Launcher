@@ -10,9 +10,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-
 import com.google.gson.JsonObject;
+
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.command.CommandException;
