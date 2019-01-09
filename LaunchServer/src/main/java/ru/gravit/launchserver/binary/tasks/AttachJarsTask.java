@@ -36,7 +36,7 @@ public class AttachJarsTask implements LauncherBuildTask {
 				ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputFile))) {
 			ZipEntry e = input.getNextEntry();
 			while (e != null) {
-        		if (e.isDirectory() || srv.buildHookManager.isContainsBlacklist(e.getName())) {
+        		if (e.isDirectory()) {
         			e = input.getNextEntry();
         			continue;
         		}
@@ -57,7 +57,7 @@ public class AttachJarsTask implements LauncherBuildTask {
 			ZipEntry e = input.getNextEntry();
 				while (e != null) {
 					String filename = e.getName();
-					if (exclusions.stream().noneMatch(filename::startsWith) && !srv.buildHookManager.isContainsBlacklist(filename) && !e.isDirectory()) {
+					if (exclusions.stream().noneMatch(filename::startsWith) && !e.isDirectory()) {
 						output.putNextEntry(IOHelper.newZipEntry(e));
 						IOHelper.transfer(input, output);
 					}
