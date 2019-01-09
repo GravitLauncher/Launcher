@@ -12,9 +12,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.jar.JarFile;
 
-public class StarterAgent {
+public final class StarterAgent {
 
-    public static final class StarterVisitor extends SimpleFileVisitor<Path> {
+    private static final class StarterVisitor extends SimpleFileVisitor<Path> {
         private final Instrumentation inst;
 
         private StarterVisitor(Instrumentation inst) {

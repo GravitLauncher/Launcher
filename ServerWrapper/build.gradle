@@ -22,5 +22,4 @@ jar {
 
 dependencies {
     compile project(':LauncherAPI')
-    compile 'org.javassist:javassist:3.23.1-GA'
 }

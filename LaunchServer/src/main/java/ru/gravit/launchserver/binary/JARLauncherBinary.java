@@ -1,11 +1,8 @@
 package ru.gravit.launchserver.binary;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,27 +14,12 @@ import ru.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import ru.gravit.launchserver.binary.tasks.MainBuildTask;
 import ru.gravit.launchserver.binary.tasks.ProGuardBuildTask;
 import ru.gravit.launchserver.binary.tasks.AdditionalFixesApplyTask;
-import ru.gravit.launchserver.binary.tasks.UnpackBuildTask;
+import ru.gravit.launchserver.binary.tasks.PrepareBuildTask;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 public final class JARLauncherBinary extends LauncherBinary {
-    private static final class ListFileVisitor extends SimpleFileVisitor<Path> {
-        private final List<Path> lst;
-
-        private ListFileVisitor(List<Path> lst) {
-            this.lst = lst;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (file.toFile().getName().endsWith(".jar"))
-                lst.add(file);
-            return super.visitFile(file, attrs);
-        }
-    }
-	
 	public final AtomicLong count;
     public final Path runtimeDir;
     public final Path guardDir;
@@ -54,12 +36,15 @@ public final class JARLauncherBinary extends LauncherBinary {
         buildDir = server.dir.resolve("build");
         tasks = new ArrayList<>();
         coreLibs = new ArrayList<>();
-        Files.createDirectory(buildDir);
+        if (!Files.isDirectory(buildDir)) {
+        	Files.deleteIfExists(buildDir);
+        	Files.createDirectory(buildDir);
+        }
     }
 
     @Override
     public void init() {
-        tasks.add(new UnpackBuildTask(server));
+        tasks.add(new PrepareBuildTask(server));
         tasks.add(new MainBuildTask(server));
         tasks.add(new ProGuardBuildTask(server));
         tasks.add(new AttachJarsTask(server));
@@ -69,9 +54,7 @@ public final class JARLauncherBinary extends LauncherBinary {
     @Override
     public void build() throws IOException {
         LogHelper.info("Building launcher binary file");
-        count.set(0);
-    	coreLibs.clear();
-		IOHelper.walk(server.launcherLibraries, new ListFileVisitor(coreLibs), true);
+        count.set(0); // set jar number
         Path thisPath = null;
         boolean isNeedDelete = false;
         long time_start = System.currentTimeMillis();

@@ -1,18 +1,18 @@
 allprojects {
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
-	
+}
+
+subprojects {
+	apply plugin: 'java'
+
 	repositories {
 		mavenCentral()
 		maven {
 			url "http://clojars.org/repo/"
 		}
 	}
-}
 
-subprojects {
-	apply plugin: 'java'
-	
 	configurations {
 		apt
 		aptCompileOnly
