@@ -176,9 +176,13 @@ public final class ClientLauncher {
     private static PublicURLClassLoader classLoader;
     public static class ClientUserProperties
     {
+        @LauncherAPI
         String[] skinURL;
+        @LauncherAPI
         String[] skinDigest;
+        @LauncherAPI
         String[] cloakURL;
+        @LauncherAPI
         String[] cloakDigest;
     }
     private static void addClientArgs(Collection<String> args, ClientProfile profile, Params params) {
