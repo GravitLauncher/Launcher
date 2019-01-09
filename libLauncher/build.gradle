@@ -3,5 +3,5 @@ targetCompatibility = '1.8'
 
 dependencies {
 	compileOnly 'org.fusesource.jansi:jansi:1.17.1'
-    compile 'com.google.code.gson:gson:2.8.5'
+	compile 'com.google.code.gson:gson:2.8.5'
 }

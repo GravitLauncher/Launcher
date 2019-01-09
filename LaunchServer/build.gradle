@@ -23,7 +23,7 @@ configurations {
 }
 
 jar {
-	dependsOn parent.childProjects.Launcher.tasks.build, parent.childProjects.Launcher.tasks.genRuntimeJS, parent.childProjects.Launcher.tasks.jar
+	dependsOn parent.childProjects.Launcher.tasks.build
 	from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
 	from(parent.childProjects.Launcher.tasks.jar.archivePath, parent.childProjects.Launcher.tasks.genRuntimeJS.archivePath)
 	manifest.attributes("Main-Class": mainClassName,
@@ -35,7 +35,7 @@ jar {
 }
 
 dependencies {
-	pack project(':libLauncher') // pack
+	bundle project(':libLauncher')
 	bundle 'org.ow2.asm:asm-commons:7.0'
 	bundle 'org.ow2.asm:asm-util:7.0'
 	bundle 'mysql:mysql-connector-java:8.0.13'
@@ -60,8 +60,6 @@ dependencies {
 	compileOnly('net.sf.launch4j:launch4j:3.12') { // need user
 		exclude group: '*'
 	}
-	
-	//compile 'org.mozilla:rhino:1.7.10' will be module
 }
 
 task hikari(type: Copy) {
@@ -75,4 +73,10 @@ task dumpLibs(type: Copy) {
 	from configurations.bundleOnly
 }
 
-build.dependsOn tasks.dumpLibs
+task dumpClientLibs(type: Copy) {
+	dependsOn parent.childProjects.Launcher.tasks.build
+	into "$buildDir/libs/launcher-libraries"
+	from parent.childProjects.Launcher.tasks.dumpLibs.destinationDir
+}
+
+build.dependsOn tasks.dumpLibs, tasks.dumpClientLibs

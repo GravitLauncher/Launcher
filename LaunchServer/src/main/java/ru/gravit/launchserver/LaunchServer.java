@@ -140,7 +140,8 @@ public final class LaunchServer implements Runnable {
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
         public boolean stripLineNumbers;
-
+		public boolean deleteTempFiles;
+        
 		public String startScript;
 
 
@@ -259,6 +260,8 @@ public final class LaunchServer implements Runnable {
 
     public final Path dir;
 
+	public final Path launcherLibraries;
+
 	public final List<String> args;
     
     public final Path configFile;
@@ -326,6 +329,11 @@ public final class LaunchServer implements Runnable {
 
     public LaunchServer(Path dir, String[] args) throws IOException, InvalidKeySpecException {
         this.dir = dir;
+        launcherLibraries = dir.resolve("launcher-libraries");
+        if (!Files.isDirectory(launcherLibraries)) {
+        	Files.deleteIfExists(launcherLibraries);
+        	Files.createDirectory(launcherLibraries);
+        }
         this.args = Arrays.asList(args);
         configFile = dir.resolve("LaunchServer.conf");
         publicKeyFile = dir.resolve("public.key");
@@ -459,6 +467,9 @@ public final class LaunchServer implements Runnable {
         // Set launcher EXE binary
         launcherBinary = new JARLauncherBinary(this);
         launcherEXEBinary = binary();
+        
+        launcherBinary.init();
+        launcherEXEBinary.init();
         syncLauncherBinaries();
 
         // Sync updates dir
@@ -576,9 +587,11 @@ public final class LaunchServer implements Runnable {
         newConfig.whitelistRejectString = "Вас нет в белом списке";
         
         newConfig.threadCoreCount = 0; // on your own
-        newConfig.enabledProGuard = true;
-        newConfig.stripLineNumbers = false;
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
+        
+        newConfig.enabledProGuard = true;
+        newConfig.stripLineNumbers = true;
+        newConfig.deleteTempFiles = true;
         // Set server address
         LogHelper.println("LaunchServer address: ");
         newConfig.setAddress(commandHandler.readLine());

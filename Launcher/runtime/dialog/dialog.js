@@ -149,7 +149,7 @@ function goAuth(event) {
     var rsaPassword = null;
     if (!passwordField.isDisable()) {
         var password = passwordField.getText();
-        if (!password.isEmpty()) {
+        if (password !== null && !password.isEmpty()) {
             rsaPassword = settings.setPassword(password);
         } else if (settings.rsaPassword !== null) {
             rsaPassword = settings.rsaPassword;
@@ -213,6 +213,7 @@ function verifyLauncher(e) {
 function doAuth(login, rsaPassword) {
     processing.resetOverlay();
     overlay.show(processing.overlay, function (event) {
+        FunctionalBridge.getHWID.join();
         makeAuthRequest(login, rsaPassword, function (result) {
             loginData = { pp: result.pp , accessToken: result.accessToken, permissions: result.permissions};
 

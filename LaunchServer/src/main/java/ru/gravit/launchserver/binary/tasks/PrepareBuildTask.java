@@ -6,15 +6,20 @@ import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.UnpackHelper;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 
-public class UnpackBuildTask implements LauncherBuildTask {
+public class PrepareBuildTask implements LauncherBuildTask {
     private final LaunchServer server;
 	private final Path result;
     
-    public UnpackBuildTask(LaunchServer server) {
+    public PrepareBuildTask(LaunchServer server) {
 		this.server = server;
-		result = server.dir.resolve(server.config.binaryName + "-clean.jar");
+		result = server.launcherBinary.buildDir.resolve(server.config.binaryName + "-clean.jar");
 	}
 
     @Override
@@ -24,6 +29,8 @@ public class UnpackBuildTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputFile) throws IOException {
+    	server.launcherBinary.coreLibs.clear();
+		IOHelper.walk(server.launcherLibraries, new ListFileVisitor(server.launcherBinary.coreLibs), true);
         UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), result);
         tryUnpack();
         return result;
@@ -38,5 +45,20 @@ public class UnpackBuildTask implements LauncherBuildTask {
         LogHelper.info("Unpacking launcher native guard files and runtime");
         UnpackHelper.unpackZipNoCheck("guard.zip", server.launcherBinary.guardDir);
         UnpackHelper.unpackZipNoCheck("runtime.zip", server.launcherBinary.runtimeDir);
+    }
+    
+    private static final class ListFileVisitor extends SimpleFileVisitor<Path> {
+        private final List<Path> lst;
+
+        private ListFileVisitor(List<Path> lst) {
+            this.lst = lst;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (!Files.isDirectory(file) && file.toFile().getName().endsWith(".jar"))
+                lst.add(file);
+            return super.visitFile(file, attrs);
+        }
     }
 }

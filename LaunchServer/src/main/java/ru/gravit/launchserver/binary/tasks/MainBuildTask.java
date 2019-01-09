@@ -31,8 +31,6 @@ import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
 public class MainBuildTask implements LauncherBuildTask {
-    public final Path binaryFile;
-    public Path cleanJar;
 	private final LaunchServer server;
 	public final ClassMetadataReader reader;
     private final class RuntimeDirVisitor extends SimpleFileVisitor<Path> {
@@ -105,7 +103,6 @@ public class MainBuildTask implements LauncherBuildTask {
 
     public MainBuildTask(LaunchServer srv) {
     	server = srv;
-        binaryFile = server.dir.resolve(server.config.binaryName + "-main.jar");
         reader = new ClassMetadataReader();
     }
 
@@ -115,11 +112,19 @@ public class MainBuildTask implements LauncherBuildTask {
     }
 
     @Override
-    public Path process(Path cleanJar) throws IOException {
-        this.cleanJar = cleanJar;
-        try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(binaryFile));
+    public Path process(Path inputJar) throws IOException {
+        Path outputJar = server.launcherBinary.nextPath("main");
+        try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar));
              JAConfigurator jaConfigurator = new JAConfigurator(AutogenConfig.class.getName(), this)) {
-            jaConfigurator.pool.insertClassPath(cleanJar.toFile().getAbsolutePath());
+            jaConfigurator.pool.insertClassPath(inputJar.toFile().getAbsolutePath());
+            server.launcherBinary.coreLibs.stream().map(e -> e.toFile().getAbsolutePath())
+            .forEach(t -> {
+				try {
+					jaConfigurator.pool.appendClassPath(t);
+				} catch (NotFoundException e2) {
+					LogHelper.error(e2);
+				}
+			});
             BuildContext context = new BuildContext(output, jaConfigurator, this);
             server.buildHookManager.hook(context);
             jaConfigurator.setAddress(server.config.getAddress());
@@ -131,12 +136,19 @@ public class MainBuildTask implements LauncherBuildTask {
             jaConfigurator.setDownloadJava(server.config.isDownloadJava);
             jaConfigurator.setEnv(server.config.env);
             server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
-            reader.getCp().add(new JarFile(cleanJar.toFile()));
-            try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(cleanJar))) {
+            reader.getCp().add(new JarFile(inputJar.toFile()));
+            server.launcherBinary.coreLibs.forEach(e -> {
+				try {
+					reader.getCp().add(new JarFile(e.toFile()));
+				} catch (IOException e1) {
+					LogHelper.error(e1);
+				}
+			});
+            try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputJar))) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
                     String filename = e.getName();
-                    if (server.buildHookManager.isContainsBlacklist(filename)) {
+                    if (server.buildHookManager.isContainsBlacklist(filename) || e.isDirectory()) {
                         e = input.getNextEntry();
                         continue;
                     }
@@ -196,7 +208,7 @@ public class MainBuildTask implements LauncherBuildTask {
             LogHelper.error(e);
         }
         reader.close();
-        return binaryFile;
+        return outputJar;
     }
 
     @Override
