@@ -564,9 +564,8 @@ public final class LaunchServer implements Runnable {
         newConfig.launch4j.txtProductVersion = "%s, build %d";
         newConfig.launch4j.productName = "GravitLauncher";
         newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
-        newConfig.buildPostTransform = new PostBuildTransformConf();
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
-        newConfig.startScript = "." + File.separator + "start.sh";
+        newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.authHandler = new MemoryAuthHandler();
         newConfig.hwidHandler = new AcceptHWIDHandler();
 
