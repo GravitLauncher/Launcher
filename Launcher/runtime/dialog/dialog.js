@@ -149,7 +149,7 @@ function goAuth(event) {
     var rsaPassword = null;
     if (!passwordField.isDisable()) {
         var password = passwordField.getText();
-        if (!password.isEmpty()) {
+        if (password !== null) {
             rsaPassword = settings.setPassword(password);
         } else if (settings.rsaPassword !== null) {
             rsaPassword = settings.rsaPassword;
