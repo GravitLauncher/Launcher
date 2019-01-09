@@ -10,6 +10,7 @@ import java.util.zip.ZipOutputStream;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 public class AttachJarsTask implements LauncherBuildTask {
 	private final LaunchServer srv;
@@ -51,11 +52,12 @@ public class AttachJarsTask implements LauncherBuildTask {
 
 	private void attach(ZipOutputStream output, List<Path> lst) throws IOException {
 		for (Path p : lst) {
+			LogHelper.debug("Attaching: " + p);
 			try (ZipInputStream input = IOHelper.newZipInput(p)) {
 			ZipEntry e = input.getNextEntry();
 				while (e != null) {
 					String filename = e.getName();
-					if (exclusions.stream().noneMatch(filename::startsWith) && !srv.buildHookManager.isContainsBlacklist(filename)) {
+					if (exclusions.stream().noneMatch(filename::startsWith) && !srv.buildHookManager.isContainsBlacklist(filename) && !e.isDirectory()) {
 						output.putNextEntry(IOHelper.newZipEntry(e));
 						IOHelper.transfer(input, output);
 					}

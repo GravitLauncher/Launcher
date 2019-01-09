@@ -590,8 +590,8 @@ public final class LaunchServer implements Runnable {
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
         
         newConfig.enabledProGuard = true;
-        newConfig.stripLineNumbers = false;
-        newConfig.deleteTempFiles = false;
+        newConfig.stripLineNumbers = true;
+        newConfig.deleteTempFiles = true;
         // Set server address
         LogHelper.println("LaunchServer address: ");
         newConfig.setAddress(commandHandler.readLine());

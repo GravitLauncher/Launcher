@@ -78,7 +78,7 @@ public final class JARLauncherBinary extends LauncherBinary {
     }
     
     public String nextName(String taskName) {
-    	return String.format("Launcher-%s-%d.jar", server.config.projectName, taskName, count.getAndIncrement());
+    	return String.format("Launcher-%s-%d.jar", taskName, count.getAndIncrement());
     }
     
     public Path nextPath(String taskName) {
