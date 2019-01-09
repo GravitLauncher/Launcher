@@ -29,6 +29,8 @@ public class FunctionalBridge {
     public static OshiHWIDProvider hwidProvider = new OshiHWIDProvider();
     @LauncherAPI
     public static AtomicReference<HWID> hwid = new AtomicReference<>();
+    @LauncherAPI
+	public static Thread getHWID = null;
 
     @LauncherAPI
     public static HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) throws Exception {

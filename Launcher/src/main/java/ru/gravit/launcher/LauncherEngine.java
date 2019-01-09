@@ -67,7 +67,8 @@ public class LauncherEngine {
         runtimeProvider.preLoad();
         FunctionalBridge.worker = new RequestWorker();
         CommonHelper.newThread("FX Task Worker", true, FunctionalBridge.worker).start();
-        CommonHelper.newThread("GetHWID Thread",true, FunctionalBridge::getHWID).start();
+        FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread",true, FunctionalBridge::getHWID);
+        FunctionalBridge.getHWID.start();
         LogHelper.debug("Dir: %s", DirBridge.dir);
         runtimeProvider.run(args);
     }
