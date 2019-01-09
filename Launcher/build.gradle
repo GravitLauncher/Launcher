@@ -10,7 +10,14 @@ repositories {
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
+configurations {
+	bundle
+	pack
+	compile.extendsFrom bundle, pack
+}
+
 jar {
+	from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
 	manifest.attributes("Main-Class": mainClassName,
 		"Premain-Class": mainAgentName,
 		"Can-Redefine-Classes": "true",
@@ -19,8 +26,8 @@ jar {
 }
 
 dependencies {
-	compile project(':LauncherAPI')
-	compile 'com.github.oshi:oshi-core:3.11.0'
+	pack project(':LauncherAPI') // Not error on obf.
+	bundle 'com.github.oshi:oshi-core:3.11.0'
 }
 
 task genRuntimeJS(type: Zip) {
@@ -31,7 +38,7 @@ task genRuntimeJS(type: Zip) {
 
 task dumpLibs(type: Copy) {
 	into "$buildDir/libs/libraries"
-	from configurations.runtime
+	from configurations.bundle
 }
 
 
