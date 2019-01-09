@@ -119,8 +119,6 @@ public final class LaunchServer implements Runnable {
 
         public ExeConf launch4j;
 
-        public PostBuildTransformConf buildPostTransform;
-
         public boolean compress;
 
         public int authRateLimit;
@@ -230,11 +228,6 @@ public final class LaunchServer implements Runnable {
             result.add(profile);
             return super.visitFile(file, attrs);
         }
-    }
-
-    public static class PostBuildTransformConf {
-        public boolean enabled;
-        public List<String> script;
     }
 
     public static void main(String... args) throws Throwable {
