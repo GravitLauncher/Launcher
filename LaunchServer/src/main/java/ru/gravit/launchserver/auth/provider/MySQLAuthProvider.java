@@ -9,6 +9,7 @@ import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.MySQLSourceConfig;
 import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
 public final class MySQLAuthProvider extends AuthProvider {
@@ -17,6 +18,13 @@ public final class MySQLAuthProvider extends AuthProvider {
     private String message;
     private String[] queryParams;
     private boolean usePermission;
+
+    @Override
+    public void init() {
+        if(query == null) LogHelper.error("[Verify][AuthProvider] query cannot be null");
+        if(message == null) LogHelper.error("[Verify][AuthProvider] message cannot be null");
+        if(mySQLHolder == null) LogHelper.error("[Verify][AuthProvider] mySQLHolder cannot be null");
+    }
 
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws SQLException, AuthException {

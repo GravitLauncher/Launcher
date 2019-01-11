@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
 public final class RequestAuthProvider extends AuthProvider {
@@ -19,6 +20,8 @@ public final class RequestAuthProvider extends AuthProvider {
     @Override
     public void init()
     {
+        if(url == null) LogHelper.error("[Verify][AuthProvider] url cannot be null");
+        if(response == null) LogHelper.error("[Verify][AuthProvider] response cannot be null");
         pattern = Pattern.compile(response);
     }
 
