@@ -139,6 +139,7 @@ public final class LaunchServer implements Runnable {
         public boolean enabledProGuard;
         public boolean stripLineNumbers;
 		public boolean deleteTempFiles;
+		public boolean enableRcon;
         
 		public String startScript;
 
