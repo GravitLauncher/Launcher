@@ -1,7 +1,7 @@
 package ru.gravit.launcher.client;
 
 import ru.gravit.launcher.LauncherEngine;
-import ru.gravit.launcher.modules.SimpleModuleManager;
+import ru.gravit.launcher.managers.SimpleModuleManager;
 
 import java.net.URL;
 import java.util.ArrayList;

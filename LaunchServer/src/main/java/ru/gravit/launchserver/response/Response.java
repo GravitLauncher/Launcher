@@ -9,6 +9,7 @@ import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.response.admin.ExecCommandResponse;
 import ru.gravit.launchserver.response.auth.AuthResponse;
 import ru.gravit.launchserver.response.auth.AuthServerResponse;
 import ru.gravit.launchserver.response.auth.ChangeServerResponse;
@@ -60,6 +61,7 @@ public abstract class Response {
         registerResponse(RequestType.SERVERAUTH.getNumber(), AuthServerResponse::new);
         registerResponse(RequestType.SETPROFILE.getNumber(), SetProfileResponse::new);
         registerResponse(RequestType.CHANGESERVER.getNumber(), ChangeServerResponse::new);
+        registerResponse(RequestType.EXECCOMMAND.getNumber(), ExecCommandResponse::new);
     }
 
 

@@ -1,5 +1,8 @@
-package ru.gravit.launcher.modules;
+package ru.gravit.launcher.managers;
 
+import ru.gravit.launcher.modules.Module;
+import ru.gravit.launcher.modules.ModuleContext;
+import ru.gravit.launcher.modules.ModulesManagerInterface;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;

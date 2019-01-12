@@ -143,6 +143,18 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             return Objects.hash(file);
         }
     }
+    public static class OptionalArgs
+    {
+        @LauncherAPI
+        public boolean mark;
+        @LauncherAPI
+        public String[] args;
+
+        public OptionalArgs(String[] args, boolean mark) {
+            this.mark = mark;
+            this.args = args;
+        }
+    }
 
     //  Updater and client watch service
     @LauncherAPI
@@ -170,6 +182,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private final List<String> clientArgs = new ArrayList<>();
     @LauncherAPI
     private final List<String> whitelist = new ArrayList<>();
+    @LauncherAPI
+    private final List<OptionalArgs> optionalJVMArgs = new ArrayList<>();
+    @LauncherAPI
+    private final List<OptionalArgs> optionalClientArgs = new ArrayList<>();
+    @LauncherAPI
+    private final List<OptionalArgs> optionalClassPath = new ArrayList<>();
 
     @Override
     public int compareTo(ClientProfile o) {
@@ -189,6 +207,19 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     public String[] getClassPath() {
         return classPath.toArray(new String[0]);
+    }
+
+    @LauncherAPI
+    public List<OptionalArgs> getOptionalJVMArgs() {
+        return optionalJVMArgs;
+    }
+    @LauncherAPI
+    public List<OptionalArgs> getOptionalClientArgs() {
+        return optionalClientArgs;
+    }
+    @LauncherAPI
+    public List<OptionalArgs> getOptionalClassPath() {
+        return optionalClassPath;
     }
 
     @LauncherAPI

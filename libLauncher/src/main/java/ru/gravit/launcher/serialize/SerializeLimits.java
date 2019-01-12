@@ -19,4 +19,6 @@ public class SerializeLimits {
     public static final int MAX_DIGEST = 512;
     @LauncherAPI
     public static final int MAX_HWID_STR = 1024;
+    @LauncherAPI
+    public static final int MAX_COMMAND = 2048;
 }

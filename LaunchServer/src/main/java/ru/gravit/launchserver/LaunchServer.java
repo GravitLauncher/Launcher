@@ -139,6 +139,7 @@ public final class LaunchServer implements Runnable {
         public boolean enabledProGuard;
         public boolean stripLineNumbers;
 		public boolean deleteTempFiles;
+		public boolean enableRcon;
         
 		public String startScript;
 
@@ -188,6 +189,14 @@ public final class LaunchServer implements Runnable {
             if(textureProvider == null)
             {
                 throw new NullPointerException("TextureProvider must not be null");
+            }
+            if(permissionsHandler == null)
+            {
+                throw new NullPointerException("PermissionsHandler must not be null");
+            }
+            if(env == null)
+            {
+                throw new NullPointerException("Env must not be null");
             }
         }
     }

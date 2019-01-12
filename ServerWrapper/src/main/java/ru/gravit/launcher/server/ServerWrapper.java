@@ -9,10 +9,7 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.auth.AuthServerRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.utils.PublicURLClassLoader;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.*;
 
 import java.io.*;
 import java.lang.invoke.MethodHandle;
@@ -51,10 +48,14 @@ public class ServerWrapper {
                     break;
                 }
             }
-            if(wrapper.profile == null) LogHelper.warning("Your profile not found");
+            if(wrapper.profile == null) {
+                LogHelper.error("Your profile not found");
+                if(ServerWrapper.config.stopOnError) System.exit(-1);
+            }
             return true;
         } catch (Throwable e) {
             LogHelper.error(e);
+            if(ServerWrapper.config.stopOnError) System.exit(-1);
             return false;
         }
 
@@ -104,6 +105,7 @@ public class ServerWrapper {
         }
         LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
         Launcher.setConfig(cfg);
+        if(config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile),true));
         if (config.syncAuth) auth(wrapper);
         else
             CommonHelper.newThread("Server Auth Thread", true, () -> ServerWrapper.loopAuth(wrapper, config.reconnectCount, config.reconnectSleep));
@@ -111,6 +113,7 @@ public class ServerWrapper {
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
         if (classname.length() == 0) {
             LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.cfg or first commandline argument");
+            if(config.stopOnError) System.exit(-1);
         }
         Class<?> mainClass;
         if (config.customClassPath) {
@@ -165,6 +168,7 @@ public class ServerWrapper {
         newConfig.password = "password";
         newConfig.mainclass = "";
         newConfig.syncAuth = true;
+        newConfig.stopOnError = true;
         newConfig.reconnectCount = 10;
         newConfig.reconnectSleep = 1000;
         //try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/ServerWrapper.cfg")))
@@ -191,7 +195,9 @@ public class ServerWrapper {
         public int reconnectSleep;
         public boolean customClassPath;
         public boolean autoloadLibraries;
+        public boolean stopOnError;
         public boolean syncAuth;
+        public String logFile;
         public String classpath;
         public String librariesDir;
         public String mainclass;
