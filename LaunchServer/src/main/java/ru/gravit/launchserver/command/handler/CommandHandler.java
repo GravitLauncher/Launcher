@@ -44,13 +44,7 @@ import ru.gravit.launchserver.command.hash.SyncUpdatesCommand;
 import ru.gravit.launchserver.command.hash.UnindexAssetCommand;
 import ru.gravit.launchserver.command.modules.LoadModuleCommand;
 import ru.gravit.launchserver.command.modules.ModulesCommand;
-import ru.gravit.launchserver.command.service.ConfigCommand;
-import ru.gravit.launchserver.command.service.ConfigHelpCommand;
-import ru.gravit.launchserver.command.service.ConfigListCommand;
-import ru.gravit.launchserver.command.service.ReloadAllCommand;
-import ru.gravit.launchserver.command.service.ReloadCommand;
-import ru.gravit.launchserver.command.service.ReloadListCommand;
-import ru.gravit.launchserver.command.service.SwapAuthProviderCommand;
+import ru.gravit.launchserver.command.service.*;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
@@ -153,6 +147,7 @@ public abstract class CommandHandler implements Runnable {
         registerCommand("configHelp", new ConfigHelpCommand(server));
         registerCommand("configList", new ConfigListCommand(server));
         registerCommand("swapAuthProvider", new SwapAuthProviderCommand(server));
+        registerCommand("serverStatus", new ServerStatusCommand(server));
     }
 
 
