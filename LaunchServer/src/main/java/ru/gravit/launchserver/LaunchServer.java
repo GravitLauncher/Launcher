@@ -189,6 +189,14 @@ public final class LaunchServer implements Runnable {
             {
                 throw new NullPointerException("TextureProvider must not be null");
             }
+            if(permissionsHandler == null)
+            {
+                throw new NullPointerException("PermissionsHandler must not be null");
+            }
+            if(env == null)
+            {
+                throw new NullPointerException("Env must not be null");
+            }
         }
     }
 

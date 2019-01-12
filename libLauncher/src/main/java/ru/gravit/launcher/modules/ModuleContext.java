@@ -8,4 +8,5 @@ public interface ModuleContext {
     Type getType();
 
     ModulesManagerInterface getModulesManager();
+    ModulesConfigManagerInterface getModulesConfigManager();
 }
