@@ -17,7 +17,7 @@ public class ClientLauncherWrapper {
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
-        LogHelper.info("Restart Launcher witch JavaAgent...");
+        LogHelper.info("Restart Launcher with JavaAgent...");
         LogHelper.info("If need debug output use -Dlauncher.debug=true");
         JVMHelper.checkStackTrace(ClientLauncherWrapper.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
