@@ -593,6 +593,8 @@ public final class LaunchServer implements Runnable {
         newConfig.enabledProGuard = true;
         newConfig.stripLineNumbers = true;
         newConfig.deleteTempFiles = true;
+        newConfig.isWarningMissArchJava = true;
+
         // Set server address
         LogHelper.println("LaunchServer address: ");
         newConfig.setAddress(commandHandler.readLine());

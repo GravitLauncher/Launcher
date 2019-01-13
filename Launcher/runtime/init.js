@@ -52,7 +52,6 @@ function setCurrentScene(scene) {
     rootPane = scene.getRoot();
     dimPane = rootPane.lookup("#mask");
     stage.sizeToScene();
-    stage.centerOnScreen();
     stage.show();
 }
 
