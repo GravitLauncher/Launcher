@@ -21,6 +21,7 @@ public final class JsonHWIDHandler extends HWIDHandler {
     private URL urlBan;
     private URL urlUnBan;
     private URL urlGet;
+    private String apiKey;
 
     public class banRequest {
         public banRequest(OshiHWID hwid) {
@@ -28,6 +29,12 @@ public final class JsonHWIDHandler extends HWIDHandler {
         }
 
         OshiHWID hwid;
+        String apiKey;
+
+        public banRequest(OshiHWID hwid, String apiKey) {
+            this.hwid = hwid;
+            this.apiKey = apiKey;
+        }
     }
 
     public class checkRequest {
@@ -38,7 +45,13 @@ public final class JsonHWIDHandler extends HWIDHandler {
 
         String username;
         OshiHWID hwid;
+        String apiKey;
 
+        public checkRequest(String username, OshiHWID hwid, String apiKey) {
+            this.username = username;
+            this.hwid = hwid;
+            this.apiKey = apiKey;
+        }
     }
 
     public class Result {
@@ -56,12 +69,18 @@ public final class JsonHWIDHandler extends HWIDHandler {
         }
 
         String username;
+        String apiKey;
+
+        public HWIDRequest(String username, String apiKey) {
+            this.username = username;
+            this.apiKey = apiKey;
+        }
     }
 
     @Override
     public void ban(List<HWID> l_hwid) throws HWIDException {
         for (HWID hwid : l_hwid) {
-            banRequest request = new banRequest((OshiHWID) hwid);
+            banRequest request = new banRequest((OshiHWID) hwid, apiKey);
             try {
                 JsonElement result = HTTPRequest.jsonRequest(gson.toJsonTree(request), urlBan);
                 Result r = gson.fromJson(result, Result.class);
@@ -75,7 +94,7 @@ public final class JsonHWIDHandler extends HWIDHandler {
 
     @Override
     public void check0(HWID hwid, String username) throws HWIDException {
-        checkRequest request = new checkRequest(username, (OshiHWID) hwid);
+        checkRequest request = new checkRequest(username, (OshiHWID) hwid, apiKey);
         try {
             JsonElement result = HTTPRequest.jsonRequest(gson.toJsonTree(request), url);
             BannedResult r = gson.fromJson(result, BannedResult.class);
@@ -96,7 +115,7 @@ public final class JsonHWIDHandler extends HWIDHandler {
     @Override
     public List<HWID> getHwid(String username) throws HWIDException {
         ArrayList<HWID> hwids = new ArrayList<>();
-        HWIDRequest request = new HWIDRequest(username);
+        HWIDRequest request = new HWIDRequest(username, apiKey);
         try {
             JsonElement result = HTTPRequest.jsonRequest(gson.toJsonTree(request), urlGet);
             OshiHWID[] r = gson.fromJson(result, OshiHWID[].class);
@@ -111,7 +130,7 @@ public final class JsonHWIDHandler extends HWIDHandler {
     @Override
     public void unban(List<HWID> l_hwid) throws HWIDException {
         for (HWID hwid : l_hwid) {
-            banRequest request = new banRequest((OshiHWID) hwid);
+            banRequest request = new banRequest((OshiHWID) hwid, apiKey);
             try {
                 JsonElement result = HTTPRequest.jsonRequest(gson.toJsonTree(request), urlUnBan);
                 Result r = gson.fromJson(result, Result.class);
