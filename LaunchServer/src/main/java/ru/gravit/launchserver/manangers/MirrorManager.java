@@ -34,7 +34,7 @@ public class MirrorManager {
     protected ArrayList<Mirror> list = new ArrayList<>();
     private Mirror defaultMirror;
 
-    public void addMirror(String mirror) throws MalformedURLException {
+    public void addMirror(String mirror) {
         Mirror m = new Mirror(mirror);
         m.enabled = true;
         if (defaultMirror == null) defaultMirror = m;

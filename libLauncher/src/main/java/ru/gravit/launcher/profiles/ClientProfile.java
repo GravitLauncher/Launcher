@@ -6,7 +6,6 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
 
@@ -383,7 +382,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    public void pushOptional(HashedDir dir, boolean digest) throws IOException {
+    public void pushOptional(HashedDir dir, boolean digest) {
         for (OptionalFile opt : updateOptional) {
             if (!opt.mark) dir.removeR(opt.file);
         }
@@ -592,10 +591,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 		} else if (!version.equals(other.version))
 			return false;
 		if (whitelist == null) {
-			if (other.whitelist != null)
-				return false;
-		} else if (!whitelist.equals(other.whitelist))
-			return false;
-		return true;
-	}
+            return other.whitelist == null;
+		} else return whitelist.equals(other.whitelist);
+    }
 }

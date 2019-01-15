@@ -61,7 +61,7 @@ public class DirBridge {
     }
 
     @LauncherAPI
-    public static Path getLegacyLauncherDir(String projectname) throws IOException {
+    public static Path getLegacyLauncherDir(String projectname) {
         return IOHelper.HOME_DIR.resolve(projectname);
     }
 

@@ -8,22 +8,14 @@ import java.util.stream.Collectors;
 public final class TaskUtil {
 	public static void addCounted(List<LauncherBuildTask> tasks, int count, Predicate<LauncherBuildTask> pred, LauncherBuildTask taskAdd) {
 		List<LauncherBuildTask> indexes = new ArrayList<>();
-		tasks.stream().filter(pred).forEach(e -> {
-			indexes.add(e);
-		});
-		indexes.forEach(e -> {
-			tasks.add(tasks.indexOf(e)+count, taskAdd);
-		});
+		tasks.stream().filter(pred).forEach(e -> indexes.add(e));
+		indexes.forEach(e -> tasks.add(tasks.indexOf(e)+count, taskAdd));
 	}
 	
 	public static void replaceCounted(List<LauncherBuildTask> tasks, int count, Predicate<LauncherBuildTask> pred, LauncherBuildTask taskRep) {
 		List<LauncherBuildTask> indexes = new ArrayList<>();
-		tasks.stream().filter(pred).forEach(e -> {
-			indexes.add(e);
-		});
-		indexes.forEach(e -> {
-			tasks.set(tasks.indexOf(e)+count, taskRep);
-		});
+		tasks.stream().filter(pred).forEach(e -> indexes.add(e));
+		indexes.forEach(e -> tasks.set(tasks.indexOf(e)+count, taskRep));
 	}
 	
 	public static void addPre(List<LauncherBuildTask> tasks, Predicate<LauncherBuildTask> pred, LauncherBuildTask taskAdd) {

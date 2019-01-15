@@ -30,7 +30,7 @@ public class ServerAgent {
         inst.appendToSystemClassLoaderSearch(new JarFile(path));
     }
 
-    public static void addJVMClassPath(JarFile file) throws IOException {
+    public static void addJVMClassPath(JarFile file) {
         LogHelper.debug("Load %s", file.getName());
         inst.appendToSystemClassLoaderSearch(file);
     }

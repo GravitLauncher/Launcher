@@ -22,7 +22,7 @@ public class ServerStatusCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         LogHelper.info("Show server status");
         LogHelper.info("Memory: free %d | total: %d | max: %d", JVMHelper.RUNTIME.freeMemory(), JVMHelper.RUNTIME.totalMemory(),JVMHelper.RUNTIME.maxMemory());
         long uptime = JVMHelper.RUNTIME_MXBEAN.getUptime() / 1000;

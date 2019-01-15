@@ -22,7 +22,7 @@ public class JsonFilePermissionsHandler extends PermissionsHandler implements Re
     public static Map<String,ClientPermissions> map;
 
     @Override
-    public void reload() throws Exception {
+    public void reload() {
         map.clear();
         Path path = Paths.get(filename);
         Type type = new TypeToken<Map<String,ClientPermissions>>(){}.getType();

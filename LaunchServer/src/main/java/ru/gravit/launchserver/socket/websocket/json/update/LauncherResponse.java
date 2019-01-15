@@ -24,7 +24,7 @@ public class LauncherResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
         byte[] bytes = Base64.getDecoder().decode(hash);
         if (launcher_type == 1) // JAR
         {

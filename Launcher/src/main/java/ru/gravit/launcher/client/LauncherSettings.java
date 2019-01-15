@@ -62,7 +62,7 @@ public class LauncherSettings {
     }
 
     @LauncherAPI
-    public void save() throws SignatureException {
+    public void save() {
         LogHelper.debug("Save settings file");
         try {
             try (HOutput output = new HOutput(IOHelper.newOutput(file))) {

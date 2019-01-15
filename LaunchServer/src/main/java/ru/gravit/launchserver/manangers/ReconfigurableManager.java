@@ -19,7 +19,7 @@ public class ReconfigurableManager {
     {
         RECONFIGURABLE.get(name).printConfigHelp();
     }
-    public void call(String name, String action, String[] args) throws Exception {
+    public void call(String name, String action, String[] args) {
         RECONFIGURABLE.get(name).reconfig(action,args);
     }
     public void printReconfigurables()

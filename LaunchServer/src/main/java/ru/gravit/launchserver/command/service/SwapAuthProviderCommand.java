@@ -29,38 +29,34 @@ public class SwapAuthProviderCommand extends Command {
         verifyArgs(args,2);
         if(providersCache == null) providersCache = new AuthProvider[server.config.authProvider.length];
         int index = Integer.valueOf(args[0]);
-        if(args[1].equals("accept"))
-        {
-            if(providersCache[index] == null)
-            {
-				AcceptAuthProvider provider = new AcceptAuthProvider();
-                providersCache[index] = server.config.authProvider[index];
-                server.config.authProvider[index] = provider;
-                LogHelper.info("AuthProvider[%d] is AcceptAuthProvider",index);
-            }
-            else LogHelper.error("Changes detected. Use undo");
-        } else if(args[1].equals("reject"))
-        {
-            if(providersCache[index] == null)
-            {
-                RejectAuthProvider rejectAuthProvider;
-                if(args.length < 3) rejectAuthProvider = new RejectAuthProvider();
-                else rejectAuthProvider = new RejectAuthProvider(args[2]);
-                providersCache[index] = server.config.authProvider[index];
-                server.config.authProvider[index] = rejectAuthProvider;
-                LogHelper.info("AuthProvider[%d] is RejectAuthProvider",index);
-            }
-            else LogHelper.error("Changes detected. Use undo");
-        } else if(args[1].equals("undo"))
-        {
-            if(providersCache[index] == null) LogHelper.error("Cache clean. Undo impossible");
-            else
-            {
-                server.config.authProvider[index].close();
-                server.config.authProvider[index] = providersCache[index];
-                providersCache[index] = null;
-            }
+        switch (args[1]) {
+            case "accept":
+                if (providersCache[index] == null) {
+                    AcceptAuthProvider provider = new AcceptAuthProvider();
+                    providersCache[index] = server.config.authProvider[index];
+                    server.config.authProvider[index] = provider;
+                    LogHelper.info("AuthProvider[%d] is AcceptAuthProvider", index);
+                } else LogHelper.error("Changes detected. Use undo");
+                break;
+            case "reject":
+                if (providersCache[index] == null) {
+                    RejectAuthProvider rejectAuthProvider;
+                    if (args.length < 3) rejectAuthProvider = new RejectAuthProvider();
+                    else rejectAuthProvider = new RejectAuthProvider(args[2]);
+                    providersCache[index] = server.config.authProvider[index];
+                    server.config.authProvider[index] = rejectAuthProvider;
+                    LogHelper.info("AuthProvider[%d] is RejectAuthProvider", index);
+                } else LogHelper.error("Changes detected. Use undo");
+                break;
+            case "undo":
+                if (providersCache[index] == null) LogHelper.error("Cache clean. Undo impossible");
+                else {
+                    server.config.authProvider[index].close();
+                    server.config.authProvider[index] = providersCache[index];
+                    providersCache[index] = null;
+                }
 
+                break;
         }
     }
 }

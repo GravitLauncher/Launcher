@@ -98,7 +98,7 @@ public class ClassMetadataReader implements Closeable {
     }
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		cp.stream().forEach(IOHelper::close);
 		cp.clear();
 	}

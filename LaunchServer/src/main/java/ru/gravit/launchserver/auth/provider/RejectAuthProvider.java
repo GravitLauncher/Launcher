@@ -40,24 +40,22 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
 
     @Override
     public void reconfig(String action, String[] args) {
-        if(action.equals("message"))
-        {
-            message = args[0];
-            LogHelper.info("New reject message: %s", message);
-        }
-        else if(action.equals("whitelist.add"))
-        {
-            if(whitelist == null) whitelist = new ArrayList<>();
-            whitelist.add(args[0]);
-        }
-        else if(action.equals("whitelist.remove"))
-        {
-            if(whitelist == null) whitelist = new ArrayList<>();
-            whitelist.remove(args[0]);
-        }
-        else if(action.equals("whitelist.clear"))
-        {
-            whitelist.clear();
+        switch (action) {
+            case "message":
+                message = args[0];
+                LogHelper.info("New reject message: %s", message);
+                break;
+            case "whitelist.add":
+                if (whitelist == null) whitelist = new ArrayList<>();
+                whitelist.add(args[0]);
+                break;
+            case "whitelist.remove":
+                if (whitelist == null) whitelist = new ArrayList<>();
+                whitelist.remove(args[0]);
+                break;
+            case "whitelist.clear":
+                whitelist.clear();
+                break;
         }
     }
 
