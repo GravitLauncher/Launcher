@@ -10,7 +10,7 @@ import java.net.InetSocketAddress;
 import java.util.*;
 
 public final class ClientProfile implements Comparable<ClientProfile> {
-    public ClientProfile(String version, String assetIndex, int sortIndex, String title, String serverAddress, int serverPort, boolean updateFastCheck, boolean useWhitelist, String mainClass) {
+    public ClientProfile(String version, String assetIndex, int sortIndex, String title, String info, String serverAddress, int serverPort, boolean updateFastCheck, boolean useWhitelist, String mainClass) {
         this.version = version;
         this.assetIndex = assetIndex;
         this.sortIndex = sortIndex;
