@@ -108,6 +108,8 @@ public class ServerWrapper {
         }
         LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
         Launcher.setConfig(cfg);
+        if(config.env != null) Launcher.applyLauncherEnv(config.env);
+        else Launcher.applyLauncherEnv(LauncherConfig.LauncherEnvironment.STD);
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         if (config.syncAuth) auth(wrapper);
         else
@@ -176,6 +178,7 @@ public class ServerWrapper {
         newConfig.stopOnError = true;
         newConfig.reconnectCount = 10;
         newConfig.reconnectSleep = 1000;
+        newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         //try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/ServerWrapper.cfg")))
         //{
         //    newConfig = gson.fromJson(reader,Config.class);
@@ -207,6 +210,7 @@ public class ServerWrapper {
         public String mainclass;
         public String login;
         public String password;
+        public LauncherConfig.LauncherEnvironment env;
     }
 
     public ClientProfile profile;

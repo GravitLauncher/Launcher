@@ -367,6 +367,7 @@ public final class LaunchServer implements Runnable {
             config = Launcher.gson.fromJson(reader, Config.class);
         }
         config.verify();
+        Launcher.applyLauncherEnv(config.env);
         for (AuthProvider provider : config.authProvider) {
             provider.init();
         }
@@ -396,13 +397,7 @@ public final class LaunchServer implements Runnable {
         if (config.textureProvider instanceof Reloadable)
             reloadManager.registerReloadable("textureProvider", (Reloadable) config.textureProvider);
 
-        Arrays.stream(config.mirrors).forEach(s -> {
-            try {
-                mirrorManager.addMirror(s);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-        });
+        Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
 
         if (config.permissionsHandler instanceof Reconfigurable)
             reconfigurableManager.registerReconfigurable("permissionsHandler", (Reconfigurable) config.permissionsHandler);
@@ -416,13 +411,7 @@ public final class LaunchServer implements Runnable {
         if (config.textureProvider instanceof Reconfigurable)
             reconfigurableManager.registerReconfigurable("textureProvider", (Reconfigurable) config.textureProvider);
 
-        Arrays.stream(config.mirrors).forEach(s -> {
-            try {
-                mirrorManager.addMirror(s);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-        });
+        Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
 
         // init modules
         modulesManager.initModules();
