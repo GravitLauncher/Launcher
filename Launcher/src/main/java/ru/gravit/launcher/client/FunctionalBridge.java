@@ -29,7 +29,7 @@ public class FunctionalBridge {
     @LauncherAPI
     public static AtomicReference<HWID> hwid = new AtomicReference<>();
     @LauncherAPI
-	public static Thread getHWID = null;
+    public static Thread getHWID = null;
 
     @LauncherAPI
     public static HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) {
@@ -74,7 +74,7 @@ public class FunctionalBridge {
     @LauncherAPI
     public static HWID getHWID() {
         HWID hhwid = hwid.get();
-        if(hhwid == null) hwid.set(hwidProvider.getHWID());
+        if (hhwid == null) hwid.set(hwidProvider.getHWID());
         return hhwid;
     }
 

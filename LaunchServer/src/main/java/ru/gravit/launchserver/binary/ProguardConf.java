@@ -1,20 +1,16 @@
 package ru.gravit.launchserver.binary;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
 
 public class ProguardConf {
     private static final String charsFirst = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
@@ -40,17 +36,17 @@ public class ProguardConf {
         words = proguard.resolve("random.pro");
         this.srv = srv;
     }
-    public String[] buildConfig(Path inputJar, Path outputJar)
-    {
-    	List<String> confStrs = new ArrayList<>();
+
+    public String[] buildConfig(Path inputJar, Path outputJar) {
+        List<String> confStrs = new ArrayList<>();
         prepare(false);
         if (srv.config.genMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add("-injar \'" + inputJar.toAbsolutePath() + "\'");
         confStrs.add("-outjar \'" + outputJar.toAbsolutePath() + "\'");
         srv.launcherBinary.coreLibs.stream()
-        	.map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
-        	.forEach(confStrs::add);
+                .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
+                .forEach(confStrs::add);
         confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add(readConf());
         return confStrs.toArray(new String[0]);

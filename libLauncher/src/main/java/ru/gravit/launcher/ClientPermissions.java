@@ -11,10 +11,12 @@ public class ClientPermissions {
     public boolean canAdmin;
     @LauncherAPI
     public boolean canServer;
+
     public ClientPermissions(HInput input) throws IOException {
         canAdmin = input.readBoolean();
         canServer = input.readBoolean();
     }
+
     public ClientPermissions() {
         canAdmin = false;
         canServer = false;
@@ -31,6 +33,7 @@ public class ClientPermissions {
         perm.canAdmin = true;
         return perm;
     }
+
     public void write(HOutput output) throws IOException {
         output.writeBoolean(canAdmin);
         output.writeBoolean(canServer);

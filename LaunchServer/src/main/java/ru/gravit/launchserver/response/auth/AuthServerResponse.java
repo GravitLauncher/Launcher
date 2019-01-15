@@ -1,11 +1,5 @@
 package ru.gravit.launchserver.response.auth;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
@@ -21,6 +15,11 @@ import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import java.util.Arrays;
+import java.util.Collection;
 
 public final class AuthServerResponse extends Response {
     private static String echo(int length) {
@@ -74,8 +73,7 @@ public final class AuthServerResponse extends Response {
                 throw new AuthException("Your profile is not found");
             }
             clientData.permissions = server.config.permissionsHandler.getPermissions(login);
-            if(!clientData.permissions.canServer)
-            {
+            if (!clientData.permissions.canServer) {
                 throw new AuthException("Your account cannot be a server");
             }
             clientData.type = Client.Type.SERVER;

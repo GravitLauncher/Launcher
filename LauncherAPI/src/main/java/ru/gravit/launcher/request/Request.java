@@ -18,8 +18,8 @@ public abstract class Request<R> {
     public static void setSession(long session) {
         Request.session = session;
     }
-    public static long getSession()
-    {
+
+    public static long getSession() {
         return Request.session;
     }
 

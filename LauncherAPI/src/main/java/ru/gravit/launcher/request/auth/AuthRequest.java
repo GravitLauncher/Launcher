@@ -87,6 +87,6 @@ public final class AuthRequest extends Request<Result> {
         PlayerProfile pp = new PlayerProfile(input);
         String accessToken = input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH);
         ClientPermissions permissions = new ClientPermissions(input);
-        return new Result(pp, accessToken,permissions);
+        return new Result(pp, accessToken, permissions);
     }
 }

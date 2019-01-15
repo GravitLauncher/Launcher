@@ -11,13 +11,12 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
     public SystemInfo systemInfo;
     public HardwareAbstractionLayer hardware;
     public boolean noHWID;
-    public OshiHWIDProvider()
-    {
+
+    public OshiHWIDProvider() {
         try {
             systemInfo = new SystemInfo();
             noHWID = false;
-        } catch(Throwable e)
-        {
+        } catch (Throwable e) {
             LogHelper.error(e);
             noHWID = true;
         }
@@ -25,7 +24,7 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
 
     public String getSerial() {
         try {
-            if(hardware == null) hardware = systemInfo.getHardware();
+            if (hardware == null) hardware = systemInfo.getHardware();
             return hardware.getComputerSystem().getSerialNumber();
         } catch (Exception e) {
             LogHelper.error(e);
@@ -36,7 +35,7 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
 
     public String getProcessorID() {
         try {
-            if(hardware == null) hardware = systemInfo.getHardware();
+            if (hardware == null) hardware = systemInfo.getHardware();
             return hardware.getProcessor().getProcessorID();
         } catch (Exception e) {
             LogHelper.error(e);
@@ -47,7 +46,7 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
 
     public String getHWDisk() {
         try {
-            if(hardware == null) hardware = systemInfo.getHardware();
+            if (hardware == null) hardware = systemInfo.getHardware();
             HWDiskStore store = null;
             long size = 0;
             for (HWDiskStore s : hardware.getDiskStores()) {
@@ -64,21 +63,20 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
     }
 
     public long getTotalMemory() {
-        if(noHWID) return -1;
-        if(hardware == null) hardware = systemInfo.getHardware();
+        if (noHWID) return -1;
+        if (hardware == null) hardware = systemInfo.getHardware();
         return hardware.getMemory().getTotal();
     }
 
     public long getAvailableMemory() {
-        if(noHWID) return -1;
-        if(hardware == null) hardware = systemInfo.getHardware();
+        if (noHWID) return -1;
+        if (hardware == null) hardware = systemInfo.getHardware();
         return hardware.getMemory().getAvailable();
     }
 
     public void printHardwareInformation() {
-        try
-        {
-            if(hardware == null) hardware = systemInfo.getHardware();
+        try {
+            if (hardware == null) hardware = systemInfo.getHardware();
             ComputerSystem computerSystem = hardware.getComputerSystem();
             LogHelper.debug("ComputerSystem Model: %s Serial: %s", computerSystem.getModel(), computerSystem.getSerialNumber());
             for (HWDiskStore s : hardware.getDiskStores()) {
@@ -89,8 +87,7 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
             }
             CentralProcessor processor = hardware.getProcessor();
             LogHelper.debug("Processor Model: %s ID: %s", processor.getModel(), processor.getProcessorID());
-        } catch (Throwable e)
-        {
+        } catch (Throwable e) {
             LogHelper.error(e);
         }
 

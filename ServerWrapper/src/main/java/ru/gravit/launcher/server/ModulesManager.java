@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 public class ModulesManager extends SimpleModuleManager {
     public ModulesConfigManager modulesConfigManager;
+
     public ModulesManager(ServerWrapper wrapper) {
         modules = new ArrayList<>();
         modulesConfigManager = new ModulesConfigManager(Paths.get("modules-config"));

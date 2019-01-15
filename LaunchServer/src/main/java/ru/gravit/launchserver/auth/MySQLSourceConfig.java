@@ -1,16 +1,14 @@
 package ru.gravit.launchserver.auth;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public final class MySQLSourceConfig implements AutoCloseable {
 
@@ -22,7 +20,7 @@ public final class MySQLSourceConfig implements AutoCloseable {
             VerifyHelper.POSITIVE, "launcher.mysql.maxPoolSize can't be <= 0");
 
     // Instance
-    private  transient final String poolName;
+    private transient final String poolName;
 
     // Config
     private String address;

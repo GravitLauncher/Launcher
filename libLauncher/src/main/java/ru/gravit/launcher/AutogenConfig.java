@@ -6,7 +6,7 @@ public class AutogenConfig {
     public int port;
     public int clientPort;
     @SuppressWarnings("unused")
-	private boolean isInitModules;
+    private boolean isInitModules;
     public boolean isUsingWrapper;
     public boolean isDownloadJava; //Выставление этого флага требует модификации runtime части
     public String secretKeyClient;

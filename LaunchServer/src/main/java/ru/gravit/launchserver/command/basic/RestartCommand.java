@@ -20,6 +20,6 @@ public final class RestartCommand extends Command {
 
     @Override
     public void invoke(String... args) {
-    	server.fullyRestart();
+        server.fullyRestart();
     }
 }

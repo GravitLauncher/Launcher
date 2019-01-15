@@ -9,6 +9,7 @@ import ru.gravit.utils.helper.LogHelper;
 
 public class SwapAuthProviderCommand extends Command {
     public AuthProvider[] providersCache;
+
     public SwapAuthProviderCommand(LaunchServer server) {
         super(server);
     }
@@ -24,10 +25,10 @@ public class SwapAuthProviderCommand extends Command {
     }
 
     @SuppressWarnings("resource")
-	@Override
+    @Override
     public void invoke(String... args) throws Exception {
-        verifyArgs(args,2);
-        if(providersCache == null) providersCache = new AuthProvider[server.config.authProvider.length];
+        verifyArgs(args, 2);
+        if (providersCache == null) providersCache = new AuthProvider[server.config.authProvider.length];
         int index = Integer.valueOf(args[0]);
         switch (args[1]) {
             case "accept":

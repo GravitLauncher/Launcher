@@ -1,9 +1,9 @@
 package ru.gravit.launchserver.asm;
 
-import java.util.ArrayList;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+
+import java.util.ArrayList;
 
 /**
  * ClassWriter с другой реализацией метода getCommonSuperClass: при его

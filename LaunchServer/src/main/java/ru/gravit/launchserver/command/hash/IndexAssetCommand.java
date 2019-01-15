@@ -1,5 +1,15 @@
 package ru.gravit.launchserver.command.hash;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.command.Command;
+import ru.gravit.launchserver.command.CommandException;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -8,17 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.command.Command;
-import ru.gravit.launchserver.command.CommandException;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 
 public final class IndexAssetCommand extends Command {
     private static Gson gson = new Gson();
@@ -115,7 +114,7 @@ public final class IndexAssetCommand extends Command {
 
         try (BufferedWriter writer = IOHelper.newWriter(resolveIndexFile(outputAssetDir, indexFileName))) {
             JsonObject result = new JsonObject();
-            result.add("objects",objects);
+            result.add("objects", objects);
             writer.write(gson.toJson(result));
         }
 

@@ -1,11 +1,11 @@
 package ru.gravit.launchserver.auth.provider;
 
-import java.util.ArrayList;
-
 import ru.gravit.launchserver.Reconfigurable;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+
+import java.util.ArrayList;
 
 public final class RejectAuthProvider extends AuthProvider implements Reconfigurable {
     public RejectAuthProvider() {
@@ -20,12 +20,9 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
 
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws AuthException {
-        if(whitelist != null)
-        {
-            for(String username : whitelist)
-            {
-                if(login.equals(username))
-                {
+        if (whitelist != null) {
+            for (String username : whitelist) {
+                if (login.equals(username)) {
                     return new AuthProviderResult(login, SecurityHelper.randomStringToken());
                 }
             }

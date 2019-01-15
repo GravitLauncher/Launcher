@@ -18,7 +18,8 @@ public class ExecCommandResponse extends Response {
     @Override
     public void reply() throws Exception {
         Client clientData = server.sessionManager.getClient(session);
-        if(!clientData.isAuth || !clientData.permissions.canAdmin || !server.config.enableRcon) requestError("Access denied");
+        if (!clientData.isAuth || !clientData.permissions.canAdmin || !server.config.enableRcon)
+            requestError("Access denied");
         writeNoError(output);
         String cmd = input.readString(SerializeLimits.MAX_COMMAND);
         LogHelper.Output loutput = message -> {
@@ -30,9 +31,8 @@ public class ExecCommandResponse extends Response {
             }
         };
         LogHelper.addOutput(loutput);
-        try
-        {
-            server.commandHandler.eval(cmd,false);
+        try {
+            server.commandHandler.eval(cmd, false);
             output.writeBoolean(false);
         } finally {
             LogHelper.removeOutput(loutput);

@@ -1,14 +1,14 @@
 package ru.gravit.launchserver.texture;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.UUID;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.profiles.Texture;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.UUID;
 
 public final class RequestTextureProvider extends TextureProvider {
     public RequestTextureProvider() {

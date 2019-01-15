@@ -5,6 +5,7 @@ import ru.gravit.launcher.ClientPermissions;
 public class ConfigPermissionsHandler extends PermissionsHandler {
     public boolean isAdmin = false;
     public boolean isServer = false;
+
     @Override
     public ClientPermissions getPermissions(String username) {
         ClientPermissions permissions = new ClientPermissions();
