@@ -2,16 +2,14 @@ package ru.gravit.launcher.modules;
 
 import java.net.URL;
 
-public interface ModulesManagerInterface {
+public interface ModulesManagerInterface extends AutoCloseable {
     void initModules();
 
     void load(Module module);
 
-    void load(Module module, boolean preload);
+    void loadModule(URL jarpath) throws Exception;
 
-    void loadModule(URL jarpath, boolean preload) throws Exception;
-
-    void loadModule(URL jarpath, String classname, boolean preload) throws Exception;
+    void loadModule(URL jarpath, String classname) throws Exception;
 
     void postInitModules();
 
@@ -21,5 +19,5 @@ public interface ModulesManagerInterface {
 
     void sort();
 
-    void registerModule(Module module, boolean preload);
+    void registerModule(Module module);
 }

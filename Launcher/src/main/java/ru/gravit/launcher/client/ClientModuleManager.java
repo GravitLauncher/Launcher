@@ -13,12 +13,7 @@ public class ClientModuleManager extends SimpleModuleManager {
     }
 
     @Override
-    public void loadModule(URL jarpath, boolean preload) {
-        throw new SecurityException("Custom JAR's load not allowed here");
-    }
-
-    @Override
-    public void loadModule(URL jarpath, String classname, boolean preload) {
+    public void loadModule(URL jarpath, String classname) {
         throw new SecurityException("Custom JAR's load not allowed here");
     }
 }

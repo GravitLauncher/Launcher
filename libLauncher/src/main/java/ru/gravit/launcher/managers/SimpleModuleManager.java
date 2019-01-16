@@ -14,26 +14,20 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
-public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseable {
+public class SimpleModuleManager implements ModulesManagerInterface {
     protected final class ModulesVisitor extends SimpleFileVisitor<Path> {
         private ModulesVisitor() {
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            try {
-                JarFile f = new JarFile(file.toString());
-                Manifest m = f.getManifest();
-                String mainclass = m.getMainAttributes().getValue("Main-Class");
-                loadModule(file.toUri().toURL(), mainclass, true);
-                f.close();
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-
-            // Return result
+        	if (file.toFile().getName().endsWith(".jar"))
+        		try (JarFile f = new JarFile(file.toFile())) {
+                	loadModule(file.toUri().toURL(), f.getManifest().getMainAttributes().getValue("Main-Class"));
+            	} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                	LogHelper.error(e);
+            	}
             return super.visitFile(file, attrs);
         }
     }
@@ -72,7 +66,6 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     }
 
     @Override
-
     public void initModules() {
         for (Module m : modules) {
             m.init(context);
@@ -81,53 +74,34 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     }
 
     @Override
-
     public void load(Module module) {
         modules.add(module);
     }
 
-    @Override
-
-    public void load(Module module, boolean preload) {
-        load(module);
-        if (!preload) module.init(context);
-    }
-
-
-    @Override
-
-    public void loadModule(URL jarpath, boolean preload) throws ClassNotFoundException, IllegalAccessException, InstantiationException, URISyntaxException, IOException {
-        JarFile f = new JarFile(Paths.get(jarpath.toURI()).toString());
-        Manifest m = f.getManifest();
-        String mainclass = m.getMainAttributes().getValue("Main-Class");
-        loadModule(jarpath, mainclass, preload);
-        f.close();
-    }
-
     public void loadModuleFull(URL jarpath) throws ClassNotFoundException, IllegalAccessException, InstantiationException, URISyntaxException, IOException {
-        JarFile f = new JarFile(Paths.get(jarpath.toURI()).toString());
-        Manifest m = f.getManifest();
-        String mainclass = m.getMainAttributes().getValue("Main-Class");
-        classloader.addURL(jarpath);
-        Class<?> moduleclass = Class.forName(mainclass, true, classloader);
-        Module module = (Module) moduleclass.newInstance();
-        modules.add(module);
-        module.preInit(context);
-        module.init(context);
-        module.postInit(context);
-        LogHelper.info("Module %s version: %s loaded", module.getName(), module.getVersion());
-        f.close();
+    	try (JarFile f = new JarFile(Paths.get(jarpath.toURI()).toFile())) {
+    		classloader.addURL(jarpath);
+        	Module module = (Module) Class.forName(f.getManifest().getMainAttributes().getValue("Main-Class"), true, classloader).newInstance();
+        	modules.add(module);
+        	module.preInit(context);
+        	module.init(context);
+        	module.postInit(context);
+        	LogHelper.info("Module %s version: %s loaded", module.getName(), module.getVersion());
+    	}
     }
 
-    @Override
+	@Override
+	public void loadModule(URL jarpath) throws Exception {
+		try (JarFile f = new JarFile(Paths.get(jarpath.toURI()).toFile())) {
+            loadModule(jarpath, f.getManifest().getMainAttributes().getValue("Main-Class")); 
+        }
+	}
 
-    public void loadModule(URL jarpath, String classname, boolean preload) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    @Override
+    public void loadModule(URL jarpath, String classname) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         classloader.addURL(jarpath);
-        Class<?> moduleclass = Class.forName(classname, true, classloader);
-        Module module = (Module) moduleclass.newInstance();
+        Module module = (Module) Class.forName(classname, true, classloader).newInstance();
         modules.add(module);
-        module.preInit(context);
-        if (!preload) module.init(context);
         LogHelper.info("Module %s version: %s loaded", module.getName(), module.getVersion());
     }
 
@@ -141,7 +115,6 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
 
 
     @Override
-
     public void preInitModules() {
         for (Module m : modules) {
             m.preInit(context);
@@ -150,7 +123,6 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     }
 
     @Override
-
     public void printModules() {
         for (Module m : modules)
             LogHelper.info("Module %s version: %s", m.getName(), m.getVersion());
@@ -158,9 +130,8 @@ public class SimpleModuleManager implements ModulesManagerInterface, AutoCloseab
     }
 
     @Override
-
-    public void registerModule(Module module, boolean preload) {
-        load(module, preload);
+    public void registerModule(Module module) {
+        load(module);
         LogHelper.info("Module %s version: %s registered", module.getName(), module.getVersion());
     }
 }

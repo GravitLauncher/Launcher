@@ -7,7 +7,6 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
@@ -124,12 +123,6 @@ public final class Launcher {
 
     public static Version getVersion() {
         return new Version(MAJOR, MINOR, PATCH, BUILD, RELEASE);
-    }
-
-    public static final boolean useAvanguard = true;
-
-    public static boolean isUsingAvanguard() {
-        return JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE && useAvanguard;
     }
 
     public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env)
