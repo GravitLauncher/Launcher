@@ -650,8 +650,7 @@ public final class LaunchServer implements Runnable {
 
     public void restart() {
         ProcessBuilder builder = new ProcessBuilder();
-        List<String> args = new ArrayList<>();
-        if (config.startScript != null) args.add(config.startScript);
+        if (config.startScript != null) builder.command(Collections.singletonList(config.startScript));
         else throw new IllegalArgumentException("Please create start script and link it as startScript in config.");
         builder.directory(this.dir.toFile());
         builder.inheritIO();
