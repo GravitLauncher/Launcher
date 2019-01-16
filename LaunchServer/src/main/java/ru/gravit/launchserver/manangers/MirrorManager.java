@@ -1,10 +1,10 @@
 package ru.gravit.launchserver.manangers;
 
+import ru.gravit.utils.helper.IOHelper;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-
-import ru.gravit.utils.helper.IOHelper;
 
 public class MirrorManager {
     public class Mirror {
@@ -34,7 +34,7 @@ public class MirrorManager {
     protected ArrayList<Mirror> list = new ArrayList<>();
     private Mirror defaultMirror;
 
-    public void addMirror(String mirror) throws MalformedURLException {
+    public void addMirror(String mirror) {
         Mirror m = new Mirror(mirror);
         m.enabled = true;
         if (defaultMirror == null) defaultMirror = m;

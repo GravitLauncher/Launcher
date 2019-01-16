@@ -47,6 +47,7 @@ import java.util.Map;
 public class JSRuntimeProvider implements RuntimeProvider {
 
     private final ScriptEngine engine = CommonHelper.newScriptEngine();
+
     @LauncherAPI
     public static void addLauncherClassBindings(Map<String, Object> bindings) {
         bindings.put("LauncherClass", Launcher.class);
@@ -123,6 +124,7 @@ public class JSRuntimeProvider implements RuntimeProvider {
             LogHelper.warning("JavaFX API isn't available");
         }
     }
+
     @LauncherAPI
     public Object loadScript(String path) throws IOException, ScriptException {
         URL url = Launcher.getResourceURL(path);

@@ -8,6 +8,7 @@ import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
@@ -129,5 +130,28 @@ public final class Launcher {
 
     public static boolean isUsingAvanguard() {
         return JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE && useAvanguard;
+    }
+
+    public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env)
+    {
+        switch (env)
+        {
+            case DEV:
+                LogHelper.setDevEnabled(true);
+                LogHelper.setStacktraceEnabled(true);
+                LogHelper.setDebugEnabled(true);
+                break;
+            case DEBUG:
+                LogHelper.setDebugEnabled(true);
+                LogHelper.setStacktraceEnabled(true);
+                break;
+            case STD:
+                break;
+            case PROD:
+                LogHelper.setStacktraceEnabled(false);
+                LogHelper.setDebugEnabled(false);
+                LogHelper.setDevEnabled(false);
+                break;
+        }
     }
 }

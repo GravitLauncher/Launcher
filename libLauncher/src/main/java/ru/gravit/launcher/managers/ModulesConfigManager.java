@@ -15,9 +15,8 @@ public class ModulesConfigManager implements ModulesConfigManagerInterface {
         this.configDir = configDir;
     }
 
-    public Path getModuleConfig(String moduleName)
-    {
-        if(!IOHelper.isDir(configDir)) {
+    public Path getModuleConfig(String moduleName) {
+        if (!IOHelper.isDir(configDir)) {
             try {
                 Files.createDirectories(configDir);
             } catch (IOException e) {
@@ -26,9 +25,9 @@ public class ModulesConfigManager implements ModulesConfigManagerInterface {
         }
         return configDir.resolve(moduleName.concat("Config.json"));
     }
-    public Path getModuleConfigDir(String moduleName)
-    {
-        if(!IOHelper.isDir(configDir)) {
+
+    public Path getModuleConfigDir(String moduleName) {
+        if (!IOHelper.isDir(configDir)) {
             try {
                 Files.createDirectories(configDir);
             } catch (IOException e) {

@@ -1,30 +1,21 @@
 package ru.gravit.launchserver.response;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.admin.ExecCommandResponse;
-import ru.gravit.launchserver.response.auth.AuthResponse;
-import ru.gravit.launchserver.response.auth.AuthServerResponse;
-import ru.gravit.launchserver.response.auth.ChangeServerResponse;
-import ru.gravit.launchserver.response.auth.CheckServerResponse;
-import ru.gravit.launchserver.response.auth.JoinServerResponse;
-import ru.gravit.launchserver.response.auth.SetProfileResponse;
+import ru.gravit.launchserver.response.auth.*;
 import ru.gravit.launchserver.response.profile.BatchProfileByUsernameResponse;
 import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
 import ru.gravit.launchserver.response.profile.ProfileByUsernameResponse;
-import ru.gravit.launchserver.response.update.LauncherResponse;
-import ru.gravit.launchserver.response.update.LegacyLauncherResponse;
-import ru.gravit.launchserver.response.update.ProfilesResponse;
-import ru.gravit.launchserver.response.update.UpdateListResponse;
-import ru.gravit.launchserver.response.update.UpdateResponse;
+import ru.gravit.launchserver.response.update.*;
 import ru.gravit.utils.helper.LogHelper;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Response {
     @FunctionalInterface

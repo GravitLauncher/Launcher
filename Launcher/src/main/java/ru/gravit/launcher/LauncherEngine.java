@@ -1,10 +1,16 @@
 package ru.gravit.launcher;
 
 import com.google.gson.GsonBuilder;
-import ru.gravit.launcher.client.*;
+import ru.gravit.launcher.client.ClientModuleManager;
+import ru.gravit.launcher.client.DirBridge;
+import ru.gravit.launcher.client.FunctionalBridge;
+import ru.gravit.launcher.client.LauncherSettings;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.gui.RuntimeProvider;
-import ru.gravit.utils.helper.*;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.EnvHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -34,9 +40,8 @@ public class LauncherEngine {
         LogHelper.debug("Launcher started in %dms", Duration.between(start, end).toMillis());
     }
 
-    public static void initGson()
-    {
-        if(Launcher.gson != null) return;
+    public static void initGson() {
+        if (Launcher.gson != null) return;
         Launcher.gsonBuilder = new GsonBuilder();
         Launcher.gson = Launcher.gsonBuilder.create();
     }
@@ -50,14 +55,13 @@ public class LauncherEngine {
     }
 
 
-
     @LauncherAPI
     public void start(String... args) throws Throwable {
         LogHelper.debug("%d", LauncherSettings.settingsMagic);
         Launcher.modulesManager = new ClientModuleManager(this);
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         Launcher.modulesManager.preInitModules();
-        if(runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
+        if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
         runtimeProvider.init(false);
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
@@ -67,7 +71,7 @@ public class LauncherEngine {
         runtimeProvider.preLoad();
         FunctionalBridge.worker = new RequestWorker();
         CommonHelper.newThread("FX Task Worker", true, FunctionalBridge.worker).start();
-        FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread",true, FunctionalBridge::getHWID);
+        FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread", true, FunctionalBridge::getHWID);
         FunctionalBridge.getHWID.start();
         LogHelper.debug("Dir: %s", DirBridge.dir);
         runtimeProvider.run(args);

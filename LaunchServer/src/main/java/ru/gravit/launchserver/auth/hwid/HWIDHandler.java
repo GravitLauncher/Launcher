@@ -1,12 +1,12 @@
 package ru.gravit.launchserver.auth.hwid;
 
+import ru.gravit.launcher.HWID;
+import ru.gravit.utils.helper.VerifyHelper;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-
-import ru.gravit.launcher.HWID;
-import ru.gravit.utils.helper.VerifyHelper;
 
 public abstract class HWIDHandler implements AutoCloseable {
     private static final Map<String, Class<? extends HWIDHandler>> HW_HANDLERS = new ConcurrentHashMap<>(4);
@@ -44,15 +44,13 @@ public abstract class HWIDHandler implements AutoCloseable {
 
     public abstract void unban(List<HWID> hwid) throws HWIDException;
 
-    public static Class<? extends HWIDHandler> getHandlerClass(String name)
-    {
+    public static Class<? extends HWIDHandler> getHandlerClass(String name) {
         return HW_HANDLERS.get(name);
     }
-    public static String getHandlerName(Class<? extends HWIDHandler> clazz)
-    {
-        for(Map.Entry<String,Class<? extends HWIDHandler>> e: HW_HANDLERS.entrySet())
-        {
-            if(e.getValue().equals(clazz)) return e.getKey();
+
+    public static String getHandlerName(Class<? extends HWIDHandler> clazz) {
+        for (Map.Entry<String, Class<? extends HWIDHandler>> e : HW_HANDLERS.entrySet()) {
+            if (e.getValue().equals(clazz)) return e.getKey();
         }
         return null;
     }

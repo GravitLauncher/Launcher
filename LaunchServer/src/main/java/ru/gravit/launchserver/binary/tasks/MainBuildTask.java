@@ -1,6 +1,18 @@
 package ru.gravit.launchserver.binary.tasks;
 
-import static ru.gravit.utils.helper.IOHelper.newZipEntry;
+import javassist.CannotCompileException;
+import javassist.NotFoundException;
+import ru.gravit.launcher.AutogenConfig;
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.asm.ClassMetadataReader;
+import ru.gravit.launchserver.binary.BuildContext;
+import ru.gravit.launchserver.binary.JAConfigurator;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,23 +28,12 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
-import ru.gravit.launcher.AutogenConfig;
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.asm.ClassMetadataReader;
-import ru.gravit.launchserver.binary.BuildContext;
-import ru.gravit.launchserver.binary.JAConfigurator;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
+import static ru.gravit.utils.helper.IOHelper.newZipEntry;
 
 public class MainBuildTask implements LauncherBuildTask {
-	private final LaunchServer server;
-	public final ClassMetadataReader reader;
+    private final LaunchServer server;
+    public final ClassMetadataReader reader;
+
     private final class RuntimeDirVisitor extends SimpleFileVisitor<Path> {
         private final ZipOutputStream output;
         private final Map<String, byte[]> runtime;
@@ -102,7 +103,7 @@ public class MainBuildTask implements LauncherBuildTask {
     }
 
     public MainBuildTask(LaunchServer srv) {
-    	server = srv;
+        server = srv;
         reader = new ClassMetadataReader();
     }
 
@@ -118,13 +119,13 @@ public class MainBuildTask implements LauncherBuildTask {
              JAConfigurator jaConfigurator = new JAConfigurator(AutogenConfig.class.getName(), this)) {
             jaConfigurator.pool.insertClassPath(inputJar.toFile().getAbsolutePath());
             server.launcherBinary.coreLibs.stream().map(e -> e.toFile().getAbsolutePath())
-            .forEach(t -> {
-				try {
-					jaConfigurator.pool.appendClassPath(t);
-				} catch (NotFoundException e2) {
-					LogHelper.error(e2);
-				}
-			});
+                    .forEach(t -> {
+                        try {
+                            jaConfigurator.pool.appendClassPath(t);
+                        } catch (NotFoundException e2) {
+                            LogHelper.error(e2);
+                        }
+                    });
             BuildContext context = new BuildContext(output, jaConfigurator, this);
             server.buildHookManager.hook(context);
             jaConfigurator.setAddress(server.config.getAddress());
@@ -138,12 +139,12 @@ public class MainBuildTask implements LauncherBuildTask {
             server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
             reader.getCp().add(new JarFile(inputJar.toFile()));
             server.launcherBinary.coreLibs.forEach(e -> {
-				try {
-					reader.getCp().add(new JarFile(e.toFile()));
-				} catch (IOException e1) {
-					LogHelper.error(e1);
-				}
-			});
+                try {
+                    reader.getCp().add(new JarFile(e.toFile()));
+                } catch (IOException e1) {
+                    LogHelper.error(e1);
+                }
+            });
             try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputJar))) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
@@ -169,7 +170,7 @@ public class MainBuildTask implements LauncherBuildTask {
                         }
                         bytes = server.buildHookManager.classTransform(bytes, classname, this);
                         output.write(bytes);
-                    } else 
+                    } else
                         IOHelper.transfer(input, output);
                     context.fileList.add(filename);
                     e = input.getNextEntry();

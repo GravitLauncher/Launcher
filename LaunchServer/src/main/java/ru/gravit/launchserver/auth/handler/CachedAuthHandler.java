@@ -1,16 +1,16 @@
 package ru.gravit.launchserver.auth.handler;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-
 import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 public abstract class CachedAuthHandler extends AuthHandler implements NeedGarbageCollection {
     public static final class Entry {
@@ -28,6 +28,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
             this.serverID = serverID == null ? null : VerifyHelper.verifyServerID(serverID);
         }
     }
+
     private transient final Map<UUID, Entry> entryCache = new HashMap<>(1024);
     private transient final Map<String, UUID> usernamesCache = new HashMap<>(1024);
 
@@ -114,12 +115,11 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
         return usernamesCache;
     }
 
-    public void loadEntryCache(Map<UUID, Entry> map)
-    {
+    public void loadEntryCache(Map<UUID, Entry> map) {
         entryCache.putAll(map);
     }
-    public void loadUsernameCache(Map<String, UUID> map)
-    {
+
+    public void loadUsernameCache(Map<String, UUID> map) {
         usernamesCache.putAll(map);
     }
 

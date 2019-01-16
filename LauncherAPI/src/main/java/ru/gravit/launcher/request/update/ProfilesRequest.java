@@ -47,10 +47,9 @@ public final class ProfilesRequest extends Request<ProfilesRequest.Result> {
 
         int count = input.readLength(0);
         List<ClientProfile> profiles = new ArrayList<>(count);
-        for (int i = 0; i < count; i++)
-        {
+        for (int i = 0; i < count; i++) {
             String prof = input.readString(0);
-            profiles.add(Launcher.gson.fromJson(prof,ClientProfile.class));
+            profiles.add(Launcher.gson.fromJson(prof, ClientProfile.class));
         }
         // Return request result
         return new Result(profiles);

@@ -1,10 +1,5 @@
 package ru.gravit.launchserver.socket;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.net.Socket;
-import java.net.SocketException;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.serialize.HInput;
@@ -16,6 +11,11 @@ import ru.gravit.launchserver.response.Response;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.Socket;
+import java.net.SocketException;
 
 public final class ResponseThread implements Runnable {
     class Handshake {
@@ -117,23 +117,21 @@ public final class ResponseThread implements Runnable {
             context.type = handshake.type;
 
             // Start response
-            if(socketHookManager.preHook(context))
-            {
+            if (socketHookManager.preHook(context)) {
                 try {
                     respond(handshake.type, input, output, handshake.session, context.ip);
                     socketHookManager.postHook(context);
                 } catch (RequestException e) {
-                    if(server.socketHookManager.errorHook(context,e))
-                    {
+                    if (server.socketHookManager.errorHook(context, e)) {
                         LogHelper.subDebug(String.format("#%d Request error: %s", handshake.session, e.getMessage()));
-                        if(e.getMessage() == null) LogHelper.error(e);
+                        if (e.getMessage() == null) LogHelper.error(e);
                         output.writeString(e.getMessage(), 0);
                     }
                 }
             }
         } catch (Exception e) {
             savedError = e;
-            if(server.socketHookManager.fatalErrorHook(socket,e))
+            if (server.socketHookManager.fatalErrorHook(socket, e))
                 LogHelper.error(e);
         } finally {
             IOHelper.close(socket);

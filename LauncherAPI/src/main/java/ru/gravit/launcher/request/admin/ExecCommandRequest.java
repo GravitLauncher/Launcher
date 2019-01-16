@@ -26,13 +26,11 @@ public class ExecCommandRequest extends Request<Boolean> {
         readError(input);
         output.writeString(cmd, SerializeLimits.MAX_COMMAND);
         boolean isContinue = true;
-        while (isContinue)
-        {
+        while (isContinue) {
             isContinue = input.readBoolean();
-            if(isContinue)
-            {
+            if (isContinue) {
                 String log = input.readString(SerializeLimits.MAX_COMMAND);
-                if(loutput != null) loutput.println(log);
+                if (loutput != null) loutput.println(log);
             }
         }
         readError(input);

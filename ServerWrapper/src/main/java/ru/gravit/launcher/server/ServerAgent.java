@@ -15,9 +15,9 @@ import java.util.jar.JarFile;
 
 public class ServerAgent {
     private static boolean isAgentStarted = false;
-    public static Instrumentation inst;
+    public static Instrumentation inst = null;
 
-    public static final class StarterVisitor extends SimpleFileVisitor<Path> {
+    private static final class StarterVisitor extends SimpleFileVisitor<Path> {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toFile().getName().endsWith(".jar")) addJVMClassPath(new JarFile(file.toFile()));
@@ -30,7 +30,7 @@ public class ServerAgent {
         inst.appendToSystemClassLoaderSearch(new JarFile(path));
     }
 
-    public static void addJVMClassPath(JarFile file) throws IOException {
+    public static void addJVMClassPath(JarFile file) {
         LogHelper.debug("Load %s", file.getName());
         inst.appendToSystemClassLoaderSearch(file);
     }

@@ -1,12 +1,5 @@
 package ru.gravit.launchserver.response.auth;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.UUID;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-
 import ru.gravit.launcher.OshiHWID;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
@@ -25,6 +18,12 @@ import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.UUID;
+
 public final class AuthResponse extends Response {
     private static String echo(int length) {
         char[] chars = new char[length];
@@ -35,8 +34,8 @@ public final class AuthResponse extends Response {
     public AuthResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
         super(server, session, input, output, ip);
     }
-    public static class AuthContext
-    {
+
+    public static class AuthContext {
         public AuthContext(long session, String login, int password_lenght, String client, String hwid, boolean isServerAuth) {
             this.session = session;
             this.login = login;
@@ -53,6 +52,7 @@ public final class AuthResponse extends Response {
         public String hwid;
         public boolean isServerAuth;
     }
+
     @Override
     public void reply() throws Exception {
         String login = input.readString(SerializeLimits.MAX_LOGIN);
@@ -80,9 +80,9 @@ public final class AuthResponse extends Response {
         AuthProvider provider = server.config.authProvider[auth_id];
         Client clientData = server.sessionManager.getClient(session);
         clientData.type = Client.Type.USER;
-        AuthContext context = new AuthContext(session,login,password.length(),client,hwid_str,false);
+        AuthContext context = new AuthContext(session, login, password.length(), client, hwid_str, false);
         try {
-            server.authHookManager.preHook(context,clientData);
+            server.authHookManager.preHook(context, clientData);
             if (server.limiter.isLimit(ip)) {
                 AuthProvider.authError(server.config.authRejectString);
                 return;
@@ -110,9 +110,9 @@ public final class AuthResponse extends Response {
                 }
             }
             server.config.hwidHandler.check(OshiHWID.gson.fromJson(hwid_str, OshiHWID.class), result.username);
-            server.authHookManager.postHook(context,clientData);
+            server.authHookManager.postHook(context, clientData);
         } catch (AuthException | HWIDException e) {
-            if(e.getMessage() == null) LogHelper.error(e);
+            if (e.getMessage() == null) LogHelper.error(e);
             requestError(e.getMessage());
             return;
         } catch (Exception e) {

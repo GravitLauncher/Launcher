@@ -21,8 +21,8 @@ public class ConfigHelpCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        verifyArgs(args,1);
-        LogHelper.info("Help %s module",args[0]);
+        verifyArgs(args, 1);
+        LogHelper.info("Help %s module", args[0]);
         server.reconfigurableManager.printHelp(args[0]);
     }
 }

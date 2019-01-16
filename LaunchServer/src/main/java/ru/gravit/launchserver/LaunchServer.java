@@ -1,42 +1,7 @@
 package ru.gravit.launchserver;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.lang.ProcessBuilder.Redirect;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.SocketAddress;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.KeyPair;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.zip.CRC32;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.hasher.HashedDir;
@@ -52,24 +17,12 @@ import ru.gravit.launchserver.auth.permissions.JsonFilePermissionsHandler;
 import ru.gravit.launchserver.auth.permissions.PermissionsHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
-import ru.gravit.launchserver.binary.EXEL4JLauncherBinary;
-import ru.gravit.launchserver.binary.EXELauncherBinary;
-import ru.gravit.launchserver.binary.JARLauncherBinary;
-import ru.gravit.launchserver.binary.LauncherBinary;
-import ru.gravit.launchserver.binary.ProguardConf;
+import ru.gravit.launchserver.binary.*;
 import ru.gravit.launchserver.command.handler.CommandHandler;
 import ru.gravit.launchserver.command.handler.JLineCommandHandler;
 import ru.gravit.launchserver.command.handler.StdCommandHandler;
-import ru.gravit.launchserver.config.AuthHandlerAdapter;
-import ru.gravit.launchserver.config.AuthProviderAdapter;
-import ru.gravit.launchserver.config.HWIDHandlerAdapter;
-import ru.gravit.launchserver.config.PermissionsHandlerAdapter;
-import ru.gravit.launchserver.config.TextureProviderAdapter;
-import ru.gravit.launchserver.manangers.MirrorManager;
-import ru.gravit.launchserver.manangers.ModulesManager;
-import ru.gravit.launchserver.manangers.ReconfigurableManager;
-import ru.gravit.launchserver.manangers.ReloadManager;
-import ru.gravit.launchserver.manangers.SessionManager;
+import ru.gravit.launchserver.config.*;
+import ru.gravit.launchserver.manangers.*;
 import ru.gravit.launchserver.manangers.hook.AuthHookManager;
 import ru.gravit.launchserver.manangers.hook.BuildHookManager;
 import ru.gravit.launchserver.manangers.hook.SocketHookManager;
@@ -77,16 +30,32 @@ import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.RequestTextureProvider;
 import ru.gravit.launchserver.texture.TextureProvider;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.helper.*;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.SocketAddress;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.KeyPair;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.zip.CRC32;
 
 public final class LaunchServer implements Runnable {
     public static final class Config {
-		public int port;
+        public int port;
 
         private String address;
 
@@ -95,7 +64,7 @@ public final class LaunchServer implements Runnable {
         public String projectName;
 
         public String[] mirrors;
-        
+
         public String binaryName;
 
         public LauncherConfig.LauncherEnvironment env;
@@ -104,7 +73,7 @@ public final class LaunchServer implements Runnable {
 
         public AuthProvider[] authProvider;
 
-        public AuthHandler  authHandler;
+        public AuthHandler authHandler;
 
         public PermissionsHandler permissionsHandler;
 
@@ -138,10 +107,10 @@ public final class LaunchServer implements Runnable {
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
         public boolean stripLineNumbers;
-		public boolean deleteTempFiles;
-		public boolean enableRcon;
-        
-		public String startScript;
+        public boolean deleteTempFiles;
+        public boolean enableRcon;
+
+        public String startScript;
 
 
         public String getAddress() {
@@ -178,24 +147,19 @@ public final class LaunchServer implements Runnable {
 
         public void verify() {
             VerifyHelper.verify(getAddress(), VerifyHelper.NOT_EMPTY, "LaunchServer address can't be empty");
-            if(authHandler == null)
-            {
+            if (authHandler == null) {
                 throw new NullPointerException("AuthHandler must not be null");
             }
-            if(authProvider == null || authProvider[0] == null)
-            {
+            if (authProvider == null || authProvider[0] == null) {
                 throw new NullPointerException("AuthProvider must not be null");
             }
-            if(textureProvider == null)
-            {
+            if (textureProvider == null) {
                 throw new NullPointerException("TextureProvider must not be null");
             }
-            if(permissionsHandler == null)
-            {
+            if (permissionsHandler == null) {
                 throw new NullPointerException("PermissionsHandler must not be null");
             }
-            if(env == null)
-            {
+            if (env == null) {
                 throw new NullPointerException("Env must not be null");
             }
         }
@@ -229,7 +193,7 @@ public final class LaunchServer implements Runnable {
             // Read profile
             ClientProfile profile;
             try (BufferedReader reader = IOHelper.newReader(file)) {
-                profile = Launcher.gson.fromJson(reader,ClientProfile.class);
+                profile = Launcher.gson.fromJson(reader, ClientProfile.class);
             }
             profile.verify();
 
@@ -262,10 +226,10 @@ public final class LaunchServer implements Runnable {
 
     public final Path dir;
 
-	public final Path launcherLibraries;
+    public final Path launcherLibraries;
 
-	public final List<String> args;
-    
+    public final List<String> args;
+
     public final Path configFile;
 
     public final Path publicKeyFile;
@@ -273,7 +237,7 @@ public final class LaunchServer implements Runnable {
     public final Path privateKeyFile;
 
     public final Path updatesDir;
-    
+
     public static LaunchServer server = null;
 
     public final Path profilesDir;
@@ -333,8 +297,8 @@ public final class LaunchServer implements Runnable {
         this.dir = dir;
         launcherLibraries = dir.resolve("launcher-libraries");
         if (!Files.isDirectory(launcherLibraries)) {
-        	Files.deleteIfExists(launcherLibraries);
-        	Files.createDirectory(launcherLibraries);
+            Files.deleteIfExists(launcherLibraries);
+            Files.createDirectory(launcherLibraries);
         }
         this.args = Arrays.asList(args);
         configFile = dir.resolve("LaunchServer.conf");
@@ -400,11 +364,11 @@ public final class LaunchServer implements Runnable {
         generateConfigIfNotExists();
         LogHelper.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = Launcher.gson.fromJson(reader,Config.class);
+            config = Launcher.gson.fromJson(reader, Config.class);
         }
         config.verify();
-        for(AuthProvider provider : config.authProvider)
-        {
+        Launcher.applyLauncherEnv(config.env);
+        for (AuthProvider provider : config.authProvider) {
             provider.init();
         }
         config.authHandler.init();
@@ -421,47 +385,33 @@ public final class LaunchServer implements Runnable {
         authHookManager = new AuthHookManager();
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
-        if(config.permissionsHandler instanceof Reloadable)
-            reloadManager.registerReloadable("permissionsHandler",(Reloadable) config.permissionsHandler);
-        if(config.authHandler instanceof Reloadable)
-            reloadManager.registerReloadable("authHandler",(Reloadable) config.authHandler);
-        for(int i=0;i<config.authProvider.length;++i)
-        {
+        if (config.permissionsHandler instanceof Reloadable)
+            reloadManager.registerReloadable("permissionsHandler", (Reloadable) config.permissionsHandler);
+        if (config.authHandler instanceof Reloadable)
+            reloadManager.registerReloadable("authHandler", (Reloadable) config.authHandler);
+        for (int i = 0; i < config.authProvider.length; ++i) {
             AuthProvider provider = config.authProvider[i];
-            if(provider instanceof Reloadable)
-                reloadManager.registerReloadable("authHandler".concat(String.valueOf(i)),(Reloadable) provider);
+            if (provider instanceof Reloadable)
+                reloadManager.registerReloadable("authHandler".concat(String.valueOf(i)), (Reloadable) provider);
         }
-        if(config.textureProvider instanceof Reloadable)
-            reloadManager.registerReloadable("textureProvider",(Reloadable) config.textureProvider);
+        if (config.textureProvider instanceof Reloadable)
+            reloadManager.registerReloadable("textureProvider", (Reloadable) config.textureProvider);
 
-        Arrays.stream(config.mirrors).forEach(s -> {
-            try {
-                mirrorManager.addMirror(s);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-        });
+        Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
 
-        if(config.permissionsHandler instanceof Reconfigurable)
-            reconfigurableManager.registerReconfigurable("permissionsHandler",(Reconfigurable) config.permissionsHandler);
-        if(config.authHandler instanceof Reconfigurable)
-            reconfigurableManager.registerReconfigurable("authHandler",(Reconfigurable) config.authHandler);
-        for(int i=0;i<config.authProvider.length;++i)
-        {
+        if (config.permissionsHandler instanceof Reconfigurable)
+            reconfigurableManager.registerReconfigurable("permissionsHandler", (Reconfigurable) config.permissionsHandler);
+        if (config.authHandler instanceof Reconfigurable)
+            reconfigurableManager.registerReconfigurable("authHandler", (Reconfigurable) config.authHandler);
+        for (int i = 0; i < config.authProvider.length; ++i) {
             AuthProvider provider = config.authProvider[i];
-            if(provider instanceof Reconfigurable)
-                reconfigurableManager.registerReconfigurable("authHandler".concat(String.valueOf(i)),(Reconfigurable) provider);
+            if (provider instanceof Reconfigurable)
+                reconfigurableManager.registerReconfigurable("authHandler".concat(String.valueOf(i)), (Reconfigurable) provider);
         }
-        if(config.textureProvider instanceof Reconfigurable)
-            reconfigurableManager.registerReconfigurable("textureProvider",(Reconfigurable) config.textureProvider);
+        if (config.textureProvider instanceof Reconfigurable)
+            reconfigurableManager.registerReconfigurable("textureProvider", (Reconfigurable) config.textureProvider);
 
-        Arrays.stream(config.mirrors).forEach(s -> {
-            try {
-                mirrorManager.addMirror(s);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-        });
+        Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
 
         // init modules
         modulesManager.initModules();
@@ -469,7 +419,7 @@ public final class LaunchServer implements Runnable {
         // Set launcher EXE binary
         launcherBinary = new JARLauncherBinary(this);
         launcherEXEBinary = binary();
-        
+
         launcherBinary.init();
         launcherEXEBinary.init();
         syncLauncherBinaries();
@@ -492,9 +442,8 @@ public final class LaunchServer implements Runnable {
         modulesManager.postInitModules();
     }
 
-    public static void initGson()
-    {
-        if(Launcher.gson != null) return;
+    public static void initGson() {
+        if (Launcher.gson != null) return;
         Launcher.gsonBuilder = new GsonBuilder();
         Launcher.gsonBuilder.registerTypeAdapter(AuthProvider.class, new AuthProviderAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(TextureProvider.class, new TextureProviderAdapter());
@@ -515,12 +464,12 @@ public final class LaunchServer implements Runnable {
     }
 
     private LauncherBinary binary() {
-    	try {
-    		Class.forName("net.sf.launch4j.Builder");
+        try {
+            Class.forName("net.sf.launch4j.Builder");
             if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
-    	} catch (ClassNotFoundException ignored) {
-    		LogHelper.warning("Launch4J isn't in classpath.");
-    	}
+        } catch (ClassNotFoundException ignored) {
+            LogHelper.warning("Launch4J isn't in classpath.");
+        }
         return new EXELauncherBinary(this);
     }
 
@@ -579,20 +528,22 @@ public final class LaunchServer implements Runnable {
         newConfig.hwidHandler = new AcceptHWIDHandler();
 
         newConfig.authProvider = new AuthProvider[]{new RejectAuthProvider("Настройте authProvider")};
-        newConfig.textureProvider = new RequestTextureProvider("http://example.com/skins/%username%.png","http://example.com/cloaks/%username%.png");
+        newConfig.textureProvider = new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png");
         newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.port = 7240;
         newConfig.bindAddress = "0.0.0.0";
         newConfig.authRejectString = "Превышен лимит авторизаций";
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
-        
+
         newConfig.threadCoreCount = 0; // on your own
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
-        
+
         newConfig.enabledProGuard = true;
         newConfig.stripLineNumbers = true;
         newConfig.deleteTempFiles = true;
+        newConfig.isWarningMissArchJava = true;
+
         // Set server address
         LogHelper.println("LaunchServer address: ");
         newConfig.setAddress(commandHandler.readLine());
@@ -602,7 +553,7 @@ public final class LaunchServer implements Runnable {
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");
         try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
-            LaunchServer.gson.toJson(newConfig,writer);
+            LaunchServer.gson.toJson(newConfig, writer);
         }
     }
 
@@ -696,25 +647,24 @@ public final class LaunchServer implements Runnable {
         }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
     }
-    
+
     public void restart() {
-    	ProcessBuilder builder = new ProcessBuilder();
-    	List<String> args = new ArrayList<>();
-    	if (config.startScript != null) args.add(config.startScript);
-    	else throw new IllegalArgumentException ("Please create start script and link it as startScript in config.");
+        ProcessBuilder builder = new ProcessBuilder();
+        if (config.startScript != null) builder.command(Collections.singletonList(config.startScript));
+        else throw new IllegalArgumentException("Please create start script and link it as startScript in config.");
         builder.directory(this.dir.toFile());
         builder.inheritIO();
         builder.redirectErrorStream(true);
         builder.redirectOutput(Redirect.PIPE);
         try {
-			builder.start();
-		} catch (IOException e) {
-			LogHelper.error(e);
-		}
+            builder.start();
+        } catch (IOException e) {
+            LogHelper.error(e);
+        }
     }
 
-	public void fullyRestart() {
-    	restart();
+    public void fullyRestart() {
+        restart();
         JVMHelper.RUNTIME.exit(0);
-	}
+    }
 }

@@ -98,13 +98,11 @@ public final class ClientLauncher {
             for (ClientProfile.OptionalFile s : Launcher.profile.getOptional()) {
                 if (s.mark) updateOptional.add(s);
             }
-            for(ClientProfile.OptionalArgs s : Launcher.profile.getOptionalClientArgs())
-            {
-                if(s.mark) optionalClientArgs.add(s);
+            for (ClientProfile.OptionalArgs s : Launcher.profile.getOptionalClientArgs()) {
+                if (s.mark) optionalClientArgs.add(s);
             }
-            for(ClientProfile.OptionalArgs s : Launcher.profile.getOptionalClassPath())
-            {
-                if(s.mark) optionalClassPath.add(s);
+            for (ClientProfile.OptionalArgs s : Launcher.profile.getOptionalClassPath()) {
+                if (s.mark) optionalClassPath.add(s);
             }
             // Client paths
             this.assetDir = assetDir;
@@ -141,7 +139,7 @@ public final class ClientLauncher {
                 int len2 = input.readLength(16);
                 boolean mark = input.readBoolean();
                 String[] optArgs = new String[len];
-                for(int j=0;j<len2;++j) optArgs[j] = input.readString(512);
+                for (int j = 0; j < len2; ++j) optArgs[j] = input.readString(512);
                 optionalClientArgs.add(new ClientProfile.OptionalArgs(optArgs, mark));
             }
             len = input.readLength(256);
@@ -149,7 +147,7 @@ public final class ClientLauncher {
                 int len2 = input.readLength(16);
                 boolean mark = input.readBoolean();
                 String[] optArgs = new String[len];
-                for(int j=0;j<len2;++j) optArgs[j] = input.readString(512);
+                for (int j = 0; j < len2; ++j) optArgs[j] = input.readString(512);
                 optionalClassPath.add(new ClientProfile.OptionalArgs(optArgs, mark));
             }
             // Client params
@@ -176,19 +174,17 @@ public final class ClientLauncher {
                 output.writeString(s.file, 512);
                 output.writeBoolean(s.mark);
             }
-            output.writeLength(optionalClientArgs.size(),256);
-            for(ClientProfile.OptionalArgs s : optionalClientArgs)
-            {
-                output.writeLength(s.args.length,16);
+            output.writeLength(optionalClientArgs.size(), 256);
+            for (ClientProfile.OptionalArgs s : optionalClientArgs) {
+                output.writeLength(s.args.length, 16);
                 output.writeBoolean(s.mark);
-                for(String f : s.args) output.writeString(f,512);
+                for (String f : s.args) output.writeString(f, 512);
             }
-            output.writeLength(optionalClassPath.size(),256);
-            for(ClientProfile.OptionalArgs s : optionalClassPath)
-            {
-                output.writeLength(s.args.length,16);
+            output.writeLength(optionalClassPath.size(), 256);
+            for (ClientProfile.OptionalArgs s : optionalClassPath) {
+                output.writeLength(s.args.length, 16);
                 output.writeBoolean(s.mark);
-                for(String f : s.args) output.writeString(f,512);
+                for (String f : s.args) output.writeString(f, 512);
             }
             // Client params
             pp.write(output);
@@ -223,8 +219,8 @@ public final class ClientLauncher {
     private static final Path NATIVES_DIR = IOHelper.toPath("natives");
     private static final Path RESOURCEPACKS_DIR = IOHelper.toPath("resourcepacks");
     private static PublicURLClassLoader classLoader;
-    public static class ClientUserProperties
-    {
+
+    public static class ClientUserProperties {
         @LauncherAPI
         String[] skinURL;
         @LauncherAPI
@@ -234,6 +230,7 @@ public final class ClientLauncher {
         @LauncherAPI
         String[] cloakDigest;
     }
+
     private static void addClientArgs(Collection<String> args, ClientProfile profile, Params params) {
         PlayerProfile pp = params.pp;
 
@@ -278,9 +275,8 @@ public final class ClientLauncher {
             Collections.addAll(args, "--server", profile.getServerAddress());
             Collections.addAll(args, "--port", Integer.toString(profile.getServerPort()));
         }
-        for(ClientProfile.OptionalArgs optionalArgs : params.optionalClientArgs)
-        {
-            if(optionalArgs.mark) Collections.addAll(args,optionalArgs.args);
+        for (ClientProfile.OptionalArgs optionalArgs : params.optionalClientArgs) {
+            if (optionalArgs.mark) Collections.addAll(args, optionalArgs.args);
         }
         // Add window size args
         if (params.fullScreen)
@@ -380,7 +376,7 @@ public final class ClientLauncher {
                     }
                     try (HOutput output = new HOutput(client.getOutputStream())) {
                         params.write(output);
-                        output.writeString(Launcher.gson.toJson(profile),0);
+                        output.writeString(Launcher.gson.toJson(profile), 0);
                         assetHDir.write(output);
                         clientHDir.write(output);
                     }
@@ -413,6 +409,7 @@ public final class ClientLauncher {
         }
         args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         args.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled())));
+        args.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, Boolean.toString(LogHelper.isDevEnabled())));
         if (LauncherConfig.ADDRESS_OVERRIDE != null)
             args.add(JVMHelper.jvmProperty(LauncherConfig.ADDRESS_OVERRIDE_PROPERTY, LauncherConfig.ADDRESS_OVERRIDE));
         if (JVMHelper.OS_TYPE == OS.MUSTDIE) {
@@ -427,11 +424,9 @@ public final class ClientLauncher {
         // Add classpath and main class
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         Collections.addAll(args, profile.getJvmArgs());
-        if(profile.getOptionalJVMArgs() != null)
-        {
-            for(ClientProfile.OptionalArgs addArgs : profile.getOptionalJVMArgs())
-            {
-                if(addArgs.mark) Collections.addAll(args,addArgs.args);
+        if (profile.getOptionalJVMArgs() != null) {
+            for (ClientProfile.OptionalArgs addArgs : profile.getOptionalJVMArgs()) {
+                if (addArgs.mark) Collections.addAll(args, addArgs.args);
             }
         }
         Collections.addAll(args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
@@ -478,7 +473,7 @@ public final class ClientLauncher {
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncher.class);
         LogHelper.printVersion("Client Launcher");
-        if(engine.runtimeProvider == null) engine.runtimeProvider = new JSRuntimeProvider();
+        if (engine.runtimeProvider == null) engine.runtimeProvider = new JSRuntimeProvider();
         engine.runtimeProvider.init(true);
         engine.runtimeProvider.preLoad();
         // Read and delete params file
@@ -492,7 +487,7 @@ public final class ClientLauncher {
                 socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                 try (HInput input = new HInput(socket.getInputStream())) {
                     params = new Params(input);
-                    profile = gson.fromJson(input.readString(0),ClientProfile.class);
+                    profile = gson.fromJson(input.readString(0), ClientProfile.class);
 
                     // Read hdirs
                     assetHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
@@ -515,9 +510,8 @@ public final class ClientLauncher {
         for (Path classpathURL : classPath) {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
         }
-        for(ClientProfile.OptionalArgs optionalArgs : params.optionalClassPath)
-        {
-            if(!optionalArgs.mark) continue;
+        for (ClientProfile.OptionalArgs optionalArgs : params.optionalClassPath) {
+            if (!optionalArgs.mark) continue;
             LinkedList<Path> optionalClassPath = resolveClassPathList(params.clientDir, optionalArgs.args);
             for (Path classpathURL : optionalClassPath) {
                 LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
@@ -618,9 +612,8 @@ public final class ClientLauncher {
         return result;
     }
 
-    public static void initGson()
-    {
-        if(Launcher.gson != null) return;
+    public static void initGson() {
+        if (Launcher.gson != null) return;
         Launcher.gsonBuilder = new GsonBuilder();
         Launcher.gson = Launcher.gsonBuilder.create();
     }

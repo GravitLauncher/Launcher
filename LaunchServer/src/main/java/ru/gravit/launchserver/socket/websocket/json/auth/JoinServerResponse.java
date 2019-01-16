@@ -19,7 +19,7 @@ public class JoinServerResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
         boolean success;
         try {
             success = LaunchServer.server.config.authHandler.joinServer(username, accessToken, serverID);

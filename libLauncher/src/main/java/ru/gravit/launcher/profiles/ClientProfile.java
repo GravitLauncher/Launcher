@@ -6,12 +6,11 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
 
 public final class ClientProfile implements Comparable<ClientProfile> {
-	public ClientProfile(String version, String assetIndex, int sortIndex, String title, String serverAddress, int serverPort, boolean updateFastCheck, boolean useWhitelist, String mainClass) {
+    public ClientProfile(String version, String assetIndex, int sortIndex, String title, String serverAddress, int serverPort, boolean updateFastCheck, boolean useWhitelist, String mainClass) {
         this.version = version;
         this.assetIndex = assetIndex;
         this.sortIndex = sortIndex;
@@ -143,8 +142,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             return Objects.hash(file);
         }
     }
-    public static class OptionalArgs
-    {
+
+    public static class OptionalArgs {
         @LauncherAPI
         public boolean mark;
         @LauncherAPI
@@ -213,10 +212,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public List<OptionalArgs> getOptionalJVMArgs() {
         return optionalJVMArgs;
     }
+
     @LauncherAPI
     public List<OptionalArgs> getOptionalClientArgs() {
         return optionalClientArgs;
     }
+
     @LauncherAPI
     public List<OptionalArgs> getOptionalClassPath() {
         return optionalClassPath;
@@ -226,6 +227,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public String[] getClientArgs() {
         return clientArgs.toArray(new String[0]);
     }
+
     @LauncherAPI
     public String getDir() {
         return dir;
@@ -234,6 +236,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public void setDir(String dir) {
         this.dir = dir;
     }
+
     @LauncherAPI
     public String getAssetDir() {
         return assetDir;
@@ -275,24 +278,19 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public Set<OptionalFile> getOptional() {
         return updateOptional;
     }
+
     @LauncherAPI
-    public void updateOptionalGraph()
-    {
-        for(OptionalFile file : updateOptional)
-        {
-            if(file.dependenciesFile != null)
-            {
+    public void updateOptionalGraph() {
+        for (OptionalFile file : updateOptional) {
+            if (file.dependenciesFile != null) {
                 file.dependencies = new OptionalFile[file.dependenciesFile.length];
-                for(int i=0;i<file.dependenciesFile.length;++i)
-                {
+                for (int i = 0; i < file.dependenciesFile.length; ++i) {
                     file.dependencies[i] = getOptionalFile(file.dependenciesFile[i]);
                 }
             }
-            if(file.conflictFile != null)
-            {
+            if (file.conflictFile != null) {
                 file.conflict = new OptionalFile[file.conflictFile.length];
-                for(int i=0;i<file.conflictFile.length;++i)
-                {
+                for (int i = 0; i < file.conflictFile.length; ++i) {
                     file.conflict[i] = getOptionalFile(file.conflictFile[i]);
                 }
             }
@@ -300,10 +298,9 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     @LauncherAPI
-    public OptionalFile getOptionalFile(String file)
-    {
-        for(OptionalFile f : updateOptional)
-            if(f.file.equals(file)) return f;
+    public OptionalFile getOptionalFile(String file) {
+        for (OptionalFile f : updateOptional)
+            if (f.file.equals(file)) return f;
         return null;
     }
 
@@ -319,25 +316,21 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         OptionalFile file = getOptionalFile(opt);
         markOptional(file);
     }
-    @LauncherAPI
-    public void markOptional(OptionalFile file)
-    {
 
-        if(file.mark) return;
+    @LauncherAPI
+    public void markOptional(OptionalFile file) {
+
+        if (file.mark) return;
         file.mark = true;
-        if(file.dependencies != null)
-        {
-            for(OptionalFile dep : file.dependencies)
-            {
-                if(dep.dependenciesCount == null) dep.dependenciesCount = new HashSet<>();
+        if (file.dependencies != null) {
+            for (OptionalFile dep : file.dependencies) {
+                if (dep.dependenciesCount == null) dep.dependenciesCount = new HashSet<>();
                 dep.dependenciesCount.add(file);
                 markOptional(dep);
             }
         }
-        if(file.conflict != null)
-        {
-            for(OptionalFile conflict : file.conflict)
-            {
+        if (file.conflict != null) {
+            for (OptionalFile conflict : file.conflict) {
                 unmarkOptional(conflict);
             }
         }
@@ -350,31 +343,24 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         OptionalFile file = getOptionalFile(opt);
         unmarkOptional(file);
     }
+
     @LauncherAPI
-    public void unmarkOptional(OptionalFile file)
-    {
-        if(!file.mark) return;
+    public void unmarkOptional(OptionalFile file) {
+        if (!file.mark) return;
         file.mark = false;
-        if(file.dependenciesCount != null)
-        {
-            for(OptionalFile f : file.dependenciesCount)
-            {
+        if (file.dependenciesCount != null) {
+            for (OptionalFile f : file.dependenciesCount) {
                 unmarkOptional(f);
             }
             file.dependenciesCount.clear();
             file.dependenciesCount = null;
         }
-        if(file.dependencies != null)
-        {
-            for(OptionalFile f : file.dependencies)
-            {
-                if(!f.mark) continue;
-                if(f.dependenciesCount == null)
-                {
+        if (file.dependencies != null) {
+            for (OptionalFile f : file.dependencies) {
+                if (!f.mark) continue;
+                if (f.dependenciesCount == null) {
                     unmarkOptional(f);
-                }
-                else if(f.dependenciesCount.size() <= 1)
-                {
+                } else if (f.dependenciesCount.size() <= 1) {
                     f.dependenciesCount.clear();
                     f.dependenciesCount = null;
                     unmarkOptional(f);
@@ -383,7 +369,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    public void pushOptional(HashedDir dir, boolean digest) throws IOException {
+    public void pushOptional(HashedDir dir, boolean digest) {
         for (OptionalFile opt : updateOptional) {
             if (!opt.mark) dir.removeR(opt.file);
         }
@@ -465,89 +451,89 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         // Client launcher
         VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Main class can't be empty");
     }
-    
+
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((assetDir == null) ? 0 : assetDir.hashCode());
-		result = prime * result + ((assetIndex == null) ? 0 : assetIndex.hashCode());
-		result = prime * result + ((classPath == null) ? 0 : classPath.hashCode());
-		result = prime * result + ((clientArgs == null) ? 0 : clientArgs.hashCode());
-		result = prime * result + ((dir == null) ? 0 : dir.hashCode());
-		result = prime * result + ((jvmArgs == null) ? 0 : jvmArgs.hashCode());
-		result = prime * result + ((mainClass == null) ? 0 : mainClass.hashCode());
-		result = prime * result + ((serverAddress == null) ? 0 : serverAddress.hashCode());
-		result = prime * result + serverPort;
-		result = prime * result + sortIndex;
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((assetDir == null) ? 0 : assetDir.hashCode());
+        result = prime * result + ((assetIndex == null) ? 0 : assetIndex.hashCode());
+        result = prime * result + ((classPath == null) ? 0 : classPath.hashCode());
+        result = prime * result + ((clientArgs == null) ? 0 : clientArgs.hashCode());
+        result = prime * result + ((dir == null) ? 0 : dir.hashCode());
+        result = prime * result + ((jvmArgs == null) ? 0 : jvmArgs.hashCode());
+        result = prime * result + ((mainClass == null) ? 0 : mainClass.hashCode());
+        result = prime * result + ((serverAddress == null) ? 0 : serverAddress.hashCode());
+        result = prime * result + serverPort;
+        result = prime * result + sortIndex;
         result = prime * result + ((title == null) ? 0 : title.hashCode());
         result = prime * result + ((info == null) ? 0 : info.hashCode());
-		result = prime * result + ((update == null) ? 0 : update.hashCode());
-		result = prime * result + ((updateExclusions == null) ? 0 : updateExclusions.hashCode());
-		result = prime * result + (updateFastCheck ? 1231 : 1237);
-		result = prime * result + ((updateOptional == null) ? 0 : updateOptional.hashCode());
-		result = prime * result + ((updateShared == null) ? 0 : updateShared.hashCode());
-		result = prime * result + ((updateVerify == null) ? 0 : updateVerify.hashCode());
-		result = prime * result + (useWhitelist ? 1231 : 1237);
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
-		result = prime * result + ((whitelist == null) ? 0 : whitelist.hashCode());
-		return result;
-	}
+        result = prime * result + ((update == null) ? 0 : update.hashCode());
+        result = prime * result + ((updateExclusions == null) ? 0 : updateExclusions.hashCode());
+        result = prime * result + (updateFastCheck ? 1231 : 1237);
+        result = prime * result + ((updateOptional == null) ? 0 : updateOptional.hashCode());
+        result = prime * result + ((updateShared == null) ? 0 : updateShared.hashCode());
+        result = prime * result + ((updateVerify == null) ? 0 : updateVerify.hashCode());
+        result = prime * result + (useWhitelist ? 1231 : 1237);
+        result = prime * result + ((version == null) ? 0 : version.hashCode());
+        result = prime * result + ((whitelist == null) ? 0 : whitelist.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ClientProfile other = (ClientProfile) obj;
-		if (assetDir == null) {
-			if (other.assetDir != null)
-				return false;
-		} else if (!assetDir.equals(other.assetDir))
-			return false;
-		if (assetIndex == null) {
-			if (other.assetIndex != null)
-				return false;
-		} else if (!assetIndex.equals(other.assetIndex))
-			return false;
-		if (classPath == null) {
-			if (other.classPath != null)
-				return false;
-		} else if (!classPath.equals(other.classPath))
-			return false;
-		if (clientArgs == null) {
-			if (other.clientArgs != null)
-				return false;
-		} else if (!clientArgs.equals(other.clientArgs))
-			return false;
-		if (dir == null) {
-			if (other.dir != null)
-				return false;
-		} else if (!dir.equals(other.dir))
-			return false;
-		if (jvmArgs == null) {
-			if (other.jvmArgs != null)
-				return false;
-		} else if (!jvmArgs.equals(other.jvmArgs))
-			return false;
-		if (mainClass == null) {
-			if (other.mainClass != null)
-				return false;
-		} else if (!mainClass.equals(other.mainClass))
-			return false;
-		if (serverAddress == null) {
-			if (other.serverAddress != null)
-				return false;
-		} else if (!serverAddress.equals(other.serverAddress))
-			return false;
-		if (serverPort != other.serverPort)
-			return false;
-		if (sortIndex != other.sortIndex)
-			return false;
-		if (title == null) {
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ClientProfile other = (ClientProfile) obj;
+        if (assetDir == null) {
+            if (other.assetDir != null)
+                return false;
+        } else if (!assetDir.equals(other.assetDir))
+            return false;
+        if (assetIndex == null) {
+            if (other.assetIndex != null)
+                return false;
+        } else if (!assetIndex.equals(other.assetIndex))
+            return false;
+        if (classPath == null) {
+            if (other.classPath != null)
+                return false;
+        } else if (!classPath.equals(other.classPath))
+            return false;
+        if (clientArgs == null) {
+            if (other.clientArgs != null)
+                return false;
+        } else if (!clientArgs.equals(other.clientArgs))
+            return false;
+        if (dir == null) {
+            if (other.dir != null)
+                return false;
+        } else if (!dir.equals(other.dir))
+            return false;
+        if (jvmArgs == null) {
+            if (other.jvmArgs != null)
+                return false;
+        } else if (!jvmArgs.equals(other.jvmArgs))
+            return false;
+        if (mainClass == null) {
+            if (other.mainClass != null)
+                return false;
+        } else if (!mainClass.equals(other.mainClass))
+            return false;
+        if (serverAddress == null) {
+            if (other.serverAddress != null)
+                return false;
+        } else if (!serverAddress.equals(other.serverAddress))
+            return false;
+        if (serverPort != other.serverPort)
+            return false;
+        if (sortIndex != other.sortIndex)
+            return false;
+        if (title == null) {
             if (other.title != null)
                 return false;
         } else if (!title.equals(other.title))
@@ -557,45 +543,42 @@ public final class ClientProfile implements Comparable<ClientProfile> {
                 return false;
         } else if (!info.equals(other.info))
             return false;
-		if (update == null) {
-			if (other.update != null)
-				return false;
-		} else if (!update.equals(other.update))
-			return false;
-		if (updateExclusions == null) {
-			if (other.updateExclusions != null)
-				return false;
-		} else if (!updateExclusions.equals(other.updateExclusions))
-			return false;
-		if (updateFastCheck != other.updateFastCheck)
-			return false;
-		if (updateOptional == null) {
-			if (other.updateOptional != null)
-				return false;
-		} else if (!updateOptional.equals(other.updateOptional))
-			return false;
-		if (updateShared == null) {
-			if (other.updateShared != null)
-				return false;
-		} else if (!updateShared.equals(other.updateShared))
-			return false;
-		if (updateVerify == null) {
-			if (other.updateVerify != null)
-				return false;
-		} else if (!updateVerify.equals(other.updateVerify))
-			return false;
-		if (useWhitelist != other.useWhitelist)
-			return false;
-		if (version == null) {
-			if (other.version != null)
-				return false;
-		} else if (!version.equals(other.version))
-			return false;
-		if (whitelist == null) {
-			if (other.whitelist != null)
-				return false;
-		} else if (!whitelist.equals(other.whitelist))
-			return false;
-		return true;
-	}
+        if (update == null) {
+            if (other.update != null)
+                return false;
+        } else if (!update.equals(other.update))
+            return false;
+        if (updateExclusions == null) {
+            if (other.updateExclusions != null)
+                return false;
+        } else if (!updateExclusions.equals(other.updateExclusions))
+            return false;
+        if (updateFastCheck != other.updateFastCheck)
+            return false;
+        if (updateOptional == null) {
+            if (other.updateOptional != null)
+                return false;
+        } else if (!updateOptional.equals(other.updateOptional))
+            return false;
+        if (updateShared == null) {
+            if (other.updateShared != null)
+                return false;
+        } else if (!updateShared.equals(other.updateShared))
+            return false;
+        if (updateVerify == null) {
+            if (other.updateVerify != null)
+                return false;
+        } else if (!updateVerify.equals(other.updateVerify))
+            return false;
+        if (useWhitelist != other.useWhitelist)
+            return false;
+        if (version == null) {
+            if (other.version != null)
+                return false;
+        } else if (!version.equals(other.version))
+            return false;
+        if (whitelist == null) {
+            return other.whitelist == null;
+        } else return whitelist.equals(other.whitelist);
+    }
 }

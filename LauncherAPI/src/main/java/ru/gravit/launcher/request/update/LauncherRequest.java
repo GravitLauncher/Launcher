@@ -14,7 +14,6 @@ import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +45,7 @@ public final class LauncherRequest extends Request<LauncherRequest.Result> {
     public static final boolean EXE_BINARY = IOHelper.hasExtension(BINARY_PATH, "exe");
 
     @LauncherAPI
-    public static void update(LauncherConfig config, Result result) throws SignatureException, IOException {
+    public static void update(LauncherConfig config, Result result) throws IOException {
         List<String> args = new ArrayList<>(8);
         args.add(IOHelper.resolveJavaBin(null).toString());
         if (LogHelper.isDebugEnabled())
