@@ -27,3 +27,5 @@ subprojects {
 		options.annotationProcessorPath = configurations.aptOnly
 	}
 }
+
+defaultTasks 'build'
