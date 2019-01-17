@@ -7,7 +7,6 @@ import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,8 +27,7 @@ public final class MySQLAuthProvider extends AuthProvider {
 
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws SQLException, AuthException {
-        Connection c = mySQLHolder.getConnection();
-        PreparedStatement s = c.prepareStatement(query);
+        PreparedStatement s = mySQLHolder.getConnection().prepareStatement(query);
         String[] replaceParams = {"login", login, "password", password, "ip", ip};
         for (int i = 0; i < queryParams.length; i++)
             s.setString(i + 1, CommonHelper.replace(queryParams[i], replaceParams));
@@ -43,6 +41,6 @@ public final class MySQLAuthProvider extends AuthProvider {
 
     @Override
     public void close() {
-        // Do nothing
+    	mySQLHolder.close();
     }
 }
