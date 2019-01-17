@@ -86,6 +86,7 @@ public class SimpleModuleManager implements ModulesManager {
         	module.preInit(context);
         	module.init(context);
         	module.postInit(context);
+        	module.finish(context);
         	LogHelper.info("Module %s version: %s loaded", module.getName(), module.getVersion());
     	}
     }

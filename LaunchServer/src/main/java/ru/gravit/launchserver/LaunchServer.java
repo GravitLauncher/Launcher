@@ -585,6 +585,7 @@ public final class LaunchServer implements Runnable {
         JVMHelper.RUNTIME.addShutdownHook(CommonHelper.newThread(null, false, this::close));
         CommonHelper.newThread("Command Thread", true, commandHandler).start();
         rebindServerSocket();
+        modulesManager.finishModules();
     }
 
 
