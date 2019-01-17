@@ -3,8 +3,8 @@ package ru.gravit.launcher.client;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherEngine;
 import ru.gravit.launcher.modules.ModuleContext;
-import ru.gravit.launcher.modules.ModulesConfigManagerInterface;
-import ru.gravit.launcher.modules.ModulesManagerInterface;
+import ru.gravit.launcher.modules.ModulesConfigManager;
+import ru.gravit.launcher.modules.ModulesManager;
 
 public class ClientModuleContext implements ModuleContext {
     public final LauncherEngine engine;
@@ -19,12 +19,12 @@ public class ClientModuleContext implements ModuleContext {
     }
 
     @Override
-    public ModulesManagerInterface getModulesManager() {
+    public ModulesManager getModulesManager() {
         return Launcher.modulesManager;
     }
 
     @Override
-    public ModulesConfigManagerInterface getModulesConfigManager() {
+    public ModulesConfigManager getModulesConfigManager() {
         return null; // ClientModuleContext не поддерживает modulesConfigManager
     }
 }

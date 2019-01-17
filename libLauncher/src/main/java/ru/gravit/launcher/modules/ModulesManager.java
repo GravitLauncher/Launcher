@@ -2,7 +2,7 @@ package ru.gravit.launcher.modules;
 
 import java.net.URL;
 
-public interface ModulesManagerInterface extends AutoCloseable {
+public interface ModulesManager extends AutoCloseable {
     void initModules();
 
     void load(Module module);
@@ -14,6 +14,8 @@ public interface ModulesManagerInterface extends AutoCloseable {
     void postInitModules();
 
     void preInitModules();
+
+    void finishModules();
 
     void printModules();
 

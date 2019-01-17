@@ -2,7 +2,7 @@ package ru.gravit.launcher;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ru.gravit.launcher.modules.ModulesManagerInterface;
+import ru.gravit.launcher.modules.ModulesManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.utils.Version;
@@ -36,7 +36,7 @@ public final class Launcher {
 
     private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
     @LauncherAPI
-    public static ModulesManagerInterface modulesManager = null;
+    public static ModulesManager modulesManager = null;
     @LauncherAPI
     public static final int PROTOCOL_MAGIC_LEGACY = 0x724724_00 + 24;
     @LauncherAPI

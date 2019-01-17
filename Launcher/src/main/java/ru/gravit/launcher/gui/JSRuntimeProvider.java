@@ -147,9 +147,9 @@ public class JSRuntimeProvider implements RuntimeProvider {
     public void run(String[] args) throws ScriptException, NoSuchMethodException, IOException {
         loadScript(Launcher.INIT_SCRIPT_FILE);
         LogHelper.info("Invoking start() function");
-        Invocable invoker = (Invocable) engine;
         Launcher.modulesManager.postInitModules();
-        invoker.invokeFunction("start", (Object) args);
+        ((Invocable) engine).invokeFunction("start", (Object) args);
+        Launcher.modulesManager.finishModules();
     }
 
     @Override

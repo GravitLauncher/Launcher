@@ -2,7 +2,7 @@ package ru.gravit.launcher.managers;
 
 import ru.gravit.launcher.modules.Module;
 import ru.gravit.launcher.modules.ModuleContext;
-import ru.gravit.launcher.modules.ModulesManagerInterface;
+import ru.gravit.launcher.modules.ModulesManager;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -15,7 +15,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.jar.JarFile;
 
-public class SimpleModuleManager implements ModulesManagerInterface {
+public class SimpleModuleManager implements ModulesManager {
     protected final class ModulesVisitor extends SimpleFileVisitor<Path> {
         private ModulesVisitor() {
         }
@@ -134,4 +134,12 @@ public class SimpleModuleManager implements ModulesManagerInterface {
         load(module);
         LogHelper.info("Module %s version: %s registered", module.getName(), module.getVersion());
     }
+
+	@Override
+	public void finishModules() {
+        for (Module m : modules) {
+            m.finish(context);
+            LogHelper.info("Module %s version: %s finished initialization", m.getName(), m.getVersion());
+        }
+	}
 }
