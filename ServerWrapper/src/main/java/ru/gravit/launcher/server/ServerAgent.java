@@ -63,16 +63,16 @@ public class ServerAgent {
                 Object[] args = {agentArgument, instrumentation};
                 mainMethod.invoke(args);
             } catch (Throwable e) {
-                e.printStackTrace();
+                LogHelper.error(e);
             }
         }
     }
 
     public static void loadLibraries(Path dir) {
         try {
-            Files.walkFileTree(dir, Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new StarterVisitor());
+            IOHelper.walk(dir, new StarterVisitor(), true);
         } catch (IOException e) {
-            e.printStackTrace(System.err);
+            LogHelper.error(e);
         }
     }
 }
