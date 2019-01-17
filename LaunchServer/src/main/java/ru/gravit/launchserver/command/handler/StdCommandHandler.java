@@ -16,7 +16,6 @@ public final class StdCommandHandler extends CommandHandler {
 
     @Override
     public void bell() {
-        // Do nothing, unsupported
     }
 
     @Override

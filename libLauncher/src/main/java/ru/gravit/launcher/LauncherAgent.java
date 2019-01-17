@@ -20,10 +20,6 @@ public final class LauncherAgent {
         return isAgentStarted;
     }
 
-    public static long getObjSize(Object obj) {
-        return inst.getObjectSize(obj);
-    }
-
     public static void premain(String agentArgument, Instrumentation instrumentation) {
         System.out.println("Launcher Agent");
         inst = instrumentation;

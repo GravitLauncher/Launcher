@@ -77,6 +77,8 @@ public class ServerWrapper {
             try {
                 Thread.sleep(sleeptime);
             } catch (InterruptedException e) {
+            	Thread.currentThread().interrupt();
+            	LogHelper.error(e);
                 return false;
             }
         }
@@ -179,10 +181,6 @@ public class ServerWrapper {
         newConfig.reconnectCount = 10;
         newConfig.reconnectSleep = 1000;
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
-        //try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/ServerWrapper.cfg")))
-        //{
-        //    newConfig = gson.fromJson(reader,Config.class);
-        //}
 
         LogHelper.warning("Title is not set. Please show ServerWrapper.cfg");
 

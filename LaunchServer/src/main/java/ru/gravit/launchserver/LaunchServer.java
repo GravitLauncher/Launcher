@@ -38,7 +38,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.SocketAddress;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -586,6 +585,7 @@ public final class LaunchServer implements Runnable {
         JVMHelper.RUNTIME.addShutdownHook(CommonHelper.newThread(null, false, this::close));
         CommonHelper.newThread("Command Thread", true, commandHandler).start();
         rebindServerSocket();
+        modulesManager.finishModules();
     }
 
 

@@ -2,7 +2,7 @@ package ru.gravit.launcher.modules;
 
 import java.nio.file.Path;
 
-public interface ModulesConfigManagerInterface {
+public interface ModulesConfigManager {
     Path getModuleConfig(String moduleName);
 
     Path getModuleConfigDir(String moduleName);

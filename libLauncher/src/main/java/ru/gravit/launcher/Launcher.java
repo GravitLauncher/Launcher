@@ -2,12 +2,11 @@ package ru.gravit.launcher;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ru.gravit.launcher.modules.ModulesManagerInterface;
+import ru.gravit.launcher.modules.ModulesManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
@@ -37,7 +36,7 @@ public final class Launcher {
 
     private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
     @LauncherAPI
-    public static ModulesManagerInterface modulesManager = null;
+    public static ModulesManager modulesManager = null;
     @LauncherAPI
     public static final int PROTOCOL_MAGIC_LEGACY = 0x724724_00 + 24;
     @LauncherAPI
@@ -124,12 +123,6 @@ public final class Launcher {
 
     public static Version getVersion() {
         return new Version(MAJOR, MINOR, PATCH, BUILD, RELEASE);
-    }
-
-    public static final boolean useAvanguard = true;
-
-    public static boolean isUsingAvanguard() {
-        return JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE && useAvanguard;
     }
 
     public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env)

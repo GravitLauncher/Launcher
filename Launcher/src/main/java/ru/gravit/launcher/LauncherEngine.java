@@ -59,7 +59,7 @@ public class LauncherEngine {
     public void start(String... args) throws Throwable {
         LogHelper.debug("%d", LauncherSettings.settingsMagic);
         Launcher.modulesManager = new ClientModuleManager(this);
-        LauncherConfig.getAutogenConfig().initModules(); //INIT
+        LauncherConfig.getAutogenConfig().initModules();
         Launcher.modulesManager.preInitModules();
         if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
         runtimeProvider.init(false);
@@ -67,10 +67,9 @@ public class LauncherEngine {
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");
         Launcher.modulesManager.initModules();
-        // Load init.js script
         runtimeProvider.preLoad();
         FunctionalBridge.worker = new RequestWorker();
-        CommonHelper.newThread("FX Task Worker", true, FunctionalBridge.worker).start();
+        CommonHelper.newThread("Task Worker", true, FunctionalBridge.worker).start();
         FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread", true, FunctionalBridge::getHWID);
         FunctionalBridge.getHWID.start();
         LogHelper.debug("Dir: %s", DirBridge.dir);
