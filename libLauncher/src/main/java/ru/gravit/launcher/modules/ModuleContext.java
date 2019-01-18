@@ -7,7 +7,7 @@ public interface ModuleContext {
 
     Type getType();
 
-    ModulesManagerInterface getModulesManager();
+    ModulesManager getModulesManager();
 
-    ModulesConfigManagerInterface getModulesConfigManager();
+    ModulesConfigManager getModulesConfigManager();
 }

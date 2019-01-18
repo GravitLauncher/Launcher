@@ -107,3 +107,5 @@ buildnumber
 *.directory
 cmd.bat
 cmd.sh
+## PVS Studio
+.PVS-Studio/

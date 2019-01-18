@@ -19,7 +19,7 @@ public class PrepareBuildTask implements LauncherBuildTask {
 
     public PrepareBuildTask(LaunchServer server) {
         this.server = server;
-        result = server.launcherBinary.buildDir.resolve(server.config.binaryName + "-clean.jar");
+        result = server.launcherBinary.buildDir.resolve("Launcher-clean.jar");
     }
 
     @Override

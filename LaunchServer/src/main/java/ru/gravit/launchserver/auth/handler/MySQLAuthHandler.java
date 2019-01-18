@@ -4,7 +4,6 @@ import ru.gravit.launchserver.auth.MySQLSourceConfig;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -66,11 +65,8 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
 
     private Entry query(String sql, String value) throws IOException {
         try {
-            Connection c = mySQLHolder.getConnection();
-            PreparedStatement s = c.prepareStatement(sql);
+            PreparedStatement s = mySQLHolder.getConnection().prepareStatement(sql);
             s.setString(1, value);
-
-            // Execute query
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             try (ResultSet set = s.executeQuery()) {
                 return constructEntry(set);
@@ -83,13 +79,10 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
     @Override
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
         try {
-            Connection c = mySQLHolder.getConnection();
-            PreparedStatement s = c.prepareStatement(updateAuthSQL);
+            PreparedStatement s = mySQLHolder.getConnection().prepareStatement(updateAuthSQL);
             s.setString(1, username); // Username case
             s.setString(2, accessToken);
             s.setString(3, uuid.toString());
-
-            // Execute update
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             return s.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -100,12 +93,9 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
     @Override
     protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
         try {
-            Connection c = mySQLHolder.getConnection();
-            PreparedStatement s = c.prepareStatement(updateServerIDSQL);
+            PreparedStatement s = mySQLHolder.getConnection().prepareStatement(updateServerIDSQL);
             s.setString(1, serverID);
             s.setString(2, uuid.toString());
-
-            // Execute update
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             return s.executeUpdate() > 0;
         } catch (SQLException e) {
