@@ -41,9 +41,7 @@ public abstract class AuthHandler implements AutoCloseable {
         if (!registredHandl) {
             registerHandler("null", NullAuthHandler.class);
             registerHandler("memory", MemoryAuthHandler.class);
-
-            // Auth handler that doesn't do nothing :D
-            registerHandler("binaryFile", BinaryFileAuthHandler.class);
+            registerHandler("file", FileAuthHandler.class);
             registerHandler("mysql", MySQLAuthHandler.class);
             registredHandl = true;
         }

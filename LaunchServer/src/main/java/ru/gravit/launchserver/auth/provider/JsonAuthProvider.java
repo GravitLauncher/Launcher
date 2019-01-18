@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.net.URL;
 
 public final class JsonAuthProvider extends AuthProvider {
-    private static Gson gson = new Gson();
+    private static final Gson gson = new Gson();
     private URL url;
     private String apiKey;
 
