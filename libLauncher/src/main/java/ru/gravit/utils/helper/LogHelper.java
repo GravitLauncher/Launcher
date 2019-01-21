@@ -22,6 +22,8 @@ public final class LogHelper {
     @LauncherAPI
     public static final String DEBUG_PROPERTY = "launcher.debug";
     @LauncherAPI
+    public static final String DEV_PROPERTY = "launcher.dev";
+    @LauncherAPI
     public static final String STACKTRACE_PROPERTY = "launcher.stacktrace";
     @LauncherAPI
     public static final String NO_JANSI_PROPERTY = "launcher.noJAnsi";
@@ -32,6 +34,7 @@ public final class LogHelper {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US);
     private static final AtomicBoolean DEBUG_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEBUG_PROPERTY));
     private static final AtomicBoolean STACKTRACE_ENABLED = new AtomicBoolean(Boolean.getBoolean(STACKTRACE_PROPERTY));
+    private static final AtomicBoolean DEV_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEV_PROPERTY));
     private static final Set<Output> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
     private static final Output STD_OUTPUT;
 
@@ -65,7 +68,19 @@ public final class LogHelper {
     }
 
     @LauncherAPI
+    public static void dev(String message) {
+        if (isDevEnabled()) {
+            log(Level.DEV, message, false);
+        }
+    }
+
+    @LauncherAPI
     public static void debug(String format, Object... args) {
+        debug(String.format(format, args));
+    }
+
+    @LauncherAPI
+    public static void dev(String format, Object... args) {
         debug(String.format(format, args));
     }
 
@@ -110,8 +125,18 @@ public final class LogHelper {
     }
 
     @LauncherAPI
+    public static boolean isDevEnabled() {
+        return DEV_ENABLED.get();
+    }
+
+    @LauncherAPI
     public static void setStacktraceEnabled(boolean stacktraceEnabled) {
         STACKTRACE_ENABLED.set(stacktraceEnabled);
+    }
+
+    @LauncherAPI
+    public static void setDevEnabled(boolean stacktraceEnabled) {
+        DEV_ENABLED.set(stacktraceEnabled);
     }
 
     @LauncherAPI
@@ -318,7 +343,7 @@ public final class LogHelper {
 
     @LauncherAPI
     public enum Level {
-        DEBUG("DEBUG"), INFO("INFO"), WARNING("WARN"), ERROR("ERROR");
+        DEV("DEV"),DEBUG("DEBUG"), INFO("INFO"), WARNING("WARN"), ERROR("ERROR");
         public final String name;
 
         Level(String name) {

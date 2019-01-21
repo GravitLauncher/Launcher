@@ -62,7 +62,7 @@ public class LauncherSettings {
     }
 
     @LauncherAPI
-    public void save() throws SignatureException {
+    public void save() {
         LogHelper.debug("Save settings file");
         try {
             try (HOutput output = new HOutput(IOHelper.newOutput(file))) {
@@ -108,7 +108,7 @@ public class LauncherSettings {
         lastProfiles.clear();
         int lastProfilesCount = input.readLength(0);
         for (int i = 0; i < lastProfilesCount; i++) {
-            lastProfiles.add(Launcher.gson.fromJson(input.readString(0),ClientProfile.class));
+            lastProfiles.add(Launcher.gson.fromJson(input.readString(0), ClientProfile.class));
         }
         lastHDirs.clear();
         int lastHDirsCount = input.readLength(0);
@@ -150,7 +150,7 @@ public class LauncherSettings {
         }
         output.writeLength(lastProfiles.size(), 0);
         for (ClientProfile profile : lastProfiles) {
-            output.writeString(Launcher.gson.toJson(profile),0);
+            output.writeString(Launcher.gson.toJson(profile), 0);
         }
         output.writeLength(lastHDirs.size(), 0);
         for (Map.Entry<String, SignedObjectHolder<HashedDir>> entry : lastHDirs.entrySet()) {

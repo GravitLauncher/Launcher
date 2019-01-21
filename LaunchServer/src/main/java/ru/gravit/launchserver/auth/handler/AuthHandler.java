@@ -1,14 +1,14 @@
 package ru.gravit.launchserver.auth.handler;
 
+import ru.gravit.launchserver.auth.AuthException;
+import ru.gravit.launchserver.auth.provider.AuthProviderResult;
+import ru.gravit.utils.helper.VerifyHelper;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import ru.gravit.launchserver.auth.AuthException;
-import ru.gravit.launchserver.auth.provider.AuthProviderResult;
-import ru.gravit.utils.helper.VerifyHelper;
 
 public abstract class AuthHandler implements AutoCloseable {
     private static final Map<String, Class<? extends AuthHandler>> AUTH_HANDLERS = new ConcurrentHashMap<>(4);
@@ -25,15 +25,14 @@ public abstract class AuthHandler implements AutoCloseable {
         VerifyHelper.putIfAbsent(AUTH_HANDLERS, name, Objects.requireNonNull(adapter, "adapter"),
                 String.format("Auth handler has been already registered: '%s'", name));
     }
-    public static Class<? extends AuthHandler> getHandlerClass(String name)
-    {
+
+    public static Class<? extends AuthHandler> getHandlerClass(String name) {
         return AUTH_HANDLERS.get(name);
     }
-    public static String getHandlerName(Class<AuthHandler> clazz)
-    {
-        for(Map.Entry<String,Class<? extends AuthHandler>> e: AUTH_HANDLERS.entrySet())
-        {
-            if(e.getValue().equals(clazz)) return e.getKey();
+
+    public static String getHandlerName(Class<AuthHandler> clazz) {
+        for (Map.Entry<String, Class<? extends AuthHandler>> e : AUTH_HANDLERS.entrySet()) {
+            if (e.getValue().equals(clazz)) return e.getKey();
         }
         return null;
     }
@@ -66,8 +65,7 @@ public abstract class AuthHandler implements AutoCloseable {
 
     public abstract String uuidToUsername(UUID uuid) throws IOException;
 
-    public void init()
-    {
+    public void init() {
 
     }
 }

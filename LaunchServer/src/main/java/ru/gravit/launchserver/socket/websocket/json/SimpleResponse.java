@@ -11,7 +11,7 @@ public class SimpleResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
 
     }
 }

@@ -1,10 +1,10 @@
 package ru.gravit.launchserver.command.basic;
 
-import java.io.IOException;
-import java.nio.file.Files;
-
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
+
+import java.io.IOException;
+import java.nio.file.Files;
 
 public class RemoveMappingsProguardCommand extends Command {
 

@@ -51,7 +51,7 @@ public class ClientJSONPoint {
         session.getBasicRemote().sendText(js);
     }
 
-    public void sendAsync(String js) throws IOException {
+    public void sendAsync(String js) {
         session.getAsyncRemote().sendText(js);
     }
 }

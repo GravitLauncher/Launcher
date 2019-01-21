@@ -1,11 +1,11 @@
 package ru.gravit.launchserver.auth.provider;
 
-import java.util.ArrayList;
-
 import ru.gravit.launchserver.Reconfigurable;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+
+import java.util.ArrayList;
 
 public final class RejectAuthProvider extends AuthProvider implements Reconfigurable {
     public RejectAuthProvider() {
@@ -20,12 +20,9 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
 
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws AuthException {
-        if(whitelist != null)
-        {
-            for(String username : whitelist)
-            {
-                if(login.equals(username))
-                {
+        if (whitelist != null) {
+            for (String username : whitelist) {
+                if (login.equals(username)) {
                     return new AuthProviderResult(login, SecurityHelper.randomStringToken());
                 }
             }
@@ -40,24 +37,22 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
 
     @Override
     public void reconfig(String action, String[] args) {
-        if(action.equals("message"))
-        {
-            message = args[0];
-            LogHelper.info("New reject message: %s", message);
-        }
-        else if(action.equals("whitelist.add"))
-        {
-            if(whitelist == null) whitelist = new ArrayList<>();
-            whitelist.add(args[0]);
-        }
-        else if(action.equals("whitelist.remove"))
-        {
-            if(whitelist == null) whitelist = new ArrayList<>();
-            whitelist.remove(args[0]);
-        }
-        else if(action.equals("whitelist.clear"))
-        {
-            whitelist.clear();
+        switch (action) {
+            case "message":
+                message = args[0];
+                LogHelper.info("New reject message: %s", message);
+                break;
+            case "whitelist.add":
+                if (whitelist == null) whitelist = new ArrayList<>();
+                whitelist.add(args[0]);
+                break;
+            case "whitelist.remove":
+                if (whitelist == null) whitelist = new ArrayList<>();
+                whitelist.remove(args[0]);
+                break;
+            case "whitelist.clear":
+                whitelist.clear();
+                break;
         }
     }
 

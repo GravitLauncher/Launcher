@@ -2,12 +2,12 @@ package ru.gravit.launcher;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ru.gravit.launcher.modules.ModulesManagerInterface;
+import ru.gravit.launcher.modules.ModulesManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public final class Launcher {
 
     private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
     @LauncherAPI
-    public static ModulesManagerInterface modulesManager = null;
+    public static ModulesManager modulesManager = null;
     @LauncherAPI
     public static final int PROTOCOL_MAGIC_LEGACY = 0x724724_00 + 24;
     @LauncherAPI
@@ -60,7 +60,7 @@ public final class Launcher {
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
     public static final int MAJOR = 4;
     public static final int MINOR = 2;
-    public static final int PATCH = 1;
+    public static final int PATCH = 2;
     public static final int BUILD = 1;
     public static final Version.Type RELEASE = Version.Type.STABLE;
     public static GsonBuilder gsonBuilder;
@@ -125,9 +125,26 @@ public final class Launcher {
         return new Version(MAJOR, MINOR, PATCH, BUILD, RELEASE);
     }
 
-    public static final boolean useAvanguard = true;
-
-    public static boolean isUsingAvanguard() {
-        return JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE && useAvanguard;
+    public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env)
+    {
+        switch (env)
+        {
+            case DEV:
+                LogHelper.setDevEnabled(true);
+                LogHelper.setStacktraceEnabled(true);
+                LogHelper.setDebugEnabled(true);
+                break;
+            case DEBUG:
+                LogHelper.setDebugEnabled(true);
+                LogHelper.setStacktraceEnabled(true);
+                break;
+            case STD:
+                break;
+            case PROD:
+                LogHelper.setStacktraceEnabled(false);
+                LogHelper.setDebugEnabled(false);
+                LogHelper.setDevEnabled(false);
+                break;
+        }
     }
 }

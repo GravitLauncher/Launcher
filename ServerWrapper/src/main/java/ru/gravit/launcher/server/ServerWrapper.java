@@ -9,9 +9,14 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.auth.AuthServerRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.utils.PublicURLClassLoader;
-import ru.gravit.utils.helper.*;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -48,14 +53,14 @@ public class ServerWrapper {
                     break;
                 }
             }
-            if(wrapper.profile == null) {
+            if (wrapper.profile == null) {
                 LogHelper.error("Your profile not found");
-                if(ServerWrapper.config.stopOnError) System.exit(-1);
+                if (ServerWrapper.config.stopOnError) System.exit(-1);
             }
             return true;
         } catch (Throwable e) {
             LogHelper.error(e);
-            if(ServerWrapper.config.stopOnError) System.exit(-1);
+            if (ServerWrapper.config.stopOnError) System.exit(-1);
             return false;
         }
 
@@ -72,15 +77,16 @@ public class ServerWrapper {
             try {
                 Thread.sleep(sleeptime);
             } catch (InterruptedException e) {
+            	Thread.currentThread().interrupt();
+            	LogHelper.error(e);
                 return false;
             }
         }
         return false;
     }
 
-    public static void initGson()
-    {
-        if(Launcher.gson != null) return;
+    public static void initGson() {
+        if (Launcher.gson != null) return;
         Launcher.gsonBuilder = new GsonBuilder();
         Launcher.gson = Launcher.gsonBuilder.create();
     }
@@ -99,13 +105,14 @@ public class ServerWrapper {
         gson = gsonBuiler.create();
         initGson();
         generateConfigIfNotExists();
-        try(Reader reader = IOHelper.newReader(configFile))
-        {
-            config = gson.fromJson(reader,Config.class);
+        try (Reader reader = IOHelper.newReader(configFile)) {
+            config = gson.fromJson(reader, Config.class);
         }
         LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
         Launcher.setConfig(cfg);
-        if(config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile),true));
+        if(config.env != null) Launcher.applyLauncherEnv(config.env);
+        else Launcher.applyLauncherEnv(LauncherConfig.LauncherEnvironment.STD);
+        if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         if (config.syncAuth) auth(wrapper);
         else
             CommonHelper.newThread("Server Auth Thread", true, () -> ServerWrapper.loopAuth(wrapper, config.reconnectCount, config.reconnectSleep));
@@ -113,11 +120,12 @@ public class ServerWrapper {
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
         if (classname.length() == 0) {
             LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.cfg or first commandline argument");
-            if(config.stopOnError) System.exit(-1);
+            if (config.stopOnError) System.exit(-1);
         }
         Class<?> mainClass;
         if (config.customClassPath) {
-            if(config.classpath == null) throw new UnsupportedOperationException("classpath is null, customClassPath not available");
+            if (config.classpath == null)
+                throw new UnsupportedOperationException("classpath is null, customClassPath not available");
             String[] cp = config.classpath.split(":");
             if (!ServerAgent.isAgentStarted()) {
                 LogHelper.warning("JavaAgent not found. Using URLClassLoader");
@@ -135,7 +143,8 @@ public class ServerWrapper {
             if (!ServerAgent.isAgentStarted()) {
                 throw new UnsupportedOperationException("JavaAgent not found, autoloadLibraries not available");
             }
-            if(config.librariesDir == null) throw new UnsupportedOperationException("librariesDir is null, autoloadLibraries not available");
+            if (config.librariesDir == null)
+                throw new UnsupportedOperationException("librariesDir is null, autoloadLibraries not available");
             Path librariesDir = Paths.get(config.librariesDir);
             LogHelper.info("Load libraries");
             ServerAgent.loadLibraries(librariesDir);
@@ -159,7 +168,7 @@ public class ServerWrapper {
 
         // Create new config
         LogHelper.info("Creating ServerWrapper config");
-        Config newConfig= new Config();
+        Config newConfig = new Config();
         newConfig.title = "Your profile title";
         newConfig.projectname = "MineCraft";
         newConfig.address = "localhost";
@@ -171,18 +180,14 @@ public class ServerWrapper {
         newConfig.stopOnError = true;
         newConfig.reconnectCount = 10;
         newConfig.reconnectSleep = 1000;
-        //try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("ru/gravit/launcher/server/ServerWrapper.cfg")))
-        //{
-        //    newConfig = gson.fromJson(reader,Config.class);
-        //}
+        newConfig.env = LauncherConfig.LauncherEnvironment.STD;
 
         LogHelper.warning("Title is not set. Please show ServerWrapper.cfg");
 
         // Write LaunchServer config
         LogHelper.info("Writing ServerWrapper config file");
-        try(Writer writer = IOHelper.newWriter(configFile))
-        {
-            gson.toJson(newConfig,writer);
+        try (Writer writer = IOHelper.newWriter(configFile)) {
+            gson.toJson(newConfig, writer);
         }
     }
 
@@ -203,6 +208,7 @@ public class ServerWrapper {
         public String mainclass;
         public String login;
         public String password;
+        public LauncherConfig.LauncherEnvironment env;
     }
 
     public ClientProfile profile;

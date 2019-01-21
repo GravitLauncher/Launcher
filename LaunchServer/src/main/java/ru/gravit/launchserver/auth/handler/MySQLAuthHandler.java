@@ -1,14 +1,13 @@
 package ru.gravit.launchserver.auth.handler;
 
+import ru.gravit.launchserver.auth.MySQLSourceConfig;
+import ru.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
-
-import ru.gravit.launchserver.auth.MySQLSourceConfig;
-import ru.gravit.utils.helper.LogHelper;
 
 public final class MySQLAuthHandler extends CachedAuthHandler {
     private MySQLSourceConfig mySQLHolder;
@@ -23,16 +22,16 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
     private transient String queryByUsernameSQL;
     private transient String updateAuthSQL;
     private transient String updateServerIDSQL;
+
     @Override
-    public void init()
-    {
+    public void init() {
         //Verify
-        if(mySQLHolder == null) LogHelper.error("[Verify][AuthHandler] mySQLHolder cannot be null");
-        if(uuidColumn == null) LogHelper.error("[Verify][AuthHandler] uuidColumn cannot be null");
-        if(usernameColumn == null) LogHelper.error("[Verify][AuthHandler] usernameColumn cannot be null");
-        if(accessTokenColumn == null) LogHelper.error("[Verify][AuthHandler] accessTokenColumn cannot be null");
-        if(serverIDColumn == null) LogHelper.error("[Verify][AuthHandler] serverIDColumn cannot be null");
-        if(table == null) LogHelper.error("[Verify][AuthHandler] table cannot be null");
+        if (mySQLHolder == null) LogHelper.error("[Verify][AuthHandler] mySQLHolder cannot be null");
+        if (uuidColumn == null) LogHelper.error("[Verify][AuthHandler] uuidColumn cannot be null");
+        if (usernameColumn == null) LogHelper.error("[Verify][AuthHandler] usernameColumn cannot be null");
+        if (accessTokenColumn == null) LogHelper.error("[Verify][AuthHandler] accessTokenColumn cannot be null");
+        if (serverIDColumn == null) LogHelper.error("[Verify][AuthHandler] serverIDColumn cannot be null");
+        if (table == null) LogHelper.error("[Verify][AuthHandler] table cannot be null");
         // Prepare SQL queries
         queryByUUIDSQL = String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s=? LIMIT 1",
                 uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, table, uuidColumn);
@@ -43,6 +42,7 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
         updateServerIDSQL = String.format("UPDATE %s SET %s=? WHERE %s=? LIMIT 1",
                 table, serverIDColumn, uuidColumn);
     }
+
     @Override
     public void close() {
         mySQLHolder.close();
@@ -65,11 +65,8 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
 
     private Entry query(String sql, String value) throws IOException {
         try {
-            Connection c = mySQLHolder.getConnection();
-            PreparedStatement s = c.prepareStatement(sql);
+            PreparedStatement s = mySQLHolder.getConnection().prepareStatement(sql);
             s.setString(1, value);
-
-            // Execute query
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             try (ResultSet set = s.executeQuery()) {
                 return constructEntry(set);
@@ -82,13 +79,10 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
     @Override
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
         try {
-            Connection c = mySQLHolder.getConnection();
-            PreparedStatement s = c.prepareStatement(updateAuthSQL);
+            PreparedStatement s = mySQLHolder.getConnection().prepareStatement(updateAuthSQL);
             s.setString(1, username); // Username case
             s.setString(2, accessToken);
             s.setString(3, uuid.toString());
-
-            // Execute update
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             return s.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -99,12 +93,9 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
     @Override
     protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
         try {
-            Connection c = mySQLHolder.getConnection();
-            PreparedStatement s = c.prepareStatement(updateServerIDSQL);
+            PreparedStatement s = mySQLHolder.getConnection().prepareStatement(updateServerIDSQL);
             s.setString(1, serverID);
             s.setString(2, uuid.toString());
-
-            // Execute update
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             return s.executeUpdate() > 0;
         } catch (SQLException e) {

@@ -1,15 +1,14 @@
 package ru.gravit.launchserver.manangers.hook;
 
+import ru.gravit.launcher.AutogenConfig;
+import ru.gravit.launchserver.binary.BuildContext;
+import ru.gravit.launchserver.binary.JAConfigurator;
+import ru.gravit.launchserver.binary.tasks.MainBuildTask;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import ru.gravit.launcher.AutogenConfig;
-import ru.gravit.launcher.modules.TestClientModule;
-import ru.gravit.launchserver.binary.BuildContext;
-import ru.gravit.launchserver.binary.JAConfigurator;
-import ru.gravit.launchserver.binary.tasks.MainBuildTask;
 
 public class BuildHookManager {
 
@@ -41,7 +40,6 @@ public class BuildHookManager {
         registerIgnoredClass("META-INF/DEPENDENCIES");
         registerIgnoredClass("META-INF/LICENSE");
         registerIgnoredClass("META-INF/NOTICE");
-        registerClientModuleClass(TestClientModule.class.getName());
     }
 
     public void autoRegisterIgnoredClass(String clazz) {

@@ -1,13 +1,13 @@
 package ru.gravit.launchserver.command.hash;
 
+import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.command.Command;
+import ru.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.command.Command;
-import ru.gravit.utils.helper.LogHelper;
 
 public final class SyncUpdatesCommand extends Command {
     public SyncUpdatesCommand(LaunchServer server) {

@@ -24,12 +24,11 @@ public final class DebugCommand extends Command {
         boolean newValue, newTraceValue;
         if (args.length >= 1) {
             newValue = Boolean.parseBoolean(args[0]);
-            if(args.length >= 2) newTraceValue = Boolean.parseBoolean(args[1]);
+            if (args.length >= 2) newTraceValue = Boolean.parseBoolean(args[1]);
             else newTraceValue = newValue;
             LogHelper.setDebugEnabled(newValue);
             LogHelper.setStacktraceEnabled(newTraceValue);
-        } else
-        {
+        } else {
             newValue = LogHelper.isDebugEnabled();
             newTraceValue = LogHelper.isStacktraceEnabled();
         }

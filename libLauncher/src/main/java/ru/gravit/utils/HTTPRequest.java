@@ -61,7 +61,7 @@ public final class HTTPRequest {
         JsonElement content = parser.parse(reader);
         return content;
     }
-    
+
     private HTTPRequest() {
     }
 }

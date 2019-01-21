@@ -21,8 +21,8 @@ public class ReloadCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        verifyArgs(args,1);
-        LogHelper.info("Reload %s config",args[0]);
+        verifyArgs(args, 1);
+        LogHelper.info("Reload %s config", args[0]);
         server.reloadManager.reload(args[0]);
     }
 }

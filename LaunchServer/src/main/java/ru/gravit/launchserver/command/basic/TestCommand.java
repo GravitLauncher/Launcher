@@ -1,20 +1,16 @@
 package ru.gravit.launchserver.command.basic;
 
-import java.io.Writer;
-
-import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.socket.NettyServerSocketHandler;
 import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
 
 public class TestCommand extends Command {
     public TestCommand(LaunchServer server) {
         super(server);
     }
 
-    NettyServerSocketHandler handler;
+    private NettyServerSocketHandler handler = null;
 
     @Override
     public String getArgsDescription() {
@@ -33,15 +29,6 @@ public class TestCommand extends Command {
             handler = new NettyServerSocketHandler(server);
         if (args[0].equals("start")) {
             CommonHelper.newThread("Netty Server", true, handler).start();
-        }
-        if (args[0].equals("profile")) {
-            ClientProfile profile = new ClientProfile("1.7.10","asset1.7.10",0,"Test1.7.10","localhost",25565,true,false,"net.minecraft.launchwrapper.Launch");
-            try(Writer writer = IOHelper.newWriter(server.dir.resolve("profiles").resolve("Test.cfg")))
-            {
-                LaunchServer.gson.toJson(profile,writer);
-            }
-
-
         }
         if (args[0].equals("stop")) {
             handler.close();

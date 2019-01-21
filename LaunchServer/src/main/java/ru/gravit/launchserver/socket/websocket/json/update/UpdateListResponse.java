@@ -16,7 +16,7 @@ public class UpdateListResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
         if (!client.isAuth) {
             service.sendObject(ctx, new WebSocketService.ErrorResult("Access denied"));
             return;

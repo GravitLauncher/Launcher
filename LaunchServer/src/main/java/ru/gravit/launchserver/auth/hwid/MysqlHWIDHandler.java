@@ -1,17 +1,17 @@
 package ru.gravit.launchserver.auth.hwid;
 
+import ru.gravit.launcher.HWID;
+import ru.gravit.launcher.OshiHWID;
+import ru.gravit.launchserver.auth.MySQLSourceConfig;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.LogHelper;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import ru.gravit.launcher.HWID;
-import ru.gravit.launcher.OshiHWID;
-import ru.gravit.launchserver.auth.MySQLSourceConfig;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.LogHelper;
 
 public class MysqlHWIDHandler extends HWIDHandler {
     private MySQLSourceConfig mySQLHolder;
@@ -56,7 +56,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
 
     @Override
     public void check0(HWID hwid, String username) throws HWIDException {
-        if(hwid instanceof OshiHWID) {
+        if (hwid instanceof OshiHWID) {
             OshiHWID oshiHWID = (OshiHWID) hwid;
             try {
                 Connection c = mySQLHolder.getConnection();
@@ -68,9 +68,9 @@ public class MysqlHWIDHandler extends HWIDHandler {
                 // Execute SQL query
                 s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
                 try (ResultSet set = s.executeQuery()) {
-                    if(set.next()) {
+                    if (set.next()) {
                         int hwid_id = set.getInt(userFieldHwid);
-                        if(hwid_id == 0) {
+                        if (hwid_id == 0) {
                             onUpdateInfo(oshiHWID, username, c);
                         } else {
                             onCheckInfo(oshiHWID, username, c);
@@ -93,7 +93,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
 
             ResultSet set = a.executeQuery();
             PreparedStatement ps;
-            if(set.next()) {
+            if (set.next()) {
                 int id = set.getInt("id");
                 boolean isBanned = set.getBoolean(hwidFieldBanned);
 
@@ -105,7 +105,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
                 ps.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
                 ps.executeUpdate();
 
-                if(isBanned) {
+                if (isBanned) {
                     throw new HWIDException(banMessage);
                 }
             } else {
@@ -136,9 +136,9 @@ public class MysqlHWIDHandler extends HWIDHandler {
                 a.setString(i + 1, CommonHelper.replace(paramsHwids[i], replaceParams));
             }
             ResultSet set = a.executeQuery();
-            if(set.next()) {
+            if (set.next()) {
                 boolean isBanned = set.getBoolean(hwidFieldBanned);
-                if(isBanned) {
+                if (isBanned) {
                     throw new HWIDException(banMessage);
                 }
             } else {
@@ -151,7 +151,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
 
     public void setIsBanned(HWID hwid, boolean isBanned) {
         LogHelper.debug("%s Request HWID: %s", isBanned ? "Ban" : "UnBan", hwid.toString());
-        if(hwid instanceof OshiHWID) {
+        if (hwid instanceof OshiHWID) {
             OshiHWID oshiHWID = (OshiHWID) hwid;
             Connection c = null;
             try {
@@ -199,9 +199,9 @@ public class MysqlHWIDHandler extends HWIDHandler {
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
 
             try (ResultSet set = s.executeQuery()) {
-                if(set.next()) {
+                if (set.next()) {
                     int hwid_id = set.getInt(userFieldHwid);
-                    if(hwid_id != 0) {
+                    if (hwid_id != 0) {
                         s = c.prepareStatement(String.format("SELECT * FROM `%s` WHERE `id` = ? LIMIT 1", tableHwids));
                         s.setInt(1, hwid_id);
                         ResultSet rs = s.executeQuery();
@@ -226,6 +226,6 @@ public class MysqlHWIDHandler extends HWIDHandler {
 
     @Override
     public void close() {
-        // Do nothing
+    	mySQLHolder.close();
     }
 }

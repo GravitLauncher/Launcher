@@ -1,15 +1,15 @@
 package ru.gravit.launchserver.auth.provider;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class RequestAuthProvider extends AuthProvider {
     private String url;
@@ -18,10 +18,9 @@ public final class RequestAuthProvider extends AuthProvider {
     private boolean usePermission;
 
     @Override
-    public void init()
-    {
-        if(url == null) LogHelper.error("[Verify][AuthProvider] url cannot be null");
-        if(response == null) LogHelper.error("[Verify][AuthProvider] response cannot be null");
+    public void init() {
+        if (url == null) LogHelper.error("[Verify][AuthProvider] url cannot be null");
+        if (response == null) LogHelper.error("[Verify][AuthProvider] response cannot be null");
         pattern = Pattern.compile(response);
     }
 

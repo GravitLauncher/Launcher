@@ -1,7 +1,5 @@
 package ru.gravit.launchserver.response.auth;
 
-import java.io.IOException;
-
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
@@ -12,6 +10,8 @@ import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
 
 public final class JoinServerResponse extends Response {
 
@@ -25,8 +25,7 @@ public final class JoinServerResponse extends Response {
         String accessToken = SecurityHelper.verifyToken(input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH));
         String serverID = VerifyHelper.verifyServerID(input.readASCII(SerializeLimits.MAX_SERVERID)); // With minus sign
         Client clientData = server.sessionManager.getClient(session);
-        if(!clientData.isAuth || clientData.type != Client.Type.USER)
-        {
+        if (!clientData.isAuth || clientData.type != Client.Type.USER) {
             requestError("Assess denied");
             return;
         }
@@ -34,7 +33,7 @@ public final class JoinServerResponse extends Response {
         debug("Username: '%s', Access token: %s, Server ID: %s", username, accessToken, serverID);
         boolean success;
         try {
-            server.authHookManager.joinServerHook(username,accessToken,serverID);
+            server.authHookManager.joinServerHook(username, accessToken, serverID);
             success = server.config.authHandler.joinServer(username, accessToken, serverID);
         } catch (AuthException e) {
             requestError(e.getMessage());

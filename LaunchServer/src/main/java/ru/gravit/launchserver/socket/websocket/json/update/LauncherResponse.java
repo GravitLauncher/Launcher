@@ -1,14 +1,14 @@
 package ru.gravit.launchserver.socket.websocket.json.update;
 
-import java.util.Arrays;
-import java.util.Base64;
-
 import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.utils.Version;
+
+import java.util.Arrays;
+import java.util.Base64;
 
 public class LauncherResponse implements JsonResponseInterface {
     public Version version;
@@ -24,7 +24,7 @@ public class LauncherResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
         byte[] bytes = Base64.getDecoder().decode(hash);
         if (launcher_type == 1) // JAR
         {

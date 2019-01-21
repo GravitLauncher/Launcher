@@ -1,14 +1,14 @@
 package ru.gravit.launchserver.auth.provider;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AuthProvider implements AutoCloseable {
     private static final Map<String, Class<? extends AuthProvider>> AUTH_PROVIDERS = new ConcurrentHashMap<>(8);
@@ -49,20 +49,18 @@ public abstract class AuthProvider implements AutoCloseable {
     @Override
     public abstract void close() throws IOException;
 
-    public static Class<? extends AuthProvider> getProviderClass(String name)
-    {
+    public static Class<? extends AuthProvider> getProviderClass(String name) {
         return AUTH_PROVIDERS.get(name);
     }
-    public static String getProviderName(Class<? extends AuthProvider> clazz)
-    {
-        for(Map.Entry<String,Class<? extends AuthProvider>> e: AUTH_PROVIDERS.entrySet())
-        {
-            if(e.getValue().equals(clazz)) return e.getKey();
+
+    public static String getProviderName(Class<? extends AuthProvider> clazz) {
+        for (Map.Entry<String, Class<? extends AuthProvider>> e : AUTH_PROVIDERS.entrySet()) {
+            if (e.getValue().equals(clazz)) return e.getKey();
         }
         return null;
     }
-    public void init()
-    {
+
+    public void init() {
 
     }
 }

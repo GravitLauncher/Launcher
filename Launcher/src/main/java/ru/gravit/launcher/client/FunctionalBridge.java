@@ -17,7 +17,6 @@ import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.security.SignatureException;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class FunctionalBridge {
@@ -30,10 +29,10 @@ public class FunctionalBridge {
     @LauncherAPI
     public static AtomicReference<HWID> hwid = new AtomicReference<>();
     @LauncherAPI
-	public static Thread getHWID = null;
+    public static Thread getHWID = null;
 
     @LauncherAPI
-    public static HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) throws Exception {
+    public static HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) {
         return () -> {
             if (hdir == null) {
                 Request.requestError(java.lang.String.format("Директории '%s' нет в кэше", dirName));
@@ -44,7 +43,7 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public static LegacyLauncherRequest.Result offlineLauncherRequest() throws IOException, SignatureException {
+    public static LegacyLauncherRequest.Result offlineLauncherRequest() throws IOException {
         if (settings.lastDigest == null || settings.lastProfiles.isEmpty()) {
             Request.requestError("Запуск в оффлайн-режиме невозможен");
         }
@@ -75,7 +74,7 @@ public class FunctionalBridge {
     @LauncherAPI
     public static HWID getHWID() {
         HWID hhwid = hwid.get();
-        if(hhwid == null) hwid.set(hwidProvider.getHWID());
+        if (hhwid == null) hwid.set(hwidProvider.getHWID());
         return hhwid;
     }
 

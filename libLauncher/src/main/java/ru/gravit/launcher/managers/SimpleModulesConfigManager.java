@@ -1,6 +1,6 @@
 package ru.gravit.launcher.managers;
 
-import ru.gravit.launcher.modules.ModulesConfigManagerInterface;
+import ru.gravit.launcher.modules.ModulesConfigManager;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -8,16 +8,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class ModulesConfigManager implements ModulesConfigManagerInterface {
+public class SimpleModulesConfigManager implements ModulesConfigManager {
     public Path configDir;
 
-    public ModulesConfigManager(Path configDir) {
+    public SimpleModulesConfigManager(Path configDir) {
         this.configDir = configDir;
     }
 
-    public Path getModuleConfig(String moduleName)
-    {
-        if(!IOHelper.isDir(configDir)) {
+    public Path getModuleConfig(String moduleName) {
+        if (!IOHelper.isDir(configDir)) {
             try {
                 Files.createDirectories(configDir);
             } catch (IOException e) {
@@ -26,9 +25,9 @@ public class ModulesConfigManager implements ModulesConfigManagerInterface {
         }
         return configDir.resolve(moduleName.concat("Config.json"));
     }
-    public Path getModuleConfigDir(String moduleName)
-    {
-        if(!IOHelper.isDir(configDir)) {
+
+    public Path getModuleConfigDir(String moduleName) {
+        if (!IOHelper.isDir(configDir)) {
             try {
                 Files.createDirectories(configDir);
             } catch (IOException e) {

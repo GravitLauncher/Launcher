@@ -1,11 +1,11 @@
 package ru.gravit.launchserver.auth.handler;
 
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.VerifyHelper;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.UUID;
-
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 
 public final class MemoryAuthHandler extends CachedAuthHandler {
     private static String toUsername(UUID uuid) {

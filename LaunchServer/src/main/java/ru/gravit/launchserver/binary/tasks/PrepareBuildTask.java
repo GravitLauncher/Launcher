@@ -15,12 +15,12 @@ import java.util.List;
 
 public class PrepareBuildTask implements LauncherBuildTask {
     private final LaunchServer server;
-	private final Path result;
-    
+    private final Path result;
+
     public PrepareBuildTask(LaunchServer server) {
-		this.server = server;
-		result = server.launcherBinary.buildDir.resolve(server.config.binaryName + "-clean.jar");
-	}
+        this.server = server;
+        result = server.launcherBinary.buildDir.resolve("Launcher-clean.jar");
+    }
 
     @Override
     public String getName() {
@@ -29,8 +29,8 @@ public class PrepareBuildTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputFile) throws IOException {
-    	server.launcherBinary.coreLibs.clear();
-		IOHelper.walk(server.launcherLibraries, new ListFileVisitor(server.launcherBinary.coreLibs), true);
+        server.launcherBinary.coreLibs.clear();
+        IOHelper.walk(server.launcherLibraries, new ListFileVisitor(server.launcherBinary.coreLibs), true);
         UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), result);
         tryUnpack();
         return result;
@@ -46,7 +46,7 @@ public class PrepareBuildTask implements LauncherBuildTask {
         UnpackHelper.unpackZipNoCheck("guard.zip", server.launcherBinary.guardDir);
         UnpackHelper.unpackZipNoCheck("runtime.zip", server.launcherBinary.runtimeDir);
     }
-    
+
     private static final class ListFileVisitor extends SimpleFileVisitor<Path> {
         private final List<Path> lst;
 

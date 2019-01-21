@@ -60,13 +60,7 @@ public final class LauncherConfig extends StreamObject {
         else if (config.env == 2) env = LauncherEnvironment.STD;
         else if (config.env == 3) env = LauncherEnvironment.PROD;
         else env = LauncherEnvironment.STD;
-        if (env == LauncherEnvironment.PROD) {
-            LogHelper.setStacktraceEnabled(false);
-            LogHelper.setDebugEnabled(false);
-        }
-        if (env == LauncherEnvironment.DEV || env == LauncherEnvironment.DEBUG) {
-            LogHelper.setDebugEnabled(true);
-        }
+        Launcher.applyLauncherEnv(env);
         // Read signed runtime
         int count = input.readLength(0);
         Map<String, byte[]> localResources = new HashMap<>(count);
