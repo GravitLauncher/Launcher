@@ -469,7 +469,6 @@ public final class ClientLauncher {
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         initGson();
         Launcher.modulesManager.preInitModules();
-        LauncherGuardManager.initGuard(true);
         checkJVMBitsAndVersion();
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();
@@ -478,6 +477,7 @@ public final class ClientLauncher {
         if (engine.runtimeProvider == null) engine.runtimeProvider = new JSRuntimeProvider();
         engine.runtimeProvider.init(true);
         engine.runtimeProvider.preLoad();
+        LauncherGuardManager.initGuard(true);
         // Read and delete params file
         LogHelper.debug("Reading ClientLauncher params");
         Params params;

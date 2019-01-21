@@ -47,6 +47,7 @@ import java.util.Map;
 public class JSRuntimeProvider implements RuntimeProvider {
 
     private final ScriptEngine engine = CommonHelper.newScriptEngine();
+    private boolean isPreLoaded = false;
 
     @LauncherAPI
     public static void addLauncherClassBindings(Map<String, Object> bindings) {
@@ -145,6 +146,7 @@ public class JSRuntimeProvider implements RuntimeProvider {
 
     @Override
     public void run(String[] args) throws ScriptException, NoSuchMethodException, IOException {
+        preLoad();
         loadScript(Launcher.INIT_SCRIPT_FILE);
         LogHelper.info("Invoking start() function");
         Launcher.modulesManager.postInitModules();
@@ -154,8 +156,12 @@ public class JSRuntimeProvider implements RuntimeProvider {
 
     @Override
     public void preLoad() throws IOException, ScriptException {
-        loadScript(Launcher.API_SCRIPT_FILE);
-        loadScript(Launcher.CONFIG_SCRIPT_FILE);
+        if(!isPreLoaded)
+        {
+            loadScript(Launcher.API_SCRIPT_FILE);
+            loadScript(Launcher.CONFIG_SCRIPT_FILE);
+            isPreLoaded = true;
+        }
     }
 
     @Override

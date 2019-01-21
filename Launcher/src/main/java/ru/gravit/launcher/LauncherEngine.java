@@ -62,9 +62,10 @@ public class LauncherEngine {
         Launcher.modulesManager = new ClientModuleManager(this);
         LauncherConfig.getAutogenConfig().initModules();
         Launcher.modulesManager.preInitModules();
-        LauncherGuardManager.initGuard(false);
         if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
         runtimeProvider.init(false);
+        runtimeProvider.preLoad();
+        LauncherGuardManager.initGuard(false);
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");
