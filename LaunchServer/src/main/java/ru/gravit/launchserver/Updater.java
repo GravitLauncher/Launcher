@@ -45,6 +45,7 @@ public class Updater extends TimerTask {
 			if (rel.equals(parenRel)) return;
 			LogHelper.warning("Latest release: %s", rel.getName());
 			LogHelper.warning("It`s published at: " + DATE_TIME_FORMATTER.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(rel.getPublished_at().getTime()), ZoneId.systemDefault())));
+			parenRel = rel;
 		} catch (IOException e) {
 			LogHelper.error(e);
 		}
