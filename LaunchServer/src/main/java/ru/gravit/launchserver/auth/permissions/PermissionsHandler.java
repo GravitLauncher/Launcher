@@ -31,6 +31,7 @@ public abstract class PermissionsHandler {
     public static void registerHandlers() {
         if (!registredHandl) {
             registerHandler("json", JsonFilePermissionsHandler.class);
+            registerHandler("json-long", JsonLongFilePermissionsHandler.class);
             registerHandler("config", ConfigPermissionsHandler.class);
             registerHandler("default", DefaultPermissionsHandler.class);
             registredHandl = true;
