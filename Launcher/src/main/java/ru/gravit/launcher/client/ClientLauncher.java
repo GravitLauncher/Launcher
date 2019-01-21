@@ -3,6 +3,7 @@ package ru.gravit.launcher.client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.*;
+import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
@@ -231,6 +232,14 @@ public final class ClientLauncher {
         String[] cloakDigest;
     }
 
+    public static boolean isDownloadJava() {
+        return isDownloadJava;
+    }
+
+    public static Path getJavaBinPath() {
+        return JavaBinPath;
+    }
+
     private static void addClientArgs(Collection<String> args, ClientProfile profile, Params params) {
         PlayerProfile pp = params.pp;
 
@@ -392,15 +401,7 @@ public final class ClientLauncher {
         List<String> args = new LinkedList<>();
         boolean wrapper = isUsingWrapper();
         LogHelper.debug("Resolving JVM binary");
-        Path javaBin = null;
-        if (isDownloadJava) {
-            //Linux и Mac не должны скачивать свою JVM
-            if (JVMHelper.OS_TYPE == OS.MUSTDIE)
-                javaBin = IOHelper.resolveJavaBin(JavaBinPath);
-            else
-                javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
-        } else
-            javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
+        Path javaBin = LauncherGuardManager.getGuardJavaBinPath();
         args.add(javaBin.toString());
         args.add(MAGICAL_INTEL_OPTION);
         if (params.ram > 0 && params.ram <= JVMHelper.RAM) {
@@ -468,6 +469,7 @@ public final class ClientLauncher {
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         initGson();
         Launcher.modulesManager.preInitModules();
+        LauncherGuardManager.initGuard(true);
         checkJVMBitsAndVersion();
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();

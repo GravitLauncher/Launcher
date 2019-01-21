@@ -5,6 +5,7 @@ import ru.gravit.launcher.client.ClientModuleManager;
 import ru.gravit.launcher.client.DirBridge;
 import ru.gravit.launcher.client.FunctionalBridge;
 import ru.gravit.launcher.client.LauncherSettings;
+import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.gui.RuntimeProvider;
 import ru.gravit.utils.helper.CommonHelper;
@@ -61,6 +62,7 @@ public class LauncherEngine {
         Launcher.modulesManager = new ClientModuleManager(this);
         LauncherConfig.getAutogenConfig().initModules();
         Launcher.modulesManager.preInitModules();
+        LauncherGuardManager.initGuard(false);
         if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
         runtimeProvider.init(false);
         Objects.requireNonNull(args, "args");
