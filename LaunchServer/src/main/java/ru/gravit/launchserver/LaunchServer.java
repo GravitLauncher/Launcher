@@ -111,7 +111,6 @@ public final class LaunchServer implements Runnable {
 
         public String startScript;
 
-
         public String getAddress() {
             return address;
         }
@@ -289,6 +288,8 @@ public final class LaunchServer implements Runnable {
 
     public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
 
+    public final Updater updater;
+
     public static Gson gson;
     public static GsonBuilder gsonBuilder;
 
@@ -439,6 +440,8 @@ public final class LaunchServer implements Runnable {
 
         // post init modules
         modulesManager.postInitModules();
+        // start updater
+        this.updater = new Updater(this);
     }
 
     public static void initGson() {
