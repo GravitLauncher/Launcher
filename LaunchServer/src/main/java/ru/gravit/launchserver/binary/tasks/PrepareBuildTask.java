@@ -42,7 +42,7 @@ public class PrepareBuildTask implements LauncherBuildTask {
     }
 
     public void tryUnpack() throws IOException {
-        LogHelper.info("Unpacking launcher native guard files and runtime");
+        LogHelper.info("Unpacking launcher native guard list and runtime");
         UnpackHelper.unpackZipNoCheck("guard.zip", server.launcherBinary.guardDir);
         UnpackHelper.unpackZipNoCheck("runtime.zip", server.launcherBinary.runtimeDir);
     }

@@ -1,5 +1,6 @@
 package ru.gravit.launcher.profiles;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
@@ -8,7 +9,9 @@ import ru.gravit.launcher.profiles.optional.OptionalType;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
 import java.util.*;
 
 public final class ClientProfile implements Comparable<ClientProfile> {
@@ -216,9 +219,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     @LauncherAPI
     public void markOptional(String name, OptionalType type) {
-        OptionalFile file = getOptionalFile(name,type);
-        if(file == null)
-        {
+        OptionalFile file = getOptionalFile(name, type);
+        if (file == null) {
             throw new SecurityException(String.format("Optional %s not found in optionalList", name));
         }
         markOptional(file);
@@ -245,9 +247,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     @LauncherAPI
     public void unmarkOptional(String name, OptionalType type) {
-        OptionalFile file = getOptionalFile(name,type);
-        if(file == null)
-        {
+        OptionalFile file = getOptionalFile(name, type);
+        if (file == null) {
             throw new SecurityException(String.format("Optional %s not found in optionalList", name));
         }
         unmarkOptional(file);
@@ -278,14 +279,43 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    public void pushOptional(HashedDir dir, boolean digest) {
+    public void pushOptionalFile(HashedDir dir, boolean digest) {
         for (OptionalFile opt : updateOptional) {
-            if (opt.type.equals(OptionalType.FILE) && !opt.mark)
-            {
-                for(String file : opt.files)
+            if (opt.type.equals(OptionalType.FILE) && !opt.mark) {
+                for (String file : opt.list)
                     dir.removeR(file);
             }
         }
+    }
+
+    public void pushOptionalJvmArgs(Collection<String> jvmArgs1)
+    {
+        for (OptionalFile opt : updateOptional) {
+            if (opt.type.equals(OptionalType.JVMARGS) && opt.mark) {
+                jvmArgs1.addAll(Arrays.asList(opt.list));
+            }
+        }
+    }
+    public void pushOptionalClientArgs(Collection<String> clientArgs1)
+    {
+        for (OptionalFile opt : updateOptional) {
+            if (opt.type.equals(OptionalType.CLIENTARGS) && opt.mark) {
+                clientArgs1.addAll(Arrays.asList(opt.list));
+            }
+        }
+    }
+    public void pushOptionalClassPath(pushOptionalClassPathCallback callback) throws IOException
+    {
+        for (OptionalFile opt : updateOptional) {
+            if (opt.type.equals(OptionalType.CLASSPATH) && opt.mark) {
+                callback.run(opt.list);
+            }
+        }
+    }
+    @FunctionalInterface
+    public interface pushOptionalClassPathCallback
+    {
+        void run(String[] opt) throws IOException;
     }
 
     @LauncherAPI

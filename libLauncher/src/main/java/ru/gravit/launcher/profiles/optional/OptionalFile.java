@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class OptionalFile {
     @LauncherAPI
-    public String[] files;
+    public String[] list;
     @LauncherAPI
     public OptionalType type;
     @LauncherAPI

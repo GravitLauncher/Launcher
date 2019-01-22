@@ -343,8 +343,8 @@ public final class LaunchServer implements Runnable {
             publicKey = (RSAPublicKey) pair.getPublic();
             privateKey = (RSAPrivateKey) pair.getPrivate();
 
-            // Write key pair files
-            LogHelper.info("Writing RSA keypair files");
+            // Write key pair list
+            LogHelper.info("Writing RSA keypair list");
             IOHelper.write(publicKeyFile, publicKey.getEncoded());
             IOHelper.write(privateKeyFile, privateKey.getEncoded());
         }
