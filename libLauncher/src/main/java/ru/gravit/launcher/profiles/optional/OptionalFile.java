@@ -92,9 +92,10 @@ public class OptionalFile {
         }
     }
     @LauncherAPI
-    public void readType(HInput input) throws IOException
+    public static OptionalType readType(HInput input) throws IOException
     {
         int t = input.readInt();
+        OptionalType type;
         switch(t)
         {
             case 1:
@@ -111,7 +112,9 @@ public class OptionalFile {
                 break;
             default:
                 LogHelper.error("readType failed. Read int %d",t);
+                type = OptionalType.FILE;
                 break;
         }
+        return type;
     }
 }

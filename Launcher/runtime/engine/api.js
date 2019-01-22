@@ -44,6 +44,7 @@ var StreamObjectAdapter = StreamObjectAdapterClass.static;
 var SignedBytesHolder = SignedBytesHolderClass.static;
 var SignedObjectHolder = SignedObjectHolderClass.static;
 var EnumSerializer = EnumSerializerClass.static;
+var OptionalFile = OptionalFileClass.static;
 
 // Helper class API imports
 var CommonHelper = CommonHelperClass.static;
