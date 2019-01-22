@@ -1,6 +1,5 @@
 package ru.gravit.launchserver;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -33,7 +32,7 @@ public class Updater extends TimerTask {
 		GHRepository gravitLauncherTmp = null;
 		try {
 			gravitLauncherTmp  = GitHub.connectAnonymously().getOrganization("GravitLauncher").getRepository("Launcher");
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			LogHelper.error(e);
 		}
 		this.gravitLauncher = gravitLauncherTmp;
@@ -58,7 +57,7 @@ public class Updater extends TimerTask {
 				LogHelper.debug("You can download it: " + rel.getHtmlUrl());
 				LogHelper.debug("It`s published at: " + DATE_TIME_FORMATTER.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(rel.getPublished_at().getTime()), ZoneId.systemDefault())));
 			}
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			LogHelper.error(e);
 		}
 	}
