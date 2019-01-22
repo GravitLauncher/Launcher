@@ -1,6 +1,5 @@
 package ru.gravit.launcher.profiles;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
