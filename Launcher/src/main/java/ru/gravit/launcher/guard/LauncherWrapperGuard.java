@@ -27,7 +27,7 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
     @Override
     public void init(boolean clientInstance) {
         try {
-            UnpackHelper.unpack(IOHelper.getResourceURL(JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe"),DirBridge.getGuardDir());
+            UnpackHelper.unpack(IOHelper.getResourceURL(JVMHelper.JVM_BITS == 64 ? "guard/wrapper64.exe" : "guard/wrapper32.exe"),DirBridge.getGuardDir());
         } catch (IOException e) {
             throw new SecurityException(e);
         }
