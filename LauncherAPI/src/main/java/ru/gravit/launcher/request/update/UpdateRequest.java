@@ -224,7 +224,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
             String name = mapEntry.getKey();
             Path path = subDir.resolve(name);
 
-            // Delete files and dirs based on type
+            // Delete list and dirs based on type
             HashedEntry entry = mapEntry.getValue();
             HashedEntry.Type entryType = entry.getType();
             switch (entryType) {
@@ -308,7 +308,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
         // Get diff between local and remote dir
         SignedObjectHolder<HashedDir> remoteHDirHolder = new SignedObjectHolder<>(input, config.publicKey, HashedDir::new);
         HashedDir hackHackedDir = remoteHDirHolder.object;
-        Launcher.profile.pushOptional(hackHackedDir, !Launcher.profile.isUpdateFastCheck());
+        Launcher.profile.pushOptionalFile(hackHackedDir, !Launcher.profile.isUpdateFastCheck());
         HashedDir.Diff diff = hackHackedDir.diff(localDir, matcher);
         totalSize = diff.mismatch.size();
         boolean compress = input.readBoolean();

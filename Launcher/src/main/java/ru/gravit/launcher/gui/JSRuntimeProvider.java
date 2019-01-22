@@ -18,6 +18,7 @@ import ru.gravit.launcher.hasher.HashedFile;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.profiles.Texture;
+import ru.gravit.launcher.profiles.optional.OptionalFile;
 import ru.gravit.launcher.request.*;
 import ru.gravit.launcher.request.auth.AuthRequest;
 import ru.gravit.launcher.request.auth.CheckServerRequest;
@@ -95,6 +96,7 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("SignedBytesHolderClass", SignedBytesHolder.class);
         bindings.put("SignedObjectHolderClass", SignedObjectHolder.class);
         bindings.put("EnumSerializerClass", EnumSerializer.class);
+        bindings.put("OptionalFileClass", OptionalFile.class);
 
         // Set helper class bindings
         bindings.put("CommonHelperClass", CommonHelper.class);
