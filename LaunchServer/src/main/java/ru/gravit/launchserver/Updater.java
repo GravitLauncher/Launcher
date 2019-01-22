@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +27,8 @@ public class Updater extends TimerTask {
 	private static final Version VERSION = Launcher.getVersion();
 	private final Timer taskPool;
 	private final GHRepository gravitLauncher;
-
+	private Version parent = VERSION;
+	
 	public Updater(LaunchServer srv) {
 		this.taskPool = new Timer("Updater thread", true);
 
@@ -37,7 +39,6 @@ public class Updater extends TimerTask {
 			LogHelper.error(e);
 		}
 		this.gravitLauncher = gravitLauncherTmp;
-
 		run();
 		if (srv.config.updatesNotify) taskPool.schedule(this, new Date(System.currentTimeMillis()+period), period);
 	}
@@ -47,6 +48,7 @@ public class Updater extends TimerTask {
 		try {
 			GHRelease rel = gravitLauncher.getLatestRelease();
 			Version relV = parseVer(rel.getTagName());
+			if (!relV.equals(parent)) parent = relV;
 			if (VERSION.major >= relV.major || VERSION.minor >= relV.minor
 					|| VERSION.patch >= relV.patch || VERSION.build >= relV.build) return;
 			if (relV.release.equals(Type.STABLE) || relV.release.equals(Type.LTS)) {
@@ -68,9 +70,9 @@ public class Updater extends TimerTask {
 	
 	private static Version parseVer(String relS) {
 		Matcher verMatcher = startingVerPattern.matcher(relS);
-		if (!verMatcher.find()) return null;
+		if (!verMatcher.find()) return VERSION;
 		String[] ver = pointPatternStriper.split(relS.substring(verMatcher.start(), verMatcher.end()));
-		if (ver.length < 3) return null;
+		if (ver.length < 3) return VERSION;
 		return new Version(Integer.parseInt(ver[0]), Integer.parseInt(ver[1]), 
 				Integer.parseInt(ver[2]), ver.length > 3 ? Integer.parseInt(ver[3]) : 0, findRelType(relS.substring(verMatcher.end()+1)));
 	}
@@ -79,16 +81,11 @@ public class Updater extends TimerTask {
 		if (substring.length() < 3 || substring.isEmpty()) return Type.UNKNOWN;
 		String tS = substring;
 		if (tS.startsWith("-")) tS = tS.substring(1);
-		tS = tS.toUpperCase(Locale.ENGLISH);
-		Type t = Type.UNKNOWN;
-		try {
-			t = Type.valueOf(tS);
-		} catch (Throwable ign) { // ignore it
-		}
-		return t;
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(parseVer("v3.4.5.6-stable").release);
+		final String wrk = tS.toLowerCase(Locale.ENGLISH);
+		final AtomicReference<Type> t = new AtomicReference<Type>(Type.UNKNOWN);
+		Type.unModTypes.forEach((s, type) -> {
+			if (wrk.startsWith(s)) t.set(type);
+		});
+		return t.get();
 	}
 }
