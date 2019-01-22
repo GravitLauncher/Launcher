@@ -10,7 +10,6 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.file.Path;
 import java.util.*;
 
 public final class ClientProfile implements Comparable<ClientProfile> {
