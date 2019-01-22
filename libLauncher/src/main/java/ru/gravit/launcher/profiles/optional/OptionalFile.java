@@ -1,7 +1,11 @@
 package ru.gravit.launcher.profiles.optional;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.serialize.HInput;
+import ru.gravit.launcher.serialize.HOutput;
+import ru.gravit.utils.helper.LogHelper;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Set;
 
@@ -44,24 +48,70 @@ public class OptionalFile {
     public int hashCode() {
         return Objects.hash(name);
     }
-
+    @LauncherAPI
     public OptionalType getType() {
         return OptionalType.FILE;
     }
-
+    @LauncherAPI
     public String getName() {
         return name;
     }
-
+    @LauncherAPI
     public boolean isVisible() {
         return visible;
     }
-
+    @LauncherAPI
     public boolean isMark() {
         return mark;
     }
-
+    @LauncherAPI
     public long getPermissions() {
         return permissions;
+    }
+    @LauncherAPI
+    public void writeType(HOutput output) throws IOException
+    {
+        switch(type)
+        {
+
+            case FILE:
+                output.writeInt(1);
+                break;
+            case CLASSPATH:
+                output.writeInt(2);
+                break;
+            case JVMARGS:
+                output.writeInt(3);
+                break;
+            case CLIENTARGS:
+                output.writeInt(4);
+                break;
+            default:
+                output.writeInt(5);
+                break;
+        }
+    }
+    @LauncherAPI
+    public void readType(HInput input) throws IOException
+    {
+        int t = input.readInt();
+        switch(t)
+        {
+            case 1:
+                type = OptionalType.FILE;
+                break;
+            case 2:
+                type = OptionalType.CLASSPATH;
+                break;
+            case 3:
+                type = OptionalType.JVMARGS;
+                break;
+            case 4:
+                type = OptionalType.CLIENTARGS;
+                break;
+            default:
+                LogHelper.error("readType failed. Read int %d",t);
+                break;
+        }
     }
 }
