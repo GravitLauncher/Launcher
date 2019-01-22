@@ -98,14 +98,19 @@ var options = {
             var profile = profilesList[serverHolder.old];
             var list = profile.getOptional();
             var checkBoxList = new java.util.ArrayList;
-            var dModsIds = [];
-
             list.forEach(function(modFile) {
-                    dModsIds.push(modFile.string);
-
                         var modName = modFile.name, modDescription = "", subLevel = 1;
-                        if(!modFile.isVisible || !((loginData.permissions & modFile.permissions) != 0))
+                        if(!modFile.isVisible)
+                        {
+                            LogHelper.debug("optionalMod %s hidden",modFile.name);
                             return;
+                        }
+
+                        if(modFile.permissions != 0 && ((loginData.permissions.toLong() & modFile.permissions) != 0))
+                        {
+                            LogHelper.debug("optionalMod %s permissions deny",modFile.name);
+                            return;
+                        }
                         if(modFile.info != null) //Есть ли описание?
                             modDescription = modFile.info;
                         if(modFile.subTreeLevel != null && modFile.subTreeLevel > 1)//Это суб-модификация?

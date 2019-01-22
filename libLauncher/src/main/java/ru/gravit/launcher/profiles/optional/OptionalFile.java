@@ -17,7 +17,7 @@ public class OptionalFile {
     @LauncherAPI
     public boolean mark;
     @LauncherAPI
-    public boolean visible;
+    public boolean visible = true;
     @LauncherAPI
     public String name;
     @LauncherAPI

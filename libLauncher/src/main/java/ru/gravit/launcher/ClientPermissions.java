@@ -46,6 +46,7 @@ public class ClientPermissions {
         canUSR3 = (data & (1 << 4)) != 0;
         canBot = (data & (1 << 5)) != 0;
     }
+    @LauncherAPI
     public long toLong()
     {
         long result = 0;
