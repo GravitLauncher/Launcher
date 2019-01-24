@@ -28,7 +28,7 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
     public void init(boolean clientInstance) {
         try {
             String wrapperName = JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe";
-            String antiInjectName = JVMHelper.JVM_BITS == 64 ? "AntiInject64.exe" : "AntiInject32.exe";
+            String antiInjectName = JVMHelper.JVM_BITS == 64 ? "AntiInject64.dll" : "AntiInject32.dll";
             UnpackHelper.unpack(IOHelper.getResourceURL("guard/" + wrapperName),DirBridge.getGuardDir().resolve(wrapperName));
             UnpackHelper.unpack(IOHelper.getResourceURL("guard/" + antiInjectName),DirBridge.getGuardDir().resolve(antiInjectName));
         } catch (IOException e) {
