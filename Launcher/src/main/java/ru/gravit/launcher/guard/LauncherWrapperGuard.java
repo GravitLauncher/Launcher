@@ -26,10 +26,13 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
 
     @Override
     public void init(boolean clientInstance) {
-        //try {
-        //    UnpackHelper.unpack(IOHelper.getResourceURL(JVMHelper.JVM_BITS == 64 ? "guard/wrapper64.exe" : "guard/wrapper32.exe"),DirBridge.getGuardDir());
-        //} catch (IOException e) {
-        //    throw new SecurityException(e);
-        //}
+        try {
+            String wrapperName = JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe";
+            String antiInjectName = JVMHelper.JVM_BITS == 64 ? "AntiInject64.exe" : "AntiInject32.exe";
+            UnpackHelper.unpack(IOHelper.getResourceURL("guard/" + wrapperName),DirBridge.getGuardDir().resolve(wrapperName));
+            UnpackHelper.unpack(IOHelper.getResourceURL("guard/" + antiInjectName),DirBridge.getGuardDir().resolve(antiInjectName));
+        } catch (IOException e) {
+            throw new SecurityException(e);
+        }
     }
 }
