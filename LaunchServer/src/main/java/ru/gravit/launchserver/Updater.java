@@ -28,7 +28,7 @@ public class Updater extends TimerTask {
 	private final Timer taskPool;
 	private final GHRepository gravitLauncher;
 	private Version parent = VERSION;
-	
+
 	public Updater(LaunchServer srv) {
 		this.taskPool = new Timer("Updater thread", true);
 
@@ -48,9 +48,13 @@ public class Updater extends TimerTask {
 		try {
 			GHRelease rel = gravitLauncher.getLatestRelease();
 			Version relV = parseVer(rel.getTagName());
-			if (!relV.equals(parent)) parent = relV;
-			if (VERSION.major >= relV.major || VERSION.minor >= relV.minor
-					|| VERSION.patch >= relV.patch || VERSION.build >= relV.build) return;
+			if (relV == null) {
+				LogHelper.debug("Updater: parsing version error.");
+				return;
+			}
+			if (!parent.equals(relV)) parent = relV;
+			if (VERSION.major >= relV.major && VERSION.minor >= relV.minor
+					&& VERSION.patch >= relV.patch && VERSION.build >= relV.build) return;
 			if (relV.release.equals(Type.STABLE) || relV.release.equals(Type.LTS)) {
 				LogHelper.warning("New %s release: %s", relV.getReleaseStatus(), relV.getVersionString());
 				LogHelper.warning("You can download it: " + rel.getHtmlUrl().toString());
@@ -66,12 +70,12 @@ public class Updater extends TimerTask {
 	}
 	
 	private static final Pattern startingVerPattern = Pattern.compile("\\d+\\.\\d+\\.\\d+");
-	private static final Pattern pointPatternStriper = Pattern.compile("\\.");
+	private static final Pattern pointPatternSpltitter = Pattern.compile("\\.");
 	
 	private static Version parseVer(String relS) {
 		Matcher verMatcher = startingVerPattern.matcher(relS);
 		if (!verMatcher.find()) return VERSION;
-		String[] ver = pointPatternStriper.split(relS.substring(verMatcher.start(), verMatcher.end()));
+		String[] ver = pointPatternSpltitter.split(relS.substring(verMatcher.start(), verMatcher.end()));
 		if (ver.length < 3) return VERSION;
 		return new Version(Integer.parseInt(ver[0]), Integer.parseInt(ver[1]), 
 				Integer.parseInt(ver[2]), ver.length > 3 ? Integer.parseInt(ver[3]) : 0, findRelType(relS.substring(verMatcher.end()+1)));
