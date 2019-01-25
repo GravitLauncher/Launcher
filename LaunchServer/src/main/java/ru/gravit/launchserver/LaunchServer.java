@@ -287,9 +287,9 @@ public final class LaunchServer implements Runnable {
 
     // Updates and profiles
     private volatile List<ClientProfile> profilesList;
-
     public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
 
+	public final Timer taskPool;
     public final Updater updater;
 
     public static Gson gson;
@@ -297,6 +297,7 @@ public final class LaunchServer implements Runnable {
 
     public LaunchServer(Path dir, String[] args) throws IOException, InvalidKeySpecException {
         this.dir = dir;
+        taskPool = new Timer("Timered task worker thread", true);
         launcherLibraries = dir.resolve("launcher-libraries");
         if (!Files.isDirectory(launcherLibraries)) {
             Files.deleteIfExists(launcherLibraries);

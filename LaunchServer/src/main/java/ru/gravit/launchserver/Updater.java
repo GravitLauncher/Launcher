@@ -6,7 +6,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -25,12 +24,10 @@ public class Updater extends TimerTask {
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US);
 	private static final long period = 1000*3600;
 	private static final Version VERSION = Launcher.getVersion();
-	private final Timer taskPool;
 	private final GHRepository gravitLauncher;
 	private Version parent = VERSION;
 
 	public Updater(LaunchServer srv) {
-		this.taskPool = new Timer("Updater thread", true);
 
 		GHRepository gravitLauncherTmp = null;
 		try {
@@ -40,7 +37,7 @@ public class Updater extends TimerTask {
 		}
 		this.gravitLauncher = gravitLauncherTmp;
 		run();
-		if (srv.config.updatesNotify) taskPool.schedule(this, new Date(System.currentTimeMillis()+period), period);
+		if (srv.config.updatesNotify) srv.taskPool.schedule(this, new Date(System.currentTimeMillis()+period), period);
 	}
 
 	@Override
