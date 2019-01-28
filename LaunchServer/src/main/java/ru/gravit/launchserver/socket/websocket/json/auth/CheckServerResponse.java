@@ -1,16 +1,21 @@
 package ru.gravit.launchserver.socket.websocket.json.auth;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
+import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.utils.helper.LogHelper;
 
+import java.util.UUID;
+
 public class CheckServerResponse implements JsonResponseInterface {
     public String serverID;
     public String username;
+    public String client;
 
     @Override
     public String getType() {
@@ -18,9 +23,12 @@ public class CheckServerResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
+    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client pClient) {
+        Result result = new Result();
         try {
-            LaunchServer.server.config.authHandler.checkServer(username, serverID);
+            result.uuid = LaunchServer.server.config.authHandler.checkServer(username, serverID);
+            if(result.uuid != null)
+                result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server,result.uuid,username,client);
         } catch (AuthException e) {
             service.sendObject(ctx, new WebSocketService.ErrorResult(e.getMessage()));
             return;
@@ -35,5 +43,7 @@ public class CheckServerResponse implements JsonResponseInterface {
     public class Result {
         public String type = "success";
         public String requesttype = "checkServer";
+        public UUID uuid;
+        public PlayerProfile playerProfile;
     }
 }
