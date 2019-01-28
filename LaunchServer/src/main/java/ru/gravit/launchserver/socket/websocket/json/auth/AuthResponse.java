@@ -39,7 +39,7 @@ public class AuthResponse implements JsonResponseInterface {
     public OshiHWID hwid;
     public enum ConnectTypes
     {
-        SERVER,CLIENT
+        SERVER,CLIENT,BOT
     }
 
     @Override
@@ -56,9 +56,18 @@ public class AuthResponse implements JsonResponseInterface {
                 AuthProvider.authError(LaunchServer.server.config.authRejectString);
                 return;
             }
-            if (authType == ConnectTypes.SERVER &&!clientData.checkSign) {
+            if (authType != ConnectTypes.CLIENT &&!clientData.checkSign) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
+            }
+            clientData.permissions = LaunchServer.server.config.permissionsHandler.getPermissions(login);
+            if(authType == ConnectTypes.BOT && !clientData.permissions.canBot)
+            {
+                AuthProvider.authError("authType: BOT not allowed for this account");
+            }
+            if(authType == ConnectTypes.SERVER && !clientData.permissions.canServer)
+            {
+                AuthProvider.authError("authType: SERVER not allowed for this account");
             }
             ru.gravit.launchserver.response.auth.AuthResponse.AuthContext context = new ru.gravit.launchserver.response.auth.AuthResponse.AuthContext(0, login, password.length(), client, null, false);
             AuthProvider provider = LaunchServer.server.config.authProvider[authid];
