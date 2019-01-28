@@ -1,7 +1,7 @@
 package ru.gravit.launcher.request.websockets;
 
 import com.google.gson.*;
-import ru.gravit.launcher.request.update.LauncherRequest;
+import ru.gravit.launcher.request.ResultInterface;
 
 import java.lang.reflect.Type;
 

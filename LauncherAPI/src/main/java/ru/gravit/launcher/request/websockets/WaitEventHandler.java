@@ -1,5 +1,7 @@
 package ru.gravit.launcher.request.websockets;
 
+import ru.gravit.launcher.request.ResultInterface;
+
 import java.util.HashSet;
 
 public class WaitEventHandler implements ClientWebSocketService.EventHandler {

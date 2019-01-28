@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
+import ru.gravit.launcher.request.ResultInterface;
 
 import java.io.IOException;
 import java.io.Reader;
