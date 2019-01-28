@@ -8,35 +8,41 @@ import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
+import java.util.HashSet;
 
-public class ClientWebSocketService {
+public class ClientWebSocketService extends ClientJSONPoint {
     public final GsonBuilder gsonBuilder;
     public final Gson gson;
-    public final ClientJSONPoint point;
-    private HashMap<String, Class<RequestInterface>> requests;
-    private HashMap<String, Class<ResultInterface>> results;
+    private HashMap<String, Class<? extends RequestInterface>> requests;
+    private HashMap<String, Class<? extends ResultInterface>> results;
+    private HashSet<EventHandler> handlers;
 
-    public ClientWebSocketService(GsonBuilder gsonBuilder, ClientJSONPoint point) {
+    public ClientWebSocketService(GsonBuilder gsonBuilder) {
         requests = new HashMap<>();
         results = new HashMap<>();
+        handlers = new HashSet<>();
         this.gsonBuilder = gsonBuilder;
         gsonBuilder.registerTypeAdapter(RequestInterface.class, new JsonRequestAdapter(this));
         gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuilder.create();
-        this.point = point;
-        point.setService(this);
     }
-
+    @Override
     public void processMessage(Reader reader) {
         ResultInterface result = gson.fromJson(reader, ResultInterface.class);
-        result.process();
+        for(EventHandler handler : handlers)
+        {
+            handler.process(result);
+        }
     }
 
-    public Class<RequestInterface> getRequestClass(String key) {
+    public Class<? extends RequestInterface> getRequestClass(String key) {
         return requests.get(key);
     }
+    public Class<? extends ResultInterface> getResultClass(String key) {
+        return results.get(key);
+    }
 
-    public void registerRequest(String key, Class<RequestInterface> clazz) {
+    public void registerRequest(String key, Class<? extends RequestInterface> clazz) {
         requests.put(key, clazz);
     }
 
@@ -44,7 +50,7 @@ public class ClientWebSocketService {
 
     }
 
-    public void registerResult(String key, Class<ResultInterface> clazz) {
+    public void registerResult(String key, Class<? extends ResultInterface> clazz) {
         results.put(key, clazz);
     }
 
@@ -52,11 +58,21 @@ public class ClientWebSocketService {
 
     }
 
+    public void registerHandler(EventHandler eventHandler)
+    {
+        handlers.add(eventHandler);
+    }
+
     public void sendObjectAsync(Object obj) throws IOException {
-        point.sendAsync(gson.toJson(obj));
+        sendAsync(gson.toJson(obj));
     }
 
     public void sendObject(Object obj) throws IOException {
-        point.send(gson.toJson(obj));
+        send(gson.toJson(obj));
+    }
+    @FunctionalInterface
+    public interface EventHandler
+    {
+        void process(ResultInterface resultInterface);
     }
 }

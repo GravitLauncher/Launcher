@@ -1,28 +1,29 @@
 package ru.gravit.launcher.request.websockets;
 
 import com.google.gson.*;
+import ru.gravit.launcher.request.update.LauncherRequest;
 
 import java.lang.reflect.Type;
 
-public class JsonRequestAdapter implements JsonSerializer<RequestInterface>, JsonDeserializer<RequestInterface> {
+public class JsonResultAdapter implements JsonSerializer<ResultInterface>, JsonDeserializer<ResultInterface> {
     private final ClientWebSocketService service;
     private static final String PROP_NAME = "type";
 
-    public JsonRequestAdapter(ClientWebSocketService service) {
+    public JsonResultAdapter(ClientWebSocketService service) {
         this.service = service;
     }
 
     @Override
-    public RequestInterface deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public ResultInterface deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
-        Class<? extends RequestInterface> cls = service.getRequestClass(typename);
+        Class<? extends ResultInterface> cls = service.getResultClass(typename);
 
 
-        return (RequestInterface) context.deserialize(json, cls);
+        return (ResultInterface) context.deserialize(json, cls);
     }
 
     @Override
-    public JsonElement serialize(RequestInterface src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(ResultInterface src, Type typeOfSrc, JsonSerializationContext context) {
         // note : won't work, you must delegate this
         JsonObject jo = context.serialize(src).getAsJsonObject();
 
