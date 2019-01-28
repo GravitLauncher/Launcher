@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.socket.websocket.json.update;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.gravit.launcher.events.request.UpdateListRequestEvent;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
@@ -22,18 +23,7 @@ public class UpdateListResponse implements JsonResponseInterface {
             return;
         }
         HashedDir hdir = LaunchServer.server.updatesDirMap.get(dir).object;
-        service.sendObject(ctx, new Result(hdir));
+        service.sendObject(ctx, new UpdateListRequestEvent(hdir));
     }
 
-    class Result {
-        public final String type;
-        public final String requesttype;
-        public final HashedDir dir;
-
-        Result(HashedDir dir) {
-            this.dir = dir;
-            type = "success";
-            requesttype = "updateList";
-        }
-    }
 }

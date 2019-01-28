@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.socket.websocket.json.update;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.gravit.launcher.events.request.LauncherRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
@@ -29,37 +30,25 @@ public class LauncherResponse implements JsonResponseInterface {
         if (launcher_type == 1) // JAR
         {
             byte[] hash = LaunchServer.server.launcherBinary.getBytes().getDigest();
-            if (hash == null) service.sendObjectAndClose(ctx, new Result(true, JAR_URL));
+            if (hash == null) service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, JAR_URL));
             if (Arrays.equals(bytes, hash)) {
                 client.checkSign = true;
-                service.sendObject(ctx, new Result(false, JAR_URL));
+                service.sendObject(ctx, new LauncherRequestEvent(false, JAR_URL));
             } else {
-                service.sendObjectAndClose(ctx, new Result(true, JAR_URL));
+                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, JAR_URL));
             }
         } else if (launcher_type == 2) //EXE
         {
             byte[] hash = LaunchServer.server.launcherEXEBinary.getBytes().getDigest();
-            if (hash == null) service.sendObjectAndClose(ctx, new Result(true, EXE_URL));
+            if (hash == null) service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, EXE_URL));
             if (Arrays.equals(bytes, hash)) {
                 client.checkSign = true;
-                service.sendObject(ctx, new Result(false, EXE_URL));
+                service.sendObject(ctx, new LauncherRequestEvent(false, EXE_URL));
             } else {
-                service.sendObjectAndClose(ctx, new Result(true, EXE_URL));
+                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, EXE_URL));
             }
         } else service.sendObject(ctx, new WebSocketService.ErrorResult("Request launcher type error"));
 
     }
 
-    public class Result {
-        public String type = "success";
-        public String requesttype = "launcherUpdate";
-        public String url;
-
-        public Result(boolean needUpdate, String url) {
-            this.needUpdate = needUpdate;
-            this.url = url;
-        }
-
-        public boolean needUpdate;
-    }
 }

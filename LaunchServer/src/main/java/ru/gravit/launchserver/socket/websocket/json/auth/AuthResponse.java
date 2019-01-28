@@ -1,11 +1,9 @@
 package ru.gravit.launchserver.socket.websocket.json.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.gravit.launcher.ClientPermissions;
-import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.OshiHWID;
+import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
-import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.hwid.HWIDException;
@@ -50,7 +48,7 @@ public class AuthResponse implements JsonResponseInterface {
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client clientData) throws Exception {
         try {
-            Result result = new Result();
+            AuthRequestEvent result = new AuthRequestEvent();
             String ip = IOHelper.getIP(ctx.channel().remoteAddress());
             if (LaunchServer.server.limiter.isLimit(ip)) {
                 AuthProvider.authError(LaunchServer.server.config.authRejectString);
@@ -104,13 +102,4 @@ public class AuthResponse implements JsonResponseInterface {
         }
     }
 
-    public class Result {
-        public Result() {
-        }
-
-        public String error;
-        public ClientPermissions permissions;
-        public PlayerProfile playerProfile;
-        public String accessToken;
-    }
 }

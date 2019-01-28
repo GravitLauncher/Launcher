@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.socket.websocket.json.auth;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.gravit.launcher.events.request.JoinServerRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.socket.Client;
@@ -31,17 +32,7 @@ public class JoinServerResponse implements JsonResponseInterface {
             service.sendObject(ctx, new WebSocketService.ErrorResult("Internal authHandler error"));
             return;
         }
-        service.sendObject(ctx, new Result(success));
+        service.sendObject(ctx, new JoinServerRequestEvent(success));
     }
 
-    public class Result {
-        public String type = "success";
-        public String requesttype = "checkServer";
-
-        public Result(boolean allow) {
-            this.allow = allow;
-        }
-
-        public boolean allow;
-    }
 }

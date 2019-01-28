@@ -1,7 +1,7 @@
 package ru.gravit.launchserver.socket.websocket.json.profile;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.gravit.launcher.profiles.PlayerProfile;
+import ru.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
@@ -22,16 +22,6 @@ public class ProfileByUsername implements JsonResponseInterface {
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
         UUID uuid = LaunchServer.server.config.authHandler.usernameToUUID(username);
-        service.sendObject(ctx, new Result(getProfile(LaunchServer.server,uuid,username,this.client)));
-    }
-    public class Result
-    {
-        String requesttype = "profileByUsername";
-        String error;
-        PlayerProfile playerProfile;
-
-        public Result(PlayerProfile playerProfile) {
-            this.playerProfile = playerProfile;
-        }
+        service.sendObject(ctx, new ProfileByUsernameRequestEvent(getProfile(LaunchServer.server,uuid,username,this.client)));
     }
 }

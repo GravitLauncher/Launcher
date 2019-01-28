@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.socket.websocket.json.auth;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.gravit.launcher.events.request.ProfilesRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
@@ -22,17 +23,6 @@ public class ProfilesResponse  implements JsonResponseInterface {
             service.sendObject(ctx, new WebSocketService.ErrorResult("Access denied"));
             return;
         }
-        service.sendObject(ctx, new Result((List<ClientProfile>) LaunchServer.server.getProfiles()));
-    }
-    public class Result
-    {
-        List<ClientProfile> profiles;
-
-        public Result(List<ClientProfile> profiles) {
-            this.profiles = profiles;
-        }
-
-        String requesttype = "profilesList";
-        String error;
+        service.sendObject(ctx, new ProfilesRequestEvent((List<ClientProfile>) LaunchServer.server.getProfiles()));
     }
 }
