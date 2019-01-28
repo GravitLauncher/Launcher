@@ -20,6 +20,7 @@ public class ProfilesResponse  implements JsonResponseInterface {
         if(!client.isAuth)
         {
             service.sendObject(ctx, new WebSocketService.ErrorResult("Access denied"));
+            return;
         }
         service.sendObject(ctx, new Result((List<ClientProfile>) LaunchServer.server.getProfiles()));
     }
