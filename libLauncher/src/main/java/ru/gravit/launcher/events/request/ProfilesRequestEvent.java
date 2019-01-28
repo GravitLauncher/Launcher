@@ -1,11 +1,14 @@
 package ru.gravit.launcher.events.request;
 
 import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.utils.event.EventInterface;
 
 import java.util.List;
+import java.util.UUID;
 
-public class ProfilesRequestEvent
+public class ProfilesRequestEvent implements EventInterface
 {
+    private static final UUID uuid = UUID.fromString("2f26fbdf-598a-46dd-92fc-1699c0e173b1");
     List<ClientProfile> profiles;
 
     public ProfilesRequestEvent(List<ClientProfile> profiles) {
@@ -14,4 +17,8 @@ public class ProfilesRequestEvent
 
     String requesttype = "profilesList";
     String error;
+    @Override
+    public UUID getUUID() {
+        return uuid;
+    }
 }

@@ -1,14 +1,22 @@
 package ru.gravit.launcher.events.request;
 
 import ru.gravit.launcher.profiles.PlayerProfile;
+import ru.gravit.utils.event.EventInterface;
 
-public class ProfileByUsernameRequestEvent
+import java.util.UUID;
+
+public class ProfileByUsernameRequestEvent implements EventInterface
 {
+    private static final UUID uuid = UUID.fromString("06204302-ff6b-4779-b97d-541e3bc39aa1");
     String requesttype = "profileByUsername";
     String error;
     PlayerProfile playerProfile;
 
     public ProfileByUsernameRequestEvent(PlayerProfile playerProfile) {
         this.playerProfile = playerProfile;
+    }
+    @Override
+    public UUID getUUID() {
+        return uuid;
     }
 }
