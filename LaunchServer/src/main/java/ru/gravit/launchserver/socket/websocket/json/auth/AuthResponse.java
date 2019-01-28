@@ -35,9 +35,9 @@ public class AuthResponse implements JsonResponseInterface {
     }
 
     public int authid;
-    public ConnectTypes type;
+    public ConnectTypes authType;
     public OshiHWID hwid;
-    enum ConnectTypes
+    public enum ConnectTypes
     {
         SERVER,CLIENT
     }
@@ -56,7 +56,7 @@ public class AuthResponse implements JsonResponseInterface {
                 AuthProvider.authError(LaunchServer.server.config.authRejectString);
                 return;
             }
-            if (type == ConnectTypes.SERVER &&!clientData.checkSign) {
+            if (authType == ConnectTypes.SERVER &&!clientData.checkSign) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
             }
@@ -81,7 +81,8 @@ public class AuthResponse implements JsonResponseInterface {
                 throw new AuthException("You profile not found");
             }
             UUID uuid = LaunchServer.server.config.authHandler.auth(aresult);
-            LaunchServer.server.config.hwidHandler.check(hwid, aresult.username);
+            if(authType == ConnectTypes.CLIENT)
+                 LaunchServer.server.config.hwidHandler.check(hwid, aresult.username);
             LaunchServer.server.authHookManager.postHook(context, clientData);
             clientData.isAuth = true;
             clientData.permissions = aresult.permissions;
