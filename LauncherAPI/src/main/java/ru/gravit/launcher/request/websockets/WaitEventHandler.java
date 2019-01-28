@@ -21,7 +21,7 @@ public class WaitEventHandler implements ClientWebSocketService.EventHandler {
             }
         }
     }
-    public class ResultEvent
+    public static class ResultEvent
     {
         public ResultInterface result;
         public String type;
