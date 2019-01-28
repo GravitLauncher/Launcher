@@ -16,7 +16,6 @@ public class ProfilesRequestEvent implements EventInterface, ResultInterface
         this.profiles = profiles;
     }
 
-    String requesttype = "profiles";
     String error;
     @Override
     public UUID getUUID() {
