@@ -31,6 +31,7 @@ public class LauncherResponse implements JsonResponseInterface {
             byte[] hash = LaunchServer.server.launcherBinary.getBytes().getDigest();
             if (hash == null) service.sendObjectAndClose(ctx, new Result(true, JAR_URL));
             if (Arrays.equals(bytes, hash)) {
+                client.checkSign = true;
                 service.sendObject(ctx, new Result(false, JAR_URL));
             } else {
                 service.sendObjectAndClose(ctx, new Result(true, JAR_URL));
@@ -40,6 +41,7 @@ public class LauncherResponse implements JsonResponseInterface {
             byte[] hash = LaunchServer.server.launcherEXEBinary.getBytes().getDigest();
             if (hash == null) service.sendObjectAndClose(ctx, new Result(true, EXE_URL));
             if (Arrays.equals(bytes, hash)) {
+                client.checkSign = true;
                 service.sendObject(ctx, new Result(false, EXE_URL));
             } else {
                 service.sendObjectAndClose(ctx, new Result(true, EXE_URL));

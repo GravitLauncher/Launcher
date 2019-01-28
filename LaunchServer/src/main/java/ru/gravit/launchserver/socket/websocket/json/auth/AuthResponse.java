@@ -35,7 +35,12 @@ public class AuthResponse implements JsonResponseInterface {
     }
 
     public int authid;
+    public ConnectTypes type;
     public OshiHWID hwid;
+    enum ConnectTypes
+    {
+        SERVER,CLIENT
+    }
 
     @Override
     public String getType() {
@@ -51,7 +56,7 @@ public class AuthResponse implements JsonResponseInterface {
                 AuthProvider.authError(LaunchServer.server.config.authRejectString);
                 return;
             }
-            if (!clientData.checkSign) {
+            if (type == ConnectTypes.SERVER &&!clientData.checkSign) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
             }
