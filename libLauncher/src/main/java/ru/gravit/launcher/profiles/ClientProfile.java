@@ -3,9 +3,12 @@ package ru.gravit.launcher.profiles;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.profiles.optional.OptionalFile;
+import ru.gravit.launcher.profiles.optional.OptionalType;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
 
@@ -79,66 +82,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     private int serverPort;
 
-    public static class OptionalFile {
-        @LauncherAPI
-        public String file;
-        @LauncherAPI
-        public boolean mark;
-        @LauncherAPI
-        public String name;
-        @LauncherAPI
-        public String info;
-        @LauncherAPI
-        public String[] dependenciesFile;
-        @LauncherAPI
-        public String[] conflictFile;
-        @LauncherAPI
-        public transient OptionalFile[] dependencies;
-        @LauncherAPI
-        public transient OptionalFile[] conflict;
-        @LauncherAPI
-        public int subTreeLevel = 1;
-        @LauncherAPI
-        public boolean isAdminOnly = false;
-        @LauncherAPI
-        public transient Set<OptionalFile> dependenciesCount;
-
-        public OptionalFile(String file, boolean mark) {
-            this.file = file;
-            this.mark = mark;
-        }
-
-        public OptionalFile(String file) {
-            this.file = file;
-            this.mark = false;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            OptionalFile that = (OptionalFile) o;
-            return Objects.equals(file, that.file);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(file);
-        }
-    }
-
-    public static class OptionalArgs {
-        @LauncherAPI
-        public boolean mark;
-        @LauncherAPI
-        public String[] args;
-
-        public OptionalArgs(String[] args, boolean mark) {
-            this.mark = mark;
-            this.args = args;
-        }
-    }
-
     //  Updater and client watch service
     @LauncherAPI
     private final List<String> update = new ArrayList<>();
@@ -165,12 +108,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private final List<String> clientArgs = new ArrayList<>();
     @LauncherAPI
     private final List<String> whitelist = new ArrayList<>();
-    @LauncherAPI
-    private final List<OptionalArgs> optionalJVMArgs = new ArrayList<>();
-    @LauncherAPI
-    private final List<OptionalArgs> optionalClientArgs = new ArrayList<>();
-    @LauncherAPI
-    private final List<OptionalArgs> optionalClassPath = new ArrayList<>();
 
     @Override
     public int compareTo(ClientProfile o) {
@@ -190,21 +127,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     public String[] getClassPath() {
         return classPath.toArray(new String[0]);
-    }
-
-    @LauncherAPI
-    public List<OptionalArgs> getOptionalJVMArgs() {
-        return optionalJVMArgs;
-    }
-
-    @LauncherAPI
-    public List<OptionalArgs> getOptionalClientArgs() {
-        return optionalClientArgs;
-    }
-
-    @LauncherAPI
-    public List<OptionalArgs> getOptionalClassPath() {
-        return optionalClassPath;
     }
 
     @LauncherAPI
@@ -269,22 +191,22 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             if (file.dependenciesFile != null) {
                 file.dependencies = new OptionalFile[file.dependenciesFile.length];
                 for (int i = 0; i < file.dependenciesFile.length; ++i) {
-                    file.dependencies[i] = getOptionalFile(file.dependenciesFile[i]);
+                    file.dependencies[i] = getOptionalFile(file.dependenciesFile[i].name, file.dependenciesFile[i].type);
                 }
             }
             if (file.conflictFile != null) {
                 file.conflict = new OptionalFile[file.conflictFile.length];
                 for (int i = 0; i < file.conflictFile.length; ++i) {
-                    file.conflict[i] = getOptionalFile(file.conflictFile[i]);
+                    file.conflict[i] = getOptionalFile(file.conflictFile[i].name, file.conflictFile[i].type);
                 }
             }
         }
     }
 
     @LauncherAPI
-    public OptionalFile getOptionalFile(String file) {
+    public OptionalFile getOptionalFile(String file, OptionalType type) {
         for (OptionalFile f : updateOptional)
-            if (f.file.equals(file)) return f;
+            if (f.type.equals(type) && f.name.equals(file)) return f;
         return null;
     }
 
@@ -294,10 +216,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     @LauncherAPI
-    public void markOptional(String opt) {
-        if (!updateOptional.contains(new OptionalFile(opt)))
-            throw new SecurityException(String.format("Optional mod %s not found in optionalList", opt));
-        OptionalFile file = getOptionalFile(opt);
+    public void markOptional(String name, OptionalType type) {
+        OptionalFile file = getOptionalFile(name, type);
+        if (file == null) {
+            throw new SecurityException(String.format("Optional %s not found in optionalList", name));
+        }
         markOptional(file);
     }
 
@@ -321,10 +244,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     @LauncherAPI
-    public void unmarkOptional(String opt) {
-        if (!updateOptional.contains(new OptionalFile(opt)))
-            throw new SecurityException(String.format("Optional mod %s not found in optionalList", opt));
-        OptionalFile file = getOptionalFile(opt);
+    public void unmarkOptional(String name, OptionalType type) {
+        OptionalFile file = getOptionalFile(name, type);
+        if (file == null) {
+            throw new SecurityException(String.format("Optional %s not found in optionalList", name));
+        }
         unmarkOptional(file);
     }
 
@@ -353,10 +277,43 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    public void pushOptional(HashedDir dir, boolean digest) {
+    public void pushOptionalFile(HashedDir dir, boolean digest) {
         for (OptionalFile opt : updateOptional) {
-            if (!opt.mark) dir.removeR(opt.file);
+            if (opt.type.equals(OptionalType.FILE) && !opt.mark) {
+                for (String file : opt.list)
+                    dir.removeR(file);
+            }
         }
+    }
+
+    public void pushOptionalJvmArgs(Collection<String> jvmArgs1)
+    {
+        for (OptionalFile opt : updateOptional) {
+            if (opt.type.equals(OptionalType.JVMARGS) && opt.mark) {
+                jvmArgs1.addAll(Arrays.asList(opt.list));
+            }
+        }
+    }
+    public void pushOptionalClientArgs(Collection<String> clientArgs1)
+    {
+        for (OptionalFile opt : updateOptional) {
+            if (opt.type.equals(OptionalType.CLIENTARGS) && opt.mark) {
+                clientArgs1.addAll(Arrays.asList(opt.list));
+            }
+        }
+    }
+    public void pushOptionalClassPath(pushOptionalClassPathCallback callback) throws IOException
+    {
+        for (OptionalFile opt : updateOptional) {
+            if (opt.type.equals(OptionalType.CLASSPATH) && opt.mark) {
+                callback.run(opt.list);
+            }
+        }
+    }
+    @FunctionalInterface
+    public interface pushOptionalClassPathCallback
+    {
+        void run(String[] opt) throws IOException;
     }
 
     @LauncherAPI

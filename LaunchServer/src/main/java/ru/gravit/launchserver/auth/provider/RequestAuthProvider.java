@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.auth.provider;
 
 import ru.gravit.launcher.ClientPermissions;
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -31,7 +32,7 @@ public final class RequestAuthProvider extends AuthProvider {
         // Match username
         Matcher matcher = pattern.matcher(currentResponse);
         return matcher.matches() && matcher.groupCount() >= 1 ?
-                new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(Long.getLong(matcher.group("permission"))) : new ClientPermissions()) :
+                new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(Long.getLong(matcher.group("permission"))) : LaunchServer.server.config.permissionsHandler.getPermissions(login)) :
                 authError(currentResponse);
     }
 

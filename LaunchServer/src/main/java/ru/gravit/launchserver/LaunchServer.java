@@ -111,6 +111,7 @@ public final class LaunchServer implements Runnable {
 
         public String startScript;
 
+		public boolean updatesNotify = true; // Defaultly to true
 
         public String getAddress() {
             return address;
@@ -289,6 +290,8 @@ public final class LaunchServer implements Runnable {
 
     public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
 
+    public final Updater updater;
+
     public static Gson gson;
     public static GsonBuilder gsonBuilder;
 
@@ -342,8 +345,8 @@ public final class LaunchServer implements Runnable {
             publicKey = (RSAPublicKey) pair.getPublic();
             privateKey = (RSAPrivateKey) pair.getPrivate();
 
-            // Write key pair files
-            LogHelper.info("Writing RSA keypair files");
+            // Write key pair list
+            LogHelper.info("Writing RSA keypair list");
             IOHelper.write(publicKeyFile, publicKey.getEncoded());
             IOHelper.write(privateKeyFile, privateKey.getEncoded());
         }
@@ -439,6 +442,8 @@ public final class LaunchServer implements Runnable {
 
         // post init modules
         modulesManager.postInitModules();
+        // start updater
+        this.updater = new Updater(this);
     }
 
     public static void initGson() {

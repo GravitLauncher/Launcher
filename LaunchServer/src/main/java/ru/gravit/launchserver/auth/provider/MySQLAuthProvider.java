@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.auth.provider;
 
 import ru.gravit.launcher.ClientPermissions;
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.MySQLSourceConfig;
 import ru.gravit.utils.helper.CommonHelper;
@@ -35,7 +36,7 @@ public final class MySQLAuthProvider extends AuthProvider {
         // Execute SQL query
         s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
         try (ResultSet set = s.executeQuery()) {
-            return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(set.getLong(2)) : new ClientPermissions()) : authError(message);
+            return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(set.getLong(2)) : LaunchServer.server.config.permissionsHandler.getPermissions(set.getString(1))) : authError(message);
         }
     }
 

@@ -43,15 +43,16 @@ var options = {
             for(var j = 0; j < listSize; j++)
             {
                 var mark = input.readBoolean();
+                var modType = OptionalFile.readType(input);
                 var modFile = input.readString(0);
                 if(mark)
                 {
-                    profile.markOptional(modFile);
+                    profile.markOptional(modFile,modType);
                     LogHelper.debug("Load options %s marked",modFile);
                 }
                 else
                 {
-                    profile.unmarkOptional(modFile);
+                    profile.unmarkOptional(modFile,modType);
                     LogHelper.debug("Load options %s unmarked",modFile);
                 }
             }
@@ -69,7 +70,8 @@ var options = {
             output.writeInt(profile.getSortIndex());
             list.forEach(function(modFile,j,arr2) {
                 output.writeBoolean(modFile.mark);
-                output.writeString(modFile.file, 0);
+                modFile.writeType(output);
+                output.writeString(modFile.name, 0);
             });
         });
     },
@@ -96,16 +98,19 @@ var options = {
             var profile = profilesList[serverHolder.old];
             var list = profile.getOptional();
             var checkBoxList = new java.util.ArrayList;
-            var dModsIds = [];
-
             list.forEach(function(modFile) {
-                    dModsIds.push(modFile.string);
-
-                        var modName = modFile.file, modDescription = "", subLevel = 1;
-                        if(modFile.isAdminOnly && !loginData.permissions.canAdmin)
+                        var modName = modFile.name, modDescription = "", subLevel = 1;
+                        if(!modFile.isVisible)
+                        {
+                            LogHelper.debug("optionalMod %s hidden",modFile.name);
                             return;
-                        if(modFile.name != null)//Есть ли у модификации имя?
-                            modName = modFile.name;
+                        }
+
+                        if(modFile.permissions != 0 && ((loginData.permissions.toLong() & modFile.permissions) != 0))
+                        {
+                            LogHelper.debug("optionalMod %s permissions deny",modFile.name);
+                            return;
+                        }
                         if(modFile.info != null) //Есть ли описание?
                             modDescription = modFile.info;
                         if(modFile.subTreeLevel != null && modFile.subTreeLevel > 1)//Это суб-модификация?
@@ -121,18 +126,17 @@ var options = {
                              var isSelected = event.getSource().isSelected();
                              if(isSelected)
                              {
-                                 profile.markOptional(modFile.file);
-                                 LogHelper.debug("Selected mod %s", modFile.file);
+                                 profile.markOptional(modFile);
+                                 LogHelper.debug("Selected mod %s", modFile.name);
                              }
                              else
                              {
-                                 profile.unmarkOptional(modFile.file);
-                                 LogHelper.debug("Unselected mod %s", modFile.file);
+                                 profile.unmarkOptional(modFile);
+                                 LogHelper.debug("Unselected mod %s", modFile.name);
                              }
                              options.update();
                          });
                         checkBoxList.add(testMod);
-
                          if(modDescription != "") { //Добавляем описание?
                              textDescr = new javafx.scene.text.Text(modDescription);
                              if(subLevel > 1) {

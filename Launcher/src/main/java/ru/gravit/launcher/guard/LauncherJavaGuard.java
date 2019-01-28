@@ -16,7 +16,7 @@ public class LauncherJavaGuard implements LauncherGuardInterface {
     @Override
     public Path getJavaBinPath() {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
-            return ClientLauncher.getJavaBinPath();
+            return IOHelper.resolveJavaBin(ClientLauncher.getJavaBinPath());
         else
             return IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
     }

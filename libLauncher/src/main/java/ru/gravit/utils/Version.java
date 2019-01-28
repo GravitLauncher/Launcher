@@ -2,6 +2,11 @@ package ru.gravit.utils;
 
 import ru.gravit.launcher.LauncherAPI;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 public final class Version {
@@ -68,34 +73,8 @@ public final class Version {
 
     @LauncherAPI
     public String getReleaseStatus() {
-        String result;
-        switch (release) {
-            case LTS:
-                result = "lts";
-                break;
-            case STABLE:
-                result = "stable";
-                break;
-            case BETA:
-                result = "beta";
-                break;
-            case ALPHA:
-                result = "alpha";
-                break;
-            case DEV:
-                result = "dev";
-                break;
-            case EXPERIMENTAL:
-                result = "experimental";
-                break;
-            case UNKNOWN:
-                result = "";
-                break;
-            default:
-                result = "";
-                break;
-        }
-        return result;
+        if (release.equals(Type.UNKNOWN)) return "";
+        return release.name().toLowerCase(Locale.ENGLISH);
     }
 
     @Override
@@ -112,6 +91,13 @@ public final class Version {
         ALPHA,
         DEV,
         EXPERIMENTAL,
-        UNKNOWN
+        UNKNOWN;
+
+    	private static final Map<String, Type> types = new HashMap<>();
+    	public static final Map<String, Type> unModTypes = Collections.unmodifiableMap(types);
+        
+        static {
+        	Arrays.asList(values()).stream().forEach(type -> types.put(type.name().substring(0, type.name().length() < 3 ? type.name().length() : 3), type));
+        }
     }
 }
