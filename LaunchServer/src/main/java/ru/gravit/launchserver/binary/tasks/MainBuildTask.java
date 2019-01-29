@@ -130,6 +130,8 @@ public class MainBuildTask implements LauncherBuildTask {
             server.buildHookManager.hook(context);
             jaConfigurator.setAddress(server.config.getAddress());
             jaConfigurator.setPort(server.config.port);
+            if(server.config.netty != null)
+                jaConfigurator.setNettyPort(server.config.netty.port);
             jaConfigurator.setProjectName(server.config.projectName);
             jaConfigurator.setSecretKey(SecurityHelper.randomStringAESKey());
             jaConfigurator.setClientPort(32148 + SecurityHelper.newRandom().nextInt(512));

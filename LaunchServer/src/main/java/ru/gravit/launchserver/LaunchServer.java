@@ -86,6 +86,7 @@ public final class LaunchServer implements Runnable {
         public int threadCoreCount;
 
         public ExeConf launch4j;
+        public NettyConfig netty;
 
         public boolean compress;
 
@@ -177,6 +178,11 @@ public final class LaunchServer implements Runnable {
 
         public String txtFileVersion;
         public String txtProductVersion;
+    }
+    public class NettyConfig
+    {
+        public String bindAddress;
+        public int port;
     }
 
     private final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {

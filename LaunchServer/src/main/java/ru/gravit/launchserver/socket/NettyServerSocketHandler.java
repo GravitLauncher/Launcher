@@ -148,7 +148,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
                             pipeline.addLast(new WebSocketFrameHandler());
                         }
                     });
-            ChannelFuture f = b.bind(new InetSocketAddress(9876)).sync(); //TEST ONLY!
+            ChannelFuture f = b.bind(new InetSocketAddress(LaunchServer.server.config.netty.port)).sync(); //TEST ONLY!
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
