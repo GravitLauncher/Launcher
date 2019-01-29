@@ -27,6 +27,7 @@ import ru.gravit.launchserver.manangers.hook.AuthHookManager;
 import ru.gravit.launchserver.manangers.hook.BuildHookManager;
 import ru.gravit.launchserver.manangers.hook.SocketHookManager;
 import ru.gravit.launchserver.response.Response;
+import ru.gravit.launchserver.socket.NettyServerSocketHandler;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.RequestTextureProvider;
 import ru.gravit.launchserver.texture.TextureProvider;
@@ -289,6 +290,8 @@ public final class LaunchServer implements Runnable {
 
     public final ServerSocketHandler serverSocketHandler;
 
+    public final NettyServerSocketHandler nettyServerSocketHandler;
+
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     // Updates and profiles
@@ -450,6 +453,10 @@ public final class LaunchServer implements Runnable {
         modulesManager.postInitModules();
         // start updater
         this.updater = new Updater(this);
+        if(config.netty != null)
+            nettyServerSocketHandler = new NettyServerSocketHandler(this);
+        else
+            nettyServerSocketHandler = null;
     }
 
     public static void initGson() {
@@ -587,6 +594,11 @@ public final class LaunchServer implements Runnable {
         CommonHelper.newThread("Server Socket Thread", false, serverSocketHandler).start();
     }
 
+    public void rebindNettyServerSocket() {
+        nettyServerSocketHandler.close();
+        CommonHelper.newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
+    }
+
     @Override
     public void run() {
         if (started.getAndSet(true))
@@ -596,6 +608,8 @@ public final class LaunchServer implements Runnable {
         JVMHelper.RUNTIME.addShutdownHook(CommonHelper.newThread(null, false, this::close));
         CommonHelper.newThread("Command Thread", true, commandHandler).start();
         rebindServerSocket();
+        if(config.netty != null)
+            rebindNettyServerSocket();
         modulesManager.finishModules();
     }
 
