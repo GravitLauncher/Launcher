@@ -9,6 +9,8 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
+import ru.gravit.launcher.request.JsonResultSerializeAdapter;
+import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.json.EchoResponse;
@@ -17,6 +19,7 @@ import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.socket.websocket.json.auth.AuthResponse;
 import ru.gravit.launchserver.socket.websocket.json.auth.CheckServerResponse;
 import ru.gravit.launchserver.socket.websocket.json.auth.JoinServerResponse;
+import ru.gravit.launchserver.socket.websocket.json.auth.ProfilesResponse;
 import ru.gravit.launchserver.socket.websocket.json.update.LauncherResponse;
 import ru.gravit.launchserver.socket.websocket.json.update.UpdateListResponse;
 import ru.gravit.utils.helper.LogHelper;
@@ -32,6 +35,7 @@ public class WebSocketService {
         this.server = server;
         this.gsonBuiler = gson;
         this.gsonBuiler.registerTypeAdapter(JsonResponseInterface.class, new JsonResponseAdapter(this));
+        this.gsonBuiler.registerTypeAdapter(ResultInterface.class,new JsonResultSerializeAdapter());
         this.gsonBuiler.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuiler.create();
     }
@@ -69,6 +73,7 @@ public class WebSocketService {
         registerResponse("auth", AuthResponse.class);
         registerResponse("checkServer", CheckServerResponse.class);
         registerResponse("joinServer", JoinServerResponse.class);
+        registerResponse("profiles", ProfilesResponse.class);
         registerResponse("launcherUpdate", LauncherResponse.class);
         registerResponse("updateList", UpdateListResponse.class);
         registerResponse("cmdExec", UpdateListResponse.class);

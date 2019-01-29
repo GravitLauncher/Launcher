@@ -25,11 +25,6 @@ import java.io.Reader;
 @ClientEndpoint
 public class ClientJSONPoint {
     public Session session = null;
-    private ClientWebSocketService service;
-
-    public void setService(ClientWebSocketService service) {
-        this.service = service;
-    }
 
     @OnOpen
     public void onOpen(final Session session_r) {
@@ -44,7 +39,7 @@ public class ClientJSONPoint {
 
     @OnMessage
     public void processMessage(Reader message) {
-        service.processMessage(message);
+
     }
 
     public void send(String js) throws IOException {
