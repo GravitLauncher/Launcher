@@ -14,7 +14,10 @@ public class LegacyRequestBridge {
         service.sendObject(request);
         while(!e.ready)
         {
-            e.wait();
+            synchronized(e)
+            {
+                e.wait();
+            }
         }
         ResultInterface result = e.result;
         waitEventHandler.requests.remove(e);
