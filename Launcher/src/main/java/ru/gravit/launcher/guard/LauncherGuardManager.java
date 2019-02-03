@@ -1,7 +1,6 @@
 package ru.gravit.launcher.guard;
 
 import ru.gravit.launcher.client.ClientLauncher;
-import ru.gravit.utils.helper.LogHelper;
 
 import java.nio.file.Path;
 

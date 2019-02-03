@@ -5,8 +5,6 @@ import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.request.auth.AuthRequest.Result;
-import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
-import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
