@@ -10,6 +10,7 @@ import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import java.util.Collection;
 
 public class SetProfileResponse implements JsonResponseInterface {
+    public String client;
     @Override
     public String getType() {
         return "setProfile";
@@ -24,7 +25,7 @@ public class SetProfileResponse implements JsonResponseInterface {
         }
         Collection<ClientProfile> profiles = LaunchServer.server.getProfiles();
         for (ClientProfile p : profiles) {
-            if (p.getTitle().equals(client)) {
+            if (p.getTitle().equals(this.client)) {
                 if (!p.isWhitelistContains(client.username)) {
                     service.sendObject(ctx, new WebSocketService.ErrorResult(LaunchServer.server.config.whitelistRejectString));
                     return;
