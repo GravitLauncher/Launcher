@@ -220,7 +220,11 @@ public final class LaunchServer implements Runnable {
         // Start LaunchServer
         Instant start = Instant.now();
         try {
-            new LaunchServer(IOHelper.WORKING_DIR, args).run();
+            LaunchServer launchserver = new LaunchServer(IOHelper.WORKING_DIR, args);
+            if(args.length == 0) launchserver.run();
+            else { //Обработка команды
+                launchserver.commandHandler.eval(args,false);
+            }
         } catch (Throwable exc) {
             LogHelper.error(exc);
             return;
