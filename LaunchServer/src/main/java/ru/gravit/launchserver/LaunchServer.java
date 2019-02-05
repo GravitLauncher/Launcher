@@ -27,6 +27,7 @@ import ru.gravit.launchserver.manangers.hook.AuthHookManager;
 import ru.gravit.launchserver.manangers.hook.BuildHookManager;
 import ru.gravit.launchserver.manangers.hook.SocketHookManager;
 import ru.gravit.launchserver.response.Response;
+import ru.gravit.launchserver.socket.NettyServerSocketHandler;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.RequestTextureProvider;
 import ru.gravit.launchserver.texture.TextureProvider;
@@ -86,6 +87,7 @@ public final class LaunchServer implements Runnable {
         public int threadCoreCount;
 
         public ExeConf launch4j;
+        public NettyConfig netty;
 
         public boolean compress;
 
@@ -178,6 +180,11 @@ public final class LaunchServer implements Runnable {
         public String txtFileVersion;
         public String txtProductVersion;
     }
+    public class NettyConfig
+    {
+        public String bindAddress;
+        public int port;
+    }
 
     private final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
         private final Collection<ClientProfile> result;
@@ -213,7 +220,11 @@ public final class LaunchServer implements Runnable {
         // Start LaunchServer
         Instant start = Instant.now();
         try {
-            new LaunchServer(IOHelper.WORKING_DIR, args).run();
+            LaunchServer launchserver = new LaunchServer(IOHelper.WORKING_DIR, args);
+            if(args.length == 0) launchserver.run();
+            else { //Обработка команды
+                launchserver.commandHandler.eval(args,false);
+            }
         } catch (Throwable exc) {
             LogHelper.error(exc);
             return;
@@ -283,13 +294,15 @@ public final class LaunchServer implements Runnable {
 
     public final ServerSocketHandler serverSocketHandler;
 
+    public final NettyServerSocketHandler nettyServerSocketHandler;
+
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     // Updates and profiles
     private volatile List<ClientProfile> profilesList;
-
     public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
 
+	public final Timer taskPool;
     public final Updater updater;
 
     public static Gson gson;
@@ -297,6 +310,7 @@ public final class LaunchServer implements Runnable {
 
     public LaunchServer(Path dir, String[] args) throws IOException, InvalidKeySpecException {
         this.dir = dir;
+        taskPool = new Timer("Timered task worker thread", true);
         launcherLibraries = dir.resolve("launcher-libraries");
         if (!Files.isDirectory(launcherLibraries)) {
             Files.deleteIfExists(launcherLibraries);
@@ -444,6 +458,10 @@ public final class LaunchServer implements Runnable {
         modulesManager.postInitModules();
         // start updater
         this.updater = new Updater(this);
+        if(config.netty != null)
+            nettyServerSocketHandler = new NettyServerSocketHandler(this);
+        else
+            nettyServerSocketHandler = null;
     }
 
     public static void initGson() {
@@ -581,6 +599,11 @@ public final class LaunchServer implements Runnable {
         CommonHelper.newThread("Server Socket Thread", false, serverSocketHandler).start();
     }
 
+    public void rebindNettyServerSocket() {
+        nettyServerSocketHandler.close();
+        CommonHelper.newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
+    }
+
     @Override
     public void run() {
         if (started.getAndSet(true))
@@ -590,6 +613,8 @@ public final class LaunchServer implements Runnable {
         JVMHelper.RUNTIME.addShutdownHook(CommonHelper.newThread(null, false, this::close));
         CommonHelper.newThread("Command Thread", true, commandHandler).start();
         rebindServerSocket();
+        if(config.netty != null)
+            rebindNettyServerSocket();
         modulesManager.finishModules();
     }
 

@@ -152,14 +152,22 @@ public class ServerWrapper {
         if (loader != null) mainClass = Class.forName(classname, true, loader);
         else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
-        String[] real_args = new String[args.length - 1];
-        System.arraycopy(args, 1, real_args, 0, args.length - 1);
         modulesManager.postInitModules();
         LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s", config.projectname, config.address, config.port, config.title);
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
-        mainMethod.invoke(real_args);
+        if(config.args == null)
+        {
+            String[] real_args = new String[args.length - 1];
+            System.arraycopy(args, 1, real_args, 0, args.length - 1);
+            mainMethod.invoke(real_args);
+        }
+
+        else
+        {
+            mainMethod.invoke(config.args);
+        }
     }
 
     private static void generateConfigIfNotExists() throws IOException {
@@ -207,6 +215,7 @@ public class ServerWrapper {
         public String librariesDir;
         public String mainclass;
         public String login;
+        public String[] args;
         public String password;
         public LauncherConfig.LauncherEnvironment env;
     }

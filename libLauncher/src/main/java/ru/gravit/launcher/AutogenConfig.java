@@ -4,6 +4,7 @@ public class AutogenConfig {
     public String projectname;
     public String address;
     public int port;
+    public int nettyPort;
     public int clientPort;
     @SuppressWarnings("unused")
     private boolean isInitModules;

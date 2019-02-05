@@ -28,6 +28,7 @@ public final class LauncherConfig extends StreamObject {
     // Instance
     @LauncherAPI
     public InetSocketAddress address;
+    public int nettyPort;
     @LauncherAPI
     public final String projectname;
     public final int clientPort;
@@ -54,6 +55,7 @@ public final class LauncherConfig extends StreamObject {
         isDownloadJava = config.isDownloadJava;
         isUsingWrapper = config.isUsingWrapper;
         isWarningMissArchJava = config.isWarningMissArchJava;
+        nettyPort = config.nettyPort;
         LauncherEnvironment env;
         if (config.env == 0) env = LauncherEnvironment.DEV;
         else if (config.env == 1) env = LauncherEnvironment.DEBUG;

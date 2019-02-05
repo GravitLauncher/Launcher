@@ -8,6 +8,8 @@ import ru.gravit.launchserver.command.basic.*;
 import ru.gravit.launchserver.command.dump.DumpEntryCacheCommand;
 import ru.gravit.launchserver.command.dump.DumpSessionsCommand;
 import ru.gravit.launchserver.command.hash.*;
+import ru.gravit.launchserver.command.install.CheckInstallCommand;
+import ru.gravit.launchserver.command.install.MultiCommand;
 import ru.gravit.launchserver.command.modules.LoadModuleCommand;
 import ru.gravit.launchserver.command.modules.ModulesCommand;
 import ru.gravit.launchserver.command.service.*;
@@ -120,6 +122,8 @@ public abstract class CommandHandler implements Runnable {
         registerCommand("configList", new ConfigListCommand(server));
         registerCommand("swapAuthProvider", new SwapAuthProviderCommand(server));
         registerCommand("serverStatus", new ServerStatusCommand(server));
+        registerCommand("checkInstall", new CheckInstallCommand(server));
+        registerCommand("multi", new MultiCommand(server));
     }
 
 

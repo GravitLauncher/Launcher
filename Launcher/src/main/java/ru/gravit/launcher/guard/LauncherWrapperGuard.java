@@ -4,7 +4,6 @@ import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.client.DirBridge;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.UnpackHelper;
 
 import java.io.IOException;

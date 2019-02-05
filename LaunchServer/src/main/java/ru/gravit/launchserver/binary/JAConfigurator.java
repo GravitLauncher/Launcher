@@ -89,6 +89,12 @@ public class JAConfigurator implements AutoCloseable {
         body.append(";");
     }
 
+    public void setNettyPort(int port) {
+        body.append("this.nettyPort = ");
+        body.append(port);
+        body.append(";");
+    }
+
     public void setEnv(LauncherConfig.LauncherEnvironment env) {
         int i = 2;
         switch (env) {

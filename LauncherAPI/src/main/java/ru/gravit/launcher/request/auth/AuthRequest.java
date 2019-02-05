@@ -67,9 +67,26 @@ public final class AuthRequest extends Request<Result> {
     public Integer getType() {
         return RequestType.AUTH.getNumber();
     }
+    /*public class EchoRequest implements RequestInterface
+    {
+        String echo;
 
+        public EchoRequest(String echo) {
+            this.echo = echo;
+        }
+
+        @Override
+        public String getType() {
+            return "echo";
+        }
+    }*/
     @Override
     protected Result requestDo(HInput input, HOutput output) throws IOException {
+        /*try {
+            LegacyRequestBridge.sendRequest(new EchoRequest("Hello World!"));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
         output.writeString(login, SerializeLimits.MAX_LOGIN);
         output.writeBoolean(Launcher.profile != null);
         if (Launcher.profile != null)

@@ -6,7 +6,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -25,12 +24,10 @@ public class Updater extends TimerTask {
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US);
 	private static final long period = 1000*3600;
 	private static final Version VERSION = Launcher.getVersion();
-	private final Timer taskPool;
 	private final GHRepository gravitLauncher;
 	private Version parent = VERSION;
 
 	public Updater(LaunchServer srv) {
-		this.taskPool = new Timer("Updater thread", true);
 
 		GHRepository gravitLauncherTmp = null;
 		try {
@@ -40,7 +37,7 @@ public class Updater extends TimerTask {
 		}
 		this.gravitLauncher = gravitLauncherTmp;
 		run();
-		if (srv.config.updatesNotify) taskPool.schedule(this, new Date(System.currentTimeMillis()+period), period);
+		if (srv.config.updatesNotify) srv.taskPool.schedule(this, new Date(System.currentTimeMillis()+period), period);
 	}
 
 	@Override
@@ -68,8 +65,8 @@ public class Updater extends TimerTask {
 			LogHelper.error(e);
 		}
 	}
-	
-	private static final Pattern startingVerPattern = Pattern.compile("\\d+\\.\\d+\\.\\d+");
+
+	private static final Pattern startingVerPattern = Pattern.compile("\\d+\\.\\d+\\.\\d+\\.?\\d*");
 	private static final Pattern pointPatternSpltitter = Pattern.compile("\\.");
 	
 	private static Version parseVer(String relS) {
@@ -78,11 +75,11 @@ public class Updater extends TimerTask {
 		String[] ver = pointPatternSpltitter.split(relS.substring(verMatcher.start(), verMatcher.end()));
 		if (ver.length < 3) return VERSION;
 		return new Version(Integer.parseInt(ver[0]), Integer.parseInt(ver[1]), 
-				Integer.parseInt(ver[2]), ver.length > 3 ? Integer.parseInt(ver[3]) : 0, findRelType(relS.substring(verMatcher.end()+1)));
+				Integer.parseInt(ver[2]), ver.length > 3 ? Integer.parseInt(ver[3]) : 0, findRelType(relS.substring(verMatcher.end())));
 	}
 
 	private static Type findRelType(String substring) {
-		if (substring.length() < 3 || substring.isEmpty()) return Type.UNKNOWN;
+		if (substring.isEmpty()) return Type.UNKNOWN;
 		String tS = substring;
 		if (tS.startsWith("-")) tS = tS.substring(1);
 		final String wrk = tS.toLowerCase(Locale.ENGLISH);
