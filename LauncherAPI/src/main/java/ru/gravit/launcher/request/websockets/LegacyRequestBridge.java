@@ -4,11 +4,7 @@ import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.request.ResultInterface;
 
-import javax.websocket.ContainerProvider;
-import javax.websocket.WebSocketContainer;
 import java.io.IOException;
-import java.net.URI;
-
 public class LegacyRequestBridge {
     public static WaitEventHandler waitEventHandler = new WaitEventHandler();
     public static ClientWebSocketService service;
@@ -30,13 +26,7 @@ public class LegacyRequestBridge {
     }
     public static void initWebSockets(String address, int port)
     {
-        service = new ClientWebSocketService(new GsonBuilder());
-        try {
-            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            container.connectToServer(service, new URI("ws://".concat(address).concat(":".concat(String.valueOf(port)).concat("/api"))));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        service = new ClientWebSocketService(new GsonBuilder(), address, port, 5000);
     }
     static {
         if(Launcher.getConfig().nettyPort != 0)

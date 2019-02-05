@@ -5,9 +5,12 @@ import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launcher.request.ResultInterface;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -18,7 +21,8 @@ public class ClientWebSocketService extends ClientJSONPoint {
     private HashMap<String, Class<? extends ResultInterface>> results;
     private HashSet<EventHandler> handlers;
 
-    public ClientWebSocketService(GsonBuilder gsonBuilder) {
+    public ClientWebSocketService(GsonBuilder gsonBuilder, String address, int port, int i) {
+    	super(createURL(address, port), Collections.emptyMap(), i);
         requests = new HashMap<>();
         results = new HashMap<>();
         handlers = new HashSet<>();
@@ -27,9 +31,18 @@ public class ClientWebSocketService extends ClientJSONPoint {
         gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuilder.create();
     }
-    @Override
-    public void processMessage(Reader reader) {
-        ResultInterface result = gson.fromJson(reader, ResultInterface.class);
+	private static URI createURL(String address, int port) {
+		try {
+			URL u = new URL(address);
+			return new URL(u.getProtocol(), u.getHost(), port, u.getFile()).toURI();
+		} catch (Throwable e) {
+			LogHelper.error(e);
+			return null;
+		}
+	}
+	@Override
+	public void onMessage(String message) {
+        ResultInterface result = gson.fromJson(message, ResultInterface.class);
         for(EventHandler handler : handlers)
         {
             handler.process(result);
@@ -62,10 +75,6 @@ public class ClientWebSocketService extends ClientJSONPoint {
     public void registerHandler(EventHandler eventHandler)
     {
         handlers.add(eventHandler);
-    }
-
-    public void sendObjectAsync(Object obj) throws IOException {
-        sendAsync(gson.toJson(obj));
     }
 
     public void sendObject(Object obj) throws IOException {
