@@ -161,14 +161,12 @@ public class ServerWrapper {
         {
             String[] real_args = new String[args.length - 1];
             System.arraycopy(args, 1, real_args, 0, args.length - 1);
-            Object[] args_array = { real_args };
-            mainMethod.invoke(args_array);
+            mainMethod.invoke(real_args);
         }
 
         else
         {
-            Object[] args_array = { config.args };
-            mainMethod.invoke(args_array);
+            mainMethod.invoke(config.args);
         }
     }
 
