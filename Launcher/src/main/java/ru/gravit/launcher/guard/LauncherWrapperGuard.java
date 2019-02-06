@@ -1,17 +1,18 @@
 package ru.gravit.launcher.guard;
 
 import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.client.ClientLauncherContext;
 import ru.gravit.launcher.client.DirBridge;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.JVMHelper;
-import ru.gravit.utils.helper.UnpackHelper;
+import ru.gravit.utils.helper.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 public class LauncherWrapperGuard implements LauncherGuardInterface {
     @Override
@@ -52,6 +53,19 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
 
     @Override
     public void addCustomEnv(ClientLauncherContext context) {
-        context.builder.environment().put("JAVA_HOME", System.getProperty("java.home"));
+        Map<String,String> env = context.builder.environment();
+        env.put("JAVA_HOME", System.getProperty("java.home"));
+        LauncherConfig config = Launcher.getConfig();
+        if(config.guardLicenseName != null)
+            env.put("GUARD_LICENSE_NAME", config.guardLicenseName);
+        if(config.guardLicenseKey != null && config.guardLicenseEncryptKey != null)
+        {
+            try {
+                byte[] encrypt = SecurityHelper.encrypt(config.guardLicenseEncryptKey,config.guardLicenseKey);
+                env.put("GUARD_LICENSE_NAME", Base64.getEncoder().encodeToString(encrypt));
+            } catch (Exception e) {
+                LogHelper.error(e);
+            }
+        }
     }
 }

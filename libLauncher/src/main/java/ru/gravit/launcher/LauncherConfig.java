@@ -43,6 +43,10 @@ public final class LauncherConfig extends StreamObject {
     public final boolean isDownloadJava;
     public final boolean isWarningMissArchJava;
 
+    public final String guardLicenseName;
+    public final String guardLicenseKey;
+    public final String guardLicenseEncryptKey;
+
     @LauncherAPI
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
         String localAddress = config.address;
@@ -55,6 +59,9 @@ public final class LauncherConfig extends StreamObject {
         isDownloadJava = config.isDownloadJava;
         isUsingWrapper = config.isUsingWrapper;
         isWarningMissArchJava = config.isWarningMissArchJava;
+        guardLicenseEncryptKey = config.guardLicenseEncryptKey;
+        guardLicenseKey = config.guardLicenseKey;
+        guardLicenseName = config.guardLicenseName;
         nettyPort = config.nettyPort;
         LauncherEnvironment env;
         if (config.env == 0) env = LauncherEnvironment.DEV;
@@ -86,6 +93,9 @@ public final class LauncherConfig extends StreamObject {
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectname = projectname;
         this.clientPort = 32148;
+        this.guardLicenseName = "FREE";
+        this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
+        this.guardLicenseEncryptKey = "12345";
         isUsingWrapper = true;
         isDownloadJava = false;
         isWarningMissArchJava = true;
@@ -97,6 +107,9 @@ public final class LauncherConfig extends StreamObject {
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectname = "Minecraft";
+        this.guardLicenseName = "FREE";
+        this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
+        this.guardLicenseEncryptKey = "12345";
         this.clientPort = 32148;
         isUsingWrapper = true;
         isDownloadJava = false;
