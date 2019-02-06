@@ -1,6 +1,7 @@
 package ru.gravit.launcher.guard;
 
 import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.client.ClientLauncherContext;
 import ru.gravit.launcher.client.DirBridge;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
@@ -9,6 +10,8 @@ import ru.gravit.utils.helper.UnpackHelper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Collections;
 
 public class LauncherWrapperGuard implements LauncherGuardInterface {
     @Override
@@ -19,7 +22,11 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
     @Override
     public Path getJavaBinPath() {
         if(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
-            return DirBridge.getGuardDir().resolve(JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe");
+        {
+            String projectName = Launcher.getConfig().projectname;
+            String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
+            return DirBridge.getGuardDir().resolve(wrapperUnpackName);
+        }
         else
             return IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
     }
@@ -28,11 +35,23 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
     public void init(boolean clientInstance) {
         try {
             String wrapperName = JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe";
+            String projectName = Launcher.getConfig().projectname;
+            String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
             String antiInjectName = JVMHelper.JVM_BITS == 64 ? "AntiInject64.dll" : "AntiInject32.dll";
-            UnpackHelper.unpack(Launcher.getResourceURL(wrapperName, "guard"),DirBridge.getGuardDir().resolve(wrapperName));
+            UnpackHelper.unpack(Launcher.getResourceURL(wrapperName, "guard"),DirBridge.getGuardDir().resolve(wrapperUnpackName));
             UnpackHelper.unpack(Launcher.getResourceURL(antiInjectName, "guard"),DirBridge.getGuardDir().resolve(antiInjectName));
         } catch (IOException e) {
             throw new SecurityException(e);
         }
+    }
+
+    @Override
+    public void addCustomParams(ClientLauncherContext context) {
+        Collections.addAll(context.args, "-Djava.class.path=".concat(context.pathLauncher));
+    }
+
+    @Override
+    public void addCustomEnv(ClientLauncherContext context) {
+        context.builder.environment().put("JAVA_HOME", System.getProperty("java.home"));
     }
 }

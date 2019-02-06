@@ -1,11 +1,14 @@
 package ru.gravit.launcher.guard;
 
 import ru.gravit.launcher.client.ClientLauncher;
+import ru.gravit.launcher.client.ClientLauncherContext;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Collections;
 
 public class LauncherJavaGuard implements LauncherGuardInterface {
     @Override
@@ -23,6 +26,17 @@ public class LauncherJavaGuard implements LauncherGuardInterface {
 
     @Override
     public void init(boolean clientInstance) {
+
+    }
+
+    @Override
+    public void addCustomParams(ClientLauncherContext context) {
+        Collections.addAll(context.args, "-cp");
+        Collections.addAll(context.args, context.pathLauncher);
+    }
+
+    @Override
+    public void addCustomEnv(ClientLauncherContext context) {
 
     }
 }
