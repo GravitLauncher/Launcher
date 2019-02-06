@@ -336,6 +336,9 @@ public final class ClientLauncher {
         checkJVMBitsAndVersion();
         LogHelper.debug("Resolving JVM binary");
         Path javaBin = LauncherGuardManager.getGuardJavaBinPath();
+        context.javaBin = javaBin;
+        context.clientProfile = profile;
+        context.playerProfile = params.pp;
         context.args.add(javaBin.toString());
         context.args.add(MAGICAL_INTEL_OPTION);
         if (params.ram > 0 && params.ram <= JVMHelper.RAM) {
