@@ -11,6 +11,9 @@ public class AutogenConfig {
     public boolean isUsingWrapper;
     public boolean isDownloadJava; //Выставление этого флага требует модификации runtime части
     public String secretKeyClient;
+    public String guardLicenseName;
+    public String guardLicenseKey;
+    public String guardLicenseEncryptKey;
     public int env;
     public boolean isWarningMissArchJava;
     // 0 - Dev (дебаг включен по умолчанию, все сообщения)

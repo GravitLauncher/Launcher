@@ -141,6 +141,19 @@ public class JAConfigurator implements AutoCloseable {
         body.append(";");
     }
 
+    public void setGuardLicense(String name, String key, String encryptKey)
+    {
+        body.append("this.guardLicenseName = \"");
+        body.append(name);
+        body.append("\";");
+        body.append("this.guardLicenseKey = \"");
+        body.append(key);
+        body.append("\";");
+        body.append("this.guardLicenseEncryptKey = \"");
+        body.append(encryptKey);
+        body.append("\";");
+    }
+
     public ClassPool getPool() {
         return pool;
     }

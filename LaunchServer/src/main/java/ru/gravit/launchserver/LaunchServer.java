@@ -88,6 +88,7 @@ public final class LaunchServer implements Runnable {
 
         public ExeConf launch4j;
         public NettyConfig netty;
+        public GuardLicenseConf guardLicense;
 
         public boolean compress;
 
@@ -184,6 +185,12 @@ public final class LaunchServer implements Runnable {
     {
         public String bindAddress;
         public int port;
+    }
+    public class GuardLicenseConf
+    {
+        public String name;
+        public String key;
+        public String encryptKey;
     }
 
     private final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
