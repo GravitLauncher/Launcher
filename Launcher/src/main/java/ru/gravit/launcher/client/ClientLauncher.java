@@ -375,6 +375,7 @@ public final class ClientLauncher {
         // Build client process
         LogHelper.debug("Launching client instance");
         ProcessBuilder builder = new ProcessBuilder(context.args);
+        context.builder = builder;
         LauncherGuardManager.guard.addCustomEnv(context);
         //else
         //builder.environment().put("CLASSPATH", classPathString.toString());
