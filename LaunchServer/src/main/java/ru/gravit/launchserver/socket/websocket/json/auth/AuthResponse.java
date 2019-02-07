@@ -22,6 +22,7 @@ import java.util.UUID;
 public class AuthResponse implements JsonResponseInterface {
     public String login;
     public String client;
+    public String customText;
 
     public String password;
 
@@ -67,9 +68,10 @@ public class AuthResponse implements JsonResponseInterface {
             {
                 AuthProvider.authError("authType: SERVER not allowed for this account");
             }
-            ru.gravit.launchserver.response.auth.AuthResponse.AuthContext context = new ru.gravit.launchserver.response.auth.AuthResponse.AuthContext(0, login, password.length(), client, null, false);
+            ru.gravit.launchserver.response.auth.AuthResponse.AuthContext context = new ru.gravit.launchserver.response.auth.AuthResponse.AuthContext(0, login, password.length(),customText, client, null, false);
             AuthProvider provider = LaunchServer.server.config.authProvider[authid];
             LaunchServer.server.authHookManager.preHook(context, clientData);
+            provider.preAuth(login,password,customText,ip);
             AuthProviderResult aresult = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(aresult.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", aresult.username));
