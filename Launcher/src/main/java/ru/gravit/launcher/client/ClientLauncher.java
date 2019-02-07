@@ -361,6 +361,7 @@ public final class ClientLauncher {
         }
         // Add classpath and main class
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
+        context.pathLauncher = pathLauncher;
         Collections.addAll(context.args, profile.getJvmArgs());
         profile.pushOptionalJvmArgs(context.args);
         Collections.addAll(context.args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
