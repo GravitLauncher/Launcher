@@ -36,10 +36,11 @@ public final class AuthResponse extends Response {
     }
 
     public static class AuthContext {
-        public AuthContext(long session, String login, int password_lenght, String client, String hwid, boolean isServerAuth) {
+        public AuthContext(long session, String login, int password_lenght, String customText, String client, String hwid, boolean isServerAuth) {
             this.session = session;
             this.login = login;
             this.password_lenght = password_lenght;
+            this.customText = customText;
             this.client = client;
             this.hwid = hwid;
             this.isServerAuth = isServerAuth;
@@ -50,6 +51,7 @@ public final class AuthResponse extends Response {
         public int password_lenght; //Use AuthProvider for get password
         public String client;
         public String hwid;
+        public String customText;
         public boolean isServerAuth;
     }
 
@@ -64,6 +66,7 @@ public final class AuthResponse extends Response {
         String hwid_str = input.readString(SerializeLimits.MAX_HWID_STR);
         if (auth_id + 1 > server.config.authProvider.length || auth_id < 0) auth_id = 0;
         byte[] encryptedPassword = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
+        String customText = input.readString(SerializeLimits.MAX_CUSTOM_TEXT);
         // Decrypt password
         String password;
         try {
@@ -80,7 +83,7 @@ public final class AuthResponse extends Response {
         AuthProvider provider = server.config.authProvider[auth_id];
         Client clientData = server.sessionManager.getClient(session);
         clientData.type = Client.Type.USER;
-        AuthContext context = new AuthContext(session, login, password.length(), client, hwid_str, false);
+        AuthContext context = new AuthContext(session, login, password.length(), customText, client, hwid_str, false);
         try {
             server.authHookManager.preHook(context, clientData);
             if (server.limiter.isLimit(ip)) {
@@ -90,6 +93,7 @@ public final class AuthResponse extends Response {
             if (!clientData.checkSign) {
                 throw new AuthException("You must using checkLauncher");
             }
+            provider.preAuth(login,password,customText,ip);
             result = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(result.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", result.username));
