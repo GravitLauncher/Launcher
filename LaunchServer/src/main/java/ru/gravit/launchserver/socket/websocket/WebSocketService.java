@@ -24,6 +24,7 @@ import ru.gravit.launchserver.socket.websocket.json.update.LauncherResponse;
 import ru.gravit.launchserver.socket.websocket.json.update.UpdateListResponse;
 import ru.gravit.utils.helper.LogHelper;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 @SuppressWarnings({"unused", "rawtypes"})
@@ -80,11 +81,18 @@ public class WebSocketService {
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
+        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, ResultInterface.class)));
+    }
+    public void sendObject(ChannelHandlerContext ctx, Object obj, Type type) {
+        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj))).addListener(ChannelFutureListener.CLOSE);
+        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, ResultInterface.class))).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj, Type type) {
+        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type))).addListener(ChannelFutureListener.CLOSE);
     }
 
     public void sendEvent(EventResult obj) {

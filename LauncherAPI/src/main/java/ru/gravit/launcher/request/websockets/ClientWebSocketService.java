@@ -2,12 +2,14 @@ package ru.gravit.launcher.request.websockets;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ru.gravit.launcher.events.request.EchoRequestEvent;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
@@ -27,14 +29,15 @@ public class ClientWebSocketService extends ClientJSONPoint {
         results = new HashMap<>();
         handlers = new HashSet<>();
         this.gsonBuilder = gsonBuilder;
-        gsonBuilder.registerTypeAdapter(RequestInterface.class, new JsonRequestAdapter(this));
-        gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
+        this.gsonBuilder.registerTypeAdapter(RequestInterface.class, new JsonRequestAdapter(this));
+        this.gsonBuilder.registerTypeAdapter(ResultInterface.class, new JsonResultAdapter(this));
+        this.gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuilder.create();
     }
 	private static URI createURL(String address, int port) {
 		try {
-			URL u = new URL(address);
-			return new URL(u.getProtocol(), u.getHost(), port, u.getFile()).toURI();
+			URI u = new URI("ws://".concat(address).concat(":").concat(String.valueOf(port)).concat("/api"));
+			return u;
 		} catch (Throwable e) {
 			LogHelper.error(e);
 			return null;
@@ -47,6 +50,11 @@ public class ClientWebSocketService extends ClientJSONPoint {
         {
             handler.process(result);
         }
+    }
+    @Override
+    public void onError(Exception e)
+    {
+        LogHelper.error(e);
     }
 
     public Class<? extends RequestInterface> getRequestClass(String key) {
@@ -69,7 +77,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
     }
 
     public void registerResults() {
-
+        registerResult("echo", EchoRequestEvent.class);
     }
 
     public void registerHandler(EventHandler eventHandler)
@@ -78,7 +86,10 @@ public class ClientWebSocketService extends ClientJSONPoint {
     }
 
     public void sendObject(Object obj) throws IOException {
-        send(gson.toJson(obj));
+        send(gson.toJson(obj, RequestInterface.class));
+    }
+    public void sendObject(Object obj, Type type) throws IOException {
+        send(gson.toJson(obj, type));
     }
     @FunctionalInterface
     public interface EventHandler

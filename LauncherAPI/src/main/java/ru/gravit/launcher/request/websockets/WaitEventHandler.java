@@ -5,7 +5,7 @@ import ru.gravit.launcher.request.ResultInterface;
 import java.util.HashSet;
 
 public class WaitEventHandler implements ClientWebSocketService.EventHandler {
-    public HashSet<ResultEvent> requests;
+    public HashSet<ResultEvent> requests = new HashSet<>();
     @Override
     public void process(ResultInterface result) {
         for(ResultEvent r : requests)

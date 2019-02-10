@@ -3,6 +3,7 @@ package ru.gravit.launcher.request.websockets;
 import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.request.ResultInterface;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 public class LegacyRequestBridge {
@@ -18,6 +19,7 @@ public class LegacyRequestBridge {
             synchronized(e)
             {
                 e.wait();
+                LogHelper.debug("WAIT OK");
             }
         }
         ResultInterface result = e.result;
@@ -27,6 +29,15 @@ public class LegacyRequestBridge {
     public static void initWebSockets(String address, int port)
     {
         service = new ClientWebSocketService(new GsonBuilder(), address, port, 5000);
+        service.registerResults();
+        service.registerRequests();
+        service.registerHandler(waitEventHandler);
+        try {
+            if(!service.connectBlocking()) LogHelper.error("Error connecting");
+            LogHelper.debug("Connect to %s:%d",address,port);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
     static {
         if(Launcher.getConfig().nettyPort != 0)
