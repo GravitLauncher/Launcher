@@ -1,7 +1,7 @@
 package ru.gravit.launchserver.socket.websocket.json.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.gravit.launcher.events.request.CheckServerEvent;
+import ru.gravit.launcher.events.request.CheckServerRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
@@ -22,7 +22,7 @@ public class CheckServerResponse implements JsonResponseInterface {
 
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client pClient) {
-        CheckServerEvent result = new CheckServerEvent();
+        CheckServerRequestEvent result = new CheckServerRequestEvent();
         try {
             result.uuid = LaunchServer.server.config.authHandler.checkServer(username, serverID);
             if(result.uuid != null)
@@ -35,7 +35,7 @@ public class CheckServerResponse implements JsonResponseInterface {
             service.sendObject(ctx, new WebSocketService.ErrorResult("Internal authHandler error"));
             return;
         }
-        service.sendObject(ctx, new CheckServerEvent());
+        service.sendObject(ctx, new CheckServerRequestEvent());
     }
 
 }

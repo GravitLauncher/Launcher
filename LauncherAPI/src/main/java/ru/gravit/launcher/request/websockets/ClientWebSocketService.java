@@ -6,13 +6,11 @@ import ru.gravit.launcher.events.request.*;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launcher.request.ResultInterface;
-import ru.gravit.launcher.request.auth.JoinServerRequest;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -80,7 +78,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
     public void registerResults() {
         registerResult("echo", EchoRequestEvent.class);
         registerResult("auth", AuthRequestEvent.class);
-        registerResult("checkServer", CheckServerEvent.class);
+        registerResult("checkServer", CheckServerRequestEvent.class);
         registerResult("joinServer", JoinServerRequestEvent.class);
         registerResult("launcher", LauncherRequestEvent.class);
         registerResult("profileByUsername", ProfileByUsernameRequestEvent.class);
