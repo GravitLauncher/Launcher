@@ -57,7 +57,8 @@ public abstract class Request<R> {
     public R request() throws Exception {
         if (!started.compareAndSet(false, true))
             throw new IllegalStateException("Request already started");
-
+        R wsResult = requestWebSockets();
+        if(wsResult != null) return wsResult;
         // Make request to LaunchServer
         try (Socket socket = IOHelper.newSocket()) {
             socket.connect(IOHelper.resolve(config.address));
@@ -68,7 +69,10 @@ public abstract class Request<R> {
             }
         }
     }
-
+    protected R requestWebSockets() throws Exception
+    {
+        return null;
+    }
     @LauncherAPI
     protected abstract R requestDo(HInput input, HOutput output) throws Exception;
 
