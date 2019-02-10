@@ -76,6 +76,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     public LauncherRequestEvent requestWebSockets() throws Exception
     {
         LauncherRequestEvent result = (LauncherRequestEvent) LegacyRequestBridge.sendRequest(this);
+        if(result.needUpdate) update(config, result);
         return result;
     }
 
