@@ -16,10 +16,7 @@ import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.json.EchoResponse;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseAdapter;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
-import ru.gravit.launchserver.socket.websocket.json.auth.AuthResponse;
-import ru.gravit.launchserver.socket.websocket.json.auth.CheckServerResponse;
-import ru.gravit.launchserver.socket.websocket.json.auth.JoinServerResponse;
-import ru.gravit.launchserver.socket.websocket.json.auth.ProfilesResponse;
+import ru.gravit.launchserver.socket.websocket.json.auth.*;
 import ru.gravit.launchserver.socket.websocket.json.update.LauncherResponse;
 import ru.gravit.launchserver.socket.websocket.json.update.UpdateListResponse;
 import ru.gravit.utils.helper.LogHelper;
@@ -78,6 +75,7 @@ public class WebSocketService {
         registerResponse("launcher", LauncherResponse.class);
         registerResponse("updateList", UpdateListResponse.class);
         registerResponse("cmdExec", UpdateListResponse.class);
+        registerResponse("setProfile", SetProfileResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {

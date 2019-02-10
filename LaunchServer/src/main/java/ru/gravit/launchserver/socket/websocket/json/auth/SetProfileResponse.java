@@ -2,6 +2,7 @@ package ru.gravit.launchserver.socket.websocket.json.auth;
 
 import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launcher.events.request.ErrorRequestEvent;
+import ru.gravit.launcher.events.request.SetProfileRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
@@ -32,8 +33,8 @@ public class SetProfileResponse implements JsonResponseInterface {
                     return;
                 }
                 client.profile = p;
-                service.sendObject(ctx, new WebSocketService.SuccessResult(getType()));
-                break;
+                service.sendObject(ctx, new SetProfileRequestEvent(p));
+                return;
             }
         }
         service.sendObject(ctx, new ErrorRequestEvent("Profile not found"));
