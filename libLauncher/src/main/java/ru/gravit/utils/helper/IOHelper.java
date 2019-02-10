@@ -338,10 +338,18 @@ public final class IOHelper {
     public static InputStream newInput(Path file) throws IOException {
         return Files.newInputStream(file, READ_OPTIONS);
     }
+    @LauncherAPI
+    public static InputStream newBufferedInput(Path file) throws IOException {
+        return new BufferedInputStream(Files.newInputStream(file, READ_OPTIONS));
+    }
 
     @LauncherAPI
     public static InputStream newInput(URL url) throws IOException {
         return newConnection(url).getInputStream();
+    }
+    @LauncherAPI
+    public static BufferedInputStream newBufferedInput(URL url) throws IOException {
+        return new BufferedInputStream(newConnection(url).getInputStream());
     }
 
     @LauncherAPI
@@ -350,9 +358,20 @@ public final class IOHelper {
     }
 
     @LauncherAPI
+    public static OutputStream newBufferedOutput(Path file) throws IOException {
+        return newBufferedOutput(file, false);
+    }
+
+    @LauncherAPI
     public static OutputStream newOutput(Path file, boolean append) throws IOException {
         createParentDirs(file);
         return Files.newOutputStream(file, append ? APPEND_OPTIONS : WRITE_OPTIONS);
+    }
+
+    @LauncherAPI
+    public static OutputStream newBufferedOutput(Path file, boolean append) throws IOException {
+        createParentDirs(file);
+        return new BufferedOutputStream(Files.newOutputStream(file, append ? APPEND_OPTIONS : WRITE_OPTIONS));
     }
 
     @LauncherAPI
