@@ -86,6 +86,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
         registerResult("batchProfileByUsername", BatchProfileByUsernameRequestEvent.class);
         registerResult("profiles", ProfilesRequestEvent.class);
         registerResult("updateList", UpdateListRequestEvent.class);
+        registerResult("error", ErrorRequestEvent.class);
     }
 
     public void registerHandler(EventHandler eventHandler)

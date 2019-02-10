@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.socket.websocket.json.admin;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
@@ -17,11 +18,11 @@ public class ExecCommandResponse implements JsonResponseInterface {
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
         if (!client.isAuth) {
-            service.sendObject(ctx, new WebSocketService.ErrorResult("Access denied"));
+            service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
             return;
         }
         if (!client.permissions.canAdmin) {
-            service.sendObject(ctx, new WebSocketService.ErrorResult("Access denied"));
+            service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
             return;
         }
         LaunchServer.server.commandHandler.eval(cmd, false);

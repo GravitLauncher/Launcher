@@ -2,6 +2,8 @@ package ru.gravit.launcher.request.websockets;
 
 import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.events.request.ErrorRequestEvent;
+import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -24,6 +26,11 @@ public class LegacyRequestBridge {
         }
         ResultInterface result = e.result;
         waitEventHandler.requests.remove(e);
+        if(e.result.getType().equals("error"))
+        {
+            ErrorRequestEvent errorRequestEvent = (ErrorRequestEvent) e.result;
+            throw new RequestException(errorRequestEvent.error);
+        }
         return result;
     }
     public static void initWebSockets(String address, int port)

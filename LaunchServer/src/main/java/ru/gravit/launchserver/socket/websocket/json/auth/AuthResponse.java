@@ -3,6 +3,7 @@ package ru.gravit.launchserver.socket.websocket.json.auth;
 import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launcher.OshiHWID;
 import ru.gravit.launcher.events.request.AuthRequestEvent;
+import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
@@ -113,7 +114,7 @@ public class AuthResponse implements JsonResponseInterface {
             result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server,uuid,aresult.username,client);
             service.sendObject(ctx, result);
         } catch (AuthException | HWIDException e) {
-            service.sendObject(ctx, new WebSocketService.ErrorResult(e.getMessage()));
+            service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
         }
     }
 

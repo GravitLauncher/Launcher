@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.socket.websocket.json.update;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.events.request.LauncherRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
@@ -52,7 +53,7 @@ public class LauncherResponse implements JsonResponseInterface {
             } else {
                 service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, EXE_URL));
             }
-        } else service.sendObject(ctx, new WebSocketService.ErrorResult("Request launcher type error"));
+        } else service.sendObject(ctx, new ErrorRequestEvent("Request launcher type error"));
 
     }
 

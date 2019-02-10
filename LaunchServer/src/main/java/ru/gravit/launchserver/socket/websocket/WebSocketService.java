@@ -99,19 +99,6 @@ public class WebSocketService {
         channels.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
     }
 
-    public static class ErrorResult implements ResultInterface {
-        public ErrorResult(String error) {
-            this.error = error;
-        }
-
-        public final String error;
-
-        @Override
-        public String getType() {
-            return "error";
-        }
-    }
-
     public static class SuccessResult {
         public SuccessResult(String requesttype) {
             this.requesttype = requesttype;
