@@ -1,52 +1,37 @@
 package ru.gravit.launcher.request.websockets;
 
-import javax.websocket.*;
-import java.io.IOException;
-import java.io.Reader;
+import java.net.URI;
+import java.util.Map;
 
-/*
- * public class Client {
- *
- *   final static CountDownLatch messageLatch = new CountDownLatch(1);
- *
- *   public static void main(String[] args) {
- *       try {
- *           WebSocketContainer container = ContainerProvider.getWebSocketContainer();
- *           String uri = "ws://echo.websocket.org:80/";
- *           System.out.println("Connecting to " + uri);
- *           container.connectToServer(MyClientEndpoint.class, URI.create(uri));
- *           messageLatch.await(100, TimeUnit.SECONDS);
- *       } catch (DeploymentException | InterruptedException | IOException ex) {
- *           Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
- *       }
- *   }
- * }
- */
-@ClientEndpoint
-public class ClientJSONPoint {
-    public Session session = null;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.handshake.ServerHandshake;
 
-    @OnOpen
-    public void onOpen(final Session session_r) {
-        session = session_r;
-        System.out.println("Connected to endpoint: " + session.getBasicRemote());
-    }
+import ru.gravit.utils.helper.LogHelper;
 
-    @OnError
-    public void processError(final Throwable t) {
-        t.printStackTrace();
-    }
+public class ClientJSONPoint extends WebSocketClient {
 
-    @OnMessage
-    public void processMessage(Reader message) {
+	public ClientJSONPoint(URI serverUri, Map<String, String> httpHeaders, int connectTimeout) {
+		super(serverUri, new Draft_6455(), httpHeaders, connectTimeout);
+	}
 
-    }
+	@Override
+	public void onOpen(ServerHandshake handshakedata) {
+		
+	}
 
-    public void send(String js) throws IOException {
-        session.getBasicRemote().sendText(js);
-    }
+	@Override
+	public void onMessage(String message) {
+	}
 
-    public void sendAsync(String js) {
-        session.getAsyncRemote().sendText(js);
-    }
+	@Override
+	public void onClose(int code, String reason, boolean remote) {
+		LogHelper.debug("Disconnected: " + code + " " + remote + " " + reason != null ? reason : "no reason");
+	}
+
+	@Override
+	public void onError(Exception ex) {
+		LogHelper.error(ex);
+	}
+
 }
