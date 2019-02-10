@@ -2,10 +2,11 @@ package ru.gravit.launcher.request.websockets;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ru.gravit.launcher.events.request.EchoRequestEvent;
+import ru.gravit.launcher.events.request.*;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launcher.request.ResultInterface;
+import ru.gravit.launcher.request.auth.JoinServerRequest;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
@@ -78,6 +79,15 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     public void registerResults() {
         registerResult("echo", EchoRequestEvent.class);
+        registerResult("auth", AuthRequestEvent.class);
+        registerResult("checkServer", CheckServerEvent.class);
+        registerResult("joinServer", JoinServerRequestEvent.class);
+        registerResult("launcher", LauncherRequestEvent.class);
+        registerResult("profileByUsername", ProfileByUsernameRequestEvent.class);
+        registerResult("profileByUUID", ProfileByUUIDRequestEvent.class);
+        registerResult("batchProfileByUsername", BatchProfileByUsernameRequestEvent.class);
+        registerResult("profiles", ProfilesRequestEvent.class);
+        registerResult("updateList", UpdateListRequestEvent.class);
     }
 
     public void registerHandler(EventHandler eventHandler)
