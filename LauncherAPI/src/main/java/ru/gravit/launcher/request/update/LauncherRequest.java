@@ -3,8 +3,12 @@ package ru.gravit.launcher.request.update;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.LauncherNetworkAPI;
+import ru.gravit.launcher.events.request.LauncherRequestEvent;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
+import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
+import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.IOHelper;
@@ -17,27 +21,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class LauncherRequest extends Request<LauncherRequest.Result> {
-    public static final class Result {
-        private final byte[] binary;
-        private final byte[] digest;
-
-        public Result(byte[] binary, byte[] sign) {
-            this.binary = binary == null ? null : binary.clone();
-            this.digest = sign.clone();
-        }
-
-        @LauncherAPI
-        public byte[] getBinary() {
-            return binary == null ? null : binary.clone();
-        }
-
-        @LauncherAPI
-        public byte[] getDigest() {
-            return digest.clone();
-        }
-    }
-
+public final class LauncherRequest extends Request<LauncherRequestEvent> implements RequestInterface {
+    @LauncherNetworkAPI
+    public byte[] digest;
+    @LauncherNetworkAPI
+    public int launcher_type = EXE_BINARY ? 2 : 1;
     @LauncherAPI
     public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
 
@@ -45,7 +33,7 @@ public final class LauncherRequest extends Request<LauncherRequest.Result> {
     public static final boolean EXE_BINARY = IOHelper.hasExtension(BINARY_PATH, "exe");
 
     @LauncherAPI
-    public static void update(LauncherConfig config, Result result) throws IOException {
+    public static void update(LauncherConfig config, LauncherRequestEvent result) throws IOException {
         List<String> args = new ArrayList<>(8);
         args.add(IOHelper.resolveJavaBin(null).toString());
         if (LogHelper.isDebugEnabled())
@@ -71,9 +59,21 @@ public final class LauncherRequest extends Request<LauncherRequest.Result> {
         this(null);
     }
 
+    @Override
+    public LauncherRequestEvent requestWebSockets() throws Exception
+    {
+        return (LauncherRequestEvent) LegacyRequestBridge.sendRequest(this);
+    }
+
     @LauncherAPI
     public LauncherRequest(LauncherConfig config) {
         super(config);
+        Path launcherPath = IOHelper.getCodeSource(LauncherRequest.class);
+        try {
+            digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);
+        } catch (IOException e) {
+            LogHelper.error(e);
+        }
     }
 
     @Override
@@ -82,9 +82,7 @@ public final class LauncherRequest extends Request<LauncherRequest.Result> {
     }
 
     @Override
-    protected Result requestDo(HInput input, HOutput output) throws Exception {
-        Path launcherPath = IOHelper.getCodeSource(LauncherRequest.class);
-        byte[] digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);
+    protected LauncherRequestEvent requestDo(HInput input, HOutput output) throws Exception {
         output.writeBoolean(EXE_BINARY);
         output.writeByteArray(digest, 0);
         output.flush();
@@ -94,11 +92,16 @@ public final class LauncherRequest extends Request<LauncherRequest.Result> {
         boolean shouldUpdate = input.readBoolean();
         if (shouldUpdate) {
             byte[] binary = input.readByteArray(0);
-            Result result = new Result(binary, digest);
+            LauncherRequestEvent result = new LauncherRequestEvent(binary, digest);
             update(Launcher.getConfig(), result);
         }
 
         // Return request result
-        return new Result(null, digest);
+        return new LauncherRequestEvent(null, digest);
+    }
+
+    @Override
+    public String getType() {
+        return "launcher";
     }
 }

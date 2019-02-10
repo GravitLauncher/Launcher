@@ -75,7 +75,7 @@ public class WebSocketService {
         registerResponse("checkServer", CheckServerResponse.class);
         registerResponse("joinServer", JoinServerResponse.class);
         registerResponse("profiles", ProfilesResponse.class);
-        registerResponse("launcherUpdate", LauncherResponse.class);
+        registerResponse("launcher", LauncherResponse.class);
         registerResponse("updateList", UpdateListResponse.class);
         registerResponse("cmdExec", UpdateListResponse.class);
     }
@@ -99,14 +99,17 @@ public class WebSocketService {
         channels.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
     }
 
-    public static class ErrorResult {
+    public static class ErrorResult implements ResultInterface {
         public ErrorResult(String error) {
             this.error = error;
-            this.type = "requestError";
         }
 
         public final String error;
-        public final String type;
+
+        @Override
+        public String getType() {
+            return "error";
+        }
     }
 
     public static class SuccessResult {
@@ -119,15 +122,18 @@ public class WebSocketService {
         public final String type;
     }
 
-    public static class EventResult {
+    public static class EventResult implements ResultInterface {
         public EventResult() {
-            this.type = "event";
+
         }
 
-        public final String type;
+        @Override
+        public String getType() {
+            return "event";
+        }
     }
 
-    public static class ExceptionResult {
+    public static class ExceptionResult implements ResultInterface {
         public ExceptionResult(Exception e) {
             this.message = e.getMessage();
             this.clazz = e.getClass().getName();
@@ -137,5 +143,10 @@ public class WebSocketService {
         public final String message;
         public final String clazz;
         public final String type;
+
+        @Override
+        public String getType() {
+            return "exception";
+        }
     }
 }

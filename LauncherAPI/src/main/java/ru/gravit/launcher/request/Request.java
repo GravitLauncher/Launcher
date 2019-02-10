@@ -29,9 +29,9 @@ public abstract class Request<R> {
     }
 
     @LauncherAPI
-    protected final LauncherConfig config;
+    protected transient final LauncherConfig config;
 
-    private final AtomicBoolean started = new AtomicBoolean(false);
+    private transient final AtomicBoolean started = new AtomicBoolean(false);
 
     @LauncherAPI
     protected Request() {

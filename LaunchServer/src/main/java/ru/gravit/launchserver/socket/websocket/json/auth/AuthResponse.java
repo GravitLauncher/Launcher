@@ -14,8 +14,11 @@ import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -25,6 +28,7 @@ public class AuthResponse implements JsonResponseInterface {
     public String customText;
 
     public String password;
+    public byte[] encryptedPassword;
 
     public AuthResponse(String login, String password, int authid, OshiHWID hwid) {
         this.login = login;
@@ -58,6 +62,15 @@ public class AuthResponse implements JsonResponseInterface {
             if (authType != ConnectTypes.CLIENT &&!clientData.checkSign) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
+            }
+            if(password == null)
+            {
+                try {
+                    password = IOHelper.decode(SecurityHelper.newRSADecryptCipher(LaunchServer.server.privateKey).
+                            doFinal(encryptedPassword));
+                } catch (IllegalBlockSizeException | BadPaddingException ignored) {
+                    throw new AuthException("Password decryption error");
+                }
             }
             clientData.permissions = LaunchServer.server.config.permissionsHandler.getPermissions(login);
             if(authType == ConnectTypes.BOT && !clientData.permissions.canBot)

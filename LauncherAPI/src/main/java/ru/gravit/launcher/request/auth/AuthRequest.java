@@ -5,6 +5,7 @@ import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
+import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
@@ -14,7 +15,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 
-public final class AuthRequest extends Request<AuthRequestEvent> {
+public final class AuthRequest extends Request<AuthRequestEvent> implements RequestInterface {
 
     private final String login;
 
@@ -24,51 +25,55 @@ public final class AuthRequest extends Request<AuthRequestEvent> {
     private final String customText;
 
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, HWID hwid) {
+    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
-        this.encryptedPassword = encryptedPassword.clone();
+        this.encryptedPassword = password.clone();
         this.hwid = hwid;
         customText = "";
         auth_id = 0;
     }
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, HWID hwid, String customText) {
+    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, String customText) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
-        this.encryptedPassword = encryptedPassword.clone();
+        this.encryptedPassword = password.clone();
         this.hwid = hwid;
         this.customText = customText;
         auth_id = 0;
     }
 
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, HWID hwid, int auth_id) {
+    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, int auth_id) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
-        this.encryptedPassword = encryptedPassword.clone();
+        this.encryptedPassword = password.clone();
         this.hwid = hwid;
         this.auth_id = auth_id;
         customText = "";
     }
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, HWID hwid, String customText, int auth_id) {
+    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, String customText, int auth_id) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
-        this.encryptedPassword = encryptedPassword.clone();
+        this.encryptedPassword = password.clone();
         this.hwid = hwid;
         this.auth_id = auth_id;
         this.customText = customText;
     }
 
     @LauncherAPI
-    public AuthRequest(String login, byte[] encryptedPassword, HWID hwid) {
-        this(null, login, encryptedPassword, hwid);
+    public AuthRequest(String login, byte[] password, HWID hwid) {
+        this(null, login, password, hwid);
     }
-
+    @Override
+    public AuthRequestEvent requestWebSockets() throws Exception
+    {
+        return (AuthRequestEvent) LegacyRequestBridge.sendRequest(this);
+    }
     @LauncherAPI
-    public AuthRequest(String login, byte[] encryptedPassword, HWID hwid, int auth_id) {
-        this(null, login, encryptedPassword, hwid, auth_id);
+    public AuthRequest(String login, byte[] password, HWID hwid, int auth_id) {
+        this(null, login, password, hwid, auth_id);
     }
 
     @Override
@@ -114,5 +119,10 @@ public final class AuthRequest extends Request<AuthRequestEvent> {
         String accessToken = input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH);
         ClientPermissions permissions = new ClientPermissions(input);
         return new AuthRequestEvent(pp, accessToken, permissions);
+    }
+
+    @Override
+    public String getType() {
+        return "auth";
     }
 }
