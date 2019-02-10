@@ -99,9 +99,9 @@ public class AuthResponse implements JsonResponseInterface {
                     clientData.profile = p;
                 }
             }
-            if (clientData.profile == null) {
-                throw new AuthException("You profile not found");
-            }
+            //if (clientData.profile == null) {
+            //    throw new AuthException("You profile not found");
+            //}
             UUID uuid = LaunchServer.server.config.authHandler.auth(aresult);
             if(authType == ConnectTypes.CLIENT)
                  LaunchServer.server.config.hwidHandler.check(hwid, aresult.username);

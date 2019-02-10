@@ -7,6 +7,8 @@ import ru.gravit.launcher.events.request.ProfilesRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
+import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
+import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 
@@ -14,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class ProfilesRequest extends Request<ProfilesRequestEvent> {
+public final class ProfilesRequest extends Request<ProfilesRequestEvent> implements RequestInterface {
 
     @LauncherAPI
     public ProfilesRequest() {
@@ -32,6 +34,12 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> {
     }
 
     @Override
+    public ProfilesRequestEvent requestWebSockets() throws Exception
+    {
+        return (ProfilesRequestEvent) LegacyRequestBridge.sendRequest(this);
+    }
+
+    @Override
     protected ProfilesRequestEvent requestDo(HInput input, HOutput output) throws Exception {
         output.writeBoolean(true);
         output.flush();
@@ -45,5 +53,10 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> {
         }
         // Return request result
         return new ProfilesRequestEvent(profiles);
+    }
+
+    @Override
+    public String getType() {
+        return "profiles";
     }
 }
