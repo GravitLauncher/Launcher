@@ -3,6 +3,7 @@ package ru.gravit.launcher.request.auth;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.events.request.CheckServerEvent;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
@@ -14,7 +15,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 
-public final class CheckServerRequest extends Request<PlayerProfile> {
+public final class CheckServerRequest extends Request<CheckServerEvent> {
     private final String username;
     private final String serverID;
 
@@ -36,7 +37,7 @@ public final class CheckServerRequest extends Request<PlayerProfile> {
     }
 
     @Override
-    protected PlayerProfile requestDo(HInput input, HOutput output) throws IOException {
+    protected CheckServerEvent requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(username, SerializeLimits.MAX_LOGIN);
         output.writeASCII(serverID, SerializeLimits.MAX_SERVERID); // 1 char for minus sign
         if (Launcher.profile == null) {
@@ -48,6 +49,6 @@ public final class CheckServerRequest extends Request<PlayerProfile> {
 
         // Read response
         readError(input);
-        return input.readBoolean() ? new PlayerProfile(input) : null;
+        return input.readBoolean() ? new CheckServerEvent(new PlayerProfile(input)) : null;
     }
 }

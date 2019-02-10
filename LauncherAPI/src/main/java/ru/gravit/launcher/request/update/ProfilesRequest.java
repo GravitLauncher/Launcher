@@ -3,6 +3,7 @@ package ru.gravit.launcher.request.update;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.events.request.ProfilesRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
@@ -13,16 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class ProfilesRequest extends Request<ProfilesRequest.Result> {
-
-    public static final class Result {
-        @LauncherAPI
-        public final List<ClientProfile> profiles;
-
-        private Result(List<ClientProfile> profiles) {
-            this.profiles = Collections.unmodifiableList(profiles);
-        }
-    }
+public final class ProfilesRequest extends Request<ProfilesRequestEvent> {
 
     @LauncherAPI
     public ProfilesRequest() {
@@ -40,7 +32,7 @@ public final class ProfilesRequest extends Request<ProfilesRequest.Result> {
     }
 
     @Override
-    protected Result requestDo(HInput input, HOutput output) throws Exception {
+    protected ProfilesRequestEvent requestDo(HInput input, HOutput output) throws Exception {
         output.writeBoolean(true);
         output.flush();
         readError(input);
@@ -52,6 +44,6 @@ public final class ProfilesRequest extends Request<ProfilesRequest.Result> {
             profiles.add(Launcher.gson.fromJson(prof, ClientProfile.class));
         }
         // Return request result
-        return new Result(profiles);
+        return new ProfilesRequestEvent(profiles);
     }
 }

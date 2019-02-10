@@ -98,7 +98,7 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
         // Make profile request
         PlayerProfile pp;
         try {
-            pp = new ProfileByUUIDRequest(uuid).request();
+            pp = new ProfileByUUIDRequest(uuid).request().playerProfile;
         } catch (Exception e) {
             LogHelper.debug("Couldn't fetch profile properties for '%s': %s", profile, e);
             return profile;
@@ -155,7 +155,7 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
         // Make checkServer request
         PlayerProfile pp;
         try {
-            pp = new CheckServerRequest(username, serverID).request();
+            pp = new CheckServerRequest(username, serverID).request().playerProfile;
         } catch (Exception e) {
             LogHelper.error(e);
             throw new AuthenticationUnavailableException(e);
@@ -184,7 +184,7 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
         // Make joinServer request
         boolean success;
         try {
-            success = new JoinServerRequest(username, accessToken, serverID).request();
+            success = new JoinServerRequest(username, accessToken, serverID).request().allow;
         } catch (Exception e) {
             throw new AuthenticationUnavailableException(e);
         }

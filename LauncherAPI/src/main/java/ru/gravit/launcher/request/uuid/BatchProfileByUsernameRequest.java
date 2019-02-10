@@ -2,6 +2,7 @@ package ru.gravit.launcher.request.uuid;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.events.request.BatchProfileByUsernameRequestEvent;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
@@ -13,7 +14,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 
-public final class BatchProfileByUsernameRequest extends Request<PlayerProfile[]> {
+public final class BatchProfileByUsernameRequest extends Request<BatchProfileByUsernameRequestEvent> {
     private final String[] usernames;
 
     @LauncherAPI
@@ -36,7 +37,7 @@ public final class BatchProfileByUsernameRequest extends Request<PlayerProfile[]
     }
 
     @Override
-    protected PlayerProfile[] requestDo(HInput input, HOutput output) throws IOException {
+    protected BatchProfileByUsernameRequestEvent requestDo(HInput input, HOutput output) throws IOException {
         output.writeLength(usernames.length, SerializeLimits.MAX_BATCH_SIZE);
         for (String username : usernames) {
             output.writeString(username, SerializeLimits.MAX_LOGIN);
@@ -50,6 +51,6 @@ public final class BatchProfileByUsernameRequest extends Request<PlayerProfile[]
             profiles[i] = input.readBoolean() ? new PlayerProfile(input) : null;
 
         // Return result
-        return profiles;
+        return new BatchProfileByUsernameRequestEvent(profiles);
     }
 }

@@ -43,7 +43,7 @@ public final class YggdrasilGameProfileRepository implements GameProfileReposito
             // Batch Username-To-UUID request
             PlayerProfile[] sliceProfiles;
             try {
-                sliceProfiles = new BatchProfileByUsernameRequest(sliceUsernames).request();
+                sliceProfiles = new BatchProfileByUsernameRequest(sliceUsernames).request().playerProfiles;
             } catch (Exception e) {
                 for (String username : sliceUsernames) {
                     LogHelper.debug("Couldn't find profile '%s': %s", username, e);

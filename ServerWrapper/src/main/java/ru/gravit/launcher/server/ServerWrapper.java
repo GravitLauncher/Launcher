@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.events.request.ProfilesRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.auth.AuthServerRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
@@ -43,7 +44,7 @@ public class ServerWrapper {
         try {
             LauncherConfig cfg = Launcher.getConfig();
             ServerWrapper.permissions = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), 0, config.title).request();
-            ProfilesRequest.Result result = new ProfilesRequest(cfg).request();
+            ProfilesRequestEvent result = new ProfilesRequest(cfg).request();
             for (ClientProfile p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.getTitle());
                 if (p.getTitle().equals(config.title)) {

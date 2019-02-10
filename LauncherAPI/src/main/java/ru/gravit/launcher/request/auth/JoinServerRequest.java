@@ -2,6 +2,7 @@ package ru.gravit.launcher.request.auth;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.events.request.JoinServerRequestEvent;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;
@@ -12,7 +13,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 
-public final class JoinServerRequest extends Request<Boolean> {
+public final class JoinServerRequest extends Request<JoinServerRequestEvent> {
 
     // Instance
     private final String username;
@@ -38,7 +39,7 @@ public final class JoinServerRequest extends Request<Boolean> {
     }
 
     @Override
-    protected Boolean requestDo(HInput input, HOutput output) throws IOException {
+    protected JoinServerRequestEvent requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(username, SerializeLimits.MAX_LOGIN);
         output.writeASCII(accessToken, -SecurityHelper.TOKEN_STRING_LENGTH);
         output.writeASCII(serverID, SerializeLimits.MAX_SERVERID); // 1 char for minus sign
@@ -46,7 +47,7 @@ public final class JoinServerRequest extends Request<Boolean> {
 
         // Read response
         readError(input);
-        return input.readBoolean();
+        return new JoinServerRequestEvent(input.readBoolean());
     }
 
 }

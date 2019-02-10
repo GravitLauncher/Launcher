@@ -1,10 +1,10 @@
 package ru.gravit.launcher.request.auth;
 
 import ru.gravit.launcher.*;
+import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
-import ru.gravit.launcher.request.auth.AuthRequest.Result;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
@@ -13,21 +13,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 
-public final class AuthRequest extends Request<Result> {
-    public static final class Result {
-        @LauncherAPI
-        public final PlayerProfile pp;
-        @LauncherAPI
-        public final String accessToken;
-        @LauncherAPI
-        public final ClientPermissions permissions;
-
-        private Result(PlayerProfile pp, String accessToken, ClientPermissions permissions) {
-            this.pp = pp;
-            this.accessToken = accessToken;
-            this.permissions = permissions;
-        }
-    }
+public final class AuthRequest extends Request<AuthRequestEvent> {
 
     private final String login;
 
@@ -102,7 +88,7 @@ public final class AuthRequest extends Request<Result> {
         }
     }*/
     @Override
-    protected Result requestDo(HInput input, HOutput output) throws IOException {
+    protected AuthRequestEvent requestDo(HInput input, HOutput output) throws IOException {
         /*try {
             LegacyRequestBridge.sendRequest(new EchoRequest("Hello World!"));
         } catch (InterruptedException e) {
@@ -126,6 +112,6 @@ public final class AuthRequest extends Request<Result> {
         PlayerProfile pp = new PlayerProfile(input);
         String accessToken = input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH);
         ClientPermissions permissions = new ClientPermissions(input);
-        return new Result(pp, accessToken, permissions);
+        return new AuthRequestEvent(pp, accessToken, permissions);
     }
 }

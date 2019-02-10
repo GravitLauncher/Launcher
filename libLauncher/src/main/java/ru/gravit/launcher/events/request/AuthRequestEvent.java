@@ -17,6 +17,12 @@ public class AuthRequestEvent implements EventInterface, ResultInterface {
     public PlayerProfile playerProfile;
     public String accessToken;
 
+    public AuthRequestEvent(PlayerProfile pp, String accessToken, ClientPermissions permissions) {
+        this.playerProfile = pp;
+        this.accessToken = accessToken;
+        this.permissions = permissions;
+    }
+
     @Override
     public UUID getUUID() {
         return uuid;

@@ -9,8 +9,8 @@ import java.util.UUID;
 public class ProfileByUsernameRequestEvent implements EventInterface, ResultInterface
 {
     private static final UUID uuid = UUID.fromString("06204302-ff6b-4779-b97d-541e3bc39aa1");
-    String error;
-    PlayerProfile playerProfile;
+    public String error;
+    public PlayerProfile playerProfile;
 
     public ProfileByUsernameRequestEvent(PlayerProfile playerProfile) {
         this.playerProfile = playerProfile;

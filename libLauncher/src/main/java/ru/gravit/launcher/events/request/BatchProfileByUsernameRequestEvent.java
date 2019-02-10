@@ -11,6 +11,14 @@ public class BatchProfileByUsernameRequestEvent implements EventInterface, Resul
     private static final UUID uuid = UUID.fromString("c1d6729e-be2c-48cc-b5ae-af8c012232c3");
     public String error;
     public PlayerProfile[] playerProfiles;
+
+    public BatchProfileByUsernameRequestEvent(PlayerProfile[] profiles) {
+        this.playerProfiles = profiles;
+    }
+
+    public BatchProfileByUsernameRequestEvent() {
+    }
+
     @Override
     public UUID getUUID() {
         return uuid;

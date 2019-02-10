@@ -11,6 +11,14 @@ public class CheckServerEvent implements EventInterface, ResultInterface {
     public String type = "success";
     public UUID uuid;
     public PlayerProfile playerProfile;
+
+    public CheckServerEvent(PlayerProfile playerProfile) {
+        this.playerProfile = playerProfile;
+    }
+
+    public CheckServerEvent() {
+    }
+
     @Override
     public UUID getUUID() {
         return _uuid;
