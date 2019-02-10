@@ -25,7 +25,7 @@ public final class UpdateListRequest extends Request<Set<String>> {
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.UPDATE_LIST.getNumber();
     }
 

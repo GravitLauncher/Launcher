@@ -5,6 +5,7 @@ import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
+import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
@@ -71,7 +72,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> {
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.AUTH.getNumber();
     }
     /*public class EchoRequest implements RequestInterface
@@ -83,7 +84,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> {
         }
 
         @Override
-        public String getType() {
+        public String getLegacyType() {
             return "echo";
         }
     }*/

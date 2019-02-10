@@ -17,7 +17,7 @@ public class ExecCommandRequest extends Request<Boolean> {
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.EXECCOMMAND.getNumber();
     }
 

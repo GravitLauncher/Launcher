@@ -32,7 +32,7 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.BATCH_PROFILE_BY_USERNAME.getNumber();
     }
 

@@ -77,7 +77,7 @@ public final class LauncherRequest extends Request<LauncherRequest.Result> {
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.LAUNCHER.getNumber();
     }
 

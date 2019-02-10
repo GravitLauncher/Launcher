@@ -29,7 +29,7 @@ public final class ProfileByUsernameRequest extends Request<ProfileByUsernameReq
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.PROFILE_BY_USERNAME.getNumber();
     }
 

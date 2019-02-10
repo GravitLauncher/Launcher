@@ -27,7 +27,7 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> {
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.PROFILES.getNumber();
     }
 

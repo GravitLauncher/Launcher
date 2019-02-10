@@ -17,7 +17,7 @@ public class SetProfileRequest extends Request<Boolean> {
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.SETPROFILE.getNumber();
     }
 

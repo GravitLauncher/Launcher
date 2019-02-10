@@ -30,7 +30,7 @@ public final class ProfileByUUIDRequest extends Request<ProfileByUUIDRequestEven
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.PROFILE_BY_UUID.getNumber();
     }
 

@@ -32,7 +32,7 @@ public final class CheckServerRequest extends Request<CheckServerRequestEvent> {
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.CHECK_SERVER.getNumber();
     }
 

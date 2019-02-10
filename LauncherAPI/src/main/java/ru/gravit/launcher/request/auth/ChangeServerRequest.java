@@ -10,7 +10,7 @@ import java.net.InetSocketAddress;
 
 public class ChangeServerRequest extends Request<ChangeServerRequest.Result> {
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.CHANGESERVER.getNumber();
     }
 

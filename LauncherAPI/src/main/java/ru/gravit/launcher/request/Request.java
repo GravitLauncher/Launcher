@@ -44,7 +44,7 @@ public abstract class Request<R> {
     }
 
     @LauncherAPI
-    public abstract Integer getType();
+    public abstract Integer getLegacyType();
 
     @LauncherAPI
     protected final void readError(HInput input) throws IOException {
@@ -81,7 +81,7 @@ public abstract class Request<R> {
         output.writeInt(Launcher.PROTOCOL_MAGIC);
         output.writeBigInteger(config.publicKey.getModulus(), SecurityHelper.RSA_KEY_LENGTH + 1);
         output.writeLong(session);
-        output.writeVarInt(getType());
+        output.writeVarInt(getLegacyType());
         output.flush();
 
         // Verify is accepted

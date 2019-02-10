@@ -34,7 +34,7 @@ public final class JoinServerRequest extends Request<JoinServerRequestEvent> {
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.JOIN_SERVER.getNumber();
     }
 
