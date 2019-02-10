@@ -34,6 +34,7 @@ public final class AuthRequest extends Request<Result> {
     private final byte[] encryptedPassword;
     private final int auth_id;
     private final HWID hwid;
+    private final String customText;
 
     @LauncherAPI
     public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, HWID hwid) {
@@ -41,6 +42,16 @@ public final class AuthRequest extends Request<Result> {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
         this.hwid = hwid;
+        customText = "";
+        auth_id = 0;
+    }
+    @LauncherAPI
+    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, HWID hwid, String customText) {
+        super(config);
+        this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
+        this.encryptedPassword = encryptedPassword.clone();
+        this.hwid = hwid;
+        this.customText = customText;
         auth_id = 0;
     }
 
@@ -51,6 +62,16 @@ public final class AuthRequest extends Request<Result> {
         this.encryptedPassword = encryptedPassword.clone();
         this.hwid = hwid;
         this.auth_id = auth_id;
+        customText = "";
+    }
+    @LauncherAPI
+    public AuthRequest(LauncherConfig config, String login, byte[] encryptedPassword, HWID hwid, String customText, int auth_id) {
+        super(config);
+        this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
+        this.encryptedPassword = encryptedPassword.clone();
+        this.hwid = hwid;
+        this.auth_id = auth_id;
+        this.customText = customText;
     }
 
     @LauncherAPI
@@ -97,6 +118,7 @@ public final class AuthRequest extends Request<Result> {
         //output.writeLong(0);
         //output.writeLong(0);
         output.writeByteArray(encryptedPassword, SecurityHelper.CRYPTO_MAX_LENGTH);
+        output.writeString(customText, SerializeLimits.MAX_CUSTOM_TEXT);
         output.flush();
 
         // Read UUID and access token

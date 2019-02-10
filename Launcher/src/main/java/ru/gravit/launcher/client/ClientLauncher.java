@@ -302,6 +302,7 @@ public final class ClientLauncher {
             ClientProfile profile, Params params, boolean pipeOutput) throws Throwable {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
+        ClientLauncherContext context = new ClientLauncherContext();
         CommonHelper.newThread("Client params writter", false, () ->
         {
             try {
@@ -333,53 +334,49 @@ public final class ClientLauncher {
             }
         }).start();
         checkJVMBitsAndVersion();
-        // Fill CLI arguments
-        List<String> args = new LinkedList<>();
-        boolean wrapper = isUsingWrapper();
         LogHelper.debug("Resolving JVM binary");
         Path javaBin = LauncherGuardManager.getGuardJavaBinPath();
-        args.add(javaBin.toString());
-        args.add(MAGICAL_INTEL_OPTION);
+        context.javaBin = javaBin;
+        context.clientProfile = profile;
+        context.playerProfile = params.pp;
+        context.args.add(javaBin.toString());
+        context.args.add(MAGICAL_INTEL_OPTION);
         if (params.ram > 0 && params.ram <= JVMHelper.RAM) {
-            args.add("-Xms" + params.ram + 'M');
-            args.add("-Xmx" + params.ram + 'M');
+            context.args.add("-Xms" + params.ram + 'M');
+            context.args.add("-Xmx" + params.ram + 'M');
         }
-        args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
-        args.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled())));
-        args.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, Boolean.toString(LogHelper.isDevEnabled())));
+        context.args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
+        context.args.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled())));
+        context.args.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, Boolean.toString(LogHelper.isDevEnabled())));
         if (LauncherConfig.ADDRESS_OVERRIDE != null)
-            args.add(JVMHelper.jvmProperty(LauncherConfig.ADDRESS_OVERRIDE_PROPERTY, LauncherConfig.ADDRESS_OVERRIDE));
+            context.args.add(JVMHelper.jvmProperty(LauncherConfig.ADDRESS_OVERRIDE_PROPERTY, LauncherConfig.ADDRESS_OVERRIDE));
         if (JVMHelper.OS_TYPE == OS.MUSTDIE) {
             if (JVMHelper.OS_VERSION.startsWith("10.")) {
                 LogHelper.debug("MustDie 10 fix is applied");
-                args.add(JVMHelper.jvmProperty("os.name", "Windows 10"));
-                args.add(JVMHelper.jvmProperty("os.version", "10.0"));
+                context.args.add(JVMHelper.jvmProperty("os.name", "Windows 10"));
+                context.args.add(JVMHelper.jvmProperty("os.version", "10.0"));
             }
-            args.add(JVMHelper.systemToJvmProperty("avn32"));
-            args.add(JVMHelper.systemToJvmProperty("avn64"));
+            context.args.add(JVMHelper.systemToJvmProperty("avn32"));
+            context.args.add(JVMHelper.systemToJvmProperty("avn64"));
         }
         // Add classpath and main class
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
-        Collections.addAll(args, profile.getJvmArgs());
-        profile.pushOptionalJvmArgs(args);
-        Collections.addAll(args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
-        Collections.addAll(args, "-javaagent:".concat(pathLauncher));
-        if (wrapper)
-            Collections.addAll(args, "-Djava.class.path=".concat(pathLauncher)); // Add Class Path
-        else {
-            Collections.addAll(args, "-cp");
-            Collections.addAll(args, pathLauncher);
-        }
-        Collections.addAll(args, ClientLauncher.class.getName());
+        context.pathLauncher = pathLauncher;
+        Collections.addAll(context.args, profile.getJvmArgs());
+        profile.pushOptionalJvmArgs(context.args);
+        Collections.addAll(context.args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
+        Collections.addAll(context.args, "-javaagent:".concat(pathLauncher));
+        LauncherGuardManager.guard.addCustomParams(context);
+        Collections.addAll(context.args, ClientLauncher.class.getName());
 
         // Print commandline debug message
-        LogHelper.debug("Commandline: " + args);
+        LogHelper.debug("Commandline: " + context.args);
 
         // Build client process
         LogHelper.debug("Launching client instance");
-        ProcessBuilder builder = new ProcessBuilder(args);
-        if (wrapper)
-            builder.environment().put("JAVA_HOME", System.getProperty("java.home"));
+        ProcessBuilder builder = new ProcessBuilder(context.args);
+        context.builder = builder;
+        LauncherGuardManager.guard.addCustomEnv(context);
         //else
         //builder.environment().put("CLASSPATH", classPathString.toString());
         EnvHelper.addEnv(builder);
