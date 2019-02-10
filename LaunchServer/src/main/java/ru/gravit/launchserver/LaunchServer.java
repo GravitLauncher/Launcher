@@ -185,6 +185,8 @@ public final class LaunchServer implements Runnable {
     {
         public String bindAddress;
         public int port;
+        public String launcherURL;
+        public String launcherEXEURL;
     }
     public class GuardLicenseConf
     {

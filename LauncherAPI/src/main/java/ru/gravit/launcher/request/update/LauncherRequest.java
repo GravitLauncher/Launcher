@@ -17,6 +17,10 @@ import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +50,16 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
         builder.inheritIO();
 
         // Rewrite and start new instance
-        IOHelper.write(BINARY_PATH, result.binary);
+        if(result.binary != null)
+            IOHelper.write(BINARY_PATH, result.binary);
+        else
+        {
+             URLConnection connection = IOHelper.newConnection(new URL(result.url));
+             connection.connect();
+             try(OutputStream stream = connection.getOutputStream()) {
+                 IOHelper.transfer(BINARY_PATH, stream);
+             }
+        }
         builder.start();
 
         // Kill current instance
@@ -62,7 +75,8 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     @Override
     public LauncherRequestEvent requestWebSockets() throws Exception
     {
-        return (LauncherRequestEvent) LegacyRequestBridge.sendRequest(this);
+        LauncherRequestEvent result = (LauncherRequestEvent) LegacyRequestBridge.sendRequest(this);
+        return result;
     }
 
     @LauncherAPI

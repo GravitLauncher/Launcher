@@ -17,8 +17,8 @@ public class LauncherResponse implements JsonResponseInterface {
     public byte[] digest;
     public int launcher_type;
     //REPLACED TO REAL URL
-    public static final String JAR_URL = "http://localhost:9752/Launcher.jar";
-    public static final String EXE_URL = "http://localhost:9752/Launcher.exe";
+    public static final String JAR_URL = LaunchServer.server.config.netty.launcherURL;
+    public static final String EXE_URL = LaunchServer.server.config.netty.launcherEXEURL;
 
     @Override
     public String getType() {
