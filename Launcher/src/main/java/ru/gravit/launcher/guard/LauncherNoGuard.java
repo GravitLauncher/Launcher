@@ -6,7 +6,6 @@ import ru.gravit.utils.helper.LogHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.Collections;
 
 public class LauncherNoGuard implements LauncherGuardInterface {
