@@ -1,11 +1,9 @@
 package ru.gravit.launcher.events.request;
 
 import ru.gravit.launcher.LauncherNetworkAPI;
-import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.utils.event.EventInterface;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 

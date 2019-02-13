@@ -12,9 +12,7 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 
 public final class UpdateListRequest extends Request<UpdateListRequestEvent> implements RequestInterface {
     @LauncherAPI
