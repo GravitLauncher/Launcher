@@ -17,7 +17,7 @@ public final class MojangAuthProvider extends AuthProvider {
 
     static {
         try {
-            URL = new URL("https://authserver.com.mojang.com/authenticate");
+            URL = new URL("https://authserver.mojang.com/authenticate");
         } catch (MalformedURLException e) {
             throw new InternalError(e);
         }
