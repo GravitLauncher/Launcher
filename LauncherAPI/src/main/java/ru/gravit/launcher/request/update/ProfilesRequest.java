@@ -13,7 +13,6 @@ import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public final class ProfilesRequest extends Request<ProfilesRequestEvent> implements RequestInterface {

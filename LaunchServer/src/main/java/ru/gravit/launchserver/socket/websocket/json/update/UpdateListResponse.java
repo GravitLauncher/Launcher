@@ -12,7 +12,6 @@ import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class UpdateListResponse implements JsonResponseInterface {
 
