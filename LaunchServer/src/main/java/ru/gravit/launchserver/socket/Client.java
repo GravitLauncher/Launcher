@@ -14,7 +14,7 @@ public class Client {
     public boolean checkSign;
     public ClientPermissions permissions;
     public String username;
-    public LogHelper.Output logOutput;
+    public LogHelper.OutputEnity logOutput;
 
     public Client(long session) {
         this.session = session;
