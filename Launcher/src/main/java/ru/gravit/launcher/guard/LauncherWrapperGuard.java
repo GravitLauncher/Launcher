@@ -31,6 +31,11 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
     }
 
     @Override
+    public int getClientJVMBits() {
+        return JVMHelper.JVM_BITS;
+    }
+
+    @Override
     public void init(boolean clientInstance) {
         try {
             String wrapperName = JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe";

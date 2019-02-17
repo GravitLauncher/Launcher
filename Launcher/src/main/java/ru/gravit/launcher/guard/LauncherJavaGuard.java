@@ -24,6 +24,11 @@ public class LauncherJavaGuard implements LauncherGuardInterface {
     }
 
     @Override
+    public int getClientJVMBits() {
+        return JVMHelper.OS_BITS;
+    }
+
+    @Override
     public void init(boolean clientInstance) {
 
     }
