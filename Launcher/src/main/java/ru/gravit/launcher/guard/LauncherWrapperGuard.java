@@ -9,8 +9,6 @@ import ru.gravit.utils.helper.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -30,6 +28,11 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
         }
         else
             return IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
+    }
+
+    @Override
+    public int getClientJVMBits() {
+        return JVMHelper.JVM_BITS;
     }
 
     @Override

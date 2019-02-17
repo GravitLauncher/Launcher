@@ -7,7 +7,6 @@ import ru.gravit.utils.helper.JVMHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.Collections;
 
 public class LauncherJavaGuard implements LauncherGuardInterface {
@@ -22,6 +21,11 @@ public class LauncherJavaGuard implements LauncherGuardInterface {
             return IOHelper.resolveJavaBin(ClientLauncher.getJavaBinPath());
         else
             return IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
+    }
+
+    @Override
+    public int getClientJVMBits() {
+        return JVMHelper.OS_BITS;
     }
 
     @Override

@@ -21,7 +21,7 @@ public abstract class CustomRequest<T> extends Request<T> {
     public abstract String getName();
 
     @Override
-    public final Integer getType() {
+    public final Integer getLegacyType() {
         return 255;
     }
 

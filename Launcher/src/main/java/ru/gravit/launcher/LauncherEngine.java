@@ -71,8 +71,6 @@ public class LauncherEngine {
             throw new IllegalStateException("Launcher has been already started");
         Launcher.modulesManager.initModules();
         runtimeProvider.preLoad();
-        FunctionalBridge.worker = new RequestWorker();
-        CommonHelper.newThread("Task Worker", true, FunctionalBridge.worker).start();
         FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread", true, FunctionalBridge::getHWID);
         FunctionalBridge.getHWID.start();
         LogHelper.debug("Dir: %s", DirBridge.dir);

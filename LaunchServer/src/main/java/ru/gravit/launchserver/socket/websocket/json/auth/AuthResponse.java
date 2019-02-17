@@ -3,6 +3,7 @@ package ru.gravit.launchserver.socket.websocket.json.auth;
 import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launcher.OshiHWID;
 import ru.gravit.launcher.events.request.AuthRequestEvent;
+import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
@@ -14,8 +15,11 @@ import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -25,6 +29,7 @@ public class AuthResponse implements JsonResponseInterface {
     public String customText;
 
     public String password;
+    public byte[] encryptedPassword;
 
     public AuthResponse(String login, String password, int authid, OshiHWID hwid) {
         this.login = login;
@@ -55,9 +60,18 @@ public class AuthResponse implements JsonResponseInterface {
                 AuthProvider.authError(LaunchServer.server.config.authRejectString);
                 return;
             }
-            if (authType != ConnectTypes.CLIENT &&!clientData.checkSign) {
+            if ((authType == null || authType == ConnectTypes.CLIENT) &&!clientData.checkSign) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
+            }
+            if(password == null)
+            {
+                try {
+                    password = IOHelper.decode(SecurityHelper.newRSADecryptCipher(LaunchServer.server.privateKey).
+                            doFinal(encryptedPassword));
+                } catch (IllegalBlockSizeException | BadPaddingException ignored) {
+                    throw new AuthException("Password decryption error");
+                }
             }
             clientData.permissions = LaunchServer.server.config.permissionsHandler.getPermissions(login);
             if(authType == ConnectTypes.BOT && !clientData.permissions.canBot)
@@ -86,9 +100,9 @@ public class AuthResponse implements JsonResponseInterface {
                     clientData.profile = p;
                 }
             }
-            if (clientData.profile == null) {
-                throw new AuthException("You profile not found");
-            }
+            //if (clientData.profile == null) {
+            //    throw new AuthException("You profile not found");
+            //}
             UUID uuid = LaunchServer.server.config.authHandler.auth(aresult);
             if(authType == ConnectTypes.CLIENT)
                  LaunchServer.server.config.hwidHandler.check(hwid, aresult.username);
@@ -100,7 +114,7 @@ public class AuthResponse implements JsonResponseInterface {
             result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server,uuid,aresult.username,client);
             service.sendObject(ctx, result);
         } catch (AuthException | HWIDException e) {
-            service.sendObject(ctx, new WebSocketService.ErrorResult(e.getMessage()));
+            service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
         }
     }
 

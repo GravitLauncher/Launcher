@@ -5,12 +5,6 @@ import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.client.*;
-import ru.gravit.launcher.gui.choosebox.CheckComboBox;
-import ru.gravit.launcher.gui.choosebox.CheckComboBoxSkin;
-import ru.gravit.launcher.gui.choosebox.CheckModel;
-import ru.gravit.launcher.gui.choosebox.IndexedCheckModel;
-import ru.gravit.launcher.gui.indicator.RingProgressIndicator;
-import ru.gravit.launcher.gui.indicator.RingProgressIndicatorSkin;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
@@ -117,12 +111,6 @@ public class JSRuntimeProvider implements RuntimeProvider {
         try {
             Class.forName("javafx.application.Application");
             bindings.put("JSApplicationClass", JSApplication.class);
-            bindings.put("RingProgressIndicatorClass", RingProgressIndicator.class);
-            bindings.put("RingProgressIndicatorSkinClass", RingProgressIndicatorSkin.class);
-            bindings.put("CheckComboBoxClass", CheckComboBox.class);
-            bindings.put("CheckModelClass", CheckModel.class);
-            bindings.put("IndexedCheckModelClass", IndexedCheckModel.class);
-            bindings.put("CheckComboBoxSkinClass", CheckComboBoxSkin.class);
         } catch (ClassNotFoundException ignored) {
             LogHelper.warning("JavaFX API isn't available");
         }

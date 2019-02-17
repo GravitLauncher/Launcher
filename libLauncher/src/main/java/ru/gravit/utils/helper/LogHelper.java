@@ -35,21 +35,39 @@ public final class LogHelper {
     private static final AtomicBoolean DEBUG_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEBUG_PROPERTY));
     private static final AtomicBoolean STACKTRACE_ENABLED = new AtomicBoolean(Boolean.getBoolean(STACKTRACE_PROPERTY));
     private static final AtomicBoolean DEV_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEV_PROPERTY));
-    private static final Set<Output> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
-    private static final Output STD_OUTPUT;
+    public static class OutputEnity
+    {
+        public Output output;
+        public OutputTypes type;
+
+        public OutputEnity(Output output, OutputTypes type) {
+            this.output = output;
+            this.type = type;
+        }
+    }
+    public enum OutputTypes
+    {
+        PLAIN, JANSI, HTML
+    }
+    private static final Set<OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
+    private static final OutputEnity STD_OUTPUT;
 
     private LogHelper() {
     }
 
     @LauncherAPI
-    public static void addOutput(Output output) {
+    public static void addOutput(OutputEnity output) {
         OUTPUTS.add(Objects.requireNonNull(output, "output"));
+    }
+    @LauncherAPI
+    public static void addOutput(Output output, OutputTypes type) {
+        OUTPUTS.add(new OutputEnity(Objects.requireNonNull(output, "output"),type));
     }
 
     @LauncherAPI
     public static void addOutput(Path file) throws IOException {
         if (JANSI) {
-            addOutput(new JAnsiOutput(IOHelper.newOutput(file, true)));
+            addOutput(new JAnsiOutput(IOHelper.newOutput(file, true)),OutputTypes.JANSI);
         } else {
             addOutput(IOHelper.newWriter(file, true));
         }
@@ -57,7 +75,7 @@ public final class LogHelper {
 
     @LauncherAPI
     public static void addOutput(Writer writer) {
-        addOutput(new WriterOutput(writer));
+        addOutput(new WriterOutput(writer), OutputTypes.PLAIN);
     }
 
     @LauncherAPI
@@ -142,29 +160,87 @@ public final class LogHelper {
     @LauncherAPI
     public static void log(Level level, String message, boolean sub) {
         String dateTime = DATE_TIME_FORMATTER.format(LocalDateTime.now());
-        println(JANSI ? ansiFormatLog(level, dateTime, message, sub) :
-                formatLog(level, message, dateTime, sub));
-    }
+        String jansiString = null, plainString = null;
+        for (OutputEnity output : OUTPUTS) {
+            if(output.type == OutputTypes.JANSI && JANSI)
+            {
+                if(jansiString != null){
+                    output.output.println(jansiString);
+                    continue;
+                }
 
-    @LauncherAPI
-    public static void printVersion(String product) {
-        println(JANSI ? ansiFormatVersion(product) : formatVersion(product));
-    }
+                jansiString = ansiFormatLog(level, dateTime, message, sub);
+                output.output.println(jansiString);
+            }
+            else
+            {
+                if(plainString != null){
+                    output.output.println(plainString);
+                    continue;
+                }
 
-    @LauncherAPI
-    public static void printLicense(String product) {
-        println(JANSI ? ansiFormatLicense(product) : formatLicense(product));
-    }
-
-    @LauncherAPI
-    public static synchronized void println(String message) {
-        for (Output output : OUTPUTS) {
-            output.println(message);
+                plainString = formatLog(level, message, dateTime, sub);
+                output.output.println(plainString);
+            }
         }
     }
 
     @LauncherAPI
-    public static boolean removeOutput(Output output) {
+    public static void printVersion(String product) {
+        String jansiString = null, plainString = null;
+        for (OutputEnity output : OUTPUTS) {
+            if(output.type == OutputTypes.JANSI && JANSI)
+            {
+                if(jansiString != null){
+                    output.output.println(jansiString);
+                    continue;
+                }
+
+                jansiString = ansiFormatVersion(product);
+                output.output.println(jansiString);
+            }
+            else
+            {
+                if(plainString != null){
+                    output.output.println(plainString);
+                    continue;
+                }
+
+                plainString = formatVersion(product);
+                output.output.println(plainString);
+            }
+        }
+    }
+
+    @LauncherAPI
+    public static void printLicense(String product) {
+        String jansiString = null, plainString = null;
+        for (OutputEnity output : OUTPUTS) {
+            if(output.type == OutputTypes.JANSI && JANSI)
+            {
+                if(jansiString != null){
+                    output.output.println(jansiString);
+                    continue;
+                }
+
+                jansiString = ansiFormatLicense(product);
+                output.output.println(jansiString);
+            }
+            else
+            {
+                if(plainString != null){
+                    output.output.println(plainString);
+                    continue;
+                }
+
+                plainString = formatLicense(product);
+                output.output.println(plainString);
+            }
+        }
+    }
+
+    @LauncherAPI
+    public static boolean removeOutput(OutputEnity output) {
         return OUTPUTS.remove(output);
     }
 
@@ -321,7 +397,7 @@ public final class LogHelper {
         JANSI = jansi;
 
         // Add std writer
-        STD_OUTPUT = System.out::println;
+        STD_OUTPUT = new OutputEnity(System.out::println, JANSI ? OutputTypes.JANSI : OutputTypes.PLAIN);
         addOutput(STD_OUTPUT);
 
         // Add file log writer

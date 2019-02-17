@@ -88,7 +88,7 @@ public final class LegacyLauncherRequest extends Request<Result> {
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.LEGACYLAUNCHER.getNumber();
     }
 

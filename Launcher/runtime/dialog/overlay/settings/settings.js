@@ -29,9 +29,9 @@ var settingsClass = Java.extend(LauncherSettingsClass.static, {
 
     setRAM: function(ram) {
 		if (ram>762&&ram<1024){
-        settings.ram = java.lang.Math["min(int,int)"](ram, FunctionalBridge.getTotalMemory());
+        settings.ram = java.lang.Math["min(int,int)"](ram, FunctionalBridge.getJVMTotalMemory());
 		}else{
-        settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, FunctionalBridge.getTotalMemory());
+        settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, FunctionalBridge.getJVMTotalMemory());
 		}
     },
 });

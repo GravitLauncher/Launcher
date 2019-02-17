@@ -2,6 +2,7 @@ package ru.gravit.launchserver.socket;
 
 import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.utils.helper.LogHelper;
 
 public class Client {
     public long session;
@@ -13,6 +14,7 @@ public class Client {
     public boolean checkSign;
     public ClientPermissions permissions;
     public String username;
+    public LogHelper.Output logOutput;
 
     public Client(long session) {
         this.session = session;

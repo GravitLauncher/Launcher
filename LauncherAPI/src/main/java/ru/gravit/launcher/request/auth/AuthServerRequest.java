@@ -71,7 +71,7 @@ public final class AuthServerRequest extends Request<ClientPermissions> {
     }
 
     @Override
-    public Integer getType() {
+    public Integer getLegacyType() {
         return RequestType.SERVERAUTH.getNumber();
     }
 
