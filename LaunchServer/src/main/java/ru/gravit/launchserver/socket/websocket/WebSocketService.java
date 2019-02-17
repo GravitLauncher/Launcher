@@ -17,6 +17,7 @@ import ru.gravit.launchserver.socket.websocket.json.EchoResponse;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseAdapter;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.socket.websocket.json.admin.AddLogListenerResponse;
+import ru.gravit.launchserver.socket.websocket.json.admin.ExecCommandResponse;
 import ru.gravit.launchserver.socket.websocket.json.auth.*;
 import ru.gravit.launchserver.socket.websocket.json.update.LauncherResponse;
 import ru.gravit.launchserver.socket.websocket.json.update.UpdateListResponse;
@@ -75,7 +76,7 @@ public class WebSocketService {
         registerResponse("profiles", ProfilesResponse.class);
         registerResponse("launcher", LauncherResponse.class);
         registerResponse("updateList", UpdateListResponse.class);
-        registerResponse("cmdExec", UpdateListResponse.class);
+        registerResponse("cmdExec", ExecCommandResponse.class);
         registerResponse("setProfile", SetProfileResponse.class);
         registerResponse("addLogListener", AddLogListenerResponse.class);
     }
@@ -97,16 +98,6 @@ public class WebSocketService {
 
     public void sendEvent(EventResult obj) {
         channels.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
-    }
-
-    public static class SuccessResult {
-        public SuccessResult(String requesttype) {
-            this.requesttype = requesttype;
-            this.type = "success";
-        }
-
-        public final String requesttype;
-        public final String type;
     }
 
     public static class EventResult implements ResultInterface {

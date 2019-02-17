@@ -2,6 +2,7 @@ package ru.gravit.launchserver.socket.websocket.json.admin;
 
 import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launcher.events.request.ErrorRequestEvent;
+import ru.gravit.launcher.events.request.ExecCommandRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
@@ -26,6 +27,6 @@ public class ExecCommandResponse implements JsonResponseInterface {
             return;
         }
         LaunchServer.server.commandHandler.eval(cmd, false);
-        service.sendObject(ctx, new WebSocketService.SuccessResult("cmdExec"));
+        service.sendObject(ctx, new ExecCommandRequestEvent(true));
     }
 }

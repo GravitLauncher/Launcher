@@ -38,8 +38,8 @@ public class AddLogListenerResponse implements JsonResponseInterface {
                     service.sendObject(ctx,new LogEvent(str));
                 }
                 else {
-                    LogHelper.info("Client %s remove log listener", client.username);
                     LogHelper.removeOutput(client.logOutput);
+                    LogHelper.info("Client %s remove log listener", client.username);
                 }
             };
             client.logOutput = output;

@@ -60,7 +60,7 @@ public class AuthResponse implements JsonResponseInterface {
                 AuthProvider.authError(LaunchServer.server.config.authRejectString);
                 return;
             }
-            if (authType != ConnectTypes.CLIENT &&!clientData.checkSign) {
+            if ((authType == null || authType == ConnectTypes.CLIENT) &&!clientData.checkSign) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
             }
