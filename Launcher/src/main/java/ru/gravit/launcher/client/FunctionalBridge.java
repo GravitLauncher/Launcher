@@ -3,6 +3,7 @@ package ru.gravit.launcher.client;
 import javafx.concurrent.Task;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hwid.OshiHWIDProvider;
@@ -77,6 +78,24 @@ public class FunctionalBridge {
     @LauncherAPI
     public static long getTotalMemory() {
         return hwidProvider.getTotalMemory() >> 20;
+    }
+
+    @LauncherAPI
+    public static int getClientJVMBits()
+    {
+        return LauncherGuardManager.guard.getClientJVMBits();
+    }
+    @LauncherAPI
+    public static long getJVMTotalMemory()
+    {
+        if(getClientJVMBits() == 32)
+        {
+            return Math.min(getTotalMemory(),1536);
+        }
+        else
+        {
+            return getTotalMemory();
+        }
     }
 
     @LauncherAPI
