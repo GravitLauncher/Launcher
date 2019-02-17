@@ -576,9 +576,9 @@ public final class LaunchServer implements Runnable {
         newConfig.isWarningMissArchJava = true;
 
         // Set server address
-        LogHelper.println("LaunchServer address: ");
+        System.out.println("LaunchServer address: ");
         newConfig.setAddress(commandHandler.readLine());
-        LogHelper.println("LaunchServer projectName: ");
+        System.out.println("LaunchServer projectName: ");
         newConfig.setProjectName(commandHandler.readLine());
 
         // Write LaunchServer config

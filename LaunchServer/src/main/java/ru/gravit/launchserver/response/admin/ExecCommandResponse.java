@@ -30,7 +30,7 @@ public class ExecCommandResponse extends Response {
                 LogHelper.error(e);
             }
         };
-        LogHelper.addOutput(loutput);
+        LogHelper.addOutput(loutput, LogHelper.OutputTypes.PLAIN);
         try {
             server.commandHandler.eval(cmd, false);
             output.writeBoolean(false);

@@ -32,7 +32,7 @@ public final class JLineCommandHandler extends CommandHandler {
 
         // Replace writer
         LogHelper.removeStdOutput();
-        LogHelper.addOutput(new JLineOutput());
+        LogHelper.addOutput(new JLineOutput(), LogHelper.OutputTypes.JANSI);
     }
 
     @Override

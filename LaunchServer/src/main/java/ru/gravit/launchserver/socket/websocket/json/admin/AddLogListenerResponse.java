@@ -9,6 +9,7 @@ import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.utils.helper.LogHelper;
 
 public class AddLogListenerResponse implements JsonResponseInterface {
+    public LogHelper.OutputTypes outputType = LogHelper.OutputTypes.PLAIN;
     @Override
     public String getType() {
         return "addLogListener";
@@ -43,7 +44,7 @@ public class AddLogListenerResponse implements JsonResponseInterface {
                 }
             };
             client.logOutput = output;
-            LogHelper.addOutput(output);
+            LogHelper.addOutput(output, outputType);
         }
     }
 }
