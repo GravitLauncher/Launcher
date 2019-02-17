@@ -43,8 +43,8 @@ public class AddLogListenerResponse implements JsonResponseInterface {
                     LogHelper.info("Client %s remove log listener", client.username);
                 }
             };
-            client.logOutput = output;
-            LogHelper.addOutput(output, outputType);
+            client.logOutput = new LogHelper.OutputEnity(output,outputType);
+            LogHelper.addOutput(client.logOutput);
         }
     }
 }

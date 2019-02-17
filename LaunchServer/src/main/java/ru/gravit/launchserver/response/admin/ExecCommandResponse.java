@@ -22,15 +22,15 @@ public class ExecCommandResponse extends Response {
             requestError("Access denied");
         writeNoError(output);
         String cmd = input.readString(SerializeLimits.MAX_COMMAND);
-        LogHelper.Output loutput = message -> {
+        LogHelper.OutputEnity loutput = new LogHelper.OutputEnity(message -> {
             try {
                 output.writeBoolean(true);
                 output.writeString(message, SerializeLimits.MAX_COMMAND);
             } catch (IOException e) {
                 LogHelper.error(e);
             }
-        };
-        LogHelper.addOutput(loutput, LogHelper.OutputTypes.PLAIN);
+        }, LogHelper.OutputTypes.PLAIN);
+        LogHelper.addOutput(loutput);
         try {
             server.commandHandler.eval(cmd, false);
             output.writeBoolean(false);
