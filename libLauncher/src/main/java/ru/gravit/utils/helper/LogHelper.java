@@ -50,7 +50,7 @@ public final class LogHelper {
         PLAIN, JANSI, HTML
     }
     private static final Set<OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
-    private static final Output STD_OUTPUT;
+    private static final OutputEnity STD_OUTPUT;
 
     private LogHelper() {
     }
@@ -240,7 +240,7 @@ public final class LogHelper {
     }
 
     @LauncherAPI
-    public static boolean removeOutput(Output output) {
+    public static boolean removeOutput(OutputEnity output) {
         return OUTPUTS.remove(output);
     }
 
@@ -397,8 +397,8 @@ public final class LogHelper {
         JANSI = jansi;
 
         // Add std writer
-        STD_OUTPUT = System.out::println;
-        addOutput(STD_OUTPUT, JANSI ? OutputTypes.JANSI : OutputTypes.PLAIN);
+        STD_OUTPUT = new OutputEnity(System.out::println, JANSI ? OutputTypes.JANSI : OutputTypes.PLAIN);
+        addOutput(STD_OUTPUT);
 
         // Add file log writer
         String logFile = System.getProperty("launcher.logFile");
