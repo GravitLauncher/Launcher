@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public class LauncherSettings {
-    public static int settingsMagic = 0xc0de9;
+    public static int settingsMagic = 0xc0dea;
     @LauncherAPI
     public Path file = DirBridge.dir.resolve("settings.bin");
     @LauncherAPI
