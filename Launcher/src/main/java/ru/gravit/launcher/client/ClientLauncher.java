@@ -298,7 +298,7 @@ public final class ClientLauncher {
 
     @LauncherAPI
     public static Process launch(
-            SignedObjectHolder<HashedDir> assetHDir, SignedObjectHolder<HashedDir> clientHDir,
+            HashedDir assetHDir, HashedDir clientHDir,
             ClientProfile profile, Params params, boolean pipeOutput) throws Throwable {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
@@ -478,7 +478,7 @@ public final class ClientLauncher {
     }
 
     @LauncherAPI
-    public void launchLocal(SignedObjectHolder<HashedDir> assetHDir, SignedObjectHolder<HashedDir> clientHDir,
+    public void launchLocal(HashedDir assetHDir, HashedDir clientHDir,
                             ClientProfile profile, Params params) throws Throwable {
         RSAPublicKey publicKey = Launcher.getConfig().publicKey;
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
@@ -497,17 +497,17 @@ public final class ClientLauncher {
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
-        try (DirWatcher assetWatcher = new DirWatcher(params.assetDir, assetHDir.object, assetMatcher, digest);
-             DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir.object, clientMatcher, digest)) {
+        try (DirWatcher assetWatcher = new DirWatcher(params.assetDir, assetHDir, assetMatcher, digest);
+             DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir, clientMatcher, digest)) {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
-            HashedDir hdir = clientHDir.object;
+            HashedDir hdir = clientHDir;
             //for (OptionalFile s : Launcher.profile.getOptional()) {
             //    if (params.updateOptional.contains(s)) s.mark = true;
             //    else hdir.removeR(s.file);
             //}
             Launcher.profile.pushOptionalFile(hdir,false);
-            verifyHDir(params.assetDir, assetHDir.object, assetMatcher, digest);
+            verifyHDir(params.assetDir, assetHDir, assetMatcher, digest);
             verifyHDir(params.clientDir, hdir, clientMatcher, digest);
             Launcher.modulesManager.postInitModules();
             // Start WatchService, and only then client
