@@ -33,21 +33,21 @@ public class LegacyRequestBridge {
         }
         return result;
     }
-    public static void initWebSockets(String address, int port)
+    public static void initWebSockets(String address)
     {
-        service = new ClientWebSocketService(new GsonBuilder(), address, port, 5000);
+        service = new ClientWebSocketService(new GsonBuilder(), address, 5000);
         service.registerResults();
         service.registerRequests();
         service.registerHandler(waitEventHandler);
         try {
             if(!service.connectBlocking()) LogHelper.error("Error connecting");
-            LogHelper.debug("Connect to %s:%d",address,port);
+            LogHelper.debug("Connect to %s",address);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
     static {
         if(Launcher.getConfig().nettyPort != 0)
-            initWebSockets(Launcher.getConfig().address.getHostName(),Launcher.getConfig().nettyPort);
+            initWebSockets(Launcher.getConfig().nettyAddress);
     }
 }

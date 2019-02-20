@@ -58,7 +58,7 @@ public abstract class Request<R> {
         if (!started.compareAndSet(false, true))
             throw new IllegalStateException("Request already started");
         R wsResult = null;
-        if(config.nettyPort != 0)
+        if(config.isNettyEnabled)
             wsResult = requestWebSockets();
         if(wsResult != null) return wsResult;
         // Make request to LaunchServer
