@@ -70,6 +70,11 @@ public class JAConfigurator implements AutoCloseable {
         body.append(address);
         body.append("\";");
     }
+    public void setNettyAddress(String address) {
+        body.append("this.nettyAddress = \"");
+        body.append(address);
+        body.append("\";");
+    }
 
     public void setProjectName(String name) {
         body.append("this.projectname = \"");
@@ -131,6 +136,11 @@ public class JAConfigurator implements AutoCloseable {
 
     public void setDownloadJava(boolean b) {
         body.append("this.isDownloadJava = ");
+        body.append(b ? "true" : "false");
+        body.append(";");
+    }
+    public void setNettyEnabled(boolean b) {
+        body.append("this.isNettyEnabled = ");
         body.append(b ? "true" : "false");
         body.append(";");
     }

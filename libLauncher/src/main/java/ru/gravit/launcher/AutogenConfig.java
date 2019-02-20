@@ -3,6 +3,7 @@ package ru.gravit.launcher;
 public class AutogenConfig {
     public String projectname;
     public String address;
+    public String nettyAddress;
     public int port;
     public int nettyPort;
     public int clientPort;
@@ -10,6 +11,7 @@ public class AutogenConfig {
     private boolean isInitModules;
     public boolean isUsingWrapper;
     public boolean isDownloadJava; //Выставление этого флага требует модификации runtime части
+    public boolean isNettyEnabled;
     public String secretKeyClient;
     public String guardLicenseName;
     public String guardLicenseKey;
