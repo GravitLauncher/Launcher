@@ -544,7 +544,7 @@ public final class LaunchServer implements Runnable {
         // Create new config
         LogHelper.info("Creating LaunchServer config");
         Config newConfig = new Config();
-        newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/"};
+        newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/","https://mirror.gravit.pro/"};
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.copyright = "© GravitLauncher Team";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Launcher.getVersion().getVersionString());
@@ -570,7 +570,7 @@ public final class LaunchServer implements Runnable {
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
         newConfig.netty = new NettyConfig();
-        newConfig.netty.address = "ws://localhost:9274";
+        newConfig.netty.address = "ws://localhost:9274/api";
         newConfig.netty.clientEnabled = false;
         newConfig.netty.port = 9274;
 
