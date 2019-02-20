@@ -237,7 +237,7 @@ var digest = profile.isUpdateFastCheck();
             makeSetProfileRequest(profile, function() {
                 ClientLauncher.setProfile(profile);
                 makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
-                    settings.lastHDirs.put(assetDirName, assetHDir);
+                    settings.lastHDirs.put(assetDirName, assetHDir.hdir);
 
                     // Update client dir
                     update.resetOverlay("Обновление файлов клиента");
@@ -245,7 +245,7 @@ var digest = profile.isUpdateFastCheck();
                     var clientDir = settings.updatesDir.resolve(clientDirName);
                     var clientMatcher = profile.getClientUpdateMatcher();
                     makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
-                        settings.lastHDirs.put(clientDirName, clientHDir);
+                        settings.lastHDirs.put(clientDirName, clientHDir.hdir);
                         doLaunchClient(assetDir, assetHDir, clientDir, clientHDir, profile, pp, accessToken);
                     });
                 });

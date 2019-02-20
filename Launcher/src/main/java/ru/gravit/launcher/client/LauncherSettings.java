@@ -46,7 +46,7 @@ public class LauncherSettings {
     @LauncherAPI
     public List<ClientProfile> lastProfiles = new LinkedList<>();
     @LauncherAPI
-    public Map<String, SignedObjectHolder<HashedDir>> lastHDirs = new HashMap<>(16);
+    public Map<String, HashedDir> lastHDirs = new HashMap<>(16);
 
     @LauncherAPI
     public void load() throws SignatureException {
@@ -103,7 +103,6 @@ public class LauncherSettings {
         setRAM(input.readLength(JVMHelper.RAM));
 
         // Offline cache
-        RSAPublicKey publicKey = Launcher.getConfig().publicKey;
         lastDigest = input.readBoolean() ? input.readByteArray(0) : null;
         lastProfiles.clear();
         int lastProfilesCount = input.readLength(0);
@@ -114,8 +113,6 @@ public class LauncherSettings {
         int lastHDirsCount = input.readLength(0);
         for (int i = 0; i < lastHDirsCount; i++) {
             String name = IOHelper.verifyFileName(input.readString(255));
-            VerifyHelper.putIfAbsent(lastHDirs, name, new SignedObjectHolder<>(input, publicKey, HashedDir::new),
-                    java.lang.String.format("Duplicate offline hashed dir: '%s'", name));
         }
     }
 
@@ -153,7 +150,7 @@ public class LauncherSettings {
             output.writeString(Launcher.gson.toJson(profile), 0);
         }
         output.writeLength(lastHDirs.size(), 0);
-        for (Map.Entry<String, SignedObjectHolder<HashedDir>> entry : lastHDirs.entrySet()) {
+        for (Map.Entry<String, HashedDir> entry : lastHDirs.entrySet()) {
             output.writeString(entry.getKey(), 0);
             entry.getValue().write(output);
         }
