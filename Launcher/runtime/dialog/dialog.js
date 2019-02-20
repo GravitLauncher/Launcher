@@ -246,7 +246,7 @@ var digest = profile.isUpdateFastCheck();
                     var clientMatcher = profile.getClientUpdateMatcher();
                     makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
                         settings.lastHDirs.put(clientDirName, clientHDir.hdir);
-                        doLaunchClient(assetDir, assetHDir, clientDir, clientHDir, profile, pp, accessToken);
+                        doLaunchClient(assetDir, assetHDir.hdir, clientDir, clientHDir.hdir, profile, pp, accessToken);
                     });
                 });
             });
