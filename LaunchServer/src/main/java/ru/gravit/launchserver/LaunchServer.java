@@ -569,6 +569,11 @@ public final class LaunchServer implements Runnable {
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
+        newConfig.netty = new NettyConfig();
+        newConfig.netty.address = "ws://localhost:9274";
+        newConfig.netty.clientEnabled = false;
+        newConfig.netty.port = 9274;
+
         newConfig.threadCoreCount = 0; // on your own
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
 
