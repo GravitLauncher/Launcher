@@ -466,12 +466,12 @@ public final class ClientLauncher {
             //    else hdir.removeR(s.file);
             //}
             Launcher.profile.pushOptionalFile(clientHDir,false);
-            verifyHDir(params.assetDir, assetHDir, assetMatcher, digest);
-            verifyHDir(params.clientDir, clientHDir, clientMatcher, digest);
             Launcher.modulesManager.postInitModules();
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
+            verifyHDir(params.assetDir, assetHDir, assetMatcher, digest);
+            verifyHDir(params.clientDir, clientHDir, clientMatcher, digest);
             launch(profile, params);
         }
     }
