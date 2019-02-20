@@ -411,7 +411,7 @@ public final class ClientLauncher {
         LogHelper.debug("Reading ClientLauncher params");
         Params params;
         ClientProfile profile;
-        SignedObjectHolder<HashedDir> assetHDir, clientHDir;
+        HashedDir assetHDir, clientHDir;
         RSAPublicKey publicKey = Launcher.getConfig().publicKey;
         try {
             try (Socket socket = IOHelper.newSocket()) {
@@ -421,8 +421,8 @@ public final class ClientLauncher {
                     profile = gson.fromJson(input.readString(0), ClientProfile.class);
 
                     // Read hdirs
-                    assetHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
-                    clientHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
+                    assetHDir = new HashedDir(input);
+                    clientHDir = new HashedDir(input);
                 }
             }
         } catch (IOException ex) {
@@ -457,18 +457,17 @@ public final class ClientLauncher {
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
-        try (DirWatcher assetWatcher = new DirWatcher(params.assetDir, assetHDir.object, assetMatcher, digest);
-             DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir.object, clientMatcher, digest)) {
+        try (DirWatcher assetWatcher = new DirWatcher(params.assetDir, assetHDir, assetMatcher, digest);
+             DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir, clientMatcher, digest)) {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
-            HashedDir hdir = clientHDir.object;
             //for (OptionalFile s : Launcher.profile.getOptional()) {
             //    if (params.updateOptional.contains(s)) s.mark = true;
             //    else hdir.removeR(s.file);
             //}
-            Launcher.profile.pushOptionalFile(hdir,false);
-            verifyHDir(params.assetDir, assetHDir.object, assetMatcher, digest);
-            verifyHDir(params.clientDir, hdir, clientMatcher, digest);
+            Launcher.profile.pushOptionalFile(clientHDir,false);
+            verifyHDir(params.assetDir, assetHDir, assetMatcher, digest);
+            verifyHDir(params.clientDir, clientHDir, clientMatcher, digest);
             Launcher.modulesManager.postInitModules();
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
