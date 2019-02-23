@@ -113,6 +113,8 @@ public class LauncherSettings {
         int lastHDirsCount = input.readLength(0);
         for (int i = 0; i < lastHDirsCount; i++) {
             String name = IOHelper.verifyFileName(input.readString(255));
+            HashedDir hdir = new HashedDir(input);
+            lastHDirs.put(name,hdir);
         }
     }
 
