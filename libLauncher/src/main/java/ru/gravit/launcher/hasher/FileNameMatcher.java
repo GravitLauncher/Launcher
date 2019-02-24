@@ -9,14 +9,15 @@ public final class FileNameMatcher {
     private static final String[] NO_ENTRIES = new String[0];
 
     private static boolean anyMatch(String[] entries, Collection<String> path) {
-        return path.stream().anyMatch(e -> Arrays.stream(entries).anyMatch(p -> p.endsWith(e)));
-        //for(String p : path)
-        //{
-        //    for(String e : entries)
-        //    {
-        //        if(p.endsWith(e)) return true;
-        //    }
-        //}
+        //return path.stream().anyMatch(e -> Arrays.stream(entries).anyMatch(p -> p.endsWith(e)));
+        for(String p : path)
+        {
+            for(String e : entries)
+            {
+                if(p.endsWith(e)) return true;
+            }
+        }
+        return false;
     }
 
     // Instance
