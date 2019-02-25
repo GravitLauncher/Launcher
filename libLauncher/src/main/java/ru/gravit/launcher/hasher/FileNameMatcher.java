@@ -1,9 +1,6 @@
 package ru.gravit.launcher.hasher;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.helper.LogHelper;
-
-import java.util.Arrays;
 import java.util.Collection;
 
 public final class FileNameMatcher {
