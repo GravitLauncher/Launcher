@@ -14,7 +14,6 @@ import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.*;
@@ -412,7 +411,6 @@ public final class ClientLauncher {
         Params params;
         ClientProfile profile;
         HashedDir assetHDir, clientHDir;
-        RSAPublicKey publicKey = Launcher.getConfig().publicKey;
         try {
             try (Socket socket = IOHelper.newSocket()) {
                 socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));

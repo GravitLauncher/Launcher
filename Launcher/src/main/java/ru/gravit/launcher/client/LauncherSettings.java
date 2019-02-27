@@ -6,7 +6,6 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.helper.*;
 
 import javax.crypto.BadPaddingException;
@@ -14,7 +13,6 @@ import javax.crypto.IllegalBlockSizeException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.SignatureException;
-import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
