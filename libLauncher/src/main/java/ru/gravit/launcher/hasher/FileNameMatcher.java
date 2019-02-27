@@ -11,13 +11,14 @@ public final class FileNameMatcher {
 
     private static boolean anyMatch(String[] entries, Collection<String> path) {
         //return path.stream().anyMatch(e -> Arrays.stream(entries).anyMatch(p -> p.endsWith(e)));
+        String jpath = String.join("/", path);
         for(String e : entries)
         {
-            String[] split = e.split("/");
-            int index = 0;
-            for(String p : path)
-            {
-                if(index>=split.length)
+            /*String[] split = e.split("/");
+            //int index = 0;
+            //for(String p : path)
+            //{
+            //    if(index>=split.length)
                 {
                     return true;
                 }
@@ -25,7 +26,8 @@ public final class FileNameMatcher {
                     break;
                 }
                 index++;
-            }
+            }*/
+            if(jpath.startsWith(e)) return true;
         }
         return false;
     }
