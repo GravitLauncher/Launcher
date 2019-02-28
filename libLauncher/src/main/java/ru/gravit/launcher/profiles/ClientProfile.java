@@ -266,13 +266,14 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         if (file.dependencies != null) {
             for (OptionalFile f : file.dependencies) {
                 if (!f.mark) continue;
-                if (f.dependenciesCount == null) {
+                unmarkOptional(f);
+                /*if (f.dependenciesCount == null) {
                     unmarkOptional(f);
                 } else if (f.dependenciesCount.size() <= 1) {
                     f.dependenciesCount.clear();
                     f.dependenciesCount = null;
                     unmarkOptional(f);
-                }
+                }*/
             }
         }
     }
