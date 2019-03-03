@@ -121,8 +121,8 @@ public final class DirWatcher implements Runnable, AutoCloseable {
 
             // Resolve paths and verify is not exclusion
             Path path = watchDir.resolve((Path) event.context());
-            LogHelper.debug("DirWatcher event %s", path.toString());
             Deque<String> stringPath = toPath(dir.relativize(path));
+            LogHelper.debug("DirWatcher event %s", String.join("/", stringPath));
             if (matcher != null && !matcher.shouldVerify(stringPath))
                 continue; // Exclusion; should not be verified
 
