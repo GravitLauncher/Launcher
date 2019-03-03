@@ -40,9 +40,9 @@ public final class DirWatcher implements Runnable, AutoCloseable {
 
             // Maybe it's unnecessary to go deeper
             path.add(IOHelper.getFileName(dir));
-            if (matcher != null && !matcher.shouldVerify(path)) {
-                return FileVisitResult.SKIP_SUBTREE;
-            }
+            //if (matcher != null && !matcher.shouldVerify(path)) {
+            //    return FileVisitResult.SKIP_SUBTREE;
+            //}
 
             // Register
             dir.register(service, KINDS);
