@@ -125,13 +125,12 @@ public final class DirWatcher implements Runnable, AutoCloseable {
             LogHelper.debug("DirWatcher event %s", String.join("/", stringPath));
             if (matcher != null && !matcher.shouldVerify(stringPath))
                 continue; // Exclusion; should not be verified
-
             // Verify is REALLY modified (not just attributes)
-            if (kind.equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
-                HashedEntry entry = hdir.resolve(stringPath);
-                if (entry != null && (entry.getType() != Type.FILE || ((HashedFile) entry).isSame(path, digest)))
-                    continue; // Modified attributes, not need to worry :D
-            }
+            //if (kind.equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
+            //    HashedEntry entry = hdir.resolve(stringPath);
+            //    if (entry != null && (entry.getType() != Type.FILE || ((HashedFile) entry).isSame(path, digest)))
+            //        continue; // Modified attributes, not need to worry :D
+            //}
 
             // Forbidden modification!
             throw new SecurityException(String.format("Forbidden modification (%s, %d times): '%s'", kind, event.count(), path));
