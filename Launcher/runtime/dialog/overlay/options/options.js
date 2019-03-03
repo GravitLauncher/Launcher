@@ -100,7 +100,7 @@ var options = {
             var checkBoxList = new java.util.ArrayList;
             list.forEach(function(modFile) {
                         var modName = modFile.name, modDescription = "", subLevel = 1;
-                        if(!modFile.isVisible)
+                        if(!modFile.visible)
                         {
                             LogHelper.debug("optionalMod %s hidden",modFile.name);
                             return;
