@@ -84,7 +84,6 @@ task launch4jM(type: Copy) {
 	includeEmptyDirs false
 	eachFile { FileCopyDetails fcp ->
 		if (fcp.relativePath.pathString.startsWith("launch4j-")) {
-			// remap the file to the root
 			def segments = fcp.relativePath.segments
 			def pathSegments = segments[1..-1] as String[]
 			fcp.relativePath = new RelativePath(!fcp.file.isDirectory(), pathSegments)
@@ -117,7 +116,7 @@ task dumpLibs(type: Copy) {
 
 task bundle(type: Zip) {
 	dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.jar
-	archiveName 'bundle.zip'
+	archiveName 'LaunchServer.zip'
 	destinationDir file("$buildDir")
 	from(tasks.dumpLibs.destinationDir) { into 'libraries' }
 	from tasks.jar.archivePath
