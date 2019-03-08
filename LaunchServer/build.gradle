@@ -21,7 +21,7 @@ configurations {
 	launch4j
 	launch4jCJ
 	bundleOnly.extendsFrom bundle
-	compile.extendsFrom bundle, hikari, pack, launch4jCJ
+	compile.extendsFrom bundle, hikari, pack, launch4jCJ, launch4j
 }
 
 jar {
@@ -60,15 +60,15 @@ dependencies {
 		exclude group: 'org.slf4j'
 	}
 
-	launch4j('net.sf.launch4j:launch4j:3.12') { // need user
+	launch4j('net.sf.launch4j:launch4j:3.12') {
 		exclude group: '*'
 	}
 
-	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-win32') { // need user
+	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-win32') {
 		exclude group: '*'
 	}
 
-	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-linux') { // need user
+	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-linux') {
 		exclude group: '*'
 	}	
 }
@@ -115,10 +115,13 @@ task dumpLibs(type: Copy) {
 	from configurations.bundleOnly
 }
 
-task dumpClientLibs(type: Copy) {
-	dependsOn parent.childProjects.Launcher.tasks.build
-	into "$buildDir/libs/launcher-libraries"
-	from parent.childProjects.Launcher.tasks.dumpLibs.destinationDir
+task bundle(type: Zip) {
+	dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.jar
+	archiveName 'bundle.zip'
+	destinationDir file("$buildDir")
+	from(tasks.dumpLibs.destinationDir) { into 'libraries' }
+	from tasks.jar.archivePath
+	from(parent.childProjects.Launcher.tasks.dumpLibs) { into 'launcher-libraries' }
 }
 
-build.dependsOn tasks.dumpLibs, tasks.dumpClientLibs
+build.dependsOn tasks.dumpLibs, tasks.bundle
