@@ -18,8 +18,10 @@ configurations {
 	bundle
 	hikari
 	pack
+	launch4j
+	launch4jCJ
 	bundleOnly.extendsFrom bundle
-	compile.extendsFrom bundle, hikari, pack
+	compile.extendsFrom bundle, hikari, pack, launch4jCJ
 }
 
 jar {
@@ -57,10 +59,18 @@ dependencies {
 		exclude group: 'io.micrometer'
 		exclude group: 'org.slf4j'
 	}
-	
-	compileOnly('net.sf.launch4j:launch4j:3.12') { // need user
+
+	launch4j('net.sf.launch4j:launch4j:3.12') { // need user
 		exclude group: '*'
 	}
+
+	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-win32') { // need user
+		exclude group: '*'
+	}
+
+	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-linux') { // need user
+		exclude group: '*'
+	}	
 }
 
 task hikari(type: Copy) {
@@ -68,8 +78,39 @@ task hikari(type: Copy) {
 	from configurations.hikari
 }
 
+task launch4jM(type: Copy) {
+	into "$buildDir/libs/libraries/launch4j"
+	from(configurations.launch4jCJ.collect { it.isDirectory() ? it : zipTree(it) })
+	includeEmptyDirs false
+	eachFile { FileCopyDetails fcp ->
+		if (fcp.relativePath.pathString.startsWith("launch4j-")) {
+			// remap the file to the root
+			def segments = fcp.relativePath.segments
+			def pathSegments = segments[1..-1] as String[]
+			fcp.relativePath = new RelativePath(!fcp.file.isDirectory(), pathSegments)
+			fcp.mode = 0755
+		} else {
+			fcp.exclude()
+		}
+	}
+}
+
+task launch4jA(type: Copy) {
+	into "$buildDir/libs/libraries/launch4j"
+	from(configurations.launch4j)
+	includeEmptyDirs false
+	eachFile { FileCopyDetails fcp ->
+		if (fcp.name.startsWith("launch4j")) {
+			fcp.name = "launch4j.jar"
+			fcp.mode = 0755
+		} else {
+			fcp.exclude()
+		}
+	}
+}
+
 task dumpLibs(type: Copy) {
-	dependsOn tasks.hikari
+	dependsOn tasks.hikari, tasks.launch4jM, tasks.launch4jA
 	into "$buildDir/libs/libraries"
 	from configurations.bundleOnly
 }
