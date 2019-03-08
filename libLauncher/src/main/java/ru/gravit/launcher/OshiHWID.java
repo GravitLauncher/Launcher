@@ -30,6 +30,21 @@ public class OshiHWID implements HWID {
     }
 
     @Override
+    public int compare(HWID hwid) {
+        if(hwid instanceof OshiHWID)
+        {
+            int rate = 0;
+            OshiHWID oshi = (OshiHWID) hwid;
+            if(Math.abs(oshi.totalMemory - totalMemory) < 1024*1024) rate+=10;
+            if(oshi.HWDiskSerial.equals(HWDiskSerial)) rate+=50;
+            if(oshi.processorID.equals(processorID)) rate+=26;
+            if(oshi.serialNumber.equals(serialNumber)) rate+=15;
+            return rate;
+        }
+        return 0;
+    }
+
+    @Override
     public boolean isNull() {
         return getLevel() < 2;
     }

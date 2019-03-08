@@ -5,5 +5,7 @@ public interface HWID {
 
     int getLevel(); //Уровень доверия, насколько уникальные значения
 
+    int compare(HWID hwid);
+
     boolean isNull();
 }
