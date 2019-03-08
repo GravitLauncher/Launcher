@@ -1,9 +1,6 @@
-allprojects {
-	apply plugin: 'eclipse'
+configure(subprojects.findAll {it.name != 'modules'}) {
 	apply plugin: 'idea'
-}
-
-subprojects {
+	apply plugin: 'eclipse'
 	apply plugin: 'java'
 
 	repositories {
@@ -29,7 +26,7 @@ subprojects {
 }
 
 wrapper {
-    distributionType = Wrapper.DistributionType.ALL
+	distributionType = Wrapper.DistributionType.ALL
 }
 
 defaultTasks 'build'

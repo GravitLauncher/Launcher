@@ -1,4 +1,4 @@
-rootProject.name = 'Launcher'
+rootProject.name = 'GravitLauncher'
 
 include 'Launcher'
 include 'libLauncher'
