@@ -21,6 +21,7 @@ import ru.gravit.launchserver.socket.websocket.json.admin.ExecCommandResponse;
 import ru.gravit.launchserver.socket.websocket.json.auth.*;
 import ru.gravit.launchserver.socket.websocket.json.update.LauncherResponse;
 import ru.gravit.launchserver.socket.websocket.json.update.UpdateListResponse;
+import ru.gravit.launchserver.socket.websocket.json.update.UpdateResponse;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
@@ -79,6 +80,7 @@ public class WebSocketService {
         registerResponse("cmdExec", ExecCommandResponse.class);
         registerResponse("setProfile", SetProfileResponse.class);
         registerResponse("addLogListener", AddLogListenerResponse.class);
+        registerResponse("update", UpdateResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {

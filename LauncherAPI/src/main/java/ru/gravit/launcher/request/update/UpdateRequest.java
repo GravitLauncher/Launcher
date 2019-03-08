@@ -3,6 +3,7 @@ package ru.gravit.launcher.request.update;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.events.request.UpdateRequestEvent;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
@@ -11,6 +12,8 @@ import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.request.UpdateAction;
 import ru.gravit.launcher.request.update.UpdateRequest.State.Callback;
+import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
+import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
@@ -35,7 +38,12 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.zip.InflaterInputStream;
 
-public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> {
+public final class UpdateRequest extends Request<UpdateRequestEvent> implements RequestInterface {
+
+    @Override
+    public String getType() {
+        return "update";
+    }
 
     public static final class State {
         @FunctionalInterface
@@ -189,6 +197,11 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
             }
         }
     }
+    @Override
+    public UpdateRequestEvent requestWebSockets() throws Exception
+    {
+        return (UpdateRequestEvent) LegacyRequestBridge.sendRequest(this);
+    }
 
     // Instance
     private final String dirName;
@@ -290,16 +303,9 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
     }
 
     @Override
-    public SignedObjectHolder<HashedDir> request() throws Exception {
+    protected UpdateRequestEvent requestDo(HInput input, HOutput output) throws IOException, SignatureException {
         Files.createDirectories(dir);
         localDir = new HashedDir(dir, matcher, false, digest);
-
-        // Start request
-        return super.request();
-    }
-
-    @Override
-    protected SignedObjectHolder<HashedDir> requestDo(HInput input, HOutput output) throws IOException, SignatureException {
         // Write update dir name
         output.writeString(dirName, 255);
         output.flush();
@@ -365,7 +371,7 @@ public final class UpdateRequest extends Request<SignedObjectHolder<HashedDir>> 
 
         // Write update completed packet
         deleteExtraDir(dir, diff.extra, diff.extra.flag);
-        return remoteHDirHolder;
+        return new UpdateRequestEvent(remoteHDirHolder.object);
     }
 
     @LauncherAPI

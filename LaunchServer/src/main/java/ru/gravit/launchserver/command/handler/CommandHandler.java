@@ -124,6 +124,7 @@ public abstract class CommandHandler implements Runnable {
         registerCommand("serverStatus", new ServerStatusCommand(server));
         registerCommand("checkInstall", new CheckInstallCommand(server));
         registerCommand("multi", new MultiCommand(server));
+        registerCommand("getModulus", new GetModulusCommand(server));
     }
 
 

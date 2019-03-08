@@ -22,8 +22,8 @@ public class ClientWebSocketService extends ClientJSONPoint {
     private HashMap<String, Class<? extends ResultInterface>> results;
     private HashSet<EventHandler> handlers;
 
-    public ClientWebSocketService(GsonBuilder gsonBuilder, String address, int port, int i) {
-    	super(createURL(address, port), Collections.emptyMap(), i);
+    public ClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) {
+    	super(createURL(address), Collections.emptyMap(), i);
         requests = new HashMap<>();
         results = new HashMap<>();
         handlers = new HashSet<>();
@@ -33,9 +33,9 @@ public class ClientWebSocketService extends ClientJSONPoint {
         this.gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuilder.create();
     }
-	private static URI createURL(String address, int port) {
+	private static URI createURL(String address) {
 		try {
-			URI u = new URI("ws://".concat(address).concat(":").concat(String.valueOf(port)).concat("/api"));
+			URI u = new URI(address);
 			return u;
 		} catch (Throwable e) {
 			LogHelper.error(e);
@@ -88,6 +88,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
         registerResult("setProfile", SetProfileRequestEvent.class);
         registerResult("updateList", UpdateListRequestEvent.class);
         registerResult("error", ErrorRequestEvent.class);
+        registerResult("update", UpdateRequestEvent.class);
     }
 
     public void registerHandler(EventHandler eventHandler)

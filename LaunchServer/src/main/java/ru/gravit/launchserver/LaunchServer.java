@@ -185,8 +185,10 @@ public final class LaunchServer implements Runnable {
     {
         public String bindAddress;
         public int port;
+        public boolean clientEnabled;
         public String launcherURL;
         public String launcherEXEURL;
+        public String address;
     }
     public class GuardLicenseConf
     {
@@ -542,7 +544,7 @@ public final class LaunchServer implements Runnable {
         // Create new config
         LogHelper.info("Creating LaunchServer config");
         Config newConfig = new Config();
-        newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/"};
+        newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/","https://mirror.gravit.pro/"};
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.copyright = "© GravitLauncher Team";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Launcher.getVersion().getVersionString());
@@ -566,6 +568,11 @@ public final class LaunchServer implements Runnable {
         newConfig.authRejectString = "Превышен лимит авторизаций";
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
+
+        newConfig.netty = new NettyConfig();
+        newConfig.netty.address = "ws://localhost:9274/api";
+        newConfig.netty.clientEnabled = false;
+        newConfig.netty.port = 9274;
 
         newConfig.threadCoreCount = 0; // on your own
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();

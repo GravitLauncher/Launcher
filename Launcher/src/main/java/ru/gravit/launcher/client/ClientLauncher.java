@@ -14,7 +14,6 @@ import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.*;
@@ -298,7 +297,7 @@ public final class ClientLauncher {
 
     @LauncherAPI
     public static Process launch(
-            SignedObjectHolder<HashedDir> assetHDir, SignedObjectHolder<HashedDir> clientHDir,
+            HashedDir assetHDir, HashedDir clientHDir,
             ClientProfile profile, Params params, boolean pipeOutput) throws Throwable {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
@@ -411,8 +410,7 @@ public final class ClientLauncher {
         LogHelper.debug("Reading ClientLauncher params");
         Params params;
         ClientProfile profile;
-        SignedObjectHolder<HashedDir> assetHDir, clientHDir;
-        RSAPublicKey publicKey = Launcher.getConfig().publicKey;
+        HashedDir assetHDir, clientHDir;
         try {
             try (Socket socket = IOHelper.newSocket()) {
                 socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
@@ -421,8 +419,8 @@ public final class ClientLauncher {
                     profile = gson.fromJson(input.readString(0), ClientProfile.class);
 
                     // Read hdirs
-                    assetHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
-                    clientHDir = new SignedObjectHolder<>(input, publicKey, HashedDir::new);
+                    assetHDir = new HashedDir(input);
+                    clientHDir = new HashedDir(input);
                 }
             }
         } catch (IOException ex) {
@@ -457,28 +455,27 @@ public final class ClientLauncher {
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
-        try (DirWatcher assetWatcher = new DirWatcher(params.assetDir, assetHDir.object, assetMatcher, digest);
-             DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir.object, clientMatcher, digest)) {
+        try (DirWatcher assetWatcher = new DirWatcher(params.assetDir, assetHDir, assetMatcher, digest);
+             DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir, clientMatcher, digest)) {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
-            HashedDir hdir = clientHDir.object;
             //for (OptionalFile s : Launcher.profile.getOptional()) {
             //    if (params.updateOptional.contains(s)) s.mark = true;
             //    else hdir.removeR(s.file);
             //}
-            Launcher.profile.pushOptionalFile(hdir,false);
-            verifyHDir(params.assetDir, assetHDir.object, assetMatcher, digest);
-            verifyHDir(params.clientDir, hdir, clientMatcher, digest);
+            Launcher.profile.pushOptionalFile(clientHDir,false);
             Launcher.modulesManager.postInitModules();
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
+            verifyHDir(params.assetDir, assetHDir, assetMatcher, digest);
+            verifyHDir(params.clientDir, clientHDir, clientMatcher, digest);
             launch(profile, params);
         }
     }
 
     @LauncherAPI
-    public void launchLocal(SignedObjectHolder<HashedDir> assetHDir, SignedObjectHolder<HashedDir> clientHDir,
+    public void launchLocal(HashedDir assetHDir, HashedDir clientHDir,
                             ClientProfile profile, Params params) throws Throwable {
         RSAPublicKey publicKey = Launcher.getConfig().publicKey;
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
@@ -497,17 +494,17 @@ public final class ClientLauncher {
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
-        try (DirWatcher assetWatcher = new DirWatcher(params.assetDir, assetHDir.object, assetMatcher, digest);
-             DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir.object, clientMatcher, digest)) {
+        try (DirWatcher assetWatcher = new DirWatcher(params.assetDir, assetHDir, assetMatcher, digest);
+             DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir, clientMatcher, digest)) {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
-            HashedDir hdir = clientHDir.object;
+            HashedDir hdir = clientHDir;
             //for (OptionalFile s : Launcher.profile.getOptional()) {
             //    if (params.updateOptional.contains(s)) s.mark = true;
             //    else hdir.removeR(s.file);
             //}
             Launcher.profile.pushOptionalFile(hdir,false);
-            verifyHDir(params.assetDir, assetHDir.object, assetMatcher, digest);
+            verifyHDir(params.assetDir, assetHDir, assetMatcher, digest);
             verifyHDir(params.clientDir, hdir, clientMatcher, digest);
             Launcher.modulesManager.postInitModules();
             // Start WatchService, and only then client

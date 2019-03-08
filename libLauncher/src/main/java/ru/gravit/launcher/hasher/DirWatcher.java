@@ -40,9 +40,9 @@ public final class DirWatcher implements Runnable, AutoCloseable {
 
             // Maybe it's unnecessary to go deeper
             path.add(IOHelper.getFileName(dir));
-            if (matcher != null && !matcher.shouldVerify(path)) {
-                return FileVisitResult.SKIP_SUBTREE;
-            }
+            //if (matcher != null && !matcher.shouldVerify(path)) {
+            //    return FileVisitResult.SKIP_SUBTREE;
+            //}
 
             // Register
             dir.register(service, KINDS);
@@ -121,11 +121,10 @@ public final class DirWatcher implements Runnable, AutoCloseable {
 
             // Resolve paths and verify is not exclusion
             Path path = watchDir.resolve((Path) event.context());
-            LogHelper.debug("DirWatcher event %s", path.toString());
             Deque<String> stringPath = toPath(dir.relativize(path));
+            LogHelper.debug("DirWatcher event %s", String.join("/", stringPath));
             if (matcher != null && !matcher.shouldVerify(stringPath))
                 continue; // Exclusion; should not be verified
-
             // Verify is REALLY modified (not just attributes)
             if (kind.equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
                 HashedEntry entry = hdir.resolve(stringPath);

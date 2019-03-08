@@ -28,6 +28,7 @@ public final class LauncherConfig extends StreamObject {
     // Instance
     @LauncherAPI
     public InetSocketAddress address;
+    public String nettyAddress;
     public int nettyPort;
     @LauncherAPI
     public final String projectname;
@@ -42,6 +43,7 @@ public final class LauncherConfig extends StreamObject {
     public final boolean isUsingWrapper;
     public final boolean isDownloadJava;
     public final boolean isWarningMissArchJava;
+    public final boolean isNettyEnabled;
 
     public final String guardLicenseName;
     public final String guardLicenseKey;
@@ -63,6 +65,8 @@ public final class LauncherConfig extends StreamObject {
         guardLicenseKey = config.guardLicenseKey;
         guardLicenseName = config.guardLicenseName;
         nettyPort = config.nettyPort;
+        nettyAddress = config.nettyAddress;
+        isNettyEnabled = config.isNettyEnabled;
         LauncherEnvironment env;
         if (config.env == 0) env = LauncherEnvironment.DEV;
         else if (config.env == 1) env = LauncherEnvironment.DEBUG;
@@ -99,6 +103,7 @@ public final class LauncherConfig extends StreamObject {
         isUsingWrapper = true;
         isDownloadJava = false;
         isWarningMissArchJava = true;
+        isNettyEnabled = false;
     }
 
     @LauncherAPI
@@ -114,6 +119,7 @@ public final class LauncherConfig extends StreamObject {
         isUsingWrapper = true;
         isDownloadJava = false;
         isWarningMissArchJava = true;
+        isNettyEnabled = false;
     }
 
     @Override

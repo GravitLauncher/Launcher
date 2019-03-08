@@ -6,7 +6,6 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.helper.*;
 
 import javax.crypto.BadPaddingException;
@@ -14,14 +13,13 @@ import javax.crypto.IllegalBlockSizeException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.SignatureException;
-import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class LauncherSettings {
-    public static int settingsMagic = 0xc0de9;
+    public static int settingsMagic = 0xc0dea;
     @LauncherAPI
     public Path file = DirBridge.dir.resolve("settings.bin");
     @LauncherAPI
@@ -46,7 +44,7 @@ public class LauncherSettings {
     @LauncherAPI
     public List<ClientProfile> lastProfiles = new LinkedList<>();
     @LauncherAPI
-    public Map<String, SignedObjectHolder<HashedDir>> lastHDirs = new HashMap<>(16);
+    public Map<String, HashedDir> lastHDirs = new HashMap<>(16);
 
     @LauncherAPI
     public void load() throws SignatureException {
@@ -103,7 +101,6 @@ public class LauncherSettings {
         setRAM(input.readLength(JVMHelper.RAM));
 
         // Offline cache
-        RSAPublicKey publicKey = Launcher.getConfig().publicKey;
         lastDigest = input.readBoolean() ? input.readByteArray(0) : null;
         lastProfiles.clear();
         int lastProfilesCount = input.readLength(0);
@@ -114,8 +111,8 @@ public class LauncherSettings {
         int lastHDirsCount = input.readLength(0);
         for (int i = 0; i < lastHDirsCount; i++) {
             String name = IOHelper.verifyFileName(input.readString(255));
-            VerifyHelper.putIfAbsent(lastHDirs, name, new SignedObjectHolder<>(input, publicKey, HashedDir::new),
-                    java.lang.String.format("Duplicate offline hashed dir: '%s'", name));
+            HashedDir hdir = new HashedDir(input);
+            lastHDirs.put(name,hdir);
         }
     }
 
@@ -153,7 +150,7 @@ public class LauncherSettings {
             output.writeString(Launcher.gson.toJson(profile), 0);
         }
         output.writeLength(lastHDirs.size(), 0);
-        for (Map.Entry<String, SignedObjectHolder<HashedDir>> entry : lastHDirs.entrySet()) {
+        for (Map.Entry<String, HashedDir> entry : lastHDirs.entrySet()) {
             output.writeString(entry.getKey(), 0);
             entry.getValue().write(output);
         }

@@ -1,22 +1,32 @@
 package ru.gravit.launcher.hasher;
 
 import ru.gravit.launcher.LauncherAPI;
-
-import java.util.Arrays;
 import java.util.Collection;
 
 public final class FileNameMatcher {
     private static final String[] NO_ENTRIES = new String[0];
 
     private static boolean anyMatch(String[] entries, Collection<String> path) {
-        return path.stream().anyMatch(e -> Arrays.stream(entries).anyMatch(p -> p.endsWith(e)));
-        //for(String p : path)
-        //{
-        //    for(String e : entries)
-        //    {
-        //        if(p.endsWith(e)) return true;
-        //    }
-        //}
+        //return path.stream().anyMatch(e -> Arrays.stream(entries).anyMatch(p -> p.endsWith(e)));
+        String jpath = String.join("/", path);
+        for(String e : entries)
+        {
+            /*String[] split = e.split("/");
+            //int index = 0;
+            //for(String p : path)
+            //{
+            //    if(index>=split.length)
+                {
+                    return true;
+                }
+                if(!p.equals(split[index])) {
+                    break;
+                }
+                index++;
+            }*/
+            if(jpath.startsWith(e)) return true;
+        }
+        return false;
     }
 
     // Instance
