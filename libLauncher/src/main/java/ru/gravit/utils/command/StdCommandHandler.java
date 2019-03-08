@@ -5,7 +5,7 @@ import ru.gravit.utils.helper.IOHelper;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-public final class StdCommandHandler extends CommandHandler {
+public class StdCommandHandler extends CommandHandler {
     private final BufferedReader reader;
 
     public StdCommandHandler(boolean readCommands) {

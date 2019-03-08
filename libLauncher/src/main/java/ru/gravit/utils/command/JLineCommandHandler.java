@@ -6,7 +6,7 @@ import ru.gravit.utils.helper.LogHelper.Output;
 
 import java.io.IOException;
 
-public final class JLineCommandHandler extends CommandHandler {
+public class JLineCommandHandler extends CommandHandler {
     private final class JLineOutput implements Output {
         @Override
         public void println(String message) {

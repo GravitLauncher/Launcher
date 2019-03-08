@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class CommandHandler implements Runnable {
     private final Map<String, Command> commands = new ConcurrentHashMap<>(32);
 
-    public final void eval(String line, boolean bell) {
+    public void eval(String line, boolean bell) {
         LogHelper.info("Command '%s'", line);
 
         // Parse line to tokens
@@ -33,7 +33,7 @@ public abstract class CommandHandler implements Runnable {
     }
 
 
-    public final void eval(String[] args, boolean bell) {
+    public void eval(String[] args, boolean bell) {
         if (args.length == 0)
             return;
 
@@ -56,7 +56,7 @@ public abstract class CommandHandler implements Runnable {
     }
 
 
-    public final Command lookup(String name) throws CommandException {
+    public Command lookup(String name) throws CommandException {
         Command command = commands.get(name);
         if (command == null)
             throw new CommandException(String.format("Unknown command: '%s'", name));
@@ -72,14 +72,14 @@ public abstract class CommandHandler implements Runnable {
     }
 
 
-    public final void registerCommand(String name, Command command) {
+    public void registerCommand(String name, Command command) {
         VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(commands, name, Objects.requireNonNull(command, "command"),
                 String.format("Command has been already registered: '%s'", name));
     }
 
     @Override
-    public final void run() {
+    public void run() {
         try {
             readLoop();
         } catch (IOException e) {
@@ -95,7 +95,7 @@ public abstract class CommandHandler implements Runnable {
     public abstract void clear() throws IOException;
 
 
-    public final Map<String, Command> commandsMap() {
+    public Map<String, Command> commandsMap() {
         return Collections.unmodifiableMap(commands);
     }
 
