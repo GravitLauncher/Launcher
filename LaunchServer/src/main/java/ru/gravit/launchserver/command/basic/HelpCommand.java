@@ -1,13 +1,13 @@
 package ru.gravit.launchserver.command.basic;
 
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.command.Command;
-import ru.gravit.launchserver.command.CommandException;
+import ru.gravit.utils.command.Command;
+import ru.gravit.utils.command.CommandException;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.util.Map.Entry;
 
-public final class HelpCommand extends Command {
+public final class HelpCommand extends ru.gravit.launchserver.command.Command {
     private static void printCommand(String name, Command command) {
         String args = command.getArgsDescription();
         LogHelper.subInfo("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());

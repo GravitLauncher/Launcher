@@ -1,6 +1,5 @@
-package ru.gravit.launchserver.command.handler;
+package ru.gravit.utils.command;
 
-import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
 
 import java.io.BufferedReader;
@@ -9,8 +8,8 @@ import java.io.IOException;
 public final class StdCommandHandler extends CommandHandler {
     private final BufferedReader reader;
 
-    public StdCommandHandler(LaunchServer server, boolean readCommands) {
-        super(server);
+    public StdCommandHandler(boolean readCommands) {
+        super();
         reader = readCommands ? IOHelper.newReader(System.in) : null;
     }
 

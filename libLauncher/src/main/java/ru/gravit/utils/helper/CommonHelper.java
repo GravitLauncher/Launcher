@@ -1,10 +1,13 @@
 package ru.gravit.utils.helper;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.utils.command.CommandException;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,5 +70,54 @@ public final class CommonHelper {
     }
 
     private CommonHelper() {
+    }
+
+    public static String[] parseCommand(CharSequence line) throws CommandException {
+        boolean quoted = false;
+        boolean wasQuoted = false;
+
+        // Read line char by char
+        Collection<String> result = new LinkedList<>();
+        StringBuilder builder = new StringBuilder(100);
+        for (int i = 0; i <= line.length(); i++) {
+            boolean end = i >= line.length();
+            char ch = end ? '\0' : line.charAt(i);
+
+            // Maybe we should read next argument?
+            if (end || !quoted && Character.isWhitespace(ch)) {
+                if (end && quoted)
+                    throw new CommandException("Quotes wasn't closed");
+
+                // Empty args are ignored (except if was quoted)
+                if (wasQuoted || builder.length() > 0)
+                    result.add(builder.toString());
+
+                // Reset file builder
+                wasQuoted = false;
+                builder.setLength(0);
+                continue;
+            }
+
+            // Append next char
+            switch (ch) {
+                case '"': // "abc"de, "abc""de" also allowed
+                    quoted = !quoted;
+                    wasQuoted = true;
+                    break;
+                case '\\': // All escapes, including spaces etc
+                    if (i + 1 >= line.length())
+                        throw new CommandException("Escape character is not specified");
+                    char next = line.charAt(i + 1);
+                    builder.append(next);
+                    i++;
+                    break;
+                default: // Default char, simply append
+                    builder.append(ch);
+                    break;
+            }
+        }
+
+        // Return result as array
+        return result.toArray(new String[0]);
     }
 }

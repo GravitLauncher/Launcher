@@ -1,7 +1,6 @@
-package ru.gravit.launchserver.command.handler;
+package ru.gravit.utils.command;
 
 import jline.console.ConsoleReader;
-import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.LogHelper.Output;
 
@@ -23,8 +22,8 @@ public final class JLineCommandHandler extends CommandHandler {
 
     private final ConsoleReader reader;
 
-    public JLineCommandHandler(LaunchServer server) throws IOException {
-        super(server);
+    public JLineCommandHandler() throws IOException {
+        super();
 
         // Set reader
         reader = new ConsoleReader();

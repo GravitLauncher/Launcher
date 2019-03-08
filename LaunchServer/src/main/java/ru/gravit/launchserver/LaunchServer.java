@@ -18,9 +18,9 @@ import ru.gravit.launchserver.auth.permissions.PermissionsHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
 import ru.gravit.launchserver.binary.*;
-import ru.gravit.launchserver.command.handler.CommandHandler;
-import ru.gravit.launchserver.command.handler.JLineCommandHandler;
-import ru.gravit.launchserver.command.handler.StdCommandHandler;
+import ru.gravit.utils.command.CommandHandler;
+import ru.gravit.utils.command.JLineCommandHandler;
+import ru.gravit.utils.command.StdCommandHandler;
 import ru.gravit.launchserver.config.*;
 import ru.gravit.launchserver.manangers.*;
 import ru.gravit.launchserver.manangers.hook.AuthHookManager;
@@ -349,12 +349,13 @@ public final class LaunchServer implements Runnable {
             Class.forName("jline.Terminal");
 
             // JLine2 available
-            localCommandHandler = new JLineCommandHandler(this);
+            localCommandHandler = new JLineCommandHandler();
             LogHelper.info("JLine2 terminal enabled");
         } catch (ClassNotFoundException ignored) {
-            localCommandHandler = new StdCommandHandler(this, true);
+            localCommandHandler = new StdCommandHandler(true);
             LogHelper.warning("JLine2 isn't in classpath, using std");
         }
+        ru.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler);
         commandHandler = localCommandHandler;
 
         // Set key pair
