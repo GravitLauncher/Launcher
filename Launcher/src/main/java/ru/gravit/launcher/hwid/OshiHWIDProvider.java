@@ -137,6 +137,7 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
         hwid.totalMemory = getTotalMemory();
         hwid.HWDiskSerial = getHWDisk();
         hwid.processorID = getProcessorID();
+        hwid.macAddr = getMacAddr();
         printHardwareInformation();
         return hwid;
     }
