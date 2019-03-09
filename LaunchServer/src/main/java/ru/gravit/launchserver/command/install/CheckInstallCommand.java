@@ -22,5 +22,6 @@ public class CheckInstallCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         LogHelper.info("Check install success");
+        System.exit(0);
     }
 }
