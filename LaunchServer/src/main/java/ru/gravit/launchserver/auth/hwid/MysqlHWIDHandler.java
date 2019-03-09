@@ -151,7 +151,13 @@ public class MysqlHWIDHandler extends HWIDHandler {
                     db_hwid.processorID = set.getString(hwidFieldProcessorID);
                     db_hwid.HWDiskSerial = set.getString(hwidFieldHWDiskSerial);
                     db_hwid.totalMemory = Long.valueOf(set.getString(hwidFieldTotalMemory));
-                    if(hwid.compare(db_hwid) < compare) continue;
+                    LogHelper.dev("Compare HWID: %s vs %s", hwid.getSerializeString(), db_hwid.getSerializeString());
+                    int compare_point = hwid.compare(db_hwid);
+                    if(compare_point < compare) continue;
+                    else
+                    {
+                        LogHelper.debug("User %s hwid check: found compare %d in %d", username, compare_point, set.getInt("id"));
+                    }
                 }
                 if(oneCompareMode) isOne = true;
                 boolean isBanned = set.getBoolean(hwidFieldBanned);
