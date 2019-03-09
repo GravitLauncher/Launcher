@@ -144,12 +144,15 @@ public class MysqlHWIDHandler extends HWIDHandler {
             boolean isOne = false;
             while(set.next()) {
                 if(!oneCompareMode) isOne = true;
-                OshiHWID db_hwid = new OshiHWID();
-                db_hwid.serialNumber = set.getString(hwidFieldSerialNumber);
-                db_hwid.processorID = set.getString(hwidFieldProcessorID);
-                db_hwid.HWDiskSerial = set.getString(hwidFieldHWDiskSerial);
-                db_hwid.totalMemory = Long.valueOf(set.getString(hwidFieldTotalMemory));
-                if(hwid.compare(db_hwid) < compare) continue;
+                if(compareMode)
+                {
+                    OshiHWID db_hwid = new OshiHWID();
+                    db_hwid.serialNumber = set.getString(hwidFieldSerialNumber);
+                    db_hwid.processorID = set.getString(hwidFieldProcessorID);
+                    db_hwid.HWDiskSerial = set.getString(hwidFieldHWDiskSerial);
+                    db_hwid.totalMemory = Long.valueOf(set.getString(hwidFieldTotalMemory));
+                    if(hwid.compare(db_hwid) < compare) continue;
+                }
                 if(oneCompareMode) isOne = true;
                 boolean isBanned = set.getBoolean(hwidFieldBanned);
                 if (isBanned) {
