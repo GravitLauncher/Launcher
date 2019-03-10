@@ -19,7 +19,7 @@ public class UpdateResponse implements JsonResponseInterface {
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
         if (!client.isAuth || client.type != Client.Type.USER || client.profile == null) {
-            service.sendObject(ctx,new ErrorRequestEvent("Assess denied"));
+            service.sendObject(ctx,new ErrorRequestEvent("Access denied"));
             return;
         }
         if (!client.permissions.canAdmin) {

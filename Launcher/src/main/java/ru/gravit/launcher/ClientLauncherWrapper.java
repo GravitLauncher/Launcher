@@ -44,9 +44,9 @@ public class ClientLauncherWrapper {
             if (!process.isAlive()) {
                 int errorcode = process.exitValue();
                 if (errorcode != 0)
-                    LogHelper.error("Process exit witch error code: %d", errorcode);
+                    LogHelper.error("Process exitwith error code: %d", errorcode);
                 else
-                    LogHelper.info("Process exit witch code 0");
+                    LogHelper.info("Process exitwith code 0");
             } else {
                 LogHelper.debug("Process started success");
             }
