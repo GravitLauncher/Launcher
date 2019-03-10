@@ -89,9 +89,9 @@ public final class MySQLSourceConfig implements AutoCloseable {
                 // Set HikariCP pool
                 // Replace source with hds
                 source = new HikariDataSource(cfg);
-                LogHelper.info("HikariCP pooling enabled for '%s'", poolName);
+                LogHelper.warning("HikariCP pooling enabled for '%s'", poolName);
             } catch (ClassNotFoundException ignored) {
-                LogHelper.warning("HikariCP isn't in classpath for '%s'", poolName);
+                LogHelper.debug("HikariCP isn't in classpath for '%s'", poolName);
             }
         }
         return source.getConnection();

@@ -165,6 +165,10 @@ public final class LaunchServer implements Runnable {
             if (env == null) {
                 throw new NullPointerException("Env must not be null");
             }
+            if(netty == null)
+            {
+                throw new NullPointerException("Netty must not be null");
+            }
         }
     }
 
