@@ -132,7 +132,7 @@ public class SimpleModuleManager implements ModulesManager {
 
     @Override
     public void registerModule(Module module) {
-        load(module);
+        modules.add(module);
         LogHelper.info("Module %s version: %s registered", module.getName(), module.getVersion());
     }
 
