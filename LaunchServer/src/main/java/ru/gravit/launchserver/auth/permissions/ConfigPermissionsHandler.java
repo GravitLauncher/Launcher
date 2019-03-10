@@ -13,4 +13,9 @@ public class ConfigPermissionsHandler extends PermissionsHandler {
         permissions.canAdmin = isAdmin;
         return permissions;
     }
+
+    @Override
+    public void close() {
+
+    }
 }

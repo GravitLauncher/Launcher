@@ -53,7 +53,22 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
-public final class LaunchServer implements Runnable {
+public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
+    @Override
+    public void reload() throws Exception {
+        config.close();
+        LogHelper.info("Reading LaunchServer config file");
+        try (BufferedReader reader = IOHelper.newReader(configFile)) {
+            config = Launcher.gson.fromJson(reader, Config.class);
+        }
+        config.verify();
+        Launcher.applyLauncherEnv(config.env);
+        for (AuthProvider provider : config.authProvider) {
+            provider.init();
+        }
+        config.authHandler.init();
+    }
+
     public static final class Config {
         public int port;
 
@@ -170,6 +185,34 @@ public final class LaunchServer implements Runnable {
                 throw new NullPointerException("Netty must not be null");
             }
         }
+        public void close()
+        {
+            try {
+                authHandler.close();
+            } catch (IOException e) {
+                LogHelper.error(e);
+            }
+            try {
+                for (AuthProvider p : authProvider) p.close();
+            } catch (IOException e) {
+                LogHelper.error(e);
+            }
+            try {
+                textureProvider.close();
+            } catch (IOException e) {
+                LogHelper.error(e);
+            }
+            try {
+                hwidHandler.close();
+            } catch (Exception e) {
+                LogHelper.error(e);
+            }
+            try {
+                permissionsHandler.close();
+            } catch (Exception e) {
+                LogHelper.error(e);
+            }
+        }
     }
 
     public static class ExeConf {
@@ -269,7 +312,7 @@ public final class LaunchServer implements Runnable {
     public final Path profilesDir;
     // Server config
 
-    public final Config config;
+    public Config config;
 
 
     public final RSAPublicKey publicKey;
@@ -417,6 +460,7 @@ public final class LaunchServer implements Runnable {
         authHookManager = new AuthHookManager();
         GarbageManager.registerNeedGC(sessionManager);
         GarbageManager.registerNeedGC(limiter);
+        reloadManager.registerReloadable("launchServer", this);
         if (config.permissionsHandler instanceof Reloadable)
             reloadManager.registerReloadable("permissionsHandler", (Reloadable) config.permissionsHandler);
         if (config.authHandler instanceof Reloadable)
@@ -521,22 +565,7 @@ public final class LaunchServer implements Runnable {
         serverSocketHandler.close();
 
         // Close handlers & providers
-        try {
-            config.authHandler.close();
-        } catch (IOException e) {
-            LogHelper.error(e);
-        }
-        try {
-            for (AuthProvider p : config.authProvider) p.close();
-        } catch (IOException e) {
-            LogHelper.error(e);
-        }
-        try {
-            config.textureProvider.close();
-        } catch (IOException e) {
-            LogHelper.error(e);
-        }
-        config.hwidHandler.close();
+        config.close();
         modulesManager.close();
         // Print last message before death :(
         LogHelper.info("LaunchServer stopped");

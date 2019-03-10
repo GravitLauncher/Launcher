@@ -7,4 +7,9 @@ public class DefaultPermissionsHandler extends PermissionsHandler {
     public ClientPermissions getPermissions(String username) {
         return ClientPermissions.DEFAULT;
     }
+
+    @Override
+    public void close() throws Exception {
+
+    }
 }

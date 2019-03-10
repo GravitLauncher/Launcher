@@ -38,7 +38,7 @@ public abstract class HWIDHandler implements AutoCloseable {
     public abstract void check0(HWID hwid, String username) throws HWIDException;
 
     @Override
-    public abstract void close();
+    public abstract void close() throws Exception;
 
     public abstract List<HWID> getHwid(String username) throws HWIDException;
 
