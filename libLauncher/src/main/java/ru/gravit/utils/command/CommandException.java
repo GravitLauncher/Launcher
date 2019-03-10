@@ -1,4 +1,4 @@
-package ru.gravit.launchserver.command;
+package ru.gravit.utils.command;
 
 public final class CommandException extends Exception {
     private static final long serialVersionUID = -6588814993972117772L;

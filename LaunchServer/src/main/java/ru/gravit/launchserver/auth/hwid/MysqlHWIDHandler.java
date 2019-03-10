@@ -36,6 +36,11 @@ public class MysqlHWIDHandler extends HWIDHandler {
 
     private String banMessage;
 
+    private boolean compareMode = false;
+    //Using queryHWID "queryHwids": "SELECT * FROM `users_hwids` WHERE `totalMemory` = ? or `serialNumber` = ? or `HWDiskSerial` = ? or `processorID` = ?"
+    private int compare = 50; //При наборе схожести в 50 очков
+    private boolean oneCompareMode = false;
+
     /*
         //Добавить поля hwid в базу с пользователями
 
@@ -136,12 +141,31 @@ public class MysqlHWIDHandler extends HWIDHandler {
                 a.setString(i + 1, CommonHelper.replace(paramsHwids[i], replaceParams));
             }
             ResultSet set = a.executeQuery();
-            if (set.next()) {
+            boolean isOne = false;
+            while(set.next()) {
+                if(!oneCompareMode) isOne = true;
+                if(compareMode)
+                {
+                    OshiHWID db_hwid = new OshiHWID();
+                    db_hwid.serialNumber = set.getString(hwidFieldSerialNumber);
+                    db_hwid.processorID = set.getString(hwidFieldProcessorID);
+                    db_hwid.HWDiskSerial = set.getString(hwidFieldHWDiskSerial);
+                    db_hwid.totalMemory = Long.valueOf(set.getString(hwidFieldTotalMemory));
+                    LogHelper.dev("Compare HWID: %s vs %s", hwid.getSerializeString(), db_hwid.getSerializeString());
+                    int compare_point = hwid.compare(db_hwid);
+                    if(compare_point < compare) continue;
+                    else
+                    {
+                        LogHelper.debug("User %s hwid check: found compare %d in %d", username, compare_point, set.getInt("id"));
+                    }
+                }
+                if(oneCompareMode) isOne = true;
                 boolean isBanned = set.getBoolean(hwidFieldBanned);
                 if (isBanned) {
                     throw new HWIDException(banMessage);
                 }
-            } else {
+            }
+            if(isOne) {
                 onUpdateInfo(hwid, username, c);
             }
         } catch (SQLException e) {

@@ -28,7 +28,7 @@ public final class CheckServerResponse extends Response {
         debug("Username: %s, Server ID: %s", username, serverID);
         Client clientData = server.sessionManager.getClient(session);
         if (!clientData.isAuth || clientData.type != Client.Type.SERVER) {
-            requestError("Assess denied");
+            requestError("Access denied");
             return;
         }
         // Try check server with auth handler

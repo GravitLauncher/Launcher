@@ -39,7 +39,7 @@ public final class UpdateResponse extends Response {
         }
         Client clientData = server.sessionManager.getClient(session);
         if (!clientData.isAuth || clientData.type != Client.Type.USER || clientData.profile == null) {
-            requestError("Assess denied");
+            requestError("Access denied");
             return;
         }
         if (!clientData.permissions.canAdmin) {

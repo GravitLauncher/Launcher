@@ -391,6 +391,24 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
         // Client launcher
         VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Main class can't be empty");
+        for(String s : classPath)
+        {
+            if(s == null) throw new IllegalArgumentException("Found null entry in classPath");
+        }
+        for(String s : jvmArgs)
+        {
+            if(s == null) throw new IllegalArgumentException("Found null entry in jvmArgs");
+        }
+        for(String s : clientArgs)
+        {
+            if(s == null) throw new IllegalArgumentException("Found null entry in clientArgs");
+        }
+        for(OptionalFile f : updateOptional)
+        {
+            if(f == null) throw new IllegalArgumentException("Found null entry in updateOptional");
+            if(f.name == null) throw new IllegalArgumentException("Optional: name must not be null");
+            if(f.list == null) throw new IllegalArgumentException("Optional: list must not be null");
+        }
     }
 
     @Override

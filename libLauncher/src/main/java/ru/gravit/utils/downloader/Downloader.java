@@ -39,6 +39,8 @@ public class Downloader implements Runnable {
     private final int skip;
     private final Handler handler;
 
+    private HttpURLConnection connect = null;
+
     public Downloader(URL url, File file) {
         this.requestProps = new HashMap<>(requestClient);
         this.file = file;
@@ -128,6 +130,7 @@ public class Downloader implements Runnable {
         interrupted.set(false);
         if (url.getProtocol().equalsIgnoreCase("http")) {
             HttpURLConnection connect = (HttpURLConnection) (url).openConnection();
+            this.connect = connect;
             if (method != null) connect.setRequestMethod(method);
             for (Map.Entry<String, String> ent : requestProps.entrySet()) {
                 connect.setRequestProperty(ent.getKey(), ent.getValue());
@@ -158,6 +161,7 @@ public class Downloader implements Runnable {
             }
         } else {
             HttpsURLConnection connect = (HttpsURLConnection) (url).openConnection();
+            this.connect = connect;
             if (method != null) connect.setRequestMethod(method);
             for (Map.Entry<String, String> ent : requestProps.entrySet()) {
                 connect.setRequestProperty(ent.getKey(), ent.getValue());
@@ -200,5 +204,9 @@ public class Downloader implements Runnable {
             this.ex.set(ex);
             LogHelper.error(ex);
         }
+        if (connect != null)
+        	try {
+        		connect.disconnect();
+        	} catch (Throwable ignored) { }
     }
 }

@@ -26,7 +26,7 @@ public final class JoinServerResponse extends Response {
         String serverID = VerifyHelper.verifyServerID(input.readASCII(SerializeLimits.MAX_SERVERID)); // With minus sign
         Client clientData = server.sessionManager.getClient(session);
         if (!clientData.isAuth || clientData.type != Client.Type.USER) {
-            requestError("Assess denied");
+            requestError("Access denied");
             return;
         }
         // Try join server with auth handler
