@@ -7,6 +7,8 @@ import ru.gravit.launcher.LauncherHWIDInterface;
 import ru.gravit.launcher.OshiHWID;
 import ru.gravit.utils.helper.LogHelper;
 
+import java.net.NetworkInterface;
+
 public class OshiHWIDProvider implements LauncherHWIDInterface {
     public SystemInfo systemInfo;
     public HardwareAbstractionLayer hardware;
@@ -111,6 +113,9 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
             for(NetworkIF networkIF : hardware.getNetworkIFs())
             {
                 LogHelper.debug("Network Interface: %s mac: %s", networkIF.getName(), networkIF.getMacaddr());
+                NetworkInterface network = networkIF.getNetworkInterface();
+                if(network.isLoopback() || network.isVirtual()) continue;
+                LogHelper.debug("Network Interface display: %s name: %s", network.getDisplayName(), network.getName());
                 for(String ipv4 : networkIF.getIPv4addr())
                 {
                     if(ipv4.startsWith("127.")) continue;
