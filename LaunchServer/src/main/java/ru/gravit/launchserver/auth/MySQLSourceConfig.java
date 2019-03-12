@@ -31,6 +31,7 @@ public final class MySQLSourceConfig implements AutoCloseable {
     private String password;
     private String database;
     private String timeZone;
+    private boolean enableHikari;
 
     // Cache
     private transient DataSource source;
@@ -79,20 +80,24 @@ public final class MySQLSourceConfig implements AutoCloseable {
             hikari = false;
             // Try using HikariCP
             source = mysqlSource;
-            try {
-                Class.forName("com.zaxxer.hikari.HikariDataSource");
-                hikari = true; // Used for shutdown. Not instanceof because of possible classpath error
-                HikariConfig cfg = new HikariConfig();
-                cfg.setDataSource(mysqlSource);
-                cfg.setPoolName(poolName);
-                cfg.setMaximumPoolSize(MAX_POOL_SIZE);
-                // Set HikariCP pool
-                // Replace source with hds
-                source = new HikariDataSource(cfg);
-                LogHelper.warning("HikariCP pooling enabled for '%s'", poolName);
-            } catch (ClassNotFoundException ignored) {
-                LogHelper.debug("HikariCP isn't in classpath for '%s'", poolName);
+            if(enableHikari)
+            {
+                try {
+                    Class.forName("com.zaxxer.hikari.HikariDataSource");
+                    hikari = true; // Used for shutdown. Not instanceof because of possible classpath error
+                    HikariConfig cfg = new HikariConfig();
+                    cfg.setDataSource(mysqlSource);
+                    cfg.setPoolName(poolName);
+                    cfg.setMaximumPoolSize(MAX_POOL_SIZE);
+                    // Set HikariCP pool
+                    // Replace source with hds
+                    source = new HikariDataSource(cfg);
+                    LogHelper.warning("HikariCP pooling enabled for '%s'", poolName);
+                } catch (ClassNotFoundException ignored) {
+                    LogHelper.debug("HikariCP isn't in classpath for '%s'", poolName);
+                }
             }
+
         }
         return source.getConnection();
     }
