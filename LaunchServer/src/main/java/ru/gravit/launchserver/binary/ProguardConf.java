@@ -16,9 +16,12 @@ public class ProguardConf {
     private static final String charsFirst = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
     private static final String chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ";
 
-    private static String generateString(SecureRandom rand, int il) {
-        StringBuilder sb = new StringBuilder(il);
-        sb.append(charsFirst.charAt(rand.nextInt(charsFirst.length())));
+    private static String generateString(SecureRandom rand, String lowString, String upString, int il) {
+        StringBuilder sb = new StringBuilder(il + lowString.length());
+        for(int i = 0;i<lowString.length();++i)
+        {
+            sb.append(rand.nextBoolean() ? lowString.charAt(i) : upString.charAt(i));
+        }
         for (int i = 0; i < il - 1; i++) sb.append(chars.charAt(rand.nextInt(chars.length())));
         return sb.toString();
     }
@@ -66,7 +69,10 @@ public class ProguardConf {
         SecureRandom rand = SecurityHelper.newRandom();
         rand.setSeed(SecureRandom.getSeed(32));
         try (PrintWriter out = new PrintWriter(new OutputStreamWriter(IOHelper.newOutput(words), IOHelper.UNICODE_CHARSET))) {
-            for (int i = 0; i < Short.MAX_VALUE; i++) out.println(generateString(rand, 24));
+            String projectName = LaunchServer.server.config.projectName.replaceAll("\\W", "");
+            String lowName = projectName.toLowerCase();
+            String upName = projectName.toUpperCase();
+            for (int i = 0; i < Short.MAX_VALUE; i++) out.println(generateString(rand, lowName, upName, 3));
         }
     }
 
