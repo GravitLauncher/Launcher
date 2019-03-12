@@ -43,7 +43,7 @@ public class OshiHWID implements HWID {
             if(oshi.HWDiskSerial.equals(HWDiskSerial)) rate+=45;
             if(oshi.processorID.equals(processorID)) rate+=18;
             if(oshi.serialNumber.equals(serialNumber)) rate+=15;
-            if(oshi.macAddr.equals(macAddr)) rate+=19;
+            if(!oshi.macAddr.isEmpty() && oshi.macAddr.equals(macAddr)) rate+=19;
             return rate;
         }
         return 0;
