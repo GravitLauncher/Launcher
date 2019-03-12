@@ -10,6 +10,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class DirBridge {
+
+    public static final String USE_CUSTOMDIR_PROPERTY = "launcher.usecustomdir";
+    public static final String CUSTOMDIR_PROPERTY = "launcher.customdir";
+    public static final String USE_OPTDIR_PROPERTY = "launcher.useoptdir";
+
     @LauncherAPI
     public static Path dir;
     @LauncherAPI
@@ -27,12 +32,12 @@ public class DirBridge {
 
     @LauncherAPI
     public static Path getAppDataDir() throws IOException {
-        Boolean isCustomDir = Boolean.getBoolean(System.getProperty("launcher.usecustomdir", "false"));
+        boolean isCustomDir = Boolean.getBoolean(System.getProperty(USE_CUSTOMDIR_PROPERTY, "false"));
         if (isCustomDir) {
-            return Paths.get(System.getProperty("launcher.customdir"));
+            return Paths.get(System.getProperty(CUSTOMDIR_PROPERTY));
         }
         if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
-            Boolean isOpt = Boolean.getBoolean(System.getProperty("launcher.useoptdir", "false"));
+            boolean isOpt = Boolean.getBoolean(System.getProperty(USE_OPTDIR_PROPERTY, "false"));
             if (isOpt) {
                 Path opt = Paths.get("/").resolve("opt");
                 if (!IOHelper.isDir(opt)) Files.createDirectories(opt);

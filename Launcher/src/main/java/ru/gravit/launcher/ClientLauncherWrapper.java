@@ -1,6 +1,7 @@
 package ru.gravit.launcher;
 
 import ru.gravit.launcher.client.ClientLauncher;
+import ru.gravit.launcher.client.DirBridge;
 import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
@@ -19,18 +20,22 @@ public class ClientLauncherWrapper {
         LogHelper.printLicense("Launcher");
         LogHelper.info("Restart Launcher with JavaAgent...");
         LogHelper.info("If need debug output use -Dlauncher.debug=true");
+        LogHelper.info("If need stacktrace output use -Dlauncher.stacktrace=true");
         JVMHelper.checkStackTrace(ClientLauncherWrapper.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
         LogHelper.debug("Restart Launcher");
         ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.inheritIO();
+        if (LogHelper.isDebugEnabled()) processBuilder.inheritIO();
         Path javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
         List<String> args = new LinkedList<>();
         args.add(javaBin.toString());
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         args.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled())));
+        JVMHelper.addSystemPropertyToArgs(args, DirBridge.CUSTOMDIR_PROPERTY);
+        JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_CUSTOMDIR_PROPERTY);
+        JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_OPTDIR_PROPERTY);
         Collections.addAll(args, "-javaagent:".concat(pathLauncher));
         Collections.addAll(args, "-cp");
         Collections.addAll(args, pathLauncher);

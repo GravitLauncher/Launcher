@@ -58,7 +58,6 @@ public class LauncherEngine {
 
     @LauncherAPI
     public void start(String... args) throws Throwable {
-        LogHelper.debug("%d", LauncherSettings.settingsMagic);
         Launcher.modulesManager = new ClientModuleManager(this);
         LauncherConfig.getAutogenConfig().initModules();
         Launcher.modulesManager.preInitModules();
