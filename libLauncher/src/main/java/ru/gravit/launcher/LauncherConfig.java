@@ -14,10 +14,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 public final class LauncherConfig extends StreamObject {
-    @LauncherAPI
-    public static final String ADDRESS_OVERRIDE_PROPERTY = "launcher.addressOverride";
-    @LauncherAPI
-    public static final String ADDRESS_OVERRIDE = System.getProperty(ADDRESS_OVERRIDE_PROPERTY, null);
     private static final AutogenConfig config = new AutogenConfig();
 
 
@@ -51,9 +47,7 @@ public final class LauncherConfig extends StreamObject {
 
     @LauncherAPI
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
-        String localAddress = config.address;
-        address = InetSocketAddress.createUnresolved(
-                ADDRESS_OVERRIDE == null ? localAddress : ADDRESS_OVERRIDE, config.port);
+        address = InetSocketAddress.createUnresolved( config.address, config.port);
         publicKey = SecurityHelper.toPublicRSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
         projectname = config.projectname;
         clientPort = config.clientPort;
@@ -84,10 +78,6 @@ public final class LauncherConfig extends StreamObject {
                     String.format("Duplicate runtime resource: '%s'", name));
         }
         runtime = Collections.unmodifiableMap(localResources);
-
-        // Print warning if address override is enabled
-        if (ADDRESS_OVERRIDE != null)
-            LogHelper.warning("Address override is enabled: '%s'", ADDRESS_OVERRIDE);
     }
 
     @LauncherAPI
