@@ -28,8 +28,8 @@ public final class AuthServerResponse extends Response {
         return new String(chars);
     }
 
-    public AuthServerResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public AuthServerResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override
@@ -52,7 +52,6 @@ public final class AuthServerResponse extends Response {
         debug("ServerLogin: '%s', Password: '%s'", login, echo(password.length()));
         AuthProviderResult result;
         AuthProvider provider = server.config.authProvider[auth_id];
-        Client clientData = server.sessionManager.getClient(session);
         try {
             if (server.limiter.isLimit(ip)) {
                 AuthProvider.authError(server.config.authRejectString);

@@ -5,14 +5,15 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.binary.LauncherBinary;
 import ru.gravit.launchserver.response.Response;
+import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 
 public final class LegacyLauncherResponse extends Response {
 
-    public LegacyLauncherResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public LegacyLauncherResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override

@@ -16,8 +16,8 @@ import java.util.UUID;
 
 public final class CheckServerResponse extends Response {
 
-    public CheckServerResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public CheckServerResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override
@@ -26,7 +26,6 @@ public final class CheckServerResponse extends Response {
         String serverID = VerifyHelper.verifyServerID(input.readASCII(41)); // With minus sign
         String client = input.readString(SerializeLimits.MAX_CLIENT);
         debug("Username: %s, Server ID: %s", username, serverID);
-        Client clientData = server.sessionManager.getClient(session);
         if (!clientData.isAuth || clientData.type != Client.Type.SERVER) {
             requestError("Access denied");
             return;

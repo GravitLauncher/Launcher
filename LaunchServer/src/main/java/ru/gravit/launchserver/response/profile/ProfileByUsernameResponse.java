@@ -5,6 +5,7 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.Response;
+import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
@@ -24,8 +25,8 @@ public final class ProfileByUsernameResponse extends Response {
         ProfileByUUIDResponse.getProfile(server, uuid, username, client).write(output);
     }
 
-    public ProfileByUsernameResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public ProfileByUsernameResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override

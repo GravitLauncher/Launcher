@@ -11,14 +11,13 @@ import ru.gravit.launchserver.socket.Client;
 import java.util.Collection;
 
 public class SetProfileResponse extends Response {
-    public SetProfileResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public SetProfileResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override
     public void reply() throws Exception {
         String client = input.readString(SerializeLimits.MAX_CLIENT);
-        Client clientData = server.sessionManager.getClient(session);
         if (!clientData.isAuth) requestError("You not auth");
         Collection<ClientProfile> profiles = server.getProfiles();
         for (ClientProfile p : profiles) {

@@ -11,6 +11,7 @@ import ru.gravit.launchserver.response.profile.BatchProfileByUsernameResponse;
 import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
 import ru.gravit.launchserver.response.profile.ProfileByUsernameResponse;
 import ru.gravit.launchserver.response.update.*;
+import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
@@ -21,13 +22,13 @@ public abstract class Response {
     @FunctionalInterface
     public interface Factory<R> {
 
-        Response newResponse(LaunchServer server, long id, HInput input, HOutput output, String ip);
+        Response newResponse(LaunchServer server, long id, HInput input, HOutput output, String ip, Client clientData);
     }
 
     private static final Map<Integer, Factory<?>> RESPONSES = new ConcurrentHashMap<>(8);
 
-    public static Response getResponse(int type, LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        return RESPONSES.get(type).newResponse(server, session, input, output, ip);
+    public static Response getResponse(int type, LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        return RESPONSES.get(type).newResponse(server, session, input, output, ip, clientData);
     }
 
     public static void registerResponse(int type, Factory<?> factory) {
@@ -72,15 +73,18 @@ public abstract class Response {
 
     protected final String ip;
 
+    protected final Client clientData;
+
 
     protected final long session;
 
-    protected Response(LaunchServer server, long session, HInput input, HOutput output, String ip) {
+    protected Response(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
         this.server = server;
         this.input = input;
         this.output = output;
         this.ip = ip;
         this.session = session;
+        this.clientData = clientData;
     }
 
 

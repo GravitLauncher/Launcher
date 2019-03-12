@@ -11,8 +11,8 @@ import ru.gravit.utils.helper.LogHelper;
 import java.io.IOException;
 
 public class ExecCommandResponse extends Response {
-    public ExecCommandResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public ExecCommandResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override

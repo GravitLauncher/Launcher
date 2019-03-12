@@ -82,12 +82,12 @@ public final class ResponseThread implements Runnable {
         return new Handshake(type, session);
     }
 
-    private void respond(Integer type, HInput input, HOutput output, long session, String ip) throws Exception {
+    private void respond(Integer type, HInput input, HOutput output, long session, String ip, Client clientData) throws Exception {
         if (server.serverSocketHandler.logConnections)
             LogHelper.info("Connection #%d from %s", session, ip);
 
         // Choose response based on type
-        Response response = Response.getResponse(type, server, session, input, output, ip);
+        Response response = Response.getResponse(type, server, session, input, output, ip, clientData);
 
         // Reply
         response.reply();
@@ -115,11 +115,13 @@ public final class ResponseThread implements Runnable {
             context.ip = IOHelper.getIP(socket.getRemoteSocketAddress());
             context.session = handshake.session;
             context.type = handshake.type;
+            Client clientData = server.sessionManager.getOrNewClient(context.session);
+            context.client = clientData;
 
             // Start response
             if (socketHookManager.preHook(context)) {
                 try {
-                    respond(handshake.type, input, output, handshake.session, context.ip);
+                    respond(handshake.type, input, output, handshake.session, context.ip, clientData);
                     socketHookManager.postHook(context);
                 } catch (RequestException e) {
                     if (server.socketHookManager.errorHook(context, e)) {
