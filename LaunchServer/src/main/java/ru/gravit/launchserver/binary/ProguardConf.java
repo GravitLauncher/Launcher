@@ -4,6 +4,7 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
+import ru.gravit.utils.helper.UnpackHelper;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -58,9 +59,7 @@ public class ProguardConf {
     private void genConfig(boolean force) throws IOException {
         if (IOHelper.exists(config) && !force) return;
         Files.deleteIfExists(config);
-        try (OutputStream out = IOHelper.newOutput(config); InputStream in = IOHelper.newInput(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/proguard.cfg"))) {
-            IOHelper.transfer(in, out);
-        }
+        UnpackHelper.unpack(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/proguard.cfg"), config);
     }
 
     public void genWords(boolean force) throws IOException {
