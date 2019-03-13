@@ -8,6 +8,9 @@ repositories {
 	maven {
 		url "https://oss.sonatype.org/content/repositories/snapshots"
 	}
+	maven {
+		url 'http://oss.sonatype.org/content/groups/public'
+	}
 }
 
 sourceCompatibility = '1.8'
@@ -38,8 +41,7 @@ jar {
 
 dependencies {
 	pack project(':libLauncher')
-	bundle 'org.ow2.asm:asm-commons:7.0'
-	bundle 'org.ow2.asm:asm-util:7.0'
+	bundle project(':Radon')
 	bundle 'mysql:mysql-connector-java:8.0.13'
 	bundle 'jline:jline:2.14.6'
 	bundle 'net.sf.proguard:proguard-base:6.0.3'
