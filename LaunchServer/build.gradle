@@ -3,13 +3,10 @@ def mainAgentName = "ru.gravit.launchserver.StarterAgent"
 
 repositories {
 	maven {
-		url "http://maven.geomajas.org/"
-	}
-	maven {
 		url "https://oss.sonatype.org/content/repositories/snapshots"
 	}
 	maven {
-		url 'http://oss.sonatype.org/content/groups/public'
+		url "http://maven.geomajas.org/"
 	}
 }
 
