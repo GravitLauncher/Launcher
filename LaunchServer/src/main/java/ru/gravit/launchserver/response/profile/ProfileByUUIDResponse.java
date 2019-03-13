@@ -7,6 +7,7 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.Response;
+import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
@@ -37,8 +38,8 @@ public final class ProfileByUUIDResponse extends Response {
         return new PlayerProfile(uuid, username, skin, cloak);
     }
 
-    public ProfileByUUIDResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public ProfileByUUIDResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override

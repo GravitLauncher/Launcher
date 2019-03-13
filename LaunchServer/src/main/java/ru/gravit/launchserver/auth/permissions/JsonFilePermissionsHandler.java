@@ -33,6 +33,11 @@ public class JsonFilePermissionsHandler extends PermissionsHandler implements Re
         }
     }
 
+    @Override
+    public void close() throws Exception {
+
+    }
+
     public static class Enity {
         public String username;
         public ClientPermissions permissions;

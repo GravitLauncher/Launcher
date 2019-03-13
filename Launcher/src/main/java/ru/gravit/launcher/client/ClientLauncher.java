@@ -347,8 +347,9 @@ public final class ClientLauncher {
         context.args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         context.args.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled())));
         context.args.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, Boolean.toString(LogHelper.isDevEnabled())));
-        if (LauncherConfig.ADDRESS_OVERRIDE != null)
-            context.args.add(JVMHelper.jvmProperty(LauncherConfig.ADDRESS_OVERRIDE_PROPERTY, LauncherConfig.ADDRESS_OVERRIDE));
+        JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.CUSTOMDIR_PROPERTY);
+        JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.USE_CUSTOMDIR_PROPERTY);
+        JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.USE_OPTDIR_PROPERTY);
         if (JVMHelper.OS_TYPE == OS.MUSTDIE) {
             if (JVMHelper.OS_VERSION.startsWith("10.")) {
                 LogHelper.debug("MustDie 10 fix is applied");
@@ -470,46 +471,6 @@ public final class ClientLauncher {
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
             verifyHDir(params.assetDir, assetHDir, assetMatcher, digest);
             verifyHDir(params.clientDir, clientHDir, clientMatcher, digest);
-            launch(profile, params);
-        }
-    }
-
-    @LauncherAPI
-    public void launchLocal(HashedDir assetHDir, HashedDir clientHDir,
-                            ClientProfile profile, Params params) throws Throwable {
-        RSAPublicKey publicKey = Launcher.getConfig().publicKey;
-        LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherDigest, publicKey);
-        LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
-        for (Path classpathURL : classPath) {
-            LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
-        }
-        URL[] classpathurls = resolveClassPath(params.clientDir, profile.getClassPath());
-        classLoader = new PublicURLClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
-        Thread.currentThread().setContextClassLoader(classLoader);
-        classLoader.nativePath = params.clientDir.resolve(NATIVES_DIR).toString();
-        PublicURLClassLoader.systemclassloader = classLoader;
-        // Start client with WatchService monitoring
-        boolean digest = !profile.isUpdateFastCheck();
-        LogHelper.debug("Starting JVM and client WatchService");
-        FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
-        FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
-        try (DirWatcher assetWatcher = new DirWatcher(params.assetDir, assetHDir, assetMatcher, digest);
-             DirWatcher clientWatcher = new DirWatcher(params.clientDir, clientHDir, clientMatcher, digest)) {
-            // Verify current state of all dirs
-            //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
-            HashedDir hdir = clientHDir;
-            //for (OptionalFile s : Launcher.profile.getOptional()) {
-            //    if (params.updateOptional.contains(s)) s.mark = true;
-            //    else hdir.removeR(s.file);
-            //}
-            Launcher.profile.pushOptionalFile(hdir,false);
-            verifyHDir(params.assetDir, assetHDir, assetMatcher, digest);
-            verifyHDir(params.clientDir, hdir, clientMatcher, digest);
-            Launcher.modulesManager.postInitModules();
-            // Start WatchService, and only then client
-            CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
-            CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
             launch(profile, params);
         }
     }

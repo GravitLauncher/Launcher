@@ -15,8 +15,8 @@ import java.io.IOException;
 
 public final class JoinServerResponse extends Response {
 
-    public JoinServerResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public JoinServerResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override
@@ -24,7 +24,6 @@ public final class JoinServerResponse extends Response {
         String username = VerifyHelper.verifyUsername(input.readString(SerializeLimits.MAX_LOGIN));
         String accessToken = SecurityHelper.verifyToken(input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH));
         String serverID = VerifyHelper.verifyServerID(input.readASCII(SerializeLimits.MAX_SERVERID)); // With minus sign
-        Client clientData = server.sessionManager.getClient(session);
         if (!clientData.isAuth || clientData.type != Client.Type.USER) {
             requestError("Access denied");
             return;

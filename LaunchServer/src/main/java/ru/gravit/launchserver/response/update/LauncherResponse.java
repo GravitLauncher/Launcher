@@ -13,8 +13,8 @@ import java.util.Arrays;
 
 public final class LauncherResponse extends Response {
 
-    public LauncherResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public LauncherResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override
@@ -25,17 +25,16 @@ public final class LauncherResponse extends Response {
             requestError("Missing launcher binary");
             return;
         }
-        Client client = server.sessionManager.getOrNewClient(session);
         byte[] digest = input.readByteArray(SerializeLimits.MAX_DIGEST);
         if (!Arrays.equals(bytes.getDigest(), digest)) {
             writeNoError(output);
             output.writeBoolean(true);
             output.writeByteArray(bytes.getBytes(), 0);
-            client.checkSign = false;
+            clientData.checkSign = false;
             return;
         }
         writeNoError(output);
         output.writeBoolean(false);
-        client.checkSign = true;
+        clientData.checkSign = true;
     }
 }

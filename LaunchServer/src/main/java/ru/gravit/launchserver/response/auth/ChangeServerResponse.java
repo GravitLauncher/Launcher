@@ -4,14 +4,15 @@ import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.response.Response;
+import ru.gravit.launchserver.socket.Client;
 
 public class ChangeServerResponse extends Response {
     public static boolean needChange = false;
     public static String address;
     public static int port;
 
-    public ChangeServerResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public ChangeServerResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override

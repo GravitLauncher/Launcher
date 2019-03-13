@@ -151,6 +151,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
                     db_hwid.processorID = set.getString(hwidFieldProcessorID);
                     db_hwid.HWDiskSerial = set.getString(hwidFieldHWDiskSerial);
                     db_hwid.totalMemory = Long.valueOf(set.getString(hwidFieldTotalMemory));
+                    db_hwid.macAddr = "";
                     LogHelper.dev("Compare HWID: %s vs %s", hwid.getSerializeString(), db_hwid.getSerializeString());
                     int compare_point = hwid.compare(db_hwid);
                     if(compare_point < compare) continue;

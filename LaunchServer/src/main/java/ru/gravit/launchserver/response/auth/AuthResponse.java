@@ -31,8 +31,8 @@ public final class AuthResponse extends Response {
         return new String(chars);
     }
 
-    public AuthResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public AuthResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     public static class AuthContext {
@@ -81,7 +81,6 @@ public final class AuthResponse extends Response {
         debug("Login: '%s', Password: '%s'", login, echo(password.length()));
         AuthProviderResult result;
         AuthProvider provider = server.config.authProvider[auth_id];
-        Client clientData = server.sessionManager.getClient(session);
         clientData.type = Client.Type.USER;
         AuthContext context = new AuthContext(session, login, password.length(), customText, client, hwid_str, false);
         try {

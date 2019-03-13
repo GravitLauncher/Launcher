@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class PermissionsHandler {
+public abstract class PermissionsHandler implements AutoCloseable {
     private static final Map<String, Class<? extends PermissionsHandler>> PERMISSIONS_HANDLERS = new ConcurrentHashMap<>(4);
     private static boolean registredHandl = false;
 

@@ -41,8 +41,6 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
         args.add(IOHelper.resolveJavaBin(null).toString());
         if (LogHelper.isDebugEnabled())
             args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
-        if (LauncherConfig.ADDRESS_OVERRIDE != null)
-            args.add(JVMHelper.jvmProperty(LauncherConfig.ADDRESS_OVERRIDE_PROPERTY, LauncherConfig.ADDRESS_OVERRIDE));
         args.add("-jar");
         args.add(BINARY_PATH.toString());
         ProcessBuilder builder = new ProcessBuilder(args.toArray(new String[0]));

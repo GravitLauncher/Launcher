@@ -24,8 +24,8 @@ import java.util.zip.DeflaterOutputStream;
 
 public final class UpdateResponse extends Response {
 
-    public UpdateResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public UpdateResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override
@@ -37,7 +37,6 @@ public final class UpdateResponse extends Response {
             requestError(String.format("Unknown update dir: %s", updateDirName));
             return;
         }
-        Client clientData = server.sessionManager.getClient(session);
         if (!clientData.isAuth || clientData.type != Client.Type.USER || clientData.profile == null) {
             requestError("Access denied");
             return;

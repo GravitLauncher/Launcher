@@ -14,16 +14,15 @@ import java.util.Collection;
 
 public final class ProfilesResponse extends Response {
 
-    public ProfilesResponse(LaunchServer server, long session, HInput input, HOutput output, String ip) {
-        super(server, session, input, output, ip);
+    public ProfilesResponse(LaunchServer server, long session, HInput input, HOutput output, String ip, Client clientData) {
+        super(server, session, input, output, ip, clientData);
     }
 
     @Override
     public void reply() throws IOException {
         // Resolve launcher binary
-        Client client = server.sessionManager.getClient(session);
         input.readBoolean();
-        if (client.type == Client.Type.USER && !client.checkSign) {
+        if (clientData.type == Client.Type.USER && !clientData.checkSign) {
             LogHelper.warning("User session: %d ip %s try get profiles", session, ip);
             requestError("Access denied");
             return;

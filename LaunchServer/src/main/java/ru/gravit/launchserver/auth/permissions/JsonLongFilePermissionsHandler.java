@@ -34,6 +34,11 @@ public class JsonLongFilePermissionsHandler extends PermissionsHandler implement
         }
     }
 
+    @Override
+    public void close() throws Exception {
+
+    }
+
     public static class Enity {
         public String username;
         public ClientPermissions permissions;
