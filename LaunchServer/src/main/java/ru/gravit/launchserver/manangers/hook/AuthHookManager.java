@@ -1,5 +1,7 @@
 package ru.gravit.launchserver.manangers.hook;
 
+import ru.gravit.launcher.request.RequestException;
+import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.response.auth.AuthResponse;
 import ru.gravit.launchserver.socket.Client;
 
@@ -14,22 +16,22 @@ public class AuthHookManager {
 
     @FunctionalInterface
     public interface AuthPreHook {
-        void preAuthHook(AuthResponse.AuthContext context, Client client);
+        void preAuthHook(AuthResponse.AuthContext context, Client client) throws AuthException;
     }
 
     @FunctionalInterface
     public interface AuthPostHook {
-        void postAuthHook(AuthResponse.AuthContext context, Client client);
+        void postAuthHook(AuthResponse.AuthContext context, Client client) throws AuthException;
     }
 
     @FunctionalInterface
     public interface CheckServerHook {
-        void checkServerHook(String username, String serverID);
+        void checkServerHook(String username, String serverID) throws AuthException;
     }
 
     @FunctionalInterface
     public interface JoinServerHook {
-        void joinServerHook(String username, String accessToken, String serverID);
+        void joinServerHook(String username, String accessToken, String serverID) throws AuthException;
     }
 
     public void registerPostHook(AuthPostHook hook) {
@@ -48,25 +50,25 @@ public class AuthHookManager {
         PRE_HOOKS.add(hook);
     }
 
-    public void preHook(AuthResponse.AuthContext context, Client client) {
+    public void preHook(AuthResponse.AuthContext context, Client client) throws AuthException {
         for (AuthPreHook preHook : PRE_HOOKS) {
             preHook.preAuthHook(context, client);
         }
     }
 
-    public void checkServerHook(String username, String serverID) {
+    public void checkServerHook(String username, String serverID) throws AuthException {
         for (CheckServerHook hook : CHECKSERVER_HOOKS) {
             hook.checkServerHook(username, serverID);
         }
     }
 
-    public void joinServerHook(String username, String accessToken, String serverID) {
+    public void joinServerHook(String username, String accessToken, String serverID) throws AuthException {
         for (JoinServerHook hook : JOINSERVER_HOOKS) {
             hook.joinServerHook(username, accessToken, serverID);
         }
     }
 
-    public void postHook(AuthResponse.AuthContext context, Client client) {
+    public void postHook(AuthResponse.AuthContext context, Client client) throws AuthException {
         for (AuthPostHook postHook : POST_HOOKS) {
             postHook.postAuthHook(context, client);
         }

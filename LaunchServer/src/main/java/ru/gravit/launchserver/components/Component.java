@@ -30,6 +30,7 @@ public abstract class Component {
 
     public static void registerComponents() {
         if (!registredComp) {
+            registerComponent("authLimiter", AuthLimiterComponent.class);
             registredComp = true;
         }
     }

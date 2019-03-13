@@ -8,7 +8,7 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
-import ru.gravit.launchserver.auth.AuthLimiter;
+import ru.gravit.launchserver.components.AuthLimiterComponent;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import ru.gravit.launchserver.auth.hwid.AcceptHWIDHandler;
@@ -33,7 +33,6 @@ import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.RequestTextureProvider;
 import ru.gravit.launchserver.texture.TextureProvider;
 import ru.gravit.utils.helper.*;
-import sun.nio.cs.ext.COMPOUND_TEXT;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -48,8 +47,6 @@ import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -110,14 +107,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public GuardLicenseConf guardLicense;
 
         public boolean compress;
-
-        public int authRateLimit;
-
-        public int authRateLimitMilis;
-
-        public String[] authLimitExclusions;
-
-        public String authRejectString;
 
         public String whitelistRejectString;
 
@@ -329,8 +318,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public final LauncherBinary launcherEXEBinary;
     // HWID ban + anti-brutforce
 
-    public final AuthLimiter limiter;
-
     public final SessionManager sessionManager;
 
     public final SocketHookManager socketHookManager;
@@ -463,7 +450,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         // build hooks, anti-brutforce and other
         buildHookManager = new BuildHookManager();
-        limiter = new AuthLimiter(this);
         proguardConf = new ProguardConf(this);
         sessionManager = new SessionManager();
         mirrorManager = new MirrorManager();
@@ -472,7 +458,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         socketHookManager = new SocketHookManager();
         authHookManager = new AuthHookManager();
         GarbageManager.registerNeedGC(sessionManager);
-        GarbageManager.registerNeedGC(limiter);
         reloadManager.registerReloadable("launchServer", this);
         if (config.permissionsHandler instanceof Reloadable)
             reloadManager.registerReloadable("permissionsHandler", (Reloadable) config.permissionsHandler);
@@ -632,7 +617,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.port = 7240;
         newConfig.bindAddress = "0.0.0.0";
-        newConfig.authRejectString = "Превышен лимит авторизаций";
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
@@ -648,6 +632,13 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.stripLineNumbers = true;
         newConfig.deleteTempFiles = true;
         newConfig.isWarningMissArchJava = true;
+
+        newConfig.components = new HashMap<>();
+        AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
+        authLimiterComponent.rateLimit = 3;
+        authLimiterComponent.rateLimitMilis = 8000;
+        authLimiterComponent.message = "Превышен лимит авторизаций";
+        newConfig.components.put("authLimiter", authLimiterComponent);
 
         // Set server address
         System.out.println("LaunchServer address: ");
