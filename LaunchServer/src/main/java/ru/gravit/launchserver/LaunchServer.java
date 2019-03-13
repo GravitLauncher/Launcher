@@ -18,6 +18,7 @@ import ru.gravit.launchserver.auth.permissions.PermissionsHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
 import ru.gravit.launchserver.binary.*;
+import ru.gravit.launchserver.components.Component;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.command.JLineCommandHandler;
 import ru.gravit.utils.command.StdCommandHandler;
@@ -532,6 +533,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         Launcher.gsonBuilder.registerTypeAdapter(AuthHandler.class, new AuthHandlerAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new PermissionsHandlerAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
+        Launcher.gsonBuilder.registerTypeAdapter(Component.class, new ComponentAdapter());
         Launcher.gson = Launcher.gsonBuilder.create();
 
         //Human readable
@@ -542,6 +544,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         LaunchServer.gsonBuilder.registerTypeAdapter(AuthHandler.class, new AuthHandlerAdapter());
         LaunchServer.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new PermissionsHandlerAdapter());
         LaunchServer.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
+        LaunchServer.gsonBuilder.registerTypeAdapter(Component.class, new ComponentAdapter());
         LaunchServer.gson = LaunchServer.gsonBuilder.create();
     }
 
