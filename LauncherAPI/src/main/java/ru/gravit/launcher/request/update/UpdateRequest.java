@@ -303,9 +303,16 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     }
 
     @Override
-    protected UpdateRequestEvent requestDo(HInput input, HOutput output) throws IOException, SignatureException {
+    public UpdateRequestEvent request() throws Exception {
         Files.createDirectories(dir);
         localDir = new HashedDir(dir, matcher, false, digest);
+
+        // Start request
+        return super.request();
+    }
+
+    @Override
+    protected UpdateRequestEvent requestDo(HInput input, HOutput output) throws IOException, SignatureException {
         // Write update dir name
         output.writeString(dirName, 255);
         output.flush();
