@@ -30,15 +30,15 @@ public class LauncherEngine {
         // Start Launcher
         initGson();
         LogHelper.setStacktraceEnabled(true);
-        Instant start = Instant.now();
+        long startTime = System.currentTimeMillis();
         try {
             new LauncherEngine().start(args);
         } catch (Exception e) {
             LogHelper.error(e);
             return;
         }
-        Instant end = Instant.now();
-        LogHelper.debug("Launcher started in %dms", Duration.between(start, end).toMillis());
+        long endTime = System.currentTimeMillis();
+        LogHelper.debug("Launcher started in %dms", endTime - startTime);
     }
 
     public static void initGson() {

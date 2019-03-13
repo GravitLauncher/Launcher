@@ -276,7 +276,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         LogHelper.printLicense("LaunchServer");
 
         // Start LaunchServer
-        Instant start = Instant.now();
+        long startTime = System.currentTimeMillis();
         try {
             LaunchServer launchserver = new LaunchServer(IOHelper.WORKING_DIR, args);
             if(args.length == 0) launchserver.run();
@@ -287,8 +287,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             LogHelper.error(exc);
             return;
         }
-        Instant end = Instant.now();
-        LogHelper.debug("LaunchServer started in %dms", Duration.between(start, end).toMillis());
+        long endTime = System.currentTimeMillis();
+        LogHelper.debug("LaunchServer started in %dms", endTime - startTime);
     }
 
     // Constant paths

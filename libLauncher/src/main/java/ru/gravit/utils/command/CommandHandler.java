@@ -38,7 +38,7 @@ public abstract class CommandHandler implements Runnable {
             return;
 
         // Measure start time and invoke command
-        Instant startTime = Instant.now();
+        long startTime = System.currentTimeMillis();
         try {
             lookup(args[0]).invoke(Arrays.copyOfRange(args, 1, args.length));
         } catch (Exception e) {
@@ -46,8 +46,8 @@ public abstract class CommandHandler implements Runnable {
         }
 
         // Bell if invocation took > 1s
-        Instant endTime = Instant.now();
-        if (bell && Duration.between(startTime, endTime).getSeconds() >= 5)
+        long endTime = System.currentTimeMillis();
+        if (bell && endTime - startTime >= 5000)
             try {
                 bell();
             } catch (IOException e) {
