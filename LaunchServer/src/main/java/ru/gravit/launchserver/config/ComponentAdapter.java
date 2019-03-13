@@ -1,7 +1,6 @@
 package ru.gravit.launchserver.config;
 
 import com.google.gson.*;
-import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.components.Component;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -13,7 +12,7 @@ public class ComponentAdapter implements JsonSerializer<Component>, JsonDeserial
     @Override
     public Component deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
-        Class<? extends Component> cls = Component.getHandlerClass(typename);
+        Class<? extends Component> cls = Component.getComponentClass(typename);
         if(cls == null)
         {
             LogHelper.error("Component %s not found", typename);
@@ -29,7 +28,7 @@ public class ComponentAdapter implements JsonSerializer<Component>, JsonDeserial
         JsonObject jo = context.serialize(src).getAsJsonObject();
 
         @SuppressWarnings("unchecked")
-        String classPath = Component.getHandlerName((Class<Component>) src.getClass());
+        String classPath = Component.getComponentName((Class<Component>) src.getClass());
         jo.add(PROP_NAME, new JsonPrimitive(classPath));
 
         return jo;

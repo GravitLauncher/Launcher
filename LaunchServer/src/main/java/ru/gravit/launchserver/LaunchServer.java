@@ -33,6 +33,7 @@ import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.RequestTextureProvider;
 import ru.gravit.launchserver.texture.TextureProvider;
 import ru.gravit.utils.helper.*;
+import sun.nio.cs.ext.COMPOUND_TEXT;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -96,6 +97,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public TextureProvider textureProvider;
 
         public HWIDHandler hwidHandler;
+
+        public HashMap<String, Component> components;
 
         // Misc options
         public int threadCount;
@@ -448,6 +451,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             provider.init();
         }
         config.authHandler.init();
+        if(config.components != null)
+        {
+            LogHelper.debug("PreInit components");
+            config.components.forEach((k,v) -> {
+                LogHelper.subDebug("PreInit component %s", k);
+                v.preInit(this);
+            });
+            LogHelper.debug("PreInit components successful");
+        }
 
         // build hooks, anti-brutforce and other
         buildHookManager = new BuildHookManager();
@@ -492,6 +504,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         // init modules
         modulesManager.initModules();
+        if(config.components != null)
+        {
+            LogHelper.debug("Init components");
+            config.components.forEach((k,v) -> {
+                LogHelper.subDebug("Init component %s", k);
+                v.init(this);
+            });
+            LogHelper.debug("Init components successful");
+        }
 
         // Set launcher EXE binary
         launcherBinary = new JARLauncherBinary(this);
@@ -517,6 +538,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         // post init modules
         modulesManager.postInitModules();
+        if(config.components != null)
+        {
+            LogHelper.debug("PostInit components");
+            config.components.forEach((k,v) -> {
+                LogHelper.subDebug("PostInit component %s", k);
+                v.postInit(this);
+            });
+            LogHelper.debug("PostInit components successful");
+        }
         // start updater
         this.updater = new Updater(this);
         if(config.netty != null)
