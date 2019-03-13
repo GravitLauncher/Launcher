@@ -352,7 +352,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
 
 	public final Timer taskPool;
-    public final Updater updater;
 
     public static Gson gson;
     public static GsonBuilder gsonBuilder;
@@ -379,6 +378,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         HWIDHandler.registerHandlers();
         PermissionsHandler.registerHandlers();
         Response.registerResponses();
+        Component.registerComponents();
         LaunchServer.server = this;
 
         // Set command handler
@@ -533,7 +533,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             LogHelper.debug("PostInit components successful");
         }
         // start updater
-        this.updater = new Updater(this);
         if(config.netty != null)
             nettyServerSocketHandler = new NettyServerSocketHandler(this);
         else

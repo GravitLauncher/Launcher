@@ -48,7 +48,6 @@ dependencies {
 	bundle 'commons-codec:commons-codec:1.11'
 	bundle 'org.javassist:javassist:3.24.1-GA'
 	bundle 'io.netty:netty-all:4.1.32.Final'
-	bundle 'org.kohsuke:github-api:1.95'
 
 	bundle 'org.slf4j:slf4j-simple:1.7.25'
 	bundle 'org.slf4j:slf4j-api:1.7.25'
