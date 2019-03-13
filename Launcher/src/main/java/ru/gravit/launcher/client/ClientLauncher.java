@@ -302,7 +302,7 @@ public final class ClientLauncher {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
         ClientLauncherContext context = new ClientLauncherContext();
-        CommonHelper.newThread("Client params writter", false, () ->
+        CommonHelper.newThread("Client params writter", true, () ->
         {
             try {
                 try (ServerSocket socket = new ServerSocket()) {
@@ -388,6 +388,7 @@ public final class ClientLauncher {
         }
         // Let's rock!
         process = builder.start();
+        if(!LogHelper.isDebugEnabled()) Thread.sleep(1000); //даем время потоку записи
         return process;
     }
 

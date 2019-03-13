@@ -122,8 +122,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public String startScript;
 
-		public boolean updatesNotify = true; // Defaultly to true
-
         public String getAddress() {
             return address;
         }
