@@ -137,10 +137,12 @@ public final class AuthResponse extends Response {
             requestError("Internal auth handler error");
             return;
         }
+        String protectToken = server.config.protectHandler.generateSecureToken(context);
         writeNoError(output);
         // Write profile and UUID
         ProfileByUUIDResponse.getProfile(server, uuid, result.username, client).write(output);
         output.writeASCII(result.accessToken, -SecurityHelper.TOKEN_STRING_LENGTH);
         clientData.permissions.write(output);
+        output.writeString(protectToken, SerializeLimits.MAX_CUSTOM_TEXT);
     }
 }

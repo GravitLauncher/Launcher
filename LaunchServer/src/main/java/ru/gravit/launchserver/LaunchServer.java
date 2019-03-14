@@ -8,6 +8,8 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
+import ru.gravit.launchserver.auth.protect.NoProtectHandler;
+import ru.gravit.launchserver.auth.protect.ProtectHandler;
 import ru.gravit.launchserver.components.AuthLimiterComponent;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.handler.MemoryAuthHandler;
@@ -89,6 +91,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public AuthHandler authHandler;
 
+        public ProtectHandler protectHandler;
+
         public PermissionsHandler permissionsHandler;
 
         public TextureProvider textureProvider;
@@ -158,6 +162,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             VerifyHelper.verify(getAddress(), VerifyHelper.NOT_EMPTY, "LaunchServer address can't be empty");
             if (authHandler == null) {
                 throw new NullPointerException("AuthHandler must not be null");
+            }
+            if(protectHandler == null)
+            {
+                throw new NullPointerException("ProtectHandler must not be null");
             }
             if (authProvider == null || authProvider[0] == null) {
                 throw new NullPointerException("AuthProvider must not be null");
@@ -377,6 +385,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         PermissionsHandler.registerHandlers();
         Response.registerResponses();
         Component.registerComponents();
+        ProtectHandler.registerHandlers();
         LaunchServer.server = this;
 
         // Set command handler
@@ -434,6 +443,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         Launcher.applyLauncherEnv(config.env);
         for (AuthProvider provider : config.authProvider) {
             provider.init();
+        }
+        if(config.protectHandler != null)
+        {
+            config.protectHandler.checkLaunchServerLicense();
         }
         config.authHandler.init();
         if(config.components != null)
@@ -546,6 +559,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         Launcher.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new PermissionsHandlerAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(Component.class, new ComponentAdapter());
+        Launcher.gsonBuilder.registerTypeAdapter(ProtectHandler.class, new ProtectHandlerAdapter());
         Launcher.gson = Launcher.gsonBuilder.create();
 
         //Human readable
@@ -557,6 +571,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         LaunchServer.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new PermissionsHandlerAdapter());
         LaunchServer.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
         LaunchServer.gsonBuilder.registerTypeAdapter(Component.class, new ComponentAdapter());
+        LaunchServer.gsonBuilder.registerTypeAdapter(ProtectHandler.class, new ProtectHandlerAdapter());
         LaunchServer.gson = LaunchServer.gsonBuilder.create();
     }
 
@@ -608,6 +623,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.authHandler = new MemoryAuthHandler();
         newConfig.hwidHandler = new AcceptHWIDHandler();
+        newConfig.protectHandler = new NoProtectHandler();
 
         newConfig.authProvider = new AuthProvider[]{new RejectAuthProvider("Настройте authProvider")};
         newConfig.textureProvider = new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png");

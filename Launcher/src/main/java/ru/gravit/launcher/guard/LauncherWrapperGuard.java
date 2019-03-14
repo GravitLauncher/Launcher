@@ -69,4 +69,9 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
             env.put("GUARD_LICENSE_KEY", config.guardLicenseKey);
         }
     }
+
+    @Override
+    public void setProtectToken(String token) {
+
+    }
 }

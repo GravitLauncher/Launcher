@@ -11,4 +11,5 @@ public interface LauncherGuardInterface {
     void init(boolean clientInstance);
     void addCustomParams(ClientLauncherContext context);
     void addCustomEnv(ClientLauncherContext context);
+    void setProtectToken(String token);
 }

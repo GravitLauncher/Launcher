@@ -20,11 +20,20 @@ public class AuthRequestEvent implements EventInterface, ResultInterface {
     public PlayerProfile playerProfile;
     @LauncherNetworkAPI
     public String accessToken;
+    @LauncherNetworkAPI
+    public String protectToken;
 
     public AuthRequestEvent(PlayerProfile pp, String accessToken, ClientPermissions permissions) {
         this.playerProfile = pp;
         this.accessToken = accessToken;
         this.permissions = permissions;
+    }
+
+    public AuthRequestEvent(ClientPermissions permissions, PlayerProfile playerProfile, String accessToken, String protectToken) {
+        this.permissions = permissions;
+        this.playerProfile = playerProfile;
+        this.accessToken = accessToken;
+        this.protectToken = protectToken;
     }
 
     @Override
