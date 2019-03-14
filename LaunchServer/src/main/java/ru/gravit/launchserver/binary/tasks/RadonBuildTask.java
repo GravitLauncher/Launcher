@@ -19,6 +19,7 @@ public class RadonBuildTask implements LauncherBuildTask {
     public RadonBuildTask(LaunchServer srv) {
         this.srv = srv;
         config = this.srv.dir.resolve("radon.yml");
+        System.setProperty("radon.useJVMCP", "true");
     }
 
     @Override
