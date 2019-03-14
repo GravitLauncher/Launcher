@@ -43,6 +43,6 @@ public class LauncherNoGuard implements LauncherGuardInterface {
 
     @Override
     public void setProtectToken(String token) {
-
+        //Skip
     }
 }

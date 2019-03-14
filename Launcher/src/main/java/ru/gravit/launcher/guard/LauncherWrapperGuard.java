@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.Map;
 
 public class LauncherWrapperGuard implements LauncherGuardInterface {
+
+    public String protectToken;
+
     @Override
     public String getName() {
         return "wrapper";
@@ -62,6 +65,7 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
         env.put("GUARD_USERNAME", context.playerProfile.username);
         env.put("GUARD_PUBLICKEY", config.publicKey.getModulus().toString(16));
         env.put("GUARD_PROJECTNAME", config.projectname);
+        env.put("GUARD_TOKEN", protectToken);
         if(config.guardLicenseName != null)
             env.put("GUARD_LICENSE_NAME", config.guardLicenseName);
         if(config.guardLicenseKey != null)
@@ -72,6 +76,6 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
 
     @Override
     public void setProtectToken(String token) {
-
+        protectToken = token;
     }
 }

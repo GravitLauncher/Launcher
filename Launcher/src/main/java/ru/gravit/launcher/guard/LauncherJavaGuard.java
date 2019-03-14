@@ -46,6 +46,6 @@ public class LauncherJavaGuard implements LauncherGuardInterface {
 
     @Override
     public void setProtectToken(String token) {
-
+        //Skip
     }
 }
