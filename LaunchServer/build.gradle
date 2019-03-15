@@ -131,4 +131,10 @@ task bundle(type: Zip) {
 	from(parent.childProjects.Launcher.tasks.dumpLibs) { into 'launcher-libraries' }
 }
 
-build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.bundle
+task dumpClientLibs(type: Copy) {
+	dependsOn parent.childProjects.Launcher.tasks.build
+	into "$buildDir/libs/launcher-libraries"
+	from parent.childProjects.Launcher.tasks.dumpLibs.destinationDir
+}
+
+build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle
