@@ -4,8 +4,10 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.UnpackHelper;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import me.itzsomebody.radon.Radon;
@@ -35,7 +37,9 @@ public class RadonBuildTask implements LauncherBuildTask {
         SessionInfo info = p.createSessionFromConfig();
         info.setInput(inputFile.toFile());
         info.setOutput(outputFile.toFile());
-        info.setLibraries(srv.launcherBinary.coreLibs.stream().map(e -> e.toFile()).collect(Collectors.toList()));
+        List<File> libs = srv.launcherBinary.coreLibs.stream().map(e -> e.toFile()).collect(Collectors.toList());
+        libs.addAll(srv.launcherBinary.addonLibs.stream().map(e -> e.toFile()).collect(Collectors.toList()));
+        info.setLibraries(libs);
         Radon r = new Radon(info);
         r.run();
         return outputFile;

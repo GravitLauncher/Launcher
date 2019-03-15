@@ -30,7 +30,9 @@ public class PrepareBuildTask implements LauncherBuildTask {
     @Override
     public Path process(Path inputFile) throws IOException {
         server.launcherBinary.coreLibs.clear();
+        server.launcherBinary.addonLibs.clear();
         IOHelper.walk(server.launcherLibraries, new ListFileVisitor(server.launcherBinary.coreLibs), true);
+        IOHelper.walk(server.launcherLibrariesCompile, new ListFileVisitor(server.launcherBinary.addonLibs), true);
         UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), result);
         tryUnpack();
         return result;

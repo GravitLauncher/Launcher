@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProguardConf {
-    private static final String charsFirst = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
     private static final String chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ";
 
     private static String generateString(SecureRandom rand, String lowString, String upString, int il) {
@@ -51,6 +50,9 @@ public class ProguardConf {
         srv.launcherBinary.coreLibs.stream()
                 .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
                 .forEach(confStrs::add);
+        srv.launcherBinary.addonLibs.stream()
+        		.map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
+        		.forEach(confStrs::add);
         confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add(readConf());
         return confStrs.toArray(new String[0]);
