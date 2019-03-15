@@ -183,7 +183,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
             OshiHWID oshiHWID = (OshiHWID) hwid;
             Connection c = mySQLHolder.getConnection();
             try {
-                PreparedStatement a = c.prepareStatement(queryBan)
+                PreparedStatement a = c.prepareStatement(queryBan);
                 String[] replaceParamsUpd = {"totalMemory", String.valueOf(oshiHWID.totalMemory), "serialNumber", oshiHWID.serialNumber, "HWDiskSerial", oshiHWID.HWDiskSerial, "processorID", oshiHWID.processorID, "isBanned", isBanned ? "1" : "0"};
                 for (int i = 0; i < paramsBan.length; i++) {
                     a.setString(i + 1, CommonHelper.replace(paramsBan[i], replaceParamsUpd));
