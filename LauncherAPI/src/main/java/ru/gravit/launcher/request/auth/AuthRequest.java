@@ -118,7 +118,8 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         PlayerProfile pp = new PlayerProfile(input);
         String accessToken = input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH);
         ClientPermissions permissions = new ClientPermissions(input);
-        return new AuthRequestEvent(pp, accessToken, permissions);
+        String protectToken = input.readString(SerializeLimits.MAX_CUSTOM_TEXT);
+        return new AuthRequestEvent(permissions, pp, accessToken, protectToken);
     }
 
     @Override

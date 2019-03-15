@@ -215,6 +215,7 @@ function doAuth(login, rsaPassword) {
     overlay.show(processing.overlay, function (event) {
         FunctionalBridge.getHWID.join();
         makeAuthRequest(login, rsaPassword, function (result) {
+            FunctionalBridge.setAuthParams(result);
             loginData = { pp: result.playerProfile , accessToken: result.accessToken, permissions: result.permissions};
 
             overlay.hide(0, function () {
