@@ -277,7 +277,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         // Start LaunchServer
         long startTime = System.currentTimeMillis();
         try {
-            LaunchServer launchserver = new LaunchServer(IOHelper.WORKING_DIR, args);
+            @SuppressWarnings("resource")
+			LaunchServer launchserver = new LaunchServer(IOHelper.WORKING_DIR, args);
             if(args.length == 0) launchserver.run();
             else { //Обработка команды
                 launchserver.commandHandler.eval(args,false);
@@ -295,6 +296,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public final Path dir;
 
     public final Path launcherLibraries;
+
+    public final Path launcherLibrariesCompile; 
 
     public final List<String> args;
 
@@ -366,10 +369,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         this.dir = dir;
         taskPool = new Timer("Timered task worker thread", true);
         launcherLibraries = dir.resolve("launcher-libraries");
-        if (!Files.isDirectory(launcherLibraries)) {
-            Files.deleteIfExists(launcherLibraries);
-            Files.createDirectory(launcherLibraries);
-        }
+        launcherLibrariesCompile = dir.resolve("launcher-libraries-compile");
         this.args = Arrays.asList(args);
         configFile = dir.resolve("LaunchServer.conf");
         publicKeyFile = dir.resolve("public.key");

@@ -14,6 +14,7 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 configurations {
+	compileOnlyA
 	bundleOnly
 	bundle
 	hikari
@@ -69,6 +70,8 @@ dependencies {
 	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-linux') {
 		exclude group: '*'
 	}	
+
+	compileOnlyA 'com.google.guava:guava:26.0-jre'
 }
 
 task hikari(type: Copy) {
@@ -110,6 +113,11 @@ task dumpLibs(type: Copy) {
 	dependsOn tasks.hikari, tasks.launch4jM, tasks.launch4jA
 	into "$buildDir/libs/libraries"
 	from configurations.bundleOnly
+}
+
+task dumpCompileOnlyLibs(type: Copy) {
+	into "$buildDir/libs/launcher-libraries-compile"
+	from configurations.compileOnlyA
 }
 
 task bundle(type: Zip) {
