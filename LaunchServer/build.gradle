@@ -121,12 +121,13 @@ task dumpCompileOnlyLibs(type: Copy) {
 }
 
 task bundle(type: Zip) {
-	dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.jar
+	dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.jar
 	archiveName 'LaunchServer.zip'
 	destinationDir file("$buildDir")
 	from(tasks.dumpLibs.destinationDir) { into 'libraries' }
+	from(tasks.dumpCompileOnlyLibs.destinationDir) { into 'launcher-libraries-compile' }
 	from tasks.jar.archivePath
 	from(parent.childProjects.Launcher.tasks.dumpLibs) { into 'launcher-libraries' }
 }
 
-build.dependsOn tasks.dumpLibs, tasks.bundle
+build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.bundle
