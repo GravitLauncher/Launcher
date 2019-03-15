@@ -72,6 +72,7 @@ dependencies {
 	}	
 
 	compileOnlyA 'com.google.guava:guava:26.0-jre'
+	compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
 }
 
 task hikari(type: Copy) {
@@ -106,7 +107,7 @@ task launch4jA(type: Copy) {
 		} else {
 			fcp.exclude()
 		}
-	}
+	}	
 }
 
 task dumpLibs(type: Copy) {
