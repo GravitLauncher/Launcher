@@ -82,8 +82,8 @@ public class AuthLimiterComponent extends Component implements NeedGarbageCollec
     public int rateLimitMilis;
     public String message;
 
-    public transient HashMap<String, AuthEntry> map;
-    public List<String> excludeIps;
+    public transient HashMap<String, AuthEntry> map = new HashMap<>();
+    public List<String> excludeIps = new ArrayList<>();
 
     @Override
     public void garbageCollection() {
