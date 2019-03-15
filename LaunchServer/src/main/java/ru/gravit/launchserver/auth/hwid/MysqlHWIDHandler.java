@@ -63,8 +63,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
     public void check0(HWID hwid, String username) throws HWIDException {
         if (hwid instanceof OshiHWID) {
             OshiHWID oshiHWID = (OshiHWID) hwid;
-            try {
-                Connection c = mySQLHolder.getConnection();
+            try(Connection c = mySQLHolder.getConnection()) {
 
                 PreparedStatement s = c.prepareStatement(String.format("SELECT %s, %s FROM `%s` WHERE `%s` = ? LIMIT 1",
                         userFieldHwid, userFieldLogin, tableUsers, userFieldLogin));
@@ -178,22 +177,21 @@ public class MysqlHWIDHandler extends HWIDHandler {
         LogHelper.debug("%s Request HWID: %s", isBanned ? "Ban" : "UnBan", hwid.toString());
         if (hwid instanceof OshiHWID) {
             OshiHWID oshiHWID = (OshiHWID) hwid;
-            Connection c = null;
-            try {
-                c = mySQLHolder.getConnection();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            try (PreparedStatement a = c.prepareStatement(queryBan)) {
-                String[] replaceParamsUpd = {"totalMemory", String.valueOf(oshiHWID.totalMemory), "serialNumber", oshiHWID.serialNumber, "HWDiskSerial", oshiHWID.HWDiskSerial, "processorID", oshiHWID.processorID, "isBanned", isBanned ? "1" : "0"};
-                for (int i = 0; i < paramsBan.length; i++) {
-                    a.setString(i + 1, CommonHelper.replace(paramsBan[i], replaceParamsUpd));
+            try(Connection c = mySQLHolder.getConnection()) {
+                try (PreparedStatement a = c.prepareStatement(queryBan)) {
+                    String[] replaceParamsUpd = {"totalMemory", String.valueOf(oshiHWID.totalMemory), "serialNumber", oshiHWID.serialNumber, "HWDiskSerial", oshiHWID.HWDiskSerial, "processorID", oshiHWID.processorID, "isBanned", isBanned ? "1" : "0"};
+                    for (int i = 0; i < paramsBan.length; i++) {
+                        a.setString(i + 1, CommonHelper.replace(paramsBan[i], replaceParamsUpd));
+                    }
+                    a.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
+                    a.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-                a.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
-                a.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+
         }
     }
 
@@ -214,9 +212,8 @@ public class MysqlHWIDHandler extends HWIDHandler {
     @Override
     public List<HWID> getHwid(String username) {
         ArrayList<HWID> list = new ArrayList<>();
-        try {
+        try(Connection c = mySQLHolder.getConnection()) {
             LogHelper.debug("Try find HWID from username %s", username);
-            Connection c = mySQLHolder.getConnection();
             PreparedStatement s = c.prepareStatement(String.format("SELECT %s, %s FROM `%s` WHERE `%s` = ? LIMIT 1", userFieldHwid, userFieldLogin, tableUsers, userFieldLogin));
             s.setString(1, username);
 
