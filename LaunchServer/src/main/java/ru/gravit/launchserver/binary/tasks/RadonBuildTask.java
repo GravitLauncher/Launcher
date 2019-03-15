@@ -31,17 +31,20 @@ public class RadonBuildTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputFile) throws IOException {
-    	if (!IOHelper.isFile(config)) UnpackHelper.unpack(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/radon.cfg"), config);
-        Path outputFile = srv.launcherBinary.nextLowerPath(this);
-        ConfigurationParser p = new ConfigurationParser(IOHelper.newInput(config));
-        SessionInfo info = p.createSessionFromConfig();
-        info.setInput(inputFile.toFile());
-        info.setOutput(outputFile.toFile());
-        List<File> libs = srv.launcherBinary.coreLibs.stream().map(e -> e.toFile()).collect(Collectors.toList());
-        libs.addAll(srv.launcherBinary.addonLibs.stream().map(e -> e.toFile()).collect(Collectors.toList()));
-        info.setLibraries(libs);
-        Radon r = new Radon(info);
-        r.run();
+    	Path outputFile = srv.launcherBinary.nextLowerPath(this);
+    	if (srv.config.enabledRadon) {
+    		if (!IOHelper.isFile(config)) UnpackHelper.unpack(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/radon.cfg"), config);
+    		ConfigurationParser p = new ConfigurationParser(IOHelper.newInput(config));
+        	SessionInfo info = p.createSessionFromConfig();
+        	info.setInput(inputFile.toFile());
+        	info.setOutput(outputFile.toFile());
+        	List<File> libs = srv.launcherBinary.coreLibs.stream().map(e -> e.toFile()).collect(Collectors.toList());
+        	libs.addAll(srv.launcherBinary.addonLibs.stream().map(e -> e.toFile()).collect(Collectors.toList()));
+        	info.setLibraries(libs);
+        	Radon r = new Radon(info);
+        	r.run();
+    	} else 
+            IOHelper.copy(inputFile, outputFile);
         return outputFile;
     }
 

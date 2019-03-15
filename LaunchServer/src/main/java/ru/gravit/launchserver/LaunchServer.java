@@ -120,6 +120,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
+        public boolean enabledRadon;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
         public boolean enableRcon;
@@ -641,6 +642,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.threadCoreCount = 0; // on your own
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
 
+        newConfig.enabledRadon = true;
         newConfig.enabledProGuard = true;
         newConfig.stripLineNumbers = true;
         newConfig.deleteTempFiles = true;
