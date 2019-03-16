@@ -25,8 +25,8 @@ public class ProGuardBuildTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputFile) throws IOException {
+        Path outputJar = server.launcherBinary.nextLowerPath(this);
         if (server.config.enabledProGuard) {
-            Path outputJar = server.launcherBinary.nextLowerPath(this);
             Configuration proguard_cfg = new Configuration();
             ConfigurationParser parser = new ConfigurationParser(server.proguardConf.buildConfig(inputFile, outputJar),
                     server.proguardConf.proguard.toFile(), System.getProperties());
@@ -37,12 +37,9 @@ public class ProGuardBuildTask implements LauncherBuildTask {
             } catch (ParseException e) {
                 LogHelper.error(e);
             }
-            return outputJar;
-        } else {
-            Path outputJar = server.launcherBinary.nextPath("non-obf");
+        } else
             IOHelper.copy(inputFile, outputJar);
-            return outputJar;
-        }
+        return outputJar;
     }
 
     @Override
