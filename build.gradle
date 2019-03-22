@@ -1,10 +1,11 @@
-configure(subprojects.findAll {it.name != 'modules'}) {
+configure(subprojects.findAll { it.name != 'modules' && it.name != 'Radon' }) {
 	apply plugin: 'idea'
 	apply plugin: 'eclipse'
 	apply plugin: 'java'
 
 	repositories {
 		mavenCentral()
+		maven { url 'http://oss.sonatype.org/content/groups/public' }
 		maven {
 			url "http://clojars.org/repo/"
 		}

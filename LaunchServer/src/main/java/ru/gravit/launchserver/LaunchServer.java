@@ -120,6 +120,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
+        public boolean enabledRadon;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
         public boolean enableRcon;
@@ -277,7 +278,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         // Start LaunchServer
         long startTime = System.currentTimeMillis();
         try {
-            LaunchServer launchserver = new LaunchServer(IOHelper.WORKING_DIR, args);
+            @SuppressWarnings("resource")
+			LaunchServer launchserver = new LaunchServer(IOHelper.WORKING_DIR, args);
             if(args.length == 0) launchserver.run();
             else { //Обработка команды
                 launchserver.commandHandler.eval(args,false);
@@ -295,6 +297,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public final Path dir;
 
     public final Path launcherLibraries;
+
+    public final Path launcherLibrariesCompile; 
 
     public final List<String> args;
 
@@ -366,10 +370,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         this.dir = dir;
         taskPool = new Timer("Timered task worker thread", true);
         launcherLibraries = dir.resolve("launcher-libraries");
-        if (!Files.isDirectory(launcherLibraries)) {
-            Files.deleteIfExists(launcherLibraries);
-            Files.createDirectory(launcherLibraries);
-        }
+        launcherLibrariesCompile = dir.resolve("launcher-libraries-compile");
         this.args = Arrays.asList(args);
         configFile = dir.resolve("LaunchServer.conf");
         publicKeyFile = dir.resolve("public.key");
@@ -641,6 +642,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.threadCoreCount = 0; // on your own
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
 
+        newConfig.enabledRadon = true;
         newConfig.enabledProGuard = true;
         newConfig.stripLineNumbers = true;
         newConfig.deleteTempFiles = true;

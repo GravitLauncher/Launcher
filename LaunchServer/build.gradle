@@ -3,10 +3,10 @@ def mainAgentName = "ru.gravit.launchserver.StarterAgent"
 
 repositories {
 	maven {
-		url "http://maven.geomajas.org/"
+		url "https://oss.sonatype.org/content/repositories/snapshots"
 	}
 	maven {
-		url "https://oss.sonatype.org/content/repositories/snapshots"
+		url "http://maven.geomajas.org/"
 	}
 }
 
@@ -14,6 +14,7 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 configurations {
+	compileOnlyA
 	bundleOnly
 	bundle
 	hikari
@@ -38,8 +39,7 @@ jar {
 
 dependencies {
 	pack project(':libLauncher')
-	bundle 'org.ow2.asm:asm-commons:7.0'
-	bundle 'org.ow2.asm:asm-util:7.0'
+	bundle project(':Radon')
 	bundle 'mysql:mysql-connector-java:8.0.13'
 	bundle 'jline:jline:2.14.6'
 	bundle 'net.sf.proguard:proguard-base:6.0.3'
@@ -70,6 +70,9 @@ dependencies {
 	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-linux') {
 		exclude group: '*'
 	}	
+
+	compileOnlyA 'com.google.guava:guava:26.0-jre'
+	compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
 }
 
 task hikari(type: Copy) {
@@ -104,7 +107,7 @@ task launch4jA(type: Copy) {
 		} else {
 			fcp.exclude()
 		}
-	}
+	}	
 }
 
 task dumpLibs(type: Copy) {
@@ -113,13 +116,25 @@ task dumpLibs(type: Copy) {
 	from configurations.bundleOnly
 }
 
+task dumpCompileOnlyLibs(type: Copy) {
+	into "$buildDir/libs/launcher-libraries-compile"
+	from configurations.compileOnlyA
+}
+
 task bundle(type: Zip) {
-	dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.jar
+	dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.jar
 	archiveName 'LaunchServer.zip'
 	destinationDir file("$buildDir")
 	from(tasks.dumpLibs.destinationDir) { into 'libraries' }
+	from(tasks.dumpCompileOnlyLibs.destinationDir) { into 'launcher-libraries-compile' }
 	from tasks.jar.archivePath
 	from(parent.childProjects.Launcher.tasks.dumpLibs) { into 'launcher-libraries' }
 }
 
-build.dependsOn tasks.dumpLibs, tasks.bundle
+task dumpClientLibs(type: Copy) {
+	dependsOn parent.childProjects.Launcher.tasks.build
+	into "$buildDir/libs/launcher-libraries"
+	from parent.childProjects.Launcher.tasks.dumpLibs.destinationDir
+}
+
+build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle

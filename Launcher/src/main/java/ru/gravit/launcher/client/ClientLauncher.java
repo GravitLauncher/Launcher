@@ -356,8 +356,6 @@ public final class ClientLauncher {
                 context.args.add(JVMHelper.jvmProperty("os.name", "Windows 10"));
                 context.args.add(JVMHelper.jvmProperty("os.version", "10.0"));
             }
-            context.args.add(JVMHelper.systemToJvmProperty("avn32"));
-            context.args.add(JVMHelper.systemToJvmProperty("avn64"));
         }
         // Add classpath and main class
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
