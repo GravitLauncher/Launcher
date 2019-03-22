@@ -11,7 +11,6 @@ public class ReconfigurableManager {
     private final HashMap<String, Reconfigurable> RECONFIGURABLE = new HashMap<>();
 
     public void registerReconfigurable(String name, Reconfigurable reconfigurable) {
-        VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(RECONFIGURABLE, name, Objects.requireNonNull(reconfigurable, "adapter"),
                 String.format("Reloadable has been already registered: '%s'", name));
     }

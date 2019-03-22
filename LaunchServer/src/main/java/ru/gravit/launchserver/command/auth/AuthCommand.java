@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.command.auth;
 
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.launchserver.command.Command;
@@ -15,7 +16,7 @@ public final class AuthCommand extends Command {
 
     @Override
     public String getArgsDescription() {
-        return "<login> <password>";
+        return "<login> <password> <auth_id>";
     }
 
     @Override
@@ -26,15 +27,20 @@ public final class AuthCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
+        AuthProviderPair pair;
+        if(args.length > 2) pair = server.config.getAuthProviderPair(args[2]);
+        else pair = server.config.getAuthProviderPair();
+        if(pair == null) throw new IllegalStateException(String.format("Auth %s not found", args[1]));
+
         String login = args[0];
         String password = args[1];
         int auth_id = 0;
         if (args.length >= 3) auth_id = Integer.valueOf(args[3]);
 
         // Authenticate
-        AuthProvider provider = server.config.authProvider[auth_id];
+        AuthProvider provider = pair.provider;
         AuthProviderResult result = provider.auth(login, password, "127.0.0.1");
-        UUID uuid = provider.getAccociateHandler(auth_id).auth(result);
+        UUID uuid = pair.handler.auth(result);
 
         // Print auth successful message
         LogHelper.subInfo("UUID: %s, Username: '%s', Access Token: '%s'", uuid, result.username, result.accessToken);

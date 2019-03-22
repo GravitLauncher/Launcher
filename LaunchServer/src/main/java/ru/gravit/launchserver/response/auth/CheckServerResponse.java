@@ -34,7 +34,7 @@ public final class CheckServerResponse extends Response {
         UUID uuid;
         try {
             server.authHookManager.checkServerHook(username, serverID);
-            uuid = server.config.authHandler.checkServer(username, serverID);
+            uuid = clientData.auth.handler.checkServer(username, serverID);
         } catch (AuthException e) {
             requestError(e.getMessage());
             return;
@@ -48,6 +48,6 @@ public final class CheckServerResponse extends Response {
         // Write profile and UUID
         output.writeBoolean(uuid != null);
         if (uuid != null)
-            ProfileByUUIDResponse.getProfile(server, uuid, username, client).write(output);
+            ProfileByUUIDResponse.getProfile(server, uuid, username, client, clientData.auth.textureProvider).write(output);
     }
 }

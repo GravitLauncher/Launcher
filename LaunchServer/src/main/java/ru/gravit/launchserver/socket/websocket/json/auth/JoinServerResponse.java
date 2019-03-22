@@ -24,7 +24,7 @@ public class JoinServerResponse implements JsonResponseInterface {
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
         boolean success;
         try {
-            success = LaunchServer.server.config.authHandler.joinServer(username, accessToken, serverID);
+            success = client.auth.handler.joinServer(username, accessToken, serverID);
         } catch (AuthException e) {
             service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
             return;

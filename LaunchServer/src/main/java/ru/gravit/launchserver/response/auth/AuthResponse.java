@@ -7,6 +7,7 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
+import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.auth.hwid.HWIDException;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
@@ -64,9 +65,8 @@ public final class AuthResponse extends Response {
         String client = null;
         if (isClient)
             client = input.readString(SerializeLimits.MAX_CLIENT);
-        int auth_id = input.readInt();
+        String auth_id = input.readString(SerializeLimits.MAX_QUEUE_SIZE);
         String hwid_str = input.readString(SerializeLimits.MAX_HWID_STR);
-        if (auth_id + 1 > server.config.authProvider.length || auth_id < 0) auth_id = 0;
         byte[] encryptedPassword = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
         String customText = input.readString(SerializeLimits.MAX_CUSTOM_TEXT);
         // Decrypt password
@@ -82,7 +82,11 @@ public final class AuthResponse extends Response {
         // Authenticate
         debug("Login: '%s', Password: '%s'", login, echo(password.length()));
         AuthProviderResult result;
-        AuthProvider provider = server.config.authProvider[auth_id];
+        AuthProviderPair pair;
+        if(auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
+        else pair = server.config.getAuthProviderPair(auth_id);
+        if(pair == null) requestError("Auth type not found");
+        AuthProvider provider = pair.provider;
         clientData.type = Client.Type.USER;
         AuthContext context = new AuthContext(session, login, password.length(), customText, client, hwid_str, ip, false);
         try {
@@ -125,10 +129,12 @@ public final class AuthResponse extends Response {
         clientData.isAuth = true;
         clientData.permissions = result.permissions;
         clientData.username = result.username;
+        clientData.auth_id = auth_id;
+        clientData.updateAuth();
         // Authenticate on server (and get UUID)
         UUID uuid;
         try {
-            uuid = server.config.authHandler.auth(result);
+            uuid = pair.handler.auth(result);
         } catch (AuthException e) {
             requestError(e.getMessage());
             return;
@@ -140,7 +146,7 @@ public final class AuthResponse extends Response {
         String protectToken = server.config.protectHandler.generateSecureToken(context);
         writeNoError(output);
         // Write profile and UUID
-        ProfileByUUIDResponse.getProfile(server, uuid, result.username, client).write(output);
+        ProfileByUUIDResponse.getProfile(server, uuid, result.username, client, clientData.auth.textureProvider).write(output);
         output.writeASCII(result.accessToken, -SecurityHelper.TOKEN_STRING_LENGTH);
         clientData.permissions.write(output);
         output.writeString(protectToken, SerializeLimits.MAX_CUSTOM_TEXT);

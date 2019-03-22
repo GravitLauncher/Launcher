@@ -72,7 +72,6 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         handler.registerCommand("config", new ConfigCommand(server));
         handler.registerCommand("configHelp", new ConfigHelpCommand(server));
         handler.registerCommand("configList", new ConfigListCommand(server));
-        handler.registerCommand("swapAuthProvider", new SwapAuthProviderCommand(server));
         handler.registerCommand("serverStatus", new ServerStatusCommand(server));
         handler.registerCommand("checkInstall", new CheckInstallCommand(server));
         handler.registerCommand("multi", new MultiCommand(server));

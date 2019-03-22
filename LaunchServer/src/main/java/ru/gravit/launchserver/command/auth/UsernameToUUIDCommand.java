@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.command.auth;
 
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.utils.command.CommandException;
 import ru.gravit.utils.helper.LogHelper;
@@ -15,7 +16,7 @@ public final class UsernameToUUIDCommand extends Command {
 
     @Override
     public String getArgsDescription() {
-        return "<username>";
+        return "<username> <auth_id>";
     }
 
     @Override
@@ -26,10 +27,14 @@ public final class UsernameToUUIDCommand extends Command {
     @Override
     public void invoke(String... args) throws CommandException, IOException {
         verifyArgs(args, 1);
+        AuthProviderPair pair;
+        if(args.length > 1) pair = server.config.getAuthProviderPair(args[1]);
+        else pair = server.config.getAuthProviderPair();
+        if(pair == null) throw new IllegalStateException(String.format("Auth %s not found", args[1]));
         String username = parseUsername(args[0]);
 
         // Get UUID by username
-        UUID uuid = server.config.authHandler.usernameToUUID(username);
+        UUID uuid = pair.handler.usernameToUUID(username);
         if (uuid == null)
             throw new CommandException(String.format("Unknown username: '%s'", username));
 

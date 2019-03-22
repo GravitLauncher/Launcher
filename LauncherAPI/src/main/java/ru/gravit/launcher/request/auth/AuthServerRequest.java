@@ -30,7 +30,7 @@ public final class AuthServerRequest extends Request<ClientPermissions> {
     private final String login;
 
     private final byte[] encryptedPassword;
-    private final int auth_id;
+    private final String auth_id;
     private final String title;
 
     @LauncherAPI
@@ -38,12 +38,12 @@ public final class AuthServerRequest extends Request<ClientPermissions> {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
-        auth_id = 0;
+        auth_id = "";
         title = "";
     }
 
     @LauncherAPI
-    public AuthServerRequest(LauncherConfig config, String login, byte[] encryptedPassword, int auth_id) {
+    public AuthServerRequest(LauncherConfig config, String login, byte[] encryptedPassword, String auth_id) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
@@ -52,7 +52,7 @@ public final class AuthServerRequest extends Request<ClientPermissions> {
     }
 
     @LauncherAPI
-    public AuthServerRequest(LauncherConfig config, String login, byte[] encryptedPassword, int auth_id, String title) {
+    public AuthServerRequest(LauncherConfig config, String login, byte[] encryptedPassword, String auth_id, String title) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = encryptedPassword.clone();
@@ -66,7 +66,7 @@ public final class AuthServerRequest extends Request<ClientPermissions> {
     }
 
     @LauncherAPI
-    public AuthServerRequest(String login, byte[] encryptedPassword, int auth_id) {
+    public AuthServerRequest(String login, byte[] encryptedPassword, String auth_id) {
         this(null, login, encryptedPassword, auth_id);
     }
 
@@ -79,7 +79,7 @@ public final class AuthServerRequest extends Request<ClientPermissions> {
     protected ClientPermissions requestDo(HInput input, HOutput output) throws IOException {
         output.writeString(login, SerializeLimits.MAX_LOGIN);
         output.writeString(title, SerializeLimits.MAX_CLIENT);
-        output.writeInt(auth_id);
+        output.writeString(auth_id, SerializeLimits.MAX_QUEUE_SIZE);
         output.writeByteArray(encryptedPassword, SecurityHelper.CRYPTO_MAX_LENGTH);
         output.flush();
 

@@ -43,7 +43,7 @@ public class ServerWrapper {
     public static boolean auth(ServerWrapper wrapper) {
         try {
             LauncherConfig cfg = Launcher.getConfig();
-            ServerWrapper.permissions = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), 0, config.title).request();
+            ServerWrapper.permissions = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, config.title).request();
             ProfilesRequestEvent result = new ProfilesRequest(cfg).request();
             for (ClientProfile p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.getTitle());
@@ -218,6 +218,7 @@ public class ServerWrapper {
         public String login;
         public String[] args;
         public String password;
+        public String auth_id = "";
         public LauncherConfig.LauncherEnvironment env;
     }
 

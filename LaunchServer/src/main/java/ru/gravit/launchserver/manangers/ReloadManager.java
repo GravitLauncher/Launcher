@@ -11,7 +11,6 @@ public class ReloadManager {
     private final HashMap<String, Reloadable> RELOADABLES = new HashMap<>();
 
     public void registerReloadable(String name, Reloadable reloadable) {
-        VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(RELOADABLES, name, Objects.requireNonNull(reloadable, "adapter"),
                 String.format("Reloadable has been already registered: '%s'", name));
     }
