@@ -58,8 +58,12 @@ public final class HTTPRequest {
             reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
         else
             reader = new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8);
-        JsonElement content = parser.parse(reader);
-        return content;
+        try {
+            return parser.parse(reader);
+        } catch (Exception e)
+        {
+            return null;
+        }
     }
 
     private HTTPRequest() {
