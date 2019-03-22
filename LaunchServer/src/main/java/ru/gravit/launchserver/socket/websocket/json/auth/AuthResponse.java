@@ -57,10 +57,6 @@ public class AuthResponse implements JsonResponseInterface {
         try {
             AuthRequestEvent result = new AuthRequestEvent();
             String ip = IOHelper.getIP(ctx.channel().remoteAddress());
-            if (LaunchServer.server.limiter.isLimit(ip)) {
-                AuthProvider.authError(LaunchServer.server.config.authRejectString);
-                return;
-            }
             if ((authType == null || authType == ConnectTypes.CLIENT) &&!clientData.checkSign) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
@@ -86,7 +82,7 @@ public class AuthResponse implements JsonResponseInterface {
             AuthProviderPair pair;
             if(auth_id.isEmpty()) pair = LaunchServer.server.config.getAuthProviderPair();
             else pair = LaunchServer.server.config.getAuthProviderPair(auth_id);
-            ru.gravit.launchserver.response.auth.AuthResponse.AuthContext context = new ru.gravit.launchserver.response.auth.AuthResponse.AuthContext(0, login, password.length(),customText, client, null, false);
+            ru.gravit.launchserver.response.auth.AuthResponse.AuthContext context = new ru.gravit.launchserver.response.auth.AuthResponse.AuthContext(0, login, password.length(),customText, client, ip, null, false);
             AuthProvider provider = pair.provider;
             LaunchServer.server.authHookManager.preHook(context, clientData);
             provider.preAuth(login,password,customText,ip);

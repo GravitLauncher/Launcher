@@ -21,6 +21,7 @@ public final class JARLauncherBinary extends LauncherBinary {
     public final Path buildDir;
     public List<LauncherBuildTask> tasks;
     public List<Path> coreLibs;
+	public List<Path> addonLibs;
 
     public JARLauncherBinary(LaunchServer server) throws IOException {
         super(server);
@@ -31,6 +32,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         buildDir = server.dir.resolve("build");
         tasks = new ArrayList<>();
         coreLibs = new ArrayList<>();
+        addonLibs = new ArrayList<>();
         if (!Files.isDirectory(buildDir)) {
             Files.deleteIfExists(buildDir);
             Files.createDirectory(buildDir);
@@ -42,8 +44,9 @@ public final class JARLauncherBinary extends LauncherBinary {
         tasks.add(new PrepareBuildTask(server));
         tasks.add(new MainBuildTask(server));
         tasks.add(new ProGuardBuildTask(server));
-        tasks.add(new AttachJarsTask(server));
         tasks.add(new AdditionalFixesApplyTask(server));
+        tasks.add(new RadonBuildTask(server));
+        tasks.add(new AttachJarsTask(server));
     }
 
     @Override

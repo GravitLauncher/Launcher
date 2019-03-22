@@ -2,6 +2,7 @@ package ru.gravit.launchserver.config;
 
 import com.google.gson.*;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
 
@@ -12,6 +13,11 @@ public class AuthHandlerAdapter implements JsonSerializer<AuthHandler>, JsonDese
     public AuthHandler deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends AuthHandler> cls = AuthHandler.getHandlerClass(typename);
+        if(cls == null)
+        {
+            LogHelper.error("AuthHandler %s not found", typename);
+            return null;
+        }
 
 
         return (AuthHandler) context.deserialize(json, cls);

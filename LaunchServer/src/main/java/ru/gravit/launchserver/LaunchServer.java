@@ -10,6 +10,9 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.auth.AuthLimiter;
 import ru.gravit.launchserver.auth.AuthProviderPair;
+import ru.gravit.launchserver.auth.protect.NoProtectHandler;
+import ru.gravit.launchserver.auth.protect.ProtectHandler;
+import ru.gravit.launchserver.components.AuthLimiterComponent;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import ru.gravit.launchserver.auth.hwid.AcceptHWIDHandler;
@@ -19,6 +22,7 @@ import ru.gravit.launchserver.auth.permissions.PermissionsHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
 import ru.gravit.launchserver.binary.*;
+import ru.gravit.launchserver.components.Component;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.command.JLineCommandHandler;
 import ru.gravit.utils.command.StdCommandHandler;
@@ -96,6 +100,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             }
             return null;
         }
+        public ProtectHandler protectHandler;
+
+        public PermissionsHandler permissionsHandler;
 
         public AuthProviderPair getAuthProviderPair()
         {
@@ -115,6 +122,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public HWIDHandler hwidHandler;
 
+        public HashMap<String, Component> components;
+
         // Misc options
         public int threadCount;
 
@@ -126,14 +135,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public boolean compress;
 
-        public int authRateLimit;
-
-        public int authRateLimitMilis;
-
-        public String[] authLimitExclusions;
-
-        public String authRejectString;
-
         public String whitelistRejectString;
 
         public boolean genMappings;
@@ -142,13 +143,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
+        public boolean enabledRadon;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
         public boolean enableRcon;
 
         public String startScript;
-
-		public boolean updatesNotify = true; // Defaultly to true
 
         public String getAddress() {
             return address;
@@ -195,6 +195,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                     isOneDefault = true;
                     break;
                 }
+            if(protectHandler == null)
+            {
+                throw new NullPointerException("ProtectHandler must not be null");
             }
             if(!isOneDefault)
             {
@@ -294,7 +297,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         // Start LaunchServer
         long startTime = System.currentTimeMillis();
         try {
-            LaunchServer launchserver = new LaunchServer(IOHelper.WORKING_DIR, args);
+            @SuppressWarnings("resource")
+			LaunchServer launchserver = new LaunchServer(IOHelper.WORKING_DIR, args);
             if(args.length == 0) launchserver.run();
             else { //Обработка команды
                 launchserver.commandHandler.eval(args,false);
@@ -312,6 +316,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public final Path dir;
 
     public final Path launcherLibraries;
+
+    public final Path launcherLibrariesCompile; 
 
     public final List<String> args;
 
@@ -340,8 +346,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final LauncherBinary launcherEXEBinary;
     // HWID ban + anti-brutforce
-
-    public final AuthLimiter limiter;
 
     public final SessionManager sessionManager;
 
@@ -377,7 +381,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
 
 	public final Timer taskPool;
-    public final Updater updater;
 
     public static Gson gson;
     public static GsonBuilder gsonBuilder;
@@ -386,10 +389,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         this.dir = dir;
         taskPool = new Timer("Timered task worker thread", true);
         launcherLibraries = dir.resolve("launcher-libraries");
-        if (!Files.isDirectory(launcherLibraries)) {
-            Files.deleteIfExists(launcherLibraries);
-            Files.createDirectory(launcherLibraries);
-        }
+        launcherLibrariesCompile = dir.resolve("launcher-libraries-compile");
         this.args = Arrays.asList(args);
         configFile = dir.resolve("LaunchServer.conf");
         publicKeyFile = dir.resolve("public.key");
@@ -404,6 +404,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         HWIDHandler.registerHandlers();
         PermissionsHandler.registerHandlers();
         Response.registerResponses();
+        Component.registerComponents();
+        ProtectHandler.registerHandlers();
         LaunchServer.server = this;
 
         // Set command handler
@@ -462,10 +464,23 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         for (AuthProviderPair provider : config.auth) {
             provider.init();
         }
+        if(config.protectHandler != null)
+        {
+            config.protectHandler.checkLaunchServerLicense();
+        }
+        config.authHandler.init();
+        if(config.components != null)
+        {
+            LogHelper.debug("PreInit components");
+            config.components.forEach((k,v) -> {
+                LogHelper.subDebug("PreInit component %s", k);
+                v.preInit(this);
+            });
+            LogHelper.debug("PreInit components successful");
+        }
 
         // build hooks, anti-brutforce and other
         buildHookManager = new BuildHookManager();
-        limiter = new AuthLimiter(this);
         proguardConf = new ProguardConf(this);
         sessionManager = new SessionManager();
         mirrorManager = new MirrorManager();
@@ -474,7 +489,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         socketHookManager = new SocketHookManager();
         authHookManager = new AuthHookManager();
         GarbageManager.registerNeedGC(sessionManager);
-        GarbageManager.registerNeedGC(limiter);
         reloadManager.registerReloadable("launchServer", this);
         if (config.permissionsHandler instanceof Reloadable)
             reloadManager.registerReloadable("permissionsHandler", (Reloadable) config.permissionsHandler);
@@ -506,6 +520,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         // init modules
         modulesManager.initModules();
+        if(config.components != null)
+        {
+            LogHelper.debug("Init components");
+            config.components.forEach((k,v) -> {
+                LogHelper.subDebug("Init component %s", k);
+                v.init(this);
+            });
+            LogHelper.debug("Init components successful");
+        }
 
         // Set launcher EXE binary
         launcherBinary = new JARLauncherBinary(this);
@@ -531,8 +554,16 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         // post init modules
         modulesManager.postInitModules();
+        if(config.components != null)
+        {
+            LogHelper.debug("PostInit components");
+            config.components.forEach((k,v) -> {
+                LogHelper.subDebug("PostInit component %s", k);
+                v.postInit(this);
+            });
+            LogHelper.debug("PostInit components successful");
+        }
         // start updater
-        this.updater = new Updater(this);
         if(config.netty != null)
             nettyServerSocketHandler = new NettyServerSocketHandler(this);
         else
@@ -547,6 +578,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         Launcher.gsonBuilder.registerTypeAdapter(AuthHandler.class, new AuthHandlerAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new PermissionsHandlerAdapter());
         Launcher.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
+        Launcher.gsonBuilder.registerTypeAdapter(Component.class, new ComponentAdapter());
+        Launcher.gsonBuilder.registerTypeAdapter(ProtectHandler.class, new ProtectHandlerAdapter());
         Launcher.gson = Launcher.gsonBuilder.create();
 
         //Human readable
@@ -557,6 +590,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         LaunchServer.gsonBuilder.registerTypeAdapter(AuthHandler.class, new AuthHandlerAdapter());
         LaunchServer.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new PermissionsHandlerAdapter());
         LaunchServer.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
+        LaunchServer.gsonBuilder.registerTypeAdapter(Component.class, new ComponentAdapter());
+        LaunchServer.gsonBuilder.registerTypeAdapter(ProtectHandler.class, new ProtectHandlerAdapter());
         LaunchServer.gson = LaunchServer.gsonBuilder.create();
     }
 
@@ -611,10 +646,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 new MemoryAuthHandler(),
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
                 , "std") };
+        newConfig.protectHandler = new NoProtectHandler();
         newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.port = 7240;
         newConfig.bindAddress = "0.0.0.0";
-        newConfig.authRejectString = "Превышен лимит авторизаций";
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
@@ -626,10 +661,18 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.threadCoreCount = 0; // on your own
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
 
+        newConfig.enabledRadon = true;
         newConfig.enabledProGuard = true;
         newConfig.stripLineNumbers = true;
         newConfig.deleteTempFiles = true;
         newConfig.isWarningMissArchJava = true;
+
+        newConfig.components = new HashMap<>();
+        AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
+        authLimiterComponent.rateLimit = 3;
+        authLimiterComponent.rateLimitMilis = 8000;
+        authLimiterComponent.message = "Превышен лимит авторизаций";
+        newConfig.components.put("authLimiter", authLimiterComponent);
 
         // Set server address
         System.out.println("LaunchServer address: ");

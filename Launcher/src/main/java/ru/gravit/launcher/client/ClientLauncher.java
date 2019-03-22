@@ -302,7 +302,7 @@ public final class ClientLauncher {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
         ClientLauncherContext context = new ClientLauncherContext();
-        CommonHelper.newThread("Client params writter", false, () ->
+        CommonHelper.newThread("Client params writter", true, () ->
         {
             try {
                 try (ServerSocket socket = new ServerSocket()) {
@@ -356,8 +356,6 @@ public final class ClientLauncher {
                 context.args.add(JVMHelper.jvmProperty("os.name", "Windows 10"));
                 context.args.add(JVMHelper.jvmProperty("os.version", "10.0"));
             }
-            context.args.add(JVMHelper.systemToJvmProperty("avn32"));
-            context.args.add(JVMHelper.systemToJvmProperty("avn64"));
         }
         // Add classpath and main class
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
@@ -388,6 +386,7 @@ public final class ClientLauncher {
         }
         // Let's rock!
         process = builder.start();
+        if(!LogHelper.isDebugEnabled()) Thread.sleep(1000); //даем время потоку записи
         return process;
     }
 

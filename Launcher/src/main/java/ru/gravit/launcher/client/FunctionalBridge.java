@@ -3,6 +3,7 @@ package ru.gravit.launcher.client;
 import javafx.concurrent.Task;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
@@ -101,6 +102,12 @@ public class FunctionalBridge {
     @LauncherAPI
     public static HasherStore getDefaultHasherStore() {
         return HasherManager.getDefaultStore();
+    }
+
+    @LauncherAPI
+    public static void setAuthParams(AuthRequestEvent event)
+    {
+        LauncherGuardManager.guard.setProtectToken(event.protectToken);
     }
 
     @FunctionalInterface

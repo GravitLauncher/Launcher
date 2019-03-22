@@ -2,6 +2,7 @@ package ru.gravit.launchserver.config;
 
 import com.google.gson.*;
 import ru.gravit.launchserver.auth.hwid.HWIDHandler;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
 
@@ -12,6 +13,11 @@ public class HWIDHandlerAdapter implements JsonSerializer<HWIDHandler>, JsonDese
     public HWIDHandler deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends HWIDHandler> cls = HWIDHandler.getHandlerClass(typename);
+        if(cls == null)
+        {
+            LogHelper.error("HWIDHandler %s not found", typename);
+            return null;
+        }
 
 
         return (HWIDHandler) context.deserialize(json, cls);

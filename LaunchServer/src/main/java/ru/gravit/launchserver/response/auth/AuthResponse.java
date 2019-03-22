@@ -37,13 +37,14 @@ public final class AuthResponse extends Response {
     }
 
     public static class AuthContext {
-        public AuthContext(long session, String login, int password_lenght, String customText, String client, String hwid, boolean isServerAuth) {
+        public AuthContext(long session, String login, int password_lenght, String customText, String client, String hwid, String ip, boolean isServerAuth) {
             this.session = session;
             this.login = login;
             this.password_lenght = password_lenght;
             this.customText = customText;
             this.client = client;
             this.hwid = hwid;
+            this.ip = ip;
             this.isServerAuth = isServerAuth;
         }
 
@@ -53,6 +54,7 @@ public final class AuthResponse extends Response {
         public String client;
         public String hwid;
         public String customText;
+        public String ip;
         public boolean isServerAuth;
     }
 
@@ -86,13 +88,9 @@ public final class AuthResponse extends Response {
         if(pair == null) requestError("Auth type not found");
         AuthProvider provider = pair.provider;
         clientData.type = Client.Type.USER;
-        AuthContext context = new AuthContext(session, login, password.length(), customText, client, hwid_str, false);
+        AuthContext context = new AuthContext(session, login, password.length(), customText, client, hwid_str, ip, false);
         try {
             server.authHookManager.preHook(context, clientData);
-            if (server.limiter.isLimit(ip)) {
-                AuthProvider.authError(server.config.authRejectString);
-                return;
-            }
             if (!clientData.checkSign) {
                 throw new AuthException("You must using checkLauncher");
             }
@@ -145,10 +143,12 @@ public final class AuthResponse extends Response {
             requestError("Internal auth handler error");
             return;
         }
+        String protectToken = server.config.protectHandler.generateSecureToken(context);
         writeNoError(output);
         // Write profile and UUID
         ProfileByUUIDResponse.getProfile(server, uuid, result.username, client, clientData.auth.textureProvider).write(output);
         output.writeASCII(result.accessToken, -SecurityHelper.TOKEN_STRING_LENGTH);
         clientData.permissions.write(output);
+        output.writeString(protectToken, SerializeLimits.MAX_CUSTOM_TEXT);
     }
 }

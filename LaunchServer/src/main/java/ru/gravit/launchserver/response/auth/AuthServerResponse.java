@@ -57,10 +57,6 @@ public final class AuthServerResponse extends Response {
         if(pair == null) requestError("Auth type not found");
         AuthProvider provider = pair.provider;
         try {
-            if (server.limiter.isLimit(ip)) {
-                AuthProvider.authError(server.config.authRejectString);
-                return;
-            }
             result = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(result.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", result.username));

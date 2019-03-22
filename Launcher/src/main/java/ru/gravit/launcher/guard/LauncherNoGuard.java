@@ -40,4 +40,9 @@ public class LauncherNoGuard implements LauncherGuardInterface {
     public void addCustomEnv(ClientLauncherContext context) {
 
     }
+
+    @Override
+    public void setProtectToken(String token) {
+        //Skip
+    }
 }

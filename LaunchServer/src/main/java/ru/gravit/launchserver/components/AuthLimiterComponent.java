@@ -1,14 +1,42 @@
-package ru.gravit.launchserver.auth;
+package ru.gravit.launchserver.components;
 
 import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.auth.AuthException;
+import ru.gravit.launchserver.auth.provider.AuthProvider;
+import ru.gravit.launchserver.components.Component;
+import ru.gravit.launchserver.response.auth.AuthResponse;
+import ru.gravit.launchserver.socket.Client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class AuthLimiter implements NeedGarbageCollection {
+public class AuthLimiterComponent extends Component implements NeedGarbageCollection {
+    private LaunchServer server;
+    @Override
+    public void preInit(LaunchServer launchServer) {
+
+    }
+
+    @Override
+    public void init(LaunchServer launchServer) {
+        server = launchServer;
+        launchServer.authHookManager.registerPreHook(this::preAuthHook);
+    }
+
+    @Override
+    public void postInit(LaunchServer launchServer) {
+
+    }
+    public void preAuthHook(AuthResponse.AuthContext context, Client client) throws AuthException {
+        if(isLimit(context.ip))
+        {
+            AuthProvider.authError(message);
+        }
+    }
+
     static class AuthEntry {
         public int value;
 
@@ -50,20 +78,12 @@ public class AuthLimiter implements NeedGarbageCollection {
 
 
     public static final long TIMEOUT = 10 * 60 * 1000; //10 минут
-    public final int rateLimit;
-    public final int rateLimitMilis;
+    public int rateLimit;
+    public int rateLimitMilis;
+    public String message;
 
-    private final HashMap<String, AuthEntry> map;
-    private final List<String> excludeIps;
-
-    public AuthLimiter(LaunchServer srv) {
-        map = new HashMap<>();
-        excludeIps = new ArrayList<>();
-        if (srv.config.authLimitExclusions != null)
-            excludeIps.addAll(Arrays.asList(srv.config.authLimitExclusions));
-        rateLimit = srv.config.authRateLimit;
-        rateLimitMilis = srv.config.authRateLimitMilis;
-    }
+    public transient HashMap<String, AuthEntry> map = new HashMap<>();
+    public List<String> excludeIps = new ArrayList<>();
 
     @Override
     public void garbageCollection() {

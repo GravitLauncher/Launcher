@@ -2,6 +2,7 @@ package ru.gravit.launchserver.config;
 
 import com.google.gson.*;
 import ru.gravit.launchserver.texture.TextureProvider;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
 
@@ -12,6 +13,11 @@ public class TextureProviderAdapter implements JsonSerializer<TextureProvider>, 
     public TextureProvider deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends TextureProvider> cls = TextureProvider.getProviderClass(typename);
+        if(cls == null)
+        {
+            LogHelper.error("TextureProvider %s not found", typename);
+            return null;
+        }
 
 
         return (TextureProvider) context.deserialize(json, cls);
