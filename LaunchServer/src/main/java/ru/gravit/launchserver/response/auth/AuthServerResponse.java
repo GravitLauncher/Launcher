@@ -6,6 +6,7 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
+import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.auth.hwid.HWIDException;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
@@ -36,8 +37,7 @@ public final class AuthServerResponse extends Response {
     public void reply() throws Exception {
         String login = input.readString(SerializeLimits.MAX_LOGIN);
         String client = input.readString(SerializeLimits.MAX_CLIENT);
-        int auth_id = input.readInt();
-        if (auth_id + 1 > server.config.authProvider.length || auth_id < 0) auth_id = 0;
+        String auth_id = input.readString(SerializeLimits.MAX_QUEUE_SIZE);
         byte[] encryptedPassword = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
         // Decrypt password
         String password;
@@ -51,7 +51,11 @@ public final class AuthServerResponse extends Response {
         // Authenticate
         debug("ServerLogin: '%s', Password: '%s'", login, echo(password.length()));
         AuthProviderResult result;
-        AuthProvider provider = server.config.authProvider[auth_id];
+        AuthProviderPair pair;
+        if(auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
+        else pair = server.config.getAuthProviderPair(auth_id);
+        if(pair == null) requestError("Auth type not found");
+        AuthProvider provider = pair.provider;
         try {
             if (server.limiter.isLimit(ip)) {
                 AuthProvider.authError(server.config.authRejectString);
@@ -87,6 +91,8 @@ public final class AuthServerResponse extends Response {
         }
         debug("ServerAuth: '%s' -> '%s', '%s'", login, result.username, result.accessToken);
         clientData.isAuth = true;
+        clientData.auth_id = auth_id;
+        clientData.updateAuth();
         writeNoError(output);
         clientData.permissions.write(output);
     }

@@ -48,7 +48,7 @@ public final class ProfileByUUIDResponse extends Response {
         debug("UUID: " + uuid);
         String client = input.readString(SerializeLimits.MAX_CLIENT);
         // Verify has such profile
-        String username = server.config.authHandler.uuidToUsername(uuid);
+        String username = clientData.auth.handler.uuidToUsername(uuid);
         if (username == null) {
             output.writeBoolean(false);
             return;

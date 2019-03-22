@@ -46,7 +46,7 @@ public class ProfileByUUIDResponse implements JsonResponseInterface {
 
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
-        String username = LaunchServer.server.config.authHandler.uuidToUsername(uuid);
+        String username = client.auth.handler.uuidToUsername(uuid);
         service.sendObject(ctx, new ProfileByUUIDRequestEvent(getProfile(LaunchServer.server,uuid,username,this.client)));
     }
 }

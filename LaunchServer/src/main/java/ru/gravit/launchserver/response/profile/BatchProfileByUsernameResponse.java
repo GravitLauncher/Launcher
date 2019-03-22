@@ -30,6 +30,6 @@ public final class BatchProfileByUsernameResponse extends Response {
 
         // Respond with profiles array
         for (int i = 0; i < usernames.length; i++)
-            ProfileByUsernameResponse.writeProfile(server, output, usernames[i], clients[i]);
+            ProfileByUsernameResponse.writeProfile(server, output, usernames[i], clients[i], clientData.auth.handler);
     }
 }

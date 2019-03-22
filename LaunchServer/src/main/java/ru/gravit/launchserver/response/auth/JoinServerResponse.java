@@ -33,7 +33,7 @@ public final class JoinServerResponse extends Response {
         boolean success;
         try {
             server.authHookManager.joinServerHook(username, accessToken, serverID);
-            success = server.config.authHandler.joinServer(username, accessToken, serverID);
+            success = clientData.auth.handler.joinServer(username, accessToken, serverID);
         } catch (AuthException e) {
             requestError(e.getMessage());
             return;

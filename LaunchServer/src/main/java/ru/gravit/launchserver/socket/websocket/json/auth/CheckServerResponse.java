@@ -25,7 +25,7 @@ public class CheckServerResponse implements JsonResponseInterface {
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client pClient) {
         CheckServerRequestEvent result = new CheckServerRequestEvent();
         try {
-            result.uuid = LaunchServer.server.config.authHandler.checkServer(username, serverID);
+            result.uuid = pClient.auth.handler.checkServer(username, serverID);
             if(result.uuid != null)
                 result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server,result.uuid,username,client);
         } catch (AuthException e) {

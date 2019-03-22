@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.command.dump;
 
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.auth.handler.CachedAuthHandler;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.utils.helper.IOHelper;
@@ -19,7 +20,7 @@ public class DumpEntryCacheCommand extends Command {
 
     @Override
     public String getArgsDescription() {
-        return "[load/unload] [filename]";
+        return "[load/unload] [auth_id] [filename]";
     }
 
     @Override
@@ -29,12 +30,14 @@ public class DumpEntryCacheCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        verifyArgs(args, 2);
-        if (!(server.config.authHandler instanceof CachedAuthHandler))
+        verifyArgs(args, 3);
+        AuthProviderPair pair = server.config.getAuthProviderPair(args[1]);
+        if(pair == null) throw new IllegalStateException(String.format("Auth %s not found", args[1]));
+        if (!(pair.handler instanceof CachedAuthHandler))
             throw new UnsupportedOperationException("This command used only CachedAuthHandler");
-        CachedAuthHandler authHandler = (CachedAuthHandler) server.config.authHandler;
+        CachedAuthHandler authHandler = (CachedAuthHandler) pair.handler;
         if (args[0].equals("unload")) {
-            LogHelper.info("CachedAuthHandler write to %s", args[1]);
+            LogHelper.info("CachedAuthHandler write to %s", args[2]);
             Map<UUID, CachedAuthHandler.Entry> entryCache = authHandler.getEntryCache();
             Map<String, UUID> usernamesCache = authHandler.getUsernamesCache();
             EntryAndUsername serializable = new EntryAndUsername();

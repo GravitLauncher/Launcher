@@ -36,10 +36,6 @@ public abstract class AuthProvider implements AutoCloseable {
         }
     }
 
-    public AuthHandler getAccociateHandler(int this_position) {
-        return LaunchServer.server.config.authHandler;
-    }
-
 
     public abstract AuthProviderResult auth(String login, String password, String ip) throws Exception;
 

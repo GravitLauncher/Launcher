@@ -7,6 +7,7 @@ import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
+import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.auth.hwid.HWIDException;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
@@ -31,14 +32,14 @@ public class AuthResponse implements JsonResponseInterface {
     public String password;
     public byte[] encryptedPassword;
 
-    public AuthResponse(String login, String password, int authid, OshiHWID hwid) {
+    public AuthResponse(String login, String password, String auth_id, OshiHWID hwid) {
         this.login = login;
         this.password = password;
-        this.authid = authid;
+        this.auth_id = auth_id;
         this.hwid = hwid;
     }
 
-    public int authid;
+    public String auth_id;
     public ConnectTypes authType;
     public OshiHWID hwid;
     public enum ConnectTypes
@@ -82,8 +83,11 @@ public class AuthResponse implements JsonResponseInterface {
             {
                 AuthProvider.authError("authType: SERVER not allowed for this account");
             }
+            AuthProviderPair pair;
+            if(auth_id.isEmpty()) pair = LaunchServer.server.config.getAuthProviderPair();
+            else pair = LaunchServer.server.config.getAuthProviderPair(auth_id);
             ru.gravit.launchserver.response.auth.AuthResponse.AuthContext context = new ru.gravit.launchserver.response.auth.AuthResponse.AuthContext(0, login, password.length(),customText, client, null, false);
-            AuthProvider provider = LaunchServer.server.config.authProvider[authid];
+            AuthProvider provider = pair.provider;
             LaunchServer.server.authHookManager.preHook(context, clientData);
             provider.preAuth(login,password,customText,ip);
             AuthProviderResult aresult = provider.auth(login, password, ip);
@@ -103,12 +107,14 @@ public class AuthResponse implements JsonResponseInterface {
             //if (clientData.profile == null) {
             //    throw new AuthException("You profile not found");
             //}
-            UUID uuid = LaunchServer.server.config.authHandler.auth(aresult);
+            UUID uuid = pair.handler.auth(aresult);
             if(authType == ConnectTypes.CLIENT)
                  LaunchServer.server.config.hwidHandler.check(hwid, aresult.username);
             LaunchServer.server.authHookManager.postHook(context, clientData);
             clientData.isAuth = true;
             clientData.permissions = aresult.permissions;
+            clientData.auth_id = auth_id;
+            clientData.updateAuth();
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
             result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server,uuid,aresult.username,client);

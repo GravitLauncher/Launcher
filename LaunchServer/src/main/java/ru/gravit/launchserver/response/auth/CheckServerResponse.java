@@ -34,7 +34,7 @@ public final class CheckServerResponse extends Response {
         UUID uuid;
         try {
             server.authHookManager.checkServerHook(username, serverID);
-            uuid = server.config.authHandler.checkServer(username, serverID);
+            uuid = clientData.auth.handler.checkServer(username, serverID);
         } catch (AuthException e) {
             requestError(e.getMessage());
             return;

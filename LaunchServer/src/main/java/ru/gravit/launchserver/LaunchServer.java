@@ -9,6 +9,7 @@ import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.auth.AuthLimiter;
+import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import ru.gravit.launchserver.auth.hwid.AcceptHWIDHandler;
@@ -46,8 +47,6 @@ import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -63,10 +62,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
         config.verify();
         Launcher.applyLauncherEnv(config.env);
-        for (AuthProvider provider : config.authProvider) {
-            provider.init();
+        for (AuthProviderPair auth : config.auth) {
+            auth.init();
         }
-        config.authHandler.init();
     }
 
     public static final class Config {
@@ -86,9 +84,32 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         // Handlers & Providers
 
-        public AuthProvider[] authProvider;
+        public AuthProviderPair[] auth;
 
-        public AuthHandler authHandler;
+        private transient AuthProviderPair authDefault;
+
+        public AuthProviderPair getAuthProviderPair(String name)
+        {
+            for(AuthProviderPair pair : auth)
+            {
+                if(pair.name.equals(name)) return pair;
+            }
+            return null;
+        }
+
+        public AuthProviderPair getAuthProviderPair()
+        {
+            if(authDefault != null) return authDefault;
+            for(AuthProviderPair pair : auth)
+            {
+                if(pair.isDefault)
+                {
+                    authDefault = pair;
+                    return pair;
+                }
+            }
+            return null;
+        }
 
         public PermissionsHandler permissionsHandler;
 
@@ -165,11 +186,21 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public void verify() {
             VerifyHelper.verify(getAddress(), VerifyHelper.NOT_EMPTY, "LaunchServer address can't be empty");
-            if (authHandler == null) {
+            if (auth == null || auth[0] == null) {
                 throw new NullPointerException("AuthHandler must not be null");
             }
-            if (authProvider == null || authProvider[0] == null) {
-                throw new NullPointerException("AuthProvider must not be null");
+            boolean isOneDefault = false;
+            for(AuthProviderPair pair : auth)
+            {
+                if(pair.isDefault)
+                {
+                    isOneDefault = true;
+                    break;
+                }
+            }
+            if(!isOneDefault)
+            {
+                throw new IllegalStateException("No auth pairs declared by default.");
             }
             if (textureProvider == null) {
                 throw new NullPointerException("TextureProvider must not be null");
@@ -188,12 +219,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public void close()
         {
             try {
-                authHandler.close();
-            } catch (IOException e) {
-                LogHelper.error(e);
-            }
-            try {
-                for (AuthProvider p : authProvider) p.close();
+                for (AuthProviderPair p : auth) p.close();
             } catch (IOException e) {
                 LogHelper.error(e);
             }
@@ -443,10 +469,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
         config.verify();
         Launcher.applyLauncherEnv(config.env);
-        for (AuthProvider provider : config.authProvider) {
+        for (AuthProviderPair provider : config.auth) {
             provider.init();
         }
-        config.authHandler.init();
 
         // build hooks, anti-brutforce and other
         buildHookManager = new BuildHookManager();
@@ -463,12 +488,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         reloadManager.registerReloadable("launchServer", this);
         if (config.permissionsHandler instanceof Reloadable)
             reloadManager.registerReloadable("permissionsHandler", (Reloadable) config.permissionsHandler);
-        if (config.authHandler instanceof Reloadable)
-            reloadManager.registerReloadable("authHandler", (Reloadable) config.authHandler);
-        for (int i = 0; i < config.authProvider.length; ++i) {
-            AuthProvider provider = config.authProvider[i];
-            if (provider instanceof Reloadable)
-                reloadManager.registerReloadable("authHandler".concat(String.valueOf(i)), (Reloadable) provider);
+        for (int i = 0; i < config.auth.length; ++i) {
+            AuthProviderPair pair = config.auth[i];
+            if (pair.provider instanceof Reloadable)
+                reloadManager.registerReloadable("auth.".concat(pair.name).concat(".provider"), (Reloadable) pair.provider);
+            if (pair.handler instanceof Reloadable)
+                reloadManager.registerReloadable("auth.".concat(pair.name).concat(".handler"), (Reloadable) pair.handler);
         }
         if (config.textureProvider instanceof Reloadable)
             reloadManager.registerReloadable("textureProvider", (Reloadable) config.textureProvider);
@@ -477,12 +502,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         if (config.permissionsHandler instanceof Reconfigurable)
             reconfigurableManager.registerReconfigurable("permissionsHandler", (Reconfigurable) config.permissionsHandler);
-        if (config.authHandler instanceof Reconfigurable)
-            reconfigurableManager.registerReconfigurable("authHandler", (Reconfigurable) config.authHandler);
-        for (int i = 0; i < config.authProvider.length; ++i) {
-            AuthProvider provider = config.authProvider[i];
-            if (provider instanceof Reconfigurable)
-                reconfigurableManager.registerReconfigurable("authHandler".concat(String.valueOf(i)), (Reconfigurable) provider);
+        for (int i = 0; i < config.auth.length; ++i) {
+            AuthProviderPair pair = config.auth[i];
+            if (pair.provider instanceof Reconfigurable)
+                reconfigurableManager.registerReconfigurable("auth.".concat(pair.name).concat(".provider"), (Reconfigurable) pair.provider);
+            if (pair.handler instanceof Reconfigurable)
+                reconfigurableManager.registerReconfigurable("auth.".concat(pair.name).concat(".handler"), (Reconfigurable) pair.handler);
         }
         if (config.textureProvider instanceof Reconfigurable)
             reconfigurableManager.registerReconfigurable("textureProvider", (Reconfigurable) config.textureProvider);
@@ -591,10 +616,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
-        newConfig.authHandler = new MemoryAuthHandler();
         newConfig.hwidHandler = new AcceptHWIDHandler();
-
-        newConfig.authProvider = new AuthProvider[]{new RejectAuthProvider("Настройте authProvider")};
+        newConfig.auth = new AuthProviderPair[]{ new AuthProviderPair() };
+        newConfig.auth[0].provider = new RejectAuthProvider("Настройте authProvider");
+        newConfig.auth[0].handler = new MemoryAuthHandler();
         newConfig.textureProvider = new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png");
         newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.port = 7240;
