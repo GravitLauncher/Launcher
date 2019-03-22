@@ -617,9 +617,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.hwidHandler = new AcceptHWIDHandler();
-        newConfig.auth = new AuthProviderPair[]{ new AuthProviderPair() };
-        newConfig.auth[0].provider = new RejectAuthProvider("Настройте authProvider");
-        newConfig.auth[0].handler = new MemoryAuthHandler();
+        newConfig.auth = new AuthProviderPair[]{ new AuthProviderPair(new RejectAuthProvider("Настройте authProvider"), new MemoryAuthHandler(), "std") };
         newConfig.textureProvider = new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png");
         newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.port = 7240;

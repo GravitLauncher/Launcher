@@ -9,7 +9,13 @@ public class AuthProviderPair {
     public AuthProvider provider;
     public AuthHandler handler;
     public String name;
-    public boolean isDefault;
+    public boolean isDefault = true;
+
+    public AuthProviderPair(AuthProvider provider, AuthHandler handler, String name) {
+        this.provider = provider;
+        this.handler = handler;
+        this.name = name;
+    }
 
     public void init()
     {
