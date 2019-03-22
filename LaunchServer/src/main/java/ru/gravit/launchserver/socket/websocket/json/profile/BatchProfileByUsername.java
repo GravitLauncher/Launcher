@@ -29,7 +29,7 @@ public class BatchProfileByUsername implements JsonResponseInterface {
         for(int i=0;i<list.length;++i)
         {
             UUID uuid = client.auth.handler.usernameToUUID(list[i].username);
-            result.playerProfiles[i] = ProfileByUUIDResponse.getProfile(LaunchServer.server,uuid,list[i].username,list[i].client);
+            result.playerProfiles[i] = ProfileByUUIDResponse.getProfile(LaunchServer.server,uuid,list[i].username,list[i].client, client.auth.textureProvider);
         }
         service.sendObject(ctx, result);
     }

@@ -117,7 +117,7 @@ public class AuthResponse implements JsonResponseInterface {
             clientData.updateAuth();
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
-            result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server,uuid,aresult.username,client);
+            result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server,uuid,aresult.username,client, clientData.auth.textureProvider);
             service.sendObject(ctx, result);
         } catch (AuthException | HWIDException e) {
             service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));

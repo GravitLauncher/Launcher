@@ -113,8 +113,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public PermissionsHandler permissionsHandler;
 
-        public TextureProvider textureProvider;
-
         public HWIDHandler hwidHandler;
 
         // Misc options
@@ -202,9 +200,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             {
                 throw new IllegalStateException("No auth pairs declared by default.");
             }
-            if (textureProvider == null) {
-                throw new NullPointerException("TextureProvider must not be null");
-            }
             if (permissionsHandler == null) {
                 throw new NullPointerException("PermissionsHandler must not be null");
             }
@@ -220,11 +215,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         {
             try {
                 for (AuthProviderPair p : auth) p.close();
-            } catch (IOException e) {
-                LogHelper.error(e);
-            }
-            try {
-                textureProvider.close();
             } catch (IOException e) {
                 LogHelper.error(e);
             }
@@ -494,9 +484,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 reloadManager.registerReloadable("auth.".concat(pair.name).concat(".provider"), (Reloadable) pair.provider);
             if (pair.handler instanceof Reloadable)
                 reloadManager.registerReloadable("auth.".concat(pair.name).concat(".handler"), (Reloadable) pair.handler);
+            if (pair.textureProvider instanceof Reloadable)
+                reloadManager.registerReloadable("auth.".concat(pair.name).concat(".texture"), (Reloadable) pair.textureProvider);
         }
-        if (config.textureProvider instanceof Reloadable)
-            reloadManager.registerReloadable("textureProvider", (Reloadable) config.textureProvider);
 
         Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
 
@@ -508,9 +498,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 reconfigurableManager.registerReconfigurable("auth.".concat(pair.name).concat(".provider"), (Reconfigurable) pair.provider);
             if (pair.handler instanceof Reconfigurable)
                 reconfigurableManager.registerReconfigurable("auth.".concat(pair.name).concat(".handler"), (Reconfigurable) pair.handler);
+            if (pair.textureProvider instanceof Reconfigurable)
+                reconfigurableManager.registerReconfigurable("auth.".concat(pair.name).concat(".texture"), (Reconfigurable) pair.textureProvider);
         }
-        if (config.textureProvider instanceof Reconfigurable)
-            reconfigurableManager.registerReconfigurable("textureProvider", (Reconfigurable) config.textureProvider);
 
         Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
 
@@ -617,8 +607,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.hwidHandler = new AcceptHWIDHandler();
-        newConfig.auth = new AuthProviderPair[]{ new AuthProviderPair(new RejectAuthProvider("Настройте authProvider"), new MemoryAuthHandler(), "std") };
-        newConfig.textureProvider = new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png");
+        newConfig.auth = new AuthProviderPair[]{ new AuthProviderPair(new RejectAuthProvider("Настройте authProvider"),
+                new MemoryAuthHandler(),
+                new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
+                , "std") };
         newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.port = 7240;
         newConfig.bindAddress = "0.0.0.0";
