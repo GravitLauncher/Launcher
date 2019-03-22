@@ -20,7 +20,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     private final String login;
 
     private final byte[] encryptedPassword;
-    private final int auth_id;
+    private final String auth_id;
     private final HWID hwid;
     private final String customText;
 
@@ -31,20 +31,11 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         this.encryptedPassword = password.clone();
         this.hwid = hwid;
         customText = "";
-        auth_id = 0;
-    }
-    @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, String customText) {
-        super(config);
-        this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
-        this.encryptedPassword = password.clone();
-        this.hwid = hwid;
-        this.customText = customText;
-        auth_id = 0;
+        auth_id = "";
     }
 
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, int auth_id) {
+    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, String auth_id) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = password.clone();
@@ -53,7 +44,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         customText = "";
     }
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, String customText, int auth_id) {
+    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, String customText, String auth_id) {
         super(config);
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = password.clone();
@@ -72,7 +63,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         return (AuthRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
     @LauncherAPI
-    public AuthRequest(String login, byte[] password, HWID hwid, int auth_id) {
+    public AuthRequest(String login, byte[] password, HWID hwid, String auth_id) {
         this(null, login, password, hwid, auth_id);
     }
 
@@ -104,7 +95,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         output.writeBoolean(Launcher.profile != null);
         if (Launcher.profile != null)
             output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
-        output.writeInt(auth_id);
+        output.writeString(auth_id, SerializeLimits.MAX_QUEUE_SIZE);
         output.writeString(hwid.getSerializeString(), 0);
         //output.writeLong(0);
         //output.writeLong(0);
