@@ -76,5 +76,6 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         handler.registerCommand("checkInstall", new CheckInstallCommand(server));
         handler.registerCommand("multi", new MultiCommand(server));
         handler.registerCommand("getModulus", new GetModulusCommand(server));
+        handler.registerCommand("component", new ComponentCommand(server));
     }
 }
