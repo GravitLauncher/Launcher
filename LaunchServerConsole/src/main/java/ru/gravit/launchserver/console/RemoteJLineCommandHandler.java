@@ -1,7 +1,6 @@
 package ru.gravit.launchserver.console;
 
 import ru.gravit.launcher.request.admin.ExecCommandRequest;
-import ru.gravit.utils.command.Command;
 import ru.gravit.utils.command.JLineCommandHandler;
 import ru.gravit.utils.helper.LogHelper;
 

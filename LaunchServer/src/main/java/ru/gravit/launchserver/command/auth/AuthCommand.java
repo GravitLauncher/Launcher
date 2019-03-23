@@ -34,8 +34,6 @@ public final class AuthCommand extends Command {
 
         String login = args[0];
         String password = args[1];
-        int auth_id = 0;
-        if (args.length >= 3) auth_id = Integer.valueOf(args[3]);
 
         // Authenticate
         AuthProvider provider = pair.provider;

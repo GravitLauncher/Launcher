@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.client.ClientModuleManager;
 import ru.gravit.launcher.client.DirBridge;
 import ru.gravit.launcher.client.FunctionalBridge;
-import ru.gravit.launcher.client.LauncherSettings;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.gui.RuntimeProvider;
@@ -13,8 +12,6 @@ import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 

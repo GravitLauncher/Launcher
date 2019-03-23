@@ -1,13 +1,10 @@
 package ru.gravit.launchserver.auth.protect;
 
-import ru.gravit.launchserver.auth.AuthException;
-import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.response.auth.AuthResponse;
 import ru.gravit.utils.helper.VerifyHelper;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class ProtectHandler {

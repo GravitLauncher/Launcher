@@ -1,7 +1,6 @@
 package ru.gravit.launchserver.config;
 
 import com.google.gson.*;
-import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.protect.ProtectHandler;
 import ru.gravit.utils.helper.LogHelper;
 
