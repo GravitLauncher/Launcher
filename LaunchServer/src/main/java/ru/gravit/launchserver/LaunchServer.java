@@ -119,7 +119,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public HWIDHandler hwidHandler;
 
-        public HashMap<String, Component> components;
+        public Map<String, Component> components;
 
         // Misc options
         public int threadCount;

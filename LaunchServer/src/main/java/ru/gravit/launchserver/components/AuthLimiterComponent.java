@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class AuthLimiterComponent extends Component implements NeedGarbageCollection {
-    private LaunchServer server;
+    private transient LaunchServer server;
     @Override
     public void preInit(LaunchServer launchServer) {
 
