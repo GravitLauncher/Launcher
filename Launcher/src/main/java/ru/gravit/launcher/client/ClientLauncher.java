@@ -386,7 +386,7 @@ public final class ClientLauncher {
         }
         // Let's rock!
         process = builder.start();
-        if(!LogHelper.isDebugEnabled()) Thread.sleep(1000); //даем время потоку записи
+        if(!LogHelper.isDebugEnabled()) Thread.sleep(3000); //даем время потоку записи
         return process;
     }
 
@@ -397,7 +397,6 @@ public final class ClientLauncher {
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         initGson();
         Launcher.modulesManager.preInitModules();
-        checkJVMBitsAndVersion();
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncher.class);
@@ -430,6 +429,7 @@ public final class ClientLauncher {
         }
         Launcher.profile = profile;
         Request.setSession(params.session);
+        checkJVMBitsAndVersion();
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
