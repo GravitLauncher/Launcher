@@ -36,6 +36,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.interfaces.RSAPublicKey;
 import java.util.*;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 public final class ClientLauncher {
     private static Gson gson = new Gson();
@@ -294,6 +296,7 @@ public final class ClientLauncher {
     }
 
     private static Process process = null;
+    private static boolean clientStarted = false;
 
     @LauncherAPI
     public static Process launch(
@@ -325,8 +328,7 @@ public final class ClientLauncher {
                         assetHDir.write(output);
                         clientHDir.write(output);
                     }
-
-
+                    clientStarted = true;
                 }
             } catch (IOException e) {
                 LogHelper.error(e);
@@ -386,7 +388,27 @@ public final class ClientLauncher {
         }
         // Let's rock!
         process = builder.start();
-        if(!LogHelper.isDebugEnabled()) Thread.sleep(3000); //даем время потоку записи
+        if(!LogHelper.isDebugEnabled()) {
+            for(int i=0;i<50;++i)
+            {
+                if(!process.isAlive())
+                {
+                    int exitCode = process.exitValue();
+                    LogHelper.error("Process exit code %d", exitCode);
+                    break;
+                }
+                if(clientStarted)
+                {
+                    break;
+                }
+                Thread.sleep(200);
+            }
+            if(!clientStarted)
+            {
+                LogHelper.error("Write Client Params not successful. Using debug mode for more information");
+            }
+        }
+        clientStarted = false;
         return process;
     }
 
