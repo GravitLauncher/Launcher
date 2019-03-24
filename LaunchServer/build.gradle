@@ -60,7 +60,10 @@ dependencies {
 	}
 
 	launch4j('net.sf.launch4j:launch4j:3.12') {
-		exclude group: '*'
+		exclude group: 'org.apache.ant'
+		exclude group: 'net.java.abeille'
+		exclude group: 'foxtrot'
+		exclude group: 'com.jgoodies'
 	}
 
 	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-win32') {
@@ -69,7 +72,7 @@ dependencies {
 
 	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-linux') {
 		exclude group: '*'
-	}	
+	}
 
 	compileOnlyA 'com.google.guava:guava:26.0-jre'
 	compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
@@ -103,10 +106,8 @@ task launch4jA(type: Copy) {
 	eachFile { FileCopyDetails fcp ->
 		if (fcp.name.startsWith("launch4j")) {
 			fcp.name = "launch4j.jar"
-			fcp.mode = 0755
-		} else {
-			fcp.exclude()
 		}
+		fcp.mode = 0755
 	}	
 }
 
