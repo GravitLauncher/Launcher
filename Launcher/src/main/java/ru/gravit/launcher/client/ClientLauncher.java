@@ -305,6 +305,7 @@ public final class ClientLauncher {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
         ClientLauncherContext context = new ClientLauncherContext();
+        clientStarted = false;
         CommonHelper.newThread("Client params writter", true, () ->
         {
             try {
