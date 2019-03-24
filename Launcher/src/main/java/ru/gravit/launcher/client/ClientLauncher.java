@@ -310,6 +310,7 @@ public final class ClientLauncher {
                 try (ServerSocket socket = new ServerSocket()) {
 
                     socket.setReuseAddress(true);
+                    socket.setSoTimeout(30000);
                     socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                     Socket client = socket.accept();
                     if (process == null) {
