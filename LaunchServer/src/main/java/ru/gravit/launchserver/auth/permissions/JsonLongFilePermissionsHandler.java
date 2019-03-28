@@ -45,11 +45,7 @@ public class JsonLongFilePermissionsHandler extends PermissionsHandler implement
     }
 
     @Override
-    public ClientPermissions getPermissions(String username) {
-        return new ClientPermissions(map.getOrDefault(username, defaultPerms));
-    }
-
-    public JsonLongFilePermissionsHandler() {
+    public void init() {
         Type type = new TypeToken<Map<String, ClientPermissions>>() {
         }.getType();
         Path path = Paths.get(filename);
@@ -66,5 +62,14 @@ public class JsonLongFilePermissionsHandler extends PermissionsHandler implement
         } catch (IOException e) {
             LogHelper.error(e);
         }
+    }
+
+    @Override
+    public ClientPermissions getPermissions(String username) {
+        return new ClientPermissions(map.getOrDefault(username, defaultPerms));
+    }
+
+    public JsonLongFilePermissionsHandler() {
+
     }
 }

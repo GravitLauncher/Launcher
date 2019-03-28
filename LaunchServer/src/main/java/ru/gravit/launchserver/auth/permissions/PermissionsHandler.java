@@ -38,5 +38,7 @@ public abstract class PermissionsHandler implements AutoCloseable {
         }
     }
 
+    public abstract void init();
+
     public abstract ClientPermissions getPermissions(String username);
 }

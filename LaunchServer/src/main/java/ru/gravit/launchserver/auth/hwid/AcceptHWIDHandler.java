@@ -23,6 +23,11 @@ public class AcceptHWIDHandler extends HWIDHandler {
     }
 
     @Override
+    public void init() {
+
+    }
+
+    @Override
     public List<HWID> getHwid(String username) {
         return new ArrayList<>();
     }

@@ -2,6 +2,9 @@ package ru.gravit.launcher;
 
 import com.google.gson.Gson;
 
+import java.util.Objects;
+import java.util.StringJoiner;
+
 public class OshiHWID implements HWID {
     public static Gson gson = new Gson();
     @LauncherAPI
@@ -52,5 +55,33 @@ public class OshiHWID implements HWID {
     @Override
     public boolean isNull() {
         return getLevel() < 15;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OshiHWID oshiHWID = (OshiHWID) o;
+        return totalMemory == oshiHWID.totalMemory &&
+                Objects.equals(serialNumber, oshiHWID.serialNumber) &&
+                Objects.equals(HWDiskSerial, oshiHWID.HWDiskSerial) &&
+                Objects.equals(processorID, oshiHWID.processorID) &&
+                Objects.equals(macAddr, oshiHWID.macAddr);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(totalMemory, serialNumber, HWDiskSerial, processorID, macAddr);
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", OshiHWID.class.getSimpleName() + "[", "]")
+                .add("totalMemory=" + totalMemory)
+                .add("serialNumber='" + serialNumber + "'")
+                .add("HWDiskSerial='" + HWDiskSerial + "'")
+                .add("processorID='" + processorID + "'")
+                .add("macAddr='" + macAddr + "'")
+                .toString();
     }
 }

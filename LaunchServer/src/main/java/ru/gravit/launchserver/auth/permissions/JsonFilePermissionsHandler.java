@@ -44,11 +44,7 @@ public class JsonFilePermissionsHandler extends PermissionsHandler implements Re
     }
 
     @Override
-    public ClientPermissions getPermissions(String username) {
-        return map.getOrDefault(username, ClientPermissions.DEFAULT);
-    }
-
-    public JsonFilePermissionsHandler() {
+    public void init() {
         Type type = new TypeToken<Map<String, ClientPermissions>>() {
         }.getType();
         Path path = Paths.get(filename);
@@ -65,5 +61,14 @@ public class JsonFilePermissionsHandler extends PermissionsHandler implements Re
         } catch (IOException e) {
             LogHelper.error(e);
         }
+    }
+
+    @Override
+    public ClientPermissions getPermissions(String username) {
+        return map.getOrDefault(username, ClientPermissions.DEFAULT);
+    }
+
+    public JsonFilePermissionsHandler() {
+
     }
 }

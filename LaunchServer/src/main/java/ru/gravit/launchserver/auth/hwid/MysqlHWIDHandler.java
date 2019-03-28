@@ -250,4 +250,9 @@ public class MysqlHWIDHandler extends HWIDHandler {
     public void close() {
     	mySQLHolder.close();
     }
+
+    @Override
+    public void init() {
+
+    }
 }
