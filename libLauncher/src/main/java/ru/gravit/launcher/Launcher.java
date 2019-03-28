@@ -59,10 +59,10 @@ public final class Launcher {
 
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
     public static final int MAJOR = 4;
-    public static final int MINOR = 4;
-    public static final int PATCH = 2;
+    public static final int MINOR = 5;
+    public static final int PATCH = 1;
     public static final int BUILD = 1;
-    public static final Version.Type RELEASE = Version.Type.STABLE;
+    public static final Version.Type RELEASE = Version.Type.DEV;
     public static GsonBuilder gsonBuilder;
     public static Gson gson;
 

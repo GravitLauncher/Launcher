@@ -294,6 +294,7 @@ public final class ClientLauncher {
 
     private static Process process = null;
     private static boolean clientStarted = false;
+    private static Thread writeParamsThread;
 
     @LauncherAPI
     public static Process launch(
@@ -302,7 +303,11 @@ public final class ClientLauncher {
         LogHelper.debug("Writing ClientLauncher params");
         ClientLauncherContext context = new ClientLauncherContext();
         clientStarted = false;
-        CommonHelper.newThread("Client params writter", true, () ->
+        if(writeParamsThread != null && writeParamsThread.isAlive())
+        {
+            writeParamsThread.interrupt();
+        }
+        writeParamsThread = CommonHelper.newThread("Client params writter", true, () ->
         {
             try {
                 try (ServerSocket socket = new ServerSocket()) {
@@ -331,7 +336,8 @@ public final class ClientLauncher {
             } catch (IOException e) {
                 LogHelper.error(e);
             }
-        }).start();
+        });
+        writeParamsThread.start();
         checkJVMBitsAndVersion();
         LogHelper.debug("Resolving JVM binary");
         Path javaBin = LauncherGuardManager.getGuardJavaBinPath();
@@ -393,6 +399,7 @@ public final class ClientLauncher {
                 {
                     int exitCode = process.exitValue();
                     LogHelper.error("Process exit code %d", exitCode);
+                    if(writeParamsThread != null && writeParamsThread.isAlive()) writeParamsThread.interrupt();
                     break;
                 }
                 if(clientStarted)
