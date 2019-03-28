@@ -76,9 +76,9 @@ public abstract class CommandHandler implements Runnable {
         VerifyHelper.putIfAbsent(commands, name.toLowerCase(), Objects.requireNonNull(command, "command"),
                 String.format("Command has been already registered: '%s'", name.toLowerCase()));
     }
-    public void unregisterCommand(String name)
+    public Command unregisterCommand(String name)
     {
-        commands.remove(name);
+        return commands.remove(name);
     }
 
     @Override
