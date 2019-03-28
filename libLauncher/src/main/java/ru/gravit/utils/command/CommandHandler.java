@@ -21,6 +21,7 @@ public abstract class CommandHandler implements Runnable {
         String[] args;
         try {
             args = CommonHelper.parseCommand(line);
+            if(args.length > 0) args[0] = args[0].toLowerCase();
         } catch (Exception e) {
             LogHelper.error(e);
             return;
@@ -72,8 +73,8 @@ public abstract class CommandHandler implements Runnable {
 
     public void registerCommand(String name, Command command) {
         VerifyHelper.verifyIDName(name);
-        VerifyHelper.putIfAbsent(commands, name, Objects.requireNonNull(command, "command"),
-                String.format("Command has been already registered: '%s'", name));
+        VerifyHelper.putIfAbsent(commands, name.toLowerCase(), Objects.requireNonNull(command, "command"),
+                String.format("Command has been already registered: '%s'", name.toLowerCase()));
     }
 
     @Override
