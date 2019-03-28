@@ -52,7 +52,7 @@ public final class ResponseThread implements Runnable {
             if (magicNumber == Launcher.PROTOCOL_MAGIC_LEGACY - 1) { // Previous launcher protocol
                 session = 0;
                 legacy = true;
-            } else if (magicNumber == Launcher.PROTOCOL_MAGIC_LEGACY - 2) { // Previous launcher protocol
+            } else if (magicNumber == ServerSocketHandler.LEGACY_LAUNCHER_MAGIC) { // Previous launcher protocol
                 session = 0;
                 legacy = true;
             } else if (magicNumber == Launcher.PROTOCOL_MAGIC_LEGACY) {

@@ -9,20 +9,16 @@ import ru.gravit.launchserver.response.auth.AuthResponse;
 import ru.gravit.launchserver.socket.Client;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class AuthLimiterComponent extends Component implements NeedGarbageCollection {
-    private LaunchServer server;
     @Override
     public void preInit(LaunchServer launchServer) {
-
     }
 
     @Override
     public void init(LaunchServer launchServer) {
-        server = launchServer;
         launchServer.authHookManager.registerPreHook(this::preAuthHook);
     }
 

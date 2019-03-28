@@ -11,7 +11,6 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
@@ -34,8 +33,9 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
-import java.security.interfaces.RSAPublicKey;
 import java.util.*;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 public final class ClientLauncher {
     private static Gson gson = new Gson();
@@ -294,6 +294,8 @@ public final class ClientLauncher {
     }
 
     private static Process process = null;
+    private static boolean clientStarted = false;
+    private static Thread writeParamsThread;
 
     @LauncherAPI
     public static Process launch(
@@ -302,12 +304,18 @@ public final class ClientLauncher {
         // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
         ClientLauncherContext context = new ClientLauncherContext();
-        CommonHelper.newThread("Client params writter", true, () ->
+        clientStarted = false;
+        if(writeParamsThread != null && writeParamsThread.isAlive())
+        {
+            writeParamsThread.interrupt();
+        }
+        writeParamsThread = CommonHelper.newThread("Client params writter", true, () ->
         {
             try {
                 try (ServerSocket socket = new ServerSocket()) {
 
                     socket.setReuseAddress(true);
+                    socket.setSoTimeout(30000);
                     socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                     Socket client = socket.accept();
                     if (process == null) {
@@ -325,13 +333,13 @@ public final class ClientLauncher {
                         assetHDir.write(output);
                         clientHDir.write(output);
                     }
-
-
+                    clientStarted = true;
                 }
             } catch (IOException e) {
                 LogHelper.error(e);
             }
-        }).start();
+        });
+        writeParamsThread.start();
         checkJVMBitsAndVersion();
         LogHelper.debug("Resolving JVM binary");
         Path javaBin = LauncherGuardManager.getGuardJavaBinPath();
@@ -386,7 +394,28 @@ public final class ClientLauncher {
         }
         // Let's rock!
         process = builder.start();
-        if(!LogHelper.isDebugEnabled()) Thread.sleep(1000); //даем время потоку записи
+        if(!LogHelper.isDebugEnabled()) {
+            for(int i=0;i<50;++i)
+            {
+                if(!process.isAlive())
+                {
+                    int exitCode = process.exitValue();
+                    LogHelper.error("Process exit code %d", exitCode);
+                    if(writeParamsThread != null && writeParamsThread.isAlive()) writeParamsThread.interrupt();
+                    break;
+                }
+                if(clientStarted)
+                {
+                    break;
+                }
+                Thread.sleep(200);
+            }
+            if(!clientStarted)
+            {
+                LogHelper.error("Write Client Params not successful. Using debug mode for more information");
+            }
+        }
+        clientStarted = false;
         return process;
     }
 
@@ -397,7 +426,6 @@ public final class ClientLauncher {
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         initGson();
         Launcher.modulesManager.preInitModules();
-        checkJVMBitsAndVersion();
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncher.class);
@@ -430,6 +458,7 @@ public final class ClientLauncher {
         }
         Launcher.profile = profile;
         Request.setSession(params.session);
+        checkJVMBitsAndVersion();
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");

@@ -8,7 +8,6 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
-import ru.gravit.launchserver.auth.AuthLimiter;
 import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.auth.protect.NoProtectHandler;
 import ru.gravit.launchserver.auth.protect.ProtectHandler;
@@ -118,11 +117,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             return null;
         }
 
-        public PermissionsHandler permissionsHandler;
-
         public HWIDHandler hwidHandler;
 
-        public HashMap<String, Component> components;
+        public Map<String, Component> components;
 
         // Misc options
         public int threadCount;
@@ -188,13 +185,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 throw new NullPointerException("AuthHandler must not be null");
             }
             boolean isOneDefault = false;
-            for(AuthProviderPair pair : auth)
-            {
-                if(pair.isDefault)
-                {
+            for(AuthProviderPair pair : auth) {
+                if (pair.isDefault) {
                     isOneDefault = true;
                     break;
                 }
+            }
             if(protectHandler == null)
             {
                 throw new NullPointerException("ProtectHandler must not be null");
@@ -468,7 +464,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         {
             config.protectHandler.checkLaunchServerLicense();
         }
-        config.authHandler.init();
         if(config.components != null)
         {
             LogHelper.debug("PreInit components");

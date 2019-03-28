@@ -5,7 +5,6 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthProviderPair;
-import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.response.Response;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.VerifyHelper;

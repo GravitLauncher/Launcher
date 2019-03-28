@@ -56,7 +56,9 @@ public final class AuthServerResponse extends Response {
         else pair = server.config.getAuthProviderPair(auth_id);
         if(pair == null) requestError("Auth type not found");
         AuthProvider provider = pair.provider;
+        AuthResponse.AuthContext context = new AuthResponse.AuthContext(session, login, password.length(), null, client, null, ip, true);
         try {
+            server.authHookManager.preHook(context, clientData);
             result = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(result.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", result.username));
@@ -77,6 +79,7 @@ public final class AuthServerResponse extends Response {
             }
             clientData.type = Client.Type.SERVER;
             clientData.username = result.username;
+            server.authHookManager.postHook(context, clientData);
         } catch (AuthException | HWIDException e) {
             requestError(e.getMessage());
             return;

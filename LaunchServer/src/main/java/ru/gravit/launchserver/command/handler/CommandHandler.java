@@ -1,8 +1,6 @@
 package ru.gravit.launchserver.command.handler;
 
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.command.Command;
-import ru.gravit.utils.command.CommandException;
 import ru.gravit.launchserver.command.auth.*;
 import ru.gravit.launchserver.command.basic.*;
 import ru.gravit.launchserver.command.dump.DumpEntryCacheCommand;
@@ -13,15 +11,6 @@ import ru.gravit.launchserver.command.install.MultiCommand;
 import ru.gravit.launchserver.command.modules.LoadModuleCommand;
 import ru.gravit.launchserver.command.modules.ModulesCommand;
 import ru.gravit.launchserver.command.service.*;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.VerifyHelper;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class CommandHandler extends ru.gravit.utils.command.CommandHandler {
     public static void registerCommands(ru.gravit.utils.command.CommandHandler handler)
@@ -76,5 +65,6 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         handler.registerCommand("checkInstall", new CheckInstallCommand(server));
         handler.registerCommand("multi", new MultiCommand(server));
         handler.registerCommand("getModulus", new GetModulusCommand(server));
+        handler.registerCommand("component", new ComponentCommand(server));
     }
 }

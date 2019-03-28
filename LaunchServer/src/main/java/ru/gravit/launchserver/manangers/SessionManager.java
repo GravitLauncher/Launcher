@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class SessionManager implements NeedGarbageCollection {
 
-    public static final long SESSION_TIMEOUT = 10 * 60 * 1000; // 10 минут
+    public static final long SESSION_TIMEOUT = 3 * 60 * 60 * 1000; // 3 часа
     public static final boolean GARBAGE_SERVER = Boolean.parseBoolean(System.getProperty("launcher.garbageSessionsServer", "false"));
     private HashSet<Client> clientSet = new HashSet<>(128);
 

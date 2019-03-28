@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.socket;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.manangers.SessionManager;
@@ -37,6 +38,7 @@ public final class ServerSocketHandler implements Runnable, AutoCloseable {
 
     public final SessionManager sessionManager;
     private final AtomicLong idCounter = new AtomicLong(0L);
+    public static int LEGACY_LAUNCHER_MAGIC = Launcher.PROTOCOL_MAGIC_LEGACY - 2;
 
     private volatile Listener listener;
 

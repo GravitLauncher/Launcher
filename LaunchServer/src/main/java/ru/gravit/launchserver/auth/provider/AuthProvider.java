@@ -1,8 +1,6 @@
 package ru.gravit.launchserver.auth.provider;
 
-import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
-import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
