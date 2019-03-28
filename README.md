@@ -2,6 +2,7 @@
 * Discord channel: https://discord.gg/aJK6nMN
 * [See license](LICENSE)
 * [See code of conduct](CODE_OF_CONDUCT.md)
+* [WIKI](https://launcher.gravit.pro)
 * Get it (requires cURL):
 ```sh
 curl -s https://raw.githubusercontent.com/GravitLauncher/Launcher/master/get_it.sh | sh
