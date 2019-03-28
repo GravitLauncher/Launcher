@@ -1,6 +1,8 @@
 def mainClassName = "ru.gravit.launchserver.LaunchServer"
 def mainAgentName = "ru.gravit.launchserver.StarterAgent"
 
+evaluationDependsOn(':Launcher')
+
 repositories {
 	maven {
 		url "https://oss.sonatype.org/content/repositories/snapshots"

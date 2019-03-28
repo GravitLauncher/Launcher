@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ClientLauncherWrapper {
+	public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";
+	
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
@@ -36,6 +38,8 @@ public class ClientLauncherWrapper {
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_OPTDIR_PROPERTY);
+        Collections.addAll(args, MAGIC_ARG);
+        Collections.addAll(args, "-XX:+DisableAttachMechanism");
         Collections.addAll(args, "-javaagent:".concat(pathLauncher));
         Collections.addAll(args, "-cp");
         Collections.addAll(args, pathLauncher);

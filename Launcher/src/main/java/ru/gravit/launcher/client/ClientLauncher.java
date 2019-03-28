@@ -11,6 +11,7 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
@@ -34,8 +35,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
-import java.util.Timer;
-import java.util.concurrent.TimeUnit;
 
 public final class ClientLauncher {
     private static Gson gson = new Gson();
@@ -301,7 +300,6 @@ public final class ClientLauncher {
     public static Process launch(
             HashedDir assetHDir, HashedDir clientHDir,
             ClientProfile profile, Params params, boolean pipeOutput) throws Throwable {
-        // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
         ClientLauncherContext context = new ClientLauncherContext();
         clientStarted = false;
@@ -368,6 +366,7 @@ public final class ClientLauncher {
         // Add classpath and main class
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         context.pathLauncher = pathLauncher;
+        Collections.addAll(context.args, ClientLauncherWrapper.MAGIC_ARG);
         Collections.addAll(context.args, profile.getJvmArgs());
         profile.pushOptionalJvmArgs(context.args);
         Collections.addAll(context.args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
@@ -434,7 +433,6 @@ public final class ClientLauncher {
         engine.runtimeProvider.init(true);
         engine.runtimeProvider.preLoad();
         LauncherGuardManager.initGuard(true);
-        // Read and delete params file
         LogHelper.debug("Reading ClientLauncher params");
         Params params;
         ClientProfile profile;
@@ -445,8 +443,6 @@ public final class ClientLauncher {
                 try (HInput input = new HInput(socket.getInputStream())) {
                     params = new Params(input);
                     profile = gson.fromJson(input.readString(0), ClientProfile.class);
-
-                    // Read hdirs
                     assetHDir = new HashedDir(input);
                     clientHDir = new HashedDir(input);
                 }
@@ -462,8 +458,8 @@ public final class ClientLauncher {
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        //TODO: GO TO DIGEST
-        //SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherDigest, publicKey);
+        //Warning - experimental.
+        SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherDigest, Launcher.getConfig().publicKey);
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
         for (Path classpathURL : classPath) {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
