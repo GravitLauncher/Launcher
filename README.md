@@ -1,4 +1,8 @@
 # Modification of the launcher sashok724's v3 from Gravit [![Build Status](https://travis-ci.com/GravitLauncher/Launcher.svg?branch=master)](https://travis-ci.com/GravitLauncher/Launcher)
 * Discord channel: https://discord.gg/aJK6nMN
 * [See license](LICENSE)
-* Changes: [ru-ru](docs/RU-changes.md#Изменения) [en-us](docs/EN-changes.md#changes)
+* [See code of conduct](CODE_OF_CONDUCT.md)
+* Get it (requires cURL):
+```sh
+curl -s https://raw.githubusercontent.com/GravitLauncher/Launcher/master/get_it.sh | sh
+```
