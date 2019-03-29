@@ -7,6 +7,11 @@ public class ConfigPermissionsHandler extends PermissionsHandler {
     public boolean isServer = false;
 
     @Override
+    public void init() {
+
+    }
+
+    @Override
     public ClientPermissions getPermissions(String username) {
         ClientPermissions permissions = new ClientPermissions();
         permissions.canServer = isServer;

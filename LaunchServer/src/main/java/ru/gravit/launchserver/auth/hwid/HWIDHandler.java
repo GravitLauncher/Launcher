@@ -24,6 +24,7 @@ public abstract class HWIDHandler implements AutoCloseable {
             registerHandler("accept", AcceptHWIDHandler.class);
             registerHandler("mysql", MysqlHWIDHandler.class);
             registerHandler("json", JsonHWIDHandler.class);
+            registerHandler("memory", MemoryHWIDHandler.class);
             registredHandl = true;
         }
     }
@@ -39,6 +40,8 @@ public abstract class HWIDHandler implements AutoCloseable {
 
     @Override
     public abstract void close() throws Exception;
+
+    public abstract void init();
 
     public abstract List<HWID> getHwid(String username) throws HWIDException;
 
