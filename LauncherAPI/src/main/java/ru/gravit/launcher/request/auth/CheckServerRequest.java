@@ -7,6 +7,9 @@ import ru.gravit.launcher.events.request.CheckServerRequestEvent;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
+import ru.gravit.launcher.request.ResultInterface;
+import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
+import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
@@ -15,7 +18,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 
-public final class CheckServerRequest extends Request<CheckServerRequestEvent> {
+public final class CheckServerRequest extends Request<CheckServerRequestEvent> implements RequestInterface {
     private final String username;
     private final String serverID;
 
@@ -29,6 +32,12 @@ public final class CheckServerRequest extends Request<CheckServerRequestEvent> {
     @LauncherAPI
     public CheckServerRequest(String username, String serverID) {
         this(null, username, serverID);
+    }
+
+    @Override
+    public CheckServerRequestEvent requestWebSockets() throws Exception
+    {
+        return (CheckServerRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
 
     @Override
@@ -50,5 +59,10 @@ public final class CheckServerRequest extends Request<CheckServerRequestEvent> {
         // Read response
         readError(input);
         return input.readBoolean() ? new CheckServerRequestEvent(new PlayerProfile(input)) : null;
+    }
+
+    @Override
+    public String getType() {
+        return "checkServer";
     }
 }

@@ -5,6 +5,8 @@ import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.events.request.JoinServerRequestEvent;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
+import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
+import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
@@ -13,7 +15,7 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 
-public final class JoinServerRequest extends Request<JoinServerRequestEvent> {
+public final class JoinServerRequest extends Request<JoinServerRequestEvent> implements RequestInterface {
 
     // Instance
     private final String username;
@@ -26,6 +28,11 @@ public final class JoinServerRequest extends Request<JoinServerRequestEvent> {
         this.username = VerifyHelper.verifyUsername(username);
         this.accessToken = SecurityHelper.verifyToken(accessToken);
         this.serverID = VerifyHelper.verifyServerID(serverID);
+    }
+
+    @Override
+    public JoinServerRequestEvent requestWebSockets() throws IOException, InterruptedException {
+        return (JoinServerRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
 
     @LauncherAPI
@@ -50,4 +57,8 @@ public final class JoinServerRequest extends Request<JoinServerRequestEvent> {
         return new JoinServerRequestEvent(input.readBoolean());
     }
 
+    @Override
+    public String getType() {
+        return "joinServer";
+    }
 }

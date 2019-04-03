@@ -206,8 +206,8 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         Launcher.profile.pushOptionalFile(e.hdir, !Launcher.profile.isUpdateFastCheck());
         HashedDir.Diff diff = e.hdir.diff(localDir, matcher);
         final List<String> adds = new ArrayList<>();
-        diff.mismatch.map().entrySet().stream().filter(e1 -> e1.getValue().getType().equals(HashedEntry.Type.FILE)).forEach(a -> {
-            adds.add(a.getKey());
+        diff.mismatch.walk(IOHelper.CROSS_SEPARATOR, (path, name, entry) -> {
+            if(entry.getType() == HashedEntry.Type.FILE) adds.add(path.replaceAll(" ","%20"));
         });
         totalSize = diff.mismatch.size();
         startTime = Instant.now();
