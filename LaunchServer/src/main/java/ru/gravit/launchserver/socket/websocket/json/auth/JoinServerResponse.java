@@ -3,6 +3,7 @@ package ru.gravit.launchserver.socket.websocket.json.auth;
 import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.events.request.JoinServerRequestEvent;
+import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
@@ -23,7 +24,12 @@ public class JoinServerResponse implements JsonResponseInterface {
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
         boolean success;
         try {
-            success = client.auth.handler.joinServer(username, accessToken, serverID);
+            if(client.auth == null)
+            {
+                LogHelper.warning("Client auth is null. Using default.");
+                success = LaunchServer.server.config.getAuthProviderPair().handler.joinServer(username, accessToken, serverID);
+            }
+            else success = client.auth.handler.joinServer(username, accessToken, serverID);
         } catch (AuthException e) {
             service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
             return;
