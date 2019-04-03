@@ -28,7 +28,6 @@ jar {
 dependencies {
 	pack project(':LauncherAPI') // Not error on obf.
 	bundle 'com.github.oshi:oshi-core:3.13.0'
-	bundle 'commons-codec:commons-codec:1.11'
 }
 
 task genRuntimeJS(type: Zip) {
