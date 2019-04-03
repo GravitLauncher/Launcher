@@ -4,6 +4,7 @@ import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.LauncherNetworkAPI;
+import ru.gravit.launcher.downloader.ListDownloader;
 import ru.gravit.launcher.events.request.LauncherRequestEvent;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
@@ -17,9 +18,7 @@ import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,10 +49,16 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
         if (result.binary != null)
             IOHelper.write(BINARY_PATH, result.binary);
         else {
-            URLConnection connection = IOHelper.newConnection(new URL(result.url));
+            /*URLConnection connection = IOHelper.newConnection(new URL(result.url));
+            connection.setDoOutput(true);
             connection.connect();
             try (OutputStream stream = connection.getOutputStream()) {
                 IOHelper.transfer(BINARY_PATH, stream);
+            }*/
+            try {
+                ListDownloader.downloadOne(result.url, BINARY_PATH);
+            } catch (URISyntaxException e) {
+                throw new SecurityException(e);
             }
         }
         builder.start();
