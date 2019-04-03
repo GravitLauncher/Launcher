@@ -3,6 +3,7 @@ package ru.gravit.launcher.request.auth;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.request.CheckServerRequestEvent;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
@@ -19,7 +20,9 @@ import ru.gravit.utils.helper.VerifyHelper;
 import java.io.IOException;
 
 public final class CheckServerRequest extends Request<CheckServerRequestEvent> implements RequestInterface {
+    @LauncherNetworkAPI
     private final String username;
+    @LauncherNetworkAPI
     private final String serverID;
 
     @LauncherAPI

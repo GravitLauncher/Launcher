@@ -1,6 +1,7 @@
 package ru.gravit.launcher.request.auth;
 
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.request.SetProfileRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.Request;
@@ -13,7 +14,7 @@ import ru.gravit.launcher.serialize.SerializeLimits;
 
 public class SetProfileRequest extends Request<SetProfileRequestEvent> implements RequestInterface {
     private transient ClientProfile profile;
-
+    @LauncherNetworkAPI
     public String client;
 
     public SetProfileRequest(LauncherConfig config, ClientProfile profile) {

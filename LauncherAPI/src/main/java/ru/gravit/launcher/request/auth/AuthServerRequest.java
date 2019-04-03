@@ -3,6 +3,7 @@ package ru.gravit.launcher.request.auth;
 import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
@@ -26,11 +27,13 @@ public final class AuthServerRequest extends Request<ClientPermissions> {
             this.accessToken = accessToken;
         }
     }
-
+    @LauncherNetworkAPI
     private final String login;
-
+    @LauncherNetworkAPI
     private final byte[] encryptedPassword;
+    @LauncherNetworkAPI
     private final String auth_id;
+    @LauncherNetworkAPI
     private final String title;
 
     @LauncherAPI

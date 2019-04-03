@@ -2,6 +2,7 @@ package ru.gravit.launcher.request.auth;
 
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.request.JoinServerRequestEvent;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestType;
@@ -18,8 +19,11 @@ import java.io.IOException;
 public final class JoinServerRequest extends Request<JoinServerRequestEvent> implements RequestInterface {
 
     // Instance
+    @LauncherNetworkAPI
     private final String username;
+    @LauncherNetworkAPI
     private final String accessToken;
+    @LauncherNetworkAPI
     private final String serverID;
 
     @LauncherAPI

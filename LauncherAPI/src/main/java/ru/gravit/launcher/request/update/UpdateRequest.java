@@ -3,6 +3,7 @@ package ru.gravit.launcher.request.update;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.downloader.ListDownloader;
 import ru.gravit.launcher.events.request.UpdateRequestEvent;
 import ru.gravit.launcher.hasher.FileNameMatcher;
@@ -220,6 +221,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     }
 
     // Instance
+    @LauncherNetworkAPI
     private final String dirName;
     private transient final Path dir;
     private transient final FileNameMatcher matcher;
