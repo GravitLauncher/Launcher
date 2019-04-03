@@ -68,6 +68,11 @@ public class JsonFilePermissionsHandler extends PermissionsHandler implements Re
         return map.getOrDefault(username, ClientPermissions.DEFAULT);
     }
 
+    @Override
+    public void setPermissions(String username, ClientPermissions permissions) {
+        map.put(username, permissions);
+    }
+
     public JsonFilePermissionsHandler() {
 
     }

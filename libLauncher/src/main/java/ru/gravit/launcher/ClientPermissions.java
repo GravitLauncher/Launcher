@@ -4,6 +4,7 @@ import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 
 import java.io.IOException;
+import java.util.StringJoiner;
 
 public class ClientPermissions {
     public static final ClientPermissions DEFAULT = new ClientPermissions();
@@ -63,5 +64,17 @@ public class ClientPermissions {
 
     public void write(HOutput output) throws IOException {
         output.writeLong(toLong());
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", ClientPermissions.class.getSimpleName() + "[", "]")
+                .add("canAdmin=" + canAdmin)
+                .add("canServer=" + canServer)
+                .add("canUSR1=" + canUSR1)
+                .add("canUSR2=" + canUSR2)
+                .add("canUSR3=" + canUSR3)
+                .add("canBot=" + canBot)
+                .toString();
     }
 }

@@ -69,6 +69,11 @@ public class JsonLongFilePermissionsHandler extends PermissionsHandler implement
         return new ClientPermissions(map.getOrDefault(username, defaultPerms));
     }
 
+    @Override
+    public void setPermissions(String username, ClientPermissions permissions) {
+        map.put(username, permissions.toLong());
+    }
+
     public JsonLongFilePermissionsHandler() {
 
     }

@@ -20,6 +20,11 @@ public class ConfigPermissionsHandler extends PermissionsHandler {
     }
 
     @Override
+    public void setPermissions(String username, ClientPermissions permissions) {
+        //Unsupported
+    }
+
+    @Override
     public void close() {
 
     }
