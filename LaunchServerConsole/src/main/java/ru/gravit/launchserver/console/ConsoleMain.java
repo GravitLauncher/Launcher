@@ -10,10 +10,10 @@ public class ConsoleMain {
     public static CommandHandler commandHandler;
 
     public static void main(String[] args) throws IOException {
-        if (ServerWrapper.config == null) {
+        if (ServerWrapper.wrapper.config == null) { 
             LogHelper.warning("ServerWrapper not found");
         }
-        if (!ServerWrapper.permissions.canAdmin) {
+        if (!ServerWrapper.wrapper.permissions.canAdmin) {
             LogHelper.warning("Permission canAdmin not found");
         }
         try {
