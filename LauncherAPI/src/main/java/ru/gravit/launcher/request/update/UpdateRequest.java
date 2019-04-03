@@ -3,6 +3,7 @@ package ru.gravit.launcher.request.update;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.downloader.ListDownloader;
 import ru.gravit.launcher.events.request.UpdateRequestEvent;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
@@ -32,10 +33,8 @@ import java.security.MessageDigest;
 import java.security.SignatureException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Queue;
 import java.util.zip.InflaterInputStream;
 
 public final class UpdateRequest extends Request<UpdateRequestEvent> implements RequestInterface {
@@ -200,7 +199,18 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
 
     @Override
     public UpdateRequestEvent requestWebSockets() throws Exception {
-        return (UpdateRequestEvent) LegacyRequestBridge.sendRequest(this);
+        UpdateRequestEvent e = (UpdateRequestEvent) LegacyRequestBridge.sendRequest(this);
+        Launcher.profile.pushOptionalFile(e.hdir, !Launcher.profile.isUpdateFastCheck());
+        HashedDir.Diff diff = e.hdir.diff(localDir, matcher);
+        final List<String> adds = new ArrayList<>();
+        diff.mismatch.map().entrySet().stream().filter(e1 -> e1.getValue().getType().equals(HashedEntry.Type.FILE)).forEach(a -> {
+            adds.add(a.getKey());
+        });
+        totalSize = diff.mismatch.size();
+        ListDownloader listDownloader = new ListDownloader();
+        listDownloader.download(e.url, adds, dir);
+        deleteExtraDir(dir, diff.extra, diff.extra.flag);
+        return e;
     }
 
     // Instance

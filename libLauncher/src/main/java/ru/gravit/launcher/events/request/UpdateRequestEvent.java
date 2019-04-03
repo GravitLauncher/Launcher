@@ -7,6 +7,8 @@ import ru.gravit.launcher.request.ResultInterface;
 public class UpdateRequestEvent implements ResultInterface {
     @LauncherNetworkAPI
     public HashedDir hdir;
+    @LauncherNetworkAPI
+    public String url;
 
     @Override
     public String getType() {
