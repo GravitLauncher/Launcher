@@ -9,6 +9,7 @@ import ru.gravit.launcher.events.request.ProfilesRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.auth.AuthServerRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
+import ru.gravit.launcher.server.setup.ServerWrapperSetup;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
@@ -33,12 +34,14 @@ public class ServerWrapper {
     public static PublicURLClassLoader ucp;
     public static ClassLoader loader;
     public static ClientPermissions permissions;
+    public static ServerWrapper wrapper;
     private static Gson gson;
     private static GsonBuilder gsonBuiler;
 
     public static Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
     public static Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
     public static Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile", "public.key"));
+    public static boolean disableSetup = Boolean.valueOf(System.getProperty("serverwrapper.disableSetup", "false"));
 
     public static boolean auth(ServerWrapper wrapper) {
         try {
@@ -93,18 +96,29 @@ public class ServerWrapper {
     }
 
     public static void main(String... args) throws Throwable {
-        ServerWrapper wrapper = new ServerWrapper();
         LogHelper.printVersion("ServerWrapper");
         LogHelper.printLicense("ServerWrapper");
+        wrapper = new ServerWrapper();
+        gsonBuiler = new GsonBuilder();
+        gsonBuiler.setPrettyPrinting();
+        gson = gsonBuiler.create();
+        initGson();
+        if(args.length > 0 && args[0].equals("setup"))
+        {
+            generateConfigIfNotExists();
+            LogHelper.debug("Read ServerWrapperConfig.json");
+            try (Reader reader = IOHelper.newReader(configFile)) {
+                config = gson.fromJson(reader, Config.class);
+            }
+            ServerWrapperSetup setup = new ServerWrapperSetup();
+            setup.run();
+            System.exit(0);
+        }
         modulesManager = new ModulesManager(wrapper);
         modulesManager.autoload(modulesDir);
         Launcher.modulesManager = modulesManager;
         modulesManager.preInitModules();
         LogHelper.debug("Read ServerWrapperConfig.json");
-        gsonBuiler = new GsonBuilder();
-        gsonBuiler.setPrettyPrinting();
-        gson = gsonBuiler.create();
-        initGson();
         generateConfigIfNotExists();
         try (Reader reader = IOHelper.newReader(configFile)) {
             config = gson.fromJson(reader, Config.class);
@@ -160,11 +174,15 @@ public class ServerWrapper {
         LogHelper.debug("Invoke main method %s", mainClass.getName());
         if(config.args == null)
         {
-            String[] real_args = new String[args.length - 1];
-            System.arraycopy(args, 1, real_args, 0, args.length - 1);
+            String[] real_args;
+            if(args.length > 0)
+            {
+                real_args = new String[args.length - 1];
+                System.arraycopy(args, 1, real_args, 0, args.length - 1);
+            } else real_args = args;
+
             mainMethod.invoke(real_args);
         }
-
         else
         {
             mainMethod.invoke(config.args);
@@ -194,10 +212,7 @@ public class ServerWrapper {
         LogHelper.warning("Title is not set. Please show ServerWrapper.cfg");
 
         // Write LaunchServer config
-        LogHelper.info("Writing ServerWrapper config file");
-        try (Writer writer = IOHelper.newWriter(configFile)) {
-            gson.toJson(newConfig, writer);
-        }
+        newConfig.save();
     }
 
     public static final class Config {
@@ -220,6 +235,13 @@ public class ServerWrapper {
         public String password;
         public String auth_id = "";
         public LauncherConfig.LauncherEnvironment env;
+        public void save() throws IOException
+        {
+            LogHelper.info("Writing ServerWrapper config file");
+            try (Writer writer = IOHelper.newWriter(configFile)) {
+                gson.toJson(this, writer);
+            }
+        }
     }
 
     public ClientProfile profile;
