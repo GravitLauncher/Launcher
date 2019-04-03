@@ -207,7 +207,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         HashedDir.Diff diff = e.hdir.diff(localDir, matcher);
         final List<String> adds = new ArrayList<>();
         diff.mismatch.walk(IOHelper.CROSS_SEPARATOR, (path, name, entry) -> {
-            if(entry.getType() == HashedEntry.Type.FILE) adds.add(path.replaceAll(" ","%20"));
+            if(entry.getType() == HashedEntry.Type.FILE) adds.add(path);
         });
         totalSize = diff.mismatch.size();
         startTime = Instant.now();
