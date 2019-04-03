@@ -18,4 +18,9 @@ public class UpdateRequestEvent implements ResultInterface {
     public UpdateRequestEvent(HashedDir hdir) {
         this.hdir = hdir;
     }
+
+    public UpdateRequestEvent(HashedDir hdir, String url) {
+        this.hdir = hdir;
+        this.url = url;
+    }
 }

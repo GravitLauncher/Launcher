@@ -247,6 +247,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public int port;
         public boolean clientEnabled;
         public String launcherURL;
+        public String downloadURL;
         public String launcherEXEURL;
         public String address;
     }

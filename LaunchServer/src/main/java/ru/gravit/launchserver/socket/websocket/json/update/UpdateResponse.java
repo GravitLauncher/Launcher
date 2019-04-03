@@ -32,6 +32,6 @@ public class UpdateResponse implements JsonResponseInterface {
                 }
             }
         }
-        service.sendObject(ctx, new UpdateRequestEvent(LaunchServer.server.updatesDirMap.get(dir).object));
+        service.sendObject(ctx, new UpdateRequestEvent(LaunchServer.server.updatesDirMap.get(dir).object, LaunchServer.server.config.netty.downloadURL.concat(dir)));
     }
 }
