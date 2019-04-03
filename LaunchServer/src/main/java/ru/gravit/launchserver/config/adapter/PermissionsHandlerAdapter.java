@@ -13,8 +13,7 @@ public class PermissionsHandlerAdapter implements JsonSerializer<PermissionsHand
     public PermissionsHandler deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends PermissionsHandler> cls = PermissionsHandler.getHandlerClass(typename);
-        if(cls == null)
-        {
+        if (cls == null) {
             LogHelper.error("PermissionsHandler %s not found", typename);
             return null;
         }

@@ -2,7 +2,7 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 dependencies {
-	compileOnly 'org.fusesource.jansi:jansi:1.17.1'
-	compileOnly 'jline:jline:2.14.6'
-	compile 'com.google.code.gson:gson:2.8.5'
+    compileOnly 'org.fusesource.jansi:jansi:1.17.1'
+    compileOnly 'jline:jline:2.14.6'
+    compile 'com.google.code.gson:gson:2.8.5'
 }

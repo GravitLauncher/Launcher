@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MemoryHWIDHandler extends HWIDHandler {
-    public class Entry
-    {
+    public class Entry {
         public HWID hwid;
         public String username;
         public boolean isBanned = false;
@@ -30,15 +29,15 @@ public class MemoryHWIDHandler extends HWIDHandler {
             return Objects.hash(hwid);
         }
     }
+
     public transient LinkedList<Entry> list = new LinkedList<>();
     public String banMessage = "You banned";
+
     @Override
     public void ban(List<HWID> hwid) throws HWIDException {
-        for(Entry e : list)
-        {
-            for(HWID banHWID : hwid)
-            {
-                if(e.hwid.equals(banHWID)) e.isBanned = true;
+        for (Entry e : list) {
+            for (HWID banHWID : hwid) {
+                if (e.hwid.equals(banHWID)) e.isBanned = true;
             }
         }
     }
@@ -46,16 +45,13 @@ public class MemoryHWIDHandler extends HWIDHandler {
     @Override
     public void check0(HWID hwid, String username) throws HWIDException {
         boolean isOne = false;
-        for(Entry e : list)
-        {
-            if(e.hwid.equals(hwid))
-            {
+        for (Entry e : list) {
+            if (e.hwid.equals(hwid)) {
                 isOne = true;
-                if(e.isBanned) throw new HWIDException(banMessage);
+                if (e.isBanned) throw new HWIDException(banMessage);
             }
         }
-        if(!isOne)
-        {
+        if (!isOne) {
             list.add(new Entry(hwid));
         }
     }
@@ -73,20 +69,17 @@ public class MemoryHWIDHandler extends HWIDHandler {
     @Override
     public List<HWID> getHwid(String username) throws HWIDException {
         LinkedList<HWID> hwids = new LinkedList<>();
-        for(Entry e : list)
-        {
-            if(e.username.equals(username)) hwids.add(e.hwid);
+        for (Entry e : list) {
+            if (e.username.equals(username)) hwids.add(e.hwid);
         }
         return hwids;
     }
 
     @Override
     public void unban(List<HWID> hwid) throws HWIDException {
-        for(Entry e : list)
-        {
-            for(HWID banHWID : hwid)
-            {
-                if(e.hwid.equals(banHWID)) e.isBanned = false;
+        for (Entry e : list) {
+            for (HWID banHWID : hwid) {
+                if (e.hwid.equals(banHWID)) e.isBanned = false;
             }
         }
     }

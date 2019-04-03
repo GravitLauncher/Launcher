@@ -13,6 +13,7 @@ import java.util.Collection;
 
 public class SetProfileResponse implements JsonResponseInterface {
     public String client;
+
     @Override
     public String getType() {
         return "setProfile";
@@ -20,8 +21,7 @@ public class SetProfileResponse implements JsonResponseInterface {
 
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
-        if(!client.isAuth)
-        {
+        if (!client.isAuth) {
             service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
             return;
         }

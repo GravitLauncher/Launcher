@@ -197,9 +197,9 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
             }
         }
     }
+
     @Override
-    public UpdateRequestEvent requestWebSockets() throws Exception
-    {
+    public UpdateRequestEvent requestWebSockets() throws Exception {
         return (UpdateRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
 

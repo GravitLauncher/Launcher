@@ -27,25 +27,20 @@ public class GivePermissionsCommand extends Command {
         ClientPermissions permissions = server.config.permissionsHandler.getPermissions(username);
         String permission = args[1];
         boolean isEnabled = Boolean.valueOf(args[2]);
-        switch (permission)
-        {
-            case "admin":
-            {
+        switch (permission) {
+            case "admin": {
                 permissions.canAdmin = isEnabled;
                 break;
             }
-            case "server":
-            {
+            case "server": {
                 permissions.canServer = isEnabled;
                 break;
             }
-            case "bot":
-            {
+            case "bot": {
                 permissions.canBot = isEnabled;
                 break;
             }
-            default:
-            {
+            default: {
                 LogHelper.error("Unknown permission: %s", permission);
                 return;
             }

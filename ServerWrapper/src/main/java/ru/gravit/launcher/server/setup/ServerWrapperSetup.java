@@ -1,15 +1,12 @@
 package ru.gravit.launcher.server.setup;
 
-import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.server.ServerWrapper;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
@@ -21,8 +18,8 @@ import java.util.jar.JarFile;
 public class ServerWrapperSetup {
     public ServerWrapperCommands commands;
     public PublicURLClassLoader urlClassLoader;
-    public void run() throws IOException
-    {
+
+    public void run() throws IOException {
         ServerWrapper wrapper = ServerWrapper.wrapper;
         System.out.println("Print jar filename:");
         String jarName = commands.commandHandler.readLine();
@@ -32,15 +29,13 @@ public class ServerWrapperSetup {
         urlClassLoader = new PublicURLClassLoader(new URL[]{jarURL});
         LogHelper.info("Check jar MainClass");
         String mainClassName = file.getManifest().getMainAttributes().getValue("Main-Class");
-        if(mainClassName == null)
-        {
+        if (mainClassName == null) {
             LogHelper.error("Main-Class not found in MANIFEST");
             return;
         }
         try {
             Class mainClass = Class.forName(mainClassName, false, urlClassLoader);
-        } catch (ClassNotFoundException e)
-        {
+        } catch (ClassNotFoundException e) {
             LogHelper.error(e);
             return;
         }
@@ -52,21 +47,18 @@ public class ServerWrapperSetup {
         wrapper.config.mainclass = mainClassName;
         wrapper.config.address = address;
         wrapper.config.port = port;
-        if(!Files.exists(ServerWrapper.publicKeyFile))
-        {
+        if (!Files.exists(ServerWrapper.publicKeyFile)) {
             LogHelper.error("public.key not found");
-            for(int i=0;i<10;++i)
-            {
+            for (int i = 0; i < 10; ++i) {
                 System.out.println("Print F to continue:");
                 String printF = commands.commandHandler.readLine();
-                if(printF.equals("stop")) return;
-                if(Files.exists(ServerWrapper.publicKeyFile)) break;
+                if (printF.equals("stop")) return;
+                if (Files.exists(ServerWrapper.publicKeyFile)) break;
                 else LogHelper.error("public.key not found");
             }
         }
         boolean stopOnError = wrapper.config.stopOnError;
-        for(int i=0;i<10;++i)
-        {
+        for (int i = 0; i < 10; ++i) {
             System.out.println("Print server account login:");
             String login = commands.commandHandler.readLine();
             System.out.println("Print server account password:");
@@ -79,12 +71,9 @@ public class ServerWrapperSetup {
             wrapper.config.stopOnError = false;
             LauncherConfig cfg = null;
 
-            if(wrapper.auth())
-            {
+            if (wrapper.auth()) {
                 break;
-            }
-            else
-            {
+            } else {
                 LogHelper.error("Auth error. Recheck account params");
             }
         }
@@ -94,21 +83,17 @@ public class ServerWrapperSetup {
         Path startScript;
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) startScript = Paths.get("start.bat");
         else startScript = Paths.get("start.sh");
-        if(Files.exists(startScript))
-        {
+        if (Files.exists(startScript)) {
             LogHelper.warning("start script found. Move to start.bak");
             Path startScriptBak = Paths.get("start.bak");
             IOHelper.move(startScript, startScriptBak);
         }
-        try(Writer writer = IOHelper.newWriter(startScript))
-        {
-            if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
-            {
+        try (Writer writer = IOHelper.newWriter(startScript)) {
+            if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
                 writer.append("#!/bin/sh\n\n");
             }
             writer.append("java ");
-            if(mainClassName.contains("bungee"))
-            {
+            if (mainClassName.contains("bungee")) {
                 LogHelper.info("Found BungeeCord mainclass. Modules dir change to modules_srv");
                 writer.append(JVMHelper.jvmProperty("serverwrapper.modulesDir", "modules_srv"));
                 writer.append(" ");
@@ -117,8 +102,7 @@ public class ServerWrapperSetup {
             writer.append("-cp ");
             String pathServerWrapper = IOHelper.getCodeSource(ServerWrapper.class).getFileName().toString();
             writer.append(pathServerWrapper);
-            if(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
-            {
+            if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
                 writer.append(";");
             } else writer.append(":");
             writer.append(jarName);

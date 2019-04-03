@@ -21,11 +21,12 @@ public class SetProfileRequest extends Request<SetProfileRequestEvent> implement
         this.profile = profile;
         this.client = profile.getTitle();
     }
+
     @Override
-    public SetProfileRequestEvent requestWebSockets() throws Exception
-    {
+    public SetProfileRequestEvent requestWebSockets() throws Exception {
         return (SetProfileRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
+
     @Override
     public Integer getLegacyType() {
         return RequestType.SETPROFILE.getNumber();

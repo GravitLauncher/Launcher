@@ -4,8 +4,8 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.ClientProfile.Version;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
-import ru.gravit.utils.command.CommandException;
 import ru.gravit.utils.HttpDownloader;
+import ru.gravit.utils.command.CommandException;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 

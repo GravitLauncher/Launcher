@@ -48,31 +48,35 @@ public class OptionalFile {
     public int hashCode() {
         return Objects.hash(name);
     }
+
     @LauncherAPI
     public OptionalType getType() {
         return OptionalType.FILE;
     }
+
     @LauncherAPI
     public String getName() {
         return name;
     }
+
     @LauncherAPI
     public boolean isVisible() {
         return visible;
     }
+
     @LauncherAPI
     public boolean isMark() {
         return mark;
     }
+
     @LauncherAPI
     public long getPermissions() {
         return permissions;
     }
+
     @LauncherAPI
-    public void writeType(HOutput output) throws IOException
-    {
-        switch(type)
-        {
+    public void writeType(HOutput output) throws IOException {
+        switch (type) {
 
             case FILE:
                 output.writeInt(1);
@@ -91,13 +95,12 @@ public class OptionalFile {
                 break;
         }
     }
+
     @LauncherAPI
-    public static OptionalType readType(HInput input) throws IOException
-    {
+    public static OptionalType readType(HInput input) throws IOException {
         int t = input.readInt();
         OptionalType type;
-        switch(t)
-        {
+        switch (t) {
             case 1:
                 type = OptionalType.FILE;
                 break;
@@ -111,7 +114,7 @@ public class OptionalFile {
                 type = OptionalType.CLIENTARGS;
                 break;
             default:
-                LogHelper.error("readType failed. Read int %d",t);
+                LogHelper.error("readType failed. Read int %d", t);
                 type = OptionalType.FILE;
                 break;
         }

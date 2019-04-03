@@ -21,7 +21,7 @@ public abstract class CommandHandler implements Runnable {
         String[] args;
         try {
             args = CommonHelper.parseCommand(line);
-            if(args.length > 0) args[0] = args[0].toLowerCase();
+            if (args.length > 0) args[0] = args[0].toLowerCase();
         } catch (Exception e) {
             LogHelper.error(e);
             return;
@@ -76,8 +76,8 @@ public abstract class CommandHandler implements Runnable {
         VerifyHelper.putIfAbsent(commands, name.toLowerCase(), Objects.requireNonNull(command, "command"),
                 String.format("Command has been already registered: '%s'", name.toLowerCase()));
     }
-    public Command unregisterCommand(String name)
-    {
+
+    public Command unregisterCommand(String name) {
         return commands.remove(name);
     }
 
@@ -91,7 +91,6 @@ public abstract class CommandHandler implements Runnable {
     }
 
 
-
     public abstract void bell() throws IOException;
 
 
@@ -101,7 +100,6 @@ public abstract class CommandHandler implements Runnable {
     public Map<String, Command> commandsMap() {
         return Collections.unmodifiableMap(commands);
     }
-
 
 
 }

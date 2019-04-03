@@ -33,8 +33,7 @@ public final class ProfilesRequest extends Request<ProfilesRequestEvent> impleme
     }
 
     @Override
-    public ProfilesRequestEvent requestWebSockets() throws Exception
-    {
+    public ProfilesRequestEvent requestWebSockets() throws Exception {
         return (ProfilesRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
 

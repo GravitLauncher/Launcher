@@ -66,7 +66,7 @@ public class FunctionalBridge {
 
     @LauncherAPI
     public static void startTask(@SuppressWarnings("rawtypes") Task task) {
-    	worker.execute(task);
+        worker.execute(task);
     }
 
     @LauncherAPI
@@ -82,19 +82,15 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public static int getClientJVMBits()
-    {
+    public static int getClientJVMBits() {
         return LauncherGuardManager.guard.getClientJVMBits();
     }
+
     @LauncherAPI
-    public static long getJVMTotalMemory()
-    {
-        if(getClientJVMBits() == 32)
-        {
-            return Math.min(getTotalMemory(),1536);
-        }
-        else
-        {
+    public static long getJVMTotalMemory() {
+        if (getClientJVMBits() == 32) {
+            return Math.min(getTotalMemory(), 1536);
+        } else {
             return getTotalMemory();
         }
     }
@@ -105,8 +101,7 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public static void setAuthParams(AuthRequestEvent event)
-    {
+    public static void setAuthParams(AuthRequestEvent event) {
         LauncherGuardManager.guard.setProtectToken(event.protectToken);
     }
 

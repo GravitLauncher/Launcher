@@ -6,7 +6,9 @@ import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.UnpackHelper;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
@@ -18,8 +20,7 @@ public class ProguardConf {
 
     private static String generateString(SecureRandom rand, String lowString, String upString, int il) {
         StringBuilder sb = new StringBuilder(il + lowString.length());
-        for(int i = 0;i<lowString.length();++i)
-        {
+        for (int i = 0; i < lowString.length(); ++i) {
             sb.append(rand.nextBoolean() ? lowString.charAt(i) : upString.charAt(i));
         }
         for (int i = 0; i < il - 1; i++) sb.append(chars.charAt(rand.nextInt(chars.length())));
@@ -51,8 +52,8 @@ public class ProguardConf {
                 .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
                 .forEach(confStrs::add);
         srv.launcherBinary.addonLibs.stream()
-        		.map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
-        		.forEach(confStrs::add);
+                .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
+                .forEach(confStrs::add);
         confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add(readConf());
         return confStrs.toArray(new String[0]);

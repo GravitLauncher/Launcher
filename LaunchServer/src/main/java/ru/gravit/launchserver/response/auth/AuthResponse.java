@@ -83,9 +83,9 @@ public final class AuthResponse extends Response {
         debug("Login: '%s', Password: '%s'", login, echo(password.length()));
         AuthProviderResult result;
         AuthProviderPair pair;
-        if(auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
+        if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
         else pair = server.config.getAuthProviderPair(auth_id);
-        if(pair == null) requestError("Auth type not found");
+        if (pair == null) requestError("Auth type not found");
         AuthProvider provider = pair.provider;
         clientData.type = Client.Type.USER;
         AuthContext context = new AuthContext(session, login, password.length(), customText, client, hwid_str, ip, false);
@@ -94,7 +94,7 @@ public final class AuthResponse extends Response {
             if (!clientData.checkSign) {
                 throw new AuthException("You must using checkLauncher");
             }
-            provider.preAuth(login,password,customText,ip);
+            provider.preAuth(login, password, customText, ip);
             result = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(result.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", result.username));

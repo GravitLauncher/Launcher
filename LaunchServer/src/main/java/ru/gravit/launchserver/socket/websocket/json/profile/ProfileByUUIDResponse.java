@@ -17,6 +17,7 @@ import java.util.UUID;
 public class ProfileByUUIDResponse implements JsonResponseInterface {
     public UUID uuid;
     public String client;
+
     public static PlayerProfile getProfile(LaunchServer server, UUID uuid, String username, String client, TextureProvider textureProvider) {
         // Get skin texture
         Texture skin;
@@ -48,6 +49,6 @@ public class ProfileByUUIDResponse implements JsonResponseInterface {
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
         String username = client.auth.handler.uuidToUsername(uuid);
-        service.sendObject(ctx, new ProfileByUUIDRequestEvent(getProfile(LaunchServer.server,uuid,username,this.client, client.auth.textureProvider)));
+        service.sendObject(ctx, new ProfileByUUIDRequestEvent(getProfile(LaunchServer.server, uuid, username, this.client, client.auth.textureProvider)));
     }
 }

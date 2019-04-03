@@ -7,6 +7,7 @@ public class LogEvent implements ResultInterface {
     public String getType() {
         return "log";
     }
+
     public String string;
 
     public LogEvent(String string) {

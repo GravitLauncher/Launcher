@@ -13,8 +13,7 @@ public class TextureProviderAdapter implements JsonSerializer<TextureProvider>, 
     public TextureProvider deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends TextureProvider> cls = TextureProvider.getProviderClass(typename);
-        if(cls == null)
-        {
+        if (cls == null) {
             LogHelper.error("TextureProvider %s not found", typename);
             return null;
         }

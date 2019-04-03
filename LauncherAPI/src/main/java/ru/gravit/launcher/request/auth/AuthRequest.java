@@ -43,6 +43,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         this.auth_id = auth_id;
         customText = "";
     }
+
     @LauncherAPI
     public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, String customText, String auth_id) {
         super(config);
@@ -57,11 +58,12 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     public AuthRequest(String login, byte[] password, HWID hwid) {
         this(null, login, password, hwid);
     }
+
     @Override
-    public AuthRequestEvent requestWebSockets() throws Exception
-    {
+    public AuthRequestEvent requestWebSockets() throws Exception {
         return (AuthRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
+
     @LauncherAPI
     public AuthRequest(String login, byte[] password, HWID hwid, String auth_id) {
         this(null, login, password, hwid, auth_id);
@@ -71,6 +73,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     public Integer getLegacyType() {
         return RequestType.AUTH.getNumber();
     }
+
     /*public class EchoRequest implements RequestInterface
     {
         String echo;

@@ -42,9 +42,9 @@ public class AuthResponse implements JsonResponseInterface {
     public String auth_id;
     public ConnectTypes authType;
     public OshiHWID hwid;
-    public enum ConnectTypes
-    {
-        SERVER,CLIENT,BOT
+
+    public enum ConnectTypes {
+        SERVER, CLIENT, BOT
     }
 
     @Override
@@ -57,12 +57,11 @@ public class AuthResponse implements JsonResponseInterface {
         try {
             AuthRequestEvent result = new AuthRequestEvent();
             String ip = IOHelper.getIP(ctx.channel().remoteAddress());
-            if ((authType == null || authType == ConnectTypes.CLIENT) &&!clientData.checkSign) {
+            if ((authType == null || authType == ConnectTypes.CLIENT) && !clientData.checkSign) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
             }
-            if(password == null)
-            {
+            if (password == null) {
                 try {
                     password = IOHelper.decode(SecurityHelper.newRSADecryptCipher(LaunchServer.server.privateKey).
                             doFinal(encryptedPassword));
@@ -71,21 +70,19 @@ public class AuthResponse implements JsonResponseInterface {
                 }
             }
             clientData.permissions = LaunchServer.server.config.permissionsHandler.getPermissions(login);
-            if(authType == ConnectTypes.BOT && !clientData.permissions.canBot)
-            {
+            if (authType == ConnectTypes.BOT && !clientData.permissions.canBot) {
                 AuthProvider.authError("authType: BOT not allowed for this account");
             }
-            if(authType == ConnectTypes.SERVER && !clientData.permissions.canServer)
-            {
+            if (authType == ConnectTypes.SERVER && !clientData.permissions.canServer) {
                 AuthProvider.authError("authType: SERVER not allowed for this account");
             }
             AuthProviderPair pair;
-            if(auth_id.isEmpty()) pair = LaunchServer.server.config.getAuthProviderPair();
+            if (auth_id.isEmpty()) pair = LaunchServer.server.config.getAuthProviderPair();
             else pair = LaunchServer.server.config.getAuthProviderPair(auth_id);
-            ru.gravit.launchserver.response.auth.AuthResponse.AuthContext context = new ru.gravit.launchserver.response.auth.AuthResponse.AuthContext(0, login, password.length(),customText, client, ip, null, false);
+            ru.gravit.launchserver.response.auth.AuthResponse.AuthContext context = new ru.gravit.launchserver.response.auth.AuthResponse.AuthContext(0, login, password.length(), customText, client, ip, null, false);
             AuthProvider provider = pair.provider;
             LaunchServer.server.authHookManager.preHook(context, clientData);
-            provider.preAuth(login,password,customText,ip);
+            provider.preAuth(login, password, customText, ip);
             AuthProviderResult aresult = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(aresult.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", aresult.username));
@@ -104,8 +101,8 @@ public class AuthResponse implements JsonResponseInterface {
             //    throw new AuthException("You profile not found");
             //}
             UUID uuid = pair.handler.auth(aresult);
-            if(authType == ConnectTypes.CLIENT)
-                 LaunchServer.server.config.hwidHandler.check(hwid, aresult.username);
+            if (authType == ConnectTypes.CLIENT)
+                LaunchServer.server.config.hwidHandler.check(hwid, aresult.username);
             LaunchServer.server.authHookManager.postHook(context, clientData);
             clientData.isAuth = true;
             clientData.permissions = aresult.permissions;
@@ -113,7 +110,7 @@ public class AuthResponse implements JsonResponseInterface {
             clientData.updateAuth();
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
-            result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server,uuid,aresult.username,client, clientData.auth.textureProvider);
+            result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, aresult.username, client, clientData.auth.textureProvider);
             service.sendObject(ctx, result);
         } catch (AuthException | HWIDException e) {
             service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));

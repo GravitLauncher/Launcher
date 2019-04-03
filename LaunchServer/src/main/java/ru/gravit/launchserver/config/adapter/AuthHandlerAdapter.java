@@ -13,8 +13,7 @@ public class AuthHandlerAdapter implements JsonSerializer<AuthHandler>, JsonDese
     public AuthHandler deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends AuthHandler> cls = AuthHandler.getHandlerClass(typename);
-        if(cls == null)
-        {
+        if (cls == null) {
             LogHelper.error("AuthHandler %s not found", typename);
             return null;
         }

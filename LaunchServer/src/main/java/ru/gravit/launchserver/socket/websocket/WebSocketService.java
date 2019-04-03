@@ -36,7 +36,7 @@ public class WebSocketService {
         this.server = server;
         this.gsonBuiler = gson;
         this.gsonBuiler.registerTypeAdapter(JsonResponseInterface.class, new JsonResponseAdapter(this));
-        this.gsonBuiler.registerTypeAdapter(ResultInterface.class,new JsonResultSerializeAdapter());
+        this.gsonBuiler.registerTypeAdapter(ResultInterface.class, new JsonResultSerializeAdapter());
         this.gsonBuiler.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuiler.create();
     }
@@ -86,6 +86,7 @@ public class WebSocketService {
     public void sendObject(ChannelHandlerContext ctx, Object obj) {
         ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, ResultInterface.class)));
     }
+
     public void sendObject(ChannelHandlerContext ctx, Object obj, Type type) {
         ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
     }

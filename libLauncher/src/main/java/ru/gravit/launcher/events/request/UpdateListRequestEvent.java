@@ -15,6 +15,7 @@ public class UpdateListRequestEvent implements EventInterface, ResultInterface {
     public UpdateListRequestEvent(HashSet<String> dirs) {
         this.dirs = dirs;
     }
+
     @Override
     public UUID getUUID() {
         return uuid;

@@ -1,7 +1,7 @@
 package ru.gravit.launcher.server;
 
-import ru.gravit.launcher.managers.SimpleModulesConfigManager;
 import ru.gravit.launcher.managers.SimpleModuleManager;
+import ru.gravit.launcher.managers.SimpleModulesConfigManager;
 import ru.gravit.utils.PublicURLClassLoader;
 
 import java.net.URL;

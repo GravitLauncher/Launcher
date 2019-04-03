@@ -9,8 +9,8 @@ import java.io.IOException;
 
 public class ServerWrapperCommands {
     public final CommandHandler commandHandler;
-    public void registerCommands()
-    {
+
+    public void registerCommands() {
         //FUTURE
     }
 

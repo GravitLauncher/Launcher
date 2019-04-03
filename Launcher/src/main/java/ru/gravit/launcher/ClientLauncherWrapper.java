@@ -15,8 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ClientLauncherWrapper {
-	public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";
-	
+    public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";
+
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");

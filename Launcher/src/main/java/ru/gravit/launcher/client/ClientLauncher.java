@@ -303,8 +303,7 @@ public final class ClientLauncher {
         LogHelper.debug("Writing ClientLauncher params");
         ClientLauncherContext context = new ClientLauncherContext();
         clientStarted = false;
-        if(writeParamsThread != null && writeParamsThread.isAlive())
-        {
+        if (writeParamsThread != null && writeParamsThread.isAlive()) {
             writeParamsThread.interrupt();
         }
         writeParamsThread = CommonHelper.newThread("Client params writter", true, () ->
@@ -393,24 +392,20 @@ public final class ClientLauncher {
         }
         // Let's rock!
         process = builder.start();
-        if(!LogHelper.isDebugEnabled()) {
-            for(int i=0;i<50;++i)
-            {
-                if(!process.isAlive())
-                {
+        if (!LogHelper.isDebugEnabled()) {
+            for (int i = 0; i < 50; ++i) {
+                if (!process.isAlive()) {
                     int exitCode = process.exitValue();
                     LogHelper.error("Process exit code %d", exitCode);
-                    if(writeParamsThread != null && writeParamsThread.isAlive()) writeParamsThread.interrupt();
+                    if (writeParamsThread != null && writeParamsThread.isAlive()) writeParamsThread.interrupt();
                     break;
                 }
-                if(clientStarted)
-                {
+                if (clientStarted) {
                     break;
                 }
                 Thread.sleep(200);
             }
-            if(!clientStarted)
-            {
+            if (!clientStarted) {
                 LogHelper.error("Write Client Params not successful. Using debug mode for more information");
             }
         }
@@ -488,7 +483,7 @@ public final class ClientLauncher {
             //    if (params.updateOptional.contains(s)) s.mark = true;
             //    else hdir.removeR(s.file);
             //}
-            Launcher.profile.pushOptionalFile(clientHDir,false);
+            Launcher.profile.pushOptionalFile(clientHDir, false);
             Launcher.modulesManager.postInitModules();
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();

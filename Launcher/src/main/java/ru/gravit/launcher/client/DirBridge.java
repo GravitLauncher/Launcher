@@ -64,9 +64,9 @@ public class DirBridge {
     public static Path getLauncherDir(String projectname) throws IOException {
         return getAppDataDir().resolve(projectname);
     }
+
     @LauncherAPI
-    public static Path getGuardDir()
-    {
+    public static Path getGuardDir() {
         return dir.resolve("guard");
     }
 

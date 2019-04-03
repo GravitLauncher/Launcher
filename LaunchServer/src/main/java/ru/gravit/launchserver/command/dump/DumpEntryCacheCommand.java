@@ -32,7 +32,7 @@ public class DumpEntryCacheCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 3);
         AuthProviderPair pair = server.config.getAuthProviderPair(args[1]);
-        if(pair == null) throw new IllegalStateException(String.format("Auth %s not found", args[1]));
+        if (pair == null) throw new IllegalStateException(String.format("Auth %s not found", args[1]));
         if (!(pair.handler instanceof CachedAuthHandler))
             throw new UnsupportedOperationException("This command used only CachedAuthHandler");
         CachedAuthHandler authHandler = (CachedAuthHandler) pair.handler;

@@ -27,7 +27,7 @@ public class UpdateListResponse implements JsonResponseInterface {
             return;
         }
         HashSet<String> set = new HashSet<>();
-        for(Map.Entry<String, SignedObjectHolder<HashedDir>> entry :  LaunchServer.server.updatesDirMap.entrySet())
+        for (Map.Entry<String, SignedObjectHolder<HashedDir>> entry : LaunchServer.server.updatesDirMap.entrySet())
             set.add(entry.getKey());
         service.sendObject(ctx, new UpdateListRequestEvent(set));
     }

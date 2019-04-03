@@ -11,24 +11,20 @@ import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.auth.AuthProviderPair;
-import ru.gravit.launchserver.auth.protect.NoProtectHandler;
-import ru.gravit.launchserver.auth.protect.ProtectHandler;
-import ru.gravit.launchserver.components.AuthLimiterComponent;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import ru.gravit.launchserver.auth.hwid.AcceptHWIDHandler;
 import ru.gravit.launchserver.auth.hwid.HWIDHandler;
 import ru.gravit.launchserver.auth.permissions.JsonFilePermissionsHandler;
 import ru.gravit.launchserver.auth.permissions.PermissionsHandler;
+import ru.gravit.launchserver.auth.protect.NoProtectHandler;
+import ru.gravit.launchserver.auth.protect.ProtectHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
 import ru.gravit.launchserver.binary.*;
+import ru.gravit.launchserver.components.AuthLimiterComponent;
 import ru.gravit.launchserver.components.Component;
-import ru.gravit.utils.config.JsonConfigurable;
 import ru.gravit.launchserver.config.adapter.*;
-import ru.gravit.utils.command.CommandHandler;
-import ru.gravit.utils.command.JLineCommandHandler;
-import ru.gravit.utils.command.StdCommandHandler;
 import ru.gravit.launchserver.manangers.*;
 import ru.gravit.launchserver.manangers.hook.AuthHookManager;
 import ru.gravit.launchserver.manangers.hook.BuildHookManager;
@@ -38,6 +34,10 @@ import ru.gravit.launchserver.socket.NettyServerSocketHandler;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.texture.RequestTextureProvider;
 import ru.gravit.launchserver.texture.TextureProvider;
+import ru.gravit.utils.command.CommandHandler;
+import ru.gravit.utils.command.JLineCommandHandler;
+import ru.gravit.utils.command.StdCommandHandler;
+import ru.gravit.utils.config.JsonConfigurable;
 import ru.gravit.utils.helper.*;
 
 import java.io.BufferedReader;
@@ -96,25 +96,21 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         private transient AuthProviderPair authDefault;
 
-        public AuthProviderPair getAuthProviderPair(String name)
-        {
-            for(AuthProviderPair pair : auth)
-            {
-                if(pair.name.equals(name)) return pair;
+        public AuthProviderPair getAuthProviderPair(String name) {
+            for (AuthProviderPair pair : auth) {
+                if (pair.name.equals(name)) return pair;
             }
             return null;
         }
+
         public ProtectHandler protectHandler;
 
         public PermissionsHandler permissionsHandler;
 
-        public AuthProviderPair getAuthProviderPair()
-        {
-            if(authDefault != null) return authDefault;
-            for(AuthProviderPair pair : auth)
-            {
-                if(pair.isDefault)
-                {
+        public AuthProviderPair getAuthProviderPair() {
+            if (authDefault != null) return authDefault;
+            for (AuthProviderPair pair : auth) {
+                if (pair.isDefault) {
                     authDefault = pair;
                     return pair;
                 }
@@ -190,18 +186,16 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 throw new NullPointerException("AuthHandler must not be null");
             }
             boolean isOneDefault = false;
-            for(AuthProviderPair pair : auth) {
+            for (AuthProviderPair pair : auth) {
                 if (pair.isDefault) {
                     isOneDefault = true;
                     break;
                 }
             }
-            if(protectHandler == null)
-            {
+            if (protectHandler == null) {
                 throw new NullPointerException("ProtectHandler must not be null");
             }
-            if(!isOneDefault)
-            {
+            if (!isOneDefault) {
                 throw new IllegalStateException("No auth pairs declared by default.");
             }
             if (permissionsHandler == null) {
@@ -210,13 +204,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             if (env == null) {
                 throw new NullPointerException("Env must not be null");
             }
-            if(netty == null)
-            {
+            if (netty == null) {
                 throw new NullPointerException("Netty must not be null");
             }
         }
-        public void close()
-        {
+
+        public void close() {
             try {
                 for (AuthProviderPair p : auth) p.close();
             } catch (IOException e) {
@@ -248,8 +241,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String txtFileVersion;
         public String txtProductVersion;
     }
-    public class NettyConfig
-    {
+
+    public class NettyConfig {
         public String bindAddress;
         public int port;
         public boolean clientEnabled;
@@ -257,8 +250,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String launcherEXEURL;
         public String address;
     }
-    public class GuardLicenseConf
-    {
+
+    public class GuardLicenseConf {
         public String name;
         public String key;
         public String encryptKey;
@@ -299,10 +292,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         long startTime = System.currentTimeMillis();
         try {
             @SuppressWarnings("resource")
-			LaunchServer launchserver = new LaunchServer(IOHelper.WORKING_DIR, args);
-            if(args.length == 0) launchserver.run();
+            LaunchServer launchserver = new LaunchServer(IOHelper.WORKING_DIR, args);
+            if (args.length == 0) launchserver.run();
             else { //Обработка команды
-                launchserver.commandHandler.eval(args,false);
+                launchserver.commandHandler.eval(args, false);
             }
         } catch (Throwable exc) {
             LogHelper.error(exc);
@@ -318,7 +311,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final Path launcherLibraries;
 
-    public final Path launcherLibrariesCompile; 
+    public final Path launcherLibrariesCompile;
 
     public final List<String> args;
 
@@ -383,7 +376,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     private volatile List<ClientProfile> profilesList;
     public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
 
-	public final Timer taskPool;
+    public final Timer taskPool;
 
     public static Gson gson;
     public static GsonBuilder gsonBuilder;
@@ -469,14 +462,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
         config.permissionsHandler.init();
         config.hwidHandler.init();
-        if(config.protectHandler != null)
-        {
+        if (config.protectHandler != null) {
             config.protectHandler.checkLaunchServerLicense();
         }
-        if(config.components != null)
-        {
+        if (config.components != null) {
             LogHelper.debug("PreInit components");
-            config.components.forEach((k,v) -> {
+            config.components.forEach((k, v) -> {
                 LogHelper.subDebug("PreInit component %s", k);
                 v.preInit(this);
             });
@@ -507,12 +498,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         // init modules
         modulesManager.initModules();
-        if(config.components != null)
-        {
+        if (config.components != null) {
             LogHelper.debug("Init components");
-            config.components.forEach((k,v) -> {
+            config.components.forEach((k, v) -> {
                 LogHelper.subDebug("Init component %s", k);
-                registerObject("component.".concat(k),v);
+                registerObject("component.".concat(k), v);
                 v.init(this);
             });
             LogHelper.debug("Init components successful");
@@ -542,17 +532,16 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         // post init modules
         modulesManager.postInitModules();
-        if(config.components != null)
-        {
+        if (config.components != null) {
             LogHelper.debug("PostInit components");
-            config.components.forEach((k,v) -> {
+            config.components.forEach((k, v) -> {
                 LogHelper.subDebug("PostInit component %s", k);
                 v.postInit(this);
             });
             LogHelper.debug("PostInit components successful");
         }
         // start updater
-        if(config.netty != null)
+        if (config.netty != null)
             nettyServerSocketHandler = new NettyServerSocketHandler(this);
         else
             nettyServerSocketHandler = null;
@@ -616,7 +605,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         // Create new config
         LogHelper.info("Creating LaunchServer config");
         Config newConfig = new Config();
-        newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/","https://mirror.gravit.pro/"};
+        newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/", "https://mirror.gravit.pro/"};
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.copyright = "© GravitLauncher Team";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Launcher.getVersion().getVersionString());
@@ -630,10 +619,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.hwidHandler = new AcceptHWIDHandler();
-        newConfig.auth = new AuthProviderPair[]{ new AuthProviderPair(new RejectAuthProvider("Настройте authProvider"),
+        newConfig.auth = new AuthProviderPair[]{new AuthProviderPair(new RejectAuthProvider("Настройте authProvider"),
                 new MemoryAuthHandler(),
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
-                , "std") };
+                , "std")};
         newConfig.protectHandler = new NoProtectHandler();
         newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.port = 7240;
@@ -709,7 +698,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         JVMHelper.RUNTIME.addShutdownHook(CommonHelper.newThread(null, false, this::close));
         CommonHelper.newThread("Command Thread", true, commandHandler).start();
         rebindServerSocket();
-        if(config.netty != null)
+        if (config.netty != null)
             rebindNettyServerSocket();
         modulesManager.finishModules();
     }
@@ -789,22 +778,17 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
     }
 
-    public void registerObject(String name, Object object)
-    {
-        if(object instanceof Reloadable)
-        {
+    public void registerObject(String name, Object object) {
+        if (object instanceof Reloadable) {
             reloadManager.registerReloadable(name, (Reloadable) object);
         }
-        if(object instanceof Reconfigurable)
-        {
+        if (object instanceof Reconfigurable) {
             reconfigurableManager.registerReconfigurable(name, (Reconfigurable) object);
         }
-        if(object instanceof NeedGarbageCollection)
-        {
+        if (object instanceof NeedGarbageCollection) {
             GarbageManager.registerNeedGC((NeedGarbageCollection) object);
         }
-        if(object instanceof JsonConfigurable)
-        {
+        if (object instanceof JsonConfigurable) {
 
         }
     }

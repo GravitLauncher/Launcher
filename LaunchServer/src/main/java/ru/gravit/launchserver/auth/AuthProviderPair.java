@@ -20,8 +20,7 @@ public class AuthProviderPair {
         this.name = name;
     }
 
-    public void init()
-    {
+    public void init() {
         provider.init();
         handler.init();
     }

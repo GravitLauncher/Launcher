@@ -10,8 +10,8 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
 import java.nio.file.FileSystem;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Set;
@@ -338,6 +338,7 @@ public final class IOHelper {
     public static InputStream newInput(Path file) throws IOException {
         return Files.newInputStream(file, READ_OPTIONS);
     }
+
     @LauncherAPI
     public static InputStream newBufferedInput(Path file) throws IOException {
         return new BufferedInputStream(Files.newInputStream(file, READ_OPTIONS));
@@ -347,6 +348,7 @@ public final class IOHelper {
     public static InputStream newInput(URL url) throws IOException {
         return newConnection(url).getInputStream();
     }
+
     @LauncherAPI
     public static BufferedInputStream newBufferedInput(URL url) throws IOException {
         return new BufferedInputStream(newConnection(url).getInputStream());

@@ -65,7 +65,7 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
     }
 
     private Entry query(String sql, String value) throws IOException {
-        try(Connection c = mySQLHolder.getConnection()) {
+        try (Connection c = mySQLHolder.getConnection()) {
             PreparedStatement s = c.prepareStatement(sql);
             s.setString(1, value);
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
@@ -79,7 +79,7 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
 
     @Override
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
-        try(Connection c = mySQLHolder.getConnection()) {
+        try (Connection c = mySQLHolder.getConnection()) {
             PreparedStatement s = c.prepareStatement(updateAuthSQL);
             s.setString(1, username); // Username case
             s.setString(2, accessToken);
@@ -93,7 +93,7 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
 
     @Override
     protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
-        try(Connection c = mySQLHolder.getConnection()) {
+        try (Connection c = mySQLHolder.getConnection()) {
             PreparedStatement s = c.prepareStatement(updateServerIDSQL);
             s.setString(1, serverID);
             s.setString(2, uuid.toString());

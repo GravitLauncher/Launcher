@@ -34,10 +34,10 @@ public class Client {
     public void up() {
         timestamp = System.currentTimeMillis();
     }
-    public void updateAuth()
-    {
-        if(!isAuth) return;
-        if(auth_id.isEmpty()) auth = LaunchServer.server.config.getAuthProviderPair();
+
+    public void updateAuth() {
+        if (!isAuth) return;
+        if (auth_id.isEmpty()) auth = LaunchServer.server.config.getAuthProviderPair();
         else auth = LaunchServer.server.config.getAuthProviderPair(auth_id);
     }
 

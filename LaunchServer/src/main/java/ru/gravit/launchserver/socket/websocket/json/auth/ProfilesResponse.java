@@ -11,7 +11,7 @@ import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 
 import java.util.List;
 
-public class ProfilesResponse  implements JsonResponseInterface {
+public class ProfilesResponse implements JsonResponseInterface {
     @Override
     public String getType() {
         return "profiles";
@@ -19,8 +19,7 @@ public class ProfilesResponse  implements JsonResponseInterface {
 
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
-        if(!client.checkSign)
-        {
+        if (!client.checkSign) {
             service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
             return;
         }

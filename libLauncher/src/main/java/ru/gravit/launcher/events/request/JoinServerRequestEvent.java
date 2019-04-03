@@ -13,6 +13,7 @@ public class JoinServerRequestEvent implements EventInterface, ResultInterface {
     }
 
     public boolean allow;
+
     @Override
     public UUID getUUID() {
         return uuid;

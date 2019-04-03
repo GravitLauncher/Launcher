@@ -29,8 +29,7 @@ public final class MySQLAuthProvider extends AuthProvider {
 
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws SQLException, AuthException {
-        try(Connection c = mySQLHolder.getConnection())
-        {
+        try (Connection c = mySQLHolder.getConnection()) {
             PreparedStatement s = c.prepareStatement(query);
             String[] replaceParams = {"login", login, "password", password, "ip", ip};
             for (int i = 0; i < queryParams.length; i++)
@@ -47,6 +46,6 @@ public final class MySQLAuthProvider extends AuthProvider {
 
     @Override
     public void close() {
-    	mySQLHolder.close();
+        mySQLHolder.close();
     }
 }

@@ -7,8 +7,7 @@ import ru.gravit.utils.event.EventInterface;
 
 import java.util.UUID;
 
-public class ProfileByUsernameRequestEvent implements EventInterface, ResultInterface
-{
+public class ProfileByUsernameRequestEvent implements EventInterface, ResultInterface {
     private static final UUID uuid = UUID.fromString("06204302-ff6b-4779-b97d-541e3bc39aa1");
     @LauncherNetworkAPI
     public String error;
@@ -18,6 +17,7 @@ public class ProfileByUsernameRequestEvent implements EventInterface, ResultInte
     public ProfileByUsernameRequestEvent(PlayerProfile playerProfile) {
         this.playerProfile = playerProfile;
     }
+
     @Override
     public UUID getUUID() {
         return uuid;

@@ -23,33 +23,27 @@ public class ConfigManager {
         LogHelper.info("Found %d configurables", CONFIGURABLE.size());
     }
 
-    public void save(String name) throws IOException
-    {
+    public void save(String name) throws IOException {
         CONFIGURABLE.get(name).saveConfig();
     }
 
-    public void load(String name)  throws IOException
-    {
+    public void load(String name) throws IOException {
         CONFIGURABLE.get(name).loadConfig();
     }
 
-    public void save(String name, Path path)  throws IOException
-    {
+    public void save(String name, Path path) throws IOException {
         CONFIGURABLE.get(name).saveConfig(path);
     }
 
-    public void reset(String name)  throws IOException
-    {
+    public void reset(String name) throws IOException {
         CONFIGURABLE.get(name).resetConfig();
     }
 
-    public void load(String name, Path path)  throws IOException
-    {
+    public void load(String name, Path path) throws IOException {
         CONFIGURABLE.get(name).loadConfig(path);
     }
 
-    public void reset(String name, Path path)  throws IOException
-    {
+    public void reset(String name, Path path) throws IOException {
         CONFIGURABLE.get(name).resetConfig(path);
     }
 }

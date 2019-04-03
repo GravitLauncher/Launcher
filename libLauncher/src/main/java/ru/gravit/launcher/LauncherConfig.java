@@ -46,7 +46,7 @@ public final class LauncherConfig extends StreamObject {
 
     @LauncherAPI
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
-        address = InetSocketAddress.createUnresolved( config.address, config.port);
+        address = InetSocketAddress.createUnresolved(config.address, config.port);
         publicKey = SecurityHelper.toPublicRSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
         projectname = config.projectname;
         clientPort = config.clientPort;

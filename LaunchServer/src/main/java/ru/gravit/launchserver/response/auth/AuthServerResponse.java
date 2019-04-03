@@ -52,9 +52,9 @@ public final class AuthServerResponse extends Response {
         debug("ServerLogin: '%s', Password: '%s'", login, echo(password.length()));
         AuthProviderResult result;
         AuthProviderPair pair;
-        if(auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
+        if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
         else pair = server.config.getAuthProviderPair(auth_id);
-        if(pair == null) requestError("Auth type not found");
+        if (pair == null) requestError("Auth type not found");
         AuthProvider provider = pair.provider;
         AuthResponse.AuthContext context = new AuthResponse.AuthContext(session, login, password.length(), null, client, null, ip, true);
         try {

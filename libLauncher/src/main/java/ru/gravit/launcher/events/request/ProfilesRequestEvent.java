@@ -8,8 +8,7 @@ import ru.gravit.utils.event.EventInterface;
 import java.util.List;
 import java.util.UUID;
 
-public class ProfilesRequestEvent implements EventInterface, ResultInterface
-{
+public class ProfilesRequestEvent implements EventInterface, ResultInterface {
     private static final UUID uuid = UUID.fromString("2f26fbdf-598a-46dd-92fc-1699c0e173b1");
     @LauncherNetworkAPI
     public List<ClientProfile> profiles;
@@ -22,6 +21,7 @@ public class ProfilesRequestEvent implements EventInterface, ResultInterface
     }
 
     String error;
+
     @Override
     public UUID getUUID() {
         return uuid;

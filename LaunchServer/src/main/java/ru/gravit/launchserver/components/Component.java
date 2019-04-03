@@ -35,7 +35,10 @@ public abstract class Component {
             registredComp = true;
         }
     }
+
     public abstract void preInit(LaunchServer launchServer);
+
     public abstract void init(LaunchServer launchServer);
+
     public abstract void postInit(LaunchServer launchServer);
 }

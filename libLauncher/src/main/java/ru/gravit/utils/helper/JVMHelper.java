@@ -157,10 +157,9 @@ public final class JVMHelper {
     }
 
     @LauncherAPI
-    public static void addSystemPropertyToArgs(Collection<String> args, String name)
-    {
+    public static void addSystemPropertyToArgs(Collection<String> args, String name) {
         String property = System.getProperty(name);
-        if(property != null)
+        if (property != null)
             args.add(String.format("-D%s=%s", name, property));
     }
 

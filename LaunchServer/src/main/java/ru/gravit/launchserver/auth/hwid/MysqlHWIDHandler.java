@@ -63,7 +63,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
     public void check0(HWID hwid, String username) throws HWIDException {
         if (hwid instanceof OshiHWID) {
             OshiHWID oshiHWID = (OshiHWID) hwid;
-            try(Connection c = mySQLHolder.getConnection()) {
+            try (Connection c = mySQLHolder.getConnection()) {
 
                 PreparedStatement s = c.prepareStatement(String.format("SELECT %s, %s FROM `%s` WHERE `%s` = ? LIMIT 1",
                         userFieldHwid, userFieldLogin, tableUsers, userFieldLogin));
@@ -141,10 +141,9 @@ public class MysqlHWIDHandler extends HWIDHandler {
             }
             ResultSet set = a.executeQuery();
             boolean isOne = false;
-            while(set.next()) {
-                if(!oneCompareMode) isOne = true;
-                if(compareMode)
-                {
+            while (set.next()) {
+                if (!oneCompareMode) isOne = true;
+                if (compareMode) {
                     OshiHWID db_hwid = new OshiHWID();
                     db_hwid.serialNumber = set.getString(hwidFieldSerialNumber);
                     db_hwid.processorID = set.getString(hwidFieldProcessorID);
@@ -153,19 +152,18 @@ public class MysqlHWIDHandler extends HWIDHandler {
                     db_hwid.macAddr = "";
                     LogHelper.dev("Compare HWID: %s vs %s", hwid.getSerializeString(), db_hwid.getSerializeString());
                     int compare_point = hwid.compare(db_hwid);
-                    if(compare_point < compare) continue;
-                    else
-                    {
+                    if (compare_point < compare) continue;
+                    else {
                         LogHelper.debug("User %s hwid check: found compare %d in %d", username, compare_point, set.getInt("id"));
                     }
                 }
-                if(oneCompareMode) isOne = true;
+                if (oneCompareMode) isOne = true;
                 boolean isBanned = set.getBoolean(hwidFieldBanned);
                 if (isBanned) {
                     throw new HWIDException(banMessage);
                 }
             }
-            if(isOne) {
+            if (isOne) {
                 onUpdateInfo(hwid, username, c);
             }
         } catch (SQLException e) {
@@ -177,7 +175,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
         LogHelper.debug("%s Request HWID: %s", isBanned ? "Ban" : "UnBan", hwid.toString());
         if (hwid instanceof OshiHWID) {
             OshiHWID oshiHWID = (OshiHWID) hwid;
-            try(Connection c = mySQLHolder.getConnection()) {
+            try (Connection c = mySQLHolder.getConnection()) {
                 try (PreparedStatement a = c.prepareStatement(queryBan)) {
                     String[] replaceParamsUpd = {"totalMemory", String.valueOf(oshiHWID.totalMemory), "serialNumber", oshiHWID.serialNumber, "HWDiskSerial", oshiHWID.HWDiskSerial, "processorID", oshiHWID.processorID, "isBanned", isBanned ? "1" : "0"};
                     for (int i = 0; i < paramsBan.length; i++) {
@@ -212,7 +210,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
     @Override
     public List<HWID> getHwid(String username) {
         ArrayList<HWID> list = new ArrayList<>();
-        try(Connection c = mySQLHolder.getConnection()) {
+        try (Connection c = mySQLHolder.getConnection()) {
             LogHelper.debug("Try find HWID from username %s", username);
             PreparedStatement s = c.prepareStatement(String.format("SELECT %s, %s FROM `%s` WHERE `%s` = ? LIMIT 1", userFieldHwid, userFieldLogin, tableUsers, userFieldLogin));
             s.setString(1, username);
@@ -248,7 +246,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
 
     @Override
     public void close() {
-    	mySQLHolder.close();
+        mySQLHolder.close();
     }
 
     @Override

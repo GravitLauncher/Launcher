@@ -8,13 +8,12 @@ import java.io.IOException;
 
 public class ConsoleMain {
     public static CommandHandler commandHandler;
+
     public static void main(String[] args) throws IOException {
-        if(ServerWrapper.config == null)
-        {
+        if (ServerWrapper.config == null) {
             LogHelper.warning("ServerWrapper not found");
         }
-        if(!ServerWrapper.permissions.canAdmin)
-        {
+        if (!ServerWrapper.permissions.canAdmin) {
             LogHelper.warning("Permission canAdmin not found");
         }
         try {

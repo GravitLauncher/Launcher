@@ -29,7 +29,7 @@ public class LauncherResponse implements JsonResponseInterface {
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
         byte[] bytes;
-        if(hash != null)
+        if (hash != null)
             bytes = Base64.getDecoder().decode(hash);
         else
             bytes = digest;

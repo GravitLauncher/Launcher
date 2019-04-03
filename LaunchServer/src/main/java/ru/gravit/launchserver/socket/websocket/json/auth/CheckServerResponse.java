@@ -26,8 +26,8 @@ public class CheckServerResponse implements JsonResponseInterface {
         CheckServerRequestEvent result = new CheckServerRequestEvent();
         try {
             result.uuid = pClient.auth.handler.checkServer(username, serverID);
-            if(result.uuid != null)
-                result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server,result.uuid,username,client, pClient.auth.textureProvider);
+            if (result.uuid != null)
+                result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, result.uuid, username, client, pClient.auth.textureProvider);
         } catch (AuthException e) {
             service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
             return;

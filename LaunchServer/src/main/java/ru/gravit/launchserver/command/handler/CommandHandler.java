@@ -13,8 +13,7 @@ import ru.gravit.launchserver.command.modules.ModulesCommand;
 import ru.gravit.launchserver.command.service.*;
 
 public abstract class CommandHandler extends ru.gravit.utils.command.CommandHandler {
-    public static void registerCommands(ru.gravit.utils.command.CommandHandler handler)
-    {
+    public static void registerCommands(ru.gravit.utils.command.CommandHandler handler) {
         LaunchServer server = LaunchServer.server;
         // Register basic commands
         handler.registerCommand("help", new HelpCommand(server));

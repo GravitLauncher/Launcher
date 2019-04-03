@@ -131,12 +131,11 @@ public class MainBuildTask implements LauncherBuildTask {
             jaConfigurator.setAddress(server.config.getAddress());
             jaConfigurator.setPort(server.config.port);
             jaConfigurator.setNettyEnabled(server.config.netty.clientEnabled);
-            if(server.config.netty.clientEnabled)
-            {
+            if (server.config.netty.clientEnabled) {
                 jaConfigurator.setNettyPort(server.config.netty.port);
                 jaConfigurator.setNettyAddress(server.config.netty.address);
             }
-            if(server.config.guardLicense != null)
+            if (server.config.guardLicense != null)
                 jaConfigurator.setGuardLicense(server.config.guardLicense.name, server.config.guardLicense.key, server.config.guardLicense.encryptKey);
             jaConfigurator.setProjectName(server.config.projectName);
             jaConfigurator.setSecretKey(SecurityHelper.randomStringAESKey());

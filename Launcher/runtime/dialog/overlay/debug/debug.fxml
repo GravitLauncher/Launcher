@@ -7,13 +7,15 @@
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.20">
+<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/8.0.20">
     <stylesheets>
-        <URL value="@debug.css" />
+        <URL value="@debug.css"/>
     </stylesheets>
 
     <!-- Debug controls -->
-    <TextArea fx:id="output" layoutY="28.0" prefHeight="372.0" prefWidth="600.0" />
-    <Button fx:id="copy" defaultButton="true" layoutX="375.0" layoutY="352.0" prefHeight="30.0" prefWidth="100.0" text="Копировать" />
-    <Button fx:id="action" layoutX="480.0" layoutY="352.0" prefHeight="30.0" prefWidth="100.0" />
+    <TextArea fx:id="output" layoutY="28.0" prefHeight="372.0" prefWidth="600.0"/>
+    <Button fx:id="copy" defaultButton="true" layoutX="375.0" layoutY="352.0" prefHeight="30.0" prefWidth="100.0"
+            text="Копировать"/>
+    <Button fx:id="action" layoutX="480.0" layoutY="352.0" prefHeight="30.0" prefWidth="100.0"/>
 </Pane>

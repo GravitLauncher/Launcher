@@ -125,10 +125,8 @@ public final class Launcher {
         return new Version(MAJOR, MINOR, PATCH, BUILD, RELEASE);
     }
 
-    public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env)
-    {
-        switch (env)
-        {
+    public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env) {
+        switch (env) {
             case DEV:
                 LogHelper.setDevEnabled(true);
                 LogHelper.setStacktraceEnabled(true);

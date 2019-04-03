@@ -7,6 +7,7 @@ public class ExecCommandRequestEvent implements ResultInterface {
     public String getType() {
         return "execCmd";
     }
+
     boolean success;
 
     public ExecCommandRequestEvent(boolean success) {

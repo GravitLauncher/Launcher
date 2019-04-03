@@ -23,7 +23,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
     private HashSet<EventHandler> handlers;
 
     public ClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) {
-    	super(createURL(address), Collections.emptyMap(), i);
+        super(createURL(address), Collections.emptyMap(), i);
         requests = new HashMap<>();
         results = new HashMap<>();
         handlers = new HashSet<>();
@@ -33,32 +33,34 @@ public class ClientWebSocketService extends ClientJSONPoint {
         this.gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuilder.create();
     }
-	private static URI createURL(String address) {
-		try {
-			URI u = new URI(address);
-			return u;
-		} catch (Throwable e) {
-			LogHelper.error(e);
-			return null;
-		}
-	}
-	@Override
-	public void onMessage(String message) {
+
+    private static URI createURL(String address) {
+        try {
+            URI u = new URI(address);
+            return u;
+        } catch (Throwable e) {
+            LogHelper.error(e);
+            return null;
+        }
+    }
+
+    @Override
+    public void onMessage(String message) {
         ResultInterface result = gson.fromJson(message, ResultInterface.class);
-        for(EventHandler handler : handlers)
-        {
+        for (EventHandler handler : handlers) {
             handler.process(result);
         }
     }
+
     @Override
-    public void onError(Exception e)
-    {
+    public void onError(Exception e) {
         LogHelper.error(e);
     }
 
     public Class<? extends RequestInterface> getRequestClass(String key) {
         return requests.get(key);
     }
+
     public Class<? extends ResultInterface> getResultClass(String key) {
         return results.get(key);
     }
@@ -91,20 +93,20 @@ public class ClientWebSocketService extends ClientJSONPoint {
         registerResult("update", UpdateRequestEvent.class);
     }
 
-    public void registerHandler(EventHandler eventHandler)
-    {
+    public void registerHandler(EventHandler eventHandler) {
         handlers.add(eventHandler);
     }
 
     public void sendObject(Object obj) throws IOException {
         send(gson.toJson(obj, RequestInterface.class));
     }
+
     public void sendObject(Object obj, Type type) throws IOException {
         send(gson.toJson(obj, type));
     }
+
     @FunctionalInterface
-    public interface EventHandler
-    {
+    public interface EventHandler {
         void process(ResultInterface resultInterface);
     }
 }

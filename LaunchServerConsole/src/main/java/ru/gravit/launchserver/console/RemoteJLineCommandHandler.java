@@ -9,10 +9,10 @@ import java.io.IOException;
 public class RemoteJLineCommandHandler extends JLineCommandHandler {
     public RemoteJLineCommandHandler() throws IOException {
     }
+
     @Override
-    public void eval(String line, boolean bell)
-    {
-        if(line.equals("exit")) System.exit(0);
+    public void eval(String line, boolean bell) {
+        if (line.equals("exit")) System.exit(0);
         ExecCommandRequest request = new ExecCommandRequest(System.out::println, line);
         try {
             request.request();

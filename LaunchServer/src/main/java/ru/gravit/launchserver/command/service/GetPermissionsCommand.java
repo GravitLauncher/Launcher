@@ -22,7 +22,7 @@ public class GetPermissionsCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        verifyArgs(args,1);
+        verifyArgs(args, 1);
         String username = args[0];
         ClientPermissions permissions = server.config.permissionsHandler.getPermissions(username);
         LogHelper.info("Permissions %s: %s (long: %d)", username, permissions.toString(), permissions.toLong());

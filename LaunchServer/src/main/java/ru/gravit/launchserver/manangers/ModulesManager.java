@@ -1,7 +1,7 @@
 package ru.gravit.launchserver.manangers;
 
-import ru.gravit.launcher.managers.SimpleModulesConfigManager;
 import ru.gravit.launcher.managers.SimpleModuleManager;
+import ru.gravit.launcher.managers.SimpleModulesConfigManager;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.modules.CoreModule;
 import ru.gravit.launchserver.modules.LaunchServerModuleContext;

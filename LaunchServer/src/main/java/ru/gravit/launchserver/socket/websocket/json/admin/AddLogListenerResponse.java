@@ -10,6 +10,7 @@ import ru.gravit.utils.helper.LogHelper;
 
 public class AddLogListenerResponse implements JsonResponseInterface {
     public LogHelper.OutputTypes outputType = LogHelper.OutputTypes.PLAIN;
+
     @Override
     public String getType() {
         return "addLogListener";
@@ -25,25 +26,20 @@ public class AddLogListenerResponse implements JsonResponseInterface {
             service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
             return;
         }
-        if(client.logOutput != null)
-        {
+        if (client.logOutput != null) {
             LogHelper.info("Client %s remove log listener", client.username);
             LogHelper.removeOutput(client.logOutput);
-        }
-        else
-        {
+        } else {
             LogHelper.info("Client %s add log listener", client.username);
             LogHelper.Output output = (str) -> {
-                if(!ctx.isRemoved())
-                {
-                    service.sendObject(ctx,new LogEvent(str));
-                }
-                else {
+                if (!ctx.isRemoved()) {
+                    service.sendObject(ctx, new LogEvent(str));
+                } else {
                     LogHelper.removeOutput(client.logOutput);
                     LogHelper.info("Client %s remove log listener", client.username);
                 }
             };
-            client.logOutput = new LogHelper.OutputEnity(output,outputType);
+            client.logOutput = new LogHelper.OutputEnity(output, outputType);
             LogHelper.addOutput(client.logOutput);
         }
     }

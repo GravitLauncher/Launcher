@@ -35,8 +35,8 @@ public final class LogHelper {
     private static final AtomicBoolean DEBUG_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEBUG_PROPERTY));
     private static final AtomicBoolean STACKTRACE_ENABLED = new AtomicBoolean(Boolean.getBoolean(STACKTRACE_PROPERTY));
     private static final AtomicBoolean DEV_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEV_PROPERTY));
-    public static class OutputEnity
-    {
+
+    public static class OutputEnity {
         public Output output;
         public OutputTypes type;
 
@@ -45,10 +45,11 @@ public final class LogHelper {
             this.type = type;
         }
     }
-    public enum OutputTypes
-    {
+
+    public enum OutputTypes {
         PLAIN, JANSI, HTML
     }
+
     private static final Set<OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
     private static final OutputEnity STD_OUTPUT;
 
@@ -59,15 +60,16 @@ public final class LogHelper {
     public static void addOutput(OutputEnity output) {
         OUTPUTS.add(Objects.requireNonNull(output, "output"));
     }
+
     @LauncherAPI
     public static void addOutput(Output output, OutputTypes type) {
-        OUTPUTS.add(new OutputEnity(Objects.requireNonNull(output, "output"),type));
+        OUTPUTS.add(new OutputEnity(Objects.requireNonNull(output, "output"), type));
     }
 
     @LauncherAPI
     public static void addOutput(Path file) throws IOException {
         if (JANSI) {
-            addOutput(new JAnsiOutput(IOHelper.newOutput(file, true)),OutputTypes.JANSI);
+            addOutput(new JAnsiOutput(IOHelper.newOutput(file, true)), OutputTypes.JANSI);
         } else {
             addOutput(IOHelper.newWriter(file, true));
         }
@@ -162,19 +164,16 @@ public final class LogHelper {
         String dateTime = DATE_TIME_FORMATTER.format(LocalDateTime.now());
         String jansiString = null, plainString = null;
         for (OutputEnity output : OUTPUTS) {
-            if(output.type == OutputTypes.JANSI && JANSI)
-            {
-                if(jansiString != null){
+            if (output.type == OutputTypes.JANSI && JANSI) {
+                if (jansiString != null) {
                     output.output.println(jansiString);
                     continue;
                 }
 
                 jansiString = ansiFormatLog(level, dateTime, message, sub);
                 output.output.println(jansiString);
-            }
-            else
-            {
-                if(plainString != null){
+            } else {
+                if (plainString != null) {
                     output.output.println(plainString);
                     continue;
                 }
@@ -189,19 +188,16 @@ public final class LogHelper {
     public static void printVersion(String product) {
         String jansiString = null, plainString = null;
         for (OutputEnity output : OUTPUTS) {
-            if(output.type == OutputTypes.JANSI && JANSI)
-            {
-                if(jansiString != null){
+            if (output.type == OutputTypes.JANSI && JANSI) {
+                if (jansiString != null) {
                     output.output.println(jansiString);
                     continue;
                 }
 
                 jansiString = ansiFormatVersion(product);
                 output.output.println(jansiString);
-            }
-            else
-            {
-                if(plainString != null){
+            } else {
+                if (plainString != null) {
                     output.output.println(plainString);
                     continue;
                 }
@@ -216,19 +212,16 @@ public final class LogHelper {
     public static void printLicense(String product) {
         String jansiString = null, plainString = null;
         for (OutputEnity output : OUTPUTS) {
-            if(output.type == OutputTypes.JANSI && JANSI)
-            {
-                if(jansiString != null){
+            if (output.type == OutputTypes.JANSI && JANSI) {
+                if (jansiString != null) {
                     output.output.println(jansiString);
                     continue;
                 }
 
                 jansiString = ansiFormatLicense(product);
                 output.output.println(jansiString);
-            }
-            else
-            {
-                if(plainString != null){
+            } else {
+                if (plainString != null) {
                     output.output.println(plainString);
                     continue;
                 }
@@ -419,7 +412,7 @@ public final class LogHelper {
 
     @LauncherAPI
     public enum Level {
-        DEV("DEV"),DEBUG("DEBUG"), INFO("INFO"), WARNING("WARN"), ERROR("ERROR");
+        DEV("DEV"), DEBUG("DEBUG"), INFO("INFO"), WARNING("WARN"), ERROR("ERROR");
         public final String name;
 
         Level(String name) {

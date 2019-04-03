@@ -13,8 +13,7 @@ public class ProtectHandlerAdapter implements JsonSerializer<ProtectHandler>, Js
     public ProtectHandler deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends ProtectHandler> cls = ProtectHandler.getHandlerClass(typename);
-        if(cls == null)
-        {
+        if (cls == null) {
             LogHelper.error("ProtectHandler %s not found", typename);
             return null;
         }

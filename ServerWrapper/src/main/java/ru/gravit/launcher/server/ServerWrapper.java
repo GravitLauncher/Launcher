@@ -18,8 +18,6 @@ import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -88,8 +86,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             try {
                 Thread.sleep(sleeptime);
             } catch (InterruptedException e) {
-            	Thread.currentThread().interrupt();
-            	LogHelper.error(e);
+                Thread.currentThread().interrupt();
+                LogHelper.error(e);
                 return false;
             }
         }
@@ -102,14 +100,12 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         Launcher.gson = Launcher.gsonBuilder.create();
     }
 
-    public void run(String... args) throws Throwable
-    {
+    public void run(String... args) throws Throwable {
         gsonBuiler = new GsonBuilder();
         gsonBuiler.setPrettyPrinting();
         gson = gsonBuiler.create();
         initGson();
-        if(args.length > 0 && args[0].equals("setup") && !disableSetup)
-        {
+        if (args.length > 0 && args[0].equals("setup") && !disableSetup) {
             LogHelper.debug("Read ServerWrapperConfig.json");
             loadConfig();
             ServerWrapperSetup setup = new ServerWrapperSetup();
@@ -123,7 +119,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LogHelper.debug("Read ServerWrapperConfig.json");
         loadConfig();
         updateLauncherConfig();
-        if(config.env != null) Launcher.applyLauncherEnv(config.env);
+        if (config.env != null) Launcher.applyLauncherEnv(config.env);
         else Launcher.applyLauncherEnv(LauncherConfig.LauncherEnvironment.STD);
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         if (config.syncAuth) auth();
@@ -170,24 +166,20 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
-        if(config.args == null)
-        {
+        if (config.args == null) {
             String[] real_args;
-            if(args.length > 0)
-            {
+            if (args.length > 0) {
                 real_args = new String[args.length - 1];
                 System.arraycopy(args, 1, real_args, 0, args.length - 1);
             } else real_args = args;
 
             mainMethod.invoke(real_args);
-        }
-        else
-        {
+        } else {
             mainMethod.invoke(config.args);
         }
     }
-    public void updateLauncherConfig()
-    {
+
+    public void updateLauncherConfig() {
 
         LauncherConfig cfg = null;
         try {

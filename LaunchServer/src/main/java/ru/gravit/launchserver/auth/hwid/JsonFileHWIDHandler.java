@@ -1,7 +1,6 @@
 package ru.gravit.launchserver.auth.hwid;
 
 import com.google.gson.reflect.TypeToken;
-import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.LaunchServer;
@@ -16,12 +15,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class JsonFileHWIDHandler extends HWIDHandler {
-    public class Entry
-    {
+    public class Entry {
         public HWID hwid;
         public String username;
         public boolean isBanned = false;
@@ -43,22 +40,22 @@ public class JsonFileHWIDHandler extends HWIDHandler {
             return Objects.hash(hwid);
         }
     }
+
     public String filename = "hwids.json";
     public transient LinkedList<Entry> list = new LinkedList<>();
     public String banMessage = "You banned";
+
     @Override
     public void ban(List<HWID> hwid) throws HWIDException {
-        for(Entry e : list)
-        {
-            for(HWID banHWID : hwid)
-            {
-                if(e.hwid.equals(banHWID)) e.isBanned = true;
+        for (Entry e : list) {
+            for (HWID banHWID : hwid) {
+                if (e.hwid.equals(banHWID)) e.isBanned = true;
             }
         }
     }
+
     @Override
-    public void init()
-    {
+    public void init() {
         Path path = Paths.get(filename);
         Type type = new TypeToken<LinkedList<Entry>>() {
         }.getType();
@@ -72,16 +69,13 @@ public class JsonFileHWIDHandler extends HWIDHandler {
     @Override
     public void check0(HWID hwid, String username) throws HWIDException {
         boolean isOne = false;
-        for(Entry e : list)
-        {
-            if(e.hwid.equals(hwid))
-            {
+        for (Entry e : list) {
+            if (e.hwid.equals(hwid)) {
                 isOne = true;
-                if(e.isBanned) throw new HWIDException(banMessage);
+                if (e.isBanned) throw new HWIDException(banMessage);
             }
         }
-        if(!isOne)
-        {
+        if (!isOne) {
             list.add(new Entry(hwid));
         }
     }
@@ -89,8 +83,7 @@ public class JsonFileHWIDHandler extends HWIDHandler {
     @Override
     public void close() throws Exception {
         Path path = Paths.get(filename);
-        try(Writer writer = IOHelper.newWriter(path))
-        {
+        try (Writer writer = IOHelper.newWriter(path)) {
             LaunchServer.gson.toJson(list, writer);
         }
     }
@@ -98,20 +91,17 @@ public class JsonFileHWIDHandler extends HWIDHandler {
     @Override
     public List<HWID> getHwid(String username) throws HWIDException {
         LinkedList<HWID> hwids = new LinkedList<>();
-        for(Entry e : list)
-        {
-            if(e.username.equals(username)) hwids.add(e.hwid);
+        for (Entry e : list) {
+            if (e.username.equals(username)) hwids.add(e.hwid);
         }
         return hwids;
     }
 
     @Override
     public void unban(List<HWID> hwid) throws HWIDException {
-        for(Entry e : list)
-        {
-            for(HWID banHWID : hwid)
-            {
-                if(e.hwid.equals(banHWID)) e.isBanned = false;
+        for (Entry e : list) {
+            for (HWID banHWID : hwid) {
+                if (e.hwid.equals(banHWID)) e.isBanned = false;
             }
         }
     }

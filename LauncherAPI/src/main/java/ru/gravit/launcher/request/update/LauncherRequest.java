@@ -47,15 +47,14 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
         builder.inheritIO();
 
         // Rewrite and start new instance
-        if(result.binary != null)
+        if (result.binary != null)
             IOHelper.write(BINARY_PATH, result.binary);
-        else
-        {
-             URLConnection connection = IOHelper.newConnection(new URL(result.url));
-             connection.connect();
-             try(OutputStream stream = connection.getOutputStream()) {
-                 IOHelper.transfer(BINARY_PATH, stream);
-             }
+        else {
+            URLConnection connection = IOHelper.newConnection(new URL(result.url));
+            connection.connect();
+            try (OutputStream stream = connection.getOutputStream()) {
+                IOHelper.transfer(BINARY_PATH, stream);
+            }
         }
         builder.start();
 
@@ -70,10 +69,9 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     }
 
     @Override
-    public LauncherRequestEvent requestWebSockets() throws Exception
-    {
+    public LauncherRequestEvent requestWebSockets() throws Exception {
         LauncherRequestEvent result = (LauncherRequestEvent) LegacyRequestBridge.sendRequest(this);
-        if(result.needUpdate) update(config, result);
+        if (result.needUpdate) update(config, result);
         return result;
     }
 

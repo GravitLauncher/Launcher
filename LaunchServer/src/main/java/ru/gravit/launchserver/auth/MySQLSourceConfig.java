@@ -80,8 +80,7 @@ public final class MySQLSourceConfig implements AutoCloseable {
             hikari = false;
             // Try using HikariCP
             source = mysqlSource;
-            if(enableHikari)
-            {
+            if (enableHikari) {
                 try {
                     Class.forName("com.zaxxer.hikari.HikariDataSource");
                     hikari = true; // Used for shutdown. Not instanceof because of possible classpath error

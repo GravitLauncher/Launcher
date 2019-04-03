@@ -21,7 +21,7 @@ public final class JARLauncherBinary extends LauncherBinary {
     public final Path buildDir;
     public List<LauncherBuildTask> tasks;
     public List<Path> coreLibs;
-	public List<Path> addonLibs;
+    public List<Path> addonLibs;
 
     public JARLauncherBinary(LaunchServer server) throws IOException {
         super(server);

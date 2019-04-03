@@ -6,7 +6,10 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.utils.helper.*;
+import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.JVMHelper;
+import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.utils.helper.SecurityHelper;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -112,7 +115,7 @@ public class LauncherSettings {
         for (int i = 0; i < lastHDirsCount; i++) {
             String name = IOHelper.verifyFileName(input.readString(255));
             HashedDir hdir = new HashedDir(input);
-            lastHDirs.put(name,hdir);
+            lastHDirs.put(name, hdir);
         }
     }
 

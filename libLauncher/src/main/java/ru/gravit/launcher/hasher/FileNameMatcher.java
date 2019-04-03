@@ -1,6 +1,7 @@
 package ru.gravit.launcher.hasher;
 
 import ru.gravit.launcher.LauncherAPI;
+
 import java.util.Collection;
 
 public final class FileNameMatcher {
@@ -9,8 +10,7 @@ public final class FileNameMatcher {
     private static boolean anyMatch(String[] entries, Collection<String> path) {
         //return path.stream().anyMatch(e -> Arrays.stream(entries).anyMatch(p -> p.endsWith(e)));
         String jpath = String.join("/", path);
-        for(String e : entries)
-        {
+        for (String e : entries) {
             /*String[] split = e.split("/");
             //int index = 0;
             //for(String p : path)
@@ -24,7 +24,7 @@ public final class FileNameMatcher {
                 }
                 index++;
             }*/
-            if(jpath.startsWith(e)) return true;
+            if (jpath.startsWith(e)) return true;
         }
         return false;
     }
