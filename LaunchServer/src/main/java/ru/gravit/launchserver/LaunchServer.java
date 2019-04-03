@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.managers.ConfigManager;
 import ru.gravit.launcher.managers.GarbageManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
@@ -22,10 +24,11 @@ import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
 import ru.gravit.launchserver.binary.*;
 import ru.gravit.launchserver.components.Component;
+import ru.gravit.utils.config.JsonConfigurable;
+import ru.gravit.launchserver.config.adapter.*;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.command.JLineCommandHandler;
 import ru.gravit.utils.command.StdCommandHandler;
-import ru.gravit.launchserver.config.*;
 import ru.gravit.launchserver.manangers.*;
 import ru.gravit.launchserver.manangers.hook.AuthHookManager;
 import ru.gravit.launchserver.manangers.hook.BuildHookManager;
@@ -360,6 +363,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final ReconfigurableManager reconfigurableManager;
 
+    public final ConfigManager configManager;
+
 
     public final BuildHookManager buildHookManager;
 
@@ -487,32 +492,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         reconfigurableManager = new ReconfigurableManager();
         socketHookManager = new SocketHookManager();
         authHookManager = new AuthHookManager();
+        configManager = new ConfigManager();
         GarbageManager.registerNeedGC(sessionManager);
         reloadManager.registerReloadable("launchServer", this);
-        if (config.permissionsHandler instanceof Reloadable)
-            reloadManager.registerReloadable("permissionsHandler", (Reloadable) config.permissionsHandler);
+        registerObject("permissionsHandler", config.permissionsHandler);
         for (int i = 0; i < config.auth.length; ++i) {
             AuthProviderPair pair = config.auth[i];
-            if (pair.provider instanceof Reloadable)
-                reloadManager.registerReloadable("auth.".concat(pair.name).concat(".provider"), (Reloadable) pair.provider);
-            if (pair.handler instanceof Reloadable)
-                reloadManager.registerReloadable("auth.".concat(pair.name).concat(".handler"), (Reloadable) pair.handler);
-            if (pair.textureProvider instanceof Reloadable)
-                reloadManager.registerReloadable("auth.".concat(pair.name).concat(".texture"), (Reloadable) pair.textureProvider);
-        }
-
-        Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
-
-        if (config.permissionsHandler instanceof Reconfigurable)
-            reconfigurableManager.registerReconfigurable("permissionsHandler", (Reconfigurable) config.permissionsHandler);
-        for (int i = 0; i < config.auth.length; ++i) {
-            AuthProviderPair pair = config.auth[i];
-            if (pair.provider instanceof Reconfigurable)
-                reconfigurableManager.registerReconfigurable("auth.".concat(pair.name).concat(".provider"), (Reconfigurable) pair.provider);
-            if (pair.handler instanceof Reconfigurable)
-                reconfigurableManager.registerReconfigurable("auth.".concat(pair.name).concat(".handler"), (Reconfigurable) pair.handler);
-            if (pair.textureProvider instanceof Reconfigurable)
-                reconfigurableManager.registerReconfigurable("auth.".concat(pair.name).concat(".texture"), (Reconfigurable) pair.textureProvider);
+            registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
+            registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
+            registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
         }
 
         Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
@@ -524,6 +512,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             LogHelper.debug("Init components");
             config.components.forEach((k,v) -> {
                 LogHelper.subDebug("Init component %s", k);
+                registerObject("component.".concat(k),v);
                 v.init(this);
             });
             LogHelper.debug("Init components successful");
@@ -797,6 +786,26 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             builder.start();
         } catch (IOException e) {
             LogHelper.error(e);
+        }
+    }
+
+    public void registerObject(String name, Object object)
+    {
+        if(object instanceof Reloadable)
+        {
+            reloadManager.registerReloadable(name, (Reloadable) object);
+        }
+        if(object instanceof Reconfigurable)
+        {
+            reconfigurableManager.registerReconfigurable(name, (Reconfigurable) object);
+        }
+        if(object instanceof NeedGarbageCollection)
+        {
+            GarbageManager.registerNeedGC((NeedGarbageCollection) object);
+        }
+        if(object instanceof JsonConfigurable)
+        {
+
         }
     }
 

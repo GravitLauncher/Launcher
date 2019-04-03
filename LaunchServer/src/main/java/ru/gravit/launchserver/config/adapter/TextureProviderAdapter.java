@@ -1,4 +1,4 @@
-package ru.gravit.launchserver.config;
+package ru.gravit.launchserver.config.adapter;
 
 import com.google.gson.*;
 import ru.gravit.launchserver.texture.TextureProvider;
