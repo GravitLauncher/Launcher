@@ -20,6 +20,7 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 
@@ -199,7 +200,9 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
 
     @Override
     public UpdateRequestEvent requestWebSockets() throws Exception {
+        LogHelper.debug("Start update request");
         UpdateRequestEvent e = (UpdateRequestEvent) LegacyRequestBridge.sendRequest(this);
+        LogHelper.debug("Start update");
         Launcher.profile.pushOptionalFile(e.hdir, !Launcher.profile.isUpdateFastCheck());
         HashedDir.Diff diff = e.hdir.diff(localDir, matcher);
         final List<String> adds = new ArrayList<>();
@@ -207,26 +210,29 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
             adds.add(a.getKey());
         });
         totalSize = diff.mismatch.size();
+        startTime = Instant.now();
+        updateState("UnknownFile", 0L, 100);
         ListDownloader listDownloader = new ListDownloader();
         listDownloader.download(e.url, adds, dir);
         deleteExtraDir(dir, diff.extra, diff.extra.flag);
+        LogHelper.debug("Update success");
         return e;
     }
 
     // Instance
     private final String dirName;
-    private final Path dir;
-    private final FileNameMatcher matcher;
+    private transient final Path dir;
+    private transient final FileNameMatcher matcher;
 
-    private final boolean digest;
-    private volatile Callback stateCallback;
+    private transient final boolean digest;
+    private transient volatile Callback stateCallback;
     // State
-    private HashedDir localDir;
-    private long totalDownloaded;
+    private transient HashedDir localDir;
+    private transient long totalDownloaded;
 
-    private long totalSize;
+    private transient long totalSize;
 
-    private Instant startTime;
+    private transient Instant startTime;
 
     @LauncherAPI
     public UpdateRequest(LauncherConfig config, String dirName, Path dir, FileNameMatcher matcher, boolean digest) {

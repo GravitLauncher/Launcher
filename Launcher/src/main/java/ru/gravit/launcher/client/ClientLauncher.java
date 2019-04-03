@@ -76,14 +76,12 @@ public final class ClientLauncher {
         public final int width;
         @LauncherAPI
         public final int height;
-        private final byte[] launcherDigest;
         @LauncherAPI
         public final long session;
 
         @LauncherAPI
         public Params(byte[] launcherDigest, Path assetDir, Path clientDir, PlayerProfile pp, String accessToken,
                       boolean autoEnter, boolean fullScreen, int ram, int width, int height) {
-            this.launcherDigest = launcherDigest.clone();
             // Client paths
             this.assetDir = assetDir;
             this.clientDir = clientDir;
@@ -100,7 +98,6 @@ public final class ClientLauncher {
 
         @LauncherAPI
         public Params(HInput input) throws Exception {
-            launcherDigest = input.readByteArray(0);
             session = input.readLong();
             // Client paths
             assetDir = IOHelper.toPath(input.readString(0));
@@ -119,7 +116,6 @@ public final class ClientLauncher {
 
         @Override
         public void write(HOutput output) throws IOException {
-            output.writeByteArray(launcherDigest, 0);
             output.writeLong(session);
             // Client paths
             output.writeString(assetDir.toString(), 0);
@@ -454,7 +450,6 @@ public final class ClientLauncher {
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         //Warning - experimental.
-        SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherDigest, Launcher.getConfig().publicKey);
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
         for (Path classpathURL : classPath) {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());

@@ -10,7 +10,7 @@ public class ConsoleMain {
     public static CommandHandler commandHandler;
 
     public static void main(String[] args) throws IOException {
-        if (ServerWrapper.wrapper.config == null) { 
+        if (ServerWrapper.wrapper.config == null) {
             LogHelper.warning("ServerWrapper not found");
         }
         if (!ServerWrapper.wrapper.permissions.canAdmin) {

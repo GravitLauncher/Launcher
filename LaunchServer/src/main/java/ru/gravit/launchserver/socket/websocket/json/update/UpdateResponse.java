@@ -10,7 +10,7 @@ import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 
 public class UpdateResponse implements JsonResponseInterface {
-    public String dir;
+    public String dirName;
 
     @Override
     public String getType() {
@@ -32,6 +32,6 @@ public class UpdateResponse implements JsonResponseInterface {
                 }
             }
         }
-        service.sendObject(ctx, new UpdateRequestEvent(LaunchServer.server.updatesDirMap.get(dir).object, LaunchServer.server.config.netty.downloadURL.concat(dir)));
+        service.sendObject(ctx, new UpdateRequestEvent(LaunchServer.server.updatesDirMap.get(dirName).object, LaunchServer.server.config.netty.downloadURL.replace("%dirname%",dirName)));
     }
 }

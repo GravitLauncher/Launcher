@@ -8,6 +8,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +27,7 @@ public class ListDownloader {
             HttpGet get = null;
             for (String apply : applies) {
                 URI u = new URL(base.concat(apply)).toURI();
+                LogHelper.debug("Download URL: %s", u.toString());
                 if (get == null) get = new HttpGet(u);
                 else {
                     get.reset();
