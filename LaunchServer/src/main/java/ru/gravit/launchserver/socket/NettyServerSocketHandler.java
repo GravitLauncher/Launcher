@@ -139,7 +139,6 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
                         public void initChannel(NioSocketChannel ch) {
                             ChannelPipeline pipeline = ch.pipeline();
                             //p.addLast(new LoggingHandler(LogLevel.INFO));
-                            System.out.println("P!");
                             pipeline.addLast(new HttpServerCodec());
                             pipeline.addLast(new HttpObjectAggregator(65536));
                             pipeline.addLast(new WebSocketServerCompressionHandler());

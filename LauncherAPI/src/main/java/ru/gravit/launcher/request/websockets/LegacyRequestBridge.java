@@ -5,6 +5,7 @@ import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.ResultInterface;
+import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
@@ -44,6 +45,13 @@ public class LegacyRequestBridge {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        JVMHelper.RUNTIME.addShutdownHook(new Thread(() -> {
+            try {
+                service.closeBlocking();
+            } catch (InterruptedException e) {
+                LogHelper.error(e);
+            }
+        }));
     }
 
     static {
