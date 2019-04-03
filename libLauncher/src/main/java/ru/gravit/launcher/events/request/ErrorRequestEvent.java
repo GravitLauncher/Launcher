@@ -1,5 +1,6 @@
 package ru.gravit.launcher.events.request;
 
+import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.utils.event.EventInterface;
 
@@ -11,7 +12,7 @@ public class ErrorRequestEvent implements ResultInterface, EventInterface {
     public ErrorRequestEvent(String error) {
         this.error = error;
     }
-
+    @LauncherNetworkAPI
     public final String error;
 
     @Override
