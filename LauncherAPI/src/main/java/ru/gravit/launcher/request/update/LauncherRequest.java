@@ -56,9 +56,11 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
                 IOHelper.transfer(BINARY_PATH, stream);
             }*/
             try {
-                ListDownloader.downloadOne(result.url, BINARY_PATH);
-            } catch (URISyntaxException e) {
-                throw new SecurityException(e);
+                ListDownloader downloader = new ListDownloader();
+                downloader.downloadOne(result.url, BINARY_PATH);
+            } catch(Throwable e)
+            {
+                LogHelper.error(e);
             }
         }
         builder.start();

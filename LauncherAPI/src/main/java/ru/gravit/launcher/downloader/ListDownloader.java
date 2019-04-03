@@ -38,21 +38,17 @@ public class ListDownloader {
         }
     }
 
-    public static void downloadOne(String url, Path target) throws IOException, URISyntaxException
+    public void downloadOne(String url, Path target) throws IOException, URISyntaxException
     {
         try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
 
-            HttpGet get = null;
+            HttpGet get;
             URI u = new URL(url).toURI();
             LogHelper.debug("Download URL: %s", u.toString());
-            if (get == null) get = new HttpGet(u);
-            else {
-                get.reset();
-                get.setURI(u);
-            }
-            httpclient.execute(get, new FileDownloadResponseHandler(target));
+            get = new HttpGet(u);
+            httpclient.execute(get, new FileDownloadResponseHandler(target.toAbsolutePath()));
         }
     }
 
