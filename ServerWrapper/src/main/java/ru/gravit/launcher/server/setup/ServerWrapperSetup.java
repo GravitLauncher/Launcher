@@ -16,8 +16,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.spec.InvalidKeySpecException;
-import java.util.HashMap;
 import java.util.jar.JarFile;
 
 public class ServerWrapperSetup {
@@ -25,6 +23,7 @@ public class ServerWrapperSetup {
     public PublicURLClassLoader urlClassLoader;
     public void run() throws IOException
     {
+        ServerWrapper wrapper = ServerWrapper.wrapper;
         System.out.println("Print jar filename:");
         String jarName = commands.commandHandler.readLine();
         Path jarPath = Paths.get(jarName);
@@ -50,9 +49,9 @@ public class ServerWrapperSetup {
         String address = commands.commandHandler.readLine();
         System.out.println("Print launchserver port:");
         int port = Integer.valueOf(commands.commandHandler.readLine());
-        ServerWrapper.config.mainclass = mainClassName;
-        ServerWrapper.config.address = address;
-        ServerWrapper.config.port = port;
+        wrapper.config.mainclass = mainClassName;
+        wrapper.config.address = address;
+        wrapper.config.port = port;
         if(!Files.exists(ServerWrapper.publicKeyFile))
         {
             LogHelper.error("public.key not found");
@@ -65,7 +64,7 @@ public class ServerWrapperSetup {
                 else LogHelper.error("public.key not found");
             }
         }
-        boolean stopOnError = ServerWrapper.config.stopOnError;
+        boolean stopOnError = wrapper.config.stopOnError;
         for(int i=0;i<10;++i)
         {
             System.out.println("Print server account login:");
@@ -74,18 +73,13 @@ public class ServerWrapperSetup {
             String password = commands.commandHandler.readLine();
             System.out.println("Print profile title:");
             String title = commands.commandHandler.readLine();
-            ServerWrapper.config.login = login;
-            ServerWrapper.config.password = password;
-            ServerWrapper.config.title = title;
-            ServerWrapper.config.stopOnError = false;
+            wrapper.config.login = login;
+            wrapper.config.password = password;
+            wrapper.config.title = title;
+            wrapper.config.stopOnError = false;
             LauncherConfig cfg = null;
-            try {
-                cfg = new LauncherConfig(ServerWrapper.config.address, ServerWrapper.config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(ServerWrapper.publicKeyFile)), new HashMap<>(), ServerWrapper.config.projectname);
-            } catch (InvalidKeySpecException e) {
-                LogHelper.error(e);
-            }
-            Launcher.setConfig(cfg);
-            if(ServerWrapper.auth(ServerWrapper.wrapper))
+
+            if(wrapper.auth())
             {
                 break;
             }
@@ -94,8 +88,8 @@ public class ServerWrapperSetup {
                 LogHelper.error("Auth error. Recheck account params");
             }
         }
-        ServerWrapper.config.stopOnError = stopOnError;
-        ServerWrapper.config.save();
+        wrapper.config.stopOnError = stopOnError;
+        wrapper.saveConfig();
         LogHelper.info("Generate start script");
         Path startScript;
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) startScript = Paths.get("start.bat");

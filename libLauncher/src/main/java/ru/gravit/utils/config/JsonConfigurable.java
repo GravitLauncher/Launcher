@@ -35,6 +35,7 @@ public abstract class JsonConfigurable<T> {
     }
     public void loadConfig(Path configPath) throws IOException
     {
+        if(generateConfigIfNotExists(configPath)) return;
         try (BufferedReader reader = IOHelper.newReader(configPath)) {
             setConfig(Launcher.gson.fromJson(reader, type));
         }
@@ -50,6 +51,22 @@ public abstract class JsonConfigurable<T> {
     {
         setConfig(getDefaultConfig());
         saveConfig(newPath);
+    }
+
+    public boolean generateConfigIfNotExists(Path path) throws IOException
+    {
+        if(IOHelper.isFile(path))
+            return false;
+        resetConfig(path);
+        return true;
+    }
+
+    public boolean generateConfigIfNotExists() throws IOException
+    {
+        if(IOHelper.isFile(configPath))
+            return false;
+        resetConfig();
+        return true;
     }
 
     public abstract T getConfig();

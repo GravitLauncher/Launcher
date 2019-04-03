@@ -11,6 +11,7 @@ import ru.gravit.launcher.request.auth.AuthServerRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.launcher.server.setup.ServerWrapperSetup;
 import ru.gravit.utils.PublicURLClassLoader;
+import ru.gravit.utils.config.JsonConfigurable;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -22,18 +23,20 @@ import java.io.Writer;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class ServerWrapper {
-    public static ModulesManager modulesManager;
-    public static Config config;
-    public static PublicURLClassLoader ucp;
-    public static ClassLoader loader;
-    public static ClientPermissions permissions;
+public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
+    public ModulesManager modulesManager;
+    public Config config;
+    public PublicURLClassLoader ucp;
+    public ClassLoader loader;
+    public ClientPermissions permissions;
     public static ServerWrapper wrapper;
     private static Gson gson;
     private static GsonBuilder gsonBuiler;
@@ -43,41 +46,45 @@ public class ServerWrapper {
     public static Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile", "public.key"));
     public static boolean disableSetup = Boolean.valueOf(System.getProperty("serverwrapper.disableSetup", "false"));
 
-    public static boolean auth(ServerWrapper wrapper) {
+    public ServerWrapper(Type type, Path configPath) {
+        super(type, configPath);
+    }
+
+    public boolean auth() {
         try {
             LauncherConfig cfg = Launcher.getConfig();
-            ServerWrapper.permissions = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, config.title).request();
+            permissions = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, config.title).request();
             ProfilesRequestEvent result = new ProfilesRequest(cfg).request();
             for (ClientProfile p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.getTitle());
                 if (p.getTitle().equals(config.title)) {
-                    wrapper.profile = p;
+                    profile = p;
                     Launcher.profile = p;
                     LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
                     break;
                 }
             }
-            if (wrapper.profile == null) {
+            if (profile == null) {
                 LogHelper.error("Your profile not found");
-                if (ServerWrapper.config.stopOnError) System.exit(-1);
+                if (config.stopOnError) System.exit(-1);
             }
             return true;
         } catch (Throwable e) {
             LogHelper.error(e);
-            if (ServerWrapper.config.stopOnError) System.exit(-1);
+            if (config.stopOnError) System.exit(-1);
             return false;
         }
 
     }
 
-    public static boolean loopAuth(ServerWrapper wrapper, int count, int sleeptime) {
+    public boolean loopAuth(int count, int sleeptime) {
         if (count == 0) {
             while (true) {
-                if (auth(wrapper)) return true;
+                if (auth()) return true;
             }
         }
         for (int i = 0; i < count; ++i) {
-            if (auth(wrapper)) return true;
+            if (auth()) return true;
             try {
                 Thread.sleep(sleeptime);
             } catch (InterruptedException e) {
@@ -95,21 +102,16 @@ public class ServerWrapper {
         Launcher.gson = Launcher.gsonBuilder.create();
     }
 
-    public static void main(String... args) throws Throwable {
-        LogHelper.printVersion("ServerWrapper");
-        LogHelper.printLicense("ServerWrapper");
-        wrapper = new ServerWrapper();
+    public void run(String... args) throws Throwable
+    {
         gsonBuiler = new GsonBuilder();
         gsonBuiler.setPrettyPrinting();
         gson = gsonBuiler.create();
         initGson();
         if(args.length > 0 && args[0].equals("setup") && !disableSetup)
         {
-            generateConfigIfNotExists();
             LogHelper.debug("Read ServerWrapperConfig.json");
-            try (Reader reader = IOHelper.newReader(configFile)) {
-                config = gson.fromJson(reader, Config.class);
-            }
+            loadConfig();
             ServerWrapperSetup setup = new ServerWrapperSetup();
             setup.run();
             System.exit(0);
@@ -119,18 +121,14 @@ public class ServerWrapper {
         Launcher.modulesManager = modulesManager;
         modulesManager.preInitModules();
         LogHelper.debug("Read ServerWrapperConfig.json");
-        generateConfigIfNotExists();
-        try (Reader reader = IOHelper.newReader(configFile)) {
-            config = gson.fromJson(reader, Config.class);
-        }
-        LauncherConfig cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
-        Launcher.setConfig(cfg);
+        loadConfig();
+        updateLauncherConfig();
         if(config.env != null) Launcher.applyLauncherEnv(config.env);
         else Launcher.applyLauncherEnv(LauncherConfig.LauncherEnvironment.STD);
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
-        if (config.syncAuth) auth(wrapper);
+        if (config.syncAuth) auth();
         else
-            CommonHelper.newThread("Server Auth Thread", true, () -> ServerWrapper.loopAuth(wrapper, config.reconnectCount, config.reconnectSleep));
+            CommonHelper.newThread("Server Auth Thread", true, () -> loopAuth(config.reconnectCount, config.reconnectSleep));
         modulesManager.initModules();
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
         if (classname.length() == 0) {
@@ -188,13 +186,32 @@ public class ServerWrapper {
             mainMethod.invoke(config.args);
         }
     }
+    public void updateLauncherConfig()
+    {
 
-    private static void generateConfigIfNotExists() throws IOException {
-        if (IOHelper.isFile(configFile))
-            return;
+        LauncherConfig cfg = null;
+        try {
+            cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
+        } catch (InvalidKeySpecException | IOException e) {
+            LogHelper.error(e);
+        }
+        Launcher.setConfig(cfg);
+    }
 
-        // Create new config
-        LogHelper.info("Creating ServerWrapper config");
+    public static void main(String... args) throws Throwable {
+        LogHelper.printVersion("ServerWrapper");
+        LogHelper.printLicense("ServerWrapper");
+        ServerWrapper.wrapper = new ServerWrapper(ServerWrapper.Config.class, configFile);
+        ServerWrapper.wrapper.run(args);
+    }
+
+    @Override
+    public Config getConfig() {
+        return config;
+    }
+
+    @Override
+    public Config getDefaultConfig() {
         Config newConfig = new Config();
         newConfig.title = "Your profile title";
         newConfig.projectname = "MineCraft";
@@ -208,11 +225,12 @@ public class ServerWrapper {
         newConfig.reconnectCount = 10;
         newConfig.reconnectSleep = 1000;
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
+        return newConfig;
+    }
 
-        LogHelper.warning("Title is not set. Please show ServerWrapper.cfg");
-
-        // Write LaunchServer config
-        newConfig.save();
+    @Override
+    public void setConfig(Config config) {
+        this.config = config;
     }
 
     public static final class Config {
@@ -235,13 +253,6 @@ public class ServerWrapper {
         public String password;
         public String auth_id = "";
         public LauncherConfig.LauncherEnvironment env;
-        public void save() throws IOException
-        {
-            LogHelper.info("Writing ServerWrapper config file");
-            try (Writer writer = IOHelper.newWriter(configFile)) {
-                gson.toJson(this, writer);
-            }
-        }
     }
 
     public ClientProfile profile;
