@@ -103,7 +103,7 @@ public class ServerWrapper {
         gsonBuiler.setPrettyPrinting();
         gson = gsonBuiler.create();
         initGson();
-        if(args.length > 0 && args[0].equals("setup"))
+        if(args.length > 0 && args[0].equals("setup") && !disableSetup)
         {
             generateConfigIfNotExists();
             LogHelper.debug("Read ServerWrapperConfig.json");

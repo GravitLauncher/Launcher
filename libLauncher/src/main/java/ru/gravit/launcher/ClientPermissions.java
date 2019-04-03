@@ -8,25 +8,20 @@ import java.io.IOException;
 public class ClientPermissions {
     public static final ClientPermissions DEFAULT = new ClientPermissions();
     @LauncherAPI
-    public boolean canAdmin = false;
+    public boolean canAdmin;
     @LauncherAPI
-    public boolean canServer = false;
+    public boolean canServer;
     @LauncherAPI
-    public boolean canUSR1 = false;
+    public boolean canUSR1;
     @LauncherAPI
-    public boolean canUSR2 = false;
+    public boolean canUSR2;
     @LauncherAPI
-    public boolean canUSR3 = false;
+    public boolean canUSR3;
     @LauncherAPI
-    public boolean canBot = false;
+    public boolean canBot;
 
     public ClientPermissions(HInput input) throws IOException {
-        canAdmin = input.readBoolean();
-        canServer = input.readBoolean();
-        canUSR1 = input.readBoolean();
-        canUSR2 = input.readBoolean();
-        canUSR3 = input.readBoolean();
-        canBot = input.readBoolean();
+        this(input.readLong());
     }
 
     public ClientPermissions() {
@@ -67,11 +62,6 @@ public class ClientPermissions {
     }
 
     public void write(HOutput output) throws IOException {
-        output.writeBoolean(canAdmin);
-        output.writeBoolean(canServer);
-        output.writeBoolean(canUSR1);
-        output.writeBoolean(canUSR2);
-        output.writeBoolean(canUSR3);
-        output.writeBoolean(canBot);
+        output.writeLong(toLong());
     }
 }
