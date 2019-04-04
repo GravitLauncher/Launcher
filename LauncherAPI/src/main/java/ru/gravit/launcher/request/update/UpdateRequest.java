@@ -206,15 +206,21 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         LogHelper.debug("Start update");
         Launcher.profile.pushOptionalFile(e.hdir, !Launcher.profile.isUpdateFastCheck());
         HashedDir.Diff diff = e.hdir.diff(localDir, matcher);
-        final List<String> adds = new ArrayList<>();
+        final List<ListDownloader.DownloadTask> adds = new ArrayList<>();
         diff.mismatch.walk(IOHelper.CROSS_SEPARATOR, (path, name, entry) -> {
-            if(entry.getType() == HashedEntry.Type.FILE) adds.add(path);
+            if(entry.getType() == HashedEntry.Type.FILE) {
+                HashedFile file = (HashedFile) entry;
+                totalSize += file.size;
+                adds.add(new ListDownloader.DownloadTask(path, file.size));
+            }
         });
         totalSize = diff.mismatch.size();
         startTime = Instant.now();
         updateState("UnknownFile", 0L, 100);
         ListDownloader listDownloader = new ListDownloader();
-        listDownloader.download(e.url, adds, dir);
+        listDownloader.download(e.url, adds, dir, this::updateState, (add) -> {
+            totalDownloaded += add;
+        });
         deleteExtraDir(dir, diff.extra, diff.extra.flag);
         LogHelper.debug("Update success");
         return e;
