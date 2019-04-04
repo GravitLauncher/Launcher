@@ -58,9 +58,9 @@ public final class Launcher {
     public static final String CONFIG_SCRIPT_FILE = "config.js";
 
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
-    public static final int MAJOR = 4;
-    public static final int MINOR = 5;
-    public static final int PATCH = 1;
+    public static final int MAJOR = 5;
+    public static final int MINOR = 0;
+    public static final int PATCH = 0;
     public static final int BUILD = 1;
     public static final Version.Type RELEASE = Version.Type.DEV;
     public static GsonBuilder gsonBuilder;
