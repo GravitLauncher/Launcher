@@ -102,6 +102,10 @@ public class FunctionalBridge {
 
     @LauncherAPI
     public static void setAuthParams(AuthRequestEvent event) {
+        if(event.session != 0)
+        {
+            Request.setSession(event.session);
+        }
         LauncherGuardManager.guard.setProtectToken(event.protectToken);
     }
 

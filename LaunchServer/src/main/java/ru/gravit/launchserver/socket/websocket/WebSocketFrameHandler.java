@@ -21,6 +21,10 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     static {
         service.registerResponses();
     }
+    public void setClient(Client client)
+    {
+        this.client = client;
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {

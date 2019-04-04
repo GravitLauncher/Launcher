@@ -21,13 +21,17 @@ import ru.gravit.utils.helper.VerifyHelper;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
+import java.security.SecureRandom;
 import java.util.Collection;
+import java.util.Random;
 import java.util.UUID;
 
 public class AuthResponse implements JsonResponseInterface {
+    public transient static Random random = new SecureRandom();
     public String login;
     public String client;
     public String customText;
+    public boolean getSession;
 
     public String password;
     public byte[] encryptedPassword;
@@ -110,6 +114,12 @@ public class AuthResponse implements JsonResponseInterface {
             clientData.updateAuth();
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
+            if(getSession)
+            {
+                clientData.session = random.nextLong();
+                LaunchServer.server.sessionManager.addClient(clientData);
+                result.session = clientData.session;
+            }
             result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, aresult.username, client, clientData.auth.textureProvider);
             service.sendObject(ctx, result);
         } catch (AuthException | HWIDException e) {

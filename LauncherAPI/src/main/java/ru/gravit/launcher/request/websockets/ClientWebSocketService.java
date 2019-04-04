@@ -91,6 +91,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
         registerResult("updateList", UpdateListRequestEvent.class);
         registerResult("error", ErrorRequestEvent.class);
         registerResult("update", UpdateRequestEvent.class);
+        registerResult("restoreSession", RestoreSessionRequestEvent.class);
     }
 
     public void registerHandler(EventHandler eventHandler) {

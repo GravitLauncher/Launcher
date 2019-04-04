@@ -81,6 +81,7 @@ public class WebSocketService {
         registerResponse("setProfile", SetProfileResponse.class);
         registerResponse("addLogListener", AddLogListenerResponse.class);
         registerResponse("update", UpdateResponse.class);
+        registerResponse("restoreSession", RestoreSessionResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {

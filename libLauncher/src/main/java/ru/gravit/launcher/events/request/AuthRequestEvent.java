@@ -24,6 +24,8 @@ public class AuthRequestEvent implements EventInterface, ResultInterface {
     public String accessToken;
     @LauncherNetworkAPI
     public String protectToken;
+    @LauncherNetworkAPI
+    public long session;
 
     public AuthRequestEvent(PlayerProfile pp, String accessToken, ClientPermissions permissions) {
         this.playerProfile = pp;
@@ -36,6 +38,15 @@ public class AuthRequestEvent implements EventInterface, ResultInterface {
         this.playerProfile = playerProfile;
         this.accessToken = accessToken;
         this.protectToken = protectToken;
+    }
+
+    public AuthRequestEvent(String error, ClientPermissions permissions, PlayerProfile playerProfile, String accessToken, String protectToken, long session) {
+        this.error = error;
+        this.permissions = permissions;
+        this.playerProfile = playerProfile;
+        this.accessToken = accessToken;
+        this.protectToken = protectToken;
+        this.session = session;
     }
 
     @Override

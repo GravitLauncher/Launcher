@@ -11,6 +11,7 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.auth.RestoreSessionRequest;
 import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
@@ -466,6 +467,12 @@ public final class ClientLauncher {
         PublicURLClassLoader.systemclassloader = classLoader;
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
+        LogHelper.debug("Restore sessions");
+        if(Launcher.getConfig().isNettyEnabled)
+        {
+            RestoreSessionRequest request = new RestoreSessionRequest(Request.getSession());
+            request.request();
+        }
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();

@@ -23,6 +23,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     private final String auth_id;
     private final HWID hwid;
     private final String customText;
+    private final boolean getSession;
 
     @LauncherAPI
     public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid) {
@@ -32,6 +33,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         this.hwid = hwid;
         customText = "";
         auth_id = "";
+        getSession = true;
     }
 
     @LauncherAPI
@@ -42,6 +44,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         this.hwid = hwid;
         this.auth_id = auth_id;
         customText = "";
+        getSession = true;
     }
 
     @LauncherAPI
@@ -52,6 +55,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         this.hwid = hwid;
         this.auth_id = auth_id;
         this.customText = customText;
+        getSession = true;
     }
 
     @LauncherAPI
