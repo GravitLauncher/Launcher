@@ -52,6 +52,7 @@ public final class LauncherConfig extends StreamObject {
         guardLicenseEncryptKey = config.guardLicenseEncryptKey;
         guardLicenseKey = config.guardLicenseKey;
         guardLicenseName = config.guardLicenseName;
+        address = config.address;
         LauncherEnvironment env;
         if (config.env == 0) env = LauncherEnvironment.DEV;
         else if (config.env == 1) env = LauncherEnvironment.DEBUG;
