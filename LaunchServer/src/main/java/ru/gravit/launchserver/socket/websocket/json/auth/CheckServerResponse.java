@@ -28,6 +28,7 @@ public class CheckServerResponse implements JsonResponseInterface {
             result.uuid = pClient.auth.handler.checkServer(username, serverID);
             if (result.uuid != null)
                 result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, result.uuid, username, client, pClient.auth.textureProvider);
+            LogHelper.debug("checkServer: %s uuid: %s serverID: %s", result.playerProfile.username, result.uuid.toString(), serverID);
         } catch (AuthException e) {
             service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
             return;
@@ -36,7 +37,7 @@ public class CheckServerResponse implements JsonResponseInterface {
             service.sendObject(ctx, new ErrorRequestEvent("Internal authHandler error"));
             return;
         }
-        service.sendObject(ctx, new CheckServerRequestEvent());
+        service.sendObject(ctx, result);
     }
 
 }

@@ -30,6 +30,7 @@ public class JoinServerResponse implements JsonResponseInterface {
                 success = LaunchServer.server.config.getAuthProviderPair().handler.joinServer(username, accessToken, serverID);
             }
             else success = client.auth.handler.joinServer(username, accessToken, serverID);
+            LogHelper.debug("joinServer: %s accessToken: %s serverID: %s", username, accessToken, serverID);
         } catch (AuthException e) {
             service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
             return;

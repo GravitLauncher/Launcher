@@ -28,6 +28,6 @@ public class CheckServerRequestEvent implements EventInterface, ResultInterface 
 
     @Override
     public String getType() {
-        return "checkServe";
+        return "checkServer";
     }
 }

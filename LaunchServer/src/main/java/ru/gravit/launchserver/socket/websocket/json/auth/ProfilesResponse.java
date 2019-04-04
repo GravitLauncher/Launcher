@@ -19,7 +19,7 @@ public class ProfilesResponse implements JsonResponseInterface {
 
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
-        if (!client.checkSign) {
+        if (!client.checkSign && !client.isAuth) {
             service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
             return;
         }

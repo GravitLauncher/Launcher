@@ -7,6 +7,7 @@ import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.events.request.ProfilesRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.launcher.request.auth.AuthRequest;
 import ru.gravit.launcher.request.auth.AuthServerRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.launcher.server.setup.ServerWrapperSetup;
@@ -51,7 +52,13 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public boolean auth() {
         try {
             LauncherConfig cfg = Launcher.getConfig();
+            if(!config.websocket.enabled)
             permissions = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, config.title).request();
+            else
+            {
+                AuthRequest request = new AuthRequest(config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, AuthRequest.ConnectTypes.SERVER);
+                permissions = request.request().permissions;
+            }
             ProfilesRequestEvent result = new ProfilesRequest(cfg).request();
             for (ClientProfile p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.getTitle());
@@ -184,6 +191,12 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LauncherConfig cfg = null;
         try {
             cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
+            if(config.websocket != null && config.websocket.enabled)
+            {
+                cfg.isNettyEnabled = true;
+                cfg.nettyAddress = config.websocket.address;
+                cfg.nettyPort = 1111;
+            }
         } catch (InvalidKeySpecException | IOException e) {
             LogHelper.error(e);
         }
@@ -216,6 +229,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         newConfig.stopOnError = true;
         newConfig.reconnectCount = 10;
         newConfig.reconnectSleep = 1000;
+        newConfig.websocket = new WebSocketConf();
+        newConfig.websocket.address = "ws://localhost:9274/api";
+        newConfig.websocket.enabled = false;
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         return newConfig;
     }
@@ -229,6 +245,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String title;
         public String projectname;
         public String address;
+        public WebSocketConf websocket;
         public int port;
         public int reconnectCount;
         public int reconnectSleep;
@@ -245,6 +262,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String password;
         public String auth_id = "";
         public LauncherConfig.LauncherEnvironment env;
+    }
+    public static final class WebSocketConf
+    {
+        public boolean enabled;
+        public String address;
     }
 
     public ClientProfile profile;

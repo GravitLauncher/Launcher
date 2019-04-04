@@ -16,6 +16,7 @@ import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
@@ -121,6 +122,7 @@ public class AuthResponse implements JsonResponseInterface {
                 result.session = clientData.session;
             }
             result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, aresult.username, client, clientData.auth.textureProvider);
+            LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
             service.sendObject(ctx, result);
         } catch (AuthException | HWIDException e) {
             service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));

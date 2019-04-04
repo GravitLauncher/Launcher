@@ -38,7 +38,7 @@ public final class LauncherConfig extends StreamObject {
     public final boolean isUsingWrapper;
     public final boolean isDownloadJava;
     public final boolean isWarningMissArchJava;
-    public final boolean isNettyEnabled;
+    public boolean isNettyEnabled;
 
     public final String guardLicenseName;
     public final String guardLicenseKey;
