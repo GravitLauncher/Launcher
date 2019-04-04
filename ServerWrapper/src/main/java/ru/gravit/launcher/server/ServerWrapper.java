@@ -10,6 +10,7 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.auth.AuthRequest;
 import ru.gravit.launcher.request.auth.AuthServerRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
+import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.server.setup.ServerWrapperSetup;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.config.JsonConfigurable;
@@ -169,6 +170,20 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         modulesManager.postInitModules();
+        if(config.websocket.enabled)
+        {
+            LegacyRequestBridge.service.reconnectCallback = () ->
+            {
+                LogHelper.debug("WebSocket connect closed. Try reconnect");
+                try {
+                    if (!LegacyRequestBridge.service.reconnectBlocking()) LogHelper.error("Error connecting");
+                    LogHelper.debug("Connect to %s", config.websocket.address);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                auth();
+            };
+        }
         LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s", config.projectname, config.address, config.port, config.title);
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");

@@ -18,6 +18,8 @@ import java.util.HashSet;
 public class ClientWebSocketService extends ClientJSONPoint {
     public final GsonBuilder gsonBuilder;
     public final Gson gson;
+    public OnCloseCallback onCloseCallback;
+    public ReconnectCallback reconnectCallback;
     private HashMap<String, Class<? extends RequestInterface>> requests;
     private HashMap<String, Class<? extends ResultInterface>> results;
     private HashSet<EventHandler> handlers;
@@ -55,6 +57,23 @@ public class ClientWebSocketService extends ClientJSONPoint {
     @Override
     public void onError(Exception e) {
         LogHelper.error(e);
+    }
+
+    @Override
+    public void onClose(int code, String reason, boolean remote)
+    {
+        LogHelper.debug("Disconnected: " + code + " " + remote + " " + (reason != null ? reason : "no reason"));
+        if(onCloseCallback != null)
+            onCloseCallback.onClose(code, reason, remote);
+    }
+    @FunctionalInterface
+    public interface OnCloseCallback
+    {
+        void onClose(int code, String reason, boolean remote);
+    }
+    public interface ReconnectCallback
+    {
+        void onReconnect() throws IOException;
     }
 
     public Class<? extends RequestInterface> getRequestClass(String key) {
@@ -99,10 +118,14 @@ public class ClientWebSocketService extends ClientJSONPoint {
     }
 
     public void sendObject(Object obj) throws IOException {
+        if(isClosed() && reconnectCallback != null)
+            reconnectCallback.onReconnect();
         send(gson.toJson(obj, RequestInterface.class));
     }
 
     public void sendObject(Object obj, Type type) throws IOException {
+        if(isClosed() && reconnectCallback != null)
+            reconnectCallback.onReconnect();
         send(gson.toJson(obj, type));
     }
 

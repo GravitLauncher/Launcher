@@ -13,6 +13,7 @@ import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.auth.RestoreSessionRequest;
 import ru.gravit.launcher.request.update.LegacyLauncherRequest;
+import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
@@ -472,6 +473,22 @@ public final class ClientLauncher {
         {
             RestoreSessionRequest request = new RestoreSessionRequest(Request.getSession());
             request.request();
+            LegacyRequestBridge.service.reconnectCallback = () ->
+            {
+                LogHelper.debug("WebSocket connect closed. Try reconnect");
+                try {
+                    if (!LegacyRequestBridge.service.reconnectBlocking()) LogHelper.error("Error connecting");
+                    LogHelper.debug("Connect to %s", Launcher.getConfig().nettyAddress);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    RestoreSessionRequest request1 = new RestoreSessionRequest(Request.getSession());
+                    request1.request();
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                }
+            };
         }
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
