@@ -1,7 +1,7 @@
 package ru.gravit.launchserver.config.adapter;
 
 import com.google.gson.*;
-import ru.gravit.launchserver.texture.TextureProvider;
+import ru.gravit.launchserver.auth.texture.TextureProvider;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;

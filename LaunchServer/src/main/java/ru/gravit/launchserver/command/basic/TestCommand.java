@@ -2,7 +2,7 @@ package ru.gravit.launchserver.command.basic;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
-import ru.gravit.launchserver.socket.NettyServerSocketHandler;
+import ru.gravit.launchserver.websocket.NettyServerSocketHandler;
 import ru.gravit.utils.helper.CommonHelper;
 
 public class TestCommand extends Command {

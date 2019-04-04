@@ -2,7 +2,7 @@ package ru.gravit.launchserver.auth;
 
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
-import ru.gravit.launchserver.texture.TextureProvider;
+import ru.gravit.launchserver.auth.texture.TextureProvider;
 
 import java.io.IOException;
 
