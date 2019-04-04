@@ -2,7 +2,6 @@ package ru.gravit.launcher.request.update;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.downloader.ListDownloader;
 import ru.gravit.launcher.events.request.UpdateRequestEvent;
@@ -11,33 +10,23 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedFile;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.request.UpdateAction;
 import ru.gravit.launcher.request.update.UpdateRequest.State.Callback;
 import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.SerializeLimits;
-import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
-import ru.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.SignatureException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.zip.InflaterInputStream;
+import java.util.Objects;
+import java.util.Queue;
 
 public final class UpdateRequest extends Request<UpdateRequestEvent> implements RequestInterface {
 
@@ -200,7 +189,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     }
 
     @Override
-    public UpdateRequestEvent requestWebSockets() throws Exception {
+    public UpdateRequestEvent requestDo() throws Exception {
         LogHelper.debug("Start update request");
         UpdateRequestEvent e = (UpdateRequestEvent) LegacyRequestBridge.sendRequest(this);
         LogHelper.debug("Start update");
@@ -243,17 +232,11 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     private transient Instant startTime;
 
     @LauncherAPI
-    public UpdateRequest(LauncherConfig config, String dirName, Path dir, FileNameMatcher matcher, boolean digest) {
-        super(config);
+    public UpdateRequest(String dirName, Path dir, FileNameMatcher matcher, boolean digest) {
         this.dirName = IOHelper.verifyFileName(dirName);
         this.dir = Objects.requireNonNull(dir, "dir");
         this.matcher = matcher;
         this.digest = digest;
-    }
-
-    @LauncherAPI
-    public UpdateRequest(String dirName, Path dir, FileNameMatcher matcher, boolean digest) {
-        this(null, dirName, dir, matcher, digest);
     }
 
     private void deleteExtraDir(Path subDir, HashedDir subHDir, boolean flag) throws IOException {

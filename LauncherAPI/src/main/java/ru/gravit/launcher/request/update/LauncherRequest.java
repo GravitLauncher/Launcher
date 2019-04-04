@@ -2,23 +2,18 @@ package ru.gravit.launcher.request.update;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.downloader.ListDownloader;
 import ru.gravit.launcher.events.request.LauncherRequestEvent;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +30,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     public static final boolean EXE_BINARY = IOHelper.hasExtension(BINARY_PATH, "exe");
 
     @LauncherAPI
-    public static void update(LauncherConfig config, LauncherRequestEvent result) throws IOException {
+    public static void update(LauncherRequestEvent result) throws IOException {
         List<String> args = new ArrayList<>(8);
         args.add(IOHelper.resolveJavaBin(null).toString());
         if (LogHelper.isDebugEnabled())
@@ -70,21 +65,15 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
         throw new AssertionError("Why Launcher wasn't restarted?!");
     }
 
-    @LauncherAPI
-    public LauncherRequest() {
-        this(null);
-    }
-
     @Override
-    public LauncherRequestEvent requestWebSockets() throws Exception {
+    public LauncherRequestEvent requestDo() throws Exception {
         LauncherRequestEvent result = (LauncherRequestEvent) LegacyRequestBridge.sendRequest(this);
-        if (result.needUpdate) update(config, result);
+        if (result.needUpdate) update(result);
         return result;
     }
 
     @LauncherAPI
-    public LauncherRequest(LauncherConfig config) {
-        super(config);
+    public LauncherRequest() {
         Path launcherPath = IOHelper.getCodeSource(LauncherRequest.class);
         try {
             digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);

@@ -1,16 +1,11 @@
 package ru.gravit.launcher.request.uuid;
 
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.request.BatchProfileByUsernameRequestEvent;
-import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.VerifyHelper;
@@ -28,8 +23,7 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
     private final Entry[] list;
 
     @LauncherAPI
-    public BatchProfileByUsernameRequest(LauncherConfig config, String... usernames) throws IOException {
-        super(config);
+    public BatchProfileByUsernameRequest(String... usernames) throws IOException {
         this.list = new Entry[usernames.length];
         for(int i=0;i<usernames.length;++i)
         {
@@ -40,13 +34,8 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
         for (String username : usernames)
             VerifyHelper.verifyUsername(username);
     }
-
-    @LauncherAPI
-    public BatchProfileByUsernameRequest(String... usernames) throws IOException {
-        this(null, usernames);
-    }
     @Override
-    public BatchProfileByUsernameRequestEvent requestWebSockets() throws IOException, InterruptedException {
+    public BatchProfileByUsernameRequestEvent requestDo() throws IOException, InterruptedException {
         return (BatchProfileByUsernameRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
 

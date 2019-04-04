@@ -5,7 +5,8 @@ import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.response.update.*;
+import ru.gravit.launchserver.response.update.LauncherResponse;
+import ru.gravit.launchserver.response.update.LegacyLauncherResponse;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.LogHelper;
 

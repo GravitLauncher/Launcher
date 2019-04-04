@@ -1,13 +1,10 @@
 package ru.gravit.launcher.request.auth;
 
 import ru.gravit.launcher.LauncherNetworkAPI;
-import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launcher.events.request.RestoreSessionRequestEvent;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
 
 import java.io.IOException;
 
@@ -19,7 +16,7 @@ public class RestoreSessionRequest  extends Request<RestoreSessionRequestEvent> 
         this.session = session;
     }
     @Override
-    public RestoreSessionRequestEvent requestWebSockets() throws IOException, InterruptedException {
+    public RestoreSessionRequestEvent requestDo() throws IOException, InterruptedException {
         return (RestoreSessionRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
 

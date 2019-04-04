@@ -1,19 +1,13 @@
 package ru.gravit.launcher.request.auth;
 
-import ru.gravit.launcher.*;
+import ru.gravit.launcher.HWID;
+import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.request.AuthRequestEvent;
-import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.RequestType;
 import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.SerializeLimits;
-import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
-
-import java.io.IOException;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements RequestInterface {
     @LauncherNetworkAPI
@@ -36,8 +30,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     }
 
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid) {
-        super(config);
+    public AuthRequest(String login, byte[] password, HWID hwid) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = password.clone();
         this.hwid = hwid;
@@ -48,8 +41,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     }
 
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, String auth_id) {
-        super(config);
+    public AuthRequest(String login, byte[] password, HWID hwid, String auth_id) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = password.clone();
         this.hwid = hwid;
@@ -60,8 +52,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     }
 
     @LauncherAPI
-    public AuthRequest(LauncherConfig config, String login, byte[] password, HWID hwid, String customText, String auth_id) {
-        super(config);
+    public AuthRequest(String login, byte[] password, HWID hwid, String customText, String auth_id) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.encryptedPassword = password.clone();
         this.hwid = hwid;
@@ -69,11 +60,6 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         this.customText = customText;
         getSession = true;
         authType = ConnectTypes.CLIENT;
-    }
-
-    @LauncherAPI
-    public AuthRequest(String login, byte[] password, HWID hwid) {
-        this(null, login, password, hwid);
     }
 
     public AuthRequest(String login, byte[] encryptedPassword, String auth_id, ConnectTypes authType) {
@@ -87,13 +73,8 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     }
 
     @Override
-    public AuthRequestEvent requestWebSockets() throws Exception {
+    public AuthRequestEvent requestDo() throws Exception {
         return (AuthRequestEvent) LegacyRequestBridge.sendRequest(this);
-    }
-
-    @LauncherAPI
-    public AuthRequest(String login, byte[] password, HWID hwid, String auth_id) {
-        this(null, login, password, hwid, auth_id);
     }
 
     @Override

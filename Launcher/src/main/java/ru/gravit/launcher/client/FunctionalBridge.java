@@ -11,7 +11,6 @@ import ru.gravit.launcher.hwid.OshiHWIDProvider;
 import ru.gravit.launcher.managers.HasherManager;
 import ru.gravit.launcher.managers.HasherStore;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.update.LegacyLauncherRequest;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 
@@ -42,21 +41,6 @@ public class FunctionalBridge {
             ClientLauncher.verifyHDir(dir, hdir.object, matcher, digest);
             return hdir;
         };
-    }
-
-    @LauncherAPI
-    public static LegacyLauncherRequest.Result offlineLauncherRequest() throws IOException {
-        if (settings.lastDigest == null || settings.lastProfiles.isEmpty()) {
-            Request.requestError("Запуск в оффлайн-режиме невозможен");
-        }
-
-        // Verify launcher signature
-        //TODO: TO DIGEST
-        //SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH,
-        //        settings.lastDigest, Launcher.getConfig().publicKey);
-
-        // Return last sign and profiles
-        return new LegacyLauncherRequest.Result(null, settings.lastDigest, settings.lastProfiles);
     }
 
     @LauncherAPI

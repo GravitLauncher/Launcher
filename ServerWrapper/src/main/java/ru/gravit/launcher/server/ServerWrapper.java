@@ -54,7 +54,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             LauncherConfig cfg = Launcher.getConfig();
             AuthRequest request = new AuthRequest(config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, AuthRequest.ConnectTypes.SERVER);
             permissions = request.request().permissions;
-            ProfilesRequestEvent result = new ProfilesRequest(cfg).request();
+            ProfilesRequestEvent result = new ProfilesRequest().request();
             for (ClientProfile p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.getTitle());
                 if (p.getTitle().equals(config.title)) {
