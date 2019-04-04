@@ -203,8 +203,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             if(config.websocket != null && config.websocket.enabled)
             {
                 cfg.isNettyEnabled = true;
-                cfg.nettyAddress = config.websocket.address;
-                cfg.nettyPort = 1111;
+                cfg.address = config.websocket.address;
             }
         } catch (InvalidKeySpecException | IOException e) {
             LogHelper.error(e);

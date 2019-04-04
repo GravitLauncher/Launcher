@@ -477,7 +477,7 @@ public final class ClientLauncher {
                 LogHelper.debug("WebSocket connect closed. Try reconnect");
                 try {
                     if (!LegacyRequestBridge.service.reconnectBlocking()) LogHelper.error("Error connecting");
-                    LogHelper.debug("Connect to %s", Launcher.getConfig().nettyAddress);
+                    LogHelper.debug("Connect to %s", Launcher.getConfig().address);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

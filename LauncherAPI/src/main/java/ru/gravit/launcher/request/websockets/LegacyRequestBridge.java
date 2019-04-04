@@ -55,7 +55,6 @@ public class LegacyRequestBridge {
     }
 
     static {
-        if (Launcher.getConfig().nettyPort != 0)
-            initWebSockets(Launcher.getConfig().nettyAddress);
+        initWebSockets(Launcher.getConfig().address);
     }
 }

@@ -20,8 +20,7 @@ public final class LauncherConfig extends StreamObject {
     }
 
     // Instance
-    public String nettyAddress;
-    public int nettyPort;
+    public String address;
     @LauncherAPI
     public final String projectname;
     public final int clientPort;
@@ -53,9 +52,6 @@ public final class LauncherConfig extends StreamObject {
         guardLicenseEncryptKey = config.guardLicenseEncryptKey;
         guardLicenseKey = config.guardLicenseKey;
         guardLicenseName = config.guardLicenseName;
-        nettyPort = config.nettyPort;
-        nettyAddress = config.nettyAddress;
-        isNettyEnabled = config.isNettyEnabled;
         LauncherEnvironment env;
         if (config.env == 0) env = LauncherEnvironment.DEV;
         else if (config.env == 1) env = LauncherEnvironment.DEBUG;
@@ -77,7 +73,7 @@ public final class LauncherConfig extends StreamObject {
 
     @LauncherAPI
     public LauncherConfig(String address, RSAPublicKey publicKey, Map<String, byte[]> runtime, String projectname) {
-        this.nettyAddress = address;
+        this.address = address;
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectname = projectname;
@@ -93,7 +89,7 @@ public final class LauncherConfig extends StreamObject {
 
     @LauncherAPI
     public LauncherConfig(String address, RSAPublicKey publicKey, Map<String, byte[]> runtime) {
-        this.nettyAddress = address;
+        this.address = address;
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectname = "Minecraft";
