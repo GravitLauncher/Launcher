@@ -43,24 +43,6 @@ public final class JoinServerRequest extends Request<JoinServerRequestEvent> imp
     public JoinServerRequest(String username, String accessToken, String serverID) {
         this(null, username, accessToken, serverID);
     }
-
-    @Override
-    public Integer getLegacyType() {
-        return RequestType.JOIN_SERVER.getNumber();
-    }
-
-    @Override
-    protected JoinServerRequestEvent requestDo(HInput input, HOutput output) throws IOException {
-        output.writeString(username, SerializeLimits.MAX_LOGIN);
-        output.writeASCII(accessToken, -SecurityHelper.TOKEN_STRING_LENGTH);
-        output.writeASCII(serverID, SerializeLimits.MAX_SERVERID); // 1 char for minus sign
-        output.flush();
-
-        // Read response
-        readError(input);
-        return new JoinServerRequestEvent(input.readBoolean());
-    }
-
     @Override
     public String getType() {
         return "joinServer";

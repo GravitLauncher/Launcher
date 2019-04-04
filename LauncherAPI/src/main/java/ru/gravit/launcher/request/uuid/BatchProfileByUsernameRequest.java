@@ -51,29 +51,6 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
     }
 
     @Override
-    public Integer getLegacyType() {
-        return RequestType.BATCH_PROFILE_BY_USERNAME.getNumber();
-    }
-
-    @Override
-    protected BatchProfileByUsernameRequestEvent requestDo(HInput input, HOutput output) throws IOException {
-        output.writeLength(list.length, SerializeLimits.MAX_BATCH_SIZE);
-        for (Entry username : list) {
-            output.writeString(username.username, SerializeLimits.MAX_LOGIN);
-            output.writeString(username.client, SerializeLimits.MAX_CLIENT);
-        }
-        output.flush();
-
-        // Read profiles response
-        PlayerProfile[] profiles = new PlayerProfile[list.length];
-        for (int i = 0; i < profiles.length; i++)
-            profiles[i] = input.readBoolean() ? new PlayerProfile(input) : null;
-
-        // Return result
-        return new BatchProfileByUsernameRequestEvent(profiles);
-    }
-
-    @Override
     public String getType() {
         return "batchProfileByUsername";
     }

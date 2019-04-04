@@ -40,13 +40,10 @@ public class ServerWrapperSetup {
             return;
         }
         LogHelper.info("Found MainClass %s", mainClassName);
-        System.out.println("Print launchserver host:");
+        System.out.println("Print launchserver websocket host:");
         String address = commands.commandHandler.readLine();
-        System.out.println("Print launchserver port:");
-        int port = Integer.valueOf(commands.commandHandler.readLine());
         wrapper.config.mainclass = mainClassName;
-        wrapper.config.address = address;
-        wrapper.config.port = port;
+        wrapper.config.websocket.address = address;
         if (!Files.exists(ServerWrapper.publicKeyFile)) {
             LogHelper.error("public.key not found");
             for (int i = 0; i < 10; ++i) {

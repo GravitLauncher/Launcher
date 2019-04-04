@@ -84,41 +84,4 @@ public final class LegacyLauncherRequest extends Request<Result> {
     public LegacyLauncherRequest(LauncherConfig config) {
         super(config);
     }
-
-    @Override
-    public Integer getLegacyType() {
-        return RequestType.LEGACYLAUNCHER.getNumber();
-    }
-
-    @Override
-    protected Result requestDo(HInput input, HOutput output) throws Exception {
-        output.writeBoolean(EXE_BINARY);
-        output.flush();
-        readError(input);
-
-        // Verify launcher sign
-        RSAPublicKey publicKey = config.publicKey;
-        byte[] sign = input.readByteArray(-SecurityHelper.RSA_KEY_LENGTH);
-        boolean shouldUpdate = !SecurityHelper.isValidSign(BINARY_PATH, sign, publicKey);
-
-        // Update launcher if need
-        output.writeBoolean(shouldUpdate);
-        output.flush();
-        if (shouldUpdate) {
-            byte[] binary = input.readByteArray(0);
-            SecurityHelper.verifySign(binary, sign, config.publicKey);
-            return new Result(binary, sign, Collections.emptyList());
-        }
-
-        // Read clients profiles list
-        int count = input.readLength(0);
-        List<ClientProfile> profiles = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            String prof = input.readString(0);
-            profiles.add(Launcher.gson.fromJson(prof, ClientProfile.class));
-        }
-
-        // Return request result
-        return new Result(null, sign, profiles);
-    }
 }

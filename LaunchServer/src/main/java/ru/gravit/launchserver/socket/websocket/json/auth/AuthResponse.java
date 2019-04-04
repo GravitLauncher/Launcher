@@ -11,10 +11,10 @@ import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.auth.hwid.HWIDException;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
-import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.socket.websocket.json.profile.ProfileByUUIDResponse;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -84,7 +84,7 @@ public class AuthResponse implements JsonResponseInterface {
             AuthProviderPair pair;
             if (auth_id.isEmpty()) pair = LaunchServer.server.config.getAuthProviderPair();
             else pair = LaunchServer.server.config.getAuthProviderPair(auth_id);
-            ru.gravit.launchserver.response.auth.AuthResponse.AuthContext context = new ru.gravit.launchserver.response.auth.AuthResponse.AuthContext(0, login, password.length(), customText, client, ip, null, false);
+            AuthContext context = new AuthContext(0, login, password.length(), customText, client, ip, null, false);
             AuthProvider provider = pair.provider;
             LaunchServer.server.authHookManager.preHook(context, clientData);
             provider.preAuth(login, password, customText, ip);
@@ -128,5 +128,25 @@ public class AuthResponse implements JsonResponseInterface {
             service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
         }
     }
+    public static class AuthContext {
+        public AuthContext(long session, String login, int password_lenght, String customText, String client, String hwid, String ip, boolean isServerAuth) {
+            this.session = session;
+            this.login = login;
+            this.password_lenght = password_lenght;
+            this.customText = customText;
+            this.client = client;
+            this.hwid = hwid;
+            this.ip = ip;
+            this.isServerAuth = isServerAuth;
+        }
 
+        public long session;
+        public String login;
+        public int password_lenght; //Use AuthProvider for get password
+        public String client;
+        public String hwid;
+        public String customText;
+        public String ip;
+        public boolean isServerAuth;
+    }
 }

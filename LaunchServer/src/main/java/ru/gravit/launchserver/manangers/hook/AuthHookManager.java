@@ -1,8 +1,8 @@
 package ru.gravit.launchserver.manangers.hook;
 
 import ru.gravit.launchserver.auth.AuthException;
-import ru.gravit.launchserver.response.auth.AuthResponse;
 import ru.gravit.launchserver.socket.Client;
+import ru.gravit.launchserver.socket.websocket.json.auth.AuthResponse;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -200,7 +200,7 @@ public class MainBuildTask implements LauncherBuildTask {
             byte[] launcherConfigBytes;
             try (ByteArrayOutputStream configArray = IOHelper.newByteArrayOutput()) {
                 try (HOutput configOutput = new HOutput(configArray)) {
-                    new LauncherConfig(server.config.getAddress(), server.config.port, server.publicKey, runtime)
+                    new LauncherConfig(server.config.netty.address, server.publicKey, runtime)
                             .write(configOutput);
                 }
                 launcherConfigBytes = configArray.toByteArray();

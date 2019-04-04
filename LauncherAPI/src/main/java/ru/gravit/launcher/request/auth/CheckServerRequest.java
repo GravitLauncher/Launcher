@@ -44,27 +44,6 @@ public final class CheckServerRequest extends Request<CheckServerRequestEvent> i
     }
 
     @Override
-    public Integer getLegacyType() {
-        return RequestType.CHECK_SERVER.getNumber();
-    }
-
-    @Override
-    protected CheckServerRequestEvent requestDo(HInput input, HOutput output) throws IOException {
-        output.writeString(username, SerializeLimits.MAX_LOGIN);
-        output.writeASCII(serverID, SerializeLimits.MAX_SERVERID); // 1 char for minus sign
-        if (Launcher.profile == null) {
-            LogHelper.error("Profile is null. Title is not net.");
-            output.writeString("", SerializeLimits.MAX_CLIENT);
-        } else
-            output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
-        output.flush();
-
-        // Read response
-        readError(input);
-        return input.readBoolean() ? new CheckServerRequestEvent(new PlayerProfile(input)) : null;
-    }
-
-    @Override
     public String getType() {
         return "checkServer";
     }

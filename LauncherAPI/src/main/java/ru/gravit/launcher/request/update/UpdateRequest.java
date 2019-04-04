@@ -284,48 +284,6 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         }
     }
 
-    private void downloadFile(Path file, HashedFile hFile, InputStream input) throws IOException {
-        String filePath = IOHelper.toString(dir.relativize(file));
-        updateState(filePath, 0L, hFile.size);
-
-        // Start file update
-        MessageDigest digest = this.digest ? SecurityHelper.newDigest(DigestAlgorithm.MD5) : null;
-        try (OutputStream fileOutput = IOHelper.newOutput(file)) {
-            long downloaded = 0L;
-
-            // Download with digest update
-            byte[] bytes = IOHelper.newBuffer();
-            while (downloaded < hFile.size) {
-                int remaining = (int) Math.min(hFile.size - downloaded, bytes.length);
-                int length = input.read(bytes, 0, remaining);
-                if (length < 0)
-                    throw new EOFException(String.format("%d bytes remaining", hFile.size - downloaded));
-
-                // Update file
-                fileOutput.write(bytes, 0, length);
-                if (digest != null)
-                    digest.update(bytes, 0, length);
-
-                // Update state
-                downloaded += length;
-                totalDownloaded += length;
-                updateState(filePath, downloaded, hFile.size);
-            }
-        }
-
-        // Verify digest
-        if (digest != null) {
-            byte[] digestBytes = digest.digest();
-            if (!hFile.isSameDigest(digestBytes))
-                throw new SecurityException(String.format("File digest mismatch: '%s'", filePath));
-        }
-    }
-
-    @Override
-    public Integer getLegacyType() {
-        return RequestType.UPDATE.getNumber();
-    }
-
     @Override
     public UpdateRequestEvent request() throws Exception {
         Files.createDirectories(dir);
@@ -333,76 +291,6 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
 
         // Start request
         return super.request();
-    }
-
-    @Override
-    protected UpdateRequestEvent requestDo(HInput input, HOutput output) throws IOException, SignatureException {
-        // Write update dir name
-        output.writeString(dirName, 255);
-        output.flush();
-        readError(input);
-
-        // Get diff between local and remote dir
-        SignedObjectHolder<HashedDir> remoteHDirHolder = new SignedObjectHolder<>(input, config.publicKey, HashedDir::new);
-        HashedDir hackHackedDir = remoteHDirHolder.object;
-        Launcher.profile.pushOptionalFile(hackHackedDir, !Launcher.profile.isUpdateFastCheck());
-        HashedDir.Diff diff = hackHackedDir.diff(localDir, matcher);
-        totalSize = diff.mismatch.size();
-        boolean compress = input.readBoolean();
-
-        // Build actions queue
-        Queue<UpdateAction> queue = new LinkedList<>();
-        fillActionsQueue(queue, diff.mismatch);
-        queue.add(UpdateAction.FINISH);
-
-        // noinspection IOResourceOpenedButNotSafelyClosed
-        InputStream fileInput = compress ? new InflaterInputStream(input.stream, IOHelper.newInflater(), IOHelper.BUFFER_SIZE) : input.stream;
-
-        // Download missing first
-        // (otherwise it will cause mustdie indexing bug)
-        startTime = Instant.now();
-        Path currentDir = dir;
-        UpdateAction[] actionsSlice = new UpdateAction[SerializeLimits.MAX_QUEUE_SIZE];
-        while (!queue.isEmpty()) {
-            int length = Math.min(queue.size(), SerializeLimits.MAX_QUEUE_SIZE);
-
-            // Write actions slice
-            output.writeLength(length, SerializeLimits.MAX_QUEUE_SIZE);
-            for (int i = 0; i < length; i++) {
-                UpdateAction action = queue.remove();
-                actionsSlice[i] = action;
-                action.write(output);
-            }
-            output.flush();
-
-            // Perform actions
-            for (int i = 0; i < length; i++) {
-                UpdateAction action = actionsSlice[i];
-                switch (action.type) {
-                    case CD:
-                        currentDir = currentDir.resolve(action.name);
-                        Files.createDirectories(currentDir);
-                        break;
-                    case GET:
-                        Path targetFile = currentDir.resolve(action.name);
-                        if (fileInput.read() != 0xFF)
-                            throw new IOException("Serverside cached size mismath for file " + action.name);
-                        downloadFile(targetFile, (HashedFile) action.entry, fileInput);
-                        break;
-                    case CD_BACK:
-                        currentDir = currentDir.getParent();
-                        break;
-                    case FINISH:
-                        break;
-                    default:
-                        throw new AssertionError(String.format("Unsupported action type: '%s'", action.type.name()));
-                }
-            }
-        }
-
-        // Write update completed packet
-        deleteExtraDir(dir, diff.extra, diff.extra.flag);
-        return new UpdateRequestEvent(remoteHDirHolder.object);
     }
 
     @LauncherAPI

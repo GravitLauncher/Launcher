@@ -8,7 +8,6 @@ import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.events.request.ProfilesRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.auth.AuthRequest;
-import ru.gravit.launcher.request.auth.AuthServerRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.server.setup.ServerWrapperSetup;
@@ -53,13 +52,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public boolean auth() {
         try {
             LauncherConfig cfg = Launcher.getConfig();
-            if(!config.websocket.enabled)
-            permissions = new AuthServerRequest(cfg, config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, config.title).request();
-            else
-            {
-                AuthRequest request = new AuthRequest(config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, AuthRequest.ConnectTypes.SERVER);
-                permissions = request.request().permissions;
-            }
+            AuthRequest request = new AuthRequest(config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, AuthRequest.ConnectTypes.SERVER);
+            permissions = request.request().permissions;
             ProfilesRequestEvent result = new ProfilesRequest(cfg).request();
             for (ClientProfile p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.getTitle());
@@ -184,7 +178,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 auth();
             };
         }
-        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s", config.projectname, config.address, config.port, config.title);
+        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s", config.projectname, config.websocket.address, config.title);
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
@@ -205,7 +199,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
         LauncherConfig cfg = null;
         try {
-            cfg = new LauncherConfig(config.address, config.port, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
+            cfg = new LauncherConfig(config.websocket.address, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
             if(config.websocket != null && config.websocket.enabled)
             {
                 cfg.isNettyEnabled = true;
@@ -235,8 +229,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         Config newConfig = new Config();
         newConfig.title = "Your profile title";
         newConfig.projectname = "MineCraft";
-        newConfig.address = "localhost";
-        newConfig.port = 7240;
         newConfig.login = "login";
         newConfig.password = "password";
         newConfig.mainclass = "";
@@ -259,9 +251,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static final class Config {
         public String title;
         public String projectname;
-        public String address;
         public WebSocketConf websocket;
-        public int port;
         public int reconnectCount;
         public int reconnectSleep;
         public boolean customClassPath;

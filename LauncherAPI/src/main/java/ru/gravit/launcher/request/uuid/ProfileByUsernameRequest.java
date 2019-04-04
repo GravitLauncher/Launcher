@@ -38,20 +38,6 @@ public final class ProfileByUsernameRequest extends Request<ProfileByUsernameReq
     }
 
     @Override
-    public Integer getLegacyType() {
-        return RequestType.PROFILE_BY_USERNAME.getNumber();
-    }
-
-    @Override
-    protected ProfileByUsernameRequestEvent requestDo(HInput input, HOutput output) throws IOException {
-        output.writeString(username, SerializeLimits.MAX_LOGIN);
-        output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
-        output.flush();
-        // Return profile
-        return input.readBoolean() ? new ProfileByUsernameRequestEvent(new PlayerProfile(input)) : null;
-    }
-
-    @Override
     public String getType() {
         return "profileByUsername";
     }

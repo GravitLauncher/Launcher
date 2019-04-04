@@ -39,21 +39,6 @@ public final class ProfileByUUIDRequest extends Request<ProfileByUUIDRequestEven
     }
 
     @Override
-    public Integer getLegacyType() {
-        return RequestType.PROFILE_BY_UUID.getNumber();
-    }
-
-    @Override
-    protected ProfileByUUIDRequestEvent requestDo(HInput input, HOutput output) throws IOException {
-        output.writeUUID(uuid);
-        output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
-        output.flush();
-
-        // Return profile
-        return input.readBoolean() ? new ProfileByUUIDRequestEvent(new PlayerProfile(input)) : null;
-    }
-
-    @Override
     public String getType() {
         return "profileByUUID";
     }

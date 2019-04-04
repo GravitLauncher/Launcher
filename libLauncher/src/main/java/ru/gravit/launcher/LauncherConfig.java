@@ -7,7 +7,6 @@ import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
@@ -21,8 +20,6 @@ public final class LauncherConfig extends StreamObject {
     }
 
     // Instance
-    @LauncherAPI
-    public InetSocketAddress address;
     public String nettyAddress;
     public int nettyPort;
     @LauncherAPI
@@ -46,7 +43,6 @@ public final class LauncherConfig extends StreamObject {
 
     @LauncherAPI
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
-        address = InetSocketAddress.createUnresolved(config.address, config.port);
         publicKey = SecurityHelper.toPublicRSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
         projectname = config.projectname;
         clientPort = config.clientPort;
@@ -80,8 +76,8 @@ public final class LauncherConfig extends StreamObject {
     }
 
     @LauncherAPI
-    public LauncherConfig(String address, int port, RSAPublicKey publicKey, Map<String, byte[]> runtime, String projectname) {
-        this.address = InetSocketAddress.createUnresolved(address, port);
+    public LauncherConfig(String address, RSAPublicKey publicKey, Map<String, byte[]> runtime, String projectname) {
+        this.nettyAddress = address;
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectname = projectname;
@@ -96,8 +92,8 @@ public final class LauncherConfig extends StreamObject {
     }
 
     @LauncherAPI
-    public LauncherConfig(String address, int port, RSAPublicKey publicKey, Map<String, byte[]> runtime) {
-        this.address = InetSocketAddress.createUnresolved(address, port);
+    public LauncherConfig(String address, RSAPublicKey publicKey, Map<String, byte[]> runtime) {
+        this.nettyAddress = address;
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectname = "Minecraft";

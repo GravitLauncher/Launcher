@@ -94,30 +94,6 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     }
 
     @Override
-    public Integer getLegacyType() {
-        return RequestType.LAUNCHER.getNumber();
-    }
-
-    @Override
-    protected LauncherRequestEvent requestDo(HInput input, HOutput output) throws Exception {
-        output.writeBoolean(EXE_BINARY);
-        output.writeByteArray(digest, 0);
-        output.flush();
-        readError(input);
-
-        // Verify launcher sign
-        boolean shouldUpdate = input.readBoolean();
-        if (shouldUpdate) {
-            byte[] binary = input.readByteArray(0);
-            LauncherRequestEvent result = new LauncherRequestEvent(binary, digest);
-            update(Launcher.getConfig(), result);
-        }
-
-        // Return request result
-        return new LauncherRequestEvent(null, digest);
-    }
-
-    @Override
     public String getType() {
         return "launcher";
     }

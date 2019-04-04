@@ -44,9 +44,6 @@ public abstract class Request<R> {
     }
 
     @LauncherAPI
-    public abstract Integer getLegacyType();
-
-    @LauncherAPI
     protected final void readError(HInput input) throws IOException {
         String error = input.readString(0);
         if (!error.isEmpty())
@@ -57,39 +54,11 @@ public abstract class Request<R> {
     public R request() throws Exception {
         if (!started.compareAndSet(false, true))
             throw new IllegalStateException("Request already started");
-        R wsResult = null;
-        if (config.isNettyEnabled)
-            wsResult = requestWebSockets();
-        if (wsResult != null) return wsResult;
-        // Make request to LaunchServer
-        try (Socket socket = IOHelper.newSocket()) {
-            socket.connect(IOHelper.resolve(config.address));
-            try (HInput input = new HInput(socket.getInputStream());
-                 HOutput output = new HOutput(socket.getOutputStream())) {
-                writeHandshake(input, output);
-                return requestDo(input, output);
-            }
-        }
+        return requestWebSockets();
     }
 
     protected R requestWebSockets() throws Exception {
         return null;
-    }
-
-    @LauncherAPI
-    protected abstract R requestDo(HInput input, HOutput output) throws Exception;
-
-    private void writeHandshake(HInput input, HOutput output) throws IOException {
-        // Write handshake
-        output.writeInt(Launcher.PROTOCOL_MAGIC);
-        output.writeBigInteger(config.publicKey.getModulus(), SecurityHelper.RSA_KEY_LENGTH + 1);
-        output.writeLong(session);
-        output.writeVarInt(getLegacyType());
-        output.flush();
-
-        // Verify is accepted
-        if (!input.readBoolean())
-            requestError("Serverside not accepted this connection");
     }
 
 }

@@ -1,6 +1,6 @@
 package ru.gravit.launchserver.auth.protect;
 
-import ru.gravit.launchserver.response.auth.AuthResponse;
+import ru.gravit.launchserver.socket.websocket.json.auth.AuthResponse;
 import ru.gravit.utils.helper.SecurityHelper;
 
 public class NoProtectHandler extends ProtectHandler {

@@ -5,10 +5,10 @@ import ru.gravit.launcher.events.request.CheckServerRequestEvent;
 import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
-import ru.gravit.launchserver.response.profile.ProfileByUUIDResponse;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.socket.websocket.WebSocketService;
 import ru.gravit.launchserver.socket.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.socket.websocket.json.profile.ProfileByUUIDResponse;
 import ru.gravit.utils.helper.LogHelper;
 
 public class CheckServerResponse implements JsonResponseInterface {

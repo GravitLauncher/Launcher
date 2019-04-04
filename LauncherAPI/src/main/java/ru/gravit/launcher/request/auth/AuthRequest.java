@@ -97,53 +97,6 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     }
 
     @Override
-    public Integer getLegacyType() {
-        return RequestType.AUTH.getNumber();
-    }
-
-    /*public class EchoRequest implements RequestInterface
-    {
-        String echo;
-
-        public EchoRequest(String echo) {
-            this.echo = echo;
-        }
-
-        @Override
-        public String getLegacyType() {
-            return "echo";
-        }
-    }*/
-    @Override
-    protected AuthRequestEvent requestDo(HInput input, HOutput output) throws IOException {
-        /*try {
-            LegacyRequestBridge.sendRequest(new EchoRequest("Hello World!"));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
-        output.writeString(login, SerializeLimits.MAX_LOGIN);
-        output.writeBoolean(Launcher.profile != null);
-        if (Launcher.profile != null)
-            output.writeString(Launcher.profile.getTitle(), SerializeLimits.MAX_CLIENT);
-        output.writeString(auth_id, SerializeLimits.MAX_QUEUE_SIZE);
-        output.writeString(hwid.getSerializeString(), 0);
-        //output.writeLong(0);
-        //output.writeLong(0);
-        //output.writeLong(0);
-        output.writeByteArray(encryptedPassword, SecurityHelper.CRYPTO_MAX_LENGTH);
-        output.writeString(customText, SerializeLimits.MAX_CUSTOM_TEXT);
-        output.flush();
-
-        // Read UUID and access token
-        readError(input);
-        PlayerProfile pp = new PlayerProfile(input);
-        String accessToken = input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH);
-        ClientPermissions permissions = new ClientPermissions(input);
-        String protectToken = input.readString(SerializeLimits.MAX_CUSTOM_TEXT);
-        return new AuthRequestEvent(permissions, pp, accessToken, protectToken);
-    }
-
-    @Override
     public String getType() {
         return "auth";
     }

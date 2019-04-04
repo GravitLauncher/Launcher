@@ -29,18 +29,6 @@ public class SetProfileRequest extends Request<SetProfileRequestEvent> implement
     }
 
     @Override
-    public Integer getLegacyType() {
-        return RequestType.SETPROFILE.getNumber();
-    }
-
-    @Override
-    protected SetProfileRequestEvent requestDo(HInput input, HOutput output) throws Exception {
-        output.writeString(profile.getTitle(), SerializeLimits.MAX_CLIENT);
-        readError(input);
-        return new SetProfileRequestEvent(profile);
-    }
-
-    @Override
     public String getType() {
         return "setProfile";
     }

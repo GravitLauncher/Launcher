@@ -31,24 +31,6 @@ public final class UpdateListRequest extends Request<UpdateListRequestEvent> imp
     }
 
     @Override
-    public Integer getLegacyType() {
-        return RequestType.UPDATE_LIST.getNumber();
-    }
-
-    @Override
-    protected UpdateListRequestEvent requestDo(HInput input, HOutput output) throws IOException {
-        int count = input.readLength(0);
-
-        // Read all update dirs names
-        HashSet<String> result = new HashSet<>(count);
-        for (int i = 0; i < count; i++)
-            result.add(IOHelper.verifyFileName(input.readString(255)));
-
-        // We're done. Make it unmodifiable and return
-        return new UpdateListRequestEvent(result);
-    }
-
-    @Override
     public String getType() {
         return "updateList";
     }

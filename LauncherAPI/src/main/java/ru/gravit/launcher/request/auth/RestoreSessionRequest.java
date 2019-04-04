@@ -24,16 +24,6 @@ public class RestoreSessionRequest  extends Request<RestoreSessionRequestEvent> 
     }
 
     @Override
-    public Integer getLegacyType() {
-        return 0;
-    }
-
-    @Override
-    protected RestoreSessionRequestEvent requestDo(HInput input, HOutput output) throws Exception {
-        return new RestoreSessionRequestEvent();
-    }
-
-    @Override
     public String getType() {
         return "restoreSession";
     }
