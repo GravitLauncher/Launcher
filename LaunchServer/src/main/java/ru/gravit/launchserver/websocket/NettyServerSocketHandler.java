@@ -48,14 +48,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings({"unused", "rawtypes"})
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
-    private static final String WEBSOCKET_PATH = "/api";
     private static SSLServerSocketFactory ssf;
-    private static final ThreadFactory THREAD_FACTORY = r -> CommonHelper.newThread("Network Thread", true, r);
 
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
 
+    public static LauncherNettyServer nettyServer;
+
     private final AtomicReference<ServerSocket> serverSocket = new AtomicReference<>();
-    private final ExecutorService threadPool = Executors.newCachedThreadPool(THREAD_FACTORY);
 
     // API
     private final Map<String, Response.Factory> customResponses = new ConcurrentHashMap<>(2);
@@ -115,44 +114,21 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
         }*/
         //System.setProperty( "javax.net.ssl.keyStore","keystore");
         //System.setProperty( "javax.net.ssl.keyStorePassword","PSP1000");
-        try {
+        /*try {
             Selector selector = Selector.open();
             ServerSocketChannel serverChannel = ServerSocketChannel.open();
             serverChannel.configureBlocking(false);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
         LogHelper.info("Starting server socket thread");
         //SSLEngine engine = sc.createSSLEngine();
         //engine.setUseClientMode(false);
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
         WebSocketFrameHandler.server = LaunchServer.server;
-        try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.DEBUG))
-                    .childHandler(new ChannelInitializer<NioSocketChannel>() {
-                        @Override
-                        public void initChannel(NioSocketChannel ch) {
-                            ChannelPipeline pipeline = ch.pipeline();
-                            //p.addLast(new LoggingHandler(LogLevel.INFO));
-                            pipeline.addLast(new HttpServerCodec());
-                            pipeline.addLast(new HttpObjectAggregator(65536));
-                            pipeline.addLast(new WebSocketServerCompressionHandler());
-                            pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
-                            pipeline.addLast(new FileServerHandler(LaunchServer.server.updatesDir, true));
-                            pipeline.addLast(new WebSocketFrameHandler());
-                        }
-                    });
-            ChannelFuture f = b.bind(new InetSocketAddress(LaunchServer.server.config.netty.port)).sync(); //TEST ONLY!
-            f.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
+        nettyServer = new LauncherNettyServer();
+        for(LaunchServer.NettyBindAddress address : LaunchServer.server.config.netty.binds)
+        {
+            nettyServer.bind(new InetSocketAddress(address.address, address.port));
         }
         /*
         try (SSLServerSocket serverSocket = (SSLServerSocket) ssf.createServerSocket()) {

@@ -76,11 +76,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     public static final class Config {
-        public int port;
+        public int legacyPort;
 
-        private String address;
+        private String legacyAddress;
 
-        private String bindAddress;
+        private String legacyBindAddress;
 
         public String projectName;
 
@@ -148,13 +148,13 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public String startScript;
 
-        public String getAddress() {
-            return address;
+        public String getLegacyAddress() {
+            return legacyAddress;
         }
 
 
-        public String getBindAddress() {
-            return bindAddress;
+        public String getLegacyBindAddress() {
+            return legacyBindAddress;
         }
 
         public void setProjectName(String projectName) {
@@ -171,17 +171,17 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
 
         public SocketAddress getSocketAddress() {
-            return new InetSocketAddress(bindAddress, port);
+            return new InetSocketAddress(legacyBindAddress, legacyPort);
         }
 
 
-        public void setAddress(String address) {
-            this.address = address;
+        public void setLegacyAddress(String legacyAddress) {
+            this.legacyAddress = legacyAddress;
         }
 
 
         public void verify() {
-            VerifyHelper.verify(getAddress(), VerifyHelper.NOT_EMPTY, "LaunchServer address can't be empty");
+            VerifyHelper.verify(getLegacyAddress(), VerifyHelper.NOT_EMPTY, "LaunchServer address can't be empty");
             if (auth == null || auth[0] == null) {
                 throw new NullPointerException("AuthHandler must not be null");
             }
@@ -243,13 +243,28 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     public class NettyConfig {
-        public String bindAddress;
-        public int port;
         public boolean clientEnabled;
         public String launcherURL;
         public String downloadURL;
         public String launcherEXEURL;
         public String address;
+        public NettyPerformanceConfig performance;
+        public NettyBindAddress[] binds;
+    }
+    public class NettyPerformanceConfig
+    {
+        public int bossThread;
+        public int workerThread;
+    }
+    public class NettyBindAddress
+    {
+        public String address;
+        public int port;
+
+        public NettyBindAddress(String address, int port) {
+            this.address = address;
+            this.port = port;
+        }
     }
 
     public class GuardLicenseConf {
@@ -626,15 +641,21 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 , "std")};
         newConfig.protectHandler = new NoProtectHandler();
         newConfig.permissionsHandler = new JsonFilePermissionsHandler();
-        newConfig.port = 7240;
-        newConfig.bindAddress = "0.0.0.0";
+        newConfig.legacyPort = 7240;
+        newConfig.legacyBindAddress = "0.0.0.0";
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
         newConfig.netty = new NettyConfig();
         newConfig.netty.address = "ws://localhost:9274/api";
+        newConfig.netty.downloadURL = "http://localhost:9274/%dirname%/";
+        newConfig.netty.launcherURL = "http://localhost:9274/Launcher.jar";
+        newConfig.netty.launcherEXEURL = "http://localhost:9274/Launcher.exe";
         newConfig.netty.clientEnabled = false;
-        newConfig.netty.port = 9274;
+        newConfig.netty.binds = new NettyBindAddress[]{ new NettyBindAddress("0.0.0.0", 9274) };
+        newConfig.netty.performance = new NettyPerformanceConfig();
+        newConfig.netty.performance.bossThread = 2;
+        newConfig.netty.performance.workerThread = 8;
 
         newConfig.threadCoreCount = 0; // on your own
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
@@ -654,7 +675,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         // Set server address
         System.out.println("LaunchServer address: ");
-        newConfig.setAddress(commandHandler.readLine());
+        newConfig.setLegacyAddress(commandHandler.readLine());
         System.out.println("LaunchServer projectName: ");
         newConfig.setProjectName(commandHandler.readLine());
 
