@@ -26,7 +26,12 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     private final ConnectTypes authType;
 
     public enum ConnectTypes {
-        SERVER, CLIENT, BOT
+        @LauncherNetworkAPI
+        SERVER,
+        @LauncherNetworkAPI
+        CLIENT,
+        @LauncherNetworkAPI
+        BOT
     }
 
     @LauncherAPI
