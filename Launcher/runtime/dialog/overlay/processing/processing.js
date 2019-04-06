@@ -100,7 +100,7 @@ function makeProfilesRequest(callback) {
     startTask(task);
 }
 function makeSetProfileRequest(profile, callback) {
-    var task = newRequestTask(new SetProfileRequest(profile));
+    var task = newRequestTask(new SetProfileRequest(Launcher.getConfig(), profile));
 
     // Set task properties and start
     processing.setTaskProperties(task, callback, function() {

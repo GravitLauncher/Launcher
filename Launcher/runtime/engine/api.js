@@ -17,6 +17,7 @@ var ServerPinger = ServerPingerClass.static;
 var Request = RequestClass.static;
 var RequestType = RequestTypeClass.static;
 var RequestException = RequestExceptionClass.static;
+var CustomRequest = CustomRequestClass.static;
 var PingRequest = PingRequestClass.static;
 var AuthRequest = AuthRequestClass.static;
 var JoinServerRequest = JoinServerRequestClass.static;
