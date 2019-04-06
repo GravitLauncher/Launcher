@@ -71,6 +71,7 @@
               <JFXButton id="close" alignment="CENTER" contentDisplay="CENTER" styleClass="close" text="" textAlignment="CENTER" />
               <JFXButton id="discord" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" text="" textAlignment="CENTER" />
               <JFXButton id="settings" alignment="CENTER" contentDisplay="CENTER" layoutY="92.0" text="" textAlignment="CENTER" />
+              <JFXButton id="goConsole" fx:id="console" alignment="CENTER" contentDisplay="CENTER" layoutY="138.0" text="" textAlignment="CENTER" />
               <JFXButton id="logout" alignment="CENTER" contentDisplay="CENTER" layoutY="334.0" text="" />
           </children>
       </Pane>

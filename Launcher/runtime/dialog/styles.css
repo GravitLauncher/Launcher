@@ -57,6 +57,26 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-pref-width: 45px;
     -fx-pref-height: 45px;
 }
+#back {
+    -fx-background-position: center;
+    -jfx-button-type: FLAT;
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: #CE5757;
+    -fx-background-radius: 0;
+    -fx-background-image: url('images/icons/back.png');
+    -fx-pref-width: 45px;
+    -fx-pref-height: 45px;
+}
+#goConsole {
+    -fx-background-position: center;
+    -jfx-button-type: FLAT;
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: #CE5757;
+    -fx-background-radius: 0;
+    -fx-background-image: url('images/icons/console.png');
+    -fx-pref-width: 45px;
+    -fx-pref-height: 45px;
+}
 #settings {
     -fx-background-position: center;
     -jfx-button-type: FLAT;

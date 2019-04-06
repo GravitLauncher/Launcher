@@ -1,4 +1,9 @@
-/* Output */
+/*-- DrLeonardo Design --*/
+Button {
+    -fx-cursor: hand;
+}
+
+/* Outputs */
 #overlay > #output {
     -fx-background-color: white;
     -fx-background-radius: 0;
@@ -15,34 +20,37 @@
 #overlay > #copy,
 #overlay > #action.close {
     -fx-background-radius: 0;
-    -fx-background-color: rgba(33,133,208,.5);
     -fx-text-fill: white;
+    -fx-background-position: center;
+    -jfx-button-type: FLAT;
+    -fx-background-color: #2d83ce;
+    -fx-pref-width: 100px;
+    -fx-pref-height: 25px;
 }
 
 #overlay > #copy:hover,
 #overlay > #copy:focused,
 #overlay > #action.close:hover,
-#overlay > #action.close:focused {
-    -fx-background-color: rgba(22,120,194,.5);
-}
-
+#overlay > #action.close:focused,
 #overlay > #copy:pressed,
 #overlay > #action.close:pressed {
-    -fx-background-color: rgba(22,105,164,.5);
+    -fx-background-color: #1568ce;
 }
 
 /* Kill button */
 #overlay > #action.kill {
     -fx-background-radius: 0;
-    -fx-background-color: rgba(219,40,40,.5);
     -fx-text-fill: white;
+    -fx-background-position: center;
+    -jfx-button-type: FLAT;
+    -fx-background-color: #CE5757;
+    -fx-pref-width: 100px;
+    -fx-pref-height: 25px;
 }
 
 #overlay > #action.kill:hover,
-#overlay > #action.kill:focused {
-    -fx-background-color: rgba(202,16,16,.5);
-}
-
+#overlay > #action.kill:focused,
 #overlay > #action.kill:pressed {
-    -fx-background-color: rgba(178,30,30,.5);
+    -fx-background-color: #DB5252;
 }
+/*-- DrLeonardo Design --*/

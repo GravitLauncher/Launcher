@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXTextArea?>
+<?import java.net.URL?>
+<?import javafx.scene.layout.Pane?>
+
+<!-- DrLeonardo Design -->
+
+<Pane fx:id="layout" prefWidth="740.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
+  <children>
+      <Pane fx:id="consolePane" prefHeight="425.0" prefWidth="693.0" styleClass="consolePane">
+         <children>
+             <!-- Debug controls -->
+             <JFXTextArea fx:id="output" prefHeight="425.0" prefWidth="693.0" />
+             <JFXButton fx:id="copy" defaultButton="true" layoutX="465.0" layoutY="386.0" prefHeight="30.0" prefWidth="100.0" text="Копировать" />
+             <JFXButton fx:id="action" layoutX="579.0" layoutY="386.0" prefHeight="25.0" prefWidth="100.0" text="Убить" />
+         </children>
+      </Pane>
+      <Pane fx:id="bar" layoutX="693.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
+         <children>
+      	     <JFXButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" text="" textAlignment="CENTER" />
+      	     <JFXButton id="close" alignment="CENTER" contentDisplay="CENTER" text="" textAlignment="CENTER" />
+             <JFXButton id="back" fx:id="back" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" text="" textAlignment="CENTER" />
+         </children>
+      </Pane>
+      <Pane id="mask" opacity="0.0" prefHeight="425.0" prefWidth="694.0" visible="false" />
+  </children>
+  <stylesheets>
+    <URL value="@styles.css" />
+  </stylesheets>
+</Pane>

@@ -80,7 +80,7 @@ function makeLauncherRequest(callback) {
         settings.offline = true;
         overlay.swap(2500, processing.overlay, function() makeLauncherRequest(callback));
     }, false);
-    task.updateMessage("Обновление списка серверов");
+    task.updateMessage("Обновление лаунчера");
     startTask(task);
 }
 function makeProfilesRequest(callback) {
@@ -96,11 +96,11 @@ function makeProfilesRequest(callback) {
         settings.offline = true;
         overlay.swap(2500, processing.overlay, function() makeProfilesRequest(callback));
     }, false);
-    task.updateMessage("Обновление списка серверов");
+    task.updateMessage("Обновление лаунчера");
     startTask(task);
 }
 function makeSetProfileRequest(profile, callback) {
-    var task = newRequestTask(new SetProfileRequest(Launcher.getConfig(), profile));
+    var task = newRequestTask(new SetProfileRequest, profile);
 
     // Set task properties and start
     processing.setTaskProperties(task, callback, function() {

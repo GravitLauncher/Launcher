@@ -1,5 +1,5 @@
 var options = {
-    file: DirBridge.dir.resolve("options.bin"), // options file
+    file: DirBridge.dir.resolve("options.bin"),
 
     /* options and overlay functions */
     load: function(profiles) {
@@ -8,7 +8,6 @@ var options = {
             tryWithResources(new HInput(IOHelper.newInput(options.file)), options.read);
         } catch(e) {
             LogHelper.error(e);
-            //options.setDefault();
         }
     },
 
@@ -21,7 +20,6 @@ var options = {
         }
     },
 
-    // Internal functions
     read: function(input) {
         var magic = input.readInt();
         if (magic != config.settingsMagic) {
@@ -89,7 +87,7 @@ var options = {
             var nodelist = new java.util.ArrayList;
 
             holder.getChildren().forEach(function(node,i,arr) {
-                if(node instanceof javafx.scene.control.CheckBox)
+                if(node instanceof com.jfoenix.controls.JFXCheckBox)
                     nodelist.add(node);
             });
             nodelist.forEach(function(node,i,arr) {
@@ -115,7 +113,7 @@ var options = {
                             modDescription = modFile.info;
                         if(modFile.subTreeLevel != null && modFile.subTreeLevel > 1)//Это суб-модификация?
                             subLevel = modFile.subTreeLevel;
-                         var testMod = new javafx.scene.control.CheckBox(modName);
+                         var testMod = new com.jfoenix.controls.JFXCheckBox(modName);
 
                         if(subLevel > 1)
                             for(var i = 1; i < subLevel; i++)//Выделение субмодификаций сдвигом.
@@ -159,5 +157,4 @@ var options = {
             holder.getChildren().clear();
             holder.getChildren().addAll(checkBoxList);
     }
-
 };

@@ -2,7 +2,7 @@
 	-fx-background-color: #fff;
 }
 #holder > #transferDialog {
-    -fx-background-color: RGBA(0, 0, 0, 0.9);
+    -fx-background-color: RGBA(0, 0, 0, 0.1);
 }
 /* Labels */
 #holder > #settingsTitle {
@@ -74,29 +74,4 @@
 #holder > #apply:hover,#applyTransfer:hover,
 #holder > #apply:focused,#applyTransfer:focused{
     -fx-background-color: #74C085;
-}
-
-.check-box{
-	-fx-background-color: transparent;
-	-fx-text-fill:#2c2c2c;
-	-fx-font-size: 13;
-    -fx-background-image: url('../../images/icons/checkbox.png');
-	-fx-background-repeat: no-repeat;
-}
-.check-box .mark {
-    -fx-background-color: transparent;
-}
-.check-box .box {
-    -fx-background-color: transparent;
-}
-.check-box:selected{
-	-fx-background-color: transparent;
-    -fx-background-image: url('../../images/icons/checkbox_checked.png');
-	-fx-background-repeat: no-repeat;
-}
-.check-box:selected .mark {
-    -fx-background-color: transparent;
-}
-.check-box:selected .box {
-    -fx-background-color: transparent;
 }
