@@ -1,7 +1,6 @@
 var app, stage, scene, loginScene, menuScene;
 var rootPane, loginPane, authPane, menuPane;
 
-// Override application class
 var LauncherApp = Java.extend(JSApplication, {
     init: function() {
         app = JSApplication.getInstance();
@@ -14,13 +13,11 @@ var LauncherApp = Java.extend(JSApplication, {
         stage.setResizable(false);
         stage.setTitle(config.title);
 
-        // Set icons
         config.icons.forEach(function(icon) {
             var iconURL = Launcher.getResourceURL(icon).toString();
             stage.getIcons().add(new javafx.scene.image.Image(iconURL));
         });
 
-        // Load launcher FXML
         loginPane = loadFXML("dialog/login.fxml");
         menuPane = loadFXML("dialog/mainmenu.fxml");
 
@@ -31,7 +28,6 @@ var LauncherApp = Java.extend(JSApplication, {
         menuScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
         setCurrentScene(loginScene);
-
         initLauncher();
 
     }, stop: function() {
@@ -40,7 +36,6 @@ var LauncherApp = Java.extend(JSApplication, {
     }
 });
 
-// Helper functions
 function loadFXML(name) {
     var loader = new javafx.fxml.FXMLLoader(Launcher.getResourceURL(name));
     loader.setCharset(IOHelper.UNICODE_CHARSET);
@@ -59,15 +54,13 @@ function setRootParent(parent) {
     scene.setRoot(parent);
 }
 
-// Start function - there all begins
 function start(args) {
 
-    // Set font rendering properties
     LogHelper.debug("Setting FX properties");
     java.lang.System.setProperty("prism.lcdtext", "false");
 
-    // Start laucher JavaFX stage
     LogHelper.debug("Launching JavaFX application");
     javafx.application.Application.launch(LauncherApp.class, args);
 }
+
 launcher.loadScript("dialog/dialog.js");

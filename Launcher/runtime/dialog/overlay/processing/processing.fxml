@@ -8,20 +8,17 @@
 
 <!-- DrLeonardo Design | Fixes by Yaroslavik -->
 
-<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.20"
-      xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <ImageView id="spinner" fx:id="spinner" fitHeight="161.0" fitWidth="161.0" layoutX="213.0" layoutY="94.0"
-                   y="-6.0">
-            <image>
-                <Image url="@../../images/icons/loading.gif"/>
-            </image>
-        </ImageView>
-        <!-- Description -->
-        <Label fx:id="description" alignment="CENTER" contentDisplay="CENTER" layoutX="152.0" layoutY="249.0"
-               prefHeight="64.0" prefWidth="283.0" text="..." textAlignment="CENTER"/>
-    </children>
-    <stylesheets>
-        <URL value="@processing.css"/>
-    </stylesheets>
+<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.20" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ImageView id="spinner" fx:id="spinner" fitHeight="161.0" fitWidth="161.0" layoutX="213.0" layoutY="94.0" y="-6.0">
+         <image>
+            <Image url="@../../images/icons/loading.gif" />
+         </image>
+      </ImageView>
+     <!-- Description -->
+     <Label fx:id="description" alignment="CENTER" contentDisplay="CENTER" layoutX="152.0" layoutY="249.0" prefHeight="64.0" prefWidth="283.0" text="..." textAlignment="CENTER" />
+   </children>
+  <stylesheets>
+    <URL value="@processing.css" />
+  </stylesheets>
 </Pane>
