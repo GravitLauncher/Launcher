@@ -1,7 +1,6 @@
 var options = {
     file: DirBridge.dir.resolve("options.bin"),
 
-    /* options and overlay functions */
     load: function(profiles) {
         LogHelper.debug("Loading options file");
         try {
@@ -139,11 +138,11 @@ var options = {
                              textDescr = new javafx.scene.text.Text(modDescription);
                              if(subLevel > 1) {
                                  for(var i = 1; i < subLevel; i++){
-                                    textDescr.setWrappingWidth(370-(25*i));
+                                    textDescr.setWrappingWidth(640-(25*i));
                                     textDescr.setTranslateX(25+(25*i));
                                  }
                              } else {
-                                 textDescr.setWrappingWidth(370);
+                                 textDescr.setWrappingWidth(640);
                                  textDescr.setTranslateX(25);
                              }
                              textDescr.setTextAlignment(javafx.scene.text.TextAlignment.JUSTIFY);

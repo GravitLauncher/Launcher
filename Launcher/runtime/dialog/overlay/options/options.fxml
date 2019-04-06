@@ -13,9 +13,9 @@
    <children>
      <Pane id="holder" prefHeight="425.0" prefWidth="693.0">
        <children>
-        <JFXScrollPane id="modlist" prefHeight="425.0" prefWidth="693.0">
+        <JFXScrollPane id="modlist" prefHeight="425.0" prefWidth="694.0">
                <content>
-                  <VBox prefHeight="424.0" prefWidth="693.0">
+                  <VBox prefHeight="232.0" prefWidth="689.0">
 					<children>
 					</children>
                      <padding>
@@ -24,7 +24,7 @@
 				  </VBox>
                </content>
         </JFXScrollPane>
-		<JFXButton fx:id="apply" defaultButton="true" layoutX="580.0" layoutY="388.0" prefHeight="25.0" prefWidth="100.0" text="Применить" />
+		<JFXButton fx:id="apply" defaultButton="true" layoutX="532.0" layoutY="390.0" prefHeight="25.0" prefWidth="100.0" text="Применить" />
         </children>
      </Pane>
    </children>

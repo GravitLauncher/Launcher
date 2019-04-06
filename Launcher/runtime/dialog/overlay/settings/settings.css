@@ -1,8 +1,11 @@
+/*-- DrLeonardo Design --*/
 #holder {
 	-fx-background-color: #fff;
 }
 #holder > #transferDialog {
-    -fx-background-color: RGBA(0, 0, 0, 0.1);
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-pref-width: 694px;
+    -fx-pref-height: 425px;
 }
 /* Labels */
 #holder > #settingsTitle {
@@ -41,37 +44,42 @@
 
 /* Dir options */
 #holder > #deleteDir, #cancelTransfer {
-    -fx-background-color: #CE5757;
-    -fx-text-fill: white;
     -fx-background-radius: 0;
+    -fx-text-fill: white;
+    -fx-background-position: center;
+    -jfx-button-type: FLAT;
+    -fx-background-color: #CE5757;
+    -fx-pref-width: 150px;
+    -fx-pref-height: 25px;
 }
 
 #holder > #deleteDir:hover,#cancelTransfer:hover,
 #holder > #deleteDir:focused,#cancelTransfer:focused {
-    -fx-opacity: 0.8;
+    -fx-background-color: #DB5252;
 }
 
 #holder > #changeDir {
-    -fx-background-color: #B4B4B4;
-    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-text-fill: #909090;
     -fx-background-radius: 0;
 }
 
-#holder > #changeDir:hover,
-#holder > #changeDir:focused {
-    -fx-opacity: 0.8;
-}
-
+#holder > #changeDir:focused,
 #holder > #changeDir:pressed {
-    -fx-opacity: 0.8;
+    -fx-font-weight: bold;
 }
 
 #holder > #apply,#applyTransfer{
     -fx-background-color: #61B373;
-    -fx-text-fill: #fff;
     -fx-background-radius: 0;
+    -fx-text-fill: white;
+    -fx-background-position: center;
+    -jfx-button-type: FLAT;
+    -fx-pref-width: 150px;
+    -fx-pref-height: 25px;
 }
 #holder > #apply:hover,#applyTransfer:hover,
 #holder > #apply:focused,#applyTransfer:focused{
     -fx-background-color: #74C085;
 }
+/*-- DrLeonardo Design --*/

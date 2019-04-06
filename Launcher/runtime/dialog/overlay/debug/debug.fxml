@@ -15,6 +15,6 @@
 
     <!-- Debug controls -->
     <JFXTextArea fx:id="output" prefHeight="425.0" prefWidth="693.0" />
-    <JFXButton fx:id="copy" defaultButton="true" layoutX="465.0" layoutY="386.0" prefHeight="30.0" prefWidth="100.0" text="Копировать" />
-    <JFXButton fx:id="action" layoutX="579.0" layoutY="386.0" prefHeight="25.0" prefWidth="100.0" text="Убить" />
+    <JFXButton fx:id="copy" defaultButton="true" layoutX="423.0" layoutY="390.0" prefHeight="30.0" prefWidth="100.0" text="Копировать" />
+    <JFXButton fx:id="action" layoutX="583.0" layoutY="390.0" prefHeight="25.0" prefWidth="100.0" text="Убить" />
 </Pane>

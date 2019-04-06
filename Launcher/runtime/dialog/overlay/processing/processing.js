@@ -10,14 +10,12 @@ var processing = {
         processing.description = processing.overlay.lookup("#description");
 
         // Set images
-        processing.processingImage = new javafx.scene.image.Image(
-            Launcher.getResourceURL("dialog/images/icons/loading.gif").toString());
         processing.errorImage = new javafx.scene.image.Image(
             Launcher.getResourceURL("dialog/images/icons/error.png").toString());
     },
 
-    resetOverlay: function() {
-        processing.spinner.setImage(processing.processingImage);
+    resetOverlay: function() {//JFXSpinner spinner = new JFXSpinner();
+        //processing.spinner.setImage(processing.processingImage);
         processing.description.getStyleClass().remove("error");
         processing.description.setText("...");
     },

@@ -1,6 +1,8 @@
+/*-- DrLeonardo Design --*/
 #holder {
 	-fx-background-color: #fff;
 }
+
 /* Labels */
 #holder > #settingsTitle {
     -fx-font-size: 14pt;
@@ -13,7 +15,7 @@
     -fx-text-fill: white;
     -fx-background-position: center;
     -jfx-button-type: FLAT;
-    -fx-pref-width: 100px;
+    -fx-pref-width: 150px;
     -fx-pref-height: 25px;
 }
 #holder > #apply:hover,
@@ -38,3 +40,4 @@
 	-fx-border-color: transparent;
 	-fx-border-width: 0 0 10 0;
 }
+/*-- DrLeonardo Design --*/

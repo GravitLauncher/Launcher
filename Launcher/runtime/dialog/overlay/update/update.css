@@ -1,3 +1,13 @@
+/*-- DrLeonardo Design --*/
+/* Background */
+#overlay {
+    -fx-background-color: transparent;
+    -fx-background-size: cover;
+    -fx-pref-width: 693px;
+    -fx-pref-height: 425px;
+    -fx-background-image: url('../../images/background.jpg');
+}
+
 #overlay > #utitle {
     -fx-alignment: top-left;
 }
@@ -8,11 +18,13 @@
 }
 
 #overlay > #description.error {
-    -fx-text-fill: red;
+    -fx-text-fill: #CE5757;
 }
 
 .downloadPane {
-    -fx-background-color: rgba(0, 0, 0, 0.46);
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-pref-width: 693px;
+    -fx-pref-height: 425px;
 }
 
 /* Progress bar */
@@ -42,3 +54,4 @@
     -fx-background-insets: 0;
     -fx-background-radius: 3px;
 }
+/*-- DrLeonardo Design --*/

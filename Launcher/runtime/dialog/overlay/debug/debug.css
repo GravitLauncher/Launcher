@@ -24,7 +24,7 @@ Button {
     -fx-background-position: center;
     -jfx-button-type: FLAT;
     -fx-background-color: #2d83ce;
-    -fx-pref-width: 100px;
+    -fx-pref-width: 150px;
     -fx-pref-height: 25px;
 }
 
@@ -44,7 +44,7 @@ Button {
     -fx-background-position: center;
     -jfx-button-type: FLAT;
     -fx-background-color: #CE5757;
-    -fx-pref-width: 100px;
+    -fx-pref-width: 150px;
     -fx-pref-height: 25px;
 }
 

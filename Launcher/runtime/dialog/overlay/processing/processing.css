@@ -1,4 +1,4 @@
-/* Label */
+/*-- DrLeonardo Design --*/
 #overlay > #description {
     -fx-font-size: 12pt;
     -fx-text-fill: #fff;
@@ -8,3 +8,4 @@
 #overlay > #description.error {
     -fx-text-fill: red;
 }
+/*-- DrLeonardo Design --*/

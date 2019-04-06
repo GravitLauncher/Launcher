@@ -48,7 +48,7 @@
                 </font>
             </JFXButton>
             <JFXButton id="clientSettings" alignment="CENTER" centerShape="false" contentDisplay="CENTER" layoutX="281.0" layoutY="355.0" styleClass="clientSettings" text="" textAlignment="CENTER" />
-            <Label id="serverStatus" alignment="TOP_RIGHT" contentDisplay="RIGHT" layoutX="306.0" layoutY="12.0" prefHeight="25.0" prefWidth="60.0" text="12/100" textAlignment="RIGHT" textFill="WHITE">
+            <Label id="serverStatus" alignment="TOP_RIGHT" contentDisplay="RIGHT" layoutX="246.0" layoutY="12.0" prefHeight="25.0" prefWidth="104.0" text="12/100" textAlignment="RIGHT" textFill="WHITE">
                 <font>
                     <Font name="System Bold" size="16.0" />
                 </font>
