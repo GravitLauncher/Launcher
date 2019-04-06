@@ -48,6 +48,7 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         handler.registerCommand("uuidToUsername", new UUIDToUsernameCommand(server));
         handler.registerCommand("ban", new BanCommand(server));
         handler.registerCommand("unban", new UnbanCommand(server));
+        handler.registerCommand("getHWID", new GetHWIDCommand(server));
 
         //Register dump commands
         handler.registerCommand("dumpSessions", new DumpSessionsCommand(server));
