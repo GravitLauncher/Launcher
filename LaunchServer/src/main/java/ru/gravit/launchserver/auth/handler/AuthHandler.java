@@ -42,6 +42,7 @@ public abstract class AuthHandler implements AutoCloseable {
             registerHandler("null", NullAuthHandler.class);
             registerHandler("memory", MemoryAuthHandler.class);
             registerHandler("mysql", MySQLAuthHandler.class);
+            registerHandler("request", RequestAuthHandler.class);
             registredHandl = true;
         }
     }

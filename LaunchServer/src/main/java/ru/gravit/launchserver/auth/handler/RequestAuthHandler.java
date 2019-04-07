@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.auth.handler;
 
+import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.BufferedReader;
@@ -15,8 +16,8 @@ import static java.lang.String.format;
 
 public final class RequestAuthHandler extends AuthHandler {
     // Из конфига строки
-    private String url;
     private String urlGetUUID;
+    private String urlGetAll;
     private String urlGetUsername;
     private String urlUpdateAccessToken;
     private String urlUpdateServerID;
@@ -33,17 +34,17 @@ public final class RequestAuthHandler extends AuthHandler {
     }
 
     @Override
+    public UUID auth(AuthProviderResult authResult) throws IOException {
+        //TODO
+    }
+
+    @Override
     public UUID checkServer(String username, String serverID) throws IOException {
         //TODO
     }
 
     @Override
     public boolean joinServer(String username, String accessToken, String serverID) throws IOException {
-        //TODO
-    }
-
-    @Override
-    public UUID usernameToUUID(String username) throws IOException {
         URL url;
         HttpURLConnection conn;
         BufferedReader rd;
@@ -59,10 +60,37 @@ public final class RequestAuthHandler extends AuthHandler {
             }
             rd.close();
         } catch (Exception e) {
-            LogHelper.error("[Request AuthHandler] Error get UUID by username");
+            LogHelper.error("[Request AuthHandler] Error joinserver");
         }
-        //TODO конвертирование string в uuid
-        return result;
+        String[] uas = result.split(":");
+        if (uas[0] == username && uas[1] == accessToken && uas[2] == serverID) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public UUID usernameToUUID(String username) throws IOException {
+            URL url;
+            HttpURLConnection conn;
+            BufferedReader rd;
+            String line;
+            String result = "";
+            try {
+                url = new URL(format("%s?username=%s",urlGetUUID,username));
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                while ((line = rd.readLine()) != null) {
+                    result += line;
+                }
+                rd.close();
+            } catch (Exception e) {
+                LogHelper.error("[Request AuthHandler] Error get UUID by username");
+            }
+            //TODO конвертирование string в uuid
+            return result;
     }
 
     @Override
