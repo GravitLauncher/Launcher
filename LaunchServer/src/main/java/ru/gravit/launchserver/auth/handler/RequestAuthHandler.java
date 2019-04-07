@@ -1,6 +1,8 @@
 package ru.gravit.launchserver.auth.handler;
 
 import ru.gravit.launchserver.auth.provider.AuthProviderResult;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.BufferedReader;
@@ -45,74 +47,25 @@ public final class RequestAuthHandler extends AuthHandler {
 
     @Override
     public boolean joinServer(String username, String accessToken, String serverID) throws IOException {
-        URL url;
-        HttpURLConnection conn;
-        BufferedReader rd;
-        String line;
-        String result = "";
-        try {
-            url = new URL(format("%s?username=%s",urlGetUUID,username));
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while ((line = rd.readLine()) != null) {
-                result += line;
-            }
-            rd.close();
-        } catch (Exception e) {
-            LogHelper.error("[Request AuthHandler] Error joinserver");
-        }
-        String[] uas = result.split(":");
-        if (uas[0] == username && uas[1] == accessToken && uas[2] == serverID) {
-            return true;
-        } else {
-            return false;
-        }
+        // TODO
     }
 
     @Override
     public UUID usernameToUUID(String username) throws IOException {
-            URL url;
-            HttpURLConnection conn;
-            BufferedReader rd;
-            String line;
-            String result = "";
-            try {
-                url = new URL(format("%s?username=%s",urlGetUUID,username));
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                while ((line = rd.readLine()) != null) {
-                    result += line;
-                }
-                rd.close();
-            } catch (Exception e) {
-                LogHelper.error("[Request AuthHandler] Error get UUID by username");
-            }
-            //TODO конвертирование string в uuid
-            return result;
+        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetUUID, "username", IOHelper.urlEncode("username"))));
+
+        Matcher matcher = pattern.matcher(currentResponse);
+
+        // TODO
     }
 
     @Override
     public String uuidToUsername(UUID uuid) throws IOException {
-        URL url;
-        HttpURLConnection conn;
-        BufferedReader rd;
-        String line;
-        String result = "";
-        try {
-            url = new URL(format("%s?uuid=%s",urlGetUsername,uuid));
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while ((line = rd.readLine()) != null) {
-                result += line;
-            }
-            rd.close();
-        } catch (Exception e) {
-            LogHelper.error("[Request AuthHandler] Error get username by UUID");
-        }
-        return result;
+        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetUsername, "uuid", IOHelper.urlEncode("uuid"))));
+
+        Matcher matcher = pattern.matcher(currentResponse);
+
+        // TODO
     }
 
     @Override
