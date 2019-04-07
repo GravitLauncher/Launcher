@@ -1,6 +1,5 @@
 package ru.gravit.launcher.server.setup;
 
-import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.server.ServerWrapper;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.IOHelper;
@@ -24,20 +23,22 @@ public class ServerWrapperSetup {
         System.out.println("Print jar filename:");
         String jarName = commands.commandHandler.readLine();
         Path jarPath = Paths.get(jarName);
-        JarFile file = new JarFile(jarPath.toFile());
-        URL jarURL = jarPath.toUri().toURL();
-        urlClassLoader = new PublicURLClassLoader(new URL[]{jarURL});
-        LogHelper.info("Check jar MainClass");
-        String mainClassName = file.getManifest().getMainAttributes().getValue("Main-Class");
-        if (mainClassName == null) {
-            LogHelper.error("Main-Class not found in MANIFEST");
-            return;
-        }
-        try {
-            Class mainClass = Class.forName(mainClassName, false, urlClassLoader);
-        } catch (ClassNotFoundException e) {
-            LogHelper.error(e);
-            return;
+        String mainClassName = null;
+        try (JarFile file = new JarFile(jarPath.toFile())) {
+        	URL jarURL = jarPath.toUri().toURL();
+        	urlClassLoader = new PublicURLClassLoader(new URL[]{jarURL});
+        	LogHelper.info("Check jar MainClass");
+        	mainClassName = file.getManifest().getMainAttributes().getValue("Main-Class");
+        	if (mainClassName == null) {
+            	LogHelper.error("Main-Class not found in MANIFEST");
+            	return;
+        	}
+            try {
+                Class.forName(mainClassName, false, urlClassLoader);
+            } catch (ClassNotFoundException e) {
+                LogHelper.error(e);
+                return;
+            }
         }
         LogHelper.info("Found MainClass %s", mainClassName);
         System.out.println("Print launchserver websocket host:");
@@ -66,7 +67,6 @@ public class ServerWrapperSetup {
             wrapper.config.password = password;
             wrapper.config.title = title;
             wrapper.config.stopOnError = false;
-            LauncherConfig cfg = null;
 
             if (wrapper.auth()) {
                 break;

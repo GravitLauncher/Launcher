@@ -9,8 +9,9 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Objects;
 
+@SuppressWarnings("rawtypes")
 public class ConfigManager {
-    private final HashMap<String, JsonConfigurable> CONFIGURABLE = new HashMap<>();
+	private final HashMap<String, JsonConfigurable> CONFIGURABLE = new HashMap<>();
 
     public void registerConfigurable(String name, JsonConfigurable reconfigurable) {
         VerifyHelper.putIfAbsent(CONFIGURABLE, name.toLowerCase(), Objects.requireNonNull(reconfigurable, "adapter"),

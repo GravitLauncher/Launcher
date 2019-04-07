@@ -37,7 +37,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public ClassLoader loader;
     public ClientPermissions permissions;
     public static ServerWrapper wrapper;
-    private static Gson gson;
+    public static Gson gson;
     private static GsonBuilder gsonBuiler;
 
     public static Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));

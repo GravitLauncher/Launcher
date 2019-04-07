@@ -10,7 +10,6 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedFile;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.UpdateAction;
 import ru.gravit.launcher.request.update.UpdateRequest.State.Callback;
 import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
@@ -26,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Queue;
 
 public final class UpdateRequest extends Request<UpdateRequestEvent> implements RequestInterface {
 
@@ -165,26 +163,6 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         @LauncherAPI
         public double getTotalSizeMiB() {
             return getTotalSizeKiB() / 1024.0D;
-        }
-    }
-
-    private static void fillActionsQueue(Queue<UpdateAction> queue, HashedDir mismatch) {
-        for (Entry<String, HashedEntry> mapEntry : mismatch.map().entrySet()) {
-            String name = mapEntry.getKey();
-            HashedEntry entry = mapEntry.getValue();
-            HashedEntry.Type entryType = entry.getType();
-            switch (entryType) {
-                case DIR: // cd - get - cd ..
-                    queue.add(new UpdateAction(UpdateAction.Type.CD, name, entry));
-                    fillActionsQueue(queue, (HashedDir) entry);
-                    queue.add(UpdateAction.CD_BACK);
-                    break;
-                case FILE: // get
-                    queue.add(new UpdateAction(UpdateAction.Type.GET, name, entry));
-                    break;
-                default:
-                    throw new AssertionError("Unsupported hashed entry type: " + entryType.name());
-            }
         }
     }
 
