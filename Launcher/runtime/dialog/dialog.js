@@ -9,6 +9,7 @@ var loginData;
 function initLauncher() {
     initLoginScene();
     initMenuScene();
+    initConsoleScene();
 
     debug.initOverlay();
     processing.initOverlay();
@@ -34,7 +35,7 @@ function initLoginScene() {
     bar = pane;
     loginPane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
     loginPane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
-    loginPane.lookup("#discord").setOnAction(function(){ openURL(config.discord_url); });
+    loginPane.lookup("#discord").setOnAction(function(){ openURL(config.discord); });
 
     var pane = loginPane.lookup("#authPane");
     authPane = pane;
@@ -82,6 +83,7 @@ function initMenuScene() {
     menuPane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
     menuPane.lookup("#discord").setOnAction(function(){ openURL(config.discord); });
     menuPane.lookup("#settings").setOnAction(goSettings);
+    menuPane.lookup("#goConsole").setOnAction(goConsole);
     menuPane.lookup("#logout").setOnAction(function(){
         setCurrentScene(loginScene);
     });
@@ -100,6 +102,32 @@ function initMenuScene() {
     serverEntrance.lookup("#clientLaunch").setOnAction(function(){
         doUpdate(profilesList[serverHolder.old], loginData.pp, loginData.accessToken);
     });
+
+}
+
+/* ======== init Console ======== */
+function initConsoleScene() {
+    consolePane.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    consolePane.setOnMouseDragged(function(event) {
+        if(movePoint === null) {
+            return;
+        }
+
+        stage.setX(event.getScreenX() - movePoint.getX());
+        stage.setY(event.getScreenY() - movePoint.getY());
+    });
+
+    var pane = consolePane.lookup("#bar");
+    bar = pane;
+    consolePane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
+    consolePane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
+    consolePane.lookup("#back").setOnAction(function(){
+        setCurrentScene(menuScene);
+    });
+
+    var pane = consolePane.lookup("#consolePane");
+    consolePane = pane;
+
 
 }
 
@@ -144,6 +172,13 @@ function goAuth(event) {
 
     settings.login = login;
     doAuth(login, rsaPassword);
+}
+
+/* ======== Console ======== */
+function goConsole(event) {
+    if (overlay.current !== null) {
+        return;
+    }
 }
 
 /* ======== Settings ======== */

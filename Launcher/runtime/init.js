@@ -1,5 +1,5 @@
-var app, stage, scene, loginScene, menuScene;
-var rootPane, loginPane, authPane, menuPane;
+var app, stage, scene, loginScene, menuScene, consoleScene;
+var rootPane, loginPane, authPane, menuPane, consolePane;
 
 var LauncherApp = Java.extend(JSApplication, {
     init: function() {
@@ -20,12 +20,16 @@ var LauncherApp = Java.extend(JSApplication, {
 
         loginPane = loadFXML("dialog/login.fxml");
         menuPane = loadFXML("dialog/mainmenu.fxml");
+        consolePane = loadFXML("dialog/console.fxml");
 
         loginScene = new javafx.scene.Scene(loginPane);
         loginScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
         menuScene = new javafx.scene.Scene(menuPane);
         menuScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+
+        consoleScene = new javafx.scene.Scene(consolePane);
+        consoleScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
         setCurrentScene(loginScene);
         initLauncher();

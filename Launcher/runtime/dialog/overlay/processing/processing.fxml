@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.JFXSpinner?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 
 <!-- DrLeonardo Design | Fixes by Yaroslavik -->
 
-<Pane fx:id="overlay" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.20" xmlns:fx="http://javafx.com/fxml/1">
+<Pane fx:id="overlay" prefHeight="425.0" prefWidth="693.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <ImageView id="spinner" fx:id="spinner" fitHeight="161.0" fitWidth="161.0" layoutX="213.0" layoutY="94.0" y="-6.0">
-         <image>
-            <Image url="@../../images/icons/loading.gif" />
-         </image>
-      </ImageView>
      <!-- Description -->
-     <Label fx:id="description" alignment="CENTER" contentDisplay="CENTER" layoutX="152.0" layoutY="249.0" prefHeight="64.0" prefWidth="283.0" text="..." textAlignment="CENTER" />
+     <Label fx:id="description" alignment="CENTER" contentDisplay="CENTER" layoutX="205.0" layoutY="272.0" prefHeight="120.0" prefWidth="283.0" text="..." textAlignment="CENTER" />
+      <JFXSpinner fx:id="spinner" layoutX="313.0" layoutY="178.0" prefHeight="70.0" prefWidth="67.0" />
    </children>
   <stylesheets>
     <URL value="@processing.css" />

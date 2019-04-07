@@ -10,14 +10,12 @@ var processing = {
         processing.description = processing.overlay.lookup("#description");
 
         // Set images
-        processing.processingImage = new javafx.scene.image.Image(
-            Launcher.getResourceURL("dialog/images/icons/loading.gif").toString());
         processing.errorImage = new javafx.scene.image.Image(
             Launcher.getResourceURL("dialog/images/icons/error.png").toString());
     },
 
-    resetOverlay: function() {
-        processing.spinner.setImage(processing.processingImage);
+    resetOverlay: function() {//JFXSpinner spinner = new JFXSpinner();
+        //processing.spinner.setImage(processing.processingImage);
         processing.description.getStyleClass().remove("error");
         processing.description.setText("...");
     },
@@ -80,7 +78,7 @@ function makeLauncherRequest(callback) {
         settings.offline = true;
         overlay.swap(2500, processing.overlay, function() makeLauncherRequest(callback));
     }, false);
-    task.updateMessage("Обновление списка серверов");
+    task.updateMessage("Обновление лаунчера");
     startTask(task);
 }
 function makeProfilesRequest(callback) {
@@ -96,11 +94,11 @@ function makeProfilesRequest(callback) {
         settings.offline = true;
         overlay.swap(2500, processing.overlay, function() makeProfilesRequest(callback));
     }, false);
-    task.updateMessage("Обновление списка серверов");
+    task.updateMessage("Обновление лаунчера");
     startTask(task);
 }
 function makeSetProfileRequest(profile, callback) {
-    var task = newRequestTask(new SetProfileRequest(Launcher.getConfig(), profile));
+    var task = newRequestTask(new SetProfileRequest, profile);
 
     // Set task properties and start
     processing.setTaskProperties(task, callback, function() {
