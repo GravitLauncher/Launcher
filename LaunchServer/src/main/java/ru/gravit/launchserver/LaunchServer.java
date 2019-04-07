@@ -15,6 +15,7 @@ import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import ru.gravit.launchserver.auth.hwid.AcceptHWIDHandler;
 import ru.gravit.launchserver.auth.hwid.HWIDHandler;
+import ru.gravit.launchserver.auth.permissions.DefaultPermissionsHandler;
 import ru.gravit.launchserver.auth.permissions.JsonFilePermissionsHandler;
 import ru.gravit.launchserver.auth.permissions.PermissionsHandler;
 import ru.gravit.launchserver.auth.protect.NoProtectHandler;
@@ -662,7 +663,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
                 , "std")};
         newConfig.protectHandler = new NoProtectHandler();
-        newConfig.permissionsHandler = new JsonFilePermissionsHandler();
+        if (testEnv) newConfig.permissionsHandler = new DefaultPermissionsHandler();
+        else newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.legacyPort = 7240;
         newConfig.legacyBindAddress = "0.0.0.0";
         newConfig.binaryName = "Launcher";
