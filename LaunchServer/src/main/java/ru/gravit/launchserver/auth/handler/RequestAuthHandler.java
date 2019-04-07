@@ -66,7 +66,7 @@ public final class RequestAuthHandler extends AuthHandler {
             conn.setRequestMethod("GET");
             rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             while ((line = rd.readLine()) != null) {
-                // Пусто
+                result += line;
             }
             rd.close();
         } catch (Exception e) {
@@ -89,7 +89,7 @@ public final class RequestAuthHandler extends AuthHandler {
             conn.setRequestMethod("GET");
             rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             while ((line = rd.readLine()) != null) {
-                // Пусто
+                result += line;
             }
             rd.close();
         } catch (Exception e) {
