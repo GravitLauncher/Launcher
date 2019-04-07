@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.auth.handler;
 
+import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -22,15 +23,10 @@ public final class RequestAuthHandler extends AuthHandler {
     // Из конфига строки
     private String url;
     private String urlGetUUID;
+    private String urlGetUsername;
     private String urlUpdateAccessToken;
     private String urlUpdateServerID;
     private String response;
-
-    // Поля
-    private String username;
-    private String uuid;
-    private String accessToken;
-    private String serverID;
 
     private transient Pattern pattern;
 
@@ -43,8 +39,41 @@ public final class RequestAuthHandler extends AuthHandler {
     }
 
     @Override
-    public void close() {
-        // Ничего не делать
+    public UUID auth(AuthProviderResult authResult) throws IOException {
+        //TODO
+    }
+
+    @Override
+    public UUID checkServer(String username, String serverID) throws IOException {
+        //TODO
+    }
+
+    @Override
+    public boolean joinServer(String username, String accessToken, String serverID) throws IOException {
+        //TODO
+    }
+
+    @Override
+    public UUID usernameToUUID(String username) throws IOException {
+        URL url;
+        HttpURLConnection conn;
+        BufferedReader rd;
+        String line;
+        String result = "";
+        try {
+            url = new URL(format("%s?username=%s",urlGetUUID,username));
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            while ((line = rd.readLine()) != null) {
+                // Пусто
+            }
+            rd.close();
+        } catch (Exception e) {
+            LogHelper.error("[Request AuthHandler] Error get UUID by username");
+        }
+        //TODO конвертирование string в uuid
+        return result;
     }
 
     @Override
@@ -55,7 +84,7 @@ public final class RequestAuthHandler extends AuthHandler {
         String line;
         String result = "";
         try {
-            url = new URL(format("%s?uuid=%s",urlGetUUID,uuid));
+            url = new URL(format("%s?uuid=%s",urlGetUsername,uuid));
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -67,5 +96,10 @@ public final class RequestAuthHandler extends AuthHandler {
             LogHelper.error("[Request AuthHandler] Error get username by UUID");
         }
         return result;
+    }
+
+    @Override
+    public void close() {
+        // Ничего не делать
     }
 }
