@@ -43,7 +43,7 @@ public final class LauncherAgent {
         		if (trimmedArg.contains("r")) rt = false;
         	}
         }
-        replaceClasses(pb, rt);
+        if (rt || pb) replaceClasses(pb, rt);
     }
 
     public static boolean isStarted() {
@@ -54,7 +54,7 @@ public final class LauncherAgent {
      * @author https://github.com/Konloch/JVM-Sandbox
 	 * Replaces the Runtime class via instrumentation, transforms the class via ASM
 	 */
-	public static void replaceClasses(boolean pb, boolean rt) {
+    private static void replaceClasses(boolean pb, boolean rt) {
 		for(Class<?> c : inst.getAllLoadedClasses()) {
 			if(rt && c.getName().equals("java.lang.Runtime")) {
 				try {
@@ -84,7 +84,7 @@ public final class LauncherAgent {
      * @author https://github.com/Konloch/JVM-Sandbox
 	 * Use ASM to modify the byte array
 	 */
-	public static byte[] transformClass(String className, byte[] classBytes) {
+	private static byte[] transformClass(String className, byte[] classBytes) {
 		if (className.equals("java.lang.Runtime")) {
 			ClassReader cr=new ClassReader(classBytes);
 			ClassNode cn=new ClassNode();
@@ -146,7 +146,7 @@ public final class LauncherAgent {
 	 * @return array, respending this class in bytecode.
 	 * @throws IOException
 	 */
-	public static byte[] getClassFile(Class<?> clazz) throws IOException {     
+	private static byte[] getClassFile(Class<?> clazz) throws IOException {     
 	    InputStream is = clazz.getResourceAsStream( "/" + clazz.getName().replace('.', '/') + ".class");
 	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	    int r = 0;
