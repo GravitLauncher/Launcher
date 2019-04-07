@@ -14,7 +14,7 @@ public final class RequestAuthHandler extends AuthHandler {
 
     @Override
     public void init() {
-        if (url == null) LogHelper.error("[Verify][AuthHandler] urlGetAll cannot be null");
+        if (url == null) LogHelper.error("[Verify][AuthHandler] url cannot be null");
     }
 
     @Override
