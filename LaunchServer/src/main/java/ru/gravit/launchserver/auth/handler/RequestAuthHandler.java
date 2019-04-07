@@ -5,34 +5,26 @@ import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static java.lang.String.format;
 
 public final class RequestAuthHandler extends AuthHandler {
     // Из конфига строки
-    private String urlGetUUID;
     private String urlGetAll;
+    private String urlGetUUID;
     private String urlGetUsername;
     private String urlUpdateAccessToken;
     private String urlUpdateServerID;
-    private String response;
-
-    private transient Pattern pattern;
+    // TODO Обьеденить все
 
     @Override
     public void init() {
-        //TODO добавить ошибки к строкам из конфига
-        if (url == null) LogHelper.error("[Verify][AuthHandler] url cannot be null");
-        if (response == null) LogHelper.error("[Verify][AuthHandler] response cannot be null");
-        pattern = Pattern.compile(response);
+        if (urlGetAll == null) LogHelper.error("[Verify][AuthHandler] urlGetAll cannot be null");
+        if (urlGetUUID == null) LogHelper.error("[Verify][AuthHandler] urlGetUUID cannot be null");
+        if (urlGetUsername == null) LogHelper.error("[Verify][AuthHandler] urlGetUsername cannot be null");
+        if (urlUpdateAccessToken == null) LogHelper.error("[Verify][AuthHandler] urlUpdateAccessToken cannot be null");
+        if (urlUpdateServerID == null) LogHelper.error("[Verify][AuthHandler] urlUpdateServerID cannot be null");
     }
 
     @Override
@@ -47,25 +39,28 @@ public final class RequestAuthHandler extends AuthHandler {
 
     @Override
     public boolean joinServer(String username, String accessToken, String serverID) throws IOException {
-        // TODO
+        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetAll, "username", IOHelper.urlEncode(username), "accessToken", IOHelper.urlEncode(accessToken), "serverID", IOHelper.urlEncode(serverID))));
+        String[] joinServerParams = currentResponse.split(":");
+        if (joinServerParams[0] == username && joinServerParams[1] == accessToken) {
+            if (joinServerParams[2] == serverID || joinServerParams == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public UUID usernameToUUID(String username) throws IOException {
-        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetUUID, "username", IOHelper.urlEncode("username"))));
-
-        Matcher matcher = pattern.matcher(currentResponse);
-
-        // TODO
+        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetUUID, "username", IOHelper.urlEncode(username))));
+        UUID stringTOuuid = UUID.fromString(currentResponse);
+        return stringTOuuid;
     }
 
     @Override
     public String uuidToUsername(UUID uuid) throws IOException {
-        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetUsername, "uuid", IOHelper.urlEncode("uuid"))));
-
-        Matcher matcher = pattern.matcher(currentResponse);
-
-        // TODO
+        String uuidTOstring = uuid.toString();
+        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetUsername, "uuid", IOHelper.urlEncode(uuidTOstring))));
+        return currentResponse;
     }
 
     @Override
