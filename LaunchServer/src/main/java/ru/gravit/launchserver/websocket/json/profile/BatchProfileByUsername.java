@@ -7,6 +7,7 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.util.UUID;
 
@@ -28,7 +29,13 @@ public class BatchProfileByUsername implements JsonResponseInterface {
         BatchProfileByUsernameRequestEvent result = new BatchProfileByUsernameRequestEvent();
         result.playerProfiles = new PlayerProfile[list.length];
         for (int i = 0; i < list.length; ++i) {
-            UUID uuid = client.auth.handler.usernameToUUID(list[i].username);
+            UUID uuid;
+            if(client.auth == null)
+            {
+                LogHelper.warning("Client auth is null. Using default.");
+                uuid = LaunchServer.server.config.getAuthProviderPair().handler.usernameToUUID(list[i].username);
+            }
+            else uuid = client.auth.handler.usernameToUUID(list[i].username);
             result.playerProfiles[i] = ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, list[i].username, list[i].client, client.auth.textureProvider);
         }
         service.sendObject(ctx, result);

@@ -468,27 +468,24 @@ public final class ClientLauncher {
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
         LogHelper.debug("Restore sessions");
-        if(Launcher.getConfig().isNettyEnabled)
+        RestoreSessionRequest request = new RestoreSessionRequest(Request.getSession());
+        request.request();
+        LegacyRequestBridge.service.reconnectCallback = () ->
         {
-            RestoreSessionRequest request = new RestoreSessionRequest(Request.getSession());
-            request.request();
-            LegacyRequestBridge.service.reconnectCallback = () ->
-            {
-                LogHelper.debug("WebSocket connect closed. Try reconnect");
-                try {
-                    if (!LegacyRequestBridge.service.reconnectBlocking()) LogHelper.error("Error connecting");
-                    LogHelper.debug("Connect to %s", Launcher.getConfig().address);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    RestoreSessionRequest request1 = new RestoreSessionRequest(Request.getSession());
-                    request1.request();
-                } catch (Exception e) {
-                    LogHelper.error(e);
-                }
-            };
-        }
+            LogHelper.debug("WebSocket connect closed. Try reconnect");
+            try {
+                if (!LegacyRequestBridge.service.reconnectBlocking()) LogHelper.error("Error connecting");
+                LogHelper.debug("Connect to %s", Launcher.getConfig().address);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                RestoreSessionRequest request1 = new RestoreSessionRequest(Request.getSession());
+                request1.request();
+            } catch (Exception e) {
+                LogHelper.error(e);
+            }
+        };
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
