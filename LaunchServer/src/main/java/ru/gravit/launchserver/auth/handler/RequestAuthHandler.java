@@ -23,23 +23,24 @@ public final class RequestAuthHandler extends AuthHandler {
         if (urlGetAll == null) LogHelper.error("[Verify][AuthHandler] urlGetAll cannot be null");
         if (urlGetUUID == null) LogHelper.error("[Verify][AuthHandler] urlGetUUID cannot be null");
         if (urlGetUsername == null) LogHelper.error("[Verify][AuthHandler] urlGetUsername cannot be null");
-        if (urlUpdateAccessToken == null) LogHelper.error("[Verify][AuthHandler] urlUpdateAccessToken cannot be null");
-        if (urlUpdateServerID == null) LogHelper.error("[Verify][AuthHandler] urlUpdateServerID cannot be null");
     }
 
     @Override
     public UUID auth(AuthProviderResult authResult) throws IOException {
-        //TODO
+        //TODO вот тут не понял поэтому пусть пока что возращает рандом uuid
+        return UUID.randomUUID();
     }
 
     @Override
     public UUID checkServer(String username, String serverID) throws IOException {
-        //TODO
+        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetUUID, "type", "GetUUID", "username", IOHelper.urlEncode(username))));
+        UUID stringTOuuid = UUID.fromString(currentResponse);
+        return stringTOuuid;
     }
 
     @Override
     public boolean joinServer(String username, String accessToken, String serverID) throws IOException {
-        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetAll, "username", IOHelper.urlEncode(username), "accessToken", IOHelper.urlEncode(accessToken), "serverID", IOHelper.urlEncode(serverID))));
+        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetAll, "type", "GetAll", "username", IOHelper.urlEncode(username), "accessToken", IOHelper.urlEncode(accessToken), "serverID", IOHelper.urlEncode(serverID))));
         String[] joinServerParams = currentResponse.split(":");
         if (joinServerParams[0] == username && joinServerParams[1] == accessToken) {
             if (joinServerParams[2] == serverID || joinServerParams == null) {
@@ -51,7 +52,7 @@ public final class RequestAuthHandler extends AuthHandler {
 
     @Override
     public UUID usernameToUUID(String username) throws IOException {
-        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetUUID, "username", IOHelper.urlEncode(username))));
+        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetUUID, "type", "GetUUID", "username", IOHelper.urlEncode(username))));
         UUID stringTOuuid = UUID.fromString(currentResponse);
         return stringTOuuid;
     }
@@ -59,7 +60,7 @@ public final class RequestAuthHandler extends AuthHandler {
     @Override
     public String uuidToUsername(UUID uuid) throws IOException {
         String uuidTOstring = uuid.toString();
-        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetUsername, "uuid", IOHelper.urlEncode(uuidTOstring))));
+        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(urlGetUsername, "type", "GetUsername", "uuid", IOHelper.urlEncode(uuidTOstring))));
         return currentResponse;
     }
 
