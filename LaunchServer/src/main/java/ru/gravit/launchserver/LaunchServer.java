@@ -45,6 +45,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.file.*;
@@ -354,6 +355,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final JARLauncherBinary launcherBinary;
 
+    public Class<LauncherBinary> launcherEXEBinaryClass;
+
     public final LauncherBinary launcherEXEBinary;
     // HWID ban + anti-brutforce
 
@@ -458,6 +461,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         CRC32 crc = new CRC32();
         crc.update(publicKey.getModulus().toByteArray()); // IDEA говорит, что это Java 9 API. WTF?
         LogHelper.subInfo("Modulus CRC32: 0x%08x", crc.getValue());
+
+        // Load class bindings.
+        launcherEXEBinaryClass = null;
 
         // pre init modules
         modulesManager = new ModulesManager(this);
@@ -589,6 +595,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     private LauncherBinary binary() {
+    	if (launcherEXEBinaryClass != null) {
+    		try {
+				return (LauncherBinary)launcherEXEBinaryClass.getConstructor(LaunchServer.class).newInstance(this);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				LogHelper.error(e);
+			}
+    	}
         try {
             Class.forName("net.sf.launch4j.Builder");
             if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
@@ -686,10 +700,13 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
     }
 
-    public Collection<ClientProfile> getProfiles() {
+    public List<ClientProfile> getProfiles() {
         return profilesList;
     }
 
+    public void setProfiles(List<ClientProfile> profilesList) {
+        this.profilesList = Collections.unmodifiableList(profilesList);
+    }
 
     public SignedObjectHolder<HashedDir> getUpdateDir(String name) {
         return updatesDirMap.get(name);
