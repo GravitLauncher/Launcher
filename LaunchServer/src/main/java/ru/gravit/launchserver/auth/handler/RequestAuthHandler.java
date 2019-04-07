@@ -1,18 +1,17 @@
 package ru.gravit.launchserver.auth.handler;
 
-import ru.gravit.launcher.ClientPermissions;
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.auth.handler.AuthHandler;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+/*
+ * author sasha0552
+ *
+ */
 
 public final class RequestAuthHandler extends AuthHandler {
     private String url;
