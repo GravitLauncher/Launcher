@@ -1,7 +1,5 @@
 package ru.gravit.launchserver.auth.handler;
 
-import ru.gravit.launchserver.auth.provider.AuthProviderResult;
-import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.BufferedReader;
@@ -14,10 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.lang.String.format;
-
-/*
- * author sasha0552
- */
 
 public final class RequestAuthHandler extends AuthHandler {
     // Из конфига строки
@@ -36,11 +30,6 @@ public final class RequestAuthHandler extends AuthHandler {
         if (url == null) LogHelper.error("[Verify][AuthHandler] url cannot be null");
         if (response == null) LogHelper.error("[Verify][AuthHandler] response cannot be null");
         pattern = Pattern.compile(response);
-    }
-
-    @Override
-    public UUID auth(AuthProviderResult authResult) throws IOException {
-        //TODO
     }
 
     @Override
