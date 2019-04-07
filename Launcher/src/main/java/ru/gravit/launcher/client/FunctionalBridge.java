@@ -14,7 +14,6 @@ import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

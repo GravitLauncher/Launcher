@@ -8,12 +8,10 @@ import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 
 public class SetProfileRequest extends Request<SetProfileRequestEvent> implements RequestInterface {
-    private transient ClientProfile profile;
     @LauncherNetworkAPI
     public String client;
 
     public SetProfileRequest(ClientProfile profile) {
-        this.profile = profile;
         this.client = profile.getTitle();
     }
 

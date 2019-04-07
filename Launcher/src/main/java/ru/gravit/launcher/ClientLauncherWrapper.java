@@ -40,7 +40,7 @@ public class ClientLauncherWrapper {
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_OPTDIR_PROPERTY);
         Collections.addAll(args, MAGIC_ARG);
         Collections.addAll(args, "-XX:+DisableAttachMechanism");
-        Collections.addAll(args, "-javaagent:".concat(pathLauncher));
+        Collections.addAll(args, "-javaagent:".concat(pathLauncher).concat("=pr"));
         Collections.addAll(args, "-cp");
         Collections.addAll(args, pathLauncher);
         Collections.addAll(args, LauncherEngine.class.getName());
