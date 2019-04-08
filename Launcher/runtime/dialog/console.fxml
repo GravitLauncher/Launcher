@@ -7,7 +7,7 @@
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="layout" prefWidth="740.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
+<Pane fx:id="background" prefWidth="738.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
   <children>
       <Pane fx:id="consolePane" prefHeight="425.0" prefWidth="693.0" styleClass="consolePane">
          <children>

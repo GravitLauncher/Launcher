@@ -1,33 +1,61 @@
 /*-- DrLeonardo Design --*/
-#holder {
+#background {
 	-fx-background-color: #fff;
 }
 
 /* Labels */
-#holder > #settingsTitle {
+#background > #settingsTitle {
     -fx-font-size: 14pt;
     -fx-alignment: baseline-center;
 }
 
-#holder > #apply{
+.pressetLight {
+    -jfx-toggle-color: #61B373;
+    -jfx-untoggle-color: #FAFAFA;
+    -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
+    -jfx-untoggle-line-color: #999999;
+    -jfx-size: 10.0;
+    -jfx-disable-visual-focus: false;
+}
+
+.pressetMedium {
+    -jfx-toggle-color: #61B373;
+    -jfx-untoggle-color: #FAFAFA;
+    -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
+    -jfx-untoggle-line-color: #999999;
+    -jfx-size: 10.0;
+    -jfx-disable-visual-focus: false;
+}
+
+.pressetHigh {
+    -jfx-toggle-color: #61B373;
+    -jfx-untoggle-color: #FAFAFA;
+    -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
+    -jfx-untoggle-line-color: #999999;
+    -jfx-size: 10.0;
+    -jfx-disable-visual-focus: false;
+}
+
+#apply{
     -fx-background-color: #61B373;
     -fx-background-radius: 0;
     -fx-text-fill: white;
     -fx-background-position: center;
     -jfx-button-type: FLAT;
-    -fx-pref-width: 150px;
-    -fx-pref-height: 25px;
+    -fx-pref-width: 45px;
+    -fx-pref-height: 45px;
 }
-#holder > #apply:hover,
-#holder > #apply:focused{
+#apply:hover,
+#apply:focused{
     -fx-background-color: #74C085;
 }
 
-#holder > #modlist {
+#optionsPane > #modlist {
     -fx-background-color: transparent;
 	
 }
-#holder > #modlist > .viewport {
+
+#optionsPane > #modlist > .viewport {
     -fx-background-color: transparent;
 }
 
@@ -36,6 +64,12 @@
  	-fx-fill: #8c8c8c;
  	-fx-font-size: 12px;
 }
+
+.lineHead {
+    -fx-stroke: #d8d8d8;
+    -fx-stroke-width: 3;
+}
+
 .separator *.line {
 	-fx-border-color: transparent;
 	-fx-border-width: 0 0 10 0;

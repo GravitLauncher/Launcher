@@ -1,3 +1,38 @@
+var optionsPane;
+
+/* ======== init Options ======== */
+function initOptionsScene() {
+    optionsMenu.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    optionsMenu.setOnMouseDragged(function(event) {
+        if(movePoint === null) {
+            return;
+        }
+
+        stage.setX(event.getScreenX() - movePoint.getX());
+        stage.setY(event.getScreenY() - movePoint.getY());
+    });
+
+    var pane = optionsMenu.lookup("#bar");
+    bar = pane;
+    pane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
+    pane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
+    pane.lookup("#apply").setOnAction(function(){
+        setCurrentScene(menuScene);
+    });
+    pane.lookup("#back").setOnAction(function(){
+        setCurrentScene(menuScene);
+    });
+
+    var pane = optionsMenu.lookup("#optionsPane");
+    optionsPane = pane;
+
+}
+
+/* ======== Options ======== */
+function goOptions(event) {
+    setCurrentScene(optionsScene);
+}
+
 var options = {
     file: DirBridge.dir.resolve("options.bin"),
 
@@ -73,24 +108,19 @@ var options = {
         });
     },
 
-    /* ===================== OVERLAY ===================== */
     count: 0,
 
-    initOverlay: function() {
-        options.overlay = loadFXML("dialog/overlay/options/options.fxml");
-        var holder = options.overlay.lookup("#holder");
-        holder.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
-    },
     update: function() {
-        var holder = options.overlay.lookup("#modlist").getContent();
+
+        var modlist = pane.lookup("#modlist").getContent();
             var nodelist = new java.util.ArrayList;
 
-            holder.getChildren().forEach(function(node,i,arr) {
+            modlist.getChildren().forEach(function(node,i,arr) {
                 if(node instanceof com.jfoenix.controls.JFXCheckBox)
                     nodelist.add(node);
             });
             nodelist.forEach(function(node,i,arr) {
-                holder.getChildren().remove(node);
+                modlist.getChildren().remove(node);
             });
             var profile = profilesList[serverHolder.old];
             var list = profile.getOptional();
@@ -108,14 +138,14 @@ var options = {
                             LogHelper.debug("optionalMod %s permissions deny",modFile.name);
                             return;
                         }
-                        if(modFile.info != null) //Есть ли описание?
+                        if(modFile.info != null)
                             modDescription = modFile.info;
-                        if(modFile.subTreeLevel != null && modFile.subTreeLevel > 1)//Это суб-модификация?
+                        if(modFile.subTreeLevel != null && modFile.subTreeLevel > 1)
                             subLevel = modFile.subTreeLevel;
                          var testMod = new com.jfoenix.controls.JFXCheckBox(modName);
 
                         if(subLevel > 1)
-                            for(var i = 1; i < subLevel; i++)//Выделение субмодификаций сдвигом.
+                            for(var i = 1; i < subLevel; i++)
                                 testMod.setTranslateX(25*i);
 
                          testMod.setSelected(modFile.mark);
@@ -134,7 +164,7 @@ var options = {
                              options.update();
                          });
                         checkBoxList.add(testMod);
-                         if(modDescription != "") { //Добавляем описание?
+                         if(modDescription != "") {
                              textDescr = new javafx.scene.text.Text(modDescription);
                              if(subLevel > 1) {
                                  for(var i = 1; i < subLevel; i++){
@@ -153,7 +183,7 @@ var options = {
                         sep.getStyleClass().add("separator");
                         checkBoxList.add(sep);
                 });
-            holder.getChildren().clear();
-            holder.getChildren().addAll(checkBoxList);
+            modlist.getChildren().clear();
+            modlist.getChildren().addAll(checkBoxList);
     }
 };

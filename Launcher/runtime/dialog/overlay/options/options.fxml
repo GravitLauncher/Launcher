@@ -1,32 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXScrollPane?>
+<?import com.jfoenix.controls.JFXToggleButton?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="overlay" prefHeight="425.0" prefWidth="693.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
+<Pane fx:id="background" prefHeight="425.0" prefWidth="738.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-     <Pane id="holder" prefHeight="425.0" prefWidth="693.0">
-       <children>
-        <JFXScrollPane id="modlist" prefHeight="425.0" prefWidth="694.0">
+       <Pane id="optionsPane" prefHeight="425.0" prefWidth="693.0" styleClass="optionsPane">
+           <children>
+           <JFXToggleButton layoutX="10.0" layoutY="10.0" styleClass="pressetLight" text="Presset 1" />
+           <JFXToggleButton layoutX="267.0" layoutY="10.0" styleClass="pressetMedium" text="Presset 2" />
+           <JFXToggleButton layoutX="549.0" layoutY="10.0" prefHeight="58.0" prefWidth="134.0" styleClass="pressetHigh" text="Presset 3" wrapText="true" />
+           <Line endX="588.0" layoutX="100.0" layoutY="80.0" startX="-100.0" stroke="#5b3636" styleClass="lineHead" />
+           <ScrollPane id="modlist" layoutY="75.0" prefHeight="351.0" prefWidth="694.0">
                <content>
-                  <VBox prefHeight="232.0" prefWidth="689.0">
-					<children>
-					</children>
-                     <padding>
-                        <Insets left="10.0" top="8.0" />
-                     </padding>
-				  </VBox>
+                   <VBox prefHeight="349.0" prefWidth="692.0">
+                       <children>
+                       </children>
+                       <padding>
+                           <Insets left="10.0" top="8.0" />
+                       </padding>
+                   </VBox>
                </content>
-        </JFXScrollPane>
-		<JFXButton fx:id="apply" defaultButton="true" layoutX="532.0" layoutY="390.0" prefHeight="25.0" prefWidth="100.0" text="Применить" />
-        </children>
-     </Pane>
+           </ScrollPane>
+           </children>
+       </Pane>
+       <Pane fx:id="bar" layoutX="693.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
+           <children>
+               <JFXButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" text="" textAlignment="CENTER" />
+               <JFXButton id="close" alignment="CENTER" contentDisplay="CENTER" text="" textAlignment="CENTER" />
+               <JFXButton id="back" fx:id="back" alignment="CENTER" contentDisplay="CENTER" layoutY="335.0" text="" textAlignment="CENTER" />
+            <JFXButton fx:id="apply" layoutY="380.0" prefHeight="25.0" prefWidth="45.0" />
+           </children>
+       </Pane>
    </children>
   <stylesheets>
     <URL value="@options.css" />

@@ -3,6 +3,7 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXTextArea?>
 <?import java.net.URL?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.Pane?>
 
 <!-- DrLeonardo Design -->
@@ -14,7 +15,10 @@
     </stylesheets>
 
     <!-- Debug controls -->
-    <JFXTextArea fx:id="output" prefHeight="425.0" prefWidth="693.0" />
-    <JFXButton fx:id="copy" defaultButton="true" layoutX="423.0" layoutY="390.0" prefHeight="30.0" prefWidth="100.0" text="Копировать" />
-    <JFXButton fx:id="action" layoutX="583.0" layoutY="390.0" prefHeight="25.0" prefWidth="100.0" text="Убить" />
+    <JFXTextArea fx:id="output" prefHeight="425.0" prefWidth="693.0">
+      <padding>
+         <Insets left="10.0" right="10.0" />
+      </padding></JFXTextArea>
+    <JFXButton fx:id="copy" defaultButton="true" layoutX="373.0" layoutY="390.0" prefHeight="30.0" prefWidth="100.0" text="Копировать" />
+    <JFXButton fx:id="action" layoutX="533.0" layoutY="390.0" prefHeight="25.0" prefWidth="150.0" text="Убить" />
 </Pane>

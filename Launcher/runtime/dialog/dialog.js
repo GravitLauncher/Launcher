@@ -1,4 +1,4 @@
-var authPane, dimPane, serverPane, bar;
+var authPane, dimPane, serverPane, bar, optionsPane;
 var loginField, passwordField, savePasswordBox;
 var serverList, serverInfo, serverDescription, serverEntrance, serverLabel, serverStatus;
 var profilesList = [];
@@ -10,12 +10,13 @@ function initLauncher() {
     initLoginScene();
     initMenuScene();
     initConsoleScene();
+    initOptionsScene();
 
     debug.initOverlay();
     processing.initOverlay();
     settingsOverlay.initOverlay();
     update.initOverlay();
-    options.initOverlay();
+    //options.initOverlay();
 
     verifyLauncher();
 }
@@ -41,14 +42,14 @@ function initLoginScene() {
     authPane = pane;
 
     loginField = pane.lookup("#login");
-	loginField.setOnMouseMoved(function(event){rootPane.fireEvent(event)}); 
+    loginField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
     loginField.setOnAction(goAuth);
     if (settings.login !== null) {
         loginField.setText(settings.login);
     }
 
     passwordField = pane.lookup("#password");
-	passwordField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
+    passwordField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
     passwordField.setOnAction(goAuth);
     if (settings.rsaPassword !== null) {
         passwordField.getStyleClass().add("hasSaved");
@@ -149,7 +150,7 @@ function initOffline() {
 function goAuth(event) {
     if (overlay.current !== null) {
         return;
-    } 
+    }
 
     var login = loginField.getText();
     if (login.isEmpty()) {
@@ -176,32 +177,16 @@ function goAuth(event) {
 
 /* ======== Console ======== */
 function goConsole(event) {
-    if (overlay.current !== null) {
-        return;
-    }
+    setCurrentScene(consoleScene);
 }
 
 /* ======== Settings ======== */
 function goSettings(event) {
-    // Verify there's no other overlays
     if (overlay.current !== null) {
         return;
     }
 
-    // Show settings overlay
     overlay.show(settingsOverlay.overlay, null);
-}
-
-/* ======== Options ======== */
-function goOptions(event) {
-    // Verify there's no other overlays
-    if (overlay.current !== null) {
-        return;
-    }
-
-    // Show options overlay
-    options.update();
-    overlay.show(options.overlay, null);
 }
 
 /* ======== Processing functions ======== */
@@ -212,7 +197,7 @@ function verifyLauncher(e) {
         processing.resetOverlay();
         // Init offline if set
         if (settings.offline) {
-             initOffline();
+            initOffline();
         }
         overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
             settings.lastProfiles = result.profiles;
@@ -220,9 +205,9 @@ function verifyLauncher(e) {
             updateProfilesList(result.profiles);
             options.load();
             overlay.hide(0, function() {
-                  if (cliParams.autoLogin) {
-                      goAuth(null);
-                  }
+                if (cliParams.autoLogin) {
+                    goAuth(null);
+                }
             });
         }));
     }));
@@ -245,37 +230,37 @@ function doAuth(login, rsaPassword) {
 }
 
 function doUpdate(profile, pp, accessToken) {
-var digest = profile.isUpdateFastCheck();
+    var digest = profile.isUpdateFastCheck();
     overlay.swap(0, update.overlay, function(event) {
 
-            update.resetOverlay("Обновление файлов ресурсов");
-            var assetDirName = profile.getAssetDir();
-            var assetDir = settings.updatesDir.resolve(assetDirName);
-            var assetMatcher = profile.getAssetUpdateMatcher();
-            makeSetProfileRequest(profile, function() {
-                ClientLauncher.setProfile(profile);
-                makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
-                    settings.lastHDirs.put(assetDirName, assetHDir.hdir);
+        update.resetOverlay("Обновление файлов ресурсов");
+        var assetDirName = profile.getAssetDir();
+        var assetDir = settings.updatesDir.resolve(assetDirName);
+        var assetMatcher = profile.getAssetUpdateMatcher();
+        makeSetProfileRequest(profile, function() {
+            ClientLauncher.setProfile(profile);
+            makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
+                settings.lastHDirs.put(assetDirName, assetHDir.hdir);
 
-                    update.resetOverlay("Обновление файлов клиента");
-                    var clientDirName = profile.getDir();
-                    var clientDir = settings.updatesDir.resolve(clientDirName);
-                    var clientMatcher = profile.getClientUpdateMatcher();
-                    makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
-                        settings.lastHDirs.put(clientDirName, clientHDir.hdir);
-                        doLaunchClient(assetDir, assetHDir.hdir, clientDir, clientHDir.hdir, profile, pp, accessToken);
-                    });
+                update.resetOverlay("Обновление файлов клиента");
+                var clientDirName = profile.getDir();
+                var clientDir = settings.updatesDir.resolve(clientDirName);
+                var clientMatcher = profile.getClientUpdateMatcher();
+                makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
+                    settings.lastHDirs.put(clientDirName, clientHDir.hdir);
+                    doLaunchClient(assetDir, assetHDir.hdir, clientDir, clientHDir.hdir, profile, pp, accessToken);
                 });
             });
+        });
     });
 }
 
 function doLaunchClient(assetDir, assetHDir, clientDir, clientHDir, profile, pp, accessToken) {
     processing.resetOverlay();
     overlay.swap(0, processing.overlay, function(event)
-        launchClient(assetHDir, clientHDir, profile, new ClientLauncherParams(settings.lastDigest,
-            assetDir, clientDir, pp, accessToken, settings.autoEnter, settings.fullScreen, settings.ram, 0, 0), doDebugClient)
-    );
+    launchClient(assetHDir, clientHDir, profile, new ClientLauncherParams(settings.lastDigest,
+        assetDir, clientDir, pp, accessToken, settings.autoEnter, settings.fullScreen, settings.ram, 0, 0), doDebugClient)
+);
 }
 
 function doDebugClient(process) {
@@ -317,8 +302,8 @@ function updateProfilesList(profiles) {
     });
     LogHelper.debug("Load selected %d profile",settings.profile);
     if(profiles.length > 0) {
-    	if(settings.profile >= profiles.length)
-    		settings.profile = profiles.length-1;
+        if(settings.profile >= profiles.length)
+            settings.profile = profiles.length-1;
         serverHolder.set(serverList.getChildren().get(settings.profile));
     }
 }

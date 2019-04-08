@@ -254,7 +254,7 @@ Button, CheckBox, ComboBox, RadioButton {
 }
 
 .scroll-pane>.corner {
-    -fx-background-color: black;
+    -fx-background-color: rgba(0, 0, 0, 0.19);
 }
 
 /* Server buttons */

@@ -28,7 +28,7 @@
 		<TextFlow layoutX="126.0" layoutY="15.0" prefHeight="16.0" prefWidth="112.0">
 			<Text fx:id="ramLabel" />
 		</TextFlow>
-		 <Separator layoutY="112.0" prefHeight="3.0" prefWidth="693.0" />
+		 <Separator layoutY="112.0" prefHeight="3.0" prefWidth="694.0" />
          <!-- RAM settings -->
 		 
          <!-- Deldir settings -->
@@ -43,7 +43,7 @@
          <JFXButton fx:id="apply" defaultButton="true" layoutX="534.0" layoutY="365.0" prefHeight="23.0" prefWidth="100.0" text="Применить" />
 			<Text layoutX="16.0" layoutY="28.0">Выделение памяти: </Text>
             <JFXSlider fx:id="ramSlider" layoutX="14.0" layoutY="76.0" prefHeight="14.0" prefWidth="663.0" />
-            <Separator layoutY="400.0" prefHeight="3.0" prefWidth="693.0" />
+            <Separator layoutY="400.0" prefHeight="3.0" prefWidth="694.0" />
             <Pane fx:id="transferDialog" prefHeight="425.0" prefWidth="694.0" visible="false">
                <children>
                   <Text fill="WHITE" layoutX="147.0" layoutY="198.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Перенести все данные в новую директорию?" wrappingWidth="400.13671875">
