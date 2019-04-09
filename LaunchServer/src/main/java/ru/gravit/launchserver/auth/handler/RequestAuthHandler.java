@@ -5,8 +5,10 @@ import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public final class RequestAuthHandler extends CachedAuthHandler {
@@ -19,28 +21,27 @@ public final class RequestAuthHandler extends CachedAuthHandler {
 
     @Override
     protected Entry fetchEntry(UUID uuid) throws IOException {
-        // Входные данные - uuid     ^, выходные - username
-        String uuidTOstring = uuid.toString();
-        //        вот запрос например этот выглядит так: localhost/auth.php?type =  GetUsername &  uuid =         переменная uuidTOstring
-        return IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetUsername", "uuid", IOHelper.urlEncode(uuidTOstring))));
+        throw new UnsupportedOperationException("Произошол троллинг...");
     }
 
     @Override
     protected Entry fetchEntry(String username) throws IOException {
-        // тут надо с точностью наоборот как выше, вместо uuid входные данные username
-        return null;
+        throw new UnsupportedOperationException("Произошол троллинг...");
     }
 
     @Override
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
-        return false;
-        // тут и ниже пока не трогай
+        return updUUID(uuid, username).equals("OK");
+        // а как объеденить?
+        return updAccessToken(accessToken, username).equals("OK");
     }
 
     @Override
     protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
-        return false;
+        return updServerID(uuid, serverID).equals("OK");
     }
+
+
 
 
     /*
@@ -50,7 +51,6 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         UUID stringTOuuid = UUID.fromString(currentResponse);
         return stringTOuuid;
     }
-
     @Override
     public String uuidToUsername(UUID uuid) throws IOException {
         String uuidTOstring = uuid.toString();
@@ -58,6 +58,57 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         return currentResponse;
     }
     */
+
+
+
+    protected String updAccessToken(final String accessToken, final String username) throws IOException {
+        final String type = "SetAccessToken";
+        final String encodedUsername = IOHelper.urlEncode(Objects.toString(username));
+        final String encodedAccessToken = IOHelper.urlEncode(Objects.toString(accessToken));
+        final URL formattedUrl = new URL(
+                CommonHelper.replace(url,
+                        "type",
+                        type,
+                        "username",
+                        encodedUsername,
+                        "uuid",
+                        encodedAccessToken));
+
+        return IOHelper.request(formattedUrl);
+    }
+
+    protected String updServerID(final UUID uuid, final String serverID) throws IOException {
+        final String type = "SetServerID";
+        final String encodedUUID = IOHelper.urlEncode(Objects.toString(uuid));
+        final String encodedID = IOHelper.urlEncode(serverID);
+        final URL formattedUrl = new URL(
+                CommonHelper.replace(url,
+                        "type",
+                        type,
+                        "uuid",
+                        encodedUUID,
+                        "ServerID",
+                        encodedID));
+
+        return IOHelper.request(formattedUrl);
+    }
+
+    protected String updUUID(final UUID uuid, final String username) throws IOException {
+        final String type = "SetUUID";
+        final String encodedUsername = IOHelper.urlEncode(Objects.toString(username));
+        final String encodedUUID = IOHelper.urlEncode(Objects.toString(uuid));
+        final URL formattedUrl = new URL(
+                CommonHelper.replace(url,
+                        "type",
+                        type,
+                        "username",
+                        encodedUsername,
+                        "uuid",
+                        encodedUUID));
+
+        return IOHelper.request(formattedUrl);
+    }
+
     @Override
     public void close() {
         // Ничего не делать
