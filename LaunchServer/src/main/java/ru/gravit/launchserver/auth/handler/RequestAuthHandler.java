@@ -5,12 +5,14 @@ import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public final class RequestAuthHandler extends CachedAuthHandler {
-    private String url;
+    private transient String url;
 
     @Override
     public void init() {
@@ -19,27 +21,38 @@ public final class RequestAuthHandler extends CachedAuthHandler {
 
     @Override
     protected Entry fetchEntry(UUID uuid) throws IOException {
-        // Входные данные - uuid     ^, выходные - username
-        String uuidTOstring = uuid.toString();
-        //        вот запрос например этот выглядит так: localhost/auth.php?type =  GetUsername &  uuid =         переменная uuidTOstring
-        return IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetUsername", "uuid", IOHelper.urlEncode(uuidTOstring))));
+        throw new UnsupportedOperationException("Произошол троллинг...");
     }
 
     @Override
     protected Entry fetchEntry(String username) throws IOException {
-        // тут надо с точностью наоборот как выше, вместо uuid входные данные username
-        return null;
+        throw new UnsupportedOperationException("Произошол троллинг...");
     }
 
     @Override
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
-        return false;
-        // тут и ниже пока не трогай
+        throw new UnsupportedOperationException("Произошол троллинг...");
     }
 
     @Override
     protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
-        return false;
+        return proceedServerID(uuid, serverID).equals("ok");
+    }
+
+    protected String proceedServerID(final UUID uuid, final String serverID) throws IOException {
+        final String type = "SetServerID";
+        final String encodedUUID = IOHelper.urlEncode(Objects.toString(uuid));
+        final String encodedID = IOHelper.urlEncode(serverID);
+        final URL formattedUrl = new URL(
+                CommonHelper.replace(url,
+                        "type",
+                        type,
+                        "uuid",
+                        encodedUUID,
+                        "ServerID",
+                        encodedID));
+
+        return IOHelper.request(formattedUrl);
     }
 
 
