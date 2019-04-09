@@ -21,7 +21,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
 
     @Override
     protected Entry fetchEntry(UUID uuid) throws IOException {
-        throw new UnsupportedOperationException("Произошол троллинг...");
+        //var = IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetUUID", "uuid", IOHelper.urlEncode(u))));
     }
 
     @Override
@@ -50,10 +50,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
         boolean isUUIDupdated = updUUID(uuid, username).equals("OK");
         boolean isAccessTokenUpdated = updAccessToken(accessToken, username).equals("OK");
-        if (isUUIDupdated == true && isAccessTokenUpdated == true) {
-            return true;
-        }
-        return false;
+        return isUUIDupdated && isAccessTokenUpdated;
     }
 
     @Override
