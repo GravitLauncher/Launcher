@@ -32,7 +32,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     @Override
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
         return updUUID(uuid, username).equals("OK");
-        // а как объеденить?
+        // а как объеденить? а то троллит
         return updAccessToken(accessToken, username).equals("OK");
     }
 
