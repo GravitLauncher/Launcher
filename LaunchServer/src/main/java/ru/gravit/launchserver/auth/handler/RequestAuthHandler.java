@@ -22,6 +22,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     @Override
     protected Entry fetchEntry(UUID uuid) throws IOException {
         //var = IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetUUID", "uuid", IOHelper.urlEncode(u))));
+        throw new UnsupportedOperationException("Произошол троллинг...");
     }
 
     @Override
