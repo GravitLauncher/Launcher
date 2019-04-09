@@ -5,9 +5,7 @@ import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -21,31 +19,20 @@ public final class RequestAuthHandler extends CachedAuthHandler {
 
     @Override
     protected Entry fetchEntry(UUID uuid) throws IOException {
-        //var = IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetUUID", "uuid", IOHelper.urlEncode(u))));
-        throw new UnsupportedOperationException("Произошол троллинг...");
+        String username = IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetUsername", "uuid", IOHelper.urlEncode(uuid.toString()))));
+        String accessToken = IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetAccessToken", "uuid", IOHelper.urlEncode(uuid.toString()))));
+        String serverID = IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetServerID", "uuid", IOHelper.urlEncode(uuid.toString()))));
+        return new Entry(uuid, username, accessToken, serverID);
     }
 
     @Override
     protected Entry fetchEntry(String username) throws IOException {
-        throw new UnsupportedOperationException("Произошол троллинг...");
+        String GettedUUID = IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetUUID", "username", IOHelper.urlEncode(username))));
+        UUID uuid = UUID.fromString(GettedUUID);
+        String accessToken = IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetAccessToken", "username", IOHelper.urlEncode(username))));
+        String serverID = IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetServerID", "username", IOHelper.urlEncode(username))));
+        return new Entry(uuid, username, accessToken, serverID);
     }
-
-
-    /*
-    @Override
-    public UUID usernameToUUID(String username) throws IOException {
-        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetUUID", "username", IOHelper.urlEncode(username))));
-        UUID stringTOuuid = UUID.fromString(currentResponse);
-        return stringTOuuid;
-    }
-    @Override
-    public String uuidToUsername(UUID uuid) throws IOException {
-        String uuidTOstring = uuid.toString();
-        String currentResponse = IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetUsername", "uuid", IOHelper.urlEncode(uuidTOstring))));
-        return currentResponse;
-    }
-    */
-
 
     @Override
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
