@@ -47,7 +47,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     }
 
     protected String updAccessToken(final String accessToken, final String username) throws IOException {
-        return IOHelper.request(new URL(CommonHelper.replace(url, "type", "SetAccessToken", "username", IOHelper.urlEncode(Objects.toString(username)), "uuid", IOHelper.urlEncode(Objects.toString(accessToken)))));
+        return IOHelper.request(new URL(CommonHelper.replace(url, "type", "SetAccessToken", "username", IOHelper.urlEncode(Objects.toString(username)), "accessToken", IOHelper.urlEncode(Objects.toString(accessToken)))));
     }
 
     protected String updServerID(final UUID uuid, final String serverID) throws IOException {
