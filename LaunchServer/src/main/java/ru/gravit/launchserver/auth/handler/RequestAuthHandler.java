@@ -29,24 +29,6 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         throw new UnsupportedOperationException("Произошол троллинг...");
     }
 
-    @Override
-    protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
-        boolean isUUIDupdated = updUUID(uuid, username).equals("OK");
-        boolean isAccessTokenUpdated = updAccessToken(accessToken, username).equals("OK");
-        if (isUUIDupdated == true && isAccessTokenUpdated == true) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
-        return updServerID(uuid, serverID).equals("OK");
-    }
-
-
-
 
     /*
     @Override
@@ -64,6 +46,20 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     */
 
 
+    @Override
+    protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
+        boolean isUUIDupdated = updUUID(uuid, username).equals("OK");
+        boolean isAccessTokenUpdated = updAccessToken(accessToken, username).equals("OK");
+        if (isUUIDupdated == true && isAccessTokenUpdated == true) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
+        return updServerID(uuid, serverID).equals("OK");
+    }
 
     protected String updAccessToken(final String accessToken, final String username) throws IOException {
         final String type = "SetAccessToken";
@@ -114,7 +110,5 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     }
 
     @Override
-    public void close() {
-        // Ничего не делать
-    }
+    public void close() {}
 }
