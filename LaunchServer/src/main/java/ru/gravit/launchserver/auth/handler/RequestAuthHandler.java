@@ -47,30 +47,15 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     }
 
     protected String updAccessToken(final String accessToken, final String username) throws IOException {
-        final String type = "SetAccessToken";
-        final String encodedUsername = IOHelper.urlEncode(Objects.toString(username));
-        final String encodedAccessToken = IOHelper.urlEncode(Objects.toString(accessToken));
-        final URL formattedUrl = new URL(
-                CommonHelper.replace(url, "type", type, "username", encodedUsername, "uuid", encodedAccessToken));
-        return IOHelper.request(formattedUrl);
+        return IOHelper.request(new URL(CommonHelper.replace(url, "type", "SetAccessToken", "username", IOHelper.urlEncode(Objects.toString(username)), "uuid", IOHelper.urlEncode(Objects.toString(accessToken)))));
     }
 
     protected String updServerID(final UUID uuid, final String serverID) throws IOException {
-        final String type = "SetServerID";
-        final String encodedUUID = IOHelper.urlEncode(Objects.toString(uuid));
-        final String encodedID = IOHelper.urlEncode(serverID);
-        final URL formattedUrl = new URL(
-                CommonHelper.replace(url, "type", type, "uuid", encodedUUID, "ServerID", encodedID));
-        return IOHelper.request(formattedUrl);
+        return IOHelper.request(new URL(CommonHelper.replace(url, "type", "SetServerID", "uuid", IOHelper.urlEncode(Objects.toString(uuid)), "ServerID", IOHelper.urlEncode(serverID))));
     }
 
     protected String updUUID(final UUID uuid, final String username) throws IOException {
-        final String type = "SetUUID";
-        final String encodedUsername = IOHelper.urlEncode(Objects.toString(username));
-        final String encodedUUID = IOHelper.urlEncode(Objects.toString(uuid));
-        final URL formattedUrl = new URL(
-                CommonHelper.replace(url, "type", type, "username", encodedUsername, "uuid", encodedUUID));
-        return IOHelper.request(formattedUrl);
+        return IOHelper.request(new URL(CommonHelper.replace(url, "type", "SetUUID", "username", IOHelper.urlEncode(Objects.toString(username)), "uuid", IOHelper.urlEncode(Objects.toString(uuid)))));
     }
 
     @Override
