@@ -50,10 +50,8 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
         boolean isUUIDupdated = updUUID(uuid, username).equals("OK");
         boolean isAccessTokenUpdated = updAccessToken(accessToken, username).equals("OK");
-        if (isUUIDupdated == true && isAccessTokenUpdated == true) {
-            return true;
-        }
-        return false;
+
+        return isUUIDupdated && isAccessTokenUpdated;
     }
 
     @Override
