@@ -51,14 +51,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         final String encodedUsername = IOHelper.urlEncode(Objects.toString(username));
         final String encodedAccessToken = IOHelper.urlEncode(Objects.toString(accessToken));
         final URL formattedUrl = new URL(
-                CommonHelper.replace(url,
-                        "type",
-                        type,
-                        "username",
-                        encodedUsername,
-                        "uuid",
-                        encodedAccessToken));
-
+                CommonHelper.replace(url, "type", type, "username", encodedUsername, "uuid", encodedAccessToken));
         return IOHelper.request(formattedUrl);
     }
 
@@ -67,14 +60,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         final String encodedUUID = IOHelper.urlEncode(Objects.toString(uuid));
         final String encodedID = IOHelper.urlEncode(serverID);
         final URL formattedUrl = new URL(
-                CommonHelper.replace(url,
-                        "type",
-                        type,
-                        "uuid",
-                        encodedUUID,
-                        "ServerID",
-                        encodedID));
-
+                CommonHelper.replace(url, "type", type, "uuid", encodedUUID, "ServerID", encodedID));
         return IOHelper.request(formattedUrl);
     }
 
@@ -83,14 +69,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         final String encodedUsername = IOHelper.urlEncode(Objects.toString(username));
         final String encodedUUID = IOHelper.urlEncode(Objects.toString(uuid));
         final URL formattedUrl = new URL(
-                CommonHelper.replace(url,
-                        "type",
-                        type,
-                        "username",
-                        encodedUsername,
-                        "uuid",
-                        encodedUUID));
-
+                CommonHelper.replace(url, "type", type, "username", encodedUsername, "uuid", encodedUUID));
         return IOHelper.request(formattedUrl);
     }
 
