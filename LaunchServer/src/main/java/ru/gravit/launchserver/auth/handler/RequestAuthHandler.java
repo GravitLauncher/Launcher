@@ -19,13 +19,28 @@ public final class RequestAuthHandler extends CachedAuthHandler {
 
     @Override
     protected Entry fetchEntry(UUID uuid) throws IOException {
+        // Входные данные - uuid     ^, выходные - username
         String uuidTOstring = uuid.toString();
+        //        вот запрос например этот выглядит так: localhost/auth.php?type =  GetUsername &  uuid =         переменная uuidTOstring
         return IOHelper.request(new URL(CommonHelper.replace(url, "type", "GetUsername", "uuid", IOHelper.urlEncode(uuidTOstring))));
     }
 
+    @Override
+    protected Entry fetchEntry(String username) throws IOException {
+        // тут надо с точностью наоборот как выше, вместо uuid входные данные username
+        return null;
+    }
 
+    @Override
+    protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
+        return false;
+        // тут и ниже пока не трогай
+    }
 
-
+    @Override
+    protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
+        return false;
+    }
 
 
     /*
