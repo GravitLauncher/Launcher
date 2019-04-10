@@ -147,13 +147,14 @@ public final class LauncherAgent {
 	 * @throws IOException
 	 */
 	private static byte[] getClassFile(Class<?> clazz) throws IOException {     
-	    InputStream is = clazz.getResourceAsStream( "/" + clazz.getName().replace('.', '/') + ".class");
-	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	    int r = 0;
-	    byte[] buffer = new byte[8192];
-	    while((r=is.read(buffer))>=0) {
-	        baos.write(buffer, 0, r);
-	    }   
-	    return baos.toByteArray();
+	    try (InputStream is = clazz.getResourceAsStream( "/" + clazz.getName().replace('.', '/') + ".class");
+	    		ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+	    	int r = 0;
+	    	byte[] buffer = new byte[8192];
+	    	while((r=is.read(buffer))>=0) {
+	        	baos.write(buffer, 0, r);
+	    	}   
+	    	return baos.toByteArray();
+	    }
 	}
 }
