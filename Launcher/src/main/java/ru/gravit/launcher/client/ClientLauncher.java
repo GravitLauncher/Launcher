@@ -366,7 +366,7 @@ public final class ClientLauncher {
         Collections.addAll(context.args, profile.getJvmArgs());
         profile.pushOptionalJvmArgs(context.args);
         Collections.addAll(context.args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
-        Collections.addAll(context.args, "-javaagent:".concat(pathLauncher).concat("=pr"));
+        Collections.addAll(context.args, "-javaagent:".concat(pathLauncher));
         LauncherGuardManager.guard.addCustomParams(context);
         Collections.addAll(context.args, ClientLauncher.class.getName());
 
