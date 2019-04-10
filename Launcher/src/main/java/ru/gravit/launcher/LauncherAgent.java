@@ -55,6 +55,7 @@ public final class LauncherAgent {
 	 * Replaces the Runtime class via instrumentation, transforms the class via ASM
 	 */
     private static void replaceClasses(boolean pb, boolean rt) {
+    	java.awt.Robot.class.getName();
 		for(Class<?> c : inst.getAllLoadedClasses()) {
 			if(rt && c.getName().equals("java.lang.Runtime")) {
 				try {
