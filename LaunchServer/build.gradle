@@ -30,7 +30,8 @@ configurations {
 jar {
     dependsOn parent.childProjects.Launcher.tasks.build
     from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
-    from(parent.childProjects.Launcher.tasks.jar.archivePath, parent.childProjects.Launcher.tasks.genRuntimeJS.archivePath)
+    from(parent.childProjects.Launcher.tasks.shadowJar.archivePath)
+    from(parent.childProjects.Launcher.tasks.genRuntimeJS.archivePath)
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
             "Can-Redefine-Classes": "true",
