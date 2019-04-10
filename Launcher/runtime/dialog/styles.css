@@ -3,7 +3,7 @@ Button, CheckBox, ComboBox, RadioButton {
 	-fx-cursor: hand;
 }
 
-/* Background */
+/* Backgrounds */
 #layout {
     -fx-background-color: transparent;
     -fx-background-size: cover;
@@ -11,11 +11,32 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-pref-height: 425px;
     -fx-background-image: url('images/background.jpg');
 }
+#background {
+    -fx-background-color: #fff;
+}
+/** Labels **/
+#background > #settingsTitle {
+    -fx-font-size: 14pt;
+    -fx-alignment: baseline-center;
+}
+
+#serverLabel{
+    -fx-text-fill: #323232;
+    -fx-padding: 0 0 0 14;
+    -fx-pref-width: 265px;
+    -fx-pref-height: 25px;
+}
+
+#serverStatus{
+    -fx-text-fill: #323232;
+    -fx-pref-width: 120px;
+    -fx-pref-height: 25px;
+}
 
 /* Mask */
 #mask {
     -fx-background-color: rgba(0, 0, 0, 0.5);
-    -fx-pref-width: 693px;
+    -fx-pref-width: 692px;
     -fx-pref-height: 425px;
 }
 
@@ -33,82 +54,25 @@ Button, CheckBox, ComboBox, RadioButton {
 /* bars */
 #bar {
     -fx-background-color: #323232;
-    -fx-pref-width: 45px;
+    -fx-pref-width: 46px;
     -fx-pref-height: 425px;
 }
 /** buttons in bar **/
 #close {
     -fx-background-position: center;
     -jfx-button-type: FLAT;
-    -fx-background-repeat: no-repeat;
-    -fx-background-image: url('images/icons/close.png');
     -fx-background-radius: 0;
     -fx-background-color: #CE5757;
-    -fx-pref-width: 45px;
+    -fx-pref-width: 46px;
     -fx-pref-height: 45px;
 }
-#hide {
+#hide, #back, #goConsole, #settings, #logout, #discord {
     -fx-background-position: center;
     -jfx-button-type: FLAT;
-    -fx-background-repeat: no-repeat;
-    -fx-background-color: #323232;
     -fx-background-radius: 0;
-    -fx-background-image: url('images/icons/hide.png');
-    -fx-pref-width: 45px;
+    -fx-pref-width: 46px;
     -fx-pref-height: 45px;
 }
-#back {
-    -fx-background-position: center;
-    -jfx-button-type: FLAT;
-    -fx-background-repeat: no-repeat;
-    -fx-background-color: #323232;
-    -fx-background-radius: 0;
-    -fx-background-image: url('images/icons/back.png');
-    -fx-pref-width: 45px;
-    -fx-pref-height: 45px;
-}
-#goConsole {
-    -fx-background-position: center;
-    -jfx-button-type: FLAT;
-    -fx-background-repeat: no-repeat;
-    -fx-background-color: #323232;
-    -fx-background-radius: 0;
-    -fx-background-image: url('images/icons/console.png');
-    -fx-pref-width: 45px;
-    -fx-pref-height: 45px;
-}
-#settings {
-    -fx-background-position: center;
-    -jfx-button-type: FLAT;
-    -fx-background-repeat: no-repeat;
-    -fx-background-color: #323232;
-    -fx-background-radius: 0;
-    -fx-background-image: url('images/icons/settings.png');
-    -fx-pref-width: 45px;
-    -fx-pref-height: 45px;
-}
-#logout {
-    -fx-background-position: center;
-    -fx--button-type: FLAT;
-    -fx-background-repeat: no-repeat;
-    -fx-background-color: #323232;
-    -fx-background-radius: 0;
-    -fx-background-image: url('images/icons/exit.png');
-    -fx-pref-width: 45px;
-    -fx-pref-height: 45px;
-}
-#discord {
-    -fx-background-position: center;
-    -jfx-button-type: FLAT;
-    -fx-background-repeat: no-repeat;
-    -fx-background-color: #323232;
-    -fx-background-radius: 0;
-    -fx-background-image: url('images/icons/discord.png');
-    -fx-pref-width: 45px;
-    -fx-pref-height: 45px;
-}
-#close:hover, #close:pressed { -fx-background-color: #DB5252; }
-#hide:hover, #hide:pressed, #discord:hover, #discord:pressed, #settings:hover, #settings:pressed, #logout:hover, #logout:pressed { -fx-background-color: #3d3d3d; }
 
 /* LoginMenu */
 #authPane {
@@ -190,7 +154,7 @@ Button, CheckBox, ComboBox, RadioButton {
 /* MenuPane */
 .serverentrance {
     -fx-background-color: rgba(255, 255, 255, 0.71);
-    -fx-pref-width: 387px;
+    -fx-pref-width: 386px;
     -fx-pref-height: 425px;
 }
 
@@ -208,16 +172,41 @@ Button, CheckBox, ComboBox, RadioButton {
 .clientSettings{
     -fx-background-position: center;
     -jfx-button-type: FLAT;
-    -fx-background-repeat: no-repeat;
     -fx-background-color: #61B373;
     -fx-background-radius: 0;
     -fx-pref-width: 85px;
     -fx-pref-height: 51px;
-    -fx-background-image: url('images/icons/options.png');
 }
 
-.clientLaunch:hover, .clientLaunch:pressed, .clientSettings:hover, .clientSettings:pressed { -fx-background-color: #74C085; }
+.clientLaunch:hover, .clientLaunch:pressed { -fx-background-color: #74C085; }
 
+/* Pressets options */
+.pressetLight {
+    -jfx-toggle-color: #61B373;
+    -jfx-untoggle-color: #FAFAFA;
+    -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
+    -jfx-untoggle-line-color: #999999;
+    -jfx-size: 10.0;
+    -jfx-disable-visual-focus: false;
+}
+
+.pressetMedium {
+    -jfx-toggle-color: #61B373;
+    -jfx-untoggle-color: #FAFAFA;
+    -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
+    -jfx-untoggle-line-color: #999999;
+    -jfx-size: 10.0;
+    -jfx-disable-visual-focus: false;
+}
+
+.pressetHigh {
+    -jfx-toggle-color: #61B373;
+    -jfx-untoggle-color: #FAFAFA;
+    -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
+    -jfx-untoggle-line-color: #999999;
+    -jfx-size: 10.0;
+    -jfx-disable-visual-focus: false;
+}
 
 /* Scrolls */
 .scroll-pane {
@@ -257,53 +246,30 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-background-color: rgba(0, 0, 0, 0.19);
 }
 
-/* Server buttons */
-.server-button {
-    -jfx-button-type: FLAT;
-    -fx-font-weight: bold;
-    -fx-font-size: 16pt;
-    -fx-background-radius: 0;
-    -fx-alignment: CENTER-LEFT;
-    -fx-padding: 0 0 0 75;
-    -fx-font-family: "Segoe UI";
-    -fx-text-fill: #fff;
-    -fx-pref-width: 282px;
-    -fx-pref-height: 75px;
+/* OptionsPane */
+#optionsPane > #modlist {
+    -fx-background-color: transparent;
+
 }
 
-.server-button:selected {
-    -fx-border-width: 0 0 0 5;
-    -fx-border-style: none none none solid;
-    -fx-border-color: #323232;
+#optionsPane > #modlist > .viewport {
+    -fx-background-color: transparent;
 }
 
-/** Server custom buttons **/
-/** server-button-<your profile name> **/
-.server-icon-Example {
-    -fx-background-image: url('images/icons/example.png');
-}
-.server-icon-Example2 {
-    -fx-background-image: url('images/icons/example2.png');
-}
-.server-button-Example {
-    -fx-background-image: url('images/servers/example.png');
-}
-.server-button-Example2 {
-    -fx-background-image: url('images/servers/example2.png');
+.description-text {
+    -fx-font-smoothing-type: lcd;
+    -fx-fill: #8c8c8c;
+    -fx-font-size: 12px;
 }
 
-/* Labels */
-#serverLabel{
-    -fx-text-fill: #323232;
-    -fx-padding: 0 0 0 14;
-    -fx-pref-width: 265px;
-    -fx-pref-height: 25px;
+.lineHead {
+    -fx-stroke: #d8d8d8;
+    -fx-stroke-width: 10;
 }
 
-#serverStatus{
-    -fx-text-fill: #323232;
-    -fx-pref-width: 120px;
-    -fx-pref-height: 25px;
+.separator *.line {
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 10 0;
 }
 
 #serverlist{

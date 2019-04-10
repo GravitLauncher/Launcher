@@ -1,4 +1,4 @@
-var authPane, dimPane, serverPane, bar, optionsPane;
+var authPane, dimPane, serverPane, bar, optionsPane, consolePane;
 var loginField, passwordField, savePasswordBox;
 var serverList, serverInfo, serverDescription, serverEntrance, serverLabel, serverStatus;
 var profilesList = [];
@@ -12,16 +12,16 @@ function initLauncher() {
     initConsoleScene();
     initOptionsScene();
 
+    /* ======== init Overlays ======== */
     debug.initOverlay();
     processing.initOverlay();
     settingsOverlay.initOverlay();
     update.initOverlay();
-    //options.initOverlay();
 
     verifyLauncher();
 }
 
-/* ======== init Login ======== */
+/* ======== init Login window======== */
 function initLoginScene() {
     loginPane.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
     loginPane.setOnMouseDragged(function(event) {
@@ -66,7 +66,7 @@ function initLoginScene() {
     pane.lookup("#goAuth").setOnAction(goAuth);
 }
 
-/* ======== init Menu ======== */
+/* ======== init Menu window======== */
 function initMenuScene() {
     menuPane.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
     menuPane.setOnMouseDragged(function(event) {
@@ -96,7 +96,6 @@ function initMenuScene() {
     serverList = pane.lookup("#serverlist").getContent();
     serverInfo = pane.lookup("#serverinfo").getContent();
     serverDescription = serverInfo.lookup("#serverDescription");
-
     serverEntrance = pane.lookup("#serverentrance");
     serverStatus = serverEntrance.lookup("#serverStatus");
     serverLabel = serverEntrance.lookup("#serverLabel");
@@ -106,10 +105,10 @@ function initMenuScene() {
 
 }
 
-/* ======== init Console ======== */
+/* ======== init Console window======== */
 function initConsoleScene() {
-    consolePane.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
-    consolePane.setOnMouseDragged(function(event) {
+    consoleMenu.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    consoleMenu.setOnMouseDragged(function(event) {
         if(movePoint === null) {
             return;
         }
@@ -118,18 +117,38 @@ function initConsoleScene() {
         stage.setY(event.getScreenY() - movePoint.getY());
     });
 
-    var pane = consolePane.lookup("#bar");
+    var pane = consoleMenu.lookup("#bar");
     bar = pane;
-    consolePane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
-    consolePane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
-    consolePane.lookup("#back").setOnAction(function(){
+    pane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
+    pane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
+    pane.lookup("#back").setOnAction(function(){
         setCurrentScene(menuScene);
     });
 
-    var pane = consolePane.lookup("#consolePane");
+    var pane = consoleMenu.lookup("#consolePane");
     consolePane = pane;
 
+}
 
+/* ======== init Options window======== */
+function initOptionsScene() {
+    optionsMenu.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    optionsMenu.setOnMouseDragged(function(event) {
+        if(movePoint === null) {
+            return;
+        }
+
+        stage.setX(event.getScreenX() - movePoint.getX());
+        stage.setY(event.getScreenY() - movePoint.getY());
+    });
+
+    var pane = optionsMenu.lookup("#bar");
+    bar = pane;
+    pane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
+    pane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
+    pane.lookup("#back").setOnAction(function(){
+        setCurrentScene(menuScene);
+    });
 }
 
 /* ======== init Offline ======== */
@@ -189,19 +208,24 @@ function goSettings(event) {
     overlay.show(settingsOverlay.overlay, null);
 }
 
+/* ======== Options ======== */
+function goOptions(event) {
+    setCurrentScene(optionsScene);
+
+    options.update();
+}
+
 /* ======== Processing functions ======== */
 function verifyLauncher(e) {
     processing.resetOverlay();
     overlay.show(processing.overlay, function(event) makeLauncherRequest(function(result) {
         settings.lastDigest = result.digest;
         processing.resetOverlay();
-        // Init offline if set
         if (settings.offline) {
             initOffline();
         }
         overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
             settings.lastProfiles = result.profiles;
-            // Update profiles list and hide overlay
             updateProfilesList(result.profiles);
             options.load();
             overlay.hide(0, function() {
@@ -418,9 +442,11 @@ var serverHolder = {
     }
 };
 
-/* ======== Overlay scripts ======== */
+/* ======== Scenes scripts ======== */
 launcher.loadScript("dialog/overlay/debug/debug.js");
 launcher.loadScript("dialog/overlay/processing/processing.js");
 launcher.loadScript("dialog/overlay/settings/settings.js");
-launcher.loadScript("dialog/overlay/options/options.js");
 launcher.loadScript("dialog/overlay/update/update.js");
+
+/* ======== Overlays scripts ======== */
+launcher.loadScript("dialog/scenes/options/options.js");

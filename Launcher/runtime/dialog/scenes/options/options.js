@@ -1,38 +1,3 @@
-var optionsPane;
-
-/* ======== init Options ======== */
-function initOptionsScene() {
-    optionsMenu.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
-    optionsMenu.setOnMouseDragged(function(event) {
-        if(movePoint === null) {
-            return;
-        }
-
-        stage.setX(event.getScreenX() - movePoint.getX());
-        stage.setY(event.getScreenY() - movePoint.getY());
-    });
-
-    var pane = optionsMenu.lookup("#bar");
-    bar = pane;
-    pane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
-    pane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
-    pane.lookup("#apply").setOnAction(function(){
-        setCurrentScene(menuScene);
-    });
-    pane.lookup("#back").setOnAction(function(){
-        setCurrentScene(menuScene);
-    });
-
-    var pane = optionsMenu.lookup("#optionsPane");
-    optionsPane = pane;
-
-}
-
-/* ======== Options ======== */
-function goOptions(event) {
-    setCurrentScene(optionsScene);
-}
-
 var options = {
     file: DirBridge.dir.resolve("options.bin"),
 
@@ -111,6 +76,8 @@ var options = {
     count: 0,
 
     update: function() {
+        var pane = optionsMenu.lookup("#optionsPane");
+        optionsPane = pane;
 
         var modlist = pane.lookup("#modlist").getContent();
             var nodelist = new java.util.ArrayList;
@@ -168,11 +135,11 @@ var options = {
                              textDescr = new javafx.scene.text.Text(modDescription);
                              if(subLevel > 1) {
                                  for(var i = 1; i < subLevel; i++){
-                                    textDescr.setWrappingWidth(640-(25*i));
+                                    textDescr.setWrappingWidth(630-(25*i));
                                     textDescr.setTranslateX(25+(25*i));
                                  }
                              } else {
-                                 textDescr.setWrappingWidth(640);
+                                 textDescr.setWrappingWidth(630);
                                  textDescr.setTranslateX(25);
                              }
                              textDescr.setTextAlignment(javafx.scene.text.TextAlignment.JUSTIFY);

@@ -5,17 +5,14 @@ var processing = {
     initOverlay: function() {
         processing.overlay = loadFXML("dialog/overlay/processing/processing.fxml");
 
-        // Lookup nodes
         processing.spinner = processing.overlay.lookup("#spinner");
         processing.description = processing.overlay.lookup("#description");
 
-        // Set images
         processing.errorImage = new javafx.scene.image.Image(
             Launcher.getResourceURL("dialog/images/icons/error.png").toString());
     },
 
-    resetOverlay: function() {//JFXSpinner spinner = new JFXSpinner();
-        //processing.spinner.setImage(processing.processingImage);
+    resetOverlay: function() {
         processing.description.getStyleClass().remove("error");
         processing.description.setText("...");
     },
