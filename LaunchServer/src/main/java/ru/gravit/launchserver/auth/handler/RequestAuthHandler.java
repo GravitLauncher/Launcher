@@ -14,6 +14,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     @Override
     public void init() {
         if (url == null) LogHelper.error("[Verify][AuthHandler] url cannot be null");
+        if (SecretKey == null) LogHelper.error("[Verify][AuthHandler] SecretKey cannot be null");
     }
 
     @Override
@@ -25,8 +26,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
 		LogHelper.debug("[AuthHandler] Getted accessToken: " + accessToken);
 		LogHelper.debug("[AuthHandler] Getted serverID: " + serverID);
 		LogHelper.debug("[AuthHandler] Getted UUID: " + uuid);
-		Entry entr = new Entry(uuid, username, accessToken, serverID);
-        return entr;
+        return query(uuid, username, accessToken, serverID);
     }
 
     @Override
@@ -39,8 +39,11 @@ public final class RequestAuthHandler extends CachedAuthHandler {
 		LogHelper.debug("[AuthHandler] Getted accessToken: " + accessToken);
 		LogHelper.debug("[AuthHandler] Getted serverID: " + serverID);
 		LogHelper.debug("[AuthHandler] Getted UUID: " + uuid);
-        Entry entr = new Entry(uuid, username, accessToken, serverID);
-		return entr;
+        return query(uuid, username, accessToken, serverID);
+    }
+
+    private Entry query(UUID uuid, String username, String accessToken, String serverID) {
+        return new Entry(uuid, username, accessToken, serverID);
     }
 
     @Override
