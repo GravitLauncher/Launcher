@@ -1,5 +1,7 @@
 <?php
 
+//Секретный ключ. Внимание! должен совпадать с ключем в лаунчсервере. Пожалуйста, смените его, иначе это ставит под угрозу проект.
+$secretkey = '12345678';
 //Настройки связи с базой данных
 $link = mysqli_connect(
     'localhost', // Хост
@@ -24,8 +26,17 @@ $AuthHandler = [
 	'username' => filter_input(INPUT_GET, 'username', FILTER_SANITIZE_STRING),
 	'uuid' => filter_input(INPUT_GET, 'uuid', FILTER_SANITIZE_STRING),
 	'accessToken' => filter_input(INPUT_GET, 'accessToken', FILTER_SANITIZE_STRING),
-	'ServerID' => filter_input(INPUT_GET, 'ServerID', FILTER_SANITIZE_STRING)
+	'ServerID' => filter_input(INPUT_GET, 'ServerID', FILTER_SANITIZE_STRING),
+	'secretKey' => filter_input(INPUT_GET, 'secretKey', FILTER_SANITIZE_STRING)
 ];
+
+if (!isset($AuthHandler['secretKey'])) {
+	die('Не указан ключ!');
+}
+
+if ($secretkey != $AuthHandler['secretKey']) {
+	die('Неверный ключ!');
+}
 
 if(!$link) {
 	die('Ошибка подключения к базе данных');
