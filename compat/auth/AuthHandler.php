@@ -43,62 +43,25 @@ if(!$link) {
 }
 
 if(isset($AuthHandler['type'])) {
-  if($AuthHandler['type'] == "GetUsername") {
+  if($AuthHandler['type'] == "FetchByUUID") {
 	if(isset($AuthHandler['uuid'])) {
-	  $result = mysqli_query($link, 'SELECT '.$settings['usernameColumn'].' FROM '.$settings['table'].' WHERE '.$settings['uuidColumn'].'="'.$AuthHandler['uuid'].'" LIMIT 1') or die($link->error);
+	  $result = mysqli_query($link, 'SELECT '.$settings['usernameColumn'].','.$settings['accessTokenColumn'].','.$settings['serverID'].' FROM '.$settings['table'].' WHERE '.$settings['uuidColumn'].'="'.$AuthHandler['uuid'].'" LIMIT 1') or die($link->error);
 	  $row = $result->fetch_assoc();
 	  mysqli_free_result($result);
 	  mysqli_close($link);
-	  die($row[$settings['usernameColumn']]);
-	} else {
-		die('UUID not set!');
-	}
+	  die($row[$settings['usernameColumn']] + ':' + $row[$settings['accessTokenColumn']] + ':' + $row[$settings['serverID']]);
   }
-  if($AuthHandler['type'] == "GetAccessToken") {
+   if($AuthHandler['type'] == "FetchByUsername") {
 	if(isset($AuthHandler['uuid'])) {
-      $result = mysqli_query($link, 'SELECT '.$settings['accessTokenColumn'].' FROM '.$settings['table'].' WHERE '.$settings['uuidColumn'].'="'.$AuthHandler['uuid'].'" LIMIT 1') or die($link->error);
+	  $result = mysqli_query($link, 'SELECT '.$settings['uuidColumn'].','.$settings['accessTokenColumn'].','.$settings['serverID'].' FROM '.$settings['table'].' WHERE '.$settings['usernameColumn'].'="'.$AuthHandler['username'].'" LIMIT 1') or die($link->error);
 	  $row = $result->fetch_assoc();
 	  mysqli_free_result($result);
 	  mysqli_close($link);
-	  die($row[$settings['accessTokenColumn']]);
-	}
-	if(isset($AuthHandler['username'])) {
-      $result = mysqli_query($link, 'SELECT '.$settings['accessTokenColumn'].' FROM '.$settings['table'].' WHERE '.$settings['usernameColumn'].'="'.$AuthHandler['username'].'" LIMIT 1') or die($link->error);
-	  $row = $result->fetch_assoc();
-      mysqli_free_result($result);
-	  mysqli_close($link);
-	  die($row[$settings['accessTokenColumn']]);
-	}
-	die('No avaiable var to get accessToken!');
+	  die($row[$settings['uuidColumn']] + ':' + $row[$settings['accessTokenColumn']] + ':' + $row[$settings['serverID']]);
   }
-  if($AuthHandler['type'] == "GetServerID") {
-	if(isset($AuthHandler['uuid'])) {
-      $result = mysqli_query($link, 'SELECT '.$settings['ServerIDColumn'].' FROM '.$settings['table'].' WHERE '.$settings['uuidColumn'].'="'.$AuthHandler['uuid'].'" LIMIT 1') or die($link->error);
-	  $row = $result->fetch_assoc();
-	  mysqli_free_result($result);
-	  mysqli_close($link);
-	  die($row[$settings['ServerIDColumn']]);
-	}
-	if(isset($AuthHandler['username'])) {
-      $result = mysqli_query($link, 'SELECT '.$settings['ServerIDColumn'].' FROM '.$settings['table'].' WHERE '.$settings['usernameColumn'].'="'.$AuthHandler['username'].'" LIMIT 1') or die($link->error);
-	  $row = $result->fetch_assoc();
-	  mysqli_free_result($result);
-	  mysqli_close($link);
-	  die($row[$settings['ServerIDColumn']]);
-	}
-	die('No avaiable var to get serverID!');
-  }
-  if($AuthHandler['type'] == "GetUUID") {
-	if(isset($AuthHandler['username'])) {
-      $result = mysqli_query($link, 'SELECT '.$settings['uuidColumn'].' FROM '.$settings['table'].' WHERE '.$settings['usernameColumn'].'="'.$AuthHandler['username'].'" LIMIT 1') or die($link->error);
-	  $row = $result->fetch_assoc();
-	  mysqli_free_result($result);
-	  mysqli_close($link);
-	  die($row[$settings['uuidColumn']]);
-	} else {
-		die('Username not set!');
-	}
-  }
+  
+  // Обновление строк
+  
   if($AuthHandler['type'] == "SetAccessTokenAndUUID") {
 	  $result = mysqli_query($link, 'UPDATE '.$settings['table'].' SET '.$settings['accessTokenColumn'].'="'.$AuthHandler['accessToken'].'" WHERE '.$settings['usernameColumn'].'="'.$AuthHandler['username'].'"') or die($link->error);
 	  $result1 = mysqli_query($link, 'UPDATE '.$settings['table'].' SET '.$settings['uuidColumn'].'="'.$AuthHandler['uuid'].'" WHERE '.$settings['usernameColumn'].'="'.$AuthHandler['username'].'"') or die($link->error);
@@ -110,7 +73,7 @@ if(isset($AuthHandler['type'])) {
 	  mysqli_close($link);
 	  die('OK');
   }
-  die('Type is not correct!');
+  die('FAIL!');
 } else { 
   die('Type not set!');
 }
