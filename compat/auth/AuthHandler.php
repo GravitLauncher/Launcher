@@ -99,18 +99,14 @@ if(isset($AuthHandler['type'])) {
 		die('Username not set!');
 	}
   }
-  if($AuthHandler['type'] == "SetAccessToken") {
+  if($AuthHandler['type'] == "SetAccessTokenAndUUID") {
 	  $result = mysqli_query($link, 'UPDATE '.$settings['table'].' SET '.$settings['accessTokenColumn'].'="'.$AuthHandler['accessToken'].'" WHERE '.$settings['usernameColumn'].'="'.$AuthHandler['username'].'"') or die($link->error);
+	  $result1 = mysqli_query($link, 'UPDATE '.$settings['table'].' SET '.$settings['uuidColumn'].'="'.$AuthHandler['uuid'].'" WHERE '.$settings['usernameColumn'].'="'.$AuthHandler['username'].'"') or die($link->error);
 	  mysqli_close($link);
 	  die('OK');
   }
   if($AuthHandler['type'] == "SetServerID") {
 	  $result = mysqli_query($link, 'UPDATE '.$settings['table'].' SET '.$settings['ServerIDColumn'].'="'.$AuthHandler['serverID'].'" WHERE '.$settings['uuidColumn'].'="'.$AuthHandler['uuid'].'"') or die($link->error);
-	  mysqli_close($link);
-	  die('OK');
-  }
-  if($AuthHandler['type'] == "SetUUID") {
-	  $result = mysqli_query($link, 'UPDATE '.$settings['table'].' SET '.$settings['uuidColumn'].'="'.$AuthHandler['uuid'].'" WHERE '.$settings['usernameColumn'].'="'.$AuthHandler['username'].'"') or die($link->error);
 	  mysqli_close($link);
 	  die('OK');
   }

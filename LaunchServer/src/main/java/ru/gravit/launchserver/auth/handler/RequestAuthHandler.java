@@ -22,8 +22,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
 	private String TypeGetUUID;
 	private String TypeGetAccessToken;
 	private String TypeGetServerID;
-	private String TypeSetUUID;
-	private String TypeSetAccessToken;
+	private String TypeSetAccessTokenAndUUID;
 	private String TypeSetServerID;
 
     @Override
@@ -52,10 +51,8 @@ public final class RequestAuthHandler extends CachedAuthHandler {
             TypeGetAccessToken = "GetAccessToken";
 		if (TypeGetServerID == null)
             TypeGetServerID = "GetServerID";
-		if (TypeSetUUID == null)
-            TypeSetUUID = "SetUUID";
-		if (TypeSetAccessToken == null)
-            TypeSetAccessToken = "SetAccessToken";
+		if (TypeSetAccessTokenAndUUID == null)
+            TypeSetAccessTokenAndUUID = "SetAccessTokenAndUUID";
 		if (TypeSetServerID == null)
             TypeSetServerID = "SetServerID";
     }
@@ -91,12 +88,11 @@ public final class RequestAuthHandler extends CachedAuthHandler {
 
     @Override
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
-        String response0 = IOHelper.request(new URL(url+ "?" + IOHelper.urlEncode(typeColumn) + "=" + TypeSetUUID + "&" + secretKeyColumn + "=" + IOHelper.urlEncode(secretKey) + "&" + IOHelper.urlEncode(uuidColumn) + "=" + IOHelper.urlEncode(uuid.toString()) + "&" + IOHelper.urlEncode(usernameColumn) + "=" + IOHelper.urlEncode(username)));
-        String response1 = IOHelper.request(new URL(url+ "?" + IOHelper.urlEncode(typeColumn) + "=" + TypeSetAccessToken + "&" + secretKeyColumn + "=" + IOHelper.urlEncode(secretKey) + "&" + IOHelper.urlEncode(accessTokenColumn) + "=" + IOHelper.urlEncode(accessToken) + "&" + IOHelper.urlEncode(usernameColumn) + "=" + IOHelper.urlEncode(username)));
+        String response = IOHelper.request(new URL(url+ "?" + IOHelper.urlEncode(typeColumn) + "=" + TypeSetAccessTokenAndUUID + "&" + secretKeyColumn + "=" + IOHelper.urlEncode(secretKey) + "&" + IOHelper.urlEncode(uuidColumn) + "=" + IOHelper.urlEncode(uuid.toString()) + "&" + IOHelper.urlEncode(accessTokenColumn) + "=" + IOHelper.urlEncode(accessToken) + "&" + IOHelper.urlEncode(usernameColumn) + "=" + IOHelper.urlEncode(username)));
         LogHelper.debug("[AuthHandler] Set accessToken: " + accessToken);
 		LogHelper.debug("[AuthHandler] Set UUID: " + uuid);
 		LogHelper.debug("[AuthHandler] For this username: " + username);
-        return response0.equals("OK") && response1.equals("OK");
+        return response.equals("OK");
     }
 
     @Override
