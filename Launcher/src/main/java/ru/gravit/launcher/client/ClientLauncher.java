@@ -139,8 +139,6 @@ public final class ClientLauncher {
     private static final String SOCKET_HOST = "127.0.0.1";
     private static final int SOCKET_PORT = Launcher.getConfig().clientPort;
     private static final String MAGICAL_INTEL_OPTION = "-XX:HeapDumpPath=ThisTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
-    private static final boolean isUsingWrapper = Launcher.getConfig().isUsingWrapper;
-    private static final boolean isDownloadJava = Launcher.getConfig().isDownloadJava;
 
     private static Path JavaBinPath;
     @SuppressWarnings("unused")
@@ -163,10 +161,6 @@ public final class ClientLauncher {
         String[] cloakURL;
         @LauncherAPI
         String[] cloakDigest;
-    }
-
-    public static boolean isDownloadJava() {
-        return isDownloadJava;
     }
 
     public static Path getJavaBinPath() {
@@ -263,11 +257,6 @@ public final class ClientLauncher {
     @LauncherAPI
     public static boolean isLaunched() {
         return Launcher.LAUNCHED.get();
-    }
-
-
-    public static boolean isUsingWrapper() {
-        return JVMHelper.OS_TYPE == OS.MUSTDIE && isUsingWrapper;
     }
 
     private static void launch(ClientProfile profile, Params params) throws Throwable {

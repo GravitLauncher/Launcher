@@ -131,20 +131,16 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public NettyConfig netty;
         public GuardLicenseConf guardLicense;
 
-        public boolean compress;
-
         public String whitelistRejectString;
 
         public boolean genMappings;
-        public boolean isUsingWrapper;
-        public boolean isDownloadJava;
+        public LauncherConf launcher;
 
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
         public boolean enabledRadon;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
-        public boolean enableRcon;
 
         public String startScript;
 
@@ -240,6 +236,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public String txtFileVersion;
         public String txtProductVersion;
+    }
+
+    public class LauncherConf
+    {
+        public String guardType;
     }
 
     public class NettyConfig {

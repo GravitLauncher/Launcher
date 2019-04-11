@@ -134,9 +134,8 @@ public class MainBuildTask implements LauncherBuildTask {
             jaConfigurator.setProjectName(server.config.projectName);
             jaConfigurator.setSecretKey(SecurityHelper.randomStringAESKey());
             jaConfigurator.setClientPort(32148 + SecurityHelper.newRandom().nextInt(512));
-            jaConfigurator.setUsingWrapper(server.config.isUsingWrapper);
+            jaConfigurator.setGuardType(server.config.launcher.guardType);
             jaConfigurator.setWarningMissArchJava(server.config.isWarningMissArchJava);
-            jaConfigurator.setDownloadJava(server.config.isDownloadJava);
             jaConfigurator.setEnv(server.config.env);
             server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
             reader.getCp().add(new JarFile(inputJar.toFile()));

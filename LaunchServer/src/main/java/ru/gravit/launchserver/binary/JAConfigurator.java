@@ -83,6 +83,12 @@ public class JAConfigurator implements AutoCloseable {
         body.append("\";");
     }
 
+    public void setGuardType(String key) {
+        body.append("this.guardType = \"");
+        body.append(key);
+        body.append("\";");
+    }
+
     public void setEnv(LauncherConfig.LauncherEnvironment env) {
         int i = 2;
         switch (env) {
@@ -108,18 +114,6 @@ public class JAConfigurator implements AutoCloseable {
     public void setClientPort(int port) {
         body.append("this.clientPort = ");
         body.append(port);
-        body.append(";");
-    }
-
-    public void setUsingWrapper(boolean b) {
-        body.append("this.isUsingWrapper = ");
-        body.append(b ? "true" : "false");
-        body.append(";");
-    }
-
-    public void setDownloadJava(boolean b) {
-        body.append("this.isDownloadJava = ");
-        body.append(b ? "true" : "false");
         body.append(";");
     }
 
