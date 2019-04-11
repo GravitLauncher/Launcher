@@ -38,6 +38,10 @@ public abstract class ProtectHandler {
 
     public abstract String generateSecureToken(AuthResponse.AuthContext context); //Генерация токена для передачи его в LauncherGuardInterface
 
+    public abstract String generateClientSecureToken();
+    public abstract boolean verifyClientSecureToken(String token);
+    public abstract boolean allowGetAccessToken(AuthResponse.AuthContext context);
+
     public abstract void checkLaunchServerLicense(); //Выдает SecurityException при ошибке проверки лицензии
     //public abstract
 }

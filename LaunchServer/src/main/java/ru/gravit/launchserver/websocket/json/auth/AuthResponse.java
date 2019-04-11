@@ -105,7 +105,6 @@ public class AuthResponse implements JsonResponseInterface {
             //if (clientData.profile == null) {
             //    throw new AuthException("You profile not found");
             //}
-            UUID uuid = pair.handler.auth(aresult);
             if (authType == ConnectTypes.CLIENT)
                 LaunchServer.server.config.hwidHandler.check(hwid, aresult.username);
             LaunchServer.server.authHookManager.postHook(context, clientData);
@@ -121,8 +120,12 @@ public class AuthResponse implements JsonResponseInterface {
                 LaunchServer.server.sessionManager.addClient(clientData);
                 result.session = clientData.session;
             }
-            result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, aresult.username, client, clientData.auth.textureProvider);
-            LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
+            if(LaunchServer.server.config.protectHandler.allowGetAccessToken(context))
+            {
+                UUID uuid = pair.handler.auth(aresult);
+                result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, aresult.username, client, clientData.auth.textureProvider);
+                LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
+            }
             service.sendObject(ctx, result);
         } catch (AuthException | HWIDException e) {
             service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));

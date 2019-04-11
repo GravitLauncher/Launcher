@@ -14,6 +14,7 @@ public class Client {
     public ClientProfile profile;
     public boolean isAuth;
     public boolean checkSign;
+    public boolean isSecure;
     public ClientPermissions permissions;
     public String username;
     public LogHelper.OutputEnity logOutput;
