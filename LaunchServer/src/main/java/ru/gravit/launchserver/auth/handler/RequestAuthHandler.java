@@ -65,12 +65,10 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         String username = IOHelper.request(new URL(url + "?" + IOHelper.urlEncode(typeColumn) + "=" + TypeGetUsername + "&" + secretKeyColumn + "=" + IOHelper.urlEncode(secretKey) + "&" + IOHelper.urlEncode(uuidColumn) + "=" + IOHelper.urlEncode(uuid.toString())));
         String accessToken = IOHelper.request(new URL(url + "?" + IOHelper.urlEncode(typeColumn) + "=" + TypeGetAccessToken + "&" + secretKeyColumn + "=" + IOHelper.urlEncode(secretKey) + "&" + IOHelper.urlEncode(uuidColumn) + "=" + IOHelper.urlEncode(uuid.toString())));
         String serverID = IOHelper.request(new URL(url + "?" + IOHelper.urlEncode(typeColumn) + "=" + TypeGetServerID + "&" + secretKeyColumn + "=" + IOHelper.urlEncode(secretKey) + "&" + IOHelper.urlEncode(uuidColumn) + "=" + IOHelper.urlEncode(uuid.toString())));
-
         LogHelper.debug("[AuthHandler] Getted username: " + username);
 		LogHelper.debug("[AuthHandler] Getted accessToken: " + accessToken);
 		LogHelper.debug("[AuthHandler] Getted serverID: " + serverID);
 		LogHelper.debug("[AuthHandler] Getted UUID: " + uuid);
-
 		return query(uuid, username, accessToken, serverID);
     }
 
@@ -80,12 +78,10 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         UUID uuid = UUID.fromString(GettedUUID);
         String accessToken = IOHelper.request(new URL(url + "?" + IOHelper.urlEncode(typeColumn) + "=" + TypeGetAccessToken + "&" + secretKeyColumn + "=" + IOHelper.urlEncode(secretKey) + "&" + IOHelper.urlEncode(usernameColumn) + "=" + IOHelper.urlEncode(username)));
         String serverID = IOHelper.request(new URL(url + "?" + IOHelper.urlEncode(typeColumn) + "=" + TypeGetServerID + "&" + secretKeyColumn + "=" + IOHelper.urlEncode(secretKey) + "&" + IOHelper.urlEncode(usernameColumn) + "=" + IOHelper.urlEncode(username)));
-
         LogHelper.debug("[AuthHandler] Getted username: " + username);
 		LogHelper.debug("[AuthHandler] Getted accessToken: " + accessToken);
 		LogHelper.debug("[AuthHandler] Getted serverID: " + serverID);
 		LogHelper.debug("[AuthHandler] Getted UUID: " + uuid);
-
 		return query(uuid, username, accessToken, serverID);
     }
 
@@ -97,21 +93,17 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
         String response0 = IOHelper.request(new URL(url+ "?" + IOHelper.urlEncode(typeColumn) + "=" + TypeSetUUID + "&" + secretKeyColumn + "=" + IOHelper.urlEncode(secretKey) + "&" + IOHelper.urlEncode(uuidColumn) + "=" + IOHelper.urlEncode(uuid.toString()) + "&" + IOHelper.urlEncode(usernameColumn) + "=" + IOHelper.urlEncode(username)));
         String response1 = IOHelper.request(new URL(url+ "?" + IOHelper.urlEncode(typeColumn) + "=" + TypeSetAccessToken + "&" + secretKeyColumn + "=" + IOHelper.urlEncode(secretKey) + "&" + IOHelper.urlEncode(accessTokenColumn) + "=" + IOHelper.urlEncode(accessToken) + "&" + IOHelper.urlEncode(usernameColumn) + "=" + IOHelper.urlEncode(username)));
-
         LogHelper.debug("[AuthHandler] Set accessToken: " + accessToken);
 		LogHelper.debug("[AuthHandler] Set UUID: " + uuid);
 		LogHelper.debug("[AuthHandler] For this username: " + username);
-
         return response0.equals("OK") && response1.equals("OK");
     }
 
     @Override
     protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
         String response = IOHelper.request(new URL(url + "?" + IOHelper.urlEncode(typeColumn) + "=" + TypeSetServerID + "&" + secretKeyColumn + "=" + IOHelper.urlEncode(secretKey) + "&" + IOHelper.urlEncode(uuidColumn) + "=" + IOHelper.urlEncode(uuid.toString()) + "&" + IOHelper.urlEncode(serverIDColumn) + "=" + IOHelper.urlEncode(serverID)));
-
         LogHelper.debug("[AuthHandler] Set serverID: " + serverID);
 		LogHelper.debug("[AuthHandler] For this UUID: " + uuid);
-
 		return response.equals("OK");
     }
 
