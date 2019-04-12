@@ -43,7 +43,7 @@ public final class LauncherAgent {
         		if (trimmedArg.contains("r")) rt = false;
         	}
         }
-        if (rt || pb) replaceClasses(pb, rt);
+        //if (rt || pb) replaceClasses(pb, rt);
     }
 
     public static boolean isStarted() {
