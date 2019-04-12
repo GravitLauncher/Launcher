@@ -11,44 +11,54 @@ import ru.gravit.launchserver.command.install.MultiCommand;
 import ru.gravit.launchserver.command.modules.LoadModuleCommand;
 import ru.gravit.launchserver.command.modules.ModulesCommand;
 import ru.gravit.launchserver.command.service.*;
+import ru.gravit.utils.command.BaseCommandCategory;
 
 public abstract class CommandHandler extends ru.gravit.utils.command.CommandHandler {
     public static void registerCommands(ru.gravit.utils.command.CommandHandler handler) {
         LaunchServer server = LaunchServer.server;
+        BaseCommandCategory basic = new BaseCommandCategory();
         // Register basic commands
-        handler.registerCommand("help", new HelpCommand(server));
-        handler.registerCommand("version", new VersionCommand(server));
-        handler.registerCommand("build", new BuildCommand(server));
-        handler.registerCommand("stop", new StopCommand(server));
-        handler.registerCommand("restart", new RestartCommand(server));
-        handler.registerCommand("rebind", new RebindCommand(server));
-        handler.registerCommand("debug", new DebugCommand(server));
-        handler.registerCommand("clear", new ClearCommand(server));
-        handler.registerCommand("gc", new GCCommand(server));
-        handler.registerCommand("proguardClean", new ProguardCleanCommand(server));
-        handler.registerCommand("proguardDictRegen", new RegenProguardDictCommand(server));
-        handler.registerCommand("proguardMappingsRemove", new RemoveMappingsProguardCommand(server));
-        handler.registerCommand("logConnections", new LogConnectionsCommand(server));
-        handler.registerCommand("loadModule", new LoadModuleCommand(server));
-        handler.registerCommand("modules", new ModulesCommand(server));
-        handler.registerCommand("test", new TestCommand(server));
+        basic.registerCommand("help", new HelpCommand(server));
+        basic.registerCommand("version", new VersionCommand(server));
+        basic.registerCommand("build", new BuildCommand(server));
+        basic.registerCommand("stop", new StopCommand(server));
+        basic.registerCommand("restart", new RestartCommand(server));
+        basic.registerCommand("rebind", new RebindCommand(server));
+        basic.registerCommand("debug", new DebugCommand(server));
+        basic.registerCommand("clear", new ClearCommand(server));
+        basic.registerCommand("gc", new GCCommand(server));
+        basic.registerCommand("proguardClean", new ProguardCleanCommand(server));
+        basic.registerCommand("proguardDictRegen", new RegenProguardDictCommand(server));
+        basic.registerCommand("proguardMappingsRemove", new RemoveMappingsProguardCommand(server));
+        basic.registerCommand("logConnections", new LogConnectionsCommand(server));
+        basic.registerCommand("loadModule", new LoadModuleCommand(server));
+        basic.registerCommand("modules", new ModulesCommand(server));
+        basic.registerCommand("test", new TestCommand(server));
+        Category basicCategory = new Category(basic,"basic", "Base LaunchServer commands");
+        handler.registerCategory(basicCategory);
 
         // Register sync commands
-        handler.registerCommand("indexAsset", new IndexAssetCommand(server));
-        handler.registerCommand("unindexAsset", new UnindexAssetCommand(server));
-        handler.registerCommand("downloadAsset", new DownloadAssetCommand(server));
-        handler.registerCommand("downloadClient", new DownloadClientCommand(server));
-        handler.registerCommand("syncBinaries", new SyncBinariesCommand(server));
-        handler.registerCommand("syncUpdates", new SyncUpdatesCommand(server));
-        handler.registerCommand("syncProfiles", new SyncProfilesCommand(server));
+        BaseCommandCategory updates = new BaseCommandCategory();
+        updates.registerCommand("indexAsset", new IndexAssetCommand(server));
+        updates.registerCommand("unindexAsset", new UnindexAssetCommand(server));
+        updates.registerCommand("downloadAsset", new DownloadAssetCommand(server));
+        updates.registerCommand("downloadClient", new DownloadClientCommand(server));
+        updates.registerCommand("syncBinaries", new SyncBinariesCommand(server));
+        updates.registerCommand("syncUpdates", new SyncUpdatesCommand(server));
+        updates.registerCommand("syncProfiles", new SyncProfilesCommand(server));
+        Category updatesCategory = new Category(updates,"updates", "Update and Sync Management");
+        handler.registerCategory(updatesCategory);
 
         // Register auth commands
-        handler.registerCommand("auth", new AuthCommand(server));
-        handler.registerCommand("usernameToUUID", new UsernameToUUIDCommand(server));
-        handler.registerCommand("uuidToUsername", new UUIDToUsernameCommand(server));
-        handler.registerCommand("ban", new BanCommand(server));
-        handler.registerCommand("unban", new UnbanCommand(server));
-        handler.registerCommand("getHWID", new GetHWIDCommand(server));
+        BaseCommandCategory auth = new BaseCommandCategory();
+        auth.registerCommand("auth", new AuthCommand(server));
+        auth.registerCommand("usernameToUUID", new UsernameToUUIDCommand(server));
+        auth.registerCommand("uuidToUsername", new UUIDToUsernameCommand(server));
+        auth.registerCommand("ban", new BanCommand(server));
+        auth.registerCommand("unban", new UnbanCommand(server));
+        auth.registerCommand("getHWID", new GetHWIDCommand(server));
+        Category authCategory = new Category(auth,"auth", "User Management");
+        handler.registerCategory(authCategory);
 
         //Register dump commands
         handler.registerCommand("dumpSessions", new DumpSessionsCommand(server));

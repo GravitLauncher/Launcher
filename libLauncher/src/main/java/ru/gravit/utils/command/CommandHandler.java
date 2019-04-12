@@ -12,11 +12,22 @@ public abstract class CommandHandler implements Runnable {
     private final List<Category> categories = new ArrayList<>();
     private final CommandCategory baseCategory = new BaseCommandCategory();
 
-    public class Category
+    public static class Category
     {
         public CommandCategory category;
         public String name;
         public String description;
+
+        public Category(CommandCategory category, String name) {
+            this.category = category;
+            this.name = name;
+        }
+
+        public Category(CommandCategory category, String name, String description) {
+            this.category = category;
+            this.name = name;
+            this.description = description;
+        }
     }
 
     public void eval(String line, boolean bell) {
@@ -91,6 +102,20 @@ public abstract class CommandHandler implements Runnable {
 
     public void registerCommand(String name, Command command) {
         baseCategory.registerCommand(name, command);
+    }
+
+    public void registerCategory(Category category)
+    {
+        categories.add(category);
+    }
+    public boolean unregisterCategory(Category category)
+    {
+        return categories.remove(category);
+    }
+    public Category findCategory(String name)
+    {
+        for(Category category : categories) if(category.name.equals(name)) return category;
+        return null;
     }
 
     public Command unregisterCommand(String name) {
