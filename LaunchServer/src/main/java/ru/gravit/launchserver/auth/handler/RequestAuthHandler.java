@@ -57,7 +57,7 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         	LogHelper.debug("[AuthHandler] Got username: " + username);
         	LogHelper.debug("[AuthHandler] Got accessToken: " + accessToken);
         	LogHelper.debug("[AuthHandler] Got serverID: " + serverID);
-        	LogHelper.debug("[AuthHandler] GetGotted UUID: " + uuid);
+        	LogHelper.debug("[AuthHandler] Got UUID: " + uuid);
         }
         return new Entry(uuid, username, accessToken, serverID);
     }
