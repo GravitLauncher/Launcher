@@ -5,15 +5,19 @@ import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class CommandHandler implements Runnable {
-    private final Map<String, CommandCategory> categories = new ConcurrentHashMap<>(8);
+    private final List<Category> categories = new ArrayList<>();
     private final CommandCategory baseCategory = new BaseCommandCategory();
+
+    public class Category
+    {
+        public CommandCategory category;
+        public String name;
+        public String description;
+    }
 
     public void eval(String line, boolean bell) {
         LogHelper.info("Command '%s'", line);
@@ -67,9 +71,9 @@ public abstract class CommandHandler implements Runnable {
         Command cmd = baseCategory.findCommand(name);
         if(cmd == null)
         {
-            for(Map.Entry<String, CommandCategory> entry : categories.entrySet())
+            for(Category entry : categories)
             {
-                cmd = entry.getValue().findCommand(name);
+                cmd = entry.category.findCommand(name);
                 if(cmd != null) return cmd;
             }
         }
@@ -106,7 +110,7 @@ public abstract class CommandHandler implements Runnable {
         return baseCategory;
     }
 
-    public Map<String, CommandCategory> getCategories() {
+    public List<Category> getCategories() {
         return categories;
     }
 

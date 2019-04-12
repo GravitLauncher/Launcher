@@ -4,6 +4,7 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.command.Command;
 import ru.gravit.utils.command.CommandCategory;
 import ru.gravit.utils.command.CommandException;
+import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.util.Map;
@@ -15,9 +16,10 @@ public final class HelpCommand extends ru.gravit.launchserver.command.Command {
         LogHelper.subInfo("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());
     }
 
-    private static void printCategory(String name)
+    private static void printCategory(String name, String description)
     {
-        LogHelper.info("Category: %s", name);
+        if(description != null) LogHelper.info("Category: %s - %s", name, description);
+        else LogHelper.info("Category: %s", name);
     }
 
     public HelpCommand(LaunchServer server) {
@@ -50,13 +52,13 @@ public final class HelpCommand extends ru.gravit.launchserver.command.Command {
     }
 
     private void printCommands() {
-        for(Map.Entry<String, CommandCategory> category : server.commandHandler.getCategories().entrySet())
+        for(CommandHandler.Category category : server.commandHandler.getCategories())
         {
-            printCategory(category.getKey());
-            for (Entry<String, Command> entry : category.getValue().commandsMap().entrySet())
+            printCategory(category.name, category.description);
+            for (Entry<String, Command> entry : category.category.commandsMap().entrySet())
                 printCommand(entry.getKey(), entry.getValue());
         }
-        printCategory("Base");
+        printCategory("Base", null);
         for (Entry<String, Command> entry : server.commandHandler.getBaseCategory().commandsMap().entrySet())
             printCommand(entry.getKey(), entry.getValue());
 
