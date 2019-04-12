@@ -3,7 +3,9 @@ package ru.gravit.launchserver.websocket.json.update;
 import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.events.request.UpdateRequestEvent;
+import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
@@ -32,6 +34,12 @@ public class UpdateResponse implements JsonResponseInterface {
                 }
             }
         }
-        service.sendObject(ctx, new UpdateRequestEvent(LaunchServer.server.updatesDirMap.get(dirName).object, LaunchServer.server.config.netty.downloadURL.replace("%dirname%",dirName)));
+        SignedObjectHolder<HashedDir> dir = LaunchServer.server.updatesDirMap.get(dirName);
+        if(dir == null)
+        {
+            service.sendObject(ctx, new ErrorRequestEvent(String.format("Directory %s not found", dirName)));
+            return;
+        }
+        service.sendObject(ctx, new UpdateRequestEvent(dir.object, LaunchServer.server.config.netty.downloadURL.replace("%dirname%",dirName)));
     }
 }
