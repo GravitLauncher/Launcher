@@ -22,6 +22,8 @@ import ru.gravit.launchserver.websocket.json.auth.*;
 import ru.gravit.launchserver.websocket.json.profile.BatchProfileByUsername;
 import ru.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
 import ru.gravit.launchserver.websocket.json.profile.ProfileByUsername;
+import ru.gravit.launchserver.websocket.json.secure.GetSecureTokenResponse;
+import ru.gravit.launchserver.websocket.json.secure.VerifySecureTokenResponse;
 import ru.gravit.launchserver.websocket.json.update.LauncherResponse;
 import ru.gravit.launchserver.websocket.json.update.UpdateListResponse;
 import ru.gravit.launchserver.websocket.json.update.UpdateResponse;
@@ -88,6 +90,8 @@ public class WebSocketService {
         registerResponse("batchProfileByUsername", BatchProfileByUsername.class);
         registerResponse("profileByUsername", ProfileByUsername.class);
         registerResponse("profileByUUID", ProfileByUUIDResponse.class);
+        registerResponse("getSecureToken", GetSecureTokenResponse.class);
+        registerResponse("verifySecureToken", VerifySecureTokenResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {

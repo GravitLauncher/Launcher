@@ -30,15 +30,13 @@ public final class LauncherConfig extends StreamObject {
 
     @LauncherAPI
     public final Map<String, byte[]> runtime;
-
-    public final boolean isUsingWrapper;
-    public final boolean isDownloadJava;
     public final boolean isWarningMissArchJava;
     public boolean isNettyEnabled;
 
     public final String guardLicenseName;
     public final String guardLicenseKey;
     public final String guardLicenseEncryptKey;
+    public final String guardType;
 
     @LauncherAPI
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
@@ -46,11 +44,11 @@ public final class LauncherConfig extends StreamObject {
         projectname = config.projectname;
         clientPort = config.clientPort;
         secretKeyClient = config.secretKeyClient;
-        isDownloadJava = config.isDownloadJava;
-        isUsingWrapper = config.isUsingWrapper;
+
         isWarningMissArchJava = config.isWarningMissArchJava;
         guardLicenseEncryptKey = config.guardLicenseEncryptKey;
         guardLicenseKey = config.guardLicenseKey;
+        guardType = config.guardType;
         guardLicenseName = config.guardLicenseName;
         address = config.address;
         LauncherEnvironment env;
@@ -82,8 +80,7 @@ public final class LauncherConfig extends StreamObject {
         this.guardLicenseName = "FREE";
         this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
         this.guardLicenseEncryptKey = "12345";
-        isUsingWrapper = true;
-        isDownloadJava = false;
+        guardType = "no";
         isWarningMissArchJava = true;
         isNettyEnabled = false;
     }
@@ -98,8 +95,7 @@ public final class LauncherConfig extends StreamObject {
         this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
         this.guardLicenseEncryptKey = "12345";
         this.clientPort = 32148;
-        isUsingWrapper = true;
-        isDownloadJava = false;
+        guardType = "no";
         isWarningMissArchJava = true;
         isNettyEnabled = false;
     }

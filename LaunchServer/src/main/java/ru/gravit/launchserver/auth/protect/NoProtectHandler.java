@@ -10,6 +10,21 @@ public class NoProtectHandler extends ProtectHandler {
     }
 
     @Override
+    public String generateClientSecureToken() {
+        return SecurityHelper.randomStringToken();
+    }
+
+    @Override
+    public boolean verifyClientSecureToken(String token) {
+        return true;
+    }
+
+    @Override
+    public boolean allowGetAccessToken(AuthResponse.AuthContext context) {
+        return true;
+    }
+
+    @Override
     public void checkLaunchServerLicense() {
         // None
     }

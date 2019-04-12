@@ -25,6 +25,7 @@ import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
 import ru.gravit.launchserver.binary.*;
 import ru.gravit.launchserver.components.AuthLimiterComponent;
 import ru.gravit.launchserver.components.Component;
+import ru.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import ru.gravit.launchserver.config.adapter.*;
 import ru.gravit.launchserver.manangers.*;
 import ru.gravit.launchserver.manangers.hook.AuthHookManager;
@@ -41,10 +42,7 @@ import ru.gravit.utils.command.StdCommandHandler;
 import ru.gravit.utils.config.JsonConfigurable;
 import ru.gravit.utils.helper.*;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
@@ -133,20 +131,16 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public NettyConfig netty;
         public GuardLicenseConf guardLicense;
 
-        public boolean compress;
-
         public String whitelistRejectString;
 
         public boolean genMappings;
-        public boolean isUsingWrapper;
-        public boolean isDownloadJava;
+        public LauncherConf launcher;
 
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
         public boolean enabledRadon;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
-        public boolean enableRcon;
 
         public String startScript;
 
@@ -244,6 +238,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String txtProductVersion;
     }
 
+    public class LauncherConf
+    {
+        public String guardType;
+    }
+
     public class NettyConfig {
         public boolean clientEnabled;
         public String launcherURL;
@@ -336,6 +335,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public final List<String> args;
 
     public final Path configFile;
+    public final Path runtimeConfigFile;
 
     public final Path publicKeyFile;
 
@@ -349,6 +349,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     // Server config
 
     public Config config;
+    public LaunchServerRuntimeConfig runtime;
 
 
     public final RSAPublicKey publicKey;
@@ -413,6 +414,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         launcherLibrariesCompile = dir.resolve("launcher-libraries-compile");
         this.args = Arrays.asList(args);
         configFile = dir.resolve("LaunchServer.conf");
+        runtimeConfigFile = dir.resolve("RuntimeLaunchServer.conf");
         publicKeyFile = dir.resolve("public.key");
         privateKeyFile = dir.resolve("private.key");
         updatesDir = dir.resolve("updates");
@@ -486,6 +488,20 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = Launcher.gson.fromJson(reader, Config.class);
         }
+        if(!Files.exists(runtimeConfigFile))
+        {
+            LogHelper.info("Reset LaunchServer runtime config file");
+            runtime = new LaunchServerRuntimeConfig();
+            runtime.reset();
+        }
+        else
+        {
+            LogHelper.info("Reading LaunchServer runtime config file");
+            try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
+                runtime = Launcher.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
+            }
+        }
+        runtime.verify();
         config.verify();
         Launcher.applyLauncherEnv(config.env);
         for (AuthProviderPair provider : config.auth) {
@@ -633,6 +649,18 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         // Close handlers & providers
         config.close();
         modulesManager.close();
+        LogHelper.info("Save LaunchServer runtime config");
+        try(Writer writer = IOHelper.newWriter(runtimeConfigFile))
+        {
+            if(LaunchServer.gson != null)
+            {
+                LaunchServer.gson.toJson(runtime, writer);
+            } else {
+                LogHelper.error("Error writing LaunchServer runtime config file. Gson is null");
+            }
+        } catch (IOException e) {
+            LogHelper.error(e);
+        }
         // Print last message before death :(
         LogHelper.info("LaunchServer stopped");
     }
