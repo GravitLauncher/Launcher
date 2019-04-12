@@ -160,6 +160,11 @@ public final class LogHelper {
         DEV_ENABLED.set(stacktraceEnabled);
     }
 
+    public static String getDataTime()
+    {
+        return DATE_TIME_FORMATTER.format(LocalDateTime.now());
+    }
+
     @LauncherAPI
     public static void log(Level level, String message, boolean sub) {
         String dateTime = DATE_TIME_FORMATTER.format(LocalDateTime.now());

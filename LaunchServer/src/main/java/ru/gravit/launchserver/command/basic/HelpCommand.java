@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.command.basic;
 
+import org.fusesource.jansi.Ansi;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.command.Command;
 import ru.gravit.utils.command.CommandCategory;
@@ -13,7 +14,20 @@ import java.util.Map.Entry;
 public final class HelpCommand extends ru.gravit.launchserver.command.Command {
     private static void printCommand(String name, Command command) {
         String args = command.getArgsDescription();
-        LogHelper.subInfo("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());
+        //LogHelper.subInfo("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());
+        LogHelper.rawLog(() -> LogHelper.rawFormat(LogHelper.Level.INFO, LogHelper.getDataTime(), true) + String.format("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription()), () -> {
+            Ansi ansi = LogHelper.rawAnsiFormat(LogHelper.Level.INFO, LogHelper.getDataTime(), true);
+            ansi.fgBright(Ansi.Color.GREEN);
+            ansi.a(name + " ");
+            ansi.fgBright(Ansi.Color.CYAN);
+            ansi.a(args == null ? "[nothing]": args);
+            ansi.reset();
+            ansi.a(" - ");
+            ansi.fgBright(Ansi.Color.YELLOW);
+            ansi.a(command.getUsageDescription());
+            ansi.reset();
+            return ansi.toString();
+        });
     }
 
     private static void printCategory(String name, String description)
