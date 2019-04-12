@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 public final class LogHelper {
     @LauncherAPI
@@ -183,6 +184,30 @@ public final class LogHelper {
             }
         }
     }
+    @LauncherAPI
+    public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr)
+    {
+        String jansiString = null, plainString = null;
+        for (OutputEnity output : OUTPUTS) {
+            if (output.type == OutputTypes.JANSI && JANSI) {
+                if (jansiString != null) {
+                    output.output.println(jansiString);
+                    continue;
+                }
+
+                jansiString = jansiStr.get();
+                output.output.println(jansiString);
+            } else {
+                if (plainString != null) {
+                    output.output.println(plainString);
+                    continue;
+                }
+
+                plainString = plainStr.get();
+                output.output.println(plainString);
+            }
+        }
+    }
 
     @LauncherAPI
     public static void printVersion(String product) {
@@ -297,6 +322,15 @@ public final class LogHelper {
     }
 
     private static String ansiFormatLog(Level level, String dateTime, String message, boolean sub) {
+
+        Ansi ansi = rawAnsiFormat(level, dateTime, sub);
+        ansi.a(message);
+
+        // Finish with reset code
+        return ansi.reset().toString();
+    }
+    public static Ansi rawAnsiFormat(Level level, String dateTime, boolean sub)
+    {
         Color levelColor;
         boolean bright = level != Level.DEBUG;
         switch (level) {
@@ -333,10 +367,9 @@ public final class LogHelper {
         if (sub) {
             ansi.a(' ').a(Ansi.Attribute.ITALIC);
         }
-        ansi.a(message);
 
         // Finish with reset code
-        return ansi.reset().toString();
+        return ansi;
     }
 
     private static String ansiFormatVersion(String product) {
@@ -359,10 +392,12 @@ public final class LogHelper {
     }
 
     private static String formatLog(Level level, String message, String dateTime, boolean sub) {
-        if (sub) {
-            message = ' ' + message;
-        }
-        return dateTime + " [" + level.name + "] " + message;
+        return rawFormat(level, dateTime, sub) + message;
+    }
+
+    public static String rawFormat(Level level, String dateTime, boolean sub)
+    {
+        return dateTime + " [" + level.name + (sub ? "]  " : "] ");
     }
 
     private static String formatVersion(String product) {
