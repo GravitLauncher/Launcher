@@ -38,10 +38,10 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         String accessToken = parts[1];
         String serverID = parts[2];
         if (LogHelper.isDebugEnabled()) {
-        	LogHelper.debug("[AuthHandler] Getted username: " + username);
-        	LogHelper.debug("[AuthHandler] Getted accessToken: " + accessToken);
-        	LogHelper.debug("[AuthHandler] Getted serverID: " + serverID);
-        	LogHelper.debug("[AuthHandler] Getted UUID: " + uuid);
+        	LogHelper.debug("[AuthHandler] Got username: " + username);
+        	LogHelper.debug("[AuthHandler] Got accessToken: " + accessToken);
+        	LogHelper.debug("[AuthHandler] Got serverID: " + serverID);
+        	LogHelper.debug("[AuthHandler] Got UUID: " + uuid);
         }
         return new Entry(uuid, username, accessToken, serverID);
     }
@@ -54,10 +54,10 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         String accessToken = parts[1];
         String serverID = parts[2];
         if (LogHelper.isDebugEnabled()) {
-        	LogHelper.debug("[AuthHandler] Getted username: " + username);
-        	LogHelper.debug("[AuthHandler] Getted accessToken: " + accessToken);
-        	LogHelper.debug("[AuthHandler] Getted serverID: " + serverID);
-        	LogHelper.debug("[AuthHandler] Getted UUID: " + uuid);
+        	LogHelper.debug("[AuthHandler] Got username: " + username);
+        	LogHelper.debug("[AuthHandler] Got accessToken: " + accessToken);
+        	LogHelper.debug("[AuthHandler] Got serverID: " + serverID);
+        	LogHelper.debug("[AuthHandler] GetGotted UUID: " + uuid);
         }
         return new Entry(uuid, username, accessToken, serverID);
     }
