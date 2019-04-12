@@ -709,6 +709,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.netty.performance.bossThread = 2;
         newConfig.netty.performance.workerThread = 8;
 
+        newConfig.launcher = new LauncherConf();
+        newConfig.launcher.guardType = "no";
+
         newConfig.threadCoreCount = 0; // on your own
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
 
