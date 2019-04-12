@@ -6,6 +6,7 @@
 <?import com.jfoenix.controls.JFXMasonryPane?>
 <?import com.jfoenix.controls.JFXPasswordField?>
 <?import com.jfoenix.controls.JFXTextField?>
+<?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.layout.Pane?>
@@ -27,16 +28,28 @@
          </children>
       </Pane>
       <JFXMasonryPane fx:id="news" prefHeight="425.0" prefWidth="423.0" styleClass="news" />
-      <Pane fx:id="bar" layoutX="693.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
+      <Pane fx:id="bar" layoutX="692.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
          <children>
-      	     <JFXButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" text="" textAlignment="CENTER" />
-      	     <JFXButton id="close" alignment="CENTER" contentDisplay="CENTER" text="" textAlignment="CENTER" />
-             <JFXButton id="discord" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" text="" textAlignment="CENTER" />
-         </children>
-      </Pane>
-      <Pane id="mask" opacity="0.0" prefHeight="425.0" prefWidth="694.0" visible="false" />
-  </children>
+                     <JFXButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" ripplerFill="#646464" text="" textAlignment="CENTER">
+                         <graphic>
+                             <MaterialDesignIconView fill="WHITE" glyphName="MINUS" size="30" textAlignment="CENTER" />
+                         </graphic>
+                     </JFXButton>
+                     <JFXButton id="close" alignment="CENTER" contentDisplay="CENTER" ripplerFill="#fb8c8c" text="" textAlignment="CENTER">
+                         <graphic>
+                             <MaterialDesignIconView fill="WHITE" glyphName="CLOSE" size="30" textAlignment="CENTER" />
+                         </graphic>
+                     </JFXButton>
+                     <JFXButton id="discord" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" ripplerFill="#646464" text="" textAlignment="CENTER">
+                         <graphic>
+                             <MaterialDesignIconView fill="WHITE" glyphName="MESSAGE_TEXT" size="30" textAlignment="CENTER" />
+                         </graphic>
+                     </JFXButton>
+                 </children>
+            </Pane>
+             <Pane id="mask" opacity="0.0" prefHeight="425.0" prefWidth="694.0" visible="false" />
+        </children>
   <stylesheets>
-    <URL value="@styles.css" />
+    <URL value="@../../styles.css" />
   </stylesheets>
 </Pane>

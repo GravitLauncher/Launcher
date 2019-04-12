@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
+<?import java.net.URL?>
+<?import javafx.scene.layout.Pane?>
+
+<!-- DrLeonardo Design -->
+
+<Pane fx:id="background" prefWidth="738.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
+  <children>
+      <Pane fx:id="bar" layoutX="692.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
+          <children>
+              <JFXButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" ripplerFill="#646464" text="" textAlignment="CENTER">
+                  <graphic>
+                      <MaterialDesignIconView fill="WHITE" glyphName="MINUS" size="30" textAlignment="CENTER" />
+                  </graphic>
+              </JFXButton>
+              <JFXButton id="close" alignment="CENTER" contentDisplay="CENTER" ripplerFill="#fb8c8c" text="" textAlignment="CENTER">
+                  <graphic>
+                      <MaterialDesignIconView fill="WHITE" glyphName="CLOSE" size="30" textAlignment="CENTER" />
+                  </graphic>
+              </JFXButton>
+              <JFXButton id="back" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" ripplerFill="#646464" text="" textAlignment="CENTER">
+                  <graphic>
+                      <MaterialDesignIconView fill="WHITE" glyphName="CHEVRON_LEFT" size="30" textAlignment="CENTER" />
+                  </graphic>
+              </JFXButton>
+          </children>
+      </Pane>
+      <Pane id="mask" opacity="0.0" prefHeight="425.0" prefWidth="694.0" visible="false" />
+  </children>
+  <stylesheets>
+    <URL value="@../../styles.css" />
+  </stylesheets>
+</Pane>

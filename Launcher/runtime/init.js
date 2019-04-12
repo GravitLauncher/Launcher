@@ -1,5 +1,5 @@
-var app, stage, scene, loginScene, menuScene, consoleScene;
-var rootPane, loginPane, authPane, menuPane, consolePane;
+var app, stage, scene, loginScene, menuScene, consoleScene, optionsScene;
+var rootPane, loginPane, menuPane, consoleMenu, optionsMenu;
 
 var LauncherApp = Java.extend(JSApplication, {
     init: function() {
@@ -9,7 +9,7 @@ var LauncherApp = Java.extend(JSApplication, {
         cliParams.applySettings();
     }, start: function(primaryStage) {
         stage = primaryStage;
-		stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
         stage.setResizable(false);
         stage.setTitle(config.title);
 
@@ -18,9 +18,10 @@ var LauncherApp = Java.extend(JSApplication, {
             stage.getIcons().add(new javafx.scene.image.Image(iconURL));
         });
 
-        loginPane = loadFXML("dialog/login.fxml");
-        menuPane = loadFXML("dialog/mainmenu.fxml");
-        consolePane = loadFXML("dialog/console.fxml");
+        loginPane = loadFXML("dialog/scenes/login/login.fxml");
+        menuPane = loadFXML("dialog/scenes/mainmenu/mainmenu.fxml");
+        consoleMenu = loadFXML("dialog/scenes/console/console.fxml");
+        optionsMenu = loadFXML("dialog/scenes/options/options.fxml");
 
         loginScene = new javafx.scene.Scene(loginPane);
         loginScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
@@ -28,8 +29,11 @@ var LauncherApp = Java.extend(JSApplication, {
         menuScene = new javafx.scene.Scene(menuPane);
         menuScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
-        consoleScene = new javafx.scene.Scene(consolePane);
+        consoleScene = new javafx.scene.Scene(consoleMenu);
         consoleScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+
+        optionsScene = new javafx.scene.Scene(optionsMenu);
+        optionsScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
         setCurrentScene(loginScene);
         initLauncher();

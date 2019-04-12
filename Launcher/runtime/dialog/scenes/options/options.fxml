@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXToggleButton?>
+<?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+
+<!-- DrLeonardo Design -->
+
+<Pane fx:id="background" prefHeight="425.0" prefWidth="738.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+       <Pane id="optionsPane" prefHeight="425.0" prefWidth="693.0" styleClass="optionsPane">
+           <children>
+           <JFXToggleButton layoutX="10.0" layoutY="10.0" styleClass="pressetLight" text="Presset 1" />
+           <JFXToggleButton layoutX="267.0" layoutY="10.0" styleClass="pressetMedium" text="Presset 2" />
+           <JFXToggleButton layoutX="549.0" layoutY="10.0" prefHeight="58.0" prefWidth="134.0" styleClass="pressetHigh" text="Presset 3" wrapText="true" />
+           <Line endX="595.0" layoutX="100.0" layoutY="80.0" startX="-100.0" stroke="#5b3636" styleClass="lineHead" />
+           <ScrollPane id="modlist" layoutY="84.0" prefHeight="341.0" prefWidth="693.0">
+               <content>
+                   <VBox prefHeight="339.0" prefWidth="678.0">
+                       <children>
+                       </children>
+                       <padding>
+                           <Insets left="10.0" top="8.0" />
+                       </padding>
+                   </VBox>
+               </content>
+           </ScrollPane>
+           </children>
+       </Pane>
+       <Pane fx:id="bar" layoutX="692.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
+           <children>
+               <JFXButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" ripplerFill="#646464" text="" textAlignment="CENTER">
+                   <graphic>
+                       <MaterialDesignIconView fill="WHITE" glyphName="MINUS" size="30" textAlignment="CENTER" />
+                   </graphic>
+               </JFXButton>
+               <JFXButton id="close" alignment="CENTER" contentDisplay="CENTER" ripplerFill="#fb8c8c" text="" textAlignment="CENTER">
+                   <graphic>
+                       <MaterialDesignIconView fill="WHITE" glyphName="CLOSE" size="30" textAlignment="CENTER" />
+                   </graphic>
+               </JFXButton>
+               <JFXButton id="back" alignment="CENTER" contentDisplay="CENTER" layoutY="379.0" ripplerFill="#61b373" text="" textAlignment="CENTER">
+                   <graphic>
+                       <MaterialDesignIconView fill="WHITE" glyphName="CHEVRON_LEFT" size="30" textAlignment="CENTER" />
+                   </graphic>
+               </JFXButton>
+           </children>
+       </Pane>
+   </children>
+  <stylesheets>
+      <URL value="@../../styles.css" />
+  </stylesheets>
+</Pane>

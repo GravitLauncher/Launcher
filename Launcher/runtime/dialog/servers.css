@@ -1,0 +1,32 @@
+/*-- DrLeonardo Design --*/
+
+/* Server buttons */
+.server-button {
+    -jfx-button-type: FLAT;
+    -fx-font-weight: bold;
+    -fx-font-size: 16pt;
+    -fx-background-color: transparent;
+    -fx-background-size: cover;
+    -fx-background-radius: 0;
+    -fx-alignment: CENTER-LEFT;
+    -fx-padding: 0 0 0 75;
+    -fx-font-family: "Segoe UI";
+    -fx-text-fill: #323232;
+    -fx-pref-width: 282px;
+    -fx-pref-height: 75px;
+}
+
+.server-button:selected {
+    -fx-border-width: 0 0 0 2;
+    -fx-border-style: none none none solid;
+    -fx-border-color: #323232;
+}
+
+/** server-button-<your profile name> **/
+
+.server-button-Example {
+    -fx-background-image: url('images/servers/example.png');
+}
+
+
+/*-- DrLeonardo Design --*/

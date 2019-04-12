@@ -73,24 +73,21 @@ var options = {
         });
     },
 
-    /* ===================== OVERLAY ===================== */
     count: 0,
 
-    initOverlay: function() {
-        options.overlay = loadFXML("dialog/overlay/options/options.fxml");
-        var holder = options.overlay.lookup("#holder");
-        holder.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
-    },
     update: function() {
-        var holder = options.overlay.lookup("#modlist").getContent();
+        var pane = optionsMenu.lookup("#optionsPane");
+        optionsPane = pane;
+
+        var modlist = pane.lookup("#modlist").getContent();
             var nodelist = new java.util.ArrayList;
 
-            holder.getChildren().forEach(function(node,i,arr) {
+            modlist.getChildren().forEach(function(node,i,arr) {
                 if(node instanceof com.jfoenix.controls.JFXCheckBox)
                     nodelist.add(node);
             });
             nodelist.forEach(function(node,i,arr) {
-                holder.getChildren().remove(node);
+                modlist.getChildren().remove(node);
             });
             var profile = profilesList[serverHolder.old];
             var list = profile.getOptional();
@@ -108,14 +105,14 @@ var options = {
                             LogHelper.debug("optionalMod %s permissions deny",modFile.name);
                             return;
                         }
-                        if(modFile.info != null) //Есть ли описание?
+                        if(modFile.info != null)
                             modDescription = modFile.info;
-                        if(modFile.subTreeLevel != null && modFile.subTreeLevel > 1)//Это суб-модификация?
+                        if(modFile.subTreeLevel != null && modFile.subTreeLevel > 1)
                             subLevel = modFile.subTreeLevel;
                          var testMod = new com.jfoenix.controls.JFXCheckBox(modName);
 
                         if(subLevel > 1)
-                            for(var i = 1; i < subLevel; i++)//Выделение субмодификаций сдвигом.
+                            for(var i = 1; i < subLevel; i++)
                                 testMod.setTranslateX(25*i);
 
                          testMod.setSelected(modFile.mark);
@@ -134,15 +131,15 @@ var options = {
                              options.update();
                          });
                         checkBoxList.add(testMod);
-                         if(modDescription != "") { //Добавляем описание?
+                         if(modDescription != "") {
                              textDescr = new javafx.scene.text.Text(modDescription);
                              if(subLevel > 1) {
                                  for(var i = 1; i < subLevel; i++){
-                                    textDescr.setWrappingWidth(640-(25*i));
+                                    textDescr.setWrappingWidth(630-(25*i));
                                     textDescr.setTranslateX(25+(25*i));
                                  }
                              } else {
-                                 textDescr.setWrappingWidth(640);
+                                 textDescr.setWrappingWidth(630);
                                  textDescr.setTranslateX(25);
                              }
                              textDescr.setTextAlignment(javafx.scene.text.TextAlignment.JUSTIFY);
@@ -153,7 +150,7 @@ var options = {
                         sep.getStyleClass().add("separator");
                         checkBoxList.add(sep);
                 });
-            holder.getChildren().clear();
-            holder.getChildren().addAll(checkBoxList);
+            modlist.getChildren().clear();
+            modlist.getChildren().addAll(checkBoxList);
     }
 };
