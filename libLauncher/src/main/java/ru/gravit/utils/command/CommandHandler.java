@@ -12,7 +12,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class CommandHandler implements Runnable {
-    private final Map<String, Command> commands = new ConcurrentHashMap<>(32);
+    private final Map<String, CommandCategory> categories = new ConcurrentHashMap<>(8);
+    private final CommandCategory baseCategory = new BaseCommandCategory();
 
     public void eval(String line, boolean bell) {
         LogHelper.info("Command '%s'", line);
@@ -56,10 +57,23 @@ public abstract class CommandHandler implements Runnable {
 
 
     public Command lookup(String name) throws CommandException {
-        Command command = commands.get(name);
+        Command command = findCommand(name);
         if (command == null)
             throw new CommandException(String.format("Unknown command: '%s'", name));
         return command;
+    }
+    public Command findCommand(String name)
+    {
+        Command cmd = baseCategory.findCommand(name);
+        if(cmd == null)
+        {
+            for(Map.Entry<String, CommandCategory> entry : categories.entrySet())
+            {
+                cmd = entry.getValue().findCommand(name);
+                if(cmd != null) return cmd;
+            }
+        }
+        return cmd;
     }
 
 
@@ -72,13 +86,11 @@ public abstract class CommandHandler implements Runnable {
 
 
     public void registerCommand(String name, Command command) {
-        VerifyHelper.verifyIDName(name);
-        VerifyHelper.putIfAbsent(commands, name.toLowerCase(), Objects.requireNonNull(command, "command"),
-                String.format("Command has been already registered: '%s'", name.toLowerCase()));
+        baseCategory.registerCommand(name, command);
     }
 
     public Command unregisterCommand(String name) {
-        return commands.remove(name);
+        return baseCategory.unregisterCommand(name);
     }
 
     @Override
@@ -90,16 +102,16 @@ public abstract class CommandHandler implements Runnable {
         }
     }
 
+    public CommandCategory getBaseCategory() {
+        return baseCategory;
+    }
+
+    public Map<String, CommandCategory> getCategories() {
+        return categories;
+    }
 
     public abstract void bell() throws IOException;
 
 
     public abstract void clear() throws IOException;
-
-
-    public Map<String, Command> commandsMap() {
-        return Collections.unmodifiableMap(commands);
-    }
-
-
 }
