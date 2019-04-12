@@ -1,3 +1,5 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
 String mainClassName = "ru.gravit.launcher.ClientLauncherWrapper"
 String mainAgentName = "ru.gravit.launcher.LauncherAgent"
 
@@ -17,7 +19,7 @@ configurations {
 }
 
 jar {
-    from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
+    classifier = 'clean'
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
             "Can-Redefine-Classes": "true",
@@ -25,11 +27,18 @@ jar {
             "Can-Set-Native-Method-Prefix": "true")
 }
 
+shadowJar {
+   classifier = null
+   relocate 'org.objectweb.asm', 'ru.gravit.repackage.org.objectweb.asm'
+   configurations = [project.configurations.pack]
+   exclude 'module-info.class'
+}
+
 dependencies {
     pack project(':LauncherAPI') // Not error on obf.
     bundle 'com.github.oshi:oshi-core:3.13.0'
-    compileOnly 'org.ow2.asm:asm-all:5.0.3'
 	bundle 'com.jfoenix:jfoenix:8.0.8'
+    pack 'org.ow2.asm:asm-tree:7.1'
 }
 
 task genRuntimeJS(type: Zip) {
@@ -44,4 +53,4 @@ task dumpLibs(type: Copy) {
 }
 
 
-build.dependsOn tasks.genRuntimeJS, tasks.dumpLibs
+build.dependsOn tasks.genRuntimeJS, tasks.dumpLibs, tasks.shadowJar

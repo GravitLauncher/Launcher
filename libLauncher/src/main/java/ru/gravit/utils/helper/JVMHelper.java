@@ -7,6 +7,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -136,8 +138,15 @@ public final class JVMHelper {
     }
 
     private static int getRAMAmount() {
-        // TODO Normal fix.
-        int physicalRam = (int) (((com.sun.management.OperatingSystemMXBean) OPERATING_SYSTEM_MXBEAN).getTotalPhysicalMemorySize() >> 20);
+        int physicalRam = 1024;
+        try {
+        	final Method getTotalPhysicalMemorySize = OPERATING_SYSTEM_MXBEAN.getClass().getDeclaredMethod("getTotalPhysicalMemorySize");
+        	getTotalPhysicalMemorySize.setAccessible(true);
+			physicalRam = (int) ((long)getTotalPhysicalMemorySize.invoke(OPERATING_SYSTEM_MXBEAN) >> 20);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+				| SecurityException e) {
+			throw new Error(e);
+		}
         return Math.min(physicalRam, OS_BITS == 32 ? 1536 : 32768); // Limit 32-bit OS to 1536 MiB, and 64-bit OS to 32768 MiB (because it's enough)
     }
 
