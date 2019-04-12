@@ -1,9 +1,7 @@
-package ru.gravit.launchserver.command.basic;
+package ru.gravit.utils.command.basic;
 
 import org.fusesource.jansi.Ansi;
-import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.command.Command;
-import ru.gravit.utils.command.CommandCategory;
 import ru.gravit.utils.command.CommandException;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.helper.LogHelper;
@@ -11,7 +9,8 @@ import ru.gravit.utils.helper.LogHelper;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public final class HelpCommand extends ru.gravit.launchserver.command.Command {
+public final class HelpCommand extends Command {
+    private CommandHandler handler;
     private static void printCommand(String name, Command command) {
         String args = command.getArgsDescription();
         //LogHelper.subInfo("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());
@@ -36,8 +35,8 @@ public final class HelpCommand extends ru.gravit.launchserver.command.Command {
         else LogHelper.info("Category: %s", name);
     }
 
-    public HelpCommand(LaunchServer server) {
-        super(server);
+    public HelpCommand(CommandHandler handler) {
+        this.handler = handler;
     }
 
     @Override
@@ -62,18 +61,18 @@ public final class HelpCommand extends ru.gravit.launchserver.command.Command {
     }
 
     private void printCommand(String name) throws CommandException {
-        printCommand(name, server.commandHandler.lookup(name));
+        printCommand(name, handler.lookup(name));
     }
 
     private void printCommands() {
-        for(CommandHandler.Category category : server.commandHandler.getCategories())
+        for(CommandHandler.Category category : handler.getCategories())
         {
             printCategory(category.name, category.description);
             for (Entry<String, Command> entry : category.category.commandsMap().entrySet())
                 printCommand(entry.getKey(), entry.getValue());
         }
         printCategory("Base", null);
-        for (Entry<String, Command> entry : server.commandHandler.getBaseCategory().commandsMap().entrySet())
+        for (Entry<String, Command> entry : handler.getBaseCategory().commandsMap().entrySet())
             printCommand(entry.getKey(), entry.getValue());
 
     }

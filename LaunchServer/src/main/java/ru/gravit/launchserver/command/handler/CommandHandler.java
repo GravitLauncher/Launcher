@@ -12,13 +12,14 @@ import ru.gravit.launchserver.command.modules.LoadModuleCommand;
 import ru.gravit.launchserver.command.modules.ModulesCommand;
 import ru.gravit.launchserver.command.service.*;
 import ru.gravit.utils.command.BaseCommandCategory;
+import ru.gravit.utils.command.basic.HelpCommand;
 
 public abstract class CommandHandler extends ru.gravit.utils.command.CommandHandler {
     public static void registerCommands(ru.gravit.utils.command.CommandHandler handler) {
         LaunchServer server = LaunchServer.server;
         BaseCommandCategory basic = new BaseCommandCategory();
         // Register basic commands
-        basic.registerCommand("help", new HelpCommand(server));
+        basic.registerCommand("help", new HelpCommand(server.commandHandler));
         basic.registerCommand("version", new VersionCommand(server));
         basic.registerCommand("build", new BuildCommand(server));
         basic.registerCommand("stop", new StopCommand(server));
@@ -61,22 +62,28 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         handler.registerCategory(authCategory);
 
         //Register dump commands
-        handler.registerCommand("dumpSessions", new DumpSessionsCommand(server));
-        handler.registerCommand("dumpEntryCache", new DumpEntryCacheCommand(server));
+        BaseCommandCategory dump = new BaseCommandCategory();
+        dump.registerCommand("dumpSessions", new DumpSessionsCommand(server));
+        dump.registerCommand("dumpEntryCache", new DumpEntryCacheCommand(server));
+        Category dumpCategory = new Category(dump,"dump", "Dump runtime data");
+        handler.registerCategory(dumpCategory);
 
         //Register service commands
-        handler.registerCommand("reload", new ReloadCommand(server));
-        handler.registerCommand("reloadAll", new ReloadAllCommand(server));
-        handler.registerCommand("reloadList", new ReloadListCommand(server));
-        handler.registerCommand("config", new ConfigCommand(server));
-        handler.registerCommand("configHelp", new ConfigHelpCommand(server));
-        handler.registerCommand("configList", new ConfigListCommand(server));
-        handler.registerCommand("serverStatus", new ServerStatusCommand(server));
-        handler.registerCommand("checkInstall", new CheckInstallCommand(server));
-        handler.registerCommand("multi", new MultiCommand(server));
-        handler.registerCommand("getModulus", new GetModulusCommand(server));
-        handler.registerCommand("component", new ComponentCommand(server));
-        handler.registerCommand("givePermission", new GivePermissionsCommand(server));
-        handler.registerCommand("getPermissions", new GetPermissionsCommand(server));
+        BaseCommandCategory service = new BaseCommandCategory();
+        service.registerCommand("reload", new ReloadCommand(server));
+        service.registerCommand("reloadAll", new ReloadAllCommand(server));
+        service.registerCommand("reloadList", new ReloadListCommand(server));
+        service.registerCommand("config", new ConfigCommand(server));
+        service.registerCommand("configHelp", new ConfigHelpCommand(server));
+        service.registerCommand("configList", new ConfigListCommand(server));
+        service.registerCommand("serverStatus", new ServerStatusCommand(server));
+        service.registerCommand("checkInstall", new CheckInstallCommand(server));
+        service.registerCommand("multi", new MultiCommand(server));
+        service.registerCommand("getModulus", new GetModulusCommand(server));
+        service.registerCommand("component", new ComponentCommand(server));
+        service.registerCommand("givePermission", new GivePermissionsCommand(server));
+        service.registerCommand("getPermissions", new GetPermissionsCommand(server));
+        Category serviceCategory = new Category(service,"service", "Managing LaunchServer Components");
+        handler.registerCategory(serviceCategory);
     }
 }
