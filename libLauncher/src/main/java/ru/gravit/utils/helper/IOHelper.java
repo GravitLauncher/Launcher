@@ -578,16 +578,13 @@ public final class IOHelper {
     @LauncherAPI
     public static void setSocketFlags(Socket socket) throws SocketException {
         // Set socket flags
-        socket.setKeepAlive(false); // TODO To socket channels
+        socket.setKeepAlive(false);
         socket.setTcpNoDelay(false);
         socket.setReuseAddress(true);
 
         // Set socket options
         socket.setSoTimeout(SOCKET_TIMEOUT);
         socket.setTrafficClass(0b11100);
-        // Allow OS to adjust buffer sizes
-        // socket.setSendBufferSize(0x100000);
-        // socket.setReceiveBufferSize(0x100000);
         socket.setPerformancePreferences(1, 0, 2);
     }
 

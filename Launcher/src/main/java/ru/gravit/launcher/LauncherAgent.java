@@ -6,6 +6,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.JarFile;
 
 import org.objectweb.asm.ClassReader;
@@ -43,41 +45,40 @@ public final class LauncherAgent {
         		if (trimmedArg.contains("r")) rt = false;
         	}
         }
-        //if (rt || pb) replaceClasses(pb, rt);
+        /*if (rt || pb)*/
+        replaceClasses(pb, rt);
     }
 
     public static boolean isStarted() {
         return isAgentStarted;
     }
-    
-    /**
-     * @author https://github.com/Konloch/JVM-Sandbox
-	 * Replaces the Runtime class via instrumentation, transforms the class via ASM
-	 */
+
     private static void replaceClasses(boolean pb, boolean rt) {
     	java.awt.Robot.class.getName();
-		for(Class<?> c : inst.getAllLoadedClasses()) {
-			if(rt && c.getName().equals("java.lang.Runtime")) {
-				try {
-					inst.redefineClasses(new java.lang.instrument.ClassDefinition(java.lang.Runtime.class, transformClass(c.getName(), getClassFile(c))));
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
+    	List<java.lang.instrument.ClassDefinition> defs = new ArrayList<>();
+		if(rt) {
+			try {
+				defs.add(new java.lang.instrument.ClassDefinition(java.lang.Runtime.class, transformClass(java.lang.Runtime.class.getName(), getClassFile(java.lang.Runtime.class))));
+			} catch(Exception e) {
+				e.printStackTrace();
 			}
-			if(pb && c.getName().equals("java.lang.ProcessBuilder")) {
-				try {
-					inst.redefineClasses(new java.lang.instrument.ClassDefinition(java.lang.ProcessBuilder.class, transformClass(c.getName(), getClassFile(c))));
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
+		}
+		if(pb) {
+			try {
+				defs.add(new java.lang.instrument.ClassDefinition(java.lang.ProcessBuilder.class, transformClass(java.lang.ProcessBuilder.class.getName(), getClassFile(java.lang.ProcessBuilder.class))));
+			} catch(Exception e) {
+				e.printStackTrace();
 			}
-			if(c.getName().equals("java.awt.Robot")) {
-				try {
-					inst.redefineClasses(new java.lang.instrument.ClassDefinition(java.lang.ProcessBuilder.class, transformClass(c.getName(), getClassFile(c))));
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
+		}
+		try {
+			defs.add(new java.lang.instrument.ClassDefinition(java.awt.Robot.class, transformClass(java.awt.Robot.class.getName(), getClassFile(java.awt.Robot.class))));
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			inst.redefineClasses(defs.toArray(new java.lang.instrument.ClassDefinition[0]));
+    	} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

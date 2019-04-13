@@ -6,7 +6,6 @@ import ru.gravit.utils.command.CommandException;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.helper.LogHelper;
 
-import java.util.Map;
 import java.util.Map.Entry;
 
 public final class HelpCommand extends Command {

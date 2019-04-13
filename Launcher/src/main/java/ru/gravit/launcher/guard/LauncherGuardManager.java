@@ -2,7 +2,6 @@ package ru.gravit.launcher.guard;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
-import ru.gravit.launcher.client.ClientLauncher;
 
 import java.nio.file.Path;
 

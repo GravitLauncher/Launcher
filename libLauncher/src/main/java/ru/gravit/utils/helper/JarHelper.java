@@ -70,12 +70,12 @@ public class JarHelper {
             jarMap(inputStream, map,overwrite);
         }
     }
-    public static Map<String, String> jarMap(Class clazz, boolean overwrite) throws IOException
+    public static Map<String, String> jarMap(Class<?> clazz, boolean overwrite) throws IOException
     {
         Path file = IOHelper.getCodeSource(clazz);
         return jarMap(file, overwrite);
     }
-    public static void jarMap(Class clazz, Map<String, String> map, boolean overwrite) throws IOException
+    public static void jarMap(Class<?> clazz, Map<String, String> map, boolean overwrite) throws IOException
     {
         Path file = IOHelper.getCodeSource(clazz);
         jarMap(file, map, overwrite);

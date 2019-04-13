@@ -2,11 +2,9 @@ package ru.gravit.utils.command;
 
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class CommandHandler implements Runnable {
     private final List<Category> categories = new ArrayList<>();
