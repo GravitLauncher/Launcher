@@ -113,6 +113,8 @@ public class ClientWebSocketService extends ClientJSONPoint {
         registerResult("restoreSession", RestoreSessionRequestEvent.class);
         registerResult("getSecureToken", GetSecureTokenRequestEvent.class);
         registerResult("verifySecureToken", VerifySecureTokenRequestEvent.class);
+        registerResult("log", LogEvent.class);
+        registerResult("execCmd", ExecCommandRequestEvent.class);
     }
 
     public void registerHandler(EventHandler eventHandler) {

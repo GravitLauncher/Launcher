@@ -6,10 +6,10 @@ import ru.gravit.launcher.request.ResultInterface;
 public class ExecCommandRequestEvent implements ResultInterface {
     @Override
     public String getType() {
-        return "execCmd";
+        return "cmdExec";
     }
     @LauncherNetworkAPI
-    boolean success;
+    public boolean success;
 
     public ExecCommandRequestEvent(boolean success) {
         this.success = success;

@@ -18,11 +18,7 @@ public class ExecCommandResponse implements JsonResponseInterface {
 
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
-        if (!client.isAuth) {
-            service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
-            return;
-        }
-        if (!client.permissions.canAdmin) {
+        if (!client.isAuth || !client.permissions.canAdmin) {
             service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
             return;
         }
