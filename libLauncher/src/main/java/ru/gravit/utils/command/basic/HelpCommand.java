@@ -26,7 +26,7 @@ public final class HelpCommand extends Command {
             ansi.a(command.getUsageDescription());
             ansi.reset();
             return ansi.toString();
-        });
+        }, () -> LogHelper.htmlFormatLog(LogHelper.Level.INFO, LogHelper.getDataTime(), String.format("<font color=\"green\">%s</font> <font color=\"cyan\">%s</font> - <font color=\"yellow\">%s</font>", name, args == null ? "[nothing]" : args, command.getUsageDescription()), true));
     }
 
     private static void printCategory(String name, String description)

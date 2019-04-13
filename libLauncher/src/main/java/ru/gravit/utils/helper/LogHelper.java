@@ -168,7 +168,7 @@ public final class LogHelper {
     @LauncherAPI
     public static void log(Level level, String message, boolean sub) {
         String dateTime = DATE_TIME_FORMATTER.format(LocalDateTime.now());
-        String jansiString = null, plainString = null;
+        String jansiString = null, plainString = null, htmlString = null;
         for (OutputEnity output : OUTPUTS) {
             if (output.type == OutputTypes.JANSI && JANSI) {
                 if (jansiString != null) {
@@ -178,6 +178,14 @@ public final class LogHelper {
 
                 jansiString = ansiFormatLog(level, dateTime, message, sub);
                 output.output.println(jansiString);
+            } else if (output.type == OutputTypes.HTML) {
+                if (htmlString != null) {
+                    output.output.println(htmlString);
+                    continue;
+                }
+
+                htmlString = htmlFormatLog(level, dateTime, message, sub);
+                output.output.println(htmlString);
             } else {
                 if (plainString != null) {
                     output.output.println(plainString);
@@ -192,7 +200,12 @@ public final class LogHelper {
     @LauncherAPI
     public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr)
     {
-        String jansiString = null, plainString = null;
+        rawLog(plainStr, jansiStr, null);
+    }
+    @LauncherAPI
+    public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr, Supplier<String> htmlStr)
+    {
+        String jansiString = null, plainString = null, htmlString = null;
         for (OutputEnity output : OUTPUTS) {
             if (output.type == OutputTypes.JANSI && JANSI) {
                 if (jansiString != null) {
@@ -202,6 +215,14 @@ public final class LogHelper {
 
                 jansiString = jansiStr.get();
                 output.output.println(jansiString);
+            } else if (output.type == OutputTypes.HTML) {
+                if (htmlString != null) {
+                    output.output.println(htmlString);
+                    continue;
+                }
+
+                htmlString = htmlStr.get();
+                output.output.println(htmlString);
             } else {
                 if (plainString != null) {
                     output.output.println(plainString);
@@ -375,6 +396,23 @@ public final class LogHelper {
 
         // Finish with reset code
         return ansi;
+    }
+
+    public static String htmlFormatLog(Level level, String dateTime, String message, boolean sub)
+    {
+        String levelColor;
+        switch (level) {
+            case WARNING:
+                levelColor = "yellow";
+                break;
+            case ERROR:
+                levelColor = "red";
+                break;
+            default: // INFO, DEBUG, Unknown
+                levelColor = "white";
+                break;
+        }
+        return String.format("%s <b><font color=\"%s\">[%s] %s</font></b>", dateTime, levelColor, level.toString(), sub ? ' ' + message : message);
     }
 
     private static String ansiFormatVersion(String product) {
