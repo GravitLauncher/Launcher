@@ -16,6 +16,7 @@ public class GetSecureTokenResponse implements JsonResponseInterface {
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
         String secureToken = LaunchServer.server.config.protectHandler.generateClientSecureToken();
+        client.verifyToken = secureToken;
         service.sendObject(ctx, new GetSecureTokenRequestEvent(secureToken));
     }
 }

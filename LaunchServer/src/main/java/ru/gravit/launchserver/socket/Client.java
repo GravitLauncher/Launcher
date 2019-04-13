@@ -17,6 +17,7 @@ public class Client {
     public boolean isSecure;
     public ClientPermissions permissions;
     public String username;
+    public String verifyToken;
     public LogHelper.OutputEnity logOutput;
 
     public transient AuthProviderPair auth;

@@ -17,7 +17,7 @@ public class VerifySecureTokenResponse implements JsonResponseInterface {
 
     @Override
     public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
-        boolean success = LaunchServer.server.config.protectHandler.verifyClientSecureToken(secureToken);
+        boolean success = LaunchServer.server.config.protectHandler.verifyClientSecureToken(secureToken, client.verifyToken);
         if(success) client.isSecure = true;
         service.sendObject(ctx, new VerifySecureTokenRequestEvent(success));
     }

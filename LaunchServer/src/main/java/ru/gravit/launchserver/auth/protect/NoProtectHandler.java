@@ -15,7 +15,7 @@ public class NoProtectHandler extends ProtectHandler {
     }
 
     @Override
-    public boolean verifyClientSecureToken(String token) {
+    public boolean verifyClientSecureToken(String token, String secureKey) {
         return true;
     }
 
