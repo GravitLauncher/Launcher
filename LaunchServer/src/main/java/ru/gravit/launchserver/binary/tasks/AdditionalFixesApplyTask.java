@@ -11,7 +11,10 @@ import ru.gravit.utils.helper.IOHelper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.function.Predicate;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -31,13 +34,33 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
     @Override
     public Path process(Path inputFile) throws IOException {
         Path out = server.launcherBinary.nextPath("post-fixed");
-        try (ClassMetadataReader reader = new ClassMetadataReader()) {
+        try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
+        	apply(inputFile, inputFile, output, server, (e) -> false);
+        }
+        return out;
+    }
+
+    public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServer srv, Predicate<ZipEntry> excluder) throws IOException {
+    	try (ClassMetadataReader reader = new ClassMetadataReader()) {
             reader.getCp().add(new JarFile(inputFile.toFile()));
-            try (ZipInputStream input = IOHelper.newZipInput(inputFile);
-                 ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
+            List<JarFile> libs = srv.launcherBinary.coreLibs.stream().map(e -> {
+				try {
+					return new JarFile(e.toFile());
+				} catch (IOException e1) {
+					throw new RuntimeException(e1);			
+				}
+			}).collect(Collectors.toList());
+            libs.addAll(srv.launcherBinary.addonLibs.stream().map(e -> {
+				try {
+					return new JarFile(e.toFile());
+				} catch (IOException e1) {
+					throw new RuntimeException(e1);
+				}
+			}).collect(Collectors.toList()));
+            try (ZipInputStream input = IOHelper.newZipInput(addFile)) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
-                    if (e.isDirectory()) {
+                    if (e.isDirectory() || excluder.test(e)) {
                         e = input.getNextEntry();
                         continue;
                     }
@@ -49,14 +72,13 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                             IOHelper.transfer(input, outputStream);
                             bytes = outputStream.toByteArray();
                         }
-                        output.write(classFix(bytes, reader, server.config.stripLineNumbers));
+                        output.write(classFix(bytes, reader, srv.config.stripLineNumbers));
                     } else
                         IOHelper.transfer(input, output);
                     e = input.getNextEntry();
                 }
             }
         }
-        return out;
     }
 
     private static byte[] classFix(byte[] bytes, ClassMetadataReader reader, boolean stripNumbers) {

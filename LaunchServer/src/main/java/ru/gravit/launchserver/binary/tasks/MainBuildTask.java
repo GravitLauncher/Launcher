@@ -207,7 +207,7 @@ public class MainBuildTask implements LauncherBuildTask {
             jaConfigurator.compile();
             output.write(jaConfigurator.getBytecode());
         } catch (CannotCompileException | NotFoundException e) {
-            LogHelper.error(e);
+            throw new IOException(e);
         }
         reader.close();
         return outputJar;
