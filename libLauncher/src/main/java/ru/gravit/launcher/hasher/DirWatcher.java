@@ -56,6 +56,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     };
 
     private static void handleError(Throwable e) {
+        LogHelper.error(e);
         NativeJVMHalt.haltA(-123);
     }
 
