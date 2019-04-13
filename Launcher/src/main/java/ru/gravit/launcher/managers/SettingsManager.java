@@ -27,7 +27,7 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
                 String dirName = input.readString(128);
                 String fullPath = input.readString(1024);
                 HashedDir dir = new HashedDir(input);
-                settings.lastHDirs.put(dirName, dir);
+                settings.lastHDirs.add(new NewLauncherSettings.HashedStoreEntry(dir, dirName, fullPath));
             }
             return super.visitFile(file, attrs);
         }
@@ -68,14 +68,14 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
     public void saveHDirStore(Path storeProjectPath) throws IOException
     {
         Files.createDirectories(storeProjectPath);
-        for(Map.Entry<String, HashedDir> e : settings.lastHDirs.entrySet())
+        for(NewLauncherSettings.HashedStoreEntry e : settings.lastHDirs)
         {
-            Path file = Files.createFile(storeProjectPath.resolve(e.getKey().concat(".bin")));
+            Path file = Files.createFile(storeProjectPath.resolve(e.name.concat(".bin")));
             try(HOutput output = new HOutput(IOHelper.newOutput(file)))
             {
-                output.writeString(e.getKey(), 128);
-                output.writeString("", 1024);
-                e.getValue().write(output);
+                output.writeString(e.name, 128);
+                output.writeString(e.fullPath, 1024);
+                e.hdir.write(output);
             }
         }
     }

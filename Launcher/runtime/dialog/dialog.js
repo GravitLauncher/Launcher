@@ -264,14 +264,14 @@ function doUpdate(profile, pp, accessToken) {
         makeSetProfileRequest(profile, function() {
             ClientLauncher.setProfile(profile);
             makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
-                settings.lastHDirs.put(assetDirName, assetHDir.hdir);
+                settings.putHDir(assetDirName, assetDir, assetHDir.hdir);
 
                 update.resetOverlay("Обновление файлов клиента");
                 var clientDirName = profile.getDir();
                 var clientDir = settings.updatesDir.resolve(clientDirName);
                 var clientMatcher = profile.getClientUpdateMatcher();
                 makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
-                    settings.lastHDirs.put(clientDirName, clientHDir.hdir);
+                    settings.putHDir(clientDirName, clientDir, clientHDir.hdir);
                     doLaunchClient(assetDir, assetHDir.hdir, clientDir, clientHDir.hdir, profile, pp, accessToken);
                 });
             });

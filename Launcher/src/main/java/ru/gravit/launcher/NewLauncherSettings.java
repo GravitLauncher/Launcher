@@ -4,10 +4,7 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class NewLauncherSettings {
     @LauncherAPI
@@ -33,6 +30,31 @@ public class NewLauncherSettings {
     public byte[] lastDigest;
     @LauncherAPI
     public List<ClientProfile> lastProfiles = new LinkedList<>();
+    public static class HashedStoreEntry
+    {
+        @LauncherAPI
+        public HashedDir hdir;
+        @LauncherAPI
+        public String name;
+        @LauncherAPI
+        public String fullPath;
+
+        public HashedStoreEntry(HashedDir hdir, String name, String fullPath) {
+            this.hdir = hdir;
+            this.name = name;
+            this.fullPath = fullPath;
+        }
+    }
     @LauncherAPI
-    public transient Map<String, HashedDir> lastHDirs = new HashMap<>(16);
+    public transient List<HashedStoreEntry> lastHDirs = new ArrayList<>(16);
+    @LauncherAPI
+    public void putHDir(String name, Path path, HashedDir dir)
+    {
+        String fullPath = path.toAbsolutePath().toString();
+        for(HashedStoreEntry e : lastHDirs)
+        {
+            if(e.fullPath.equals(fullPath) && e.name.equals(name)) return;
+        }
+        lastHDirs.add(new HashedStoreEntry(dir, name, fullPath));
+    }
 }

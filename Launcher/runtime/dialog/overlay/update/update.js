@@ -67,13 +67,14 @@ var update = {
 
 function offlineUpdateRequest(dirName, dir, matcher, digest) {
     return function() {
-        var hdir = settings.lastHDirs.get(dirName);
-        if (hdir === null) {
-            Request.requestError(java.lang.String.format("Директории '%s' нет в кэше", dirName));
-            return;
-        }
+        LogHelper.error("Unsupported operation");
+        //var hdir = settings.lastHDirs.get(dirName);
+        //if (hdir === null) {
+        //    Request.requestError(java.lang.String.format("Директории '%s' нет в кэше", dirName));
+        //    return;
+        //}
 
-        return FunctionalBridge.offlineUpdateRequest(dir, hdir, matcher, digest).run();
+        //return FunctionalBridge.offlineUpdateRequest(dir, hdir, matcher, digest).run();
     };
 }
 
