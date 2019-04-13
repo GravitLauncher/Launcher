@@ -19,7 +19,7 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         LaunchServer server = LaunchServer.server;
         BaseCommandCategory basic = new BaseCommandCategory();
         // Register basic commands
-        basic.registerCommand("help", new HelpCommand(server.commandHandler));
+        basic.registerCommand("help", new HelpCommand(handler));
         basic.registerCommand("version", new VersionCommand(server));
         basic.registerCommand("build", new BuildCommand(server));
         basic.registerCommand("stop", new StopCommand(server));
