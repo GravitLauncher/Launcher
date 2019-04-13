@@ -24,8 +24,10 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         {
             try(HInput input = new HInput(IOHelper.newInput(file)))
             {
+                String dirName = input.readString(128);
+                String fullPath = input.readString(1024);
                 HashedDir dir = new HashedDir(input);
-                settings.lastHDirs.put(file.getFileName().toString(), dir);
+                settings.lastHDirs.put(dirName, dir);
             }
             return super.visitFile(file, attrs);
         }
@@ -68,9 +70,11 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         Files.createDirectories(storeProjectPath);
         for(Map.Entry<String, HashedDir> e : settings.lastHDirs.entrySet())
         {
-            Path file = Files.createFile(storeProjectPath.resolve(e.getKey()));
+            Path file = Files.createFile(storeProjectPath.resolve(e.getKey().concat(".bin")));
             try(HOutput output = new HOutput(IOHelper.newOutput(file)))
             {
+                output.writeString(e.getKey(), 128);
+                output.writeString("", 1024);
                 e.getValue().write(output);
             }
         }
