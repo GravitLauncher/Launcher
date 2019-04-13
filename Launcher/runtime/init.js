@@ -5,7 +5,8 @@ var LauncherApp = Java.extend(JSApplication, {
     init: function() {
         app = JSApplication.getInstance();
         cliParams.init(app.getParameters());
-        settings.load();
+        settingsManager.loadConfig();
+        settings = SettingsManager.settings;
         cliParams.applySettings();
     }, start: function(primaryStage) {
         stage = primaryStage;
@@ -39,7 +40,7 @@ var LauncherApp = Java.extend(JSApplication, {
         initLauncher();
 
     }, stop: function() {
-        settings.save();
+        settingsManager.saveConfig();
         options.save();
     }
 });

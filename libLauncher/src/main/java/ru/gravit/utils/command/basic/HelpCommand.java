@@ -4,6 +4,7 @@ import org.fusesource.jansi.Ansi;
 import ru.gravit.utils.command.Command;
 import ru.gravit.utils.command.CommandException;
 import ru.gravit.utils.command.CommandHandler;
+import ru.gravit.utils.helper.FormatHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.util.Map.Entry;
@@ -13,8 +14,8 @@ public final class HelpCommand extends Command {
     private static void printCommand(String name, Command command) {
         String args = command.getArgsDescription();
         //LogHelper.subInfo("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());
-        LogHelper.rawLog(() -> LogHelper.rawFormat(LogHelper.Level.INFO, LogHelper.getDataTime(), true) + String.format("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription()), () -> {
-            Ansi ansi = LogHelper.rawAnsiFormat(LogHelper.Level.INFO, LogHelper.getDataTime(), true);
+        LogHelper.rawLog(() -> FormatHelper.rawFormat(LogHelper.Level.INFO, LogHelper.getDataTime(), true) + String.format("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription()), () -> {
+            Ansi ansi = FormatHelper.rawAnsiFormat(LogHelper.Level.INFO, LogHelper.getDataTime(), true);
             ansi.fgBright(Ansi.Color.GREEN);
             ansi.a(name + " ");
             ansi.fgBright(Ansi.Color.CYAN);

@@ -443,7 +443,7 @@ var serverHolder = {
 };
 
 /* ======== Scenes scripts ======== */
-launcher.loadScript("api/settings.js");
+launcher.loadScript("engine/settings.js");
 launcher.loadScript("dialog/overlay/debug/debug.js");
 launcher.loadScript("dialog/overlay/processing/processing.js");
 launcher.loadScript("dialog/overlay/settings/settings.js");

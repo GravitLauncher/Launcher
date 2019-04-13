@@ -17,5 +17,5 @@ var settingsManagerClass = Java.extend(SettingsManagerClass.static, {
     },
 });
 
-var settingsManager = new settingsManager;
+var settingsManager = new settingsManagerClass;
 var settings = SettingsManager.settings;
