@@ -1,14 +1,12 @@
 package ru.gravit.launcher.gui;
 
-import ru.gravit.launcher.JSApplication;
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.*;
 import ru.gravit.launcher.client.*;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedFile;
+import ru.gravit.launcher.managers.SettingsManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.profiles.Texture;
@@ -52,6 +50,8 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("LauncherClass", Launcher.class);
         bindings.put("LauncherConfigClass", LauncherConfig.class);
         bindings.put("HTTPRequestClass", HTTPRequest.class);
+        bindings.put("SettingsManagerClass", SettingsManager.class);
+        bindings.put("NewLauncherSettingsClass", NewLauncherSettings.class);
 
         // Set client class bindings
         bindings.put("PlayerProfileClass", PlayerProfile.class);

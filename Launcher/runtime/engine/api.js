@@ -56,6 +56,8 @@ var SecurityHelper = SecurityHelperClass.static;
 var DigestAlgorithm = DigestAlgorithmClass.static;
 var VerifyHelper = VerifyHelperClass.static;
 var LauncherSettings = LauncherSettingsClass.static;
+var NewLauncherSettings = NewLauncherSettingsClass.static;
+var SettingsManager = SettingsManagerClass.static;
 
 // Helper JS class API imports
 var JSApplication = null;

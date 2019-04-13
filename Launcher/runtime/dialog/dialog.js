@@ -180,7 +180,7 @@ function goAuth(event) {
     if (!passwordField.isDisable()) {
         var password = passwordField.getText();
         if (password !== null && !password.isEmpty()) {
-            rsaPassword = settings.setPassword(password);
+            rsaPassword = settingsOverlay.setPassword(password);
         } else if (settings.rsaPassword !== null) {
             rsaPassword = settings.rsaPassword;
         } else {
@@ -443,6 +443,7 @@ var serverHolder = {
 };
 
 /* ======== Scenes scripts ======== */
+launcher.loadScript("api/settings.js");
 launcher.loadScript("dialog/overlay/debug/debug.js");
 launcher.loadScript("dialog/overlay/processing/processing.js");
 launcher.loadScript("dialog/overlay/settings/settings.js");

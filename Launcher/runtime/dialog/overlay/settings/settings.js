@@ -1,35 +1,3 @@
-var settingsClass = Java.extend(LauncherSettingsClass.static, {
-    setDefault: function() {
-        settings.login = null;
-        settings.rsaPassword = null;
-        settings.profile = 0;
-
-        settings.updatesDir = DirBridge.defaultUpdatesDir;
-        settings.autoEnter = config.autoEnterDefault;
-        settings.fullScreen = config.fullScreenDefault;
-        settings.setRAM(config.ramDefault);
-
-        settings.lastDigest = null;
-        settings.lastProfiles.clear();
-        settings.lastHDirs.clear();
-
-        cliParams.applySettings();
-    },
-
-    setPassword: function(password) {
-        var encrypted = SecurityHelper.newRSAEncryptCipher(Launcher.getConfig().publicKey).doFinal(IOHelper.encode(password));
-        return encrypted;
-    },
-
-
-    setRAM: function(ram) {
-		if (ram>762&&ram<1024){
-        settings.ram = java.lang.Math["min(int,int)"](ram, FunctionalBridge.getJVMTotalMemory());
-		}else{
-        settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, FunctionalBridge.getJVMTotalMemory());
-		}
-    },
-});
 var settingsOverlay = {
 /* ===================== OVERLAY ===================== */
     overlay: null, ramLabel: null, dirLabel: null, transferDialog: null,
@@ -83,7 +51,7 @@ var settingsOverlay = {
         ramSlider.setBlockIncrement(1024);
         ramSlider.setValue(settings.ram);
         ramSlider.valueProperty()["addListener(javafx.beans.value.ChangeListener)"](function(o, ov, nv) {
-            settings.setRAM(nv);
+            settingsOverlay.setRAM(nv);
             settingsOverlay.updateRAMLabel();
         });
 
@@ -153,12 +121,25 @@ var settingsOverlay = {
         });
     },
 
+    setPassword: function(password) {
+        var encrypted = SecurityHelper.newRSAEncryptCipher(Launcher.getConfig().publicKey).doFinal(IOHelper.encode(password));
+        return encrypted;
+    },
+
+
+    setRAM: function(ram) {
+		if (ram>762&&ram<1024){
+        settings.ram = java.lang.Math["min(int,int)"](ram, FunctionalBridge.getJVMTotalMemory());
+		}else{
+        settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, FunctionalBridge.getJVMTotalMemory());
+		}
+    },
+
     updateDirLabel: function() {
         settingsOverlay.dirLabel.setText(IOHelper.toString(settings.updatesDir));
     }
 };
 LogHelper.debug("Dir: %s", DirBridge.dir);
-var settings = new settingsClass;
 
 /* ====================== CLI PARAMS ===================== */
 var cliParams = {
@@ -206,7 +187,7 @@ var cliParams = {
             settings.login = cliParams.login;
         }
         if (cliParams.password !== null) {
-            settings.setPassword(cliParams.password);
+            settingsOverlay.setPassword(cliParams.password);
         }
         if (cliParams.profile >= 0) {
             settings.profile = cliParams.profile;
@@ -221,7 +202,7 @@ var cliParams = {
             settings.fullScreen = cliParams.fullScreen;
         }
         if (cliParams.ram >= 0) {
-            settings.setRAM(cliParams.ram);
+            settingsOverlay.setRAM(cliParams.ram);
         }
 
         if (cliParams.offline !== null) {
