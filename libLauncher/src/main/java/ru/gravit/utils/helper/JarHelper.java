@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -28,26 +27,29 @@ public class JarHelper {
             e = input.getNextEntry();
         }
     }
-    public static void jarWalk(JarInputStream input, JarWalkCallback callback) throws IOException
+    public static void jarWalk(ZipInputStream input, JarWalkCallback callback) throws IOException
     {
-        zipWalk(input, (in, e) -> {
+        ZipEntry e = input.getNextEntry();
+        while (e != null)
+        {
             String filename = e.getName();
             if(filename.endsWith(".class"))
             {
                 String classFull = filename.replaceAll("/", ".").substring(0,
                         filename.length() - ".class".length());
-                String clazz = classFull.substring(classFull.lastIndexOf('.'));
-                callback.process(in,e, classFull, clazz);
+                String clazz = classFull.substring(classFull.lastIndexOf('.')+1);
+                callback.process(input,e, classFull, clazz);
             }
-        });
+            e = input.getNextEntry();
+        }
     }
-    public static Map<String, String> jarMap(JarInputStream input, boolean overwrite) throws IOException
+    public static Map<String, String> jarMap(ZipInputStream input, boolean overwrite) throws IOException
     {
         Map<String, String> map = new HashMap<>();
         jarMap(input, map, overwrite);
         return map;
     }
-    public static void jarMap(JarInputStream input, Map<String, String> map, boolean overwrite) throws IOException
+    public static void jarMap(ZipInputStream input, Map<String, String> map, boolean overwrite) throws IOException
     {
         jarWalk(input, (in, e, classFull, clazz) -> {
             if(overwrite) map.put(clazz, classFull);
@@ -56,14 +58,14 @@ public class JarHelper {
     }
     public static Map<String, String> jarMap(Path file, boolean overwrite) throws IOException
     {
-        try(JarInputStream inputStream = new JarInputStream(IOHelper.newZipInput(file)))
+        try(ZipInputStream inputStream = IOHelper.newZipInput(file))
         {
             return jarMap(inputStream,overwrite);
         }
     }
     public static void jarMap(Path file, Map<String, String> map, boolean overwrite) throws IOException
     {
-        try(JarInputStream inputStream = new JarInputStream(IOHelper.newZipInput(file)))
+        try(ZipInputStream inputStream = IOHelper.newZipInput(file))
         {
             jarMap(inputStream, map,overwrite);
         }
