@@ -9,6 +9,7 @@ import ru.gravit.utils.helper.UnpackHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ public class RadonBuildTask implements LauncherBuildTask {
     @Override
     public Path process(Path inputFile) throws IOException {
         Path outputFile = srv.launcherBinary.nextLowerPath(this);
+        Files.deleteIfExists(outputFile);
         if (srv.config.enabledRadon) {
             if (!IOHelper.isFile(config))
                 UnpackHelper.unpack(IOHelper.getResourceURL("ru/gravit/launchserver/defaults/radon.cfg"), config);
