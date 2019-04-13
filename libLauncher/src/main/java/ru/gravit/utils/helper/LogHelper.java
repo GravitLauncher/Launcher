@@ -403,16 +403,23 @@ public final class LogHelper {
         String levelColor;
         switch (level) {
             case WARNING:
-                levelColor = "yellow";
+                levelColor = "gravitlauncher-log-warning";
                 break;
             case ERROR:
-                levelColor = "red";
+                levelColor = "gravitlauncher-log-error";
                 break;
-            default: // INFO, DEBUG, Unknown
-                levelColor = "white";
+            case INFO:
+                levelColor = "gravitlauncher-log-info";
+                break;
+            case DEBUG:
+                levelColor = "gravitlauncher-log-debug";
+                break;
+            default:
+                levelColor = "gravitlauncher-log-unknown";
                 break;
         }
-        return String.format("%s <b><font color=\"%s\">[%s] %s</font></b>", dateTime, levelColor, level.toString(), sub ? ' ' + message : message);
+        if(sub) levelColor += " gravitlauncher-log-sub";
+        return String.format("%s <span class=\"gravitlauncher-log %s\">[%s] %s</span>", dateTime, levelColor, level.toString(), sub ? ' ' + message : message);
     }
 
     private static String ansiFormatVersion(String product) {

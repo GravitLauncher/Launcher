@@ -19,7 +19,7 @@ public final class DownloadAssetCommand extends Command {
 
     @Override
     public String getArgsDescription() {
-        return "<version> <dir>";
+        return "[version] [dir]";
     }
 
     @Override

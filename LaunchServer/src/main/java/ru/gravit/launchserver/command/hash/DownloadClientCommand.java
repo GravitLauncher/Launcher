@@ -24,7 +24,7 @@ public final class DownloadClientCommand extends Command {
 
     @Override
     public String getArgsDescription() {
-        return "<version> <dir>";
+        return "[version] [dir]";
     }
 
     @Override

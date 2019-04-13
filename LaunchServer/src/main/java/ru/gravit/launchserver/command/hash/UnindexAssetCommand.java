@@ -24,7 +24,7 @@ public final class UnindexAssetCommand extends Command {
 
     @Override
     public String getArgsDescription() {
-        return "<dir> <index> <output-dir>";
+        return "[dir] [index] [output-dir]";
     }
 
     @Override
