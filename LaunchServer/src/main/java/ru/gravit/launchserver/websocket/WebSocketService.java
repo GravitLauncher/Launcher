@@ -92,6 +92,7 @@ public class WebSocketService {
         registerResponse("profileByUUID", ProfileByUUIDResponse.class);
         registerResponse("getSecureToken", GetSecureTokenResponse.class);
         registerResponse("verifySecureToken", VerifySecureTokenResponse.class);
+        registerResponse("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {

@@ -690,6 +690,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 new MemoryAuthHandler(),
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
                 , "std")};
+        newConfig.auth[0].displayName = "Default";
         newConfig.protectHandler = new NoProtectHandler();
         if (testEnv) newConfig.permissionsHandler = new DefaultPermissionsHandler();
         else newConfig.permissionsHandler = new JsonFilePermissionsHandler();

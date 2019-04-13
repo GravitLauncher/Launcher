@@ -15,10 +15,7 @@ import ru.gravit.launcher.request.PingRequest;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.RequestType;
-import ru.gravit.launcher.request.auth.AuthRequest;
-import ru.gravit.launcher.request.auth.CheckServerRequest;
-import ru.gravit.launcher.request.auth.JoinServerRequest;
-import ru.gravit.launcher.request.auth.SetProfileRequest;
+import ru.gravit.launcher.request.auth.*;
 import ru.gravit.launcher.request.update.LauncherRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.launcher.request.update.UpdateRequest;
@@ -77,6 +74,7 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("ProfileByUsernameRequestClass", ProfileByUsernameRequest.class);
         bindings.put("ProfileByUUIDRequestClass", ProfileByUUIDRequest.class);
         bindings.put("BatchProfileByUsernameRequestClass", BatchProfileByUsernameRequest.class);
+        bindings.put("GetAvailabilityAuthRequestClass", GetAvailabilityAuthRequest.class);
 
         // Set hasher class bindings
         bindings.put("FileNameMatcherClass", FileNameMatcher.class);

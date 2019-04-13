@@ -11,6 +11,7 @@ public class AuthProviderPair {
     public AuthHandler handler;
     public TextureProvider textureProvider;
     public String name;
+    public String displayName;
     public boolean isDefault = true;
 
     public AuthProviderPair(AuthProvider provider, AuthHandler handler, TextureProvider textureProvider, String name) {

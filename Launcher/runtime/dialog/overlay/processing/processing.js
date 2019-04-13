@@ -91,7 +91,23 @@ function makeProfilesRequest(callback) {
         settings.offline = true;
         overlay.swap(2500, processing.overlay, function() makeProfilesRequest(callback));
     }, false);
-    task.updateMessage("Обновление лаунчера");
+    task.updateMessage("Обновление профилей");
+    startTask(task);
+}
+function makeAuthAvailabilityRequest(callback) {
+    var task = newRequestTask(new GetAvailabilityAuthRequest());
+
+    // Set task properties and start
+    processing.setTaskProperties(task, callback, function() {
+        if (settings.offline) {
+            return;
+        }
+
+        // Repeat request, but in offline mode
+        settings.offline = true;
+        overlay.swap(2500, processing.overlay, function() makeAuthAvailabilityRequest(callback));
+    }, false);
+    task.updateMessage("Обновление способов авторизации");
     startTask(task);
 }
 function makeSetProfileRequest(profile, callback) {

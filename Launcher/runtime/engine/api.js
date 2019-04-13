@@ -28,6 +28,7 @@ var SetProfileRequest = SetProfileRequestClass.static;
 var ProfileByUsernameRequest = ProfileByUsernameRequestClass.static;
 var ProfileByUUIDRequest = ProfileByUUIDRequestClass.static;
 var BatchProfileByUsernameRequest = BatchProfileByUsernameRequestClass.static;
+var GetAvailabilityAuthRequest = GetAvailabilityAuthRequestClass.static;
 
 // Hasher class API imports
 var FileNameMatcher = FileNameMatcherClass.static;

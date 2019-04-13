@@ -70,7 +70,8 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         Files.createDirectories(storeProjectPath);
         for(NewLauncherSettings.HashedStoreEntry e : settings.lastHDirs)
         {
-            Path file = Files.createFile(storeProjectPath.resolve(e.name.concat(".bin")));
+            Path file = storeProjectPath.resolve(e.name.concat(".bin"));
+            if(!Files.exists(file)) Files.createFile(file);
             try(HOutput output = new HOutput(IOHelper.newOutput(file)))
             {
                 output.writeString(e.name, 128);
