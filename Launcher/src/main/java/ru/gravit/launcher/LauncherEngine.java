@@ -7,6 +7,8 @@ import ru.gravit.launcher.client.FunctionalBridge;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.gui.RuntimeProvider;
+import ru.gravit.launcher.hasher.HashedEntry;
+import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.JVMHelper;
@@ -41,6 +43,7 @@ public class LauncherEngine {
     public static void initGson() {
         if (Launcher.gson != null) return;
         Launcher.gsonBuilder = new GsonBuilder();
+        Launcher.gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         Launcher.gson = Launcher.gsonBuilder.create();
     }
 

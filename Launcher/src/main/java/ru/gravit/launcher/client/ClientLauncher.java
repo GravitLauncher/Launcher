@@ -5,9 +5,7 @@ import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.*;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
-import ru.gravit.launcher.hasher.DirWatcher;
-import ru.gravit.launcher.hasher.FileNameMatcher;
-import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.hasher.*;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
@@ -526,6 +524,7 @@ public final class ClientLauncher {
     public static void initGson() {
         if (Launcher.gson != null) return;
         Launcher.gsonBuilder = new GsonBuilder();
+        Launcher.gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         Launcher.gson = Launcher.gsonBuilder.create();
     }
 
