@@ -1,7 +1,5 @@
 package ru.gravit.launcher.hasher;
 
-import cpw.mods.fml.SafeExitJVMLegacy;
-import net.minecraftforge.fml.SafeExitJVM;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.hasher.HashedEntry.Type;
 import ru.gravit.utils.NativeJVMHalt;
@@ -58,19 +56,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     };
 
     private static void handleError(Throwable e) {
-        LogHelper.error(e);
-        try {
-            SafeExitJVMLegacy.exit(-123);
-        } catch (Throwable ignored) {
-
-        }
-        try {
-            SafeExitJVM.exit(-123);
-        } catch (Throwable ignored) {
-
-        }
-        NativeJVMHalt halt = new NativeJVMHalt(-123);
-        halt.halt();
+        NativeJVMHalt.haltA(-123);
     }
 
     private static Deque<String> toPath(Iterable<Path> path) {
