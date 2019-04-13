@@ -34,5 +34,5 @@ public class NewLauncherSettings {
     @LauncherAPI
     public List<ClientProfile> lastProfiles = new LinkedList<>();
     @LauncherAPI
-    public Map<String, HashedDir> lastHDirs = new HashMap<>(16);
+    public transient Map<String, HashedDir> lastHDirs = new HashMap<>(16);
 }

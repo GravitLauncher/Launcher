@@ -18,6 +18,10 @@ public class DirBridge {
     @LauncherAPI
     public static Path dir;
     @LauncherAPI
+    public static Path dirStore;
+    @LauncherAPI
+    public static Path dirProjectStore;
+    @LauncherAPI
     public static Path dirUpdates;
     @LauncherAPI
     public static Path defaultUpdatesDir;
@@ -63,6 +67,16 @@ public class DirBridge {
     @LauncherAPI
     public static Path getLauncherDir(String projectname) throws IOException {
         return getAppDataDir().resolve(projectname);
+    }
+    @LauncherAPI
+    public static Path getStoreDir(String projectname) throws IOException
+    {
+        return getAppDataDir().resolve("store");
+    }
+    @LauncherAPI
+    public static Path getProjectStoreDir(String projectname) throws IOException
+    {
+        return getStoreDir(projectname).resolve(projectname);
     }
 
     @LauncherAPI

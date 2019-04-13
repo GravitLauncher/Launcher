@@ -7,6 +7,7 @@ var LauncherApp = Java.extend(JSApplication, {
         cliParams.init(app.getParameters());
         settingsManager.loadConfig();
         settings = SettingsManager.settings;
+        settingsManager.loadHDirStore();
         cliParams.applySettings();
     }, start: function(primaryStage) {
         stage = primaryStage;
@@ -41,6 +42,7 @@ var LauncherApp = Java.extend(JSApplication, {
 
     }, stop: function() {
         settingsManager.saveConfig();
+        settingsManager.saveHDirStore();
         options.save();
     }
 });

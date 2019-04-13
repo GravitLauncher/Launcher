@@ -19,6 +19,8 @@ var config = {
 };
 
 DirBridge.dir = DirBridge.getLauncherDir(config.dir);
+DirBridge.dirStore = DirBridge.getStoreDir(config.dir);
+DirBridge.dirProjectStore = DirBridge.getProjectStoreDir(config.dir);
 if (!IOHelper.isDir(DirBridge.dir)) {
     java.nio.file.Files.createDirectory(DirBridge.dir);
 }
