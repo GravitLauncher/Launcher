@@ -48,7 +48,7 @@ public class ListDownloader {
 
             HttpGet get = null;
             for (DownloadTask apply : applies) {
-                URI u = new URL(base.concat(escapeURL(apply.apply))).toURI();
+                URI u = new URL(base.concat(IOHelper.urlEncode(apply.apply))).toURI();
                 callback.stateChanged(apply.apply,0L, apply.size);
                 LogHelper.debug("Download URL: %s", u.toString());
                 if (get == null) get = new HttpGet(u);
@@ -73,11 +73,6 @@ public class ListDownloader {
             get = new HttpGet(u);
             httpclient.execute(get, new FileDownloadResponseHandler(target.toAbsolutePath()));
         }
-    }
-
-    public String escapeURL(String apply)
-    {
-        return apply.replaceAll(" ", "%20");
     }
 
     static class FileDownloadResponseHandler implements ResponseHandler<Path> {
