@@ -1,4 +1,3 @@
-# project is java
 language: java
 # Use https (public access) instead of git for git-submodules. This modifies only Travis-CI behavior!
 # disable the default submodule logic
@@ -18,6 +17,3 @@ cache:
     - $HOME/.gradle/wrapper/
 script:
     - ./gradlew build
-# not working artifacts
-addons:
-  artifacts: false
