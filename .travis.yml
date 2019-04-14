@@ -17,7 +17,7 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 script:
-    - ./gradlew assemble build
+    - ./gradlew build
 # not working artifacts
 addons:
   artifacts: false
