@@ -1,5 +1,6 @@
 package ru.gravit.launcher;
 
+import ru.gravit.utils.NativeJVMHalt;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.ByteArrayOutputStream;
@@ -15,6 +16,9 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
+
+import cpw.mods.fml.SafeExitJVMLegacy;
+import net.minecraftforge.fml.SafeExitJVM;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -33,8 +37,12 @@ public final class LauncherAgent {
     }
 
     public static void premain(String agentArgument, Instrumentation instrumentation) {
-        System.out.println("Launcher Agent");
+    	System.out.println("Launcher Agent");
         inst = instrumentation;
+    	SafeExitJVMLegacy.class.getName();
+    	SafeExitJVM.class.getName();
+    	NativeJVMHalt.class.getName();
+        NativeJVMHalt.initFunc();
         isAgentStarted = true;
         boolean pb = true;
         boolean rt = true;
@@ -45,8 +53,12 @@ public final class LauncherAgent {
         		if (trimmedArg.contains("r")) rt = false;
         	}
         }
-        /*if (rt || pb)*/
-        replaceClasses(pb, rt);
+        try {
+        	replaceClasses(pb, rt);
+        } catch (Error e) {
+        	NativeJVMHalt.haltA(294);
+        	throw e;
+        }
     }
 
     public static boolean isStarted() {
@@ -60,25 +72,25 @@ public final class LauncherAgent {
 			try {
 				defs.add(new java.lang.instrument.ClassDefinition(java.lang.Runtime.class, transformClass(java.lang.Runtime.class.getName(), getClassFile(java.lang.Runtime.class))));
 			} catch(Exception e) {
-				e.printStackTrace();
+				throw new Error(e);
 			}
 		}
 		if(pb) {
 			try {
 				defs.add(new java.lang.instrument.ClassDefinition(java.lang.ProcessBuilder.class, transformClass(java.lang.ProcessBuilder.class.getName(), getClassFile(java.lang.ProcessBuilder.class))));
 			} catch(Exception e) {
-				e.printStackTrace();
+				throw new Error(e);
 			}
 		}
 		try {
 			defs.add(new java.lang.instrument.ClassDefinition(java.awt.Robot.class, transformClass(java.awt.Robot.class.getName(), getClassFile(java.awt.Robot.class))));
 		} catch(Exception e) {
-			e.printStackTrace();
+			throw new Error(e);
 		}
 		try {
 			inst.redefineClasses(defs.toArray(new java.lang.instrument.ClassDefinition[0]));
     	} catch(Exception e) {
-			e.printStackTrace();
+			throw new Error(e);
 		}
 	}
 	
