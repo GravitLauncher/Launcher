@@ -7,9 +7,9 @@ import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.events.request.ProfilesRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
+import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.auth.AuthRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
-import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.server.setup.ServerWrapperSetup;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.config.JsonConfigurable;
@@ -166,11 +166,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         modulesManager.postInitModules();
         if(config.websocket.enabled)
         {
-            LegacyRequestBridge.service.reconnectCallback = () ->
+            Request.service.reconnectCallback = () ->
             {
                 LogHelper.debug("WebSocket connect closed. Try reconnect");
                 try {
-                    if (!LegacyRequestBridge.service.reconnectBlocking()) LogHelper.error("Error connecting");
+                    if (!Request.service.reconnectBlocking()) LogHelper.error("Error connecting");
                     LogHelper.debug("Connect to %s", config.websocket.address);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

@@ -4,12 +4,9 @@ import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.request.JoinServerRequestEvent;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
-
-import java.io.IOException;
 
 public final class JoinServerRequest extends Request<JoinServerRequestEvent> implements RequestInterface {
 
@@ -26,11 +23,6 @@ public final class JoinServerRequest extends Request<JoinServerRequestEvent> imp
         this.username = VerifyHelper.verifyUsername(username);
         this.accessToken = SecurityHelper.verifyToken(accessToken);
         this.serverID = VerifyHelper.verifyServerID(serverID);
-    }
-
-    @Override
-    public JoinServerRequestEvent requestDo() throws IOException, InterruptedException {
-        return (JoinServerRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
 
     @Override

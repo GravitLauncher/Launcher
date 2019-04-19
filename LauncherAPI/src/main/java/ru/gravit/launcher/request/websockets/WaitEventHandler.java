@@ -12,7 +12,6 @@ public class WaitEventHandler implements ClientWebSocketService.EventHandler {
     public void process(ResultInterface result) {
         LogHelper.debug("Processing event %s type", result.getType());
         for (ResultEvent r : requests) {
-            LogHelper.subDebug("Processing %s", r.type);
             if (r.type.equals(result.getType()) || result.getType().equals("error")) {
                 LogHelper.debug("Event %s type", r.type);
                 synchronized (r) {

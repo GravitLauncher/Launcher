@@ -2,7 +2,7 @@ package ru.gravit.launchserver.console;
 
 import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.request.LogEvent;
-import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
+import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.utils.command.Command;
 import ru.gravit.utils.helper.LogHelper;
@@ -35,9 +35,9 @@ public class LogListenerCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         LogHelper.info("Send log listener request");
-        LegacyRequestBridge.service.sendObject(new LogListenerRequest(LogHelper.JANSI ? LogHelper.OutputTypes.JANSI : LogHelper.OutputTypes.PLAIN));
+        Request.service.sendObject(new LogListenerRequest(LogHelper.JANSI ? LogHelper.OutputTypes.JANSI : LogHelper.OutputTypes.PLAIN));
         LogHelper.info("Add log handler");
-        LegacyRequestBridge.service.registerHandler((result) -> {
+        Request.service.registerHandler((result) -> {
             if(result instanceof LogEvent)
             {
                 System.out.println(((LogEvent) result).string);

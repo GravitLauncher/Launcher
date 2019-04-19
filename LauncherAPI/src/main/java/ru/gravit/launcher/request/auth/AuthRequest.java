@@ -5,7 +5,6 @@ import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.utils.helper.VerifyHelper;
 
@@ -75,11 +74,6 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         this.hwid = null;
         this.customText = "";
         this.getSession = false;
-    }
-
-    @Override
-    public AuthRequestEvent requestDo() throws Exception {
-        return (AuthRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
 
     @Override

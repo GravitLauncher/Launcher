@@ -4,7 +4,6 @@ import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.request.BatchProfileByUsernameRequestEvent;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.SerializeLimits;
 import ru.gravit.utils.helper.IOHelper;
@@ -33,10 +32,6 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
         IOHelper.verifyLength(usernames.length, SerializeLimits.MAX_BATCH_SIZE);
         for (String username : usernames)
             VerifyHelper.verifyUsername(username);
-    }
-    @Override
-    public BatchProfileByUsernameRequestEvent requestDo() throws IOException, InterruptedException {
-        return (BatchProfileByUsernameRequestEvent) LegacyRequestBridge.sendRequest(this);
     }
 
     @Override

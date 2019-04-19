@@ -6,7 +6,6 @@ import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.downloader.ListDownloader;
 import ru.gravit.launcher.events.request.LauncherRequestEvent;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.websockets.LegacyRequestBridge;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
@@ -67,7 +66,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
 
     @Override
     public LauncherRequestEvent requestDo() throws Exception {
-        LauncherRequestEvent result = (LauncherRequestEvent) LegacyRequestBridge.sendRequest(this);
+        LauncherRequestEvent result = (LauncherRequestEvent) service.sendRequest(this);
         if (result.needUpdate) update(result);
         return result;
     }
