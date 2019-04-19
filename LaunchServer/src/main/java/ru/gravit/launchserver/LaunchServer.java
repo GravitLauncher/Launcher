@@ -36,6 +36,7 @@ import ru.gravit.launchserver.websocket.NettyServerSocketHandler;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.auth.texture.RequestTextureProvider;
 import ru.gravit.launchserver.auth.texture.TextureProvider;
+import ru.gravit.utils.UniversalJsonAdapter;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.command.JLineCommandHandler;
 import ru.gravit.utils.command.StdCommandHandler;
@@ -598,25 +599,25 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public static void initGson() {
         if (Launcher.gson != null) return;
         Launcher.gsonBuilder = new GsonBuilder();
-        Launcher.gsonBuilder.registerTypeAdapter(AuthProvider.class, new AuthProviderAdapter());
-        Launcher.gsonBuilder.registerTypeAdapter(TextureProvider.class, new TextureProviderAdapter());
-        Launcher.gsonBuilder.registerTypeAdapter(AuthHandler.class, new AuthHandlerAdapter());
-        Launcher.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new PermissionsHandlerAdapter());
-        Launcher.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
-        Launcher.gsonBuilder.registerTypeAdapter(Component.class, new ComponentAdapter());
-        Launcher.gsonBuilder.registerTypeAdapter(ProtectHandler.class, new ProtectHandlerAdapter());
+        Launcher.gsonBuilder.registerTypeAdapter(AuthProvider.class, new UniversalJsonAdapter<>(AuthProvider.providers));
+        Launcher.gsonBuilder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
+        Launcher.gsonBuilder.registerTypeAdapter(AuthHandler.class, new UniversalJsonAdapter<>(AuthHandler.providers));
+        Launcher.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new UniversalJsonAdapter<>(PermissionsHandler.providers));
+        Launcher.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new UniversalJsonAdapter<>(HWIDHandler.providers));
+        Launcher.gsonBuilder.registerTypeAdapter(Component.class, new UniversalJsonAdapter<>(Component.providers));
+        Launcher.gsonBuilder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(ProtectHandler.providers));
         Launcher.gson = Launcher.gsonBuilder.create();
 
         //Human readable
         LaunchServer.gsonBuilder = new GsonBuilder();
         LaunchServer.gsonBuilder.setPrettyPrinting();
-        LaunchServer.gsonBuilder.registerTypeAdapter(AuthProvider.class, new AuthProviderAdapter());
-        LaunchServer.gsonBuilder.registerTypeAdapter(TextureProvider.class, new TextureProviderAdapter());
-        LaunchServer.gsonBuilder.registerTypeAdapter(AuthHandler.class, new AuthHandlerAdapter());
-        LaunchServer.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new PermissionsHandlerAdapter());
-        LaunchServer.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new HWIDHandlerAdapter());
-        LaunchServer.gsonBuilder.registerTypeAdapter(Component.class, new ComponentAdapter());
-        LaunchServer.gsonBuilder.registerTypeAdapter(ProtectHandler.class, new ProtectHandlerAdapter());
+        LaunchServer.gsonBuilder.registerTypeAdapter(AuthProvider.class, new UniversalJsonAdapter<>(AuthProvider.providers));
+        LaunchServer.gsonBuilder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
+        LaunchServer.gsonBuilder.registerTypeAdapter(AuthHandler.class, new UniversalJsonAdapter<>(AuthHandler.providers));
+        LaunchServer.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new UniversalJsonAdapter<>(PermissionsHandler.providers));
+        LaunchServer.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new UniversalJsonAdapter<>(HWIDHandler.providers));
+        LaunchServer.gsonBuilder.registerTypeAdapter(Component.class, new UniversalJsonAdapter<>(Component.providers));
+        LaunchServer.gsonBuilder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(ProtectHandler.providers));
         LaunchServer.gson = LaunchServer.gsonBuilder.create();
     }
 
