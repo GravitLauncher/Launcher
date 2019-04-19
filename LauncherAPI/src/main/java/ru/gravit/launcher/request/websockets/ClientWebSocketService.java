@@ -3,6 +3,7 @@ package ru.gravit.launcher.request.websockets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.java_websocket.handshake.ServerHandshake;
+import ru.gravit.launcher.events.ExceptionEvent;
 import ru.gravit.launcher.events.request.*;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
@@ -127,6 +128,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
         registerResult("log", LogEvent.class);
         registerResult("execCmd", ExecCommandRequestEvent.class);
         registerResult("getAvailabilityAuth", GetAvailabilityAuthRequestEvent.class);
+        registerResult("exception", ExceptionEvent.class);
     }
 
     public void registerHandler(EventHandler eventHandler) {

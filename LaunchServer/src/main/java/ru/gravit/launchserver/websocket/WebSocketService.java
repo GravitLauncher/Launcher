@@ -7,6 +7,9 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import ru.gravit.launcher.events.ExceptionEvent;
+import ru.gravit.launcher.events.RequestEvent;
+import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launcher.request.JsonResultSerializeAdapter;
@@ -66,7 +69,20 @@ public class WebSocketService {
             response.execute(ctx, client);
         } catch (Exception e) {
             LogHelper.error(e);
-            sendObject(ctx, new ExceptionResult(e));
+            RequestEvent event;
+            if(server.config.netty.sendExcptionEnabled)
+            {
+                event = new ExceptionEvent(e);
+            }
+            else
+            {
+                event = new ErrorRequestEvent("Fatal server error. Contact administrator");
+            }
+            if(response instanceof SimpleResponse)
+            {
+                event.requestUUID = ((SimpleResponse) response).requestUUID;
+            }
+            sendObject(ctx, event);
         }
     }
 
@@ -134,20 +150,4 @@ public class WebSocketService {
         }
     }
 
-    public static class ExceptionResult implements ResultInterface {
-        public ExceptionResult(Exception e) {
-            this.message = e.getMessage();
-            this.clazz = e.getClass().getName();
-            this.type = "exceptionError";
-        }
-
-        public final String message;
-        public final String clazz;
-        public final String type;
-
-        @Override
-        public String getType() {
-            return "exception";
-        }
-    }
 }
