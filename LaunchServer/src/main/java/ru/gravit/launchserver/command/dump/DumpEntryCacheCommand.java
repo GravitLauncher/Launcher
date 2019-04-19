@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.command.dump;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.auth.handler.CachedAuthHandler;

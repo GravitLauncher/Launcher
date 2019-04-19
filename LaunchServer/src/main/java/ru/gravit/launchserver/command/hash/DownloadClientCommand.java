@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.command.hash;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.ClientProfile.Version;
 import ru.gravit.launchserver.LaunchServer;

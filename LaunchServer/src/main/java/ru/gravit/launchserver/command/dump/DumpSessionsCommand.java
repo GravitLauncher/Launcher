@@ -1,6 +1,7 @@
 package ru.gravit.launchserver.command.dump;
 
 import com.google.gson.reflect.TypeToken;
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.socket.Client;

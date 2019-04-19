@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.auth.handler;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.HTTPRequest;
 
