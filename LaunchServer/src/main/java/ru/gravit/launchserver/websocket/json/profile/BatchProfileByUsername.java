@@ -7,11 +7,12 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.util.UUID;
 
-public class BatchProfileByUsername implements JsonResponseInterface {
+public class BatchProfileByUsername extends SimpleResponse {
     class Entry {
         String username;
         String client;
@@ -25,7 +26,7 @@ public class BatchProfileByUsername implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         BatchProfileByUsernameRequestEvent result = new BatchProfileByUsernameRequestEvent();
         result.playerProfiles = new PlayerProfile[list.length];
         for (int i = 0; i < list.length; ++i) {
@@ -38,6 +39,6 @@ public class BatchProfileByUsername implements JsonResponseInterface {
             else uuid = client.auth.handler.usernameToUUID(list[i].username);
             result.playerProfiles[i] = ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, list[i].username, list[i].client, client.auth.textureProvider);
         }
-        service.sendObject(ctx, result);
+        sendResult(result);
     }
 }

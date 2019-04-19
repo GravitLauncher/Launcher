@@ -5,10 +5,10 @@ import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.events.request.LogEvent;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
-import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.utils.helper.LogHelper;
 
-public class AddLogListenerResponse implements JsonResponseInterface {
+public class AddLogListenerResponse extends SimpleResponse {
     public LogHelper.OutputTypes outputType = LogHelper.OutputTypes.PLAIN;
 
     @Override
@@ -17,13 +17,13 @@ public class AddLogListenerResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         if (!client.isAuth) {
-            service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
+            sendError("Access denied");
             return;
         }
         if (!client.permissions.canAdmin) {
-            service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
+            sendError("Access denied");
             return;
         }
         if (client.logOutput != null) {

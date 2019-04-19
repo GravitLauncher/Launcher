@@ -8,10 +8,11 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 
 import java.util.Collection;
 
-public class SetProfileResponse implements JsonResponseInterface {
+public class SetProfileResponse extends SimpleResponse {
     public String client;
 
     @Override
@@ -20,23 +21,23 @@ public class SetProfileResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         if (!client.isAuth) {
-            service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
+            sendError("Access denied");
             return;
         }
         Collection<ClientProfile> profiles = LaunchServer.server.getProfiles();
         for (ClientProfile p : profiles) {
             if (p.getTitle().equals(this.client)) {
                 if (!p.isWhitelistContains(client.username)) {
-                    service.sendObject(ctx, new ErrorRequestEvent(LaunchServer.server.config.whitelistRejectString));
+                    sendError(LaunchServer.server.config.whitelistRejectString);
                     return;
                 }
                 client.profile = p;
-                service.sendObject(ctx, new SetProfileRequestEvent(p));
+                sendResult(new SetProfileRequestEvent(p));
                 return;
             }
         }
-        service.sendObject(ctx, new ErrorRequestEvent("Profile not found"));
+        sendError("Profile not found");
     }
 }

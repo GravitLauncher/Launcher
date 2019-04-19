@@ -6,8 +6,9 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 
-public class VerifySecureTokenResponse implements JsonResponseInterface {
+public class VerifySecureTokenResponse extends SimpleResponse {
     public String secureToken;
 
     @Override
@@ -16,9 +17,9 @@ public class VerifySecureTokenResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         boolean success = LaunchServer.server.config.protectHandler.verifyClientSecureToken(secureToken, client.verifyToken);
         if(success) client.isSecure = true;
-        service.sendObject(ctx, new VerifySecureTokenRequestEvent(success));
+        sendResult(new VerifySecureTokenRequestEvent(success));
     }
 }

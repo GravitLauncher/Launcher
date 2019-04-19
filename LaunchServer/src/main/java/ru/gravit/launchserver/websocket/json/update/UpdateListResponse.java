@@ -9,11 +9,12 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 
 import java.util.HashSet;
 import java.util.Map;
 
-public class UpdateListResponse implements JsonResponseInterface {
+public class UpdateListResponse extends SimpleResponse {
 
     @Override
     public String getType() {
@@ -21,15 +22,15 @@ public class UpdateListResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (!client.isAuth) {
-            service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
+            sendError("Access denied");
             return;
         }
         HashSet<String> set = new HashSet<>();
         for (Map.Entry<String, SignedObjectHolder<HashedDir>> entry : LaunchServer.server.updatesDirMap.entrySet())
             set.add(entry.getKey());
-        service.sendObject(ctx, new UpdateListRequestEvent(set));
+        sendResult(new UpdateListRequestEvent(set));
     }
 
 }

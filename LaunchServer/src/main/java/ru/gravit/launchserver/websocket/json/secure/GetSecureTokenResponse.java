@@ -6,17 +6,18 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 
-public class GetSecureTokenResponse implements JsonResponseInterface {
+public class GetSecureTokenResponse extends SimpleResponse {
     @Override
     public String getType() {
         return "getSecureToken";
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         String secureToken = LaunchServer.server.config.protectHandler.generateClientSecureToken();
         client.verifyToken = secureToken;
-        service.sendObject(ctx, new GetSecureTokenRequestEvent(secureToken));
+        sendResult(new GetSecureTokenRequestEvent(secureToken));
     }
 }

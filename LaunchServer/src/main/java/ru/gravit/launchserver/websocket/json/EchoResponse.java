@@ -6,7 +6,7 @@ import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.utils.helper.LogHelper;
 
-public class EchoResponse implements JsonResponseInterface {
+public class EchoResponse extends SimpleResponse {
     public final String echo;
 
     public EchoResponse(String echo) {
@@ -19,9 +19,8 @@ public class EchoResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         LogHelper.info("Echo: %s, isAuth %s", echo, client.isAuth ? "true" : "false");
         service.sendObject(ctx, new EchoRequestEvent(echo));
     }
-
 }

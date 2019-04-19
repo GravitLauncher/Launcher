@@ -1,11 +1,12 @@
 package ru.gravit.launcher.events.request;
 
 import ru.gravit.launcher.LauncherNetworkAPI;
+import ru.gravit.launcher.events.RequestEvent;
 import ru.gravit.launcher.request.ResultInterface;
 
 import java.util.List;
 
-public class GetAvailabilityAuthRequestEvent implements ResultInterface {
+public class GetAvailabilityAuthRequestEvent extends RequestEvent {
     public static class AuthAvailability
     {
         @LauncherNetworkAPI

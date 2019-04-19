@@ -7,5 +7,5 @@ import ru.gravit.launchserver.websocket.WebSocketService;
 public interface JsonResponseInterface {
     String getType();
 
-    void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception;
+    void execute(ChannelHandlerContext ctx, Client client) throws Exception;
 }

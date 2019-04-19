@@ -1,9 +1,10 @@
 package ru.gravit.launcher.events.request;
 
 import ru.gravit.launcher.LauncherNetworkAPI;
+import ru.gravit.launcher.events.RequestEvent;
 import ru.gravit.launcher.request.ResultInterface;
 
-public class GetSecureTokenRequestEvent implements ResultInterface {
+public class GetSecureTokenRequestEvent extends RequestEvent {
     @LauncherNetworkAPI
     public String secureToken;
     @Override

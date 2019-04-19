@@ -8,9 +8,10 @@ import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.utils.helper.LogHelper;
 
-public class JoinServerResponse implements JsonResponseInterface {
+public class JoinServerResponse extends SimpleResponse {
     public String serverID;
     public String accessToken;
     public String username;
@@ -21,7 +22,7 @@ public class JoinServerResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         boolean success;
         try {
             if(client.auth == null)
@@ -32,14 +33,14 @@ public class JoinServerResponse implements JsonResponseInterface {
             else success = client.auth.handler.joinServer(username, accessToken, serverID);
             LogHelper.debug("joinServer: %s accessToken: %s serverID: %s", username, accessToken, serverID);
         } catch (AuthException e) {
-            service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
+            sendError(e.getMessage());
             return;
         } catch (Exception e) {
             LogHelper.error(e);
-            service.sendObject(ctx, new ErrorRequestEvent("Internal authHandler error"));
+            sendError("Internal authHandler error");
             return;
         }
-        service.sendObject(ctx, new JoinServerRequestEvent(success));
+        sendResult(new JoinServerRequestEvent(success));
     }
 
 }

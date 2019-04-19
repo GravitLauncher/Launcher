@@ -7,8 +7,9 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 
-public class ExecCommandResponse implements JsonResponseInterface {
+public class ExecCommandResponse extends SimpleResponse {
     public String cmd;
 
     @Override
@@ -17,12 +18,12 @@ public class ExecCommandResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (!client.isAuth || !client.permissions.canAdmin) {
-            service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
+            sendError("Access denied");
             return;
         }
         LaunchServer.server.commandHandler.eval(cmd, false);
-        service.sendObject(ctx, new ExecCommandRequestEvent(true));
+        sendResult(new ExecCommandRequestEvent(true));
     }
 }

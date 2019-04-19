@@ -14,6 +14,7 @@ import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -27,7 +28,7 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
 
-public class AuthResponse implements JsonResponseInterface {
+public class AuthResponse extends SimpleResponse {
     public transient static Random random = new SecureRandom();
     public String login;
     public String client;
@@ -58,7 +59,7 @@ public class AuthResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client clientData) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client clientData) throws Exception {
         try {
             AuthRequestEvent result = new AuthRequestEvent();
             String ip = IOHelper.getIP(ctx.channel().remoteAddress());
@@ -126,9 +127,9 @@ public class AuthResponse implements JsonResponseInterface {
                 result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, aresult.username, client, clientData.auth.textureProvider);
                 LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
             }
-            service.sendObject(ctx, result);
+            sendResult(result);
         } catch (AuthException | HWIDException e) {
-            service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
+            sendError(e.getMessage());
         }
     }
     public static class AuthContext {

@@ -9,12 +9,13 @@ import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.auth.texture.TextureProvider;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.util.UUID;
 
-public class ProfileByUUIDResponse implements JsonResponseInterface {
+public class ProfileByUUIDResponse extends SimpleResponse {
     public UUID uuid;
     public String client;
 
@@ -47,7 +48,7 @@ public class ProfileByUUIDResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         String username;
         if(client.auth == null)
         {
@@ -55,6 +56,6 @@ public class ProfileByUUIDResponse implements JsonResponseInterface {
             username = LaunchServer.server.config.getAuthProviderPair().handler.uuidToUsername(uuid);
         }
         else username = client.auth.handler.uuidToUsername(uuid);
-        service.sendObject(ctx, new ProfileByUUIDRequestEvent(getProfile(LaunchServer.server, uuid, username, this.client, client.auth.textureProvider)));
+        sendResult(new ProfileByUUIDRequestEvent(getProfile(LaunchServer.server, uuid, username, this.client, client.auth.textureProvider)));
     }
 }

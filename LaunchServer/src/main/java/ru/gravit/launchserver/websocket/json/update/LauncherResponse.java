@@ -7,12 +7,13 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.utils.Version;
 
 import java.util.Arrays;
 import java.util.Base64;
 
-public class LauncherResponse implements JsonResponseInterface {
+public class LauncherResponse extends SimpleResponse {
     public Version version;
     public String hash;
     public byte[] digest;
@@ -27,7 +28,7 @@ public class LauncherResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client client) {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         byte[] bytes;
         if (hash != null)
             bytes = Base64.getDecoder().decode(hash);
@@ -49,11 +50,11 @@ public class LauncherResponse implements JsonResponseInterface {
             if (hash == null) service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, EXE_URL));
             if (Arrays.equals(bytes, hash)) {
                 client.checkSign = true;
-                service.sendObject(ctx, new LauncherRequestEvent(false, EXE_URL));
+                sendResult(new LauncherRequestEvent(false, EXE_URL));
             } else {
-                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, EXE_URL));
+                sendResultAndClose(new LauncherRequestEvent(true, EXE_URL));
             }
-        } else service.sendObject(ctx, new ErrorRequestEvent("Request launcher type error"));
+        } else sendError("Request launcher type error");
 
     }
 

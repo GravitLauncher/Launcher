@@ -8,10 +8,11 @@ import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
 import ru.gravit.utils.helper.LogHelper;
 
-public class CheckServerResponse implements JsonResponseInterface {
+public class CheckServerResponse extends SimpleResponse {
     public String serverID;
     public String username;
     public String client;
@@ -22,7 +23,7 @@ public class CheckServerResponse implements JsonResponseInterface {
     }
 
     @Override
-    public void execute(WebSocketService service, ChannelHandlerContext ctx, Client pClient) {
+    public void execute(ChannelHandlerContext ctx, Client pClient) {
         CheckServerRequestEvent result = new CheckServerRequestEvent();
         try {
             result.uuid = pClient.auth.handler.checkServer(username, serverID);
@@ -30,14 +31,14 @@ public class CheckServerResponse implements JsonResponseInterface {
                 result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, result.uuid, username, client, pClient.auth.textureProvider);
             LogHelper.debug("checkServer: %s uuid: %s serverID: %s", result.playerProfile.username, result.uuid.toString(), serverID);
         } catch (AuthException e) {
-            service.sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
+            sendError(e.getMessage());
             return;
         } catch (Exception e) {
             LogHelper.error(e);
-            service.sendObject(ctx, new ErrorRequestEvent("Internal authHandler error"));
+            sendError("Internal authHandler error");
             return;
         }
-        service.sendObject(ctx, result);
+        sendResult(result);
     }
 
 }

@@ -16,6 +16,7 @@ import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.json.EchoResponse;
 import ru.gravit.launchserver.websocket.json.JsonResponseAdapter;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
+import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.launchserver.websocket.json.admin.AddLogListenerResponse;
 import ru.gravit.launchserver.websocket.json.admin.ExecCommandResponse;
 import ru.gravit.launchserver.websocket.json.auth.*;
@@ -54,8 +55,15 @@ public class WebSocketService {
     void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client) {
         String request = frame.text();
         JsonResponseInterface response = gson.fromJson(request, JsonResponseInterface.class);
+        if(response instanceof SimpleResponse)
+        {
+            SimpleResponse simpleResponse = (SimpleResponse) response;
+            simpleResponse.server = server;
+            simpleResponse.service = this;
+            simpleResponse.ctx = ctx;
+        }
         try {
-            response.execute(this, ctx, client);
+            response.execute(ctx, client);
         } catch (Exception e) {
             LogHelper.error(e);
             sendObject(ctx, new ExceptionResult(e));
