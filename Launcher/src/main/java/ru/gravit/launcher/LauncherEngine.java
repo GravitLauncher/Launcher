@@ -9,6 +9,8 @@ import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.gui.RuntimeProvider;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
+import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.EnvHelper;
 import ru.gravit.utils.helper.JVMHelper;
@@ -64,6 +66,12 @@ public class LauncherEngine {
         if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
         runtimeProvider.init(false);
         runtimeProvider.preLoad();
+        if(Request.service != null)
+        {
+            String address = Launcher.getConfig().address;
+            LogHelper.debug("Start async connection to %s", address);
+            Request.service = StandartClientWebSocketService.initWebSockets(address, true);
+        }
         LauncherGuardManager.initGuard(false);
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))

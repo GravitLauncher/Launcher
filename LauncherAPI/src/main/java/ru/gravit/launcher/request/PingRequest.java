@@ -1,10 +1,14 @@
 package ru.gravit.launcher.request;
 
-public final class PingRequest extends Request<Void> {
+public final class PingRequest extends Request<ResultInterface> {
 
     @Override
-    protected Void requestDo() throws Exception {
+    protected ResultInterface requestDo() throws Exception {
         return null;
     }
 
+    @Override
+    public String getType() {
+        return null;
+    }
 }

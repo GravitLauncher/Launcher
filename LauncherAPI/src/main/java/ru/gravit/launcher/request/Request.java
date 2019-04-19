@@ -31,7 +31,7 @@ public abstract class Request<R extends ResultInterface> implements RequestInter
     public R request() throws Exception {
         if (!started.compareAndSet(false, true))
             throw new IllegalStateException("Request already started");
-        if(service == null) service = StandartClientWebSocketService.initWebSockets(Launcher.getConfig().address);
+        if(service == null) service = StandartClientWebSocketService.initWebSockets(Launcher.getConfig().address, false);
         return requestDo();
     }
 

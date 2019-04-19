@@ -92,20 +92,28 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         return new RequestFuture(request);
     }
 
-    public static StandartClientWebSocketService initWebSockets(String address) {
+    public static StandartClientWebSocketService initWebSockets(String address, boolean async) {
         StandartClientWebSocketService service = new StandartClientWebSocketService(new GsonBuilder(), address, 5000);
         service.registerResults();
         service.registerRequests();
         service.registerHandler(service.waitEventHandler);
-        try {
-            if (!service.connectBlocking()) LogHelper.error("Error connecting");
-            LogHelper.debug("Connect to %s", address);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if(!async)
+        {
+            try {
+                if (!service.connectBlocking()) LogHelper.error("Error connecting");
+                LogHelper.debug("Connect to %s", address);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        else
+        {
+            service.connect();
         }
         JVMHelper.RUNTIME.addShutdownHook(new Thread(() -> {
             try {
-                service.closeBlocking();
+                if(service.isOpen())
+                    service.closeBlocking();
             } catch (InterruptedException e) {
                 LogHelper.error(e);
             }

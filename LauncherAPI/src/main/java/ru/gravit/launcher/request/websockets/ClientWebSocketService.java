@@ -2,6 +2,7 @@ package ru.gravit.launcher.request.websockets;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.java_websocket.handshake.ServerHandshake;
 import ru.gravit.launcher.events.request.*;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
@@ -19,6 +20,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
     public final GsonBuilder gsonBuilder;
     public final Gson gson;
     public OnCloseCallback onCloseCallback;
+    public final Boolean onConnect;
     public ReconnectCallback reconnectCallback;
     private HashMap<String, Class<? extends RequestInterface>> requests;
     private HashMap<String, Class<? extends ResultInterface>> results;
@@ -34,6 +36,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
         this.gsonBuilder.registerTypeAdapter(ResultInterface.class, new JsonResultAdapter(this));
         this.gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuilder.create();
+        this.onConnect = true;
     }
 
     private static URI createURL(String address) {
@@ -57,6 +60,14 @@ public class ClientWebSocketService extends ClientJSONPoint {
     @Override
     public void onError(Exception e) {
         LogHelper.error(e);
+    }
+    @Override
+    public void onOpen(ServerHandshake handshakedata) {
+        //Notify open
+        synchronized (onConnect)
+        {
+            onConnect.notifyAll();
+        }
     }
 
     @Override
@@ -121,14 +132,31 @@ public class ClientWebSocketService extends ClientJSONPoint {
     public void registerHandler(EventHandler eventHandler) {
         handlers.add(eventHandler);
     }
+    public void waitIfNotConnected()
+    {
+        if(!isOpen() && !isClosed() && !isClosing())
+        {
+            LogHelper.warning("WebSocket not connected. Try wait onConnect object");
+            synchronized (onConnect)
+            {
+                try {
+                    onConnect.wait(5000);
+                } catch (InterruptedException e) {
+                    LogHelper.error(e);
+                }
+            }
+        }
+    }
 
     public void sendObject(Object obj) throws IOException {
+        waitIfNotConnected();
         if(isClosed() && reconnectCallback != null)
             reconnectCallback.onReconnect();
         send(gson.toJson(obj, RequestInterface.class));
     }
 
     public void sendObject(Object obj, Type type) throws IOException {
+        waitIfNotConnected();
         if(isClosed() && reconnectCallback != null)
             reconnectCallback.onReconnect();
         send(gson.toJson(obj, type));
