@@ -73,7 +73,7 @@ public class ComponentCommand extends Command {
                 if (args.length <= 2) throw new IllegalArgumentException("Must set file");
                 String fileName = args[2];
                 try (Reader reader = IOHelper.newReader(Paths.get(fileName))) {
-                    Component component = LaunchServer.gson.fromJson(reader, Component.class);
+                    Component component = Launcher.gsonManager.configGson.fromJson(reader, Component.class);
                     component.preInit(server);
                     component.init(server);
                     component.postInit(server);

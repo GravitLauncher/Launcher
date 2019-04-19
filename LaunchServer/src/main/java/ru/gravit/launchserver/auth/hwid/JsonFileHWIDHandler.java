@@ -60,7 +60,7 @@ public class JsonFileHWIDHandler extends HWIDHandler {
         Type type = new TypeToken<LinkedList<Entry>>() {
         }.getType();
         try (Reader reader = IOHelper.newReader(path)) {
-            list = Launcher.gson.fromJson(reader, type);
+            list = Launcher.gsonManager.gson.fromJson(reader, type);
         } catch (IOException e) {
             LogHelper.error(e);
         }
@@ -84,7 +84,7 @@ public class JsonFileHWIDHandler extends HWIDHandler {
     public void close() throws Exception {
         Path path = Paths.get(filename);
         try (Writer writer = IOHelper.newWriter(path)) {
-            LaunchServer.gson.toJson(list, writer);
+            Launcher.gsonManager.configGson.toJson(list, writer);
         }
     }
 

@@ -55,22 +55,22 @@ public class JsonAuthHandler extends CachedAuthHandler {
     }
     @Override
     protected Entry fetchEntry(String username) throws IOException {
-        return LaunchServer.gson.fromJson(HTTPRequest.jsonRequest(LaunchServer.gson.toJsonTree(new EntryRequestByUsername(username)), getUrl), Entry.class);
+        return Launcher.gsonManager.configGson.fromJson(HTTPRequest.jsonRequest(Launcher.gsonManager.configGson.toJsonTree(new EntryRequestByUsername(username)), getUrl), Entry.class);
     }
 
     @Override
     protected Entry fetchEntry(UUID uuid) throws IOException {
-        return LaunchServer.gson.fromJson(HTTPRequest.jsonRequest(LaunchServer.gson.toJsonTree(new EntryRequestByUUID(uuid)), getUrl), Entry.class);
+        return Launcher.gsonManager.configGson.fromJson(HTTPRequest.jsonRequest(Launcher.gsonManager.configGson.toJsonTree(new EntryRequestByUUID(uuid)), getUrl), Entry.class);
     }
 
     @Override
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
-        return LaunchServer.gson.fromJson(HTTPRequest.jsonRequest(LaunchServer.gson.toJsonTree(new UpdateAuthRequest(uuid, username, accessToken)), updateAuthUrl), SuccessResponse.class).success;
+        return Launcher.gsonManager.configGson.fromJson(HTTPRequest.jsonRequest(Launcher.gsonManager.configGson.toJsonTree(new UpdateAuthRequest(uuid, username, accessToken)), updateAuthUrl), SuccessResponse.class).success;
     }
 
     @Override
     protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
-        return LaunchServer.gson.fromJson(HTTPRequest.jsonRequest(LaunchServer.gson.toJsonTree(new UpdateServerIDRequest(uuid, serverID)), updateServerIdUrl), SuccessResponse.class).success;
+        return Launcher.gsonManager.configGson.fromJson(HTTPRequest.jsonRequest(Launcher.gsonManager.configGson.toJsonTree(new UpdateServerIDRequest(uuid, serverID)), updateServerIdUrl), SuccessResponse.class).success;
     }
 
     @Override

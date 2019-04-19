@@ -6,6 +6,7 @@ import ru.gravit.launcher.*;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.hasher.*;
+import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
@@ -35,7 +36,6 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
 
 public final class ClientLauncher {
-    private static Gson gson = new Gson();
 
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
         private final Collection<Path> result;
@@ -187,7 +187,7 @@ public final class ClientLauncher {
                     properties.cloakURL = new String[]{pp.cloak.url};
                     properties.cloakDigest = new String[]{SecurityHelper.toHex(pp.cloak.digest)};
                 }
-                Collections.addAll(args, "--userProperties", ClientLauncher.gson.toJson(properties));
+                Collections.addAll(args, "--userProperties", Launcher.gsonManager.gson.toJson(properties));
 
                 // Add asset index
                 Collections.addAll(args, "--assetIndex", profile.getAssetIndex());
@@ -309,7 +309,7 @@ public final class ClientLauncher {
                     }
                     try (HOutput output = new HOutput(client.getOutputStream())) {
                         params.write(output);
-                        output.writeString(Launcher.gson.toJson(profile), 0);
+                        output.writeString(Launcher.gsonManager.gson.toJson(profile), 0);
                         assetHDir.write(output);
                         clientHDir.write(output);
                     }
@@ -420,7 +420,7 @@ public final class ClientLauncher {
                 socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                 try (HInput input = new HInput(socket.getInputStream())) {
                     params = new Params(input);
-                    profile = gson.fromJson(input.readString(0), ClientProfile.class);
+                    profile = Launcher.gsonManager.gson.fromJson(input.readString(0), ClientProfile.class);
                     assetHDir = new HashedDir(input);
                     clientHDir = new HashedDir(input);
                 }
@@ -521,10 +521,8 @@ public final class ClientLauncher {
     }
 
     public static void initGson() {
-        if (Launcher.gson != null) return;
-        Launcher.gsonBuilder = new GsonBuilder();
-        Launcher.gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
-        Launcher.gson = Launcher.gsonBuilder.create();
+        Launcher.gsonManager = new ClientGsonManager();
+        Launcher.gsonManager.initGson();
     }
 
     @LauncherAPI

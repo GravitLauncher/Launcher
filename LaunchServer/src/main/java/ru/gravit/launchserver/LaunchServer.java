@@ -65,7 +65,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         config.close();
         LogHelper.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = Launcher.gson.fromJson(reader, Config.class);
+            config = Launcher.gsonManager.gson.fromJson(reader, Config.class);
         }
         config.verify();
         Launcher.applyLauncherEnv(config.env);
@@ -290,7 +290,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             // Read profile
             ClientProfile profile;
             try (BufferedReader reader = IOHelper.newReader(file)) {
-                profile = Launcher.gson.fromJson(reader, ClientProfile.class);
+                profile = Launcher.gsonManager.gson.fromJson(reader, ClientProfile.class);
             }
             profile.verify();
 
@@ -403,9 +403,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final Timer taskPool;
 
-    public static Gson gson;
-    public static GsonBuilder gsonBuilder;
-
     public static Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
 
     public LaunchServer(Path dir, boolean testEnv, String[] args) throws IOException, InvalidKeySpecException {
@@ -488,7 +485,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         generateConfigIfNotExists(testEnv);
         LogHelper.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = Launcher.gson.fromJson(reader, Config.class);
+            config = Launcher.gsonManager.gson.fromJson(reader, Config.class);
         }
         if(!Files.exists(runtimeConfigFile))
         {
@@ -500,7 +497,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         {
             LogHelper.info("Reading LaunchServer runtime config file");
             try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
-                runtime = Launcher.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
+                runtime = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
             }
         }
         runtime.verify();
@@ -597,28 +594,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     public static void initGson() {
-        if (Launcher.gson != null) return;
-        Launcher.gsonBuilder = new GsonBuilder();
-        Launcher.gsonBuilder.registerTypeAdapter(AuthProvider.class, new UniversalJsonAdapter<>(AuthProvider.providers));
-        Launcher.gsonBuilder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
-        Launcher.gsonBuilder.registerTypeAdapter(AuthHandler.class, new UniversalJsonAdapter<>(AuthHandler.providers));
-        Launcher.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new UniversalJsonAdapter<>(PermissionsHandler.providers));
-        Launcher.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new UniversalJsonAdapter<>(HWIDHandler.providers));
-        Launcher.gsonBuilder.registerTypeAdapter(Component.class, new UniversalJsonAdapter<>(Component.providers));
-        Launcher.gsonBuilder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(ProtectHandler.providers));
-        Launcher.gson = Launcher.gsonBuilder.create();
-
-        //Human readable
-        LaunchServer.gsonBuilder = new GsonBuilder();
-        LaunchServer.gsonBuilder.setPrettyPrinting();
-        LaunchServer.gsonBuilder.registerTypeAdapter(AuthProvider.class, new UniversalJsonAdapter<>(AuthProvider.providers));
-        LaunchServer.gsonBuilder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
-        LaunchServer.gsonBuilder.registerTypeAdapter(AuthHandler.class, new UniversalJsonAdapter<>(AuthHandler.providers));
-        LaunchServer.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new UniversalJsonAdapter<>(PermissionsHandler.providers));
-        LaunchServer.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new UniversalJsonAdapter<>(HWIDHandler.providers));
-        LaunchServer.gsonBuilder.registerTypeAdapter(Component.class, new UniversalJsonAdapter<>(Component.providers));
-        LaunchServer.gsonBuilder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(ProtectHandler.providers));
-        LaunchServer.gson = LaunchServer.gsonBuilder.create();
+        Launcher.gsonManager = new LaunchServerGsonManager();
+        Launcher.gsonManager.initGson();
     }
 
     private LauncherBinary binary() {
@@ -654,9 +631,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         LogHelper.info("Save LaunchServer runtime config");
         try(Writer writer = IOHelper.newWriter(runtimeConfigFile))
         {
-            if(LaunchServer.gson != null)
+            if(Launcher.gsonManager.configGson != null)
             {
-                LaunchServer.gson.toJson(runtime, writer);
+                Launcher.gsonManager.configGson.toJson(runtime, writer);
             } else {
                 LogHelper.error("Error writing LaunchServer runtime config file. Gson is null");
             }
@@ -745,7 +722,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");
         try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
-            LaunchServer.gson.toJson(newConfig, writer);
+            Launcher.gsonManager.configGson.toJson(newConfig, writer);
         }
     }
 

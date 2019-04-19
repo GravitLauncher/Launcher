@@ -36,7 +36,7 @@ public class DumpSessionsCommand extends Command {
             LogHelper.info("Sessions write to %s", args[1]);
             Set<Client> clientSet = server.sessionManager.getSessions();
             try (Writer writer = IOHelper.newWriter(Paths.get(args[1]))) {
-                LaunchServer.gson.toJson(clientSet, writer);
+                Launcher.gsonManager.configGson.toJson(clientSet, writer);
             }
             LogHelper.subInfo("Write %d sessions", clientSet.size());
         } else if (args[0].equals("load")) {
@@ -45,7 +45,7 @@ public class DumpSessionsCommand extends Command {
             try (Reader reader = IOHelper.newReader(Paths.get(args[1]))) {
                 Type setType = new TypeToken<HashSet<Client>>() {
                 }.getType();
-                Set<Client> clientSet = LaunchServer.gson.fromJson(reader, setType);
+                Set<Client> clientSet = Launcher.gsonManager.configGson.fromJson(reader, setType);
                 size = clientSet.size();
                 server.sessionManager.loadSessions(clientSet);
             }

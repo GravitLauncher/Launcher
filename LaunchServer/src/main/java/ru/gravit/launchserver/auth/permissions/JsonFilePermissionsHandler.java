@@ -27,7 +27,7 @@ public class JsonFilePermissionsHandler extends PermissionsHandler implements Re
         Type type = new TypeToken<Map<String, ClientPermissions>>() {
         }.getType();
         try (Reader reader = IOHelper.newReader(path)) {
-            map = Launcher.gson.fromJson(reader, type);
+            map = Launcher.gsonManager.gson.fromJson(reader, type);
         } catch (IOException e) {
             LogHelper.error(e);
         }
@@ -51,13 +51,13 @@ public class JsonFilePermissionsHandler extends PermissionsHandler implements Re
         if (!IOHelper.exists(path)) {
             map = new HashMap<>();
             try (Writer writer = IOHelper.newWriter(path)) {
-                Launcher.gson.toJson(map, writer);
+                Launcher.gsonManager.gson.toJson(map, writer);
             } catch (IOException e) {
                 LogHelper.error(e);
             }
         }
         try (Reader reader = IOHelper.newReader(path)) {
-            map = Launcher.gson.fromJson(reader, type);
+            map = Launcher.gsonManager.gson.fromJson(reader, type);
         } catch (IOException e) {
             LogHelper.error(e);
         }

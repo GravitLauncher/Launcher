@@ -37,8 +37,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public ClassLoader loader;
     public ClientPermissions permissions;
     public static ServerWrapper wrapper;
-    public static Gson gson;
-    private static GsonBuilder gsonBuiler;
 
     public static Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
     public static Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
@@ -97,15 +95,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public static void initGson() {
-        if (Launcher.gson != null) return;
-        Launcher.gsonBuilder = new GsonBuilder();
-        Launcher.gson = Launcher.gsonBuilder.create();
+        Launcher.gsonManager = new ServerWrapperGsonManager();
+        Launcher.gsonManager.initGson();
     }
 
     public void run(String... args) throws Throwable {
-        gsonBuiler = new GsonBuilder();
-        gsonBuiler.setPrettyPrinting();
-        gson = gsonBuiler.create();
         initGson();
         if (args.length > 0 && args[0].equals("setup") && !disableSetup) {
             LogHelper.debug("Read ServerWrapperConfig.json");

@@ -44,7 +44,7 @@ public class DumpEntryCacheCommand extends Command {
             serializable.entryCache = entryCache;
             serializable.usernameCache = usernamesCache;
             try (Writer writer = IOHelper.newWriter(Paths.get(args[1]))) {
-                LaunchServer.gson.toJson(serializable, writer);
+                Launcher.gsonManager.configGson.toJson(serializable, writer);
             }
             LogHelper.subInfo("Write %d entryCache, %d usernameCache", entryCache.size(), usernamesCache.size());
         } else if (args[0].equals("load")) {
@@ -52,7 +52,7 @@ public class DumpEntryCacheCommand extends Command {
             int size_entry = 0;
             int size_username = 0;
             try (Reader reader = IOHelper.newReader(Paths.get(args[1]))) {
-                EntryAndUsername entryAndUsername = LaunchServer.gson.fromJson(reader, EntryAndUsername.class);
+                EntryAndUsername entryAndUsername = Launcher.gsonManager.configGson.fromJson(reader, EntryAndUsername.class);
                 size_entry = entryAndUsername.entryCache.size();
                 size_username = entryAndUsername.usernameCache.size();
                 authHandler.loadEntryCache(entryAndUsername.entryCache);
