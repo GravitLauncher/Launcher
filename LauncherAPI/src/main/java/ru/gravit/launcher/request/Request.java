@@ -2,14 +2,18 @@ package ru.gravit.launcher.request;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import ru.gravit.utils.helper.SecurityHelper;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Request<R extends ResultInterface> implements RequestInterface {
     private static long session = SecurityHelper.secureRandom.nextLong();
+    @LauncherNetworkAPI
+    public UUID requestUUID = UUID.randomUUID();
     public static StandartClientWebSocketService service;
 
     public static void setSession(long session) {

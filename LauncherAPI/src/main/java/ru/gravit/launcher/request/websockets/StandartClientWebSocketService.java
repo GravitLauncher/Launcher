@@ -2,6 +2,7 @@ package ru.gravit.launcher.request.websockets;
 
 import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.events.request.ErrorRequestEvent;
+import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.utils.helper.JVMHelper;
@@ -23,6 +24,10 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         public RequestFuture(RequestInterface request) throws IOException {
             event = new WaitEventHandler.ResultEvent();
             event.type = request.getType();
+            if(request instanceof Request)
+            {
+                event.uuid = ((Request) request).requestUUID;
+            }
             waitEventHandler.requests.add(event);
             sendObject(request);
         }
