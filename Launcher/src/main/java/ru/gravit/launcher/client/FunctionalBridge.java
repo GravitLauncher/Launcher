@@ -1,6 +1,5 @@
 package ru.gravit.launcher.client;
 
-import javafx.concurrent.Task;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.events.request.AuthRequestEvent;
@@ -15,15 +14,13 @@ import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 
 import java.nio.file.Path;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class FunctionalBridge {
     @LauncherAPI
-    public static LauncherSettings settings;
-    @LauncherAPI
-    public static ExecutorService worker = Executors.newWorkStealingPool();
+    public static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(4);
     @LauncherAPI
     public static OshiHWIDProvider hwidProvider = new OshiHWIDProvider();
     @LauncherAPI
@@ -48,8 +45,8 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public static void startTask(@SuppressWarnings("rawtypes") Task task) {
-        worker.execute(task);
+    public static void startTask(Runnable task) {
+        threadPool.execute(task);
     }
 
     @LauncherAPI
