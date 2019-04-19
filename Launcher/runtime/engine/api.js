@@ -56,7 +56,6 @@ var EnvHelper = EnvHelperClass.static;
 var SecurityHelper = SecurityHelperClass.static;
 var DigestAlgorithm = DigestAlgorithmClass.static;
 var VerifyHelper = VerifyHelperClass.static;
-var LauncherSettings = LauncherSettingsClass.static;
 var NewLauncherSettings = NewLauncherSettingsClass.static;
 var SettingsManager = SettingsManagerClass.static;
 

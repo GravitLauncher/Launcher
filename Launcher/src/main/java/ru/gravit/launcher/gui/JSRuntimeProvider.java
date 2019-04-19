@@ -105,7 +105,6 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("VerifyHelperClass", VerifyHelper.class);
         bindings.put("DirBridgeClass", DirBridge.class);
         bindings.put("FunctionalBridgeClass", FunctionalBridge.class);
-        bindings.put("LauncherSettingsClass", LauncherSettings.class);
 
         // Load JS API if available
         try {
