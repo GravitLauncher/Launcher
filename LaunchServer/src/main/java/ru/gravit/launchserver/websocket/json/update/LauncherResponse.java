@@ -37,14 +37,14 @@ public class LauncherResponse extends SimpleResponse {
             if (hash == null) service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, JAR_URL));
             if (Arrays.equals(bytes, hash)) {
                 client.checkSign = true;
-                service.sendObject(ctx, new LauncherRequestEvent(false, JAR_URL));
+                sendResult(new LauncherRequestEvent(false, JAR_URL));
             } else {
-                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, JAR_URL));
+                sendResultAndClose(new LauncherRequestEvent(true, JAR_URL));
             }
         } else if (launcher_type == 2) //EXE
         {
             byte[] hash = LaunchServer.server.launcherEXEBinary.getBytes().getDigest();
-            if (hash == null) service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, EXE_URL));
+            if (hash == null) sendResultAndClose(new LauncherRequestEvent(true, EXE_URL));
             if (Arrays.equals(bytes, hash)) {
                 client.checkSign = true;
                 sendResult(new LauncherRequestEvent(false, EXE_URL));

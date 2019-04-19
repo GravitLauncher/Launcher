@@ -1,5 +1,6 @@
 package ru.gravit.utils;
 
+import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
 import java.util.Map;

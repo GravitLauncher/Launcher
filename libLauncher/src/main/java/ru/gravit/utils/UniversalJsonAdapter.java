@@ -6,11 +6,12 @@ import ru.gravit.utils.helper.LogHelper;
 import java.lang.reflect.Type;
 
 public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeserializer<R> {
-    public ProviderMap<R> providerMap;
-    public String PROP_NAME = "type";
+    public final ProviderMap<R> providerMap;
+    public final String PROP_NAME;
 
     public UniversalJsonAdapter(ProviderMap<R> providerMap) {
         this.providerMap = providerMap;
+        this.PROP_NAME = "type";
     }
 
     public UniversalJsonAdapter(ProviderMap<R> providerMap, String PROP_NAME) {
@@ -22,7 +23,7 @@ public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeseriali
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends R> cls = providerMap.getProviderClass(typename);
         if (cls == null) {
-            LogHelper.error("AuthHandler %s not found", typename);
+            LogHelper.error("Provider %s not found", typename);
             return null;
         }
         return context.deserialize(json, cls);

@@ -11,18 +11,18 @@ import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.texture.TextureProvider;
 import ru.gravit.launchserver.components.Component;
 import ru.gravit.utils.UniversalJsonAdapter;
+import ru.gravit.utils.helper.LogHelper;
 
 public class LaunchServerGsonManager extends GsonManager {
     @Override
     public void registerAdapters(GsonBuilder builder) {
         super.registerAdapters(builder);
-        Launcher.gsonManager.gsonBuilder = new GsonBuilder();
-        Launcher.gsonManager.gsonBuilder.registerTypeAdapter(AuthProvider.class, new UniversalJsonAdapter<>(AuthProvider.providers));
-        Launcher.gsonManager.gsonBuilder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
-        Launcher.gsonManager.gsonBuilder.registerTypeAdapter(AuthHandler.class, new UniversalJsonAdapter<>(AuthHandler.providers));
-        Launcher.gsonManager.gsonBuilder.registerTypeAdapter(PermissionsHandler.class, new UniversalJsonAdapter<>(PermissionsHandler.providers));
-        Launcher.gsonManager.gsonBuilder.registerTypeAdapter(HWIDHandler.class, new UniversalJsonAdapter<>(HWIDHandler.providers));
-        Launcher.gsonManager.gsonBuilder.registerTypeAdapter(Component.class, new UniversalJsonAdapter<>(Component.providers));
-        Launcher.gsonManager.gsonBuilder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(ProtectHandler.providers));
+        builder.registerTypeAdapter(AuthProvider.class, new UniversalJsonAdapter<>(AuthProvider.providers));
+        builder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
+        builder.registerTypeAdapter(AuthHandler.class, new UniversalJsonAdapter<>(AuthHandler.providers));
+        builder.registerTypeAdapter(PermissionsHandler.class, new UniversalJsonAdapter<>(PermissionsHandler.providers));
+        builder.registerTypeAdapter(HWIDHandler.class, new UniversalJsonAdapter<>(HWIDHandler.providers));
+        builder.registerTypeAdapter(Component.class, new UniversalJsonAdapter<>(Component.providers));
+        builder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(ProtectHandler.providers));
     }
 }
