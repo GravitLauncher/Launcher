@@ -30,7 +30,7 @@ public class CommandRemoverComponent extends Component implements AutoCloseable 
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         for (Map.Entry<String, Command> e : commandsList.entrySet()) {
             LaunchServer.server.commandHandler.registerCommand(e.getKey(), e.getValue());
         }

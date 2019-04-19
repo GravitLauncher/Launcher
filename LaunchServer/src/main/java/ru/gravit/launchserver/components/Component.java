@@ -2,11 +2,6 @@ package ru.gravit.launchserver.components;
 
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.ProviderMap;
-import ru.gravit.utils.helper.VerifyHelper;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Component {
     public static ProviderMap<Component> providers = new ProviderMap<>();

@@ -4,7 +4,9 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class NewLauncherSettings {
     @LauncherAPI

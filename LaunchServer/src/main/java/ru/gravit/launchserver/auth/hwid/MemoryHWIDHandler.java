@@ -34,7 +34,7 @@ public class MemoryHWIDHandler extends HWIDHandler {
     public String banMessage = "You banned";
 
     @Override
-    public void ban(List<HWID> hwid) throws HWIDException {
+    public void ban(List<HWID> hwid) {
         for (Entry e : list) {
             for (HWID banHWID : hwid) {
                 if (e.hwid.equals(banHWID)) e.isBanned = true;
@@ -57,7 +57,7 @@ public class MemoryHWIDHandler extends HWIDHandler {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
 
     }
 
@@ -67,7 +67,7 @@ public class MemoryHWIDHandler extends HWIDHandler {
     }
 
     @Override
-    public List<HWID> getHwid(String username) throws HWIDException {
+    public List<HWID> getHwid(String username) {
         LinkedList<HWID> hwids = new LinkedList<>();
         for (Entry e : list) {
             if (e.username.equals(username)) hwids.add(e.hwid);
@@ -76,7 +76,7 @@ public class MemoryHWIDHandler extends HWIDHandler {
     }
 
     @Override
-    public void unban(List<HWID> hwid) throws HWIDException {
+    public void unban(List<HWID> hwid) {
         for (Entry e : list) {
             for (HWID banHWID : hwid) {
                 if (e.hwid.equals(banHWID)) e.isBanned = false;

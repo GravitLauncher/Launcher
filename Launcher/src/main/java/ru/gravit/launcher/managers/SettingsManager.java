@@ -10,11 +10,9 @@ import ru.gravit.utils.config.JsonConfigurable;
 import ru.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Map;
 
 public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
     public class StoreFileVisitor extends SimpleFileVisitor<Path> {

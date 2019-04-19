@@ -2,12 +2,8 @@ package ru.gravit.launchserver.auth.provider;
 
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.utils.ProviderMap;
-import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AuthProvider implements AutoCloseable {
     public static ProviderMap<AuthProvider> providers = new ProviderMap<>();
@@ -32,7 +28,7 @@ public abstract class AuthProvider implements AutoCloseable {
 
     public abstract AuthProviderResult auth(String login, String password, String ip) throws Exception;
 
-    public void preAuth(String login, String password, String customText, String ip) throws Exception {
+    public void preAuth(String login, String password, String customText, String ip) {
         return;
     }
 

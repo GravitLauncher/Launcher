@@ -1,13 +1,10 @@
 package ru.gravit.launchserver.websocket.json.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.events.request.JoinServerRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.socket.Client;
-import ru.gravit.launchserver.websocket.WebSocketService;
-import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.utils.helper.LogHelper;
 

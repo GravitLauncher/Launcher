@@ -8,8 +8,6 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
-import ru.gravit.launchserver.websocket.WebSocketService;
-import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
 
 public class UpdateResponse extends SimpleResponse {
@@ -21,7 +19,7 @@ public class UpdateResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (!client.isAuth || client.type != Client.Type.USER || client.profile == null) {
             sendError("Access denied");
             return;

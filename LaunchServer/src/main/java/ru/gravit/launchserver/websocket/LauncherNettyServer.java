@@ -53,7 +53,7 @@ public class LauncherNettyServer implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
     }

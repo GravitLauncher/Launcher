@@ -1,12 +1,9 @@
 package ru.gravit.launchserver.websocket.json.admin;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.events.request.ExecCommandRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
-import ru.gravit.launchserver.websocket.WebSocketService;
-import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
 
 public class ExecCommandResponse extends SimpleResponse {

@@ -1,10 +1,8 @@
 package ru.gravit.launchserver.websocket.json.admin;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.events.request.LogEvent;
 import ru.gravit.launchserver.socket.Client;
-import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -17,7 +15,7 @@ public class AddLogListenerResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (!client.isAuth) {
             sendError("Access denied");
             return;

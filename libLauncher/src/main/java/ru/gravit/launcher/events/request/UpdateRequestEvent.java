@@ -3,7 +3,6 @@ package ru.gravit.launcher.events.request;
 import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.RequestEvent;
 import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.launcher.request.ResultInterface;
 
 public class UpdateRequestEvent extends RequestEvent {
     @LauncherNetworkAPI

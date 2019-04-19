@@ -1,7 +1,10 @@
 package ru.gravit.launcher.gui;
 
 import ru.gravit.launcher.*;
-import ru.gravit.launcher.client.*;
+import ru.gravit.launcher.client.ClientLauncher;
+import ru.gravit.launcher.client.DirBridge;
+import ru.gravit.launcher.client.FunctionalBridge;
+import ru.gravit.launcher.client.ServerPinger;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;

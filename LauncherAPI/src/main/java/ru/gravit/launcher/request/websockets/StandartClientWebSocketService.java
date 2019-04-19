@@ -9,7 +9,9 @@ import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class StandartClientWebSocketService extends ClientWebSocketService {
     public WaitEventHandler waitEventHandler = new WaitEventHandler();

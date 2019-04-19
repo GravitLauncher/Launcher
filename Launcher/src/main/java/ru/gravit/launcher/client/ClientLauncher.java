@@ -1,11 +1,11 @@
 package ru.gravit.launcher.client;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.*;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
-import ru.gravit.launcher.hasher.*;
+import ru.gravit.launcher.hasher.DirWatcher;
+import ru.gravit.launcher.hasher.FileNameMatcher;
+import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;

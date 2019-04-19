@@ -34,7 +34,7 @@ public class JsonFilePermissionsHandler extends PermissionsHandler implements Re
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
 
     }
 

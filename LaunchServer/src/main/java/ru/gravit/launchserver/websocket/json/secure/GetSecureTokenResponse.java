@@ -4,8 +4,6 @@ import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launcher.events.request.GetSecureTokenRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
-import ru.gravit.launchserver.websocket.WebSocketService;
-import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
 
 public class GetSecureTokenResponse extends SimpleResponse {
@@ -15,7 +13,7 @@ public class GetSecureTokenResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         String secureToken = LaunchServer.server.config.protectHandler.generateClientSecureToken();
         client.verifyToken = secureToken;
         sendResult(new GetSecureTokenRequestEvent(secureToken));

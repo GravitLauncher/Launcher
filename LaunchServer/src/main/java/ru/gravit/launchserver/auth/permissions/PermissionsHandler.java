@@ -2,11 +2,6 @@ package ru.gravit.launchserver.auth.permissions;
 
 import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.utils.ProviderMap;
-import ru.gravit.utils.helper.VerifyHelper;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class PermissionsHandler implements AutoCloseable {
     public static ProviderMap<PermissionsHandler> providers = new ProviderMap<>();

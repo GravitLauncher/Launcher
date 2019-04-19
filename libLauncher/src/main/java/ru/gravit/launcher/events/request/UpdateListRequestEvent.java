@@ -2,7 +2,6 @@ package ru.gravit.launcher.events.request;
 
 import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.RequestEvent;
-import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.utils.event.EventInterface;
 
 import java.util.HashSet;

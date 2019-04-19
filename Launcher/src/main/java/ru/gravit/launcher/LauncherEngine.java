@@ -1,14 +1,11 @@
 package ru.gravit.launcher;
 
-import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.client.ClientModuleManager;
 import ru.gravit.launcher.client.DirBridge;
 import ru.gravit.launcher.client.FunctionalBridge;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.gui.RuntimeProvider;
-import ru.gravit.launcher.hasher.HashedEntry;
-import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;

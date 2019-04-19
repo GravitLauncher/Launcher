@@ -2,7 +2,6 @@ package ru.gravit.utils.config;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.IOHelper;
 
 import java.io.BufferedReader;

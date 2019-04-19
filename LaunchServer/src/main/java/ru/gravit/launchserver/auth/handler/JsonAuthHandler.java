@@ -1,7 +1,6 @@
 package ru.gravit.launchserver.auth.handler;
 
 import ru.gravit.launcher.Launcher;
-import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.HTTPRequest;
 
 import java.io.IOException;
@@ -75,7 +74,7 @@ public class JsonAuthHandler extends CachedAuthHandler {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
     }
 }

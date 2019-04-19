@@ -5,8 +5,6 @@ import ru.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.socket.Client;
-import ru.gravit.launchserver.websocket.WebSocketService;
-import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
 
 import java.util.ArrayList;
@@ -19,7 +17,7 @@ public class GetAvailabilityAuthResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>();
         for(AuthProviderPair pair : LaunchServer.server.config.auth)
         {

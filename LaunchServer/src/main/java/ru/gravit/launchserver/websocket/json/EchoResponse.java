@@ -3,7 +3,6 @@ package ru.gravit.launchserver.websocket.json;
 import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launcher.events.request.EchoRequestEvent;
 import ru.gravit.launchserver.socket.Client;
-import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.utils.helper.LogHelper;
 
 public class EchoResponse extends SimpleResponse {

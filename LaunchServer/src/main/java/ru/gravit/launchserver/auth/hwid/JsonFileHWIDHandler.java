@@ -3,7 +3,6 @@ package ru.gravit.launchserver.auth.hwid;
 import com.google.gson.reflect.TypeToken;
 import ru.gravit.launcher.HWID;
 import ru.gravit.launcher.Launcher;
-import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -46,7 +45,7 @@ public class JsonFileHWIDHandler extends HWIDHandler {
     public String banMessage = "You banned";
 
     @Override
-    public void ban(List<HWID> hwid) throws HWIDException {
+    public void ban(List<HWID> hwid) {
         for (Entry e : list) {
             for (HWID banHWID : hwid) {
                 if (e.hwid.equals(banHWID)) e.isBanned = true;
@@ -89,7 +88,7 @@ public class JsonFileHWIDHandler extends HWIDHandler {
     }
 
     @Override
-    public List<HWID> getHwid(String username) throws HWIDException {
+    public List<HWID> getHwid(String username) {
         LinkedList<HWID> hwids = new LinkedList<>();
         for (Entry e : list) {
             if (e.username.equals(username)) hwids.add(e.hwid);
@@ -98,7 +97,7 @@ public class JsonFileHWIDHandler extends HWIDHandler {
     }
 
     @Override
-    public void unban(List<HWID> hwid) throws HWIDException {
+    public void unban(List<HWID> hwid) {
         for (Entry e : list) {
             for (HWID banHWID : hwid) {
                 if (e.hwid.equals(banHWID)) e.isBanned = false;

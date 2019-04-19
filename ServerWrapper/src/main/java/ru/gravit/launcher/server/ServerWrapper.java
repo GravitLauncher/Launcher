@@ -1,7 +1,5 @@
 package ru.gravit.launcher.server;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;

@@ -1,7 +1,5 @@
 package ru.gravit.launchserver;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.NeedGarbageCollection;
@@ -22,21 +20,19 @@ import ru.gravit.launchserver.auth.protect.NoProtectHandler;
 import ru.gravit.launchserver.auth.protect.ProtectHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.provider.RejectAuthProvider;
+import ru.gravit.launchserver.auth.texture.RequestTextureProvider;
+import ru.gravit.launchserver.auth.texture.TextureProvider;
 import ru.gravit.launchserver.binary.*;
 import ru.gravit.launchserver.components.AuthLimiterComponent;
 import ru.gravit.launchserver.components.Component;
 import ru.gravit.launchserver.config.LaunchServerRuntimeConfig;
-import ru.gravit.launchserver.config.adapter.*;
+import ru.gravit.launchserver.legacy.Response;
 import ru.gravit.launchserver.manangers.*;
 import ru.gravit.launchserver.manangers.hook.AuthHookManager;
 import ru.gravit.launchserver.manangers.hook.BuildHookManager;
 import ru.gravit.launchserver.manangers.hook.SocketHookManager;
-import ru.gravit.launchserver.legacy.Response;
-import ru.gravit.launchserver.websocket.NettyServerSocketHandler;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
-import ru.gravit.launchserver.auth.texture.RequestTextureProvider;
-import ru.gravit.launchserver.auth.texture.TextureProvider;
-import ru.gravit.utils.UniversalJsonAdapter;
+import ru.gravit.launchserver.websocket.NettyServerSocketHandler;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.command.JLineCommandHandler;
 import ru.gravit.utils.command.StdCommandHandler;
@@ -601,7 +597,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     private LauncherBinary binary() {
     	if (launcherEXEBinaryClass != null) {
     		try {
-				return (LauncherBinary)launcherEXEBinaryClass.getConstructor(LaunchServer.class).newInstance(this);
+				return launcherEXEBinaryClass.getConstructor(LaunchServer.class).newInstance(this);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
 				LogHelper.error(e);

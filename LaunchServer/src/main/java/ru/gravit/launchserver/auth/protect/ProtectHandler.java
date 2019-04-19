@@ -2,11 +2,6 @@ package ru.gravit.launchserver.auth.protect;
 
 import ru.gravit.launchserver.websocket.json.auth.AuthResponse;
 import ru.gravit.utils.ProviderMap;
-import ru.gravit.utils.helper.VerifyHelper;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class ProtectHandler {
     public static ProviderMap<ProtectHandler> providers = new ProviderMap<>();
