@@ -1,12 +1,11 @@
 package ru.gravit.launcher;
 
+import ru.gravit.launcher.client.UserSettings;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.profiles.ClientProfile;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class NewLauncherSettings {
     @LauncherAPI
@@ -32,6 +31,8 @@ public class NewLauncherSettings {
     public byte[] lastDigest;
     @LauncherAPI
     public List<ClientProfile> lastProfiles = new LinkedList<>();
+    @LauncherAPI
+    public Map<String, UserSettings> userSettings = new HashMap<>();
     public static class HashedStoreEntry
     {
         @LauncherAPI

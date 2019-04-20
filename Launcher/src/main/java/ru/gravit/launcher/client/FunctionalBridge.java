@@ -79,6 +79,11 @@ public class FunctionalBridge {
     public static HasherStore getDefaultHasherStore() {
         return HasherManager.getDefaultStore();
     }
+    @LauncherAPI
+    public static void registerUserSettings(String typename, Class<? extends UserSettings> clazz)
+    {
+        UserSettings.providers.registerProvider(typename, clazz);
+    }
 
     @LauncherAPI
     public static void setAuthParams(AuthRequestEvent event) {

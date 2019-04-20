@@ -1,10 +1,7 @@
 package ru.gravit.launcher.gui;
 
 import ru.gravit.launcher.*;
-import ru.gravit.launcher.client.ClientLauncher;
-import ru.gravit.launcher.client.DirBridge;
-import ru.gravit.launcher.client.FunctionalBridge;
-import ru.gravit.launcher.client.ServerPinger;
+import ru.gravit.launcher.client.*;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
@@ -94,6 +91,7 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("SignedObjectHolderClass", SignedObjectHolder.class);
         bindings.put("EnumSerializerClass", EnumSerializer.class);
         bindings.put("OptionalFileClass", OptionalFile.class);
+        bindings.put("UserSettingsClass", UserSettings.class);
 
         // Set helper class bindings
         bindings.put("CommonHelperClass", CommonHelper.class);
