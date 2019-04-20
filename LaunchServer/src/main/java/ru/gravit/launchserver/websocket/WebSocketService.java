@@ -70,7 +70,7 @@ public class WebSocketService {
         } catch (Exception e) {
             LogHelper.error(e);
             RequestEvent event;
-            if(server.config.netty.sendExcptionEnabled)
+            if(server.config.netty.sendExceptionEnabled)
             {
                 event = new ExceptionEvent(e);
             }

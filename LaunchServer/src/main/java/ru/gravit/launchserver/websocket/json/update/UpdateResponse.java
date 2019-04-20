@@ -39,6 +39,8 @@ public class UpdateResponse extends SimpleResponse {
             service.sendObject(ctx, new ErrorRequestEvent(String.format("Directory %s not found", dirName)));
             return;
         }
-        service.sendObject(ctx, new UpdateRequestEvent(dir.object, LaunchServer.server.config.netty.downloadURL.replace("%dirname%",dirName)));
+        String url = LaunchServer.server.config.netty.downloadURL.replace("%dirname%",dirName);
+        if(server.config.netty.bindings.get(dirName) != null) url = server.config.netty.bindings.get(dirName);
+        service.sendObject(ctx, new UpdateRequestEvent(dir.object, url));
     }
 }

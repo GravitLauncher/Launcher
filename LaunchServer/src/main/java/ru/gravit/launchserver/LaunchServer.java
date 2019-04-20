@@ -242,11 +242,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public class NettyConfig {
         public boolean clientEnabled;
-        public boolean sendExcptionEnabled;
+        public boolean sendExceptionEnabled;
         public String launcherURL;
         public String downloadURL;
         public String launcherEXEURL;
         public String address;
+        public Map<String, String> bindings = new HashMap<>();
         public NettyPerformanceConfig performance;
         public NettyBindAddress[] binds;
     }
