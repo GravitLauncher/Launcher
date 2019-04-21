@@ -36,7 +36,7 @@ import ru.gravit.utils.helper.LogHelper;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
-@SuppressWarnings({"unused", "rawtypes"})
+@SuppressWarnings("rawtypes")
 public class WebSocketService {
     public final ChannelGroup channels;
 

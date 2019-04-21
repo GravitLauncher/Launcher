@@ -18,12 +18,13 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
     public StandartClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) {
         super(gsonBuilder, address, i);
     }
-    public class RequestFuture implements Future
+    public class RequestFuture implements Future<ResultInterface>
     {
         public final WaitEventHandler.ResultEvent event;
         public boolean isCanceled = false;
 
-        public RequestFuture(RequestInterface request) throws IOException {
+        @SuppressWarnings("rawtypes")
+		public RequestFuture(RequestInterface request) throws IOException {
             event = new WaitEventHandler.ResultEvent();
             event.type = request.getType();
             if(request instanceof Request)

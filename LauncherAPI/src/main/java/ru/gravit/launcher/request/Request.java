@@ -39,7 +39,8 @@ public abstract class Request<R extends ResultInterface> implements RequestInter
         return requestDo();
     }
 
-    protected R requestDo() throws Exception
+    @SuppressWarnings("unchecked")
+	protected R requestDo() throws Exception
     {
         return (R) service.sendRequest(this);
     }

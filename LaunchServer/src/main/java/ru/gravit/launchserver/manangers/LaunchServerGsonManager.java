@@ -1,7 +1,6 @@
 package ru.gravit.launchserver.manangers;
 
 import com.google.gson.GsonBuilder;
-import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.managers.GsonManager;
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.hwid.HWIDHandler;
@@ -11,7 +10,6 @@ import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.auth.texture.TextureProvider;
 import ru.gravit.launchserver.components.Component;
 import ru.gravit.utils.UniversalJsonAdapter;
-import ru.gravit.utils.helper.LogHelper;
 
 public class LaunchServerGsonManager extends GsonManager {
     @Override
