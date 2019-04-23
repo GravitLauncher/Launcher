@@ -8,6 +8,7 @@ import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.gui.RuntimeProvider;
 import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.websockets.ClientWebSocketService;
 import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.EnvHelper;
@@ -38,6 +39,9 @@ public class LauncherEngine {
         }
         long endTime = System.currentTimeMillis();
         LogHelper.debug("Launcher started in %dms", endTime - startTime);
+        //Request.service.close();
+        //FunctionalBridge.close();
+        System.exit(0);
     }
 
     public static void initGson() {

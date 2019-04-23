@@ -16,11 +16,12 @@ import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import java.nio.file.Path;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class FunctionalBridge {
     @LauncherAPI
-    public static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(4);
+    public static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(0);
     @LauncherAPI
     public static OshiHWIDProvider hwidProvider = new OshiHWIDProvider();
     @LauncherAPI
@@ -83,6 +84,11 @@ public class FunctionalBridge {
     public static void registerUserSettings(String typename, Class<? extends UserSettings> clazz)
     {
         UserSettings.providers.registerProvider(typename, clazz);
+    }
+    @LauncherAPI
+    public static void close() throws Exception
+    {
+        threadPool.awaitTermination(2, TimeUnit.SECONDS);
     }
 
     @LauncherAPI
