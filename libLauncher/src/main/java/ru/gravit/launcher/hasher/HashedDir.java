@@ -1,6 +1,7 @@
 package ru.gravit.launcher.hasher;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.EnumSerializer;
@@ -100,7 +101,7 @@ public final class HashedDir extends HashedEntry {
             return super.visitFile(file, attrs);
         }
     }
-
+    @LauncherNetworkAPI
     private final Map<String, HashedEntry> map = new HashMap<>(32);
 
     @LauncherAPI

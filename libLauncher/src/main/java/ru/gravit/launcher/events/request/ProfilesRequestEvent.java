@@ -20,8 +20,6 @@ public class ProfilesRequestEvent extends RequestEvent implements EventInterface
     public ProfilesRequestEvent() {
     }
 
-    String error;
-
     @Override
     public UUID getUUID() {
         return uuid;
