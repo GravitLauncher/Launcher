@@ -33,6 +33,8 @@ public class OptionalFile {
     @LauncherAPI
     public int subTreeLevel = 1;
     @LauncherAPI
+    public boolean isPreset;
+    @LauncherAPI
     public long permissions = 0L;
     @LauncherAPI
     public transient Set<OptionalFile> dependenciesCount;
