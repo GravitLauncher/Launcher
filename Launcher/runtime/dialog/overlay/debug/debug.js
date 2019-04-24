@@ -37,7 +37,6 @@ var debug = {
     },
 
     append: function(text) {
-        LogHelper.debug(debug.output.getText().length());
         //Experimental Feature
         if(debug.output.getText().length() > 32000 /* Max length */)
         {
