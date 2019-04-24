@@ -32,6 +32,7 @@ public final class LauncherConfig extends StreamObject {
     public final Map<String, byte[]> runtime;
     public final boolean isWarningMissArchJava;
     public boolean isNettyEnabled;
+    public LauncherEnvironment environment;
 
     public final String guardLicenseName;
     public final String guardLicenseKey;
@@ -58,6 +59,7 @@ public final class LauncherConfig extends StreamObject {
         else if (config.env == 3) env = LauncherEnvironment.PROD;
         else env = LauncherEnvironment.STD;
         Launcher.applyLauncherEnv(env);
+        environment = env;
         // Read signed runtime
         int count = input.readLength(0);
         Map<String, byte[]> localResources = new HashMap<>(count);
@@ -83,6 +85,7 @@ public final class LauncherConfig extends StreamObject {
         guardType = "no";
         isWarningMissArchJava = true;
         isNettyEnabled = false;
+        environment = LauncherEnvironment.STD;
     }
 
     @LauncherAPI
@@ -98,6 +101,7 @@ public final class LauncherConfig extends StreamObject {
         guardType = "no";
         isWarningMissArchJava = true;
         isNettyEnabled = false;
+        environment = LauncherEnvironment.STD;
     }
 
     @Override

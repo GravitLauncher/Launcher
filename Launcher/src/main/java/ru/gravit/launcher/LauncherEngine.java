@@ -31,7 +31,11 @@ public class LauncherEngine {
         // Start Launcher
         initGson();
         ConsoleManager.initConsole();
-        LogHelper.setStacktraceEnabled(true);
+        LauncherConfig config = Launcher.getConfig();
+        if(config.environment.equals(LauncherConfig.LauncherEnvironment.PROD))
+        {
+            if(!LauncherAgent.isStarted()) throw new SecurityException("LauncherAgent must started");
+        }
         long startTime = System.currentTimeMillis();
         try {
             new LauncherEngine().start(args);

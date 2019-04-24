@@ -1,5 +1,6 @@
 package ru.gravit.launcher.managers;
 
+import ru.gravit.launcher.console.UnlockCommand;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.command.JLineCommandHandler;
 import ru.gravit.utils.command.StdCommandHandler;
@@ -33,5 +34,14 @@ public class ConsoleManager {
     public static void registerCommands()
     {
         handler.registerCommand("help", new HelpCommand(handler));
+        handler.registerCommand("unlock", new UnlockCommand());
+    }
+    public static boolean checkUnlockKey(String key)
+    {
+        return true;
+    }
+    public static void unlock()
+    {
+        
     }
 }

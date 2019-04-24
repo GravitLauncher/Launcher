@@ -134,7 +134,7 @@ function makeAuthRequest(login, rsaPassword, callback) {
 
 function launchClient(assetHDir, clientHDir, profile, params, callback) {
     var task = newTask(function() ClientLauncher.launch(assetHDir, clientHDir,
-        profile, params, LogHelper.isDebugEnabled()));
+        profile, params, settings.debug));
     processing.setTaskProperties(task, callback, null, true);
     task.updateMessage("Запуск выбранного клиента");
     startTask(task);

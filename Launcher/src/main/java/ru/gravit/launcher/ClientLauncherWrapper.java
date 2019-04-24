@@ -16,25 +16,45 @@ import java.util.List;
 
 public class ClientLauncherWrapper {
     public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";
+    public static final String WAIT_PROCESS_PROPERTY = "launcher.waitProcess";
+    public static boolean waitProcess = Boolean.getBoolean(WAIT_PROCESS_PROPERTY);
 
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
-        LogHelper.info("Restart Launcher with JavaAgent...");
-        LogHelper.info("If need debug output use -Dlauncher.debug=true");
-        LogHelper.info("If need stacktrace output use -Dlauncher.stacktrace=true");
         JVMHelper.checkStackTrace(ClientLauncherWrapper.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
-        LogHelper.debug("Restart Launcher");
+        LauncherConfig config = Launcher.getConfig();
+        LogHelper.info("Launcher for project %s", config.projectname);
+        if(config.environment.equals(LauncherConfig.LauncherEnvironment.PROD))
+        {
+            if(System.getProperty(LogHelper.DEBUG_PROPERTY) != null)
+            {
+                LogHelper.warning("Found -Dlauncher.debug=true");
+            }
+            if(System.getProperty(LogHelper.STACKTRACE_PROPERTY) != null)
+            {
+                LogHelper.warning("Found -Dlauncher.stacktrace=true");
+            }
+            LogHelper.info("Debug mode disabled (found env PRODUCTION)");
+        }
+        else
+        {
+            LogHelper.info("If need debug output use -Dlauncher.debug=true");
+            LogHelper.info("If need stacktrace output use -Dlauncher.stacktrace=true");
+            if(LogHelper.isDebugEnabled()) waitProcess = true;
+        }
+        LogHelper.info("Restart Launcher with JavaAgent...");
         ProcessBuilder processBuilder = new ProcessBuilder();
-        if (LogHelper.isDebugEnabled()) processBuilder.inheritIO();
+        if(waitProcess) processBuilder.inheritIO();
         Path javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
         List<String> args = new LinkedList<>();
         args.add(javaBin.toString());
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         args.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled())));
+        args.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, Boolean.toString(LogHelper.isDevEnabled())));
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_OPTDIR_PROPERTY);
@@ -48,7 +68,7 @@ public class ClientLauncherWrapper {
         LogHelper.debug("Commandline: " + args);
         processBuilder.command(args);
         Process process = processBuilder.start();
-        if (!LogHelper.isDebugEnabled()) {
+        if (!waitProcess) {
             Thread.sleep(3000);
             if (!process.isAlive()) {
                 int errorcode = process.exitValue();

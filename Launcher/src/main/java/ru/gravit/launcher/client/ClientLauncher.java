@@ -375,7 +375,7 @@ public final class ClientLauncher {
         }
         // Let's rock!
         process = builder.start();
-        if (!LogHelper.isDebugEnabled()) {
+        if (!pipeOutput) {
             for (int i = 0; i < 50; ++i) {
                 if (!process.isAlive()) {
                     int exitCode = process.exitValue();

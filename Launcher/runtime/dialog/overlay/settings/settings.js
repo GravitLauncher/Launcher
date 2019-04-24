@@ -79,9 +79,9 @@ var settingsOverlay = {
         });
 
         var debugBox = settingsOverlay.overlay.lookup("#debug");
-        debugBox.setSelected(LogHelper.isDebugEnabled());
+        debugBox.setSelected(settings.debug);
         debugBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
-            function(o, ov, nv) LogHelper.setDebugEnabled(nv));
+            function(o, ov, nv) settings.debug = nv);
 
         holder.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
     },

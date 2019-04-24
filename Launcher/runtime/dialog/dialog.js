@@ -303,7 +303,7 @@ function doLaunchClient(assetDir, assetHDir, clientDir, clientHDir, profile, pp,
 }
 
 function doDebugClient(process) {
-    if (!LogHelper.isDebugEnabled()) {
+    if (!settings.debug) {
         javafx.application.Platform.exit();
         return;
     }

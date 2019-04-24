@@ -21,6 +21,8 @@ public class NewLauncherSettings {
     @LauncherAPI
     public boolean autoEnter;
     @LauncherAPI
+    public boolean debug;
+    @LauncherAPI
     public boolean fullScreen;
     @LauncherAPI
     public boolean offline;
