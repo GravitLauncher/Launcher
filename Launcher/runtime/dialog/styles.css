@@ -79,10 +79,12 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-text-fill: black;
     -fx-background-position: center;
     -jfx-button-type: FLAT;
-    -fx-background-color: #d8d8d8;
+    -fx-background-color: #ffffff;
     -fx-pref-width: 150px;
     -fx-pref-height: 30px;
 }
+
+#send:pressed { -fx-background-color: #d8d8d8; }
 
 /* LoginMenu */
 #authPane {
@@ -191,25 +193,7 @@ Button, CheckBox, ComboBox, RadioButton {
 .clientLaunch:hover, .clientLaunch:pressed { -fx-background-color: #74C085; }
 
 /* Pressets options */
-.pressetLight {
-    -jfx-toggle-color: #61B373;
-    -jfx-untoggle-color: #FAFAFA;
-    -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
-    -jfx-untoggle-line-color: #999999;
-    -jfx-size: 10.0;
-    -jfx-disable-visual-focus: false;
-}
-
-.pressetMedium {
-    -jfx-toggle-color: #61B373;
-    -jfx-untoggle-color: #FAFAFA;
-    -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
-    -jfx-untoggle-line-color: #999999;
-    -jfx-size: 10.0;
-    -jfx-disable-visual-focus: false;
-}
-
-.pressetHigh {
+.pressetLight, .pressetMedium, .pressetHigh {
     -jfx-toggle-color: #61B373;
     -jfx-untoggle-color: #FAFAFA;
     -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);

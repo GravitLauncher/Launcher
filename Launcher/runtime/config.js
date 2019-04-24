@@ -7,7 +7,7 @@ var config = {
     // Auth config
     linkText: "GravitLauncher", // Text for link under "Auth" button
     linkURL: new java.net.URL("https://gravitlauncher.ml"), // URL for link under "Auth" button
-	
+
     // Menu config
     discord: new java.net.URL("https://discord.gg/aJK6nMN"),
 

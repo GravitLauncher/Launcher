@@ -234,21 +234,21 @@ function verifyLauncher(e) {
             initOffline();
         }
         overlay.swap(0, processing.overlay, function(event) makeAuthAvailabilityRequest(function(result) {
-                    //@DrLeonardo нужно напистаь добавление в список
-                    //result.list весь список
-                    //result.list[0].name имя авторизации(не видно)
-                    //result.list[0].displayName имя авторизации(видно)
-                    overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
-                                settings.lastProfiles = result.profiles;
-                                updateProfilesList(result.profiles);
-                                options.load();
-                                overlay.hide(0, function() {
-                                    if (cliParams.autoLogin) {
-                                        goAuth(null);
-                                    }
-                                });
-                    }));
-         }));
+            //@DrLeonardo нужно напистаь добавление в список
+            //result.list весь список
+            //result.list[0].name имя авторизации(не видно)
+            //result.list[0].displayName имя авторизации(видно)
+            overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
+                settings.lastProfiles = result.profiles;
+                updateProfilesList(result.profiles);
+                options.load();
+                overlay.hide(0, function() {
+                    if (cliParams.autoLogin) {
+                        goAuth(null);
+                    }
+                });
+            }));
+        }));
     }));
 }
 
@@ -457,13 +457,13 @@ var serverHolder = {
     }
 };
 
-/* ======== Scenes scripts ======== */
+/* ======== Overlays scripts ======== */
 launcher.loadScript("engine/settings.js");
 launcher.loadScript("dialog/overlay/debug/debug.js");
 launcher.loadScript("dialog/overlay/processing/processing.js");
 launcher.loadScript("dialog/overlay/settings/settings.js");
 launcher.loadScript("dialog/overlay/update/update.js");
 
-/* ======== Overlays scripts ======== */
+/* ======== Scenes scripts ======== */
 launcher.loadScript("dialog/scenes/options/options.js");
 launcher.loadScript("dialog/scenes/console/console.js");

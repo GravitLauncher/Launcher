@@ -17,7 +17,7 @@ var processing = {
     setError: function(e) {
         LogHelper.error(e);
         processing.description.textProperty().unbind();
-        processing.errorImage.setImage(processing.errorImage);
+        //processing.errorImage.setImage(processing.errorImage);
         processing.description.getStyleClass().add("error");
         processing.description.setText(e.toString());
     },

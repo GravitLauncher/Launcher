@@ -5,7 +5,6 @@
 <?import com.jfoenix.controls.JFXSlider?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Hyperlink?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
@@ -18,12 +17,12 @@
    <children>
      <Pane id="holder" prefHeight="425.0" prefWidth="694.0">
        <children>
-         <JFXCheckBox fx:id="autoEnter" checkedColor="#61b373" layoutX="14.0" layoutY="113.0" text="Автовход на сервер" unCheckedColor="#909090" />
-			<Text fill="#8c8c8c" layoutX="38.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер" wrappingWidth="636.9999872148037" y="15.0" />
-         <JFXCheckBox fx:id="fullScreen" checkedColor="#61b373" layoutX="13.0" layoutY="236.0" text="Клиент в полный экран" unCheckedColor="#909090" />
-            <Text fill="#8c8c8c" layoutX="38.0" layoutY="253.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение данной функции позволяет запустить игру сразу в полноэкранном режиме" wrappingWidth="636.9999872148037" y="15.0" />
-         <JFXCheckBox id="debug" checkedColor="#61b373" layoutX="13.0" layoutY="169.0" text="Режим Отладки" unCheckedColor="#909090" />
-			<Text fill="#8c8c8c" layoutX="38.0" layoutY="184.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Режим отладки позволяет просмотреть лог запуска и работы программы в реальном времени прямо из лаунчера, что упрощает поиск нужной информации" wrappingWidth="637.0000016447157" y="15.0" />
+         <JFXCheckBox fx:id="autoEnter" checkedColor="#61b373" layoutX="14.0" layoutY="117.0" text="Автовход на сервер" unCheckedColor="#909090" />
+			<Text fill="#8c8c8c" layoutX="38.0" layoutY="133.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер" wrappingWidth="636.9999872148037" y="15.0" />
+         <JFXCheckBox fx:id="fullScreen" checkedColor="#61b373" layoutX="13.0" layoutY="240.0" text="Клиент в полный экран" unCheckedColor="#909090" />
+            <Text fill="#8c8c8c" layoutX="38.0" layoutY="257.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение данной функции позволяет запустить игру сразу в полноэкранном режиме" wrappingWidth="636.9999872148037" y="15.0" />
+         <JFXCheckBox id="debug" checkedColor="#61b373" layoutX="13.0" layoutY="173.0" text="Режим Отладки" unCheckedColor="#909090" />
+			<Text fill="#8c8c8c" layoutX="38.0" layoutY="188.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Режим отладки позволяет просмотреть лог запуска и работы программы в реальном времени прямо из лаунчера, что упрощает поиск нужной информации" wrappingWidth="637.0000016447157" y="15.0" />
 		<TextFlow layoutX="126.0" layoutY="15.0" prefHeight="16.0" prefWidth="112.0">
 			<Text fx:id="ramLabel" />
 		</TextFlow>
@@ -33,7 +32,6 @@
          <JFXButton fx:id="apply" defaultButton="true" layoutX="534.0" layoutY="356.0" prefHeight="23.0" prefWidth="100.0" text="Применить" />
 			<Text layoutX="16.0" layoutY="28.0">Выделение памяти: </Text>
             <JFXSlider fx:id="ramSlider" layoutX="14.0" layoutY="76.0" prefHeight="14.0" prefWidth="663.0" />
-            <Separator layoutY="400.0" prefHeight="3.0" prefWidth="694.0" />
             <Pane fx:id="transferDialog" prefHeight="425.0" prefWidth="694.0" visible="false">
                <children>
                   <Text fill="WHITE" layoutX="147.0" layoutY="198.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Перенести все данные в новую директорию?" wrappingWidth="400.13671875">
