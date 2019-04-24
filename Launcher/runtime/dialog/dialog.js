@@ -1,5 +1,5 @@
-var authPane, dimPane, serverPane, bar, optionsPane, consolePane;
-var loginField, passwordField, savePasswordBox;
+var authPane, dimPane, serverPane, bar, consoleBar, optionsPane, consolePane;
+var loginField, passwordField, savePasswordBox, authOptions;
 var serverList, serverInfo, serverDescription, serverEntrance, serverLabel, serverStatus;
 var profilesList = [];
 var movePoint = null;
@@ -113,17 +113,16 @@ function initConsoleScene() {
             return;
         }
 
-        stage.setX(event.getScreenX() - movePoint.getX());
-        stage.setY(event.getScreenY() - movePoint.getY());
+        consoleStage.setX(event.getScreenX() - movePoint.getX());
+        consoleStage.setY(event.getScreenY() - movePoint.getY());
     });
 
     var pane = consoleMenu.lookup("#bar");
-    bar = pane;
-    pane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
-    pane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
-    pane.lookup("#back").setOnAction(function(){
-        setCurrentScene(menuScene);
+    consoleBar = pane;
+    pane.lookup("#close").setOnAction(function(){
+        consoleStage.hide();
     });
+    pane.lookup("#hide").setOnAction(function(event) { consoleStage.setIconified(true) });
 
     var pane = consoleMenu.lookup("#consolePane");
     consolePane = pane;
@@ -196,7 +195,7 @@ function goAuth(event) {
 
 /* ======== Console ======== */
 function goConsole(event) {
-    setCurrentScene(consoleScene);
+    setConsoleCurrentScene(consoleScene);
 }
 
 /* ======== Settings ======== */

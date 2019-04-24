@@ -7,9 +7,6 @@ var processing = {
 
         processing.spinner = processing.overlay.lookup("#spinner");
         processing.description = processing.overlay.lookup("#description");
-
-        processing.errorImage = new javafx.scene.image.Image(
-            Launcher.getResourceURL("dialog/images/icons/error.png").toString());
     },
 
     resetOverlay: function() {
@@ -20,7 +17,7 @@ var processing = {
     setError: function(e) {
         LogHelper.error(e);
         processing.description.textProperty().unbind();
-        processing.spinner.setImage(processing.errorImage);
+        processing.errorImage.setImage(processing.errorImage);
         processing.description.getStyleClass().add("error");
         processing.description.setText(e.toString());
     },

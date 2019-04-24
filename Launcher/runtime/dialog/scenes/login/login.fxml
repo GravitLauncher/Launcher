@@ -23,7 +23,7 @@
              <JFXPasswordField id="password" alignment="CENTER" focusColor="#909090" layoutX="34.0" layoutY="197.0" promptText="Пароль" unFocusColor="#dadada" />
              <JFXButton id="goAuth" layoutX="15.0" layoutY="365.0" styleClass="auth" text="ВОЙТИ" />
              <JFXCheckBox id="rememberchb" fx:id="savePassword" checkedColor="#61b373" contentDisplay="CENTER" layoutX="63.0" layoutY="329.0" prefWidth="144.0" text="Сохранить пароль" textFill="#dadada" unCheckedColor="#909090" />
-             <JFXComboBox fx:id="combologin" focusColor="#909090" layoutX="35.0" layoutY="251.0" promptText="Метод авторизации" styleClass="combologin" unFocusColor="#dadada" />
+             <JFXComboBox id="authOptions" fx:id="authOptions" focusColor="#909090" layoutX="35.0" layoutY="251.0" promptText="Метод авторизации" styleClass="combologin" unFocusColor="#dadada" />
             <Hyperlink id="link" fx:id="link" layoutX="98.0" layoutY="408.0" prefHeight="19.0" prefWidth="81.0" textAlignment="CENTER" />
          </children>
       </Pane>

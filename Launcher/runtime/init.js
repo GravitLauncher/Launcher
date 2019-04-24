@@ -1,4 +1,4 @@
-var app, stage, scene, loginScene, menuScene, consoleScene, optionsScene;
+var app, stage, scene, loginScene, menuScene, consoleScene, consoleStage, optionsScene;
 var rootPane, loginPane, menuPane, consoleMenu, optionsMenu;
 
 var LauncherApp = Java.extend(JSApplication, {
@@ -14,6 +14,11 @@ var LauncherApp = Java.extend(JSApplication, {
         stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
         stage.setResizable(false);
         stage.setTitle(config.title);
+
+        consoleStage = new javafx.stage.Stage();
+        consoleStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        consoleStage.setResizable(false);
+        consoleStage.setTitle(config.title);
 
         config.icons.forEach(function(icon) {
             var iconURL = Launcher.getResourceURL(icon).toString();
@@ -60,6 +65,13 @@ function setCurrentScene(scene) {
     stage.sizeToScene();
     stage.show();
 }
+
+function setConsoleCurrentScene(scene) {
+    consoleStage.setScene(scene);
+    consoleStage.sizeToScene();
+    consoleStage.show();
+}
+
 
 function setRootParent(parent) {
     scene.setRoot(parent);

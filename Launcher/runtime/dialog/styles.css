@@ -74,6 +74,16 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-pref-height: 45px;
 }
 
+#send {
+    -fx-background-radius: 0;
+    -fx-text-fill: black;
+    -fx-background-position: center;
+    -jfx-button-type: FLAT;
+    -fx-background-color: #d8d8d8;
+    -fx-pref-width: 150px;
+    -fx-pref-height: 30px;
+}
+
 /* LoginMenu */
 #authPane {
     -fx-background-color: rgba(255, 255, 255, 0.71);

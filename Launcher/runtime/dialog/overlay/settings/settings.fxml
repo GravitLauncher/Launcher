@@ -18,16 +18,15 @@
    <children>
      <Pane id="holder" prefHeight="425.0" prefWidth="694.0">
        <children>
-         <JFXCheckBox fx:id="autoEnter" checkedColor="#61b373" layoutX="14.0" layoutY="134.0" text="Автовход на сервер" unCheckedColor="#909090" />
-			<Text fill="#8c8c8c" layoutX="38.0" layoutY="150.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер" wrappingWidth="636.9999872148037" y="15.0" />
-         <JFXCheckBox fx:id="fullScreen" checkedColor="#61b373" layoutX="13.0" layoutY="257.0" text="Клиент в полный экран" unCheckedColor="#909090" />
-            <Text fill="#8c8c8c" layoutX="38.0" layoutY="274.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение данной функции позволяет запустить игру сразу в полноэкранном режиме" wrappingWidth="636.9999872148037" y="15.0" />
-         <JFXCheckBox id="debug" checkedColor="#61b373" layoutX="13.0" layoutY="190.0" text="Режим Отладки" unCheckedColor="#909090" />
-			<Text fill="#8c8c8c" layoutX="38.0" layoutY="205.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Режим отладки позволяет просмотреть лог запуска и работы программы в реальном времени прямо из лаунчера, что упрощает поиск нужной информации" wrappingWidth="637.0000016447157" y="15.0" />
+         <JFXCheckBox fx:id="autoEnter" checkedColor="#61b373" layoutX="14.0" layoutY="113.0" text="Автовход на сервер" unCheckedColor="#909090" />
+			<Text fill="#8c8c8c" layoutX="38.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер" wrappingWidth="636.9999872148037" y="15.0" />
+         <JFXCheckBox fx:id="fullScreen" checkedColor="#61b373" layoutX="13.0" layoutY="236.0" text="Клиент в полный экран" unCheckedColor="#909090" />
+            <Text fill="#8c8c8c" layoutX="38.0" layoutY="253.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение данной функции позволяет запустить игру сразу в полноэкранном режиме" wrappingWidth="636.9999872148037" y="15.0" />
+         <JFXCheckBox id="debug" checkedColor="#61b373" layoutX="13.0" layoutY="169.0" text="Режим Отладки" unCheckedColor="#909090" />
+			<Text fill="#8c8c8c" layoutX="38.0" layoutY="184.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Режим отладки позволяет просмотреть лог запуска и работы программы в реальном времени прямо из лаунчера, что упрощает поиск нужной информации" wrappingWidth="637.0000016447157" y="15.0" />
 		<TextFlow layoutX="126.0" layoutY="15.0" prefHeight="16.0" prefWidth="112.0">
 			<Text fx:id="ramLabel" />
 		</TextFlow>
-           <Line endX="589.0" layoutX="100.0" layoutY="115.0" startX="-100.0" stroke="#5b3636" styleClass="lineHead" />
          <JFXButton fx:id="deleteDir" layoutX="374.0" layoutY="356.0" prefHeight="25.0" prefWidth="245.0" text="Удалить клиенты" textAlignment="CENTER" wrapText="true" />
          <JFXButton fx:id="changeDir" layoutY="400.0" prefHeight="25.0" prefWidth="200.0" text="Сменить директорию загрузки" textAlignment="CENTER" wrapText="true" />
          <Hyperlink id="dirLabel" alignment="TOP_LEFT" layoutX="200.0" layoutY="401.0" prefHeight="23.0" prefWidth="493.0" text="C:/Users" />
