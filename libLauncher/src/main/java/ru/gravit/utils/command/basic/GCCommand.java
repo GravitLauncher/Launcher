@@ -1,16 +1,11 @@
-package ru.gravit.launchserver.command.basic;
+package ru.gravit.utils.command.basic;
 
 import ru.gravit.launcher.managers.GarbageManager;
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.command.Command;
+import ru.gravit.utils.command.Command;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
 
-public final class GCCommand extends Command {
-    public GCCommand(LaunchServer server) {
-        super(server);
-    }
-
+public class GCCommand extends Command {
     @Override
     public String getArgsDescription() {
         return null;
@@ -18,11 +13,11 @@ public final class GCCommand extends Command {
 
     @Override
     public String getUsageDescription() {
-        return "Perform Garbage Collection and print memory usage";
+        return null;
     }
 
     @Override
-    public void invoke(String... args) {
+    public void invoke(String... args) throws Exception {
         LogHelper.subInfo("Performing full GC");
         JVMHelper.fullGC();
         GarbageManager.gc();

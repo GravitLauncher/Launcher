@@ -1,26 +1,21 @@
-package ru.gravit.launchserver.command.basic;
+package ru.gravit.utils.command.basic;
 
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.command.Command;
+import ru.gravit.utils.command.Command;
 import ru.gravit.utils.helper.LogHelper;
 
-public final class DebugCommand extends Command {
-    public DebugCommand(LaunchServer server) {
-        super(server);
-    }
-
+public class DebugCommand extends Command {
     @Override
     public String getArgsDescription() {
-        return "[true/false] (true/false)";
+        return "[true/false] [true/false]";
     }
 
     @Override
     public String getUsageDescription() {
-        return "Enable or disable debug and stacktrace logging at runtime";
+        return null;
     }
 
     @Override
-    public void invoke(String... args) {
+    public void invoke(String... args) throws Exception {
         boolean newValue, newTraceValue;
         if (args.length >= 1) {
             newValue = Boolean.parseBoolean(args[0]);

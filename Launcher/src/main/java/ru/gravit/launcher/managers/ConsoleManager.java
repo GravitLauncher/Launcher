@@ -1,5 +1,8 @@
 package ru.gravit.launcher.managers;
 
+import ru.gravit.utils.command.basic.ClearCommand;
+import ru.gravit.utils.command.basic.DebugCommand;
+import ru.gravit.utils.command.basic.GCCommand;
 import ru.gravit.launcher.console.UnlockCommand;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.command.JLineCommandHandler;
@@ -34,6 +37,8 @@ public class ConsoleManager {
     public static void registerCommands()
     {
         handler.registerCommand("help", new HelpCommand(handler));
+        handler.registerCommand("gc", new GCCommand());
+        handler.registerCommand("clear", new ClearCommand(handler));
         handler.registerCommand("unlock", new UnlockCommand());
     }
     public static boolean checkUnlockKey(String key)
@@ -42,6 +47,6 @@ public class ConsoleManager {
     }
     public static void unlock()
     {
-        
+        handler.registerCommand("debug", new DebugCommand());
     }
 }

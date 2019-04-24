@@ -12,6 +12,9 @@ import ru.gravit.launchserver.command.modules.LoadModuleCommand;
 import ru.gravit.launchserver.command.modules.ModulesCommand;
 import ru.gravit.launchserver.command.service.*;
 import ru.gravit.utils.command.BaseCommandCategory;
+import ru.gravit.utils.command.basic.ClearCommand;
+import ru.gravit.utils.command.basic.DebugCommand;
+import ru.gravit.utils.command.basic.GCCommand;
 import ru.gravit.utils.command.basic.HelpCommand;
 
 public abstract class CommandHandler extends ru.gravit.utils.command.CommandHandler {
@@ -25,9 +28,9 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         basic.registerCommand("stop", new StopCommand(server));
         basic.registerCommand("restart", new RestartCommand(server));
         basic.registerCommand("rebind", new RebindCommand(server));
-        basic.registerCommand("debug", new DebugCommand(server));
-        basic.registerCommand("clear", new ClearCommand(server));
-        basic.registerCommand("gc", new GCCommand(server));
+        basic.registerCommand("debug", new DebugCommand());
+        basic.registerCommand("clear", new ClearCommand(handler));
+        basic.registerCommand("gc", new GCCommand());
         basic.registerCommand("proguardClean", new ProguardCleanCommand(server));
         basic.registerCommand("proguardDictRegen", new RegenProguardDictCommand(server));
         basic.registerCommand("proguardMappingsRemove", new RemoveMappingsProguardCommand(server));

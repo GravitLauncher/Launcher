@@ -12,7 +12,7 @@ public class UnlockCommand extends Command {
 
     @Override
     public String getUsageDescription() {
-        return "Unlock other commands";
+        return "Unlock console commands";
     }
 
     @Override
@@ -22,6 +22,7 @@ public class UnlockCommand extends Command {
         {
             LogHelper.info("Unlock successful");
             ConsoleManager.unlock();
+            ConsoleManager.handler.unregisterCommand("unlock");
         }
         else
         {

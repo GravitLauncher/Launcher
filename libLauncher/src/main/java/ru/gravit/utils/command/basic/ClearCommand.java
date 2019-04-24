@@ -1,12 +1,13 @@
-package ru.gravit.launchserver.command.basic;
+package ru.gravit.utils.command.basic;
 
-import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.command.Command;
+import ru.gravit.utils.command.Command;
+import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.helper.LogHelper;
 
 public final class ClearCommand extends Command {
-    public ClearCommand(LaunchServer server) {
-        super(server);
+    private CommandHandler handler;
+    public ClearCommand(CommandHandler handler) {
+        this.handler = handler;
     }
 
     @Override
@@ -21,7 +22,7 @@ public final class ClearCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        server.commandHandler.clear();
+        handler.clear();
         LogHelper.subInfo("Terminal cleared");
     }
 }
