@@ -122,6 +122,16 @@ function initConsoleScene() {
     pane.lookup("#close").setOnAction(function(){
         consoleStage.hide();
     });
+    var text = consoleMenu.lookup("#textField");
+    var output = consoleMenu.lookup("#output");
+    var appendFunction = function(line) javafx.application.Platform.runLater(function() output.appendText(line));
+    consoleMenu.lookup("#send").setOnAction(function(){
+        execCommand(text.getText());
+        text.setText("");
+    });
+    FunctionalBridge.addPlainOutput(function(string) {
+        appendFunction(string+"\n");
+    })
     pane.lookup("#hide").setOnAction(function(event) { consoleStage.setIconified(true) });
 
     var pane = consoleMenu.lookup("#consolePane");
@@ -456,3 +466,4 @@ launcher.loadScript("dialog/overlay/update/update.js");
 
 /* ======== Overlays scripts ======== */
 launcher.loadScript("dialog/scenes/options/options.js");
+launcher.loadScript("dialog/scenes/console/console.js");

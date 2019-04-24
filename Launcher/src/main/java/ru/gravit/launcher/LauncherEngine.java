@@ -7,6 +7,7 @@ import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.gui.RuntimeProvider;
 import ru.gravit.launcher.managers.ClientGsonManager;
+import ru.gravit.launcher.managers.ConsoleManager;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.websockets.ClientWebSocketService;
 import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;
@@ -29,6 +30,7 @@ public class LauncherEngine {
         LogHelper.printLicense("Launcher");
         // Start Launcher
         initGson();
+        ConsoleManager.initConsole();
         LogHelper.setStacktraceEnabled(true);
         long startTime = System.currentTimeMillis();
         try {

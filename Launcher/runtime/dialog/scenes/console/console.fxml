@@ -32,7 +32,7 @@
                 <Insets left="10.0" right="10.0" top="10.0" />
             </padding>
         </JFXTextArea>
-        <JFXTextField id="textField" focusColor="#909090" layoutY="395.0" prefHeight="30.0" prefWidth="545.0" promptText="Введите команду..." unFocusColor="#ffffff00">
+        <JFXTextField fx:id="textField" focusColor="#909090" layoutY="395.0" prefHeight="30.0" prefWidth="545.0" promptText="Введите команду..." unFocusColor="#ffffff00">
             <opaqueInsets>
                 <Insets />
             </opaqueInsets>
@@ -40,7 +40,7 @@
                 <Insets left="10.0" />
             </padding>
         </JFXTextField>
-        <JFXButton id="send" defaultButton="true" layoutX="542.0" layoutY="395.0" prefHeight="30.0" prefWidth="147.0" text="Отправить" />
+        <JFXButton fx:id="send" defaultButton="true" layoutX="542.0" layoutY="395.0" prefHeight="30.0" prefWidth="147.0" text="Отправить" />
         <Line endX="589.0" layoutX="98.0" layoutY="390.0" startX="-100.0" stroke="#5b3636" styleClass="lineHead" />
     </children>
     <stylesheets>

@@ -7,11 +7,14 @@ import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hwid.OshiHWIDProvider;
+import ru.gravit.launcher.managers.ConsoleManager;
 import ru.gravit.launcher.managers.HasherManager;
 import ru.gravit.launcher.managers.HasherStore;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
+import ru.gravit.utils.helper.CommonHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.nio.file.Path;
 import java.util.concurrent.Executors;
@@ -103,5 +106,15 @@ public class FunctionalBridge {
     @FunctionalInterface
     public interface HashedDirRunnable {
         SignedObjectHolder<HashedDir> run() throws Exception;
+    }
+    @LauncherAPI
+    public static void evalCommand(String cmd)
+    {
+        ConsoleManager.handler.eval(cmd, false);
+    }
+    @LauncherAPI
+    public static void addPlainOutput(LogHelper.Output output)
+    {
+        LogHelper.addOutput(output, LogHelper.OutputTypes.PLAIN);
     }
 }
