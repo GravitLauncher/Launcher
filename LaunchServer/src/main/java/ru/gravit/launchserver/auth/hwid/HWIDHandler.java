@@ -6,7 +6,7 @@ import ru.gravit.utils.ProviderMap;
 import java.util.List;
 
 public abstract class HWIDHandler implements AutoCloseable {
-    public static ProviderMap<HWIDHandler> providers = new ProviderMap<>();
+    public static ProviderMap<HWIDHandler> providers = new ProviderMap<>("HWIDHandler");
     private static boolean registredHandl = false;
 
 

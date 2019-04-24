@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 public abstract class TextureProvider implements AutoCloseable {
-    public static ProviderMap<TextureProvider> providers = new ProviderMap<>();
+    public static ProviderMap<TextureProvider> providers = new ProviderMap<>("TextureProvider");
     private static boolean registredProv = false;
 
     public static void registerProviders() {

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 public abstract class AuthHandler implements AutoCloseable {
-    public static ProviderMap<AuthHandler> providers = new ProviderMap<>();
+    public static ProviderMap<AuthHandler> providers = new ProviderMap<>("AuthHandler");
     private static boolean registredHandl = false;
 
 

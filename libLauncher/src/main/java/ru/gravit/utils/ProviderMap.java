@@ -8,13 +8,25 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ProviderMap<R> {
     protected final Map<String, Class<? extends R>> PROVIDERS = new ConcurrentHashMap<>(4);
+    protected final String name;
     protected boolean registredProviders = false;
 
+    public ProviderMap(String name) {
+        this.name = name;
+    }
+
+    public ProviderMap() {
+        this.name = "Unnamed";
+    }
+    public String getName()
+    {
+        return name;
+    }
 
     public void registerProvider(String name, Class<? extends R> adapter) {
         VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(PROVIDERS, name, Objects.requireNonNull(adapter, "adapter"),
-                String.format("Protect handler has been already registered: '%s'", name));
+                String.format("%s has been already registered: '%s'", this.name, name));
     }
 
     public Class<? extends R> getProviderClass(String name) {

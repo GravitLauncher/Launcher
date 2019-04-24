@@ -6,7 +6,7 @@ import ru.gravit.utils.ProviderMap;
 import java.io.IOException;
 
 public abstract class AuthProvider implements AutoCloseable {
-    public static ProviderMap<AuthProvider> providers = new ProviderMap<>();
+    public static ProviderMap<AuthProvider> providers = new ProviderMap<>("AuthProvider");
     private static boolean registredProv = false;
 
     public static AuthProviderResult authError(String message) throws AuthException {

@@ -4,7 +4,7 @@ import ru.gravit.launchserver.websocket.json.auth.AuthResponse;
 import ru.gravit.utils.ProviderMap;
 
 public abstract class ProtectHandler {
-    public static ProviderMap<ProtectHandler> providers = new ProviderMap<>();
+    public static ProviderMap<ProtectHandler> providers = new ProviderMap<>("ProtectHandler");
     private static boolean registredHandl = false;
 
 

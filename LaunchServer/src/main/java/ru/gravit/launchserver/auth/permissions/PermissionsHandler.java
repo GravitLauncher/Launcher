@@ -4,7 +4,7 @@ import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.utils.ProviderMap;
 
 public abstract class PermissionsHandler implements AutoCloseable {
-    public static ProviderMap<PermissionsHandler> providers = new ProviderMap<>();
+    public static ProviderMap<PermissionsHandler> providers = new ProviderMap<>("PermissionsHandler");
     private static boolean registredHandl = false;
 
     public static void registerHandlers() {
