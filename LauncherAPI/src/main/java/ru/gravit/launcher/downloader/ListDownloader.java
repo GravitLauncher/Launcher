@@ -48,7 +48,7 @@ public class ListDownloader {
 
             HttpGet get = null;
             for (DownloadTask apply : applies) {
-                URI u = new URL(base.concat(IOHelper.urlEncode(apply.apply))).toURI();
+                URI u = new URL(base.concat(IOHelper.urlEncode(apply.apply).replace("%2F", "/"))).toURI();
                 callback.stateChanged(apply.apply,0L, apply.size);
                 LogHelper.debug("Download URL: %s", u.toString());
                 if (get == null) get = new HttpGet(u);
