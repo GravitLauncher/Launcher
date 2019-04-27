@@ -552,7 +552,7 @@ public final class ClientLauncher {
                 if(v.getType().equals(HashedEntry.Type.FILE)) isFoundFile.set(true);
                 LogHelper.error("Mismatch %s", e);
             });
-            throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
+            if(isFoundFile.get()) throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
         }
     }
 
