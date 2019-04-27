@@ -7,6 +7,7 @@ include 'LauncherAPI'
 include 'ServerWrapper'
 include 'LaunchServer'
 include 'LaunchServerConsole'
+include 'LauncherTest'
 include 'modules'
 file('modules').eachDir { sub ->
     if (sub.name.endsWith('_module')) include 'modules:' + sub.name

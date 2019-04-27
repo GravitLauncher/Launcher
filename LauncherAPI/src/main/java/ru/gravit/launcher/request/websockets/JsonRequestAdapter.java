@@ -1,6 +1,7 @@
 package ru.gravit.launcher.request.websockets;
 
 import com.google.gson.*;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
 
@@ -16,6 +17,10 @@ public class JsonRequestAdapter implements JsonSerializer<RequestInterface>, Jso
     public RequestInterface deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends RequestInterface> cls = service.getRequestClass(typename);
+        if(cls == null)
+        {
+            LogHelper.error("Request type %s not found", typename);
+        }
 
 
         return (RequestInterface) context.deserialize(json, cls);

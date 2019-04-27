@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXMasonryPane?>
+<?import com.jfoenix.controls.JFXPasswordField?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.layout.Pane?>
+
+<!-- DrLeonardo Design -->
+
+<Pane fx:id="layout" prefWidth="740.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
+  <children>
+      <Pane fx:id="authPane" layoutX="423.0" prefHeight="411.0" prefWidth="286.0" styleClass="loginPane">
+         <children>
+             <Pane fx:id="logo" layoutX="72.0" layoutY="62.0" prefWidth="124.0" styleClass="logo">
+             </Pane>
+             <JFXTextField id="login" alignment="CENTER" focusColor="#909090" layoutX="34.0" layoutY="144.0" promptText="Логин" unFocusColor="#dadada" />
+             <JFXPasswordField id="password" alignment="CENTER" focusColor="#909090" layoutX="34.0" layoutY="197.0" promptText="Пароль" unFocusColor="#dadada" />
+             <JFXButton id="goAuth" layoutX="15.0" layoutY="365.0" styleClass="auth" text="ВОЙТИ" />
+             <JFXCheckBox id="rememberchb" fx:id="savePassword" checkedColor="#61b373" contentDisplay="CENTER" layoutX="63.0" layoutY="329.0" prefWidth="144.0" text="Сохранить пароль" textFill="#dadada" unCheckedColor="#909090" />
+             <JFXComboBox id="authOptions" fx:id="authOptions" focusColor="#909090" layoutX="35.0" layoutY="251.0" promptText="Метод авторизации" styleClass="combologin" unFocusColor="#dadada" />
+            <Hyperlink id="link" fx:id="link" layoutX="98.0" layoutY="408.0" prefHeight="19.0" prefWidth="81.0" textAlignment="CENTER" />
+         </children>
+      </Pane>
+      <JFXMasonryPane fx:id="news" prefHeight="425.0" prefWidth="423.0" styleClass="news" />
+      <Pane fx:id="bar" layoutX="692.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
+         <children>
+                     <JFXButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" ripplerFill="#646464" text="" textAlignment="CENTER">
+                         <graphic>
+                             <MaterialDesignIconView fill="WHITE" glyphName="MINUS" size="30" textAlignment="CENTER" />
+                         </graphic>
+                     </JFXButton>
+                     <JFXButton id="close" alignment="CENTER" contentDisplay="CENTER" ripplerFill="#fb8c8c" text="" textAlignment="CENTER">
+                         <graphic>
+                             <MaterialDesignIconView fill="WHITE" glyphName="CLOSE" size="30" textAlignment="CENTER" />
+                         </graphic>
+                     </JFXButton>
+                     <JFXButton id="discord" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" ripplerFill="#646464" text="" textAlignment="CENTER">
+                         <graphic>
+                             <MaterialDesignIconView fill="WHITE" glyphName="MESSAGE_TEXT" size="30" textAlignment="CENTER" />
+                         </graphic>
+                     </JFXButton>
+                 </children>
+            </Pane>
+             <Pane id="mask" opacity="0.0" prefHeight="425.0" prefWidth="694.0" visible="false" />
+        </children>
+  <stylesheets>
+    <URL value="@../../styles.css" />
+  </stylesheets>
+</Pane>

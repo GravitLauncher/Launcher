@@ -1,26 +1,34 @@
 package ru.gravit.launcher.guard;
 
-import ru.gravit.launcher.client.ClientLauncher;
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.LauncherConfig;
 
 import java.nio.file.Path;
 
 public class LauncherGuardManager {
     public static LauncherGuardInterface guard;
-    public static void initGuard(boolean clientInstance)
-    {
-        if(ClientLauncher.isUsingWrapper())
+
+    public static void initGuard(boolean clientInstance) {
+        LauncherConfig config = Launcher.getConfig();
+        switch (config.guardType)
         {
-            guard = new LauncherWrapperGuard();
+            case "wrapper":
+            {
+                guard = new LauncherWrapperGuard();
+            }
+            case "java":
+            {
+                guard = new LauncherJavaGuard();
+            }
+            default:
+            {
+                guard = new LauncherNoGuard();
+            }
         }
-        else if(ClientLauncher.isDownloadJava())
-        {
-            guard = new LauncherJavaGuard();
-        }
-        else guard = new LauncherNoGuard();
         guard.init(clientInstance);
     }
-    public static Path getGuardJavaBinPath()
-    {
+
+    public static Path getGuardJavaBinPath() {
         return guard.getJavaBinPath();
     }
 }

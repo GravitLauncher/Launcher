@@ -1,141 +1,145 @@
 def mainClassName = "ru.gravit.launchserver.LaunchServer"
 def mainAgentName = "ru.gravit.launchserver.StarterAgent"
 
+evaluationDependsOn(':Launcher')
+
 repositories {
-	maven {
-		url "https://oss.sonatype.org/content/repositories/snapshots"
-	}
-	maven {
-		url "http://maven.geomajas.org/"
-	}
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+    maven {
+        url "http://maven.geomajas.org/"
+    }
 }
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 configurations {
-	compileOnlyA
-	bundleOnly
-	bundle
-	hikari
-	pack
-	launch4j
-	launch4jCJ
-	bundleOnly.extendsFrom bundle
-	compile.extendsFrom bundle, hikari, pack, launch4jCJ, launch4j
+    compileOnlyA
+    bundleOnly
+    bundle
+    hikari
+    pack
+    launch4j
+    launch4jCJ
+    bundleOnly.extendsFrom bundle
+    compile.extendsFrom bundle, hikari, pack, launch4jCJ, launch4j
 }
 
 jar {
-	dependsOn parent.childProjects.Launcher.tasks.build
-	from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
-	from(parent.childProjects.Launcher.tasks.jar.archivePath, parent.childProjects.Launcher.tasks.genRuntimeJS.archivePath)
-	manifest.attributes("Main-Class": mainClassName,
-		"Premain-Class": mainAgentName,
-		"Can-Redefine-Classes": "true",
-		"Can-Retransform-Classes": "true",
-		"Can-Set-Native-Method-Prefix": "true"
-	)
+    dependsOn parent.childProjects.Launcher.tasks.build
+    from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
+    from(parent.childProjects.Launcher.tasks.shadowJar.archivePath)
+    from(parent.childProjects.Launcher.tasks.genRuntimeJS.archivePath)
+    manifest.attributes("Main-Class": mainClassName,
+            "Premain-Class": mainAgentName,
+            "Can-Redefine-Classes": "true",
+            "Can-Retransform-Classes": "true",
+            "Can-Set-Native-Method-Prefix": "true"
+    )
 }
 
 dependencies {
-	pack project(':libLauncher')
-	bundle project(':Radon')
-	bundle 'mysql:mysql-connector-java:8.0.13'
-	bundle 'jline:jline:2.14.6'
-	bundle 'net.sf.proguard:proguard-base:6.0.3'
-	bundle 'org.fusesource.jansi:jansi:1.17.1'
-	bundle 'commons-io:commons-io:2.6'
-	bundle 'commons-codec:commons-codec:1.11'
-	bundle 'org.javassist:javassist:3.24.1-GA'
-	bundle 'io.netty:netty-all:4.1.32.Final'
+    pack project(':libLauncher')
+    bundle project(':Radon')
+    bundle 'mysql:mysql-connector-java:8.0.13'
+    bundle 'jline:jline:2.14.6'
+    bundle 'net.sf.proguard:proguard-base:6.0.3'
+    bundle 'org.fusesource.jansi:jansi:1.17.1'
+    bundle 'commons-io:commons-io:2.6'
+    bundle 'commons-codec:commons-codec:1.11'
+    bundle 'org.javassist:javassist:3.24.1-GA'
+    bundle 'io.netty:netty-all:4.1.32.Final'
 
-	bundle 'org.slf4j:slf4j-simple:1.7.25'
-	bundle 'org.slf4j:slf4j-api:1.7.25'
+    bundle 'org.slf4j:slf4j-simple:1.7.25'
+    bundle 'org.slf4j:slf4j-api:1.7.25'
 
-	hikari 'io.micrometer:micrometer-core:1.0.6'
-	hikari('com.zaxxer:HikariCP:3.2.0') {
-		exclude group: 'javassist'
-		exclude group: 'io.micrometer'
-		exclude group: 'org.slf4j'
-	}
+    hikari 'io.micrometer:micrometer-core:1.0.6'
+    hikari('com.zaxxer:HikariCP:3.2.0') {
+        exclude group: 'javassist'
+        exclude group: 'io.micrometer'
+        exclude group: 'org.slf4j'
+    }
 
-	launch4j('net.sf.launch4j:launch4j:3.12') {
-		exclude group: 'org.apache.ant'
-		exclude group: 'net.java.abeille'
-		exclude group: 'foxtrot'
-		exclude group: 'com.jgoodies'
-	}
+    launch4j('net.sf.launch4j:launch4j:3.12') {
+        exclude group: 'org.apache.ant'
+        exclude group: 'net.java.abeille'
+        exclude group: 'foxtrot'
+        exclude group: 'com.jgoodies'
+    }
 
-	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-win32') {
-		exclude group: '*'
-	}
+    launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-win32') {
+        exclude group: '*'
+    }
 
-	launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-linux') {
-		exclude group: '*'
-	}
+    launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-linux') {
+        exclude group: '*'
+    }
 
-	compileOnlyA 'com.google.guava:guava:26.0-jre'
+    compileOnlyA 'com.google.guava:guava:26.0-jre'
+	compileOnlyA 'log4j:log4j:1.2.17' // Do not update (laggy dep).
 	compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
 }
 
 task hikari(type: Copy) {
-	into "$buildDir/libs/libraries/hikaricp"
-	from configurations.hikari
+    into "$buildDir/libs/libraries/hikaricp"
+    from configurations.hikari
 }
 
 task launch4jM(type: Copy) {
-	into "$buildDir/libs/libraries/launch4j"
-	from(configurations.launch4jCJ.collect { it.isDirectory() ? it : zipTree(it) })
-	includeEmptyDirs false
-	eachFile { FileCopyDetails fcp ->
-		if (fcp.relativePath.pathString.startsWith("launch4j-")) {
-			def segments = fcp.relativePath.segments
-			def pathSegments = segments[1..-1] as String[]
-			fcp.relativePath = new RelativePath(!fcp.file.isDirectory(), pathSegments)
-			fcp.mode = 0755
-		} else {
-			fcp.exclude()
-		}
-	}
+    into "$buildDir/libs/libraries/launch4j"
+    from(configurations.launch4jCJ.collect { it.isDirectory() ? it : zipTree(it) })
+    includeEmptyDirs false
+    eachFile { FileCopyDetails fcp ->
+        if (fcp.relativePath.pathString.startsWith("launch4j-")) {
+            def segments = fcp.relativePath.segments
+            def pathSegments = segments[1..-1] as String[]
+            fcp.relativePath = new RelativePath(!fcp.file.isDirectory(), pathSegments)
+            fcp.mode = 0755
+        } else {
+            fcp.exclude()
+        }
+    }
 }
 
 task launch4jA(type: Copy) {
-	into "$buildDir/libs/libraries/launch4j"
-	from(configurations.launch4j)
-	includeEmptyDirs false
-	eachFile { FileCopyDetails fcp ->
-		if (fcp.name.startsWith("launch4j")) {
-			fcp.name = "launch4j.jar"
-		}
-		fcp.mode = 0755
-	}	
+    into "$buildDir/libs/libraries/launch4j"
+    from(configurations.launch4j)
+    includeEmptyDirs false
+    eachFile { FileCopyDetails fcp ->
+        if (fcp.name.startsWith("launch4j")) {
+            fcp.name = "launch4j.jar"
+        }
+        fcp.mode = 0755
+    }
 }
 
 task dumpLibs(type: Copy) {
-	dependsOn tasks.hikari, tasks.launch4jM, tasks.launch4jA
-	into "$buildDir/libs/libraries"
-	from configurations.bundleOnly
+    dependsOn tasks.hikari, tasks.launch4jM, tasks.launch4jA
+    into "$buildDir/libs/libraries"
+    from configurations.bundleOnly
 }
 
 task dumpCompileOnlyLibs(type: Copy) {
-	into "$buildDir/libs/launcher-libraries-compile"
-	from configurations.compileOnlyA
+    into "$buildDir/libs/launcher-libraries-compile"
+    from configurations.compileOnlyA
 }
 
 task bundle(type: Zip) {
-	dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.jar
-	archiveName 'LaunchServer.zip'
-	destinationDir file("$buildDir")
-	from(tasks.dumpLibs.destinationDir) { into 'libraries' }
-	from(tasks.dumpCompileOnlyLibs.destinationDir) { into 'launcher-libraries-compile' }
-	from tasks.jar.archivePath
-	from(parent.childProjects.Launcher.tasks.dumpLibs) { into 'launcher-libraries' }
+    dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.jar
+    archiveName 'LaunchServer.zip'
+    destinationDir file("$buildDir")
+    from(tasks.dumpLibs.destinationDir) { into 'libraries' }
+    from(tasks.dumpCompileOnlyLibs.destinationDir) { into 'launcher-libraries-compile' }
+    from tasks.jar.archivePath
+    from(parent.childProjects.Launcher.tasks.dumpLibs) { into 'launcher-libraries' }
 }
 
 task dumpClientLibs(type: Copy) {
-	dependsOn parent.childProjects.Launcher.tasks.build
-	into "$buildDir/libs/launcher-libraries"
-	from parent.childProjects.Launcher.tasks.dumpLibs.destinationDir
+    dependsOn parent.childProjects.Launcher.tasks.build
+    into "$buildDir/libs/launcher-libraries"
+    from parent.childProjects.Launcher.tasks.dumpLibs.destinationDir
 }
 
 build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle

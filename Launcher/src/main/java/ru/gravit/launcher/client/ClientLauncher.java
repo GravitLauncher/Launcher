@@ -1,16 +1,16 @@
 package ru.gravit.launcher.client;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.*;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.auth.RestoreSessionRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
@@ -34,11 +34,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
-import java.util.Timer;
-import java.util.concurrent.TimeUnit;
 
 public final class ClientLauncher {
-    private static Gson gson = new Gson();
 
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
         private final Collection<Path> result;
@@ -77,14 +74,12 @@ public final class ClientLauncher {
         public final int width;
         @LauncherAPI
         public final int height;
-        private final byte[] launcherDigest;
         @LauncherAPI
         public final long session;
 
         @LauncherAPI
         public Params(byte[] launcherDigest, Path assetDir, Path clientDir, PlayerProfile pp, String accessToken,
                       boolean autoEnter, boolean fullScreen, int ram, int width, int height) {
-            this.launcherDigest = launcherDigest.clone();
             // Client paths
             this.assetDir = assetDir;
             this.clientDir = clientDir;
@@ -101,7 +96,6 @@ public final class ClientLauncher {
 
         @LauncherAPI
         public Params(HInput input) throws Exception {
-            launcherDigest = input.readByteArray(0);
             session = input.readLong();
             // Client paths
             assetDir = IOHelper.toPath(input.readString(0));
@@ -120,7 +114,6 @@ public final class ClientLauncher {
 
         @Override
         public void write(HOutput output) throws IOException {
-            output.writeByteArray(launcherDigest, 0);
             output.writeLong(session);
             // Client paths
             output.writeString(assetDir.toString(), 0);
@@ -143,8 +136,6 @@ public final class ClientLauncher {
     private static final String SOCKET_HOST = "127.0.0.1";
     private static final int SOCKET_PORT = Launcher.getConfig().clientPort;
     private static final String MAGICAL_INTEL_OPTION = "-XX:HeapDumpPath=ThisTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
-    private static final boolean isUsingWrapper = Launcher.getConfig().isUsingWrapper;
-    private static final boolean isDownloadJava = Launcher.getConfig().isDownloadJava;
 
     private static Path JavaBinPath;
     @SuppressWarnings("unused")
@@ -167,10 +158,6 @@ public final class ClientLauncher {
         String[] cloakURL;
         @LauncherAPI
         String[] cloakDigest;
-    }
-
-    public static boolean isDownloadJava() {
-        return isDownloadJava;
     }
 
     public static Path getJavaBinPath() {
@@ -200,7 +187,7 @@ public final class ClientLauncher {
                     properties.cloakURL = new String[]{pp.cloak.url};
                     properties.cloakDigest = new String[]{SecurityHelper.toHex(pp.cloak.digest)};
                 }
-                Collections.addAll(args, "--userProperties", ClientLauncher.gson.toJson(properties));
+                Collections.addAll(args, "--userProperties", Launcher.gsonManager.gson.toJson(properties));
 
                 // Add asset index
                 Collections.addAll(args, "--assetIndex", profile.getAssetIndex());
@@ -269,11 +256,6 @@ public final class ClientLauncher {
         return Launcher.LAUNCHED.get();
     }
 
-
-    public static boolean isUsingWrapper() {
-        return JVMHelper.OS_TYPE == OS.MUSTDIE && isUsingWrapper;
-    }
-
     private static void launch(ClientProfile profile, Params params) throws Throwable {
         // Add client args
         Collection<String> args = new LinkedList<>();
@@ -301,12 +283,10 @@ public final class ClientLauncher {
     public static Process launch(
             HashedDir assetHDir, HashedDir clientHDir,
             ClientProfile profile, Params params, boolean pipeOutput) throws Throwable {
-        // Write params file (instead of CLI; Mustdie32 API can't handle command line > 32767 chars)
         LogHelper.debug("Writing ClientLauncher params");
         ClientLauncherContext context = new ClientLauncherContext();
         clientStarted = false;
-        if(writeParamsThread != null && writeParamsThread.isAlive())
-        {
+        if (writeParamsThread != null && writeParamsThread.isAlive()) {
             writeParamsThread.interrupt();
         }
         writeParamsThread = CommonHelper.newThread("Client params writter", true, () ->
@@ -329,7 +309,7 @@ public final class ClientLauncher {
                     }
                     try (HOutput output = new HOutput(client.getOutputStream())) {
                         params.write(output);
-                        output.writeString(Launcher.gson.toJson(profile), 0);
+                        output.writeString(Launcher.gsonManager.gson.toJson(profile), 0);
                         assetHDir.write(output);
                         clientHDir.write(output);
                     }
@@ -368,6 +348,7 @@ public final class ClientLauncher {
         // Add classpath and main class
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         context.pathLauncher = pathLauncher;
+        Collections.addAll(context.args, ClientLauncherWrapper.MAGIC_ARG);
         Collections.addAll(context.args, profile.getJvmArgs());
         profile.pushOptionalJvmArgs(context.args);
         Collections.addAll(context.args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
@@ -394,24 +375,20 @@ public final class ClientLauncher {
         }
         // Let's rock!
         process = builder.start();
-        if(!LogHelper.isDebugEnabled()) {
-            for(int i=0;i<50;++i)
-            {
-                if(!process.isAlive())
-                {
+        if (!pipeOutput) {
+            for (int i = 0; i < 50; ++i) {
+                if (!process.isAlive()) {
                     int exitCode = process.exitValue();
                     LogHelper.error("Process exit code %d", exitCode);
-                    if(writeParamsThread != null && writeParamsThread.isAlive()) writeParamsThread.interrupt();
+                    if (writeParamsThread != null && writeParamsThread.isAlive()) writeParamsThread.interrupt();
                     break;
                 }
-                if(clientStarted)
-                {
+                if (clientStarted) {
                     break;
                 }
                 Thread.sleep(200);
             }
-            if(!clientStarted)
-            {
+            if (!clientStarted) {
                 LogHelper.error("Write Client Params not successful. Using debug mode for more information");
             }
         }
@@ -434,7 +411,6 @@ public final class ClientLauncher {
         engine.runtimeProvider.init(true);
         engine.runtimeProvider.preLoad();
         LauncherGuardManager.initGuard(true);
-        // Read and delete params file
         LogHelper.debug("Reading ClientLauncher params");
         Params params;
         ClientProfile profile;
@@ -444,9 +420,7 @@ public final class ClientLauncher {
                 socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                 try (HInput input = new HInput(socket.getInputStream())) {
                     params = new Params(input);
-                    profile = gson.fromJson(input.readString(0), ClientProfile.class);
-
-                    // Read hdirs
+                    profile = Launcher.gsonManager.gson.fromJson(input.readString(0), ClientProfile.class);
                     assetHDir = new HashedDir(input);
                     clientHDir = new HashedDir(input);
                 }
@@ -462,8 +436,6 @@ public final class ClientLauncher {
         Launcher.modulesManager.initModules();
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        //TODO: GO TO DIGEST
-        //SecurityHelper.verifySign(LegacyLauncherRequest.BINARY_PATH, params.launcherDigest, publicKey);
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
         for (Path classpathURL : classPath) {
             LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
@@ -481,6 +453,25 @@ public final class ClientLauncher {
         PublicURLClassLoader.systemclassloader = classLoader;
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
+        LogHelper.debug("Restore sessions");
+        RestoreSessionRequest request = new RestoreSessionRequest(Request.getSession());
+        request.request();
+        Request.service.reconnectCallback = () ->
+        {
+            LogHelper.debug("WebSocket connect closed. Try reconnect");
+            try {
+                if (!Request.service.reconnectBlocking()) LogHelper.error("Error connecting");
+                LogHelper.debug("Connect to %s", Launcher.getConfig().address);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                RestoreSessionRequest request1 = new RestoreSessionRequest(Request.getSession());
+                request1.request();
+            } catch (Exception e) {
+                LogHelper.error(e);
+            }
+        };
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
@@ -492,7 +483,7 @@ public final class ClientLauncher {
             //    if (params.updateOptional.contains(s)) s.mark = true;
             //    else hdir.removeR(s.file);
             //}
-            Launcher.profile.pushOptionalFile(clientHDir,false);
+            Launcher.profile.pushOptionalFile(clientHDir, false);
             Launcher.modulesManager.postInitModules();
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
@@ -530,9 +521,8 @@ public final class ClientLauncher {
     }
 
     public static void initGson() {
-        if (Launcher.gson != null) return;
-        Launcher.gsonBuilder = new GsonBuilder();
-        Launcher.gson = Launcher.gsonBuilder.create();
+        Launcher.gsonManager = new ClientGsonManager();
+        Launcher.gsonManager.initGson();
     }
 
     @LauncherAPI

@@ -338,6 +338,7 @@ public final class IOHelper {
     public static InputStream newInput(Path file) throws IOException {
         return Files.newInputStream(file, READ_OPTIONS);
     }
+
     @LauncherAPI
     public static InputStream newBufferedInput(Path file) throws IOException {
         return new BufferedInputStream(Files.newInputStream(file, READ_OPTIONS));
@@ -347,6 +348,7 @@ public final class IOHelper {
     public static InputStream newInput(URL url) throws IOException {
         return newConnection(url).getInputStream();
     }
+
     @LauncherAPI
     public static BufferedInputStream newBufferedInput(URL url) throws IOException {
         return new BufferedInputStream(newConnection(url).getInputStream());
@@ -576,16 +578,13 @@ public final class IOHelper {
     @LauncherAPI
     public static void setSocketFlags(Socket socket) throws SocketException {
         // Set socket flags
-        socket.setKeepAlive(false); // TODO To socket channels
+        socket.setKeepAlive(false);
         socket.setTcpNoDelay(false);
         socket.setReuseAddress(true);
 
         // Set socket options
         socket.setSoTimeout(SOCKET_TIMEOUT);
         socket.setTrafficClass(0b11100);
-        // Allow OS to adjust buffer sizes
-        // socket.setSendBufferSize(0x100000);
-        // socket.setReceiveBufferSize(0x100000);
         socket.setPerformancePreferences(1, 0, 2);
     }
 

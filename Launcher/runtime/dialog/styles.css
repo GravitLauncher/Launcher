@@ -1,0 +1,304 @@
+/*-- DrLeonardo Design --*/
+Button, CheckBox, ComboBox, RadioButton {
+	-fx-cursor: hand;
+}
+
+/* Backgrounds */
+#layout {
+    -fx-background-color: transparent;
+    -fx-background-size: cover;
+    -fx-pref-width: 738px;
+    -fx-pref-height: 425px;
+    -fx-background-image: url('images/background.jpg');
+}
+#background {
+    -fx-background-color: #fff;
+}
+/** Labels **/
+#background > #settingsTitle {
+    -fx-font-size: 14pt;
+    -fx-alignment: baseline-center;
+}
+
+#serverLabel{
+    -fx-text-fill: #323232;
+    -fx-padding: 0 0 0 14;
+    -fx-pref-width: 265px;
+    -fx-pref-height: 25px;
+}
+
+#serverStatus{
+    -fx-text-fill: #323232;
+    -fx-pref-width: 120px;
+    -fx-pref-height: 25px;
+}
+
+/* Mask */
+#mask {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-pref-width: 692px;
+    -fx-pref-height: 425px;
+}
+
+/** Errors **/
+#errormessage{
+    -fx-background-color: transparent;
+    -fx-text-alignment: center;
+    -fx-text-fill: #CE5757;
+}
+
+.error{
+    -fx-text-fill: #CE5757;
+}
+
+/* bars */
+#bar {
+    -fx-background-color: #323232;
+    -fx-pref-width: 46px;
+    -fx-pref-height: 425px;
+}
+/** buttons in bar **/
+#close {
+    -fx-background-position: center;
+    -jfx-button-type: FLAT;
+    -fx-background-radius: 0;
+    -fx-background-color: #CE5757;
+    -fx-pref-width: 46px;
+    -fx-pref-height: 45px;
+}
+#hide, #back, #goConsole, #settings, #logout, #discord {
+    -fx-background-position: center;
+    -jfx-button-type: FLAT;
+    -fx-background-radius: 0;
+    -fx-pref-width: 46px;
+    -fx-pref-height: 45px;
+}
+
+#send {
+    -fx-background-radius: 0;
+    -fx-text-fill: black;
+    -fx-background-position: center;
+    -jfx-button-type: FLAT;
+    -fx-background-color: #ffffff;
+    -fx-pref-width: 150px;
+    -fx-pref-height: 30px;
+}
+
+#send:pressed { -fx-background-color: #d8d8d8; }
+
+/* LoginMenu */
+#authPane {
+    -fx-background-color: rgba(255, 255, 255, 0.71);
+    -fx-pref-width: 270px;
+    -fx-pref-height: 425px;
+}
+
+#logo {
+    -fx-background-image: url('images/icons/logo.png');
+    -fx-background-repeat: no-repeat;
+    -fx-pref-width: 125px;
+    -fx-pref-height: 32px;
+}
+
+/** Buttons & textarea**/
+.auth {
+    -jfx-button-type: FLAT;
+    -fx-font-weight: bold;
+    -fx-font-size: 13pt;
+    -fx-background-radius: 0;
+    -fx-background-color: #61B373;
+    -fx-text-fill: #ffffff;
+    -fx-pref-width: 240px;
+    -fx-pref-height: 45px;
+}
+
+.auth:hover, .auth:pressed { -fx-background-color: #74C085; }
+
+#password, #login {
+    -fx-background-radius: 0;
+    -fx-pref-width: 200px;
+    -fx-pref-height: 30px;
+}
+
+.text-input{
+    -fx-focus-color: transparent;
+    -fx-background-repeat: no-repeat;
+    -fx-text-fill: #909090;
+    -fx-prompt-text-fill: #909090;
+    -fx-background-color: transparent;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/** Hyperlink **/
+#link {
+    -fx-font-weight: bold;
+    -fx-font-size: 7pt;
+    -fx-opacity: 0.5;
+    -fx-text-fill: #323232;
+    -fx-pref-width: 80px;
+    -fx-pref-height: 17px;
+}
+
+#link:hover, #link:pressed { -fx-opacity: 0.8; }
+
+/** CheckBox & ComboBox**/
+#rememberchb{
+    -fx-font-size: 13;
+    -fx-text-fill: #909090;
+    -fx-pref-width: 145px;
+    -fx-pref-height: 30px;
+}
+#combologin {
+    -fx-text-fill: #909090;
+    -fx-pref-width: 200px;
+    -fx-pref-height: 30px;
+}
+
+/** web**/
+#news {
+    -fx-background-color: transparent;
+    -fx-pref-width: 423px;
+    -fx-pref-height: 425px;
+}
+
+/* MenuPane */
+.serverentrance {
+    -fx-background-color: rgba(255, 255, 255, 0.71);
+    -fx-pref-width: 386px;
+    -fx-pref-height: 425px;
+}
+
+/** buttons **/
+.clientLaunch{
+    -jfx-button-type: FLAT;
+    -fx-font-weight: bold;
+    -fx-font-size: 18pt;
+    -fx-background-radius: 0;
+    -fx-background-color: #61B373;
+    -fx-text-fill: #ffffff;
+    -fx-pref-width: 260px;
+    -fx-pref-height: 45px;
+}
+.clientSettings{
+    -fx-background-position: center;
+    -jfx-button-type: FLAT;
+    -fx-background-color: #61B373;
+    -fx-background-radius: 0;
+    -fx-pref-width: 85px;
+    -fx-pref-height: 51px;
+}
+
+.clientLaunch:hover, .clientLaunch:pressed { -fx-background-color: #74C085; }
+
+/* Pressets options */
+.pressetLight, .pressetMedium, .pressetHigh {
+    -jfx-toggle-color: #61B373;
+    -jfx-untoggle-color: #FAFAFA;
+    -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
+    -jfx-untoggle-line-color: #999999;
+    -jfx-size: 10.0;
+    -jfx-disable-visual-focus: false;
+}
+
+/* Scrolls */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal,
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.increment-button,
+.decrement-button,
+.increment-arrow,
+.decrement-arrow {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(0, 0, 0, 0.19);
+    -fx-background-radius: 0;
+}
+
+.scroll-bar {
+    -fx-font-size: 6px;
+}
+
+.scroll-pane>.corner {
+    -fx-background-color: rgba(0, 0, 0, 0.19);
+}
+
+/* OptionsPane */
+#optionsPane > #modlist {
+    -fx-background-color: transparent;
+
+}
+
+#optionsPane > #modlist > .viewport {
+    -fx-background-color: transparent;
+}
+
+.description-text {
+    -fx-font-smoothing-type: lcd;
+    -fx-fill: #8c8c8c;
+    -fx-font-size: 12px;
+}
+
+.lineHead {
+    -fx-stroke: #d8d8d8;
+    -fx-stroke-width: 10;
+}
+
+.separator *.line {
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 10 0;
+}
+
+#serverlist{
+    -fx-background-color: transparent;
+}
+#serverlist > .viewport {
+    -fx-background-color: transparent;
+}
+
+#serverdesc{
+    -fx-background-color: transparent;
+}
+#serverdesc > .viewport {
+    -fx-background-color: transparent;
+}
+
+#serverinfo{
+    -fx-background-color: transparent;
+}
+#serverinfo > .viewport {
+    -fx-background-color: transparent;
+}
+
+#servercontainer{
+    -fx-background-color: transparent;
+    -jfx-button-type: FLAT;
+    -fx-pref-width: 282px;
+    -fx-pref-height: 75px;
+}
+
+.toggle-button:disabled{
+    -fx-opacity: 1.0;
+}
+
+.heading{
+    -fx-text-fill: #555555;
+}
+/*-- DrLeonardo Design --*/

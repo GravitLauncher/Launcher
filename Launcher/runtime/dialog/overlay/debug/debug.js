@@ -4,22 +4,18 @@ var debug = {
     initOverlay: function() {
         debug.overlay = loadFXML("dialog/overlay/debug/debug.fxml");
 
-        // Lookup output
         debug.output = debug.overlay.lookup("#output");
         debug.output.setEditable(false);
 
-        // Lookup copy button
         debug.copy = debug.overlay.lookup("#copy");
         debug.copy.setOnAction(function(event) {
             var content = new javafx.scene.input.ClipboardContent();
             content.putString(debug.output.getText());
 
-            // Set clipboard content
             javafx.scene.input.Clipboard.getSystemClipboard().
                 setContent(content);
         });
 
-        /// Lookup action button
         debug.action = debug.overlay.lookup("#action");
         debug.action.setOnAction(function(event) {
             var process = debug.process;
@@ -29,7 +25,6 @@ var debug = {
                 return;
             }
 
-            // Hide overlay
             overlay.hide(0, null);
         });
     },
@@ -42,6 +37,11 @@ var debug = {
     },
 
     append: function(text) {
+        //Experimental Feature
+        if(debug.output.getText().length() > 32000 /* Max length */)
+        {
+            debug.output.deleteText(0, text.length());
+        }
         debug.output.appendText(text);
     },
 
@@ -50,12 +50,10 @@ var debug = {
         var alive = !forceClose &&
             process !== null && process.isAlive();
 
-        // Decide what we update to
         var text = alive ? "Убить" : "Закрыть";
         var addClass = alive ? "kill" : "close";
         var removeClass = alive ? "close" : "kill";
 
-        // Update button
         debug.action.setText(text);
         debug.action.getStyleClass().remove(removeClass);
         debug.action.getStyleClass().add(addClass);
@@ -67,7 +65,6 @@ function debugProcess(process) {
     debug.process = process;
     debug.updateActionButton(false);
 
-    // Create new task
     var task = newTask(function() {
         var buffer = IOHelper.newCharBuffer();
         var reader = IOHelper.newReader(process.getInputStream(),
@@ -78,11 +75,9 @@ function debugProcess(process) {
             appendFunction(new java.lang.String(buffer, 0, length));
         }
 
-        // So we wait for exit code
         return process.waitFor();
     });
 
-    // Set completion handlers
     task.setOnFailed(function(event) {
         debug.updateActionButton(true);
         debug.append(java.lang.System.lineSeparator() + task.getException());
@@ -92,6 +87,5 @@ function debugProcess(process) {
         debug.append(java.lang.System.lineSeparator() + "Exit code " + task.getValue());
     });
 
-    // Gogogo
     startTask(task);
 }

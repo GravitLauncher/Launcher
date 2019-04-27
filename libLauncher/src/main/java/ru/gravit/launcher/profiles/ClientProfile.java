@@ -258,6 +258,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         file.mark = false;
         if (file.dependenciesCount != null) {
             for (OptionalFile f : file.dependenciesCount) {
+                if(f.isPreset) continue;
                 unmarkOptional(f);
             }
             file.dependenciesCount.clear();
@@ -286,33 +287,32 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    public void pushOptionalJvmArgs(Collection<String> jvmArgs1)
-    {
+    public void pushOptionalJvmArgs(Collection<String> jvmArgs1) {
         for (OptionalFile opt : updateOptional) {
             if (opt.type.equals(OptionalType.JVMARGS) && opt.mark) {
                 jvmArgs1.addAll(Arrays.asList(opt.list));
             }
         }
     }
-    public void pushOptionalClientArgs(Collection<String> clientArgs1)
-    {
+
+    public void pushOptionalClientArgs(Collection<String> clientArgs1) {
         for (OptionalFile opt : updateOptional) {
             if (opt.type.equals(OptionalType.CLIENTARGS) && opt.mark) {
                 clientArgs1.addAll(Arrays.asList(opt.list));
             }
         }
     }
-    public void pushOptionalClassPath(pushOptionalClassPathCallback callback) throws IOException
-    {
+
+    public void pushOptionalClassPath(pushOptionalClassPathCallback callback) throws IOException {
         for (OptionalFile opt : updateOptional) {
             if (opt.type.equals(OptionalType.CLASSPATH) && opt.mark) {
                 callback.run(opt.list);
             }
         }
     }
+
     @FunctionalInterface
-    public interface pushOptionalClassPathCallback
-    {
+    public interface pushOptionalClassPathCallback {
         void run(String[] opt) throws IOException;
     }
 
@@ -391,23 +391,19 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
         // Client launcher
         VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Main class can't be empty");
-        for(String s : classPath)
-        {
-            if(s == null) throw new IllegalArgumentException("Found null entry in classPath");
+        for (String s : classPath) {
+            if (s == null) throw new IllegalArgumentException("Found null entry in classPath");
         }
-        for(String s : jvmArgs)
-        {
-            if(s == null) throw new IllegalArgumentException("Found null entry in jvmArgs");
+        for (String s : jvmArgs) {
+            if (s == null) throw new IllegalArgumentException("Found null entry in jvmArgs");
         }
-        for(String s : clientArgs)
-        {
-            if(s == null) throw new IllegalArgumentException("Found null entry in clientArgs");
+        for (String s : clientArgs) {
+            if (s == null) throw new IllegalArgumentException("Found null entry in clientArgs");
         }
-        for(OptionalFile f : updateOptional)
-        {
-            if(f == null) throw new IllegalArgumentException("Found null entry in updateOptional");
-            if(f.name == null) throw new IllegalArgumentException("Optional: name must not be null");
-            if(f.list == null) throw new IllegalArgumentException("Optional: list must not be null");
+        for (OptionalFile f : updateOptional) {
+            if (f == null) throw new IllegalArgumentException("Found null entry in updateOptional");
+            if (f.name == null) throw new IllegalArgumentException("Optional: name must not be null");
+            if (f.list == null) throw new IllegalArgumentException("Optional: list must not be null");
         }
     }
 

@@ -60,8 +60,7 @@ public final class HTTPRequest {
             reader = new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8);
         try {
             return parser.parse(reader);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             return null;
         }
     }

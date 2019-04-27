@@ -1,84 +1,72 @@
-// Ининциализируем кучу всяких переменных
-var authPane, dimPane, serverPane;
-
-// Переменные от окна входа
-var loginField, passwordField, forgotButton, savePasswordBox, registerButton;
-
-// Переменные от основной менюшки
+var authPane, dimPane, serverPane, bar, consoleBar, optionsPane, consolePane;
+var loginField, passwordField, savePasswordBox, authOptions;
 var serverList, serverInfo, serverDescription, serverEntrance, serverLabel, serverStatus;
-var discord_url;
-
-// Прочие вспомогалки
-var profilesList = []; // Ассоциативный массив: "кнопка сервера" => "профиль сервера"
-var movePoint = null; // Координата, хранящая опроную точку при Drag'е
-var pingers = {}; // ддосеры серверов
-var loginData; // Буфер для данных авторизации
+var profilesList = [];
+var movePoint = null;
+var pingers = {};
+var loginData;
 
 function initLauncher() {
-	
-    // Инициализируем основы
     initLoginScene();
     initMenuScene();
+    initConsoleScene();
+    initOptionsScene();
 
-    // Инициализируем доп. менюшки
+    /* ======== init Overlays ======== */
     debug.initOverlay();
     processing.initOverlay();
     settingsOverlay.initOverlay();
     update.initOverlay();
-    options.initOverlay();
 
-    // Делаем запрос на проверку свежести лаунчера, ну и сервера заодно обновляем
     verifyLauncher();
 }
 
+/* ======== init Login window======== */
 function initLoginScene() {
     loginPane.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
     loginPane.setOnMouseDragged(function(event) {
         if(movePoint === null) {
             return;
         }
-
-        // Обновляем позицию панели
         stage.setX(event.getScreenX() - movePoint.getX());
         stage.setY(event.getScreenY() - movePoint.getY());
     });
-    loginPane.lookup("#exitbtn").setOnAction(function(event){ javafx.application.Platform.exit()});
-    loginPane.lookup("#hidebtn").setOnAction(function(event){ stage.setIconified(true)});
-    loginPane.lookup("#discord_url").setOnAction(function(){ openURL(config.discord_url); });
+
+    var pane = loginPane.lookup("#bar");
+    bar = pane;
+    loginPane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
+    loginPane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
+    loginPane.lookup("#discord").setOnAction(function(){ openURL(config.discord); });
 
     var pane = loginPane.lookup("#authPane");
     authPane = pane;
 
-    // Lookup login field
     loginField = pane.lookup("#login");
-	loginField.setOnMouseMoved(function(event){rootPane.fireEvent(event)}); 
+    loginField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
     loginField.setOnAction(goAuth);
     if (settings.login !== null) {
         loginField.setText(settings.login);
     }
 
-    // Lookup password field
     passwordField = pane.lookup("#password");
-	passwordField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
+    passwordField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
     passwordField.setOnAction(goAuth);
     if (settings.rsaPassword !== null) {
         passwordField.getStyleClass().add("hasSaved");
         passwordField.setPromptText("*** Сохранённый ***");
     }
-	
-    // Lookup save password box
+
     savePasswordBox = pane.lookup("#rememberchb");
     savePasswordBox.setSelected(settings.login === null || settings.rsaPassword !== null);
-	
-    // Lookup hyperlink text and actions
+
     var link = pane.lookup("#link");
     link.setText(config.linkText);
     link.setOnAction(function(event) app.getHostServices().showDocument(config.linkURL.toURI()));
-	
-    // Lookup action buttons
+
     pane.lookup("#goAuth").setOnAction(goAuth);
 }
 
+/* ======== init Menu window======== */
 function initMenuScene() {
     menuPane.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
     menuPane.setOnMouseDragged(function(event) {
@@ -86,71 +74,122 @@ function initMenuScene() {
             return;
         }
 
-        // Обновляем позицию панели
         stage.setX(event.getScreenX() - movePoint.getX());
         stage.setY(event.getScreenY() - movePoint.getY());
     });
-    menuPane.lookup("#exitbtn").setOnAction(function(event){ javafx.application.Platform.exit()});
-    menuPane.lookup("#hidebtn").setOnAction(function(event){ stage.setIconified(true)});
+
+    var pane = loginPane.lookup("#bar");
+    bar = pane;
+    menuPane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
+    menuPane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
+    menuPane.lookup("#discord").setOnAction(function(){ openURL(config.discord); });
+    menuPane.lookup("#settings").setOnAction(goSettings);
+    menuPane.lookup("#goConsole").setOnAction(goConsole);
+    menuPane.lookup("#logout").setOnAction(function(){
+        setCurrentScene(loginScene);
+    });
+
     var pane = menuPane.lookup("#serverPane");
     serverPane = pane;
 
-    menuPane.lookup("#discord_url").setOnAction(function(){ openURL(config.discord_url); });
-
-    pane.lookup("#settingsbtn").setOnAction(goSettings);
-    pane.lookup("#clientbtn").setOnAction(goOptions);
+    pane.lookup("#clientSettings").setOnAction(goOptions);
     serverList = pane.lookup("#serverlist").getContent();
     serverInfo = pane.lookup("#serverinfo").getContent();
     serverDescription = serverInfo.lookup("#serverDescription");
-
     serverEntrance = pane.lookup("#serverentrance");
     serverStatus = serverEntrance.lookup("#serverStatus");
     serverLabel = serverEntrance.lookup("#serverLabel");
-    serverEntrance.lookup("#serverLaunch").setOnAction(function(){
+    serverEntrance.lookup("#clientLaunch").setOnAction(function(){
         doUpdate(profilesList[serverHolder.old], loginData.pp, loginData.accessToken);
     });
 
-    pane.lookup("#logoutbtn").setOnAction(function(){
-        setCurrentScene(loginScene);
+}
+
+/* ======== init Console window======== */
+function initConsoleScene() {
+    consoleMenu.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    consoleMenu.setOnMouseDragged(function(event) {
+        if(movePoint === null) {
+            return;
+        }
+
+        consoleStage.setX(event.getScreenX() - movePoint.getX());
+        consoleStage.setY(event.getScreenY() - movePoint.getY());
+    });
+
+    var pane = consoleMenu.lookup("#bar");
+    consoleBar = pane;
+    pane.lookup("#close").setOnAction(function(){
+        consoleStage.hide();
+    });
+    var text = consoleMenu.lookup("#textField");
+    var output = consoleMenu.lookup("#output");
+    var appendFunction = function(line) javafx.application.Platform.runLater(function() output.appendText(line));
+    consoleMenu.lookup("#send").setOnAction(function(){
+        execCommand(text.getText());
+        text.setText("");
+    });
+    FunctionalBridge.addPlainOutput(function(string) {
+        appendFunction(string+"\n");
+    })
+    pane.lookup("#hide").setOnAction(function(event) { consoleStage.setIconified(true) });
+
+    var pane = consoleMenu.lookup("#consolePane");
+    consolePane = pane;
+
+}
+
+/* ======== init Options window======== */
+function initOptionsScene() {
+    optionsMenu.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    optionsMenu.setOnMouseDragged(function(event) {
+        if(movePoint === null) {
+            return;
+        }
+
+        stage.setX(event.getScreenX() - movePoint.getX());
+        stage.setY(event.getScreenY() - movePoint.getY());
+    });
+
+    var pane = optionsMenu.lookup("#bar");
+    bar = pane;
+    pane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
+    pane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
+    pane.lookup("#back").setOnAction(function(){
+        setCurrentScene(menuScene);
     });
 }
 
+/* ======== init Offline ======== */
 function initOffline() {
-    // Меняем заголовок(Хер его знает зачем, его всё равно нигде не видно...
     stage.setTitle(config.title + " [Offline]");
 
-    // Set login field as username field
     loginField.setPromptText("Имя пользователя");
     if (!VerifyHelper.isValidUsername(settings.login)) {
         loginField.setText(""); // Reset if not valid
     }
 
-
-    // Disable password field
     passwordField.setDisable(true);
     passwordField.setPromptText("Недоступно");
     passwordField.setText("");
 }
 
-/* ======== Handler functions ======== */
+/* ======== Auth ======== */
 function goAuth(event) {
-    // Verify there's no other overlays
     if (overlay.current !== null) {
         return;
-    } 
-
-    // Get login
-    var login = loginField.getText();
-    if (login.isEmpty()) {
-        return; // Maybe throw exception?)
     }
 
-    // Get password if online-mode
+    var login = loginField.getText();
+    if (login.isEmpty()) {
+        return;
+    }
+
     var rsaPassword = null;
     if (!passwordField.isDisable()) {
         var password = passwordField.getText();
         if (password !== null && !password.isEmpty()) {
-            rsaPassword = settings.setPassword(password);
+            rsaPassword = settingsOverlay.setPassword(password);
         } else if (settings.rsaPassword !== null) {
             rsaPassword = settings.rsaPassword;
         } else {
@@ -160,30 +199,29 @@ function goAuth(event) {
         settings.rsaPassword = savePasswordBox.isSelected() ? rsaPassword : null;
     }
 
-    // Show auth overlay
     settings.login = login;
     doAuth(login, rsaPassword);
 }
 
+/* ======== Console ======== */
+function goConsole(event) {
+    setConsoleCurrentScene(consoleScene);
+}
+
+/* ======== Settings ======== */
 function goSettings(event) {
-    // Verify there's no other overlays
     if (overlay.current !== null) {
         return;
     }
 
-    // Show settings overlay
     overlay.show(settingsOverlay.overlay, null);
 }
 
+/* ======== Options ======== */
 function goOptions(event) {
-    // Verify there's no other overlays
-    if (overlay.current !== null) {
-        return;
-    }
+    setCurrentScene(optionsScene);
 
-    // Show options overlay
     options.update();
-    overlay.show(options.overlay, null);
 }
 
 /* ======== Processing functions ======== */
@@ -192,20 +230,24 @@ function verifyLauncher(e) {
     overlay.show(processing.overlay, function(event) makeLauncherRequest(function(result) {
         settings.lastDigest = result.digest;
         processing.resetOverlay();
-        // Init offline if set
         if (settings.offline) {
-             initOffline();
+            initOffline();
         }
-        overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
-            settings.lastProfiles = result.profiles;
-            // Update profiles list and hide overlay
-            updateProfilesList(result.profiles);
-            options.load();
-            overlay.hide(0, function() {
-                  if (cliParams.autoLogin) {
-                      goAuth(null);
-                  }
-            });
+        overlay.swap(0, processing.overlay, function(event) makeAuthAvailabilityRequest(function(result) {
+            //@DrLeonardo нужно напистаь добавление в список
+            //result.list весь список
+            //result.list[0].name имя авторизации(не видно)
+            //result.list[0].displayName имя авторизации(видно)
+            overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
+                settings.lastProfiles = result.profiles;
+                updateProfilesList(result.profiles);
+                options.load();
+                overlay.hide(0, function() {
+                    if (cliParams.autoLogin) {
+                        goAuth(null);
+                    }
+                });
+            }));
         }));
     }));
 }
@@ -227,48 +269,45 @@ function doAuth(login, rsaPassword) {
 }
 
 function doUpdate(profile, pp, accessToken) {
-var digest = profile.isUpdateFastCheck();
+    var digest = profile.isUpdateFastCheck();
     overlay.swap(0, update.overlay, function(event) {
 
-            // Update asset dir
-            update.resetOverlay("Обновление файлов ресурсов");
-            var assetDirName = profile.getAssetDir();
-            var assetDir = settings.updatesDir.resolve(assetDirName);
-            var assetMatcher = profile.getAssetUpdateMatcher();
-            makeSetProfileRequest(profile, function() {
-                ClientLauncher.setProfile(profile);
-                makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
-                    settings.lastHDirs.put(assetDirName, assetHDir.hdir);
+        update.resetOverlay("Обновление файлов ресурсов");
+        var assetDirName = profile.getAssetDir();
+        var assetDir = settings.updatesDir.resolve(assetDirName);
+        var assetMatcher = profile.getAssetUpdateMatcher();
+        makeSetProfileRequest(profile, function() {
+            ClientLauncher.setProfile(profile);
+            makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
+                settings.putHDir(assetDirName, assetDir, assetHDir.hdir);
 
-                    // Update client dir
-                    update.resetOverlay("Обновление файлов клиента");
-                    var clientDirName = profile.getDir();
-                    var clientDir = settings.updatesDir.resolve(clientDirName);
-                    var clientMatcher = profile.getClientUpdateMatcher();
-                    makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
-                        settings.lastHDirs.put(clientDirName, clientHDir.hdir);
-                        doLaunchClient(assetDir, assetHDir.hdir, clientDir, clientHDir.hdir, profile, pp, accessToken);
-                    });
+                update.resetOverlay("Обновление файлов клиента");
+                var clientDirName = profile.getDir();
+                var clientDir = settings.updatesDir.resolve(clientDirName);
+                var clientMatcher = profile.getClientUpdateMatcher();
+                makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
+                    settings.putHDir(clientDirName, clientDir, clientHDir.hdir);
+                    doLaunchClient(assetDir, assetHDir.hdir, clientDir, clientHDir.hdir, profile, pp, accessToken);
                 });
             });
+        });
     });
 }
 
 function doLaunchClient(assetDir, assetHDir, clientDir, clientHDir, profile, pp, accessToken) {
     processing.resetOverlay();
     overlay.swap(0, processing.overlay, function(event)
-        launchClient(assetHDir, clientHDir, profile, new ClientLauncherParams(settings.lastDigest,
-            assetDir, clientDir, pp, accessToken, settings.autoEnter, settings.fullScreen, settings.ram, 0, 0), doDebugClient)
-    );
+    launchClient(assetHDir, clientHDir, profile, new ClientLauncherParams(settings.lastDigest,
+        assetDir, clientDir, pp, accessToken, settings.autoEnter, settings.fullScreen, settings.ram, 0, 0), doDebugClient)
+);
 }
 
 function doDebugClient(process) {
-    if (!LogHelper.isDebugEnabled()) {
+    if (!settings.debug) {
         javafx.application.Platform.exit();
         return;
     }
 
-    // Switch to debug overlay
     debug.resetOverlay();
     overlay.swap(0, debug.overlay, function(event) debugProcess(process));
 }
@@ -276,29 +315,34 @@ function doDebugClient(process) {
 /* ======== Server handler functions ======== */
 function updateProfilesList(profiles) {
     profilesList = [];
-    // Set profiles items
     serverList.getChildren().clear();
     var index = 0;
-    profiles.forEach(function (profile, i, arr) {
+    profiles.forEach(function(profile, i, arr) {
         pingers[profile] = new ServerPinger(profile.getServerSocketAddress(), profile.getVersion());
+
         var serverBtn = new javafx.scene.control.ToggleButton(profile);
-        (function () {
+
+        serverBtn.getStyleClass().add("server-button");
+        serverBtn.getStyleClass().add("server-button-" + profile);
+
+        (function() {
             profilesList[serverBtn] = profile;
             var hold = serverBtn;
             var hIndex = index;
-            serverBtn.setOnAction(function (event) {
+            serverBtn.setOnAction(function(event) {
                 serverHolder.set(hold);
                 settings.profile = hIndex;
             });
         })();
+
         serverList.getChildren().add(serverBtn);
-        if(profile.getOptional() != null) profile.updateOptionalGraph();
+        if (profile.getOptional() != null) profile.updateOptionalGraph();
         index++;
     });
     LogHelper.debug("Load selected %d profile",settings.profile);
     if(profiles.length > 0) {
-    	if(settings.profile >= profiles.length)
-    		settings.profile = profiles.length-1;
+        if(settings.profile >= profiles.length)
+            settings.profile = profiles.length-1;
         serverHolder.set(serverList.getChildren().get(settings.profile));
     }
 }
@@ -310,7 +354,7 @@ function pingServer(btn) {
     task.setOnSucceeded(function(event) {
         var result = task.getValue();
         if(btn==serverHolder.old){
-		setServerStatus(java.lang.String.format("%d из %d", result.onlinePlayers, result.maxPlayers));
+            setServerStatus(java.lang.String.format("%d из %d", result.onlinePlayers, result.maxPlayers));
         }
     });
     task.setOnFailed(function(event){ if(btn==serverHolder.old){setServerStatus("Недоступен")}});
@@ -328,7 +372,6 @@ function fade(region, delay, from, to, onFinished) {
         transition.setOnFinished(onFinished);
     }
 
-    // Launch transition
     transition.setDelay(javafx.util.Duration.millis(delay));
     transition.setFromValue(from);
     transition.setToValue(to);
@@ -339,24 +382,19 @@ var overlay = {
     current: null,
 
     show: function(newOverlay, onFinished) {
-        // Freeze root pane
         authPane.setDisable(true);
         overlay.current = newOverlay;
 
-        // Show dim pane
         dimPane.setVisible(true);
         dimPane.toFront();
 
-        // Fade dim pane
         fade(dimPane, 0.0, 0.0, 1.0, function(event) {
             dimPane.requestFocus();
             dimPane.getChildren().add(newOverlay);
 
-            // Fix overlay position
             newOverlay.setLayoutX((dimPane.getPrefWidth() - newOverlay.getPrefWidth()) / 2.0);
             newOverlay.setLayoutY((dimPane.getPrefHeight() - newOverlay.getPrefHeight()) / 2.0);
 
-            // Fade in
             fade(newOverlay, 0.0, 0.0, 1.0, onFinished);
         });
     },
@@ -367,11 +405,9 @@ var overlay = {
             fade(dimPane, 0.0, 1.0, 0.0, function(event) {
                 dimPane.setVisible(false);
 
-                // Unfreeze root pane
                 authPane.setDisable(false);
                 rootPane.requestFocus();
 
-                // Reset overlay state
                 overlay.current = null;
                 if (onFinished !== null) {
                     onFinished();
@@ -385,22 +421,19 @@ var overlay = {
         fade(overlay.current, delay, 1.0, 0.0, function(event) {
             dimPane.requestFocus();
 
-
             if(overlay.current==null){
                 overlay.show(newOverlay, onFinished);
                 return;
             }
-            // Hide old overlay
+
             if (overlay.current !== newOverlay) {
                 var child = dimPane.getChildren();
                 child.set(child.indexOf(overlay.current), newOverlay);
             }
 
-            // Fix overlay position
             newOverlay.setLayoutX((dimPane.getPrefWidth() - newOverlay.getPrefWidth()) / 2.0);
             newOverlay.setLayoutY((dimPane.getPrefHeight() - newOverlay.getPrefHeight()) / 2.0);
 
-            // Show new overlay
             overlay.current = newOverlay;
             fade(newOverlay, 0.0, 0.0, 1.0, onFinished);
         });
@@ -424,9 +457,13 @@ var serverHolder = {
     }
 };
 
-/* ======== Overlay scripts ======== */
+/* ======== Overlays scripts ======== */
+launcher.loadScript("engine/settings.js");
 launcher.loadScript("dialog/overlay/debug/debug.js");
 launcher.loadScript("dialog/overlay/processing/processing.js");
 launcher.loadScript("dialog/overlay/settings/settings.js");
-launcher.loadScript("dialog/overlay/options/options.js");
 launcher.loadScript("dialog/overlay/update/update.js");
+
+/* ======== Scenes scripts ======== */
+launcher.loadScript("dialog/scenes/options/options.js");
+launcher.loadScript("dialog/scenes/console/console.js");

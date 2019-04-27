@@ -2,7 +2,7 @@ package ru.gravit.launchserver.auth;
 
 import ru.gravit.launchserver.auth.handler.AuthHandler;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
-import ru.gravit.launchserver.texture.TextureProvider;
+import ru.gravit.launchserver.auth.texture.TextureProvider;
 
 import java.io.IOException;
 
@@ -11,6 +11,7 @@ public class AuthProviderPair {
     public AuthHandler handler;
     public TextureProvider textureProvider;
     public String name;
+    public String displayName;
     public boolean isDefault = true;
 
     public AuthProviderPair(AuthProvider provider, AuthHandler handler, TextureProvider textureProvider, String name) {
@@ -20,8 +21,7 @@ public class AuthProviderPair {
         this.name = name;
     }
 
-    public void init()
-    {
+    public void init() {
         provider.init();
         handler.init();
     }

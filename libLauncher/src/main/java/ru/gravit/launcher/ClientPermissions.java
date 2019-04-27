@@ -4,29 +4,25 @@ import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 
 import java.io.IOException;
+import java.util.StringJoiner;
 
 public class ClientPermissions {
     public static final ClientPermissions DEFAULT = new ClientPermissions();
     @LauncherAPI
-    public boolean canAdmin = false;
+    public boolean canAdmin;
     @LauncherAPI
-    public boolean canServer = false;
+    public boolean canServer;
     @LauncherAPI
-    public boolean canUSR1 = false;
+    public boolean canUSR1;
     @LauncherAPI
-    public boolean canUSR2 = false;
+    public boolean canUSR2;
     @LauncherAPI
-    public boolean canUSR3 = false;
+    public boolean canUSR3;
     @LauncherAPI
-    public boolean canBot = false;
+    public boolean canBot;
 
     public ClientPermissions(HInput input) throws IOException {
-        canAdmin = input.readBoolean();
-        canServer = input.readBoolean();
-        canUSR1 = input.readBoolean();
-        canUSR2 = input.readBoolean();
-        canUSR3 = input.readBoolean();
-        canBot = input.readBoolean();
+        this(input.readLong());
     }
 
     public ClientPermissions() {
@@ -46,9 +42,9 @@ public class ClientPermissions {
         canUSR3 = (data & (1 << 4)) != 0;
         canBot = (data & (1 << 5)) != 0;
     }
+
     @LauncherAPI
-    public long toLong()
-    {
+    public long toLong() {
         long result = 0;
         result |= canAdmin ? 0 : 1;
         result |= canServer ? 0 : (1 << 1);
@@ -67,11 +63,18 @@ public class ClientPermissions {
     }
 
     public void write(HOutput output) throws IOException {
-        output.writeBoolean(canAdmin);
-        output.writeBoolean(canServer);
-        output.writeBoolean(canUSR1);
-        output.writeBoolean(canUSR2);
-        output.writeBoolean(canUSR3);
-        output.writeBoolean(canBot);
+        output.writeLong(toLong());
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", ClientPermissions.class.getSimpleName() + "[", "]")
+                .add("canAdmin=" + canAdmin)
+                .add("canServer=" + canServer)
+                .add("canUSR1=" + canUSR1)
+                .add("canUSR2=" + canUSR2)
+                .add("canUSR3=" + canUSR3)
+                .add("canBot=" + canBot)
+                .toString();
     }
 }

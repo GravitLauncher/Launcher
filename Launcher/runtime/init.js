@@ -1,28 +1,34 @@
-var app, stage, scene, loginScene, menuScene;
-var rootPane, loginPane, authPane, menuPane;
+var app, stage, scene, loginScene, menuScene, consoleScene, consoleStage, optionsScene;
+var rootPane, loginPane, menuPane, consoleMenu, optionsMenu;
 
-// Override application class
 var LauncherApp = Java.extend(JSApplication, {
     init: function() {
         app = JSApplication.getInstance();
         cliParams.init(app.getParameters());
-        settings.load();
+        settingsManager.loadConfig();
+        settings = SettingsManager.settings;
+        settingsManager.loadHDirStore();
         cliParams.applySettings();
     }, start: function(primaryStage) {
         stage = primaryStage;
-		stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
         stage.setResizable(false);
         stage.setTitle(config.title);
 
-        // Set icons
+        consoleStage = new javafx.stage.Stage();
+        consoleStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        consoleStage.setResizable(false);
+        consoleStage.setTitle(config.title);
+
         config.icons.forEach(function(icon) {
             var iconURL = Launcher.getResourceURL(icon).toString();
             stage.getIcons().add(new javafx.scene.image.Image(iconURL));
         });
 
-        // Load launcher FXML
-        loginPane = loadFXML("dialog/login.fxml");
-        menuPane = loadFXML("dialog/mainmenu.fxml");
+        loginPane = loadFXML("dialog/scenes/login/login.fxml");
+        menuPane = loadFXML("dialog/scenes/mainmenu/mainmenu.fxml");
+        consoleMenu = loadFXML("dialog/scenes/console/console.fxml");
+        optionsMenu = loadFXML("dialog/scenes/options/options.fxml");
 
         loginScene = new javafx.scene.Scene(loginPane);
         loginScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
@@ -30,17 +36,22 @@ var LauncherApp = Java.extend(JSApplication, {
         menuScene = new javafx.scene.Scene(menuPane);
         menuScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
-        setCurrentScene(loginScene);
+        consoleScene = new javafx.scene.Scene(consoleMenu);
+        consoleScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
+        optionsScene = new javafx.scene.Scene(optionsMenu);
+        optionsScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+
+        setCurrentScene(loginScene);
         initLauncher();
 
     }, stop: function() {
-        settings.save();
+        settingsManager.saveConfig();
+        settingsManager.saveHDirStore();
         options.save();
     }
 });
 
-// Helper functions
 function loadFXML(name) {
     var loader = new javafx.fxml.FXMLLoader(Launcher.getResourceURL(name));
     loader.setCharset(IOHelper.UNICODE_CHARSET);
@@ -55,19 +66,24 @@ function setCurrentScene(scene) {
     stage.show();
 }
 
+function setConsoleCurrentScene(scene) {
+    consoleStage.setScene(scene);
+    consoleStage.sizeToScene();
+    consoleStage.show();
+}
+
+
 function setRootParent(parent) {
     scene.setRoot(parent);
 }
 
-// Start function - there all begins
 function start(args) {
 
-    // Set font rendering properties
     LogHelper.debug("Setting FX properties");
     java.lang.System.setProperty("prism.lcdtext", "false");
 
-    // Start laucher JavaFX stage
     LogHelper.debug("Launching JavaFX application");
     javafx.application.Application.launch(LauncherApp.class, args);
 }
+
 launcher.loadScript("dialog/dialog.js");

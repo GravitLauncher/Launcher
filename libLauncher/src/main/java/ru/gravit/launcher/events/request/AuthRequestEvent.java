@@ -2,16 +2,18 @@ package ru.gravit.launcher.events.request;
 
 import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.LauncherNetworkAPI;
+import ru.gravit.launcher.events.RequestEvent;
 import ru.gravit.launcher.profiles.PlayerProfile;
-import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.utils.event.EventInterface;
 
 import java.util.UUID;
 
-public class AuthRequestEvent implements EventInterface, ResultInterface {
+public class AuthRequestEvent extends RequestEvent implements EventInterface {
     private static final UUID uuid = UUID.fromString("77e1bfd7-adf9-4f5d-87d6-a7dd068deb74");
+
     public AuthRequestEvent() {
     }
+
     @LauncherNetworkAPI
     public String error;
     @LauncherNetworkAPI
@@ -22,6 +24,8 @@ public class AuthRequestEvent implements EventInterface, ResultInterface {
     public String accessToken;
     @LauncherNetworkAPI
     public String protectToken;
+    @LauncherNetworkAPI
+    public long session;
 
     public AuthRequestEvent(PlayerProfile pp, String accessToken, ClientPermissions permissions) {
         this.playerProfile = pp;
@@ -34,6 +38,15 @@ public class AuthRequestEvent implements EventInterface, ResultInterface {
         this.playerProfile = playerProfile;
         this.accessToken = accessToken;
         this.protectToken = protectToken;
+    }
+
+    public AuthRequestEvent(String error, ClientPermissions permissions, PlayerProfile playerProfile, String accessToken, String protectToken, long session) {
+        this.error = error;
+        this.permissions = permissions;
+        this.playerProfile = playerProfile;
+        this.accessToken = accessToken;
+        this.protectToken = protectToken;
+        this.session = session;
     }
 
     @Override

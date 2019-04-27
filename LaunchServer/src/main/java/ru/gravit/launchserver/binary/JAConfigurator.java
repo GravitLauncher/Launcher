@@ -70,11 +70,6 @@ public class JAConfigurator implements AutoCloseable {
         body.append(address);
         body.append("\";");
     }
-    public void setNettyAddress(String address) {
-        body.append("this.nettyAddress = \"");
-        body.append(address);
-        body.append("\";");
-    }
 
     public void setProjectName(String name) {
         body.append("this.projectname = \"");
@@ -88,16 +83,10 @@ public class JAConfigurator implements AutoCloseable {
         body.append("\";");
     }
 
-    public void setPort(int port) {
-        body.append("this.port = ");
-        body.append(port);
-        body.append(";");
-    }
-
-    public void setNettyPort(int port) {
-        body.append("this.nettyPort = ");
-        body.append(port);
-        body.append(";");
+    public void setGuardType(String key) {
+        body.append("this.guardType = \"");
+        body.append(key);
+        body.append("\";");
     }
 
     public void setEnv(LauncherConfig.LauncherEnvironment env) {
@@ -128,31 +117,13 @@ public class JAConfigurator implements AutoCloseable {
         body.append(";");
     }
 
-    public void setUsingWrapper(boolean b) {
-        body.append("this.isUsingWrapper = ");
-        body.append(b ? "true" : "false");
-        body.append(";");
-    }
-
-    public void setDownloadJava(boolean b) {
-        body.append("this.isDownloadJava = ");
-        body.append(b ? "true" : "false");
-        body.append(";");
-    }
-    public void setNettyEnabled(boolean b) {
-        body.append("this.isNettyEnabled = ");
-        body.append(b ? "true" : "false");
-        body.append(";");
-    }
-
     public void setWarningMissArchJava(boolean b) {
         body.append("this.isWarningMissArchJava = ");
         body.append(b ? "true" : "false");
         body.append(";");
     }
 
-    public void setGuardLicense(String name, String key, String encryptKey)
-    {
+    public void setGuardLicense(String name, String key, String encryptKey) {
         body.append("this.guardLicenseName = \"");
         body.append(name);
         body.append("\";");

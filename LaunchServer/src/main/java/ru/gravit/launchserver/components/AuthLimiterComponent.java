@@ -4,9 +4,8 @@ import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.provider.AuthProvider;
-import ru.gravit.launchserver.components.Component;
-import ru.gravit.launchserver.response.auth.AuthResponse;
 import ru.gravit.launchserver.socket.Client;
+import ru.gravit.launchserver.websocket.json.auth.AuthResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,9 +25,9 @@ public class AuthLimiterComponent extends Component implements NeedGarbageCollec
     public void postInit(LaunchServer launchServer) {
 
     }
+
     public void preAuthHook(AuthResponse.AuthContext context, Client client) throws AuthException {
-        if(isLimit(context.ip))
-        {
+        if (isLimit(context.ip)) {
             AuthProvider.authError(message);
         }
     }

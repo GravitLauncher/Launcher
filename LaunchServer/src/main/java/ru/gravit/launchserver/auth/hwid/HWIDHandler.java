@@ -1,29 +1,21 @@
 package ru.gravit.launchserver.auth.hwid;
 
 import ru.gravit.launcher.HWID;
-import ru.gravit.utils.helper.VerifyHelper;
+import ru.gravit.utils.ProviderMap;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class HWIDHandler implements AutoCloseable {
-    private static final Map<String, Class<? extends HWIDHandler>> HW_HANDLERS = new ConcurrentHashMap<>(4);
+    public static ProviderMap<HWIDHandler> providers = new ProviderMap<>("HWIDHandler");
     private static boolean registredHandl = false;
 
 
-    public static void registerHandler(String name, Class<? extends HWIDHandler> adapter) {
-        VerifyHelper.verifyIDName(name);
-        VerifyHelper.putIfAbsent(HW_HANDLERS, name, Objects.requireNonNull(adapter, "adapter"),
-                String.format("HWID handler has been already registered: '%s'", name));
-    }
-
     public static void registerHandlers() {
         if (!registredHandl) {
-            registerHandler("accept", AcceptHWIDHandler.class);
-            registerHandler("mysql", MysqlHWIDHandler.class);
-            registerHandler("json", JsonHWIDHandler.class);
+            providers.register("accept", AcceptHWIDHandler.class);
+            providers.register("mysql", MysqlHWIDHandler.class);
+            providers.register("json", JsonHWIDHandler.class);
+            providers.register("memory", MemoryHWIDHandler.class);
             registredHandl = true;
         }
     }
@@ -40,18 +32,9 @@ public abstract class HWIDHandler implements AutoCloseable {
     @Override
     public abstract void close() throws Exception;
 
+    public abstract void init();
+
     public abstract List<HWID> getHwid(String username) throws HWIDException;
 
     public abstract void unban(List<HWID> hwid) throws HWIDException;
-
-    public static Class<? extends HWIDHandler> getHandlerClass(String name) {
-        return HW_HANDLERS.get(name);
-    }
-
-    public static String getHandlerName(Class<? extends HWIDHandler> clazz) {
-        for (Map.Entry<String, Class<? extends HWIDHandler>> e : HW_HANDLERS.entrySet()) {
-            if (e.getValue().equals(clazz)) return e.getKey();
-        }
-        return null;
-    }
 }

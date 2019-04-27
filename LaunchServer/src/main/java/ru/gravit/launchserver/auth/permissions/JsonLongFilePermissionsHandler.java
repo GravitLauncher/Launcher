@@ -28,14 +28,14 @@ public class JsonLongFilePermissionsHandler extends PermissionsHandler implement
         Type type = new TypeToken<Map<String, Long>>() {
         }.getType();
         try (Reader reader = IOHelper.newReader(path)) {
-            map = Launcher.gson.fromJson(reader, type);
+            map = Launcher.gsonManager.gson.fromJson(reader, type);
         } catch (IOException e) {
             LogHelper.error(e);
         }
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
 
     }
 
@@ -45,26 +45,36 @@ public class JsonLongFilePermissionsHandler extends PermissionsHandler implement
     }
 
     @Override
-    public ClientPermissions getPermissions(String username) {
-        return new ClientPermissions(map.getOrDefault(username, defaultPerms));
-    }
-
-    public JsonLongFilePermissionsHandler() {
+    public void init() {
         Type type = new TypeToken<Map<String, ClientPermissions>>() {
         }.getType();
         Path path = Paths.get(filename);
         if (!IOHelper.exists(path)) {
             map = new HashMap<>();
             try (Writer writer = IOHelper.newWriter(path)) {
-                Launcher.gson.toJson(map, writer);
+                Launcher.gsonManager.gson.toJson(map, writer);
             } catch (IOException e) {
                 LogHelper.error(e);
             }
         }
         try (Reader reader = IOHelper.newReader(path)) {
-            map = Launcher.gson.fromJson(reader, type);
+            map = Launcher.gsonManager.gson.fromJson(reader, type);
         } catch (IOException e) {
             LogHelper.error(e);
         }
+    }
+
+    @Override
+    public ClientPermissions getPermissions(String username) {
+        return new ClientPermissions(map.getOrDefault(username, defaultPerms));
+    }
+
+    @Override
+    public void setPermissions(String username, ClientPermissions permissions) {
+        map.put(username, permissions.toLong());
+    }
+
+    public JsonLongFilePermissionsHandler() {
+
     }
 }

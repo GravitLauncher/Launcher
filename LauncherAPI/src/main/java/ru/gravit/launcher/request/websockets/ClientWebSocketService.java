@@ -2,6 +2,8 @@ package ru.gravit.launcher.request.websockets;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.java_websocket.handshake.ServerHandshake;
+import ru.gravit.launcher.events.ExceptionEvent;
 import ru.gravit.launcher.events.request.*;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
@@ -18,12 +20,15 @@ import java.util.HashSet;
 public class ClientWebSocketService extends ClientJSONPoint {
     public final GsonBuilder gsonBuilder;
     public final Gson gson;
+    public OnCloseCallback onCloseCallback;
+    public final Boolean onConnect;
+    public ReconnectCallback reconnectCallback;
     private HashMap<String, Class<? extends RequestInterface>> requests;
     private HashMap<String, Class<? extends ResultInterface>> results;
     private HashSet<EventHandler> handlers;
 
     public ClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) {
-    	super(createURL(address), Collections.emptyMap(), i);
+        super(createURL(address), Collections.emptyMap(), i);
         requests = new HashMap<>();
         results = new HashMap<>();
         handlers = new HashSet<>();
@@ -32,33 +37,61 @@ public class ClientWebSocketService extends ClientJSONPoint {
         this.gsonBuilder.registerTypeAdapter(ResultInterface.class, new JsonResultAdapter(this));
         this.gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuilder.create();
+        this.onConnect = true;
     }
-	private static URI createURL(String address) {
-		try {
-			URI u = new URI(address);
-			return u;
-		} catch (Throwable e) {
-			LogHelper.error(e);
-			return null;
-		}
-	}
-	@Override
-	public void onMessage(String message) {
+
+    private static URI createURL(String address) {
+        try {
+            URI u = new URI(address);
+            return u;
+        } catch (Throwable e) {
+            LogHelper.error(e);
+            return null;
+        }
+    }
+
+    @Override
+    public void onMessage(String message) {
         ResultInterface result = gson.fromJson(message, ResultInterface.class);
-        for(EventHandler handler : handlers)
-        {
+        for (EventHandler handler : handlers) {
             handler.process(result);
         }
     }
+
     @Override
-    public void onError(Exception e)
-    {
+    public void onError(Exception e) {
         LogHelper.error(e);
+    }
+    @Override
+    public void onOpen(ServerHandshake handshakedata) {
+        //Notify open
+        synchronized (onConnect)
+        {
+            onConnect.notifyAll();
+        }
+    }
+
+    @Override
+    public void onClose(int code, String reason, boolean remote)
+    {
+        LogHelper.debug("Disconnected: " + code + " " + remote + " " + (reason != null ? reason : "no reason"));
+        if(onCloseCallback != null)
+            onCloseCallback.onClose(code, reason, remote);
+    }
+    @FunctionalInterface
+    public interface OnCloseCallback
+    {
+        void onClose(int code, String reason, boolean remote);
+    }
+    public interface ReconnectCallback
+    {
+        void onReconnect() throws IOException;
     }
 
     public Class<? extends RequestInterface> getRequestClass(String key) {
         return requests.get(key);
     }
+
     public Class<? extends ResultInterface> getResultClass(String key) {
         return results.get(key);
     }
@@ -89,22 +122,50 @@ public class ClientWebSocketService extends ClientJSONPoint {
         registerResult("updateList", UpdateListRequestEvent.class);
         registerResult("error", ErrorRequestEvent.class);
         registerResult("update", UpdateRequestEvent.class);
+        registerResult("restoreSession", RestoreSessionRequestEvent.class);
+        registerResult("getSecureToken", GetSecureTokenRequestEvent.class);
+        registerResult("verifySecureToken", VerifySecureTokenRequestEvent.class);
+        registerResult("log", LogEvent.class);
+        registerResult("execCmd", ExecCommandRequestEvent.class);
+        registerResult("getAvailabilityAuth", GetAvailabilityAuthRequestEvent.class);
+        registerResult("exception", ExceptionEvent.class);
     }
 
-    public void registerHandler(EventHandler eventHandler)
-    {
+    public void registerHandler(EventHandler eventHandler) {
         handlers.add(eventHandler);
+    }
+    public void waitIfNotConnected()
+    {
+        if(!isOpen() && !isClosed() && !isClosing())
+        {
+            LogHelper.warning("WebSocket not connected. Try wait onConnect object");
+            synchronized (onConnect)
+            {
+                try {
+                    onConnect.wait(5000);
+                } catch (InterruptedException e) {
+                    LogHelper.error(e);
+                }
+            }
+        }
     }
 
     public void sendObject(Object obj) throws IOException {
+        waitIfNotConnected();
+        if(isClosed() && reconnectCallback != null)
+            reconnectCallback.onReconnect();
         send(gson.toJson(obj, RequestInterface.class));
     }
+
     public void sendObject(Object obj, Type type) throws IOException {
+        waitIfNotConnected();
+        if(isClosed() && reconnectCallback != null)
+            reconnectCallback.onReconnect();
         send(gson.toJson(obj, type));
     }
+
     @FunctionalInterface
-    public interface EventHandler
-    {
+    public interface EventHandler {
         void process(ResultInterface resultInterface);
     }
 }

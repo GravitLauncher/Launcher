@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.command.dump;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthProviderPair;
 import ru.gravit.launchserver.auth.handler.CachedAuthHandler;
@@ -32,7 +33,7 @@ public class DumpEntryCacheCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 3);
         AuthProviderPair pair = server.config.getAuthProviderPair(args[1]);
-        if(pair == null) throw new IllegalStateException(String.format("Auth %s not found", args[1]));
+        if (pair == null) throw new IllegalStateException(String.format("Auth %s not found", args[1]));
         if (!(pair.handler instanceof CachedAuthHandler))
             throw new UnsupportedOperationException("This command used only CachedAuthHandler");
         CachedAuthHandler authHandler = (CachedAuthHandler) pair.handler;
@@ -44,7 +45,7 @@ public class DumpEntryCacheCommand extends Command {
             serializable.entryCache = entryCache;
             serializable.usernameCache = usernamesCache;
             try (Writer writer = IOHelper.newWriter(Paths.get(args[1]))) {
-                LaunchServer.gson.toJson(serializable, writer);
+                Launcher.gsonManager.configGson.toJson(serializable, writer);
             }
             LogHelper.subInfo("Write %d entryCache, %d usernameCache", entryCache.size(), usernamesCache.size());
         } else if (args[0].equals("load")) {
@@ -52,7 +53,7 @@ public class DumpEntryCacheCommand extends Command {
             int size_entry = 0;
             int size_username = 0;
             try (Reader reader = IOHelper.newReader(Paths.get(args[1]))) {
-                EntryAndUsername entryAndUsername = LaunchServer.gson.fromJson(reader, EntryAndUsername.class);
+                EntryAndUsername entryAndUsername = Launcher.gsonManager.configGson.fromJson(reader, EntryAndUsername.class);
                 size_entry = entryAndUsername.entryCache.size();
                 size_username = entryAndUsername.usernameCache.size();
                 authHandler.loadEntryCache(entryAndUsername.entryCache);

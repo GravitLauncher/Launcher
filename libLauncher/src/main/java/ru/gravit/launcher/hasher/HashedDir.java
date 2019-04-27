@@ -1,6 +1,7 @@
 package ru.gravit.launcher.hasher;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.EnumSerializer;
@@ -100,7 +101,7 @@ public final class HashedDir extends HashedEntry {
             return super.visitFile(file, attrs);
         }
     }
-
+    @LauncherNetworkAPI
     private final Map<String, HashedEntry> map = new HashMap<>(32);
 
     @LauncherAPI
@@ -333,6 +334,38 @@ public final class HashedDir extends HashedEntry {
             HashedEntry entry = mapEntry.getValue();
             EnumSerializer.write(output, entry.getType());
             entry.write(output);
+        }
+    }
+    public void walk(CharSequence separator, WalkCallback callback)
+    {
+        String append = "";
+        walk(append,separator, callback, true);
+    }
+    @FunctionalInterface
+    public interface WalkCallback
+    {
+        void walked(String path, String name, HashedEntry entry);
+    }
+    private void walk(String append, CharSequence separator, WalkCallback callback , boolean noSeparator)
+    {
+        for(Map.Entry<String, HashedEntry> entry : map.entrySet())
+        {
+            HashedEntry e = entry.getValue();
+            if(e.getType() == Type.FILE)
+            {
+                if(noSeparator)
+                    callback.walked(append + entry.getKey(), entry.getKey(), e);
+                else
+                    callback.walked(append + separator + entry.getKey(), entry.getKey(), e);
+            }
+            else
+            {
+                String newAppend;
+                if(noSeparator) newAppend = append + entry.getKey();
+                else newAppend = append + separator + entry.getKey();
+                callback.walked(newAppend, entry.getKey(), e);
+                ((HashedDir)e).walk(newAppend, separator, callback, false);
+            }
         }
     }
 }

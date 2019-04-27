@@ -14,8 +14,10 @@ public class Client {
     public ClientProfile profile;
     public boolean isAuth;
     public boolean checkSign;
+    public boolean isSecure;
     public ClientPermissions permissions;
     public String username;
+    public String verifyToken;
     public LogHelper.OutputEnity logOutput;
 
     public transient AuthProviderPair auth;
@@ -34,10 +36,10 @@ public class Client {
     public void up() {
         timestamp = System.currentTimeMillis();
     }
-    public void updateAuth()
-    {
-        if(!isAuth) return;
-        if(auth_id.isEmpty()) auth = LaunchServer.server.config.getAuthProviderPair();
+
+    public void updateAuth() {
+        if (!isAuth) return;
+        if (auth_id.isEmpty()) auth = LaunchServer.server.config.getAuthProviderPair();
         else auth = LaunchServer.server.config.getAuthProviderPair(auth_id);
     }
 

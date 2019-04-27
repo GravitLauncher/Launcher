@@ -3,8 +3,7 @@ package ru.gravit.launcher.profiles.optional;
 import ru.gravit.launcher.LauncherAPI;
 
 @LauncherAPI
-public enum OptionalType
-{
+public enum OptionalType {
     @LauncherAPI
     FILE,
     @LauncherAPI

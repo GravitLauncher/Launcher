@@ -1,13 +1,13 @@
 package ru.gravit.launcher.events.request;
 
 import ru.gravit.launcher.LauncherNetworkAPI;
-import ru.gravit.launcher.request.ResultInterface;
+import ru.gravit.launcher.events.RequestEvent;
 import ru.gravit.utils.event.EventInterface;
 
 import java.util.HashSet;
 import java.util.UUID;
 
-public class UpdateListRequestEvent implements EventInterface, ResultInterface {
+public class UpdateListRequestEvent extends RequestEvent implements EventInterface {
     private static final UUID uuid = UUID.fromString("5fa836ae-6b61-401c-96ac-d8396f07ec6b");
     @LauncherNetworkAPI
     public final HashSet<String> dirs;
@@ -15,6 +15,7 @@ public class UpdateListRequestEvent implements EventInterface, ResultInterface {
     public UpdateListRequestEvent(HashSet<String> dirs) {
         this.dirs = dirs;
     }
+
     @Override
     public UUID getUUID() {
         return uuid;

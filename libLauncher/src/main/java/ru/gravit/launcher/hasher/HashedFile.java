@@ -1,6 +1,7 @@
 package ru.gravit.launcher.hasher;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.IOHelper;
@@ -18,6 +19,7 @@ public final class HashedFile extends HashedEntry {
     // Instance
     @LauncherAPI
     public final long size;
+    @LauncherNetworkAPI
     private final byte[] digest;
 
     @LauncherAPI

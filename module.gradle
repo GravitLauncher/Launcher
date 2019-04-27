@@ -1,0 +1,8 @@
+dependencies {
+	compileOnly project(':LaunchServer')
+}
+
+jar {
+	from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+

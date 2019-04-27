@@ -1,39 +1,20 @@
 package ru.gravit.launcher.request.admin;
 
+import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.events.request.ExecCommandRequestEvent;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.RequestType;
-import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.serialize.SerializeLimits;
-import ru.gravit.utils.helper.LogHelper;
+import ru.gravit.launcher.request.websockets.RequestInterface;
 
-public class ExecCommandRequest extends Request<Boolean> {
-    public LogHelper.Output loutput;
+public class ExecCommandRequest extends Request<ExecCommandRequestEvent> implements RequestInterface {
+    @LauncherAPI
     public String cmd;
 
-    public ExecCommandRequest(LogHelper.Output output, String cmd) {
-        this.loutput = output;
+    public ExecCommandRequest(String cmd) {
         this.cmd = cmd;
     }
 
     @Override
-    public Integer getLegacyType() {
-        return RequestType.EXECCOMMAND.getNumber();
-    }
-
-    @Override
-    protected Boolean requestDo(HInput input, HOutput output) throws Exception {
-        readError(input);
-        output.writeString(cmd, SerializeLimits.MAX_COMMAND);
-        boolean isContinue = true;
-        while (isContinue) {
-            isContinue = input.readBoolean();
-            if (isContinue) {
-                String log = input.readString(SerializeLimits.MAX_COMMAND);
-                if (loutput != null) loutput.println(log);
-            }
-        }
-        readError(input);
-        return true;
+    public String getType() {
+        return "execCmd";
     }
 }

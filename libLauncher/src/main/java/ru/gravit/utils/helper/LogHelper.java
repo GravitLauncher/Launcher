@@ -1,10 +1,8 @@
 package ru.gravit.utils.helper;
 
 import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Color;
 import org.fusesource.jansi.AnsiConsole;
 import org.fusesource.jansi.AnsiOutputStream;
-import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 
 import java.io.*;
@@ -17,6 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 public final class LogHelper {
     @LauncherAPI
@@ -35,8 +34,8 @@ public final class LogHelper {
     private static final AtomicBoolean DEBUG_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEBUG_PROPERTY));
     private static final AtomicBoolean STACKTRACE_ENABLED = new AtomicBoolean(Boolean.getBoolean(STACKTRACE_PROPERTY));
     private static final AtomicBoolean DEV_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEV_PROPERTY));
-    public static class OutputEnity
-    {
+
+    public static class OutputEnity {
         public Output output;
         public OutputTypes type;
 
@@ -45,10 +44,11 @@ public final class LogHelper {
             this.type = type;
         }
     }
-    public enum OutputTypes
-    {
+
+    public enum OutputTypes {
         PLAIN, JANSI, HTML
     }
+
     private static final Set<OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
     private static final OutputEnity STD_OUTPUT;
 
@@ -59,15 +59,16 @@ public final class LogHelper {
     public static void addOutput(OutputEnity output) {
         OUTPUTS.add(Objects.requireNonNull(output, "output"));
     }
+
     @LauncherAPI
     public static void addOutput(Output output, OutputTypes type) {
-        OUTPUTS.add(new OutputEnity(Objects.requireNonNull(output, "output"),type));
+        OUTPUTS.add(new OutputEnity(Objects.requireNonNull(output, "output"), type));
     }
 
     @LauncherAPI
     public static void addOutput(Path file) throws IOException {
         if (JANSI) {
-            addOutput(new JAnsiOutput(IOHelper.newOutput(file, true)),OutputTypes.JANSI);
+            addOutput(new JAnsiOutput(IOHelper.newOutput(file, true)), OutputTypes.JANSI);
         } else {
             addOutput(IOHelper.newWriter(file, true));
         }
@@ -157,24 +158,34 @@ public final class LogHelper {
         DEV_ENABLED.set(stacktraceEnabled);
     }
 
+    public static String getDataTime()
+    {
+        return DATE_TIME_FORMATTER.format(LocalDateTime.now());
+    }
+
     @LauncherAPI
     public static void log(Level level, String message, boolean sub) {
         String dateTime = DATE_TIME_FORMATTER.format(LocalDateTime.now());
-        String jansiString = null, plainString = null;
+        String jansiString = null, plainString = null, htmlString = null;
         for (OutputEnity output : OUTPUTS) {
-            if(output.type == OutputTypes.JANSI && JANSI)
-            {
-                if(jansiString != null){
+            if (output.type == OutputTypes.JANSI && JANSI) {
+                if (jansiString != null) {
                     output.output.println(jansiString);
                     continue;
                 }
 
                 jansiString = ansiFormatLog(level, dateTime, message, sub);
                 output.output.println(jansiString);
-            }
-            else
-            {
-                if(plainString != null){
+            } else if (output.type == OutputTypes.HTML) {
+                if (htmlString != null) {
+                    output.output.println(htmlString);
+                    continue;
+                }
+
+                htmlString = htmlFormatLog(level, dateTime, message, sub);
+                output.output.println(htmlString);
+            } else {
+                if (plainString != null) {
                     output.output.println(plainString);
                     continue;
                 }
@@ -184,29 +195,63 @@ public final class LogHelper {
             }
         }
     }
+    @LauncherAPI
+    public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr)
+    {
+        rawLog(plainStr, jansiStr, null);
+    }
+    @LauncherAPI
+    public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr, Supplier<String> htmlStr)
+    {
+        String jansiString = null, plainString = null, htmlString = null;
+        for (OutputEnity output : OUTPUTS) {
+            if (output.type == OutputTypes.JANSI && JANSI) {
+                if (jansiString != null) {
+                    output.output.println(jansiString);
+                    continue;
+                }
+
+                jansiString = jansiStr.get();
+                output.output.println(jansiString);
+            } else if (output.type == OutputTypes.HTML) {
+                if (htmlString != null) {
+                    output.output.println(htmlString);
+                    continue;
+                }
+
+                htmlString = htmlStr.get();
+                output.output.println(htmlString);
+            } else {
+                if (plainString != null) {
+                    output.output.println(plainString);
+                    continue;
+                }
+
+                plainString = plainStr.get();
+                output.output.println(plainString);
+            }
+        }
+    }
 
     @LauncherAPI
     public static void printVersion(String product) {
         String jansiString = null, plainString = null;
         for (OutputEnity output : OUTPUTS) {
-            if(output.type == OutputTypes.JANSI && JANSI)
-            {
-                if(jansiString != null){
+            if (output.type == OutputTypes.JANSI && JANSI) {
+                if (jansiString != null) {
                     output.output.println(jansiString);
                     continue;
                 }
 
-                jansiString = ansiFormatVersion(product);
+                jansiString = FormatHelper.ansiFormatVersion(product);
                 output.output.println(jansiString);
-            }
-            else
-            {
-                if(plainString != null){
+            } else {
+                if (plainString != null) {
                     output.output.println(plainString);
                     continue;
                 }
 
-                plainString = formatVersion(product);
+                plainString = FormatHelper.formatVersion(product);
                 output.output.println(plainString);
             }
         }
@@ -216,24 +261,21 @@ public final class LogHelper {
     public static void printLicense(String product) {
         String jansiString = null, plainString = null;
         for (OutputEnity output : OUTPUTS) {
-            if(output.type == OutputTypes.JANSI && JANSI)
-            {
-                if(jansiString != null){
+            if (output.type == OutputTypes.JANSI && JANSI) {
+                if (jansiString != null) {
                     output.output.println(jansiString);
                     continue;
                 }
 
-                jansiString = ansiFormatLicense(product);
+                jansiString = FormatHelper.ansiFormatLicense(product);
                 output.output.println(jansiString);
-            }
-            else
-            {
-                if(plainString != null){
+            } else {
+                if (plainString != null) {
                     output.output.println(plainString);
                     continue;
                 }
 
-                plainString = formatLicense(product);
+                plainString = FormatHelper.formatLicense(product);
                 output.output.println(plainString);
             }
         }
@@ -304,80 +346,40 @@ public final class LogHelper {
     }
 
     private static String ansiFormatLog(Level level, String dateTime, String message, boolean sub) {
-        Color levelColor;
-        boolean bright = level != Level.DEBUG;
-        switch (level) {
-            case WARNING:
-                levelColor = Color.YELLOW;
-                break;
-            case ERROR:
-                levelColor = Color.RED;
-                break;
-            default: // INFO, DEBUG, Unknown
-                levelColor = Color.WHITE;
-                break;
-        }
 
-        // Date-time
-        Ansi ansi = new Ansi();
-        ansi.fg(Color.WHITE).a(dateTime);
-
-        // Level
-        ansi.fgBright(Color.WHITE).a(" [").bold();
-        if (bright) {
-            ansi.fgBright(levelColor);
-        } else {
-            ansi.fg(levelColor);
-        }
-        ansi.a(level).boldOff().fgBright(Color.WHITE).a("] ");
-
-        // Message
-        if (bright) {
-            ansi.fgBright(levelColor);
-        } else {
-            ansi.fg(levelColor);
-        }
-        if (sub) {
-            ansi.a(' ').a(Ansi.Attribute.ITALIC);
-        }
+        Ansi ansi = FormatHelper.rawAnsiFormat(level, dateTime, sub);
         ansi.a(message);
 
         // Finish with reset code
         return ansi.reset().toString();
     }
 
-    private static String ansiFormatVersion(String product) {
-        return new Ansi().bold(). // Setup
-                fgBright(Color.MAGENTA).a("GravitLauncher "). // sashok724's
-                fgBright(Color.BLUE).a("(fork sashok724's Launcher) ").
-                fgBright(Color.CYAN).a(product). // Product
-                fgBright(Color.WHITE).a(" v").fgBright(Color.BLUE).a(Launcher.getVersion().toString()). // Version
-                fgBright(Color.WHITE).a(" (build #").fgBright(Color.RED).a(Launcher.getVersion().build).fgBright(Color.WHITE).a(')'). // Build#
-                reset().toString(); // To file
-    }
-
-    private static String ansiFormatLicense(String product) {
-        return new Ansi().bold(). // Setup
-                fgBright(Color.MAGENTA).a("License for "). // sashok724's
-                fgBright(Color.CYAN).a(product). // Product
-                fgBright(Color.WHITE).a(" GPLv3").fgBright(Color.WHITE).a(". SourceCode: "). // Version
-                fgBright(Color.YELLOW).a("https://github.com/GravitLauncher/Launcher").
-                reset().toString(); // To file
+    public static String htmlFormatLog(Level level, String dateTime, String message, boolean sub)
+    {
+        String levelColor;
+        switch (level) {
+            case WARNING:
+                levelColor = "gravitlauncher-log-warning";
+                break;
+            case ERROR:
+                levelColor = "gravitlauncher-log-error";
+                break;
+            case INFO:
+                levelColor = "gravitlauncher-log-info";
+                break;
+            case DEBUG:
+                levelColor = "gravitlauncher-log-debug";
+                break;
+            default:
+                levelColor = "gravitlauncher-log-unknown";
+                break;
+        }
+        if(sub) levelColor += " gravitlauncher-log-sub";
+        return String.format("%s <span class=\"gravitlauncher-log %s\">[%s] %s</span>", dateTime, levelColor, level.toString(), sub ? ' ' + message : message);
     }
 
     private static String formatLog(Level level, String message, String dateTime, boolean sub) {
-        if (sub) {
-            message = ' ' + message;
-        }
-        return dateTime + " [" + level.name + "] " + message;
-    }
-
-    private static String formatVersion(String product) {
-        return String.format("GravitLauncher (fork sashok724's Launcher) %s v%s", product, Launcher.getVersion().toString());
-    }
-
-    private static String formatLicense(String product) {
-        return String.format("License for %s GPLv3. SourceCode: https://github.com/GravitLauncher/Launcher", product);
+        return FormatHelper.rawFormat(level, dateTime, sub) + message;
     }
 
     static {
@@ -419,7 +421,7 @@ public final class LogHelper {
 
     @LauncherAPI
     public enum Level {
-        DEV("DEV"),DEBUG("DEBUG"), INFO("INFO"), WARNING("WARN"), ERROR("ERROR");
+        DEV("DEV"), DEBUG("DEBUG"), INFO("INFO"), WARNING("WARN"), ERROR("ERROR");
         public final String name;
 
         Level(String name) {

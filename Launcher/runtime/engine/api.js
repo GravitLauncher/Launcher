@@ -17,8 +17,7 @@ var ServerPinger = ServerPingerClass.static;
 var Request = RequestClass.static;
 var RequestType = RequestTypeClass.static;
 var RequestException = RequestExceptionClass.static;
-var CustomRequest = CustomRequestClass.static;
-var PingRequest = PingRequestClass.static;
+//var PingRequest = PingRequestClass.static;
 var AuthRequest = AuthRequestClass.static;
 var JoinServerRequest = JoinServerRequestClass.static;
 var CheckServerRequest = CheckServerRequestClass.static;
@@ -29,6 +28,7 @@ var SetProfileRequest = SetProfileRequestClass.static;
 var ProfileByUsernameRequest = ProfileByUsernameRequestClass.static;
 var ProfileByUUIDRequest = ProfileByUUIDRequestClass.static;
 var BatchProfileByUsernameRequest = BatchProfileByUsernameRequestClass.static;
+var GetAvailabilityAuthRequest = GetAvailabilityAuthRequestClass.static;
 
 // Hasher class API imports
 var FileNameMatcher = FileNameMatcherClass.static;
@@ -56,7 +56,8 @@ var EnvHelper = EnvHelperClass.static;
 var SecurityHelper = SecurityHelperClass.static;
 var DigestAlgorithm = DigestAlgorithmClass.static;
 var VerifyHelper = VerifyHelperClass.static;
-var LauncherSettings = LauncherSettingsClass.static;
+var NewLauncherSettings = NewLauncherSettingsClass.static;
+var SettingsManager = SettingsManagerClass.static;
 
 // Helper JS class API imports
 var JSApplication = null;

@@ -1,23 +1,21 @@
 package ru.gravit.launcher.gui;
 
-import ru.gravit.launcher.JSApplication;
-import ru.gravit.launcher.Launcher;
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.*;
 import ru.gravit.launcher.client.*;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedFile;
+import ru.gravit.launcher.managers.SettingsManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.profiles.Texture;
 import ru.gravit.launcher.profiles.optional.OptionalFile;
-import ru.gravit.launcher.request.*;
-import ru.gravit.launcher.request.auth.AuthRequest;
-import ru.gravit.launcher.request.auth.CheckServerRequest;
-import ru.gravit.launcher.request.auth.JoinServerRequest;
-import ru.gravit.launcher.request.auth.SetProfileRequest;
+import ru.gravit.launcher.request.PingRequest;
+import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.RequestException;
+import ru.gravit.launcher.request.RequestType;
+import ru.gravit.launcher.request.auth.*;
 import ru.gravit.launcher.request.update.LauncherRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.launcher.request.update.UpdateRequest;
@@ -49,6 +47,8 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("LauncherClass", Launcher.class);
         bindings.put("LauncherConfigClass", LauncherConfig.class);
         bindings.put("HTTPRequestClass", HTTPRequest.class);
+        bindings.put("SettingsManagerClass", SettingsManager.class);
+        bindings.put("NewLauncherSettingsClass", NewLauncherSettings.class);
 
         // Set client class bindings
         bindings.put("PlayerProfileClass", PlayerProfile.class);
@@ -63,7 +63,6 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("RequestClass", Request.class);
         bindings.put("RequestTypeClass", RequestType.class);
         bindings.put("RequestExceptionClass", RequestException.class);
-        bindings.put("CustomRequestClass", CustomRequest.class);
         bindings.put("PingRequestClass", PingRequest.class);
         bindings.put("AuthRequestClass", AuthRequest.class);
         bindings.put("JoinServerRequestClass", JoinServerRequest.class);
@@ -75,6 +74,7 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("ProfileByUsernameRequestClass", ProfileByUsernameRequest.class);
         bindings.put("ProfileByUUIDRequestClass", ProfileByUUIDRequest.class);
         bindings.put("BatchProfileByUsernameRequestClass", BatchProfileByUsernameRequest.class);
+        bindings.put("GetAvailabilityAuthRequestClass", GetAvailabilityAuthRequest.class);
 
         // Set hasher class bindings
         bindings.put("FileNameMatcherClass", FileNameMatcher.class);
@@ -91,6 +91,7 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("SignedObjectHolderClass", SignedObjectHolder.class);
         bindings.put("EnumSerializerClass", EnumSerializer.class);
         bindings.put("OptionalFileClass", OptionalFile.class);
+        bindings.put("UserSettingsClass", UserSettings.class);
 
         // Set helper class bindings
         bindings.put("CommonHelperClass", CommonHelper.class);
@@ -105,7 +106,6 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("VerifyHelperClass", VerifyHelper.class);
         bindings.put("DirBridgeClass", DirBridge.class);
         bindings.put("FunctionalBridgeClass", FunctionalBridge.class);
-        bindings.put("LauncherSettingsClass", LauncherSettings.class);
 
         // Load JS API if available
         try {
@@ -146,8 +146,7 @@ public class JSRuntimeProvider implements RuntimeProvider {
 
     @Override
     public void preLoad() throws IOException, ScriptException {
-        if(!isPreLoaded)
-        {
+        if (!isPreLoaded) {
             loadScript(Launcher.API_SCRIPT_FILE);
             loadScript(Launcher.CONFIG_SCRIPT_FILE);
             isPreLoaded = true;

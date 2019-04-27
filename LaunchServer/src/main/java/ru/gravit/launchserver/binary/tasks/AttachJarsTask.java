@@ -44,26 +44,16 @@ public class AttachJarsTask implements LauncherBuildTask {
                 IOHelper.transfer(input, output);
                 e = input.getNextEntry();
             }
-            attach(output, srv.launcherBinary.coreLibs);
-            attach(output, jars);
+            attach(output, inputFile, srv.launcherBinary.coreLibs);
+            attach(output, inputFile, jars);
         }
         return outputFile;
     }
 
-    private void attach(ZipOutputStream output, List<Path> lst) throws IOException {
+    private void attach(ZipOutputStream output, Path inputFile, List<Path> lst) throws IOException {
         for (Path p : lst) {
             LogHelper.debug("Attaching: " + p);
-            try (ZipInputStream input = IOHelper.newZipInput(p)) {
-                ZipEntry e = input.getNextEntry();
-                while (e != null) {
-                    String filename = e.getName();
-                    if (exclusions.stream().noneMatch(filename::startsWith) && !e.isDirectory()) {
-                        output.putNextEntry(IOHelper.newZipEntry(e));
-                        IOHelper.transfer(input, output);
-                    }
-                    e = input.getNextEntry();
-                }
-            }
+            AdditionalFixesApplyTask.apply(inputFile, p, output, srv, (e) -> exclusions.stream().anyMatch(e.getName()::startsWith));
         }
     }
 

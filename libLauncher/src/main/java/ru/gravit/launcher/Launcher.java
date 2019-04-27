@@ -1,7 +1,6 @@
 package ru.gravit.launcher;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import ru.gravit.launcher.managers.GsonManager;
 import ru.gravit.launcher.modules.ModulesManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
@@ -58,13 +57,12 @@ public final class Launcher {
     public static final String CONFIG_SCRIPT_FILE = "config.js";
 
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
-    public static final int MAJOR = 4;
-    public static final int MINOR = 5;
+    public static final int MAJOR = 5;
+    public static final int MINOR = 0;
     public static final int PATCH = 0;
-    public static final int BUILD = 1;
-    public static final Version.Type RELEASE = Version.Type.STABLE;
-    public static GsonBuilder gsonBuilder;
-    public static Gson gson;
+    public static final int BUILD = 2;
+    public static final Version.Type RELEASE = Version.Type.BETA;
+    public static GsonManager gsonManager;
 
     @LauncherAPI
     public static LauncherConfig getConfig() {
@@ -125,10 +123,8 @@ public final class Launcher {
         return new Version(MAJOR, MINOR, PATCH, BUILD, RELEASE);
     }
 
-    public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env)
-    {
-        switch (env)
-        {
+    public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env) {
+        switch (env) {
             case DEV:
                 LogHelper.setDevEnabled(true);
                 LogHelper.setStacktraceEnabled(true);

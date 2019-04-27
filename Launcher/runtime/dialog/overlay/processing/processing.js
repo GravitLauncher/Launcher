@@ -5,19 +5,11 @@ var processing = {
     initOverlay: function() {
         processing.overlay = loadFXML("dialog/overlay/processing/processing.fxml");
 
-        // Lookup nodes
         processing.spinner = processing.overlay.lookup("#spinner");
         processing.description = processing.overlay.lookup("#description");
-
-        // Set images
-        processing.processingImage = new javafx.scene.image.Image(
-            Launcher.getResourceURL("dialog/images/icons/loading.gif").toString());
-        processing.errorImage = new javafx.scene.image.Image(
-            Launcher.getResourceURL("dialog/images/icons/error.png").toString());
     },
 
     resetOverlay: function() {
-        processing.spinner.setImage(processing.processingImage);
         processing.description.getStyleClass().remove("error");
         processing.description.setText("...");
     },
@@ -25,7 +17,7 @@ var processing = {
     setError: function(e) {
         LogHelper.error(e);
         processing.description.textProperty().unbind();
-        processing.spinner.setImage(processing.errorImage);
+        //processing.errorImage.setImage(processing.errorImage);
         processing.description.getStyleClass().add("error");
         processing.description.setText(e.toString());
     },
@@ -80,7 +72,7 @@ function makeLauncherRequest(callback) {
         settings.offline = true;
         overlay.swap(2500, processing.overlay, function() makeLauncherRequest(callback));
     }, false);
-    task.updateMessage("Обновление списка серверов");
+    task.updateMessage("Обновление лаунчера");
     startTask(task);
 }
 function makeProfilesRequest(callback) {
@@ -96,11 +88,27 @@ function makeProfilesRequest(callback) {
         settings.offline = true;
         overlay.swap(2500, processing.overlay, function() makeProfilesRequest(callback));
     }, false);
-    task.updateMessage("Обновление списка серверов");
+    task.updateMessage("Обновление профилей");
+    startTask(task);
+}
+function makeAuthAvailabilityRequest(callback) {
+    var task = newRequestTask(new GetAvailabilityAuthRequest());
+
+    // Set task properties and start
+    processing.setTaskProperties(task, callback, function() {
+        if (settings.offline) {
+            return;
+        }
+
+        // Repeat request, but in offline mode
+        settings.offline = true;
+        overlay.swap(2500, processing.overlay, function() makeAuthAvailabilityRequest(callback));
+    }, false);
+    task.updateMessage("Обновление способов авторизации");
     startTask(task);
 }
 function makeSetProfileRequest(profile, callback) {
-    var task = newRequestTask(new SetProfileRequest(Launcher.getConfig(), profile));
+    var task = newRequestTask(new SetProfileRequest(profile));
 
     // Set task properties and start
     processing.setTaskProperties(task, callback, function() {
@@ -126,7 +134,7 @@ function makeAuthRequest(login, rsaPassword, callback) {
 
 function launchClient(assetHDir, clientHDir, profile, params, callback) {
     var task = newTask(function() ClientLauncher.launch(assetHDir, clientHDir,
-        profile, params, LogHelper.isDebugEnabled()));
+        profile, params, settings.debug));
     processing.setTaskProperties(task, callback, null, true);
     task.updateMessage("Запуск выбранного клиента");
     startTask(task);

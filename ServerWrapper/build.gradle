@@ -14,10 +14,10 @@ targetCompatibility = '1.8'
 jar {
     from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest.attributes("Main-Class": mainClassName,
-		"Premain-Class": mainAgentName,
-		"Can-Redefine-Classes": "true",
-		"Can-Retransform-Classes": "true",
-		"Can-Set-Native-Method-Prefix": "true")
+            "Premain-Class": mainAgentName,
+            "Can-Redefine-Classes": "true",
+            "Can-Retransform-Classes": "true",
+            "Can-Set-Native-Method-Prefix": "true")
 }
 
 dependencies {

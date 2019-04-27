@@ -205,8 +205,9 @@ public class Downloader implements Runnable {
             LogHelper.error(ex);
         }
         if (connect != null)
-        	try {
-        		connect.disconnect();
-        	} catch (Throwable ignored) { }
+            try {
+                connect.disconnect();
+            } catch (Throwable ignored) {
+            }
     }
 }

@@ -1,11 +1,9 @@
 var update = {
     overlay: null, title: null, description: null, progress: null,
 
-    /* State and overlay functions */
     initOverlay: function() {
         update.overlay = loadFXML("dialog/overlay/update/update.fxml");
 
-        // Lookup nodes
         update.title = update.overlay.lookup("#utitle");
         update.description = update.overlay.lookup("#description");
         update.progress = update.overlay.lookup("#progress");
@@ -21,7 +19,6 @@ var update = {
     setError: function(e) {
         LogHelper.error(e);
 
-        // Set error description
         update.description.getStyleClass().add("error");
         update.description.setText(e.toString());
     },
@@ -34,17 +31,16 @@ var update = {
         var estimatedMM = ((estimatedSeconds % 3600) / 60) | 0;
         var estimatedSS = (estimatedSeconds % 60) | 0;
         task.updateMessage(java.lang.String.format(
-            "Файл: %s%n" + // File line
-            "Загружено (Всего): %.2f / %.2f MiB.%n" + // Total downloaded line
+            "Файл: %s%n" +
+            "Загружено (Всего): %.2f / %.2f MiB.%n" +
             "%n" +
-            "Средняя скорость: %.1f Kbps%n" + // Speed line
-            "Примерно осталось: %d:%02d:%02d%n", // Estimated line
+            "Средняя скорость: %.1f Kbps%n" +
+            "Примерно осталось: %d:%02d:%02d%n",
 
-            // Formatting
-            state.filePath, // File path
-            state.getTotalDownloadedMiB() + /* Fuck nashorn */ 0.0, state.getTotalSizeMiB() + 0.0, // Total downloaded
-            bps <= 0.0 ? 0.0 : bps / 1024.0, // Speed
-            estimatedHH, estimatedMM, estimatedSS // Estimated (hh:mm:ss)
+            state.filePath,
+            state.getTotalDownloadedMiB() +  0.0, state.getTotalSizeMiB() + 0.0,
+            bps <= 0.0 ? 0.0 : bps / 1024.0,
+            estimatedHH, estimatedMM, estimatedSS
         ));
         task.updateProgress(state.totalDownloaded, state.totalSize);
     },
@@ -71,25 +67,24 @@ var update = {
 
 function offlineUpdateRequest(dirName, dir, matcher, digest) {
     return function() {
-        var hdir = settings.lastHDirs.get(dirName);
-        if (hdir === null) {
-            Request.requestError(java.lang.String.format("Директории '%s' нет в кэше", dirName));
-            return;
-        }
+        LogHelper.error("Unsupported operation");
+        //var hdir = settings.lastHDirs.get(dirName);
+        //if (hdir === null) {
+        //    Request.requestError(java.lang.String.format("Директории '%s' нет в кэше", dirName));
+        //    return;
+        //}
 
-        // Verify dir with matcher using FunctionalBridge`s API
-        return FunctionalBridge.offlineUpdateRequest(dir, hdir, matcher, digest).run();
+        //return FunctionalBridge.offlineUpdateRequest(dir, hdir, matcher, digest).run();
     };
 }
 
 /* Export functions */
 function makeUpdateRequest(dirName, dir, matcher, digest, callback) {
-	var request = settings.offline ? { setStateCallback: function(stateCallback) { /* Ignored */ } } :
+	var request = settings.offline ? { setStateCallback: function(stateCallback) {  } } :
 		new UpdateRequest(dirName, dir, matcher, digest);
 	var task = settings.offline ? newTask(offlineUpdateRequest(dirName, dir, matcher, digest)) :
 		newRequestTask(request);
 
-    // Set task properties and start
     update.setTaskProperties(task, request, callback);
     task.updateMessage("Состояние: Хеширование");
     task.updateProgress(-1, -1);

@@ -112,6 +112,11 @@ public final class JsonHWIDHandler extends HWIDHandler {
     }
 
     @Override
+    public void init() {
+
+    }
+
+    @Override
     public List<HWID> getHwid(String username) throws HWIDException {
         ArrayList<HWID> hwids = new ArrayList<>();
         HWIDRequest request = new HWIDRequest(username, apiKey);

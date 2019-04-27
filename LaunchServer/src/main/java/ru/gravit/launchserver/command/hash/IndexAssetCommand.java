@@ -81,7 +81,7 @@ public final class IndexAssetCommand extends Command {
 
     @Override
     public String getArgsDescription() {
-        return "<dir> <index> <output-dir>";
+        return "[dir] [index] [output-dir]";
     }
 
     @Override

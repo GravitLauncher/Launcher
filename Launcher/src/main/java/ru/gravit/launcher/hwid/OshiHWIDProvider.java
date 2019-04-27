@@ -64,23 +64,18 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
         }
     }
 
-    public String getSoundCardInfo()
-    {
-        for(SoundCard soundcard : hardware.getSoundCards())
-        {
+    public String getSoundCardInfo() {
+        for (SoundCard soundcard : hardware.getSoundCards()) {
             return soundcard.getName();
         }
         return "";
     }
 
-    public String getMacAddr()
-    {
-        for(NetworkIF networkIF : hardware.getNetworkIFs())
-        {
-            for(String ipv4 : networkIF.getIPv4addr())
-            {
-                if(ipv4.startsWith("127.")) continue;
-                if(ipv4.startsWith("10.")) continue;
+    public String getMacAddr() {
+        for (NetworkIF networkIF : hardware.getNetworkIFs()) {
+            for (String ipv4 : networkIF.getIPv4addr()) {
+                if (ipv4.startsWith("127.")) continue;
+                if (ipv4.startsWith("10.")) continue;
                 return networkIF.getMacaddr();
             }
         }
@@ -110,22 +105,19 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
             for (UsbDevice s : hardware.getUsbDevices(true)) {
                 LogHelper.debug("USBDevice Serial: %s Name: %s", s.getSerialNumber(), s.getName());
             }
-            for(NetworkIF networkIF : hardware.getNetworkIFs())
-            {
+            for (NetworkIF networkIF : hardware.getNetworkIFs()) {
                 LogHelper.debug("Network Interface: %s mac: %s", networkIF.getName(), networkIF.getMacaddr());
                 NetworkInterface network = networkIF.getNetworkInterface();
-                if(network.isLoopback() || network.isVirtual()) continue;
+                if (network.isLoopback() || network.isVirtual()) continue;
                 LogHelper.debug("Network Interface display: %s name: %s", network.getDisplayName(), network.getName());
-                for(String ipv4 : networkIF.getIPv4addr())
-                {
-                    if(ipv4.startsWith("127.")) continue;
-                    if(ipv4.startsWith("10.")) continue;
+                for (String ipv4 : networkIF.getIPv4addr()) {
+                    if (ipv4.startsWith("127.")) continue;
+                    if (ipv4.startsWith("10.")) continue;
                     LogHelper.subDebug("IPv4: %s", ipv4);
                 }
             }
-            for(SoundCard soundcard : hardware.getSoundCards())
-            {
-                 LogHelper.debug("SoundCard %s", soundcard.getName());
+            for (SoundCard soundcard : hardware.getSoundCards()) {
+                LogHelper.debug("SoundCard %s", soundcard.getName());
             }
             CentralProcessor processor = hardware.getProcessor();
             LogHelper.debug("Processor Model: %s ID: %s", processor.getModel(), processor.getProcessorID());

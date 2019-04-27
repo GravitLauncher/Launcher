@@ -7,7 +7,6 @@ import ru.gravit.utils.helper.SecurityHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
@@ -21,10 +20,7 @@ public final class LauncherConfig extends StreamObject {
     }
 
     // Instance
-    @LauncherAPI
-    public InetSocketAddress address;
-    public String nettyAddress;
-    public int nettyPort;
+    public String address;
     @LauncherAPI
     public final String projectname;
     public final int clientPort;
@@ -34,32 +30,28 @@ public final class LauncherConfig extends StreamObject {
 
     @LauncherAPI
     public final Map<String, byte[]> runtime;
-
-    public final boolean isUsingWrapper;
-    public final boolean isDownloadJava;
     public final boolean isWarningMissArchJava;
-    public final boolean isNettyEnabled;
+    public boolean isNettyEnabled;
+    public LauncherEnvironment environment;
 
     public final String guardLicenseName;
     public final String guardLicenseKey;
     public final String guardLicenseEncryptKey;
+    public final String guardType;
 
     @LauncherAPI
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
-        address = InetSocketAddress.createUnresolved( config.address, config.port);
         publicKey = SecurityHelper.toPublicRSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
         projectname = config.projectname;
         clientPort = config.clientPort;
         secretKeyClient = config.secretKeyClient;
-        isDownloadJava = config.isDownloadJava;
-        isUsingWrapper = config.isUsingWrapper;
+
         isWarningMissArchJava = config.isWarningMissArchJava;
         guardLicenseEncryptKey = config.guardLicenseEncryptKey;
         guardLicenseKey = config.guardLicenseKey;
+        guardType = config.guardType;
         guardLicenseName = config.guardLicenseName;
-        nettyPort = config.nettyPort;
-        nettyAddress = config.nettyAddress;
-        isNettyEnabled = config.isNettyEnabled;
+        address = config.address;
         LauncherEnvironment env;
         if (config.env == 0) env = LauncherEnvironment.DEV;
         else if (config.env == 1) env = LauncherEnvironment.DEBUG;
@@ -67,6 +59,7 @@ public final class LauncherConfig extends StreamObject {
         else if (config.env == 3) env = LauncherEnvironment.PROD;
         else env = LauncherEnvironment.STD;
         Launcher.applyLauncherEnv(env);
+        environment = env;
         // Read signed runtime
         int count = input.readLength(0);
         Map<String, byte[]> localResources = new HashMap<>(count);
@@ -80,8 +73,8 @@ public final class LauncherConfig extends StreamObject {
     }
 
     @LauncherAPI
-    public LauncherConfig(String address, int port, RSAPublicKey publicKey, Map<String, byte[]> runtime, String projectname) {
-        this.address = InetSocketAddress.createUnresolved(address, port);
+    public LauncherConfig(String address, RSAPublicKey publicKey, Map<String, byte[]> runtime, String projectname) {
+        this.address = address;
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectname = projectname;
@@ -89,15 +82,15 @@ public final class LauncherConfig extends StreamObject {
         this.guardLicenseName = "FREE";
         this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
         this.guardLicenseEncryptKey = "12345";
-        isUsingWrapper = true;
-        isDownloadJava = false;
+        guardType = "no";
         isWarningMissArchJava = true;
         isNettyEnabled = false;
+        environment = LauncherEnvironment.STD;
     }
 
     @LauncherAPI
-    public LauncherConfig(String address, int port, RSAPublicKey publicKey, Map<String, byte[]> runtime) {
-        this.address = InetSocketAddress.createUnresolved(address, port);
+    public LauncherConfig(String address, RSAPublicKey publicKey, Map<String, byte[]> runtime) {
+        this.address = address;
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectname = "Minecraft";
@@ -105,10 +98,10 @@ public final class LauncherConfig extends StreamObject {
         this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
         this.guardLicenseEncryptKey = "12345";
         this.clientPort = 32148;
-        isUsingWrapper = true;
-        isDownloadJava = false;
+        guardType = "no";
         isWarningMissArchJava = true;
         isNettyEnabled = false;
+        environment = LauncherEnvironment.STD;
     }
 
     @Override

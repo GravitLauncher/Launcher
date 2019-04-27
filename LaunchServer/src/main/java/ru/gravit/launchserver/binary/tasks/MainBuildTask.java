@@ -128,22 +128,14 @@ public class MainBuildTask implements LauncherBuildTask {
                     });
             BuildContext context = new BuildContext(output, jaConfigurator, this);
             server.buildHookManager.hook(context);
-            jaConfigurator.setAddress(server.config.getAddress());
-            jaConfigurator.setPort(server.config.port);
-            jaConfigurator.setNettyEnabled(server.config.netty.clientEnabled);
-            if(server.config.netty.clientEnabled)
-            {
-                jaConfigurator.setNettyPort(server.config.netty.port);
-                jaConfigurator.setNettyAddress(server.config.netty.address);
-            }
-            if(server.config.guardLicense != null)
+            jaConfigurator.setAddress(server.config.netty.address);
+            if (server.config.guardLicense != null)
                 jaConfigurator.setGuardLicense(server.config.guardLicense.name, server.config.guardLicense.key, server.config.guardLicense.encryptKey);
             jaConfigurator.setProjectName(server.config.projectName);
             jaConfigurator.setSecretKey(SecurityHelper.randomStringAESKey());
             jaConfigurator.setClientPort(32148 + SecurityHelper.newRandom().nextInt(512));
-            jaConfigurator.setUsingWrapper(server.config.isUsingWrapper);
+            jaConfigurator.setGuardType(server.config.launcher.guardType);
             jaConfigurator.setWarningMissArchJava(server.config.isWarningMissArchJava);
-            jaConfigurator.setDownloadJava(server.config.isDownloadJava);
             jaConfigurator.setEnv(server.config.env);
             server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
             reader.getCp().add(new JarFile(inputJar.toFile()));
@@ -201,7 +193,7 @@ public class MainBuildTask implements LauncherBuildTask {
             byte[] launcherConfigBytes;
             try (ByteArrayOutputStream configArray = IOHelper.newByteArrayOutput()) {
                 try (HOutput configOutput = new HOutput(configArray)) {
-                    new LauncherConfig(server.config.getAddress(), server.config.port, server.publicKey, runtime)
+                    new LauncherConfig(server.config.netty.address, server.publicKey, runtime)
                             .write(configOutput);
                 }
                 launcherConfigBytes = configArray.toByteArray();
@@ -215,7 +207,7 @@ public class MainBuildTask implements LauncherBuildTask {
             jaConfigurator.compile();
             output.write(jaConfigurator.getBytecode());
         } catch (CannotCompileException | NotFoundException e) {
-            LogHelper.error(e);
+            throw new IOException(e);
         }
         reader.close();
         return outputJar;

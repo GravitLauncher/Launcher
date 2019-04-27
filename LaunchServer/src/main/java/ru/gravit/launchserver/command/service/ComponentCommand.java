@@ -1,5 +1,6 @@
 package ru.gravit.launchserver.command.service;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
@@ -25,8 +26,7 @@ public class ComponentCommand extends Command {
         return "component manager";
     }
 
-    public void printHelp()
-    {
+    public void printHelp() {
         LogHelper.info("Print help for component:");
         LogHelper.subInfo("component unload [componentName]");
         LogHelper.subInfo("component load [componentName] [filename]");
@@ -37,67 +37,54 @@ public class ComponentCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
         String componentName = null;
-        if(args.length > 1) componentName = args[1];
-        switch(args[0])
-        {
-            case "unload":
-            {
-                if(componentName == null) throw new IllegalArgumentException("Must set componentName");
+        if (args.length > 1) componentName = args[1];
+        switch (args[0]) {
+            case "unload": {
+                if (componentName == null) throw new IllegalArgumentException("Must set componentName");
                 Component component = server.config.components.get(componentName);
-                if(component == null) {
+                if (component == null) {
                     LogHelper.error("Component %s not found", componentName);
                     return;
                 }
-                if(component instanceof AutoCloseable)
-                {
+                if (component instanceof AutoCloseable) {
                     ((AutoCloseable) component).close();
-                }
-                else
-                {
+                } else {
                     LogHelper.error("Component %s unload not supported", componentName);
                     return;
                 }
                 break;
             }
-            case "gc":
-            {
-                if(componentName == null) throw new IllegalArgumentException("Must set componentName");
+            case "gc": {
+                if (componentName == null) throw new IllegalArgumentException("Must set componentName");
                 Component component = server.config.components.get(componentName);
-                if(component == null) {
+                if (component == null) {
                     LogHelper.error("Component %s not found", componentName);
                     return;
                 }
-                if(component instanceof NeedGarbageCollection)
-                {
+                if (component instanceof NeedGarbageCollection) {
                     ((NeedGarbageCollection) component).garbageCollection();
-                }
-                else
-                {
+                } else {
                     LogHelper.error("Component %s gc not supported", componentName);
                     return;
                 }
                 break;
             }
-            case "load":
-            {
-                if(componentName == null) throw new IllegalArgumentException("Must set componentName");
-                if(args.length <= 2) throw new IllegalArgumentException("Must set file");
+            case "load": {
+                if (componentName == null) throw new IllegalArgumentException("Must set componentName");
+                if (args.length <= 2) throw new IllegalArgumentException("Must set file");
                 String fileName = args[2];
-                try(Reader reader = IOHelper.newReader(Paths.get(fileName)))
-                {
-                    Component component = LaunchServer.gson.fromJson(reader, Component.class);
+                try (Reader reader = IOHelper.newReader(Paths.get(fileName))) {
+                    Component component = Launcher.gsonManager.configGson.fromJson(reader, Component.class);
                     component.preInit(server);
                     component.init(server);
                     component.postInit(server);
                     LogHelper.info("Component %s(%s) loaded", componentName, component.getClass().getName());
                 }
             }
-            case "help":
-            {
+            case "help": {
                 printHelp();
             }
-            default:
-            {
+            default: {
                 printHelp();
             }
         }

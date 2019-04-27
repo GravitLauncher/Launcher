@@ -28,9 +28,9 @@ public final class AuthCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
         AuthProviderPair pair;
-        if(args.length > 2) pair = server.config.getAuthProviderPair(args[2]);
+        if (args.length > 2) pair = server.config.getAuthProviderPair(args[2]);
         else pair = server.config.getAuthProviderPair();
-        if(pair == null) throw new IllegalStateException(String.format("Auth %s not found", args[1]));
+        if (pair == null) throw new IllegalStateException(String.format("Auth %s not found", args[1]));
 
         String login = args[0];
         String password = args[1];
