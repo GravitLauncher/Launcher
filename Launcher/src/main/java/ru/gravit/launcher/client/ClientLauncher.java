@@ -19,6 +19,7 @@ import ru.gravit.utils.helper.*;
 import ru.gravit.utils.helper.JVMHelper.OS;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.invoke.MethodHandle;
@@ -537,8 +538,17 @@ public final class ClientLauncher {
 
         // Hash directory and compare (ignore update-only matcher entries, it will break offline-mode)
         HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);
-        if (!hdir.diff(currentHDir, matcher).isSame())
+        HashedDir.Diff diff = hdir.diff(currentHDir, matcher);
+        if (!diff.isSame())
+        {
+            diff.extra.walk(File.separator, (e,k,v) -> {
+                LogHelper.error("Extra %s", e);
+            });
+            diff.mismatch.walk(File.separator, (e,k,v) -> {
+                LogHelper.error("Mismatch %s", e);
+            });
             throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
+        }
     }
 
     private ClientLauncher() {
