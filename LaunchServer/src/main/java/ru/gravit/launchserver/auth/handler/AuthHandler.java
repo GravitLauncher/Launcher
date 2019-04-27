@@ -18,11 +18,11 @@ public abstract class AuthHandler implements AutoCloseable {
 
     public static void registerHandlers() {
         if (!registredHandl) {
-            providers.registerProvider("null", NullAuthHandler.class);
-            providers.registerProvider("json", JsonAuthHandler.class);
-            providers.registerProvider("memory", MemoryAuthHandler.class);
-            providers.registerProvider("mysql", MySQLAuthHandler.class);
-            providers.registerProvider("request", RequestAuthHandler.class);
+            providers.register("null", NullAuthHandler.class);
+            providers.register("json", JsonAuthHandler.class);
+            providers.register("memory", MemoryAuthHandler.class);
+            providers.register("mysql", MySQLAuthHandler.class);
+            providers.register("request", RequestAuthHandler.class);
             registredHandl = true;
         }
     }

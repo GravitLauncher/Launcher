@@ -9,8 +9,8 @@ public abstract class Component {
 
     public static void registerComponents() {
         if (!registredComp) {
-            providers.registerProvider("authLimiter", AuthLimiterComponent.class);
-            providers.registerProvider("commandRemover", CommandRemoverComponent.class);
+            providers.register("authLimiter", AuthLimiterComponent.class);
+            providers.register("commandRemover", CommandRemoverComponent.class);
             registredComp = true;
         }
     }

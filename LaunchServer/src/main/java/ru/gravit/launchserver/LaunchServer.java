@@ -64,12 +64,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             config = Launcher.gsonManager.gson.fromJson(reader, Config.class);
         }
         config.verify();
-        Launcher.applyLauncherEnv(config.env);
-        for (AuthProviderPair auth : config.auth) {
-            auth.init();
-        }
-        config.permissionsHandler.init();
-        config.hwidHandler.init();
+        config.init();
     }
 
     public static final class Config {
@@ -200,6 +195,27 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             if (netty == null) {
                 throw new NullPointerException("Netty must not be null");
             }
+        }
+        public void init()
+        {
+            Launcher.applyLauncherEnv(env);
+            for (AuthProviderPair provider : auth) {
+                provider.init();
+            }
+            permissionsHandler.init();
+            hwidHandler.init();
+            if (protectHandler != null) {
+                protectHandler.checkLaunchServerLicense();
+            }
+            LaunchServer.server.registerObject("permissionsHandler", permissionsHandler);
+            for (int i = 0; i < auth.length; ++i) {
+                AuthProviderPair pair = auth[i];
+                LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
+                LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
+                LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+            }
+
+            Arrays.stream(mirrors).forEach(LaunchServer.server.mirrorManager::addMirror);
         }
 
         public void close() {

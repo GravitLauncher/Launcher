@@ -9,10 +9,10 @@ public abstract class PermissionsHandler implements AutoCloseable {
 
     public static void registerHandlers() {
         if (!registredHandl) {
-            providers.registerProvider("json", JsonFilePermissionsHandler.class);
-            providers.registerProvider("json-long", JsonLongFilePermissionsHandler.class);
-            providers.registerProvider("config", ConfigPermissionsHandler.class);
-            providers.registerProvider("default", DefaultPermissionsHandler.class);
+            providers.register("json", JsonFilePermissionsHandler.class);
+            providers.register("json-long", JsonLongFilePermissionsHandler.class);
+            providers.register("config", ConfigPermissionsHandler.class);
+            providers.register("default", DefaultPermissionsHandler.class);
             registredHandl = true;
         }
     }

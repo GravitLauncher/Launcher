@@ -15,12 +15,12 @@ public abstract class AuthProvider implements AutoCloseable {
 
     public static void registerProviders() {
         if (!registredProv) {
-            providers.registerProvider("null", NullAuthProvider.class);
-            providers.registerProvider("accept", AcceptAuthProvider.class);
-            providers.registerProvider("reject", RejectAuthProvider.class);
-            providers.registerProvider("mysql", MySQLAuthProvider.class);
-            providers.registerProvider("request", RequestAuthProvider.class);
-            providers.registerProvider("json", JsonAuthProvider.class);
+            providers.register("null", NullAuthProvider.class);
+            providers.register("accept", AcceptAuthProvider.class);
+            providers.register("reject", RejectAuthProvider.class);
+            providers.register("mysql", MySQLAuthProvider.class);
+            providers.register("request", RequestAuthProvider.class);
+            providers.register("json", JsonAuthProvider.class);
             registredProv = true;
         }
     }

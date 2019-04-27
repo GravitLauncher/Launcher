@@ -24,7 +24,7 @@ public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeseriali
 
     public R deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
-        Class<? extends R> cls = providerMap.getProviderClass(typename);
+        Class<? extends R> cls = providerMap.getClass(typename);
         if (cls == null) {
             LogHelper.error("%s %s not found", name, typename);
             return null;
@@ -37,7 +37,7 @@ public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeseriali
         JsonObject jo = context.serialize(src).getAsJsonObject();
 
         @SuppressWarnings("unchecked")
-        String classPath = providerMap.getProviderName((Class<? extends R>) src.getClass());
+        String classPath = providerMap.getName((Class<? extends R>) src.getClass());
         jo.add(PROP_NAME, new JsonPrimitive(classPath));
 
         return jo;

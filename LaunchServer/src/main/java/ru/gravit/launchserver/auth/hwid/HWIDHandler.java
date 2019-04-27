@@ -12,10 +12,10 @@ public abstract class HWIDHandler implements AutoCloseable {
 
     public static void registerHandlers() {
         if (!registredHandl) {
-            providers.registerProvider("accept", AcceptHWIDHandler.class);
-            providers.registerProvider("mysql", MysqlHWIDHandler.class);
-            providers.registerProvider("json", JsonHWIDHandler.class);
-            providers.registerProvider("memory", MemoryHWIDHandler.class);
+            providers.register("accept", AcceptHWIDHandler.class);
+            providers.register("mysql", MysqlHWIDHandler.class);
+            providers.register("json", JsonHWIDHandler.class);
+            providers.register("memory", MemoryHWIDHandler.class);
             registredHandl = true;
         }
     }

@@ -23,23 +23,23 @@ public class ProviderMap<R> {
         return name;
     }
 
-    public void registerProvider(String name, Class<? extends R> adapter) {
+    public void register(String name, Class<? extends R> adapter) {
         VerifyHelper.verifyIDName(name);
         VerifyHelper.putIfAbsent(PROVIDERS, name, Objects.requireNonNull(adapter, "adapter"),
                 String.format("%s has been already registered: '%s'", this.name, name));
     }
 
-    public Class<? extends R> getProviderClass(String name) {
+    public Class<? extends R> getClass(String name) {
         return PROVIDERS.get(name);
     }
 
-    public String getProviderName(Class<? extends R> clazz) {
+    public String getName(Class<? extends R> clazz) {
         for (Map.Entry<String, Class<? extends R>> e : PROVIDERS.entrySet()) {
             if (e.getValue().equals(clazz)) return e.getKey();
         }
         return null;
     }
-    public Class<? extends R> unregisterProvider(String name)
+    public Class<? extends R> unregister(String name)
     {
         return PROVIDERS.remove(name);
     }

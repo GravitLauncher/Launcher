@@ -13,7 +13,6 @@ import ru.gravit.launcher.managers.HasherStore;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
-import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.nio.file.Path;
@@ -86,7 +85,7 @@ public class FunctionalBridge {
     @LauncherAPI
     public static void registerUserSettings(String typename, Class<? extends UserSettings> clazz)
     {
-        UserSettings.providers.registerProvider(typename, clazz);
+        UserSettings.providers.register(typename, clazz);
     }
     @LauncherAPI
     public static void close() throws Exception

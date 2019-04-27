@@ -11,7 +11,7 @@ public abstract class ProtectHandler {
 
     public static void registerHandlers() {
         if (!registredHandl) {
-            providers.registerProvider("none", NoProtectHandler.class);
+            providers.register("none", NoProtectHandler.class);
             registredHandl = true;
         }
     }

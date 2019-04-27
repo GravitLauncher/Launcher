@@ -12,11 +12,11 @@ public abstract class TextureProvider implements AutoCloseable {
 
     public static void registerProviders() {
         if (!registredProv) {
-            providers.registerProvider("null", NullTextureProvider.class);
-            providers.registerProvider("void", VoidTextureProvider.class);
+            providers.register("null", NullTextureProvider.class);
+            providers.register("void", VoidTextureProvider.class);
 
             // Auth providers that doesn't do nothing :D
-            providers.registerProvider("request", RequestTextureProvider.class);
+            providers.register("request", RequestTextureProvider.class);
             registredProv = true;
         }
     }
