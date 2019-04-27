@@ -11,7 +11,6 @@ import ru.gravit.launcher.managers.ConsoleManager;
 import ru.gravit.launcher.managers.HasherManager;
 import ru.gravit.launcher.managers.HasherStore;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -42,11 +41,6 @@ public class FunctionalBridge {
             ClientLauncher.verifyHDir(dir, hdir.object, matcher, digest);
             return hdir;
         };
-    }
-
-    @LauncherAPI
-    public static void makeJsonRequest(RequestInterface request, Runnable callback) {
-
     }
 
     @LauncherAPI
@@ -109,6 +103,7 @@ public class FunctionalBridge {
     public interface HashedDirRunnable {
         SignedObjectHolder<HashedDir> run() throws Exception;
     }
+
     @LauncherAPI
     public static void evalCommand(String cmd)
     {
