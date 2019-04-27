@@ -327,7 +327,7 @@ public final class ClientLauncher {
         context.playerProfile = params.pp;
         context.args.add(javaBin.toString());
         context.args.add(MAGICAL_INTEL_OPTION);
-        if (params.ram > 0 && params.ram <= FunctionalBridge.getTotalMemory()) {
+        if (params.ram > 0 && params.ram <= FunctionalBridge.getJVMTotalMemory()) {
             context.args.add("-Xms" + params.ram + 'M');
             context.args.add("-Xmx" + params.ram + 'M');
         }

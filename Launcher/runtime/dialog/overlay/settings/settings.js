@@ -42,7 +42,7 @@ var settingsOverlay = {
         settingsOverlay.updateRAMLabel();
 
         var ramSlider = holder.lookup("#ramSlider");
-        ramSlider.setMax(FunctionalBridge.getTotalMemory());
+        ramSlider.setMax(FunctionalBridge.getJVMTotalMemory());
         ramSlider.setSnapToTicks(true);
         ramSlider.setShowTickMarks(true);
         ramSlider.setShowTickLabels(true);
