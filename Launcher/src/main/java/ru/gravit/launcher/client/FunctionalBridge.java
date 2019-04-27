@@ -30,6 +30,8 @@ public class FunctionalBridge {
     public static AtomicReference<HWID> hwid = new AtomicReference<>();
     @LauncherAPI
     public static Thread getHWID = null;
+    
+    private static long cachedMemorySize = -1;
 
     @LauncherAPI
     public static HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) {
@@ -61,7 +63,8 @@ public class FunctionalBridge {
 
     @LauncherAPI
     public static long getTotalMemory() {
-        return hwidProvider.getTotalMemory() >> 20;
+    	if (cachedMemorySize > 0) return cachedMemorySize;
+    	return cachedMemorySize = hwidProvider.getTotalMemory() >> 20;
     }
 
     @LauncherAPI

@@ -6,7 +6,6 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedFile;
 import ru.gravit.launcher.hasher.HashedEntry.Type;
-import ru.gravit.launcher.managers.NativeJVMHalt;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.JVMHelper.OS;

@@ -8,7 +8,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import ru.gravit.launcher.managers.NativeJVMHalt;
+import ru.gravit.launcher.utils.NativeJVMHalt;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.ByteArrayOutputStream;
