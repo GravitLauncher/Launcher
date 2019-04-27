@@ -1,4 +1,4 @@
-package ru.gravit.launcher.server;
+	package ru.gravit.launcher.server;
 
 import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.Launcher;
@@ -170,7 +170,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 auth();
             };
         }
-        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s", config.projectname, config.websocket.address, config.title);
+        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s. Title: %s", config.projectname, config.websocket.address, config.title);
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
