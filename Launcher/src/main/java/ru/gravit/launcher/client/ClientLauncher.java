@@ -6,6 +6,7 @@ import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
@@ -35,6 +36,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ClientLauncher {
 
@@ -541,10 +543,13 @@ public final class ClientLauncher {
         HashedDir.Diff diff = hdir.diff(currentHDir, matcher);
         if (!diff.isSame())
         {
+            AtomicBoolean isFoundFile = new AtomicBoolean(false);
             diff.extra.walk(File.separator, (e,k,v) -> {
+                if(v.getType().equals(HashedEntry.Type.FILE)) isFoundFile.set(true);
                 LogHelper.error("Extra %s", e);
             });
             diff.mismatch.walk(File.separator, (e,k,v) -> {
+                if(v.getType().equals(HashedEntry.Type.FILE)) isFoundFile.set(true);
                 LogHelper.error("Mismatch %s", e);
             });
             throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
