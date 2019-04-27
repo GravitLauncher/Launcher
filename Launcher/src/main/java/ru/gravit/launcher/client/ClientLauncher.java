@@ -3,10 +3,8 @@ package ru.gravit.launcher.client;
 import ru.gravit.launcher.*;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
-import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
-import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
@@ -15,12 +13,12 @@ import ru.gravit.launcher.request.auth.RestoreSessionRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
+import ru.gravit.launcher.utils.DirWatcher;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.*;
 import ru.gravit.utils.helper.JVMHelper.OS;
 
 import javax.swing.*;
-import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.invoke.MethodHandle;
@@ -36,10 +34,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ClientLauncher {
-
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
         private final Collection<Path> result;
 

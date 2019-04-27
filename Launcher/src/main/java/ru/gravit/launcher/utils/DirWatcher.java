@@ -1,8 +1,12 @@
-package ru.gravit.launcher.hasher;
+package ru.gravit.launcher.utils;
 
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.hasher.FileNameMatcher;
+import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.hasher.HashedEntry;
+import ru.gravit.launcher.hasher.HashedFile;
 import ru.gravit.launcher.hasher.HashedEntry.Type;
-import ru.gravit.utils.NativeJVMHalt;
+import ru.gravit.launcher.managers.NativeJVMHalt;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.JVMHelper.OS;
