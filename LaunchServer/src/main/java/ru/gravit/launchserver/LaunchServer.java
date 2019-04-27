@@ -738,10 +738,20 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         	newConfig.setLegacyAddress("localhost");
         	newConfig.setProjectName("test");
         } else {
-        	System.out.println("LaunchServer address: ");
+        	System.out.println("LaunchServer legacy address(default: localhost): ");
         	newConfig.setLegacyAddress(commandHandler.readLine());
         	System.out.println("LaunchServer projectName: ");
         	newConfig.setProjectName(commandHandler.readLine());
+        }
+        if(newConfig.legacyAddress == null)
+        {
+            LogHelper.error("Legacy address null. Using localhost");
+            newConfig.legacyAddress = "localhost";
+        }
+        if(newConfig.projectName == null)
+        {
+            LogHelper.error("ProjectName null. Using MineCraft");
+            newConfig.projectName = "MineCraft";
         }
 
         // Write LaunchServer config
