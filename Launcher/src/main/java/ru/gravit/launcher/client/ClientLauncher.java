@@ -545,12 +545,12 @@ public final class ClientLauncher {
         {
             AtomicBoolean isFoundFile = new AtomicBoolean(false);
             diff.extra.walk(File.separator, (e,k,v) -> {
-                if(v.getType().equals(HashedEntry.Type.FILE)) isFoundFile.set(true);
-                LogHelper.error("Extra %s", e);
+                if(v.getType().equals(HashedEntry.Type.FILE)) { LogHelper.error("Extra file %s", e); isFoundFile.set(true); }
+                else LogHelper.error("Extra %s", e);
             });
             diff.mismatch.walk(File.separator, (e,k,v) -> {
-                if(v.getType().equals(HashedEntry.Type.FILE)) isFoundFile.set(true);
-                LogHelper.error("Mismatch %s", e);
+                if(v.getType().equals(HashedEntry.Type.FILE)) { LogHelper.error("Mismatch file %s", e); isFoundFile.set(true); }
+                else LogHelper.error("Mismatch %s", e);
             });
             if(isFoundFile.get()) throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
         }
