@@ -14,6 +14,10 @@ public class ReloadManager {
         VerifyHelper.putIfAbsent(RELOADABLES, name.toLowerCase(), Objects.requireNonNull(reloadable, "adapter"),
                 String.format("Reloadable has been already registered: '%s'", name.toLowerCase()));
     }
+    public Reloadable unregisterReloadable(String name)
+    {
+        return RELOADABLES.remove(name);
+    }
 
     public void reloadAll() {
         RELOADABLES.forEach((k, v) -> {

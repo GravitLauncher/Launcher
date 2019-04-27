@@ -220,6 +220,18 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public void close() {
             try {
+                LaunchServer.server.unregisterObject("permissionsHandler", permissionsHandler);
+                for (int i = 0; i < auth.length; ++i) {
+                    AuthProviderPair pair = auth[i];
+                    LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
+                    LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
+                    LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                }
+            } catch (Exception e)
+            {
+                LogHelper.error(e);
+            }
+            try {
                 for (AuthProviderPair p : auth) p.close();
             } catch (IOException e) {
                 LogHelper.error(e);
@@ -867,6 +879,20 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
         if (object instanceof NeedGarbageCollection) {
             GarbageManager.registerNeedGC((NeedGarbageCollection) object);
+        }
+        if (object instanceof JsonConfigurable) {
+
+        }
+    }
+    public void unregisterObject(String name, Object object) {
+        if (object instanceof Reloadable) {
+            reloadManager.unregisterReloadable(name);
+        }
+        if (object instanceof Reconfigurable) {
+            reconfigurableManager.unregisterReconfigurable(name);
+        }
+        if (object instanceof NeedGarbageCollection) {
+            GarbageManager.unregisterNeedGC((NeedGarbageCollection) object);
         }
         if (object instanceof JsonConfigurable) {
 

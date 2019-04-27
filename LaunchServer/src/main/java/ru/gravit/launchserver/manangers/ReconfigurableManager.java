@@ -14,6 +14,10 @@ public class ReconfigurableManager {
         VerifyHelper.putIfAbsent(RECONFIGURABLE, name.toLowerCase(), Objects.requireNonNull(reconfigurable, "adapter"),
                 String.format("Reloadable has been already registered: '%s'", name));
     }
+    public Reconfigurable unregisterReconfigurable(String name)
+    {
+        return RECONFIGURABLE.remove(name);
+    }
 
     public void printHelp(String name) {
         RECONFIGURABLE.get(name.toLowerCase()).printConfigHelp();
