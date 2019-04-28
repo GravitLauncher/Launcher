@@ -847,7 +847,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 // Resolve name and verify is dir
                 String name = IOHelper.getFileName(updateDir);
                 if (!IOHelper.isDir(updateDir)) {
-                    LogHelper.warning("Not update dir: '%s'", name);
+                    if (!updateDir.toString().endsWith(".jar") && !updateDir.toString().endsWith(".exe") && !updateDir.toString().endsWith(".hash")) LogHelper.warning("Not update dir: '%s'", name);
                     continue;
                 }
 
