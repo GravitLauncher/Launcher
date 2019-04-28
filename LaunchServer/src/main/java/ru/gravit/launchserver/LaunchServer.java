@@ -756,8 +756,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.legacyAddress = address;
         newConfig.netty.address = "ws://" + address + ":9274/api";
         newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
-        newConfig.netty.launcherURL = "http://" + address + ":9274/internal/Launcher.jar";
-        newConfig.netty.launcherEXEURL = "http://" + address + ":9274/internal/Launcher.exe";
+        newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
+        newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
         newConfig.netty.sendExceptionEnabled = true;
 
         // Write LaunchServer config
