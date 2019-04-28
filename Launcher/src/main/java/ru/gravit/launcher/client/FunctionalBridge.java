@@ -56,9 +56,9 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public static long getTotalMemory() {
-    	if (cachedMemorySize > 0) return cachedMemorySize;
-    	return cachedMemorySize = hwidProvider.getTotalMemory() >> 20;
+    public static int getTotalMemory() {
+    	if (cachedMemorySize > 0) return (int)cachedMemorySize;
+    	return (int)(cachedMemorySize = hwidProvider.getTotalMemory() >> 20);
     }
 
     @LauncherAPI
@@ -67,7 +67,7 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public static long getJVMTotalMemory() {
+    public static int getJVMTotalMemory() {
         if (getClientJVMBits() == 32) {
             return Math.min(getTotalMemory(), 1536);
         } else {

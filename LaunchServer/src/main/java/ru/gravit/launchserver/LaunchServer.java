@@ -79,6 +79,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String[] mirrors;
 
         public String binaryName;
+        
+        public boolean copyBinaries = true;
 
         public LauncherConfig.LauncherEnvironment env;
 
@@ -269,7 +271,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     public class NettyConfig {
-        public boolean clientEnabled;
+        public boolean fileServerEnabled;
         public boolean sendExceptionEnabled;
         public String launcherURL;
         public String downloadURL;
@@ -704,11 +706,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
         newConfig.netty = new NettyConfig();
-        newConfig.netty.address = "ws://localhost:9274/api";
-        newConfig.netty.downloadURL = "http://localhost:9274/%dirname%/";
-        newConfig.netty.launcherURL = "http://localhost:9274/Launcher.jar";
-        newConfig.netty.launcherEXEURL = "http://localhost:9274/Launcher.exe";
-        newConfig.netty.clientEnabled = false;
+        newConfig.netty.fileServerEnabled = true;
         newConfig.netty.binds = new NettyBindAddress[]{ new NettyBindAddress("0.0.0.0", 9274) };
         newConfig.netty.performance = new NettyPerformanceConfig();
         newConfig.netty.performance.bossThread = 2;
@@ -734,25 +732,33 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.components.put("authLimiter", authLimiterComponent);
 
         // Set server address
+        String address;
         if (testEnv) {
-        	newConfig.setLegacyAddress("localhost");
+        	address = "localhost";
         	newConfig.setProjectName("test");
         } else {
-        	System.out.println("LaunchServer legacy address(default: localhost): ");
-        	newConfig.setLegacyAddress(commandHandler.readLine());
+        	System.out.println("LaunchServer address(default: localhost): ");
+        	address = commandHandler.readLine();
         	System.out.println("LaunchServer projectName: ");
         	newConfig.setProjectName(commandHandler.readLine());
         }
-        if(newConfig.legacyAddress == null)
+        if(address == null)
         {
-            LogHelper.error("Legacy address null. Using localhost");
-            newConfig.legacyAddress = "localhost";
+            LogHelper.error("Address null. Using localhost");
+            address = "localhost";
         }
         if(newConfig.projectName == null)
         {
             LogHelper.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
+        
+        newConfig.legacyAddress = address;
+        newConfig.netty.address = "ws://" + address + ":9274/api";
+        newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
+        newConfig.netty.launcherURL = "http://" + address + ":9274/internal/Launcher.jar";
+        newConfig.netty.launcherEXEURL = "http://" + address + ":9274/internal/Launcher.exe";
+        newConfig.netty.sendExceptionEnabled = true;
 
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");
@@ -836,14 +842,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         LogHelper.info("Syncing updates dir");
         Map<String, SignedObjectHolder<HashedDir>> newUpdatesDirMap = new HashMap<>(16);
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(updatesDir)) {
-            for (Path updateDir : dirStream) {
+            for (final Path updateDir : dirStream) {
                 if (Files.isHidden(updateDir))
                     continue; // Skip hidden
 
                 // Resolve name and verify is dir
                 String name = IOHelper.getFileName(updateDir);
                 if (!IOHelper.isDir(updateDir)) {
-                    LogHelper.warning("Not update dir: '%s'", name);
+                    if (!IOHelper.isFile(updateDir) && Arrays.asList(".jar", ".exe", ".hash").stream().noneMatch(e -> updateDir.toString().endsWith(e))) LogHelper.warning("Not update dir: '%s'", name);
                     continue;
                 }
 
