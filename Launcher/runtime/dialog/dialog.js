@@ -59,6 +59,8 @@ function initLoginScene() {
     savePasswordBox = pane.lookup("#rememberchb");
     savePasswordBox.setSelected(settings.login === null || settings.rsaPassword !== null);
 
+    authOptions = pane.lookup("#authOptions");
+
     var link = pane.lookup("#link");
     link.setText(config.linkText);
     link.setOnAction(function(event) app.getHostServices().showDocument(config.linkURL.toURI()));
