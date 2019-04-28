@@ -24,9 +24,8 @@ public final class JARLauncherBinary extends LauncherBinary {
     public List<Path> addonLibs;
 
     public JARLauncherBinary(LaunchServer server) throws IOException {
-        super(server);
+        super(server, LauncherBinary.resolve(server, ".jar"));
         count = new AtomicLong(0);
-        syncBinaryFile = server.dir.resolve(server.config.binaryName + ".jar");
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         guardDir = server.dir.resolve(Launcher.GUARD_DIR);
         buildDir = server.dir.resolve("build");

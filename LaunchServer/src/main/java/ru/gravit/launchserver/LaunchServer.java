@@ -79,6 +79,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String[] mirrors;
 
         public String binaryName;
+        
+        public boolean copyBinaries = true;
 
         public LauncherConfig.LauncherEnvironment env;
 
@@ -269,7 +271,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     public class NettyConfig {
-        public boolean clientEnabled;
+        public boolean fileServerEnabled;
         public boolean sendExceptionEnabled;
         public String launcherURL;
         public String downloadURL;
@@ -704,11 +706,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
         newConfig.netty = new NettyConfig();
-        newConfig.netty.address = "ws://localhost:9274/api";
-        newConfig.netty.downloadURL = "http://localhost:9274/%dirname%/";
-        newConfig.netty.launcherURL = "http://localhost:9274/Launcher.jar";
-        newConfig.netty.launcherEXEURL = "http://localhost:9274/Launcher.exe";
-        newConfig.netty.clientEnabled = false;
+        newConfig.netty.fileServerEnabled = true;
         newConfig.netty.binds = new NettyBindAddress[]{ new NettyBindAddress("0.0.0.0", 9274) };
         newConfig.netty.performance = new NettyPerformanceConfig();
         newConfig.netty.performance.bossThread = 2;
@@ -753,6 +751,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             LogHelper.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
+        
+        newConfig.netty.address = "ws://" + newConfig.legacyAddress + ":9274/api";
+        newConfig.netty.downloadURL = "http://" + newConfig.legacyAddress + ":9274/%dirname%/";
+        newConfig.netty.launcherURL = "http://" + newConfig.legacyAddress + ":9274/internal/Launcher.jar";
+        newConfig.netty.launcherEXEURL = "http://" + newConfig.legacyAddress + ":9274/internal/Launcher.exe";
+        newConfig.netty.sendExceptionEnabled = true;
 
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");
