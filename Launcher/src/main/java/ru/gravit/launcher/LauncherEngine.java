@@ -9,7 +9,6 @@ import ru.gravit.launcher.gui.RuntimeProvider;
 import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.managers.ConsoleManager;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.websockets.ClientWebSocketService;
 import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.EnvHelper;
@@ -25,7 +24,7 @@ public class LauncherEngine {
         JVMHelper.checkStackTrace(LauncherEngine.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
-        //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
+        if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
         // Start Launcher

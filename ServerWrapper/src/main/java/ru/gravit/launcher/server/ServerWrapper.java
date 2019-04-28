@@ -1,4 +1,4 @@
-package ru.gravit.launcher.server;
+	package ru.gravit.launcher.server;
 
 import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.Launcher;

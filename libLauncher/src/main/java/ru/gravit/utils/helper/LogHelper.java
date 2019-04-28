@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class LogHelper {
@@ -50,6 +51,7 @@ public final class LogHelper {
     }
 
     private static final Set<OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
+    private static final Set<Consumer<Throwable>> EXCEPTIONS_CALLBACKS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
     private static final OutputEnity STD_OUTPUT;
 
     private LogHelper() {
@@ -58,6 +60,11 @@ public final class LogHelper {
     @LauncherAPI
     public static void addOutput(OutputEnity output) {
         OUTPUTS.add(Objects.requireNonNull(output, "output"));
+    }
+
+    @LauncherAPI
+    public static void addExcCallback(Consumer<Throwable> output) {
+    	EXCEPTIONS_CALLBACKS.add(Objects.requireNonNull(output, "output"));
     }
 
     @LauncherAPI
@@ -105,6 +112,7 @@ public final class LogHelper {
 
     @LauncherAPI
     public static void error(Throwable exc) {
+    	EXCEPTIONS_CALLBACKS.forEach(e -> e.accept(exc));
         error(isStacktraceEnabled() ? toString(exc) : exc.toString());
     }
 
