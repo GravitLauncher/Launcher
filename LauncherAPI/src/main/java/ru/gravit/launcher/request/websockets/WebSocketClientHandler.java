@@ -23,11 +23,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     private final WebSocketClientHandshaker handshaker;
     private final ClientJSONPoint clientJSONPoint;
     private ChannelPromise handshakeFuture;
-    interface OnMessageCallback
-    {
-        void onMessage(String text);
-    }
-    public OnMessageCallback onMessageCallback;
 
     public WebSocketClientHandler(final WebSocketClientHandshaker handshaker, ClientJSONPoint clientJSONPoint) {
         this.handshaker = handshaker;
@@ -46,6 +41,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         handshaker.handshake(ctx.channel());
+        clientJSONPoint.onOpen();
     }
 
     @Override
@@ -66,7 +62,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
         if (msg instanceof FullHttpResponse) {
             final FullHttpResponse response = (FullHttpResponse) msg;
-            throw new Exception("Unexpected FullHttpResponse (getStatus=" + response.getStatus() + ", content="
+            throw new Exception("Unexpected FullHttpResponse (getStatus=" + response.status() + ", content="
                     + response.content().toString(CharsetUtil.UTF_8) + ')');
         }
 
@@ -89,7 +85,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
-        cause.printStackTrace();
+        LogHelper.error(cause);
 
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);

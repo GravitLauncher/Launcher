@@ -63,6 +63,14 @@ public class ClientWebSocketService extends ClientJSONPoint {
         if(onCloseCallback != null) onCloseCallback.onClose(0,"unsupported param", !isClosed);
     }
 
+    @Override
+    void onOpen() throws Exception {
+        synchronized (onConnect)
+        {
+            onConnect.notifyAll();
+        }
+    }
+
     @FunctionalInterface
     public interface OnCloseCallback
     {

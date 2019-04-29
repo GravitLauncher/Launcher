@@ -84,6 +84,7 @@ public abstract class ClientJSONPoint {
     }
     abstract void onMessage(String message) throws Exception;
     abstract void onDisconnect() throws Exception;
+    abstract void onOpen() throws Exception;
 
     public void close() throws InterruptedException {
         //System.out.println("WebSocket Client sending close");
