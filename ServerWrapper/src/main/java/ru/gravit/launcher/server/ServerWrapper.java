@@ -6,6 +6,7 @@ import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.events.request.ProfilesRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.auth.AuthRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.launcher.server.setup.ServerWrapperSetup;
@@ -162,10 +163,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             {
                 LogHelper.debug("WebSocket connect closed. Try reconnect");
                 try {
-                    if (!Request.service.reconnectBlocking()) LogHelper.error("Error connecting");
+                    Request.service.open();
                     LogHelper.debug("Connect to %s", config.websocket.address);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                    throw new RequestException(String.format("Connect error: %s", e.getMessage() != null ? e.getMessage() : "null"));
                 }
                 auth();
             };

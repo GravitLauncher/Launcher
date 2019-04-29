@@ -9,6 +9,7 @@ import ru.gravit.launcher.gui.RuntimeProvider;
 import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.managers.ConsoleManager;
 import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.auth.RestoreSessionRequest;
 import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import ru.gravit.utils.helper.CommonHelper;
@@ -81,10 +82,11 @@ public class LauncherEngine {
             {
                 LogHelper.debug("WebSocket connect closed. Try reconnect");
                 try {
-                    if (!Request.service.reconnectBlocking()) LogHelper.error("Error connecting");
+                    Request.service.open();
                     LogHelper.debug("Connect to %s", Launcher.getConfig().address);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                    throw new RequestException(String.format("Connect error: %s", e.getMessage() != null ? e.getMessage() : "null"));
                 }
                 try {
                     RestoreSessionRequest request1 = new RestoreSessionRequest(Request.getSession());
