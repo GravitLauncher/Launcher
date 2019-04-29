@@ -1,5 +1,6 @@
 package ru.gravit.launchserver;
 
+import io.netty.handler.logging.LogLevel;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.NeedGarbageCollection;
@@ -280,6 +281,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public Map<String, String> bindings = new HashMap<>();
         public NettyPerformanceConfig performance;
         public NettyBindAddress[] binds;
+        public LogLevel logLevel = LogLevel.DEBUG;
     }
     public class NettyPerformanceConfig
     {
@@ -719,7 +721,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.threadCoreCount = 0; // on your own
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
 
-        newConfig.enabledRadon = true;
+        newConfig.enabledRadon = false;
         newConfig.enabledProGuard = true;
         newConfig.stripLineNumbers = true;
         newConfig.deleteTempFiles = true;

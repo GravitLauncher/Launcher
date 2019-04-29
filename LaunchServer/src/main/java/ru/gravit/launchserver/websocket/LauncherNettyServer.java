@@ -32,7 +32,7 @@ public class LauncherNettyServer implements AutoCloseable {
         serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .handler(new LoggingHandler(LogLevel.DEBUG))
+                .handler(new LoggingHandler(config.logLevel))
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     public void initChannel(NioSocketChannel ch) {
