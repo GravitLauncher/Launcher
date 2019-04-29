@@ -5,8 +5,8 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -16,27 +16,33 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import ru.gravit.utils.helper.LogHelper;
 
+import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
 
-public class ClientJSONPoint {
+public abstract class ClientJSONPoint {
 
     private final URI uri;
-    private Channel ch;
+    protected Channel ch;
     private static final EventLoopGroup group = new NioEventLoopGroup();
     protected WebSocketClientHandler webSocketClientHandler;
+    protected Bootstrap bootstrap = new Bootstrap();
+    public boolean isClosed;
 
-    public ClientJSONPoint(final String uri) {
-        this.uri = URI.create(uri);
+    public ClientJSONPoint(final String uri) throws SSLException {
+        this(URI.create(uri));
     }
 
-    public ClientJSONPoint(URI uri) {
+    public ClientJSONPoint(URI uri) throws SSLException {
         this.uri = uri;
-    }
+        // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
+        // If you change it to V00, ping is not supported and remember to change
+        // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
+        webSocketClientHandler =
+                new WebSocketClientHandler(
+                        WebSocketClientHandshakerFactory.newHandshaker(
+                                uri, WebSocketVersion.V13, null, false, EmptyHttpHeaders.INSTANCE, 1280000), this);
 
-    public void open() throws Exception {
-        Bootstrap b = new Bootstrap();
         String protocol = uri.getScheme();
         if (!"ws".equals(protocol) && !"wss".equals(protocol)) {
             throw new IllegalArgumentException("Unsupported protocol: " + protocol);
@@ -49,19 +55,8 @@ public class ClientJSONPoint {
         final SslContext sslCtx;
         if (ssl) {
             sslCtx = SslContextBuilder.forClient().build();
-        } else {
-            sslCtx = null;
-        }
-
-        // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
-        // If you change it to V00, ping is not supported and remember to change
-        // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
-        webSocketClientHandler =
-                new WebSocketClientHandler(
-                        WebSocketClientHandshakerFactory.newHandshaker(
-                                uri, WebSocketVersion.V13, null, false, HttpHeaders.EMPTY_HEADERS, 1280000));
-
-        b.group(group)
+        } else sslCtx = null;
+        bootstrap.group(group)
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -74,10 +69,12 @@ public class ClientJSONPoint {
                         pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
                         pipeline.addLast("ws-handler", webSocketClientHandler);
                     }
-                });
+        });
+    }
 
+    public void open() throws Exception {
         //System.out.println("WebSocket Client connecting");
-        ch = b.connect(uri.getHost(), uri.getPort()).sync().channel();
+        ch = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
         webSocketClientHandler.handshakeFuture().sync();
     }
     public ChannelFuture send(String text)
@@ -85,9 +82,12 @@ public class ClientJSONPoint {
         LogHelper.dev("Send: %s", text);
         return ch.writeAndFlush(new TextWebSocketFrame(text));
     }
+    abstract void onMessage(String message) throws Exception;
+    abstract void onDisconnect() throws Exception;
 
     public void close() throws InterruptedException {
         //System.out.println("WebSocket Client sending close");
+        isClosed = true;
         ch.writeAndFlush(new CloseWebSocketFrame());
         ch.closeFuture().sync();
         //group.shutdownGracefully();

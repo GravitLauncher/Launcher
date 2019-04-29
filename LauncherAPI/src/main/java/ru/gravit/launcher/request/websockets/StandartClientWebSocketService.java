@@ -8,6 +8,7 @@ import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
 
+import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public class StandartClientWebSocketService extends ClientWebSocketService {
     public WaitEventHandler waitEventHandler = new WaitEventHandler();
-    public StandartClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) {
+    public StandartClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) throws SSLException {
         super(gsonBuilder, address, i);
     }
     public class RequestFuture implements Future<ResultInterface>
@@ -101,7 +102,13 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
     }
 
     public static StandartClientWebSocketService initWebSockets(String address, boolean async) {
-        StandartClientWebSocketService service = new StandartClientWebSocketService(new GsonBuilder(), address, 5000);
+        StandartClientWebSocketService service;
+        try {
+            service = new StandartClientWebSocketService(new GsonBuilder(), address, 5000);
+        } catch (SSLException e) {
+            LogHelper.error(e);
+            return null;
+        }
         service.registerResults();
         service.registerRequests();
         service.registerHandler(service.waitEventHandler);

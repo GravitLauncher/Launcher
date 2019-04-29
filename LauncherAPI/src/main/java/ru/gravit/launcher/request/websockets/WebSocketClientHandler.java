@@ -21,6 +21,7 @@ import ru.gravit.utils.helper.LogHelper;
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
 
     private final WebSocketClientHandshaker handshaker;
+    private final ClientJSONPoint clientJSONPoint;
     private ChannelPromise handshakeFuture;
     interface OnMessageCallback
     {
@@ -28,8 +29,9 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
     public OnMessageCallback onMessageCallback;
 
-    public WebSocketClientHandler(final WebSocketClientHandshaker handshaker) {
+    public WebSocketClientHandler(final WebSocketClientHandshaker handshaker, ClientJSONPoint clientJSONPoint) {
         this.handshaker = handshaker;
+        this.clientJSONPoint = clientJSONPoint;
     }
 
     public ChannelFuture handshakeFuture() {
@@ -49,6 +51,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         //System.out.println("WebSocket Client disconnected!");
+        clientJSONPoint.onDisconnect();
     }
 
     @Override
@@ -70,7 +73,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         final WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             final TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            if(onMessageCallback != null) onMessageCallback.onMessage(textFrame.text());
+            clientJSONPoint.onMessage(textFrame.text());
             LogHelper.dev("Message: %s", textFrame.text());
             // uncomment to print request
             // logger.info(textFrame.text());

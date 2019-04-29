@@ -9,6 +9,7 @@ import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.utils.helper.LogHelper;
 
+import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -25,7 +26,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
     private HashMap<String, Class<? extends ResultInterface>> results;
     private HashSet<EventHandler> handlers;
 
-    public ClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) {
+    public ClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) throws SSLException {
         super(createURL(address));
         requests = new HashMap<>();
         results = new HashMap<>();
@@ -49,14 +50,17 @@ public class ClientWebSocketService extends ClientJSONPoint {
     }
 
     @Override
-    public void open() throws Exception {
-        super.open();
-        webSocketClientHandler.onMessageCallback = (message) -> {
-            ResultInterface result = gson.fromJson(message, ResultInterface.class);
-            for (EventHandler handler : handlers) {
-                handler.process(result);
-            }
-        };
+    void onMessage(String message) {
+        ResultInterface result = gson.fromJson(message, ResultInterface.class);
+        for (EventHandler handler : handlers) {
+            handler.process(result);
+        }
+    }
+
+    @Override
+    void onDisconnect() {
+        LogHelper.info("WebSocket client disconnect");
+        if(onCloseCallback != null) onCloseCallback.onClose(0,"unsupported param", !isClosed);
     }
 
     @FunctionalInterface
@@ -133,6 +137,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     public void sendObject(Object obj) throws IOException {
         waitIfNotConnected();
+        if(ch == null || !ch.isActive()) reconnectCallback.onReconnect();
         //if(isClosed() && reconnectCallback != null)
         //    reconnectCallback.onReconnect();
         send(gson.toJson(obj, RequestInterface.class));
@@ -140,6 +145,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     public void sendObject(Object obj, Type type) throws IOException {
         waitIfNotConnected();
+        if(ch == null || !ch.isActive()) reconnectCallback.onReconnect();
         //if(isClosed() && reconnectCallback != null)
         //    reconnectCallback.onReconnect();
         send(gson.toJson(obj, type));
