@@ -1,5 +1,6 @@
 package ru.gravit.launchserver;
 
+import io.netty.handler.logging.LogLevel;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.NeedGarbageCollection;
@@ -280,6 +281,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public Map<String, String> bindings = new HashMap<>();
         public NettyPerformanceConfig performance;
         public NettyBindAddress[] binds;
+        public LogLevel logLevel = LogLevel.DEBUG;
     }
     public class NettyPerformanceConfig
     {
