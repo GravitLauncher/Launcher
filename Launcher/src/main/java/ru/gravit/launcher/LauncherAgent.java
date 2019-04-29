@@ -53,7 +53,7 @@ public final class LauncherAgent {
         	}
         }
         try {
-        	replaceClasses(pb, rt);
+        	//replaceClasses(pb, rt);
         } catch (Error e) {
         	NativeJVMHalt.haltA(294);
         	throw e;
