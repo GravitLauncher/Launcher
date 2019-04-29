@@ -14,10 +14,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 import ru.gravit.utils.helper.LogHelper;
-
-/**
- * @author Stephen Mallette (http://stephen.genoprime.com)
- */
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
 
     private final WebSocketClientHandshaker handshaker;

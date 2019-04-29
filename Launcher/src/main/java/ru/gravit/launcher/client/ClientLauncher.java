@@ -9,6 +9,7 @@ import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.auth.RestoreSessionRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
@@ -462,7 +463,8 @@ public final class ClientLauncher {
                 Request.service.open();
                 LogHelper.debug("Connect to %s", Launcher.getConfig().address);
             } catch (Exception e) {
-                e.printStackTrace();
+                LogHelper.error(e);
+                throw new RequestException(String.format("Connect error: %s", e.getMessage() != null ? e.getMessage() : "null"));
             }
             try {
                 RestoreSessionRequest request1 = new RestoreSessionRequest(Request.getSession());

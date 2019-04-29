@@ -35,14 +35,6 @@ public abstract class ClientJSONPoint {
 
     public ClientJSONPoint(URI uri) throws SSLException {
         this.uri = uri;
-        // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
-        // If you change it to V00, ping is not supported and remember to change
-        // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
-        webSocketClientHandler =
-                new WebSocketClientHandler(
-                        WebSocketClientHandshakerFactory.newHandshaker(
-                                uri, WebSocketVersion.V13, null, false, EmptyHttpHeaders.INSTANCE, 1280000), this);
-
         String protocol = uri.getScheme();
         if (!"ws".equals(protocol) && !"wss".equals(protocol)) {
             throw new IllegalArgumentException("Unsupported protocol: " + protocol);
@@ -74,6 +66,10 @@ public abstract class ClientJSONPoint {
 
     public void open() throws Exception {
         //System.out.println("WebSocket Client connecting");
+        webSocketClientHandler =
+                new WebSocketClientHandler(
+                        WebSocketClientHandshakerFactory.newHandshaker(
+                                uri, WebSocketVersion.V13, null, false, EmptyHttpHeaders.INSTANCE, 1280000), this);
         ch = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
         webSocketClientHandler.handshakeFuture().sync();
     }
@@ -89,8 +85,12 @@ public abstract class ClientJSONPoint {
     public void close() throws InterruptedException {
         //System.out.println("WebSocket Client sending close");
         isClosed = true;
-        ch.writeAndFlush(new CloseWebSocketFrame());
-        ch.closeFuture().sync();
+        if(ch != null && ch.isActive())
+        {
+            ch.writeAndFlush(new CloseWebSocketFrame());
+            ch.closeFuture().sync();
+        }
+
         //group.shutdownGracefully();
     }
 
