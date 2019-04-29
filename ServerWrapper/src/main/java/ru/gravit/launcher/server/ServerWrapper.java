@@ -6,6 +6,7 @@ import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.events.request.ProfilesRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.auth.AuthRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.launcher.server.setup.ServerWrapperSetup;
@@ -162,15 +163,16 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             {
                 LogHelper.debug("WebSocket connect closed. Try reconnect");
                 try {
-                    if (!Request.service.reconnectBlocking()) LogHelper.error("Error connecting");
+                    Request.service.open();
                     LogHelper.debug("Connect to %s", config.websocket.address);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                    throw new RequestException(String.format("Connect error: %s", e.getMessage() != null ? e.getMessage() : "null"));
                 }
                 auth();
             };
         }
-        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s port %d. Title: %s", config.projectname, config.websocket.address, config.title);
+        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s. Title: %s", config.projectname, config.websocket.address, config.title);
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());

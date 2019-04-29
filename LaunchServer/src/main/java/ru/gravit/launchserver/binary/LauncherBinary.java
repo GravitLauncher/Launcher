@@ -10,17 +10,13 @@ import java.nio.file.Path;
 
 public abstract class LauncherBinary {
     public final LaunchServer server;
-    public Path syncBinaryFile;
+    public final Path syncBinaryFile;
     private volatile DigestBytesHolder binary;
     private volatile byte[] sign;
 
     protected LauncherBinary(LaunchServer server, Path binaryFile) {
         this.server = server;
         syncBinaryFile = binaryFile;
-    }
-
-    protected LauncherBinary(LaunchServer server) {
-        this.server = server;
     }
 
     public abstract void build() throws IOException;
@@ -48,5 +44,9 @@ public abstract class LauncherBinary {
         sign = exists ? SecurityHelper.sign(IOHelper.read(syncBinaryFile), server.privateKey) : null;
 
         return exists;
+    }
+    
+    public static final Path resolve(LaunchServer server, String ext) {
+    	return server.config.copyBinaries ? server.updatesDir.resolve(server.config.binaryName + ext) : server.dir.resolve(server.config.binaryName + ext);
     }
 }

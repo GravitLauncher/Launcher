@@ -11,7 +11,6 @@ import ru.gravit.launcher.managers.ConsoleManager;
 import ru.gravit.launcher.managers.HasherManager;
 import ru.gravit.launcher.managers.HasherStore;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.websockets.RequestInterface;
 import ru.gravit.launcher.serialize.signed.SignedObjectHolder;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -30,6 +29,8 @@ public class FunctionalBridge {
     public static AtomicReference<HWID> hwid = new AtomicReference<>();
     @LauncherAPI
     public static Thread getHWID = null;
+    
+    private static long cachedMemorySize = -1;
 
     @LauncherAPI
     public static HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) {
@@ -40,11 +41,6 @@ public class FunctionalBridge {
             ClientLauncher.verifyHDir(dir, hdir.object, matcher, digest);
             return hdir;
         };
-    }
-
-    @LauncherAPI
-    public static void makeJsonRequest(RequestInterface request, Runnable callback) {
-
     }
 
     @LauncherAPI
@@ -60,8 +56,9 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public static long getTotalMemory() {
-        return hwidProvider.getTotalMemory() >> 20;
+    public static int getTotalMemory() {
+    	if (cachedMemorySize > 0) return (int)cachedMemorySize;
+    	return (int)(cachedMemorySize = hwidProvider.getTotalMemory() >> 20);
     }
 
     @LauncherAPI
@@ -70,7 +67,7 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public static long getJVMTotalMemory() {
+    public static int getJVMTotalMemory() {
         if (getClientJVMBits() == 32) {
             return Math.min(getTotalMemory(), 1536);
         } else {
@@ -106,6 +103,7 @@ public class FunctionalBridge {
     public interface HashedDirRunnable {
         SignedObjectHolder<HashedDir> run() throws Exception;
     }
+
     @LauncherAPI
     public static void evalCommand(String cmd)
     {

@@ -3,17 +3,18 @@ package ru.gravit.launcher.client;
 import ru.gravit.launcher.*;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
-import ru.gravit.launcher.hasher.DirWatcher;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
 import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.auth.RestoreSessionRequest;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
+import ru.gravit.launcher.utils.DirWatcher;
 import ru.gravit.utils.PublicURLClassLoader;
 import ru.gravit.utils.helper.*;
 import ru.gravit.utils.helper.JVMHelper.OS;
@@ -36,7 +37,6 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
 
 public final class ClientLauncher {
-
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
         private final Collection<Path> result;
 
@@ -328,7 +328,7 @@ public final class ClientLauncher {
         context.playerProfile = params.pp;
         context.args.add(javaBin.toString());
         context.args.add(MAGICAL_INTEL_OPTION);
-        if (params.ram > 0 && params.ram <= JVMHelper.RAM) {
+        if (params.ram > 0 && params.ram <= FunctionalBridge.getJVMTotalMemory()) {
             context.args.add("-Xms" + params.ram + 'M');
             context.args.add("-Xmx" + params.ram + 'M');
         }
@@ -460,10 +460,11 @@ public final class ClientLauncher {
         {
             LogHelper.debug("WebSocket connect closed. Try reconnect");
             try {
-                if (!Request.service.reconnectBlocking()) LogHelper.error("Error connecting");
+                Request.service.open();
                 LogHelper.debug("Connect to %s", Launcher.getConfig().address);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                LogHelper.error(e);
+                throw new RequestException(String.format("Connect error: %s", e.getMessage() != null ? e.getMessage() : "null"));
             }
             try {
                 RestoreSessionRequest request1 = new RestoreSessionRequest(Request.getSession());
@@ -537,8 +538,21 @@ public final class ClientLauncher {
 
         // Hash directory and compare (ignore update-only matcher entries, it will break offline-mode)
         HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);
-        if (!hdir.diff(currentHDir, matcher).isSame())
+        HashedDir.Diff diff = hdir.diff(currentHDir, matcher);
+        if (!diff.isSame())
+        {
+            /*AtomicBoolean isFoundFile = new AtomicBoolean(false);
+            diff.extra.walk(File.separator, (e,k,v) -> {
+                if(v.getType().equals(HashedEntry.Type.FILE)) { LogHelper.error("Extra file %s", e); isFoundFile.set(true); }
+                else LogHelper.error("Extra %s", e);
+            });
+            diff.mismatch.walk(File.separator, (e,k,v) -> {
+                if(v.getType().equals(HashedEntry.Type.FILE)) { LogHelper.error("Mismatch file %s", e); isFoundFile.set(true); }
+                else LogHelper.error("Mismatch %s", e);
+            });
+            if(isFoundFile.get())*/
             throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
+        }
     }
 
     private ClientLauncher() {

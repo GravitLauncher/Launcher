@@ -9,7 +9,8 @@ import ru.gravit.launcher.gui.RuntimeProvider;
 import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.managers.ConsoleManager;
 import ru.gravit.launcher.request.Request;
-import ru.gravit.launcher.request.websockets.ClientWebSocketService;
+import ru.gravit.launcher.request.RequestException;
+import ru.gravit.launcher.request.auth.RestoreSessionRequest;
 import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.EnvHelper;
@@ -72,11 +73,28 @@ public class LauncherEngine {
         if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
         runtimeProvider.init(false);
         runtimeProvider.preLoad();
-        if(Request.service != null)
+        if(Request.service == null)
         {
             String address = Launcher.getConfig().address;
             LogHelper.debug("Start async connection to %s", address);
             Request.service = StandartClientWebSocketService.initWebSockets(address, true);
+            Request.service.reconnectCallback = () ->
+            {
+                LogHelper.debug("WebSocket connect closed. Try reconnect");
+                try {
+                    Request.service.open();
+                    LogHelper.debug("Connect to %s", Launcher.getConfig().address);
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                    throw new RequestException(String.format("Connect error: %s", e.getMessage() != null ? e.getMessage() : "null"));
+                }
+                try {
+                    RestoreSessionRequest request1 = new RestoreSessionRequest(Request.getSession());
+                    request1.request();
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                }
+            };
         }
         LauncherGuardManager.initGuard(false);
         Objects.requireNonNull(args, "args");

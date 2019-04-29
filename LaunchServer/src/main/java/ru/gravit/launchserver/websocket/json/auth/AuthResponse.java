@@ -60,7 +60,7 @@ public class AuthResponse extends SimpleResponse {
         try {
             AuthRequestEvent result = new AuthRequestEvent();
             String ip = IOHelper.getIP(ctx.channel().remoteAddress());
-            if ((authType == null || authType == ConnectTypes.CLIENT) && !clientData.checkSign) {
+            if ((authType == null || authType == ConnectTypes.CLIENT) && ( clientData == null || !clientData.checkSign )) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
             }

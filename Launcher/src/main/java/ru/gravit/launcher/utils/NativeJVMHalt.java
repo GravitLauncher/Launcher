@@ -1,4 +1,4 @@
-package ru.gravit.utils;
+package ru.gravit.launcher.utils;
 
 import cpw.mods.fml.SafeExitJVMLegacy;
 import net.minecraftforge.fml.SafeExitJVM;

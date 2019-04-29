@@ -67,6 +67,7 @@ public class ServerWrapperSetup {
             wrapper.config.password = password;
             wrapper.config.title = title;
             wrapper.config.stopOnError = false;
+            wrapper.updateLauncherConfig();
 
             if (wrapper.auth()) {
                 break;
