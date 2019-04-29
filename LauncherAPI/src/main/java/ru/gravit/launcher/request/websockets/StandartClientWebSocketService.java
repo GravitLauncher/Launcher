@@ -108,20 +108,25 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         if(!async)
         {
             try {
-                if (!service.connectBlocking()) LogHelper.error("Error connecting");
+                service.open();
                 LogHelper.debug("Connect to %s", address);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         else
         {
-            service.connect();
+            try {
+                service.open();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         JVMHelper.RUNTIME.addShutdownHook(new Thread(() -> {
             try {
-                if(service.isOpen())
-                    service.closeBlocking();
+                //if(service.isOpen())
+                //    service.closeBlocking();
+                service.close();
             } catch (InterruptedException e) {
                 LogHelper.error(e);
             }

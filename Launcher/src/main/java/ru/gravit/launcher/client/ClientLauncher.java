@@ -459,9 +459,9 @@ public final class ClientLauncher {
         {
             LogHelper.debug("WebSocket connect closed. Try reconnect");
             try {
-                if (!Request.service.reconnectBlocking()) LogHelper.error("Error connecting");
+                Request.service.open();
                 LogHelper.debug("Connect to %s", Launcher.getConfig().address);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             try {

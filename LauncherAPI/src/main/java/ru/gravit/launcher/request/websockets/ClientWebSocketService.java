@@ -2,7 +2,6 @@ package ru.gravit.launcher.request.websockets;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.java_websocket.handshake.ServerHandshake;
 import ru.gravit.launcher.events.ExceptionEvent;
 import ru.gravit.launcher.events.request.*;
 import ru.gravit.launcher.hasher.HashedEntry;
@@ -13,7 +12,6 @@ import ru.gravit.utils.helper.LogHelper;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -28,7 +26,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
     private HashSet<EventHandler> handlers;
 
     public ClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) {
-        super(createURL(address), Collections.emptyMap(), i);
+        super(createURL(address));
         requests = new HashMap<>();
         results = new HashMap<>();
         handlers = new HashSet<>();
@@ -51,33 +49,16 @@ public class ClientWebSocketService extends ClientJSONPoint {
     }
 
     @Override
-    public void onMessage(String message) {
-        ResultInterface result = gson.fromJson(message, ResultInterface.class);
-        for (EventHandler handler : handlers) {
-            handler.process(result);
-        }
+    public void open() throws Exception {
+        super.open();
+        webSocketClientHandler.onMessageCallback = (message) -> {
+            ResultInterface result = gson.fromJson(message, ResultInterface.class);
+            for (EventHandler handler : handlers) {
+                handler.process(result);
+            }
+        };
     }
 
-    @Override
-    public void onError(Exception e) {
-        LogHelper.error(e);
-    }
-    @Override
-    public void onOpen(ServerHandshake handshakedata) {
-        //Notify open
-        synchronized (onConnect)
-        {
-            onConnect.notifyAll();
-        }
-    }
-
-    @Override
-    public void onClose(int code, String reason, boolean remote)
-    {
-        LogHelper.debug("Disconnected: " + code + " " + remote + " " + (reason != null ? reason : "no reason"));
-        if(onCloseCallback != null)
-            onCloseCallback.onClose(code, reason, remote);
-    }
     @FunctionalInterface
     public interface OnCloseCallback
     {
@@ -136,7 +117,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
     }
     public void waitIfNotConnected()
     {
-        if(!isOpen() && !isClosed() && !isClosing())
+        /*if(!isOpen() && !isClosed() && !isClosing())
         {
             LogHelper.warning("WebSocket not connected. Try wait onConnect object");
             synchronized (onConnect)
@@ -147,20 +128,20 @@ public class ClientWebSocketService extends ClientJSONPoint {
                     LogHelper.error(e);
                 }
             }
-        }
+        }*/
     }
 
     public void sendObject(Object obj) throws IOException {
         waitIfNotConnected();
-        if(isClosed() && reconnectCallback != null)
-            reconnectCallback.onReconnect();
+        //if(isClosed() && reconnectCallback != null)
+        //    reconnectCallback.onReconnect();
         send(gson.toJson(obj, RequestInterface.class));
     }
 
     public void sendObject(Object obj, Type type) throws IOException {
         waitIfNotConnected();
-        if(isClosed() && reconnectCallback != null)
-            reconnectCallback.onReconnect();
+        //if(isClosed() && reconnectCallback != null)
+        //    reconnectCallback.onReconnect();
         send(gson.toJson(obj, type));
     }
 

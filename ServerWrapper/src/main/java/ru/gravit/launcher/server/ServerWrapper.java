@@ -162,9 +162,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             {
                 LogHelper.debug("WebSocket connect closed. Try reconnect");
                 try {
-                    if (!Request.service.reconnectBlocking()) LogHelper.error("Error connecting");
+                    Request.service.open();
                     LogHelper.debug("Connect to %s", config.websocket.address);
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 auth();
