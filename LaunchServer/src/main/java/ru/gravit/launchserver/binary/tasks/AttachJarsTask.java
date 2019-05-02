@@ -22,6 +22,11 @@ public class AttachJarsTask implements LauncherBuildTask {
         jars = new ArrayList<>();
         exclusions = new ArrayList<>();
         exclusions.add("META-INF/MANIFEST.MF");
+        exclusions.add("META-INF/LICENSE.txt");
+		exclusions.add("META-INF/NOTICE.txt");
+		exclusions.add("META-INF/LICENSE");
+		exclusions.add("META-INF/DEPENDENCIES");
+		exclusions.add("META-INF/NOTICE");
     }
 
     @Override
