@@ -1,0 +1,8 @@
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+dependencies {
+    compile project(':libLauncher')
+    compileOnly 'org.apache.httpcomponents:httpclient:4.5.7'
+    compileOnly 'io.netty:netty-all:4.1.32.Final'
+}
