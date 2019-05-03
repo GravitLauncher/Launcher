@@ -335,6 +335,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");
         LogHelper.printLicense("LaunchServer");
+        if (!StarterAgent.isAgentStarted()) {
+        	LogHelper.error("StarterAgent is not started!");
+        	LogHelper.error("Your should add to JVM options this option: `-javaagent:LaunchServer.jar`");
+        }
 
         // Start LaunchServer
         long startTime = System.currentTimeMillis();
