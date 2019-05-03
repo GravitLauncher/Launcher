@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -53,7 +54,8 @@ public final class LauncherAgent {
         	}
         }
         try {
-        	//replaceClasses(pb, rt);
+        	if (ManagementFactory.getOperatingSystemMXBean().getName().startsWith("Windows")) replaceClasses(pb, rt);
+        	else replaceClasses(false, false);
         } catch (Error e) {
         	NativeJVMHalt.haltA(294);
         	throw e;

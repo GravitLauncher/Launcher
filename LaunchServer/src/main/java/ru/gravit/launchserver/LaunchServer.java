@@ -721,7 +721,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.threadCoreCount = 0; // on your own
         newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
 
-        newConfig.enabledRadon = false;
+        newConfig.enabledRadon = true;
+        newConfig.genMappings = true;
         newConfig.enabledProGuard = true;
         newConfig.stripLineNumbers = true;
         newConfig.deleteTempFiles = true;
@@ -745,12 +746,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         	System.out.println("LaunchServer projectName: ");
         	newConfig.setProjectName(commandHandler.readLine());
         }
-        if(address == null)
+        if(address == null || address.isEmpty())
         {
             LogHelper.error("Address null. Using localhost");
             address = "localhost";
         }
-        if(newConfig.projectName == null)
+        if(newConfig.projectName == null || newConfig.projectName.isEmpty())
         {
             LogHelper.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
