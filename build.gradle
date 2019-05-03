@@ -7,6 +7,8 @@ configure(subprojects.findAll { it.name != 'modules' && it.name != 'Radon' }) {
 	apply plugin: 'eclipse'
 	apply plugin: 'java'
 
+    group = 'ru.gravit'
+
 	repositories {
 		mavenCentral()
 		maven { url 'http://oss.sonatype.org/content/groups/public' }
