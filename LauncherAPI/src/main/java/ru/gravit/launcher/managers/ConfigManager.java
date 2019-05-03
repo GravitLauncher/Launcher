@@ -1,6 +1,6 @@
 package ru.gravit.launcher.managers;
 
-import ru.gravit.utils.config.JsonConfigurable;
+import ru.gravit.launcher.config.JsonConfigurable;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.VerifyHelper;
 

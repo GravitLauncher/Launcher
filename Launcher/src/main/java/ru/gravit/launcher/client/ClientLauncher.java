@@ -16,6 +16,7 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.launcher.utils.DirWatcher;
 import ru.gravit.utils.PublicURLClassLoader;
+import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.*;
 import ru.gravit.utils.helper.JVMHelper.OS;
 
@@ -201,7 +202,7 @@ public final class ClientLauncher {
         Collections.addAll(args, "--assetsDir", params.assetDir.toString());
         Collections.addAll(args, "--resourcePackDir", params.clientDir.resolve(RESOURCEPACKS_DIR).toString());
         if (version.compareTo(ClientProfile.Version.MC194) >= 0)
-            Collections.addAll(args, "--versionType", "Launcher v" + Launcher.getVersion().getVersionString());
+            Collections.addAll(args, "--versionType", "Launcher v" + Version.getVersion().getVersionString());
 
         // Add server args
         if (params.autoEnter) {

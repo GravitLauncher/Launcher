@@ -3,8 +3,8 @@ package ru.gravit.launchserver.binary;
 import net.sf.launch4j.Builder;
 import net.sf.launch4j.Log;
 import net.sf.launch4j.config.*;
-import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -108,8 +108,8 @@ public final class EXEL4JLauncherBinary extends LauncherBinary {
         ConfigPersister.getInstance().setAntConfig(config, null);
     }
 
-    private static String VERSION = Launcher.getVersion().getVersionString();
-    private static int BUILD = Launcher.getVersion().build;
+    private static String VERSION = Version.getVersion().getVersionString();
+    private static int BUILD = Version.getVersion().build;
 
     public static String formatVars(String mask) {
         return String.format(mask, VERSION, BUILD);

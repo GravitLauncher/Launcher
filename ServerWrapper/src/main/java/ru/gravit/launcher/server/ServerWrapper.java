@@ -11,7 +11,7 @@ import ru.gravit.launcher.request.auth.AuthRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.launcher.server.setup.ServerWrapperSetup;
 import ru.gravit.utils.PublicURLClassLoader;
-import ru.gravit.utils.config.JsonConfigurable;
+import ru.gravit.launcher.config.JsonConfigurable;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;

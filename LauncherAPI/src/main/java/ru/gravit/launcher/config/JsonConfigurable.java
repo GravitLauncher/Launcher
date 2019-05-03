@@ -1,4 +1,4 @@
-package ru.gravit.utils.config;
+package ru.gravit.launcher.config;
 
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;

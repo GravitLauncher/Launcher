@@ -57,11 +57,6 @@ public final class Launcher {
     public static final String CONFIG_SCRIPT_FILE = "config.js";
 
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
-    public static final int MAJOR = 5;
-    public static final int MINOR = 0;
-    public static final int PATCH = 0;
-    public static final int BUILD = 4;
-    public static final Version.Type RELEASE = Version.Type.BETA;
     public static GsonManager gsonManager;
 
     @LauncherAPI
@@ -117,10 +112,6 @@ public final class Launcher {
     @LauncherAPI
     public static String toHash(UUID uuid) {
         return UUID_PATTERN.matcher(uuid.toString()).replaceAll("");
-    }
-
-    public static Version getVersion() {
-        return new Version(MAJOR, MINOR, PATCH, BUILD, RELEASE);
     }
 
     public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env) {

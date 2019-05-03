@@ -1,6 +1,5 @@
 package ru.gravit.utils.helper;
 
-import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherAPI;
 
 import javax.imageio.ImageIO;
@@ -10,8 +9,8 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
 import java.nio.file.FileSystem;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Set;
@@ -229,7 +228,7 @@ public final class IOHelper {
 
     @LauncherAPI
     public static URL getResourceURL(String name) throws NoSuchFileException {
-        URL url = Launcher.class.getResource('/' + name);
+        URL url = IOHelper.class.getResource('/' + name);
         if (url == null)
             throw new NoSuchFileException(name);
         return url;

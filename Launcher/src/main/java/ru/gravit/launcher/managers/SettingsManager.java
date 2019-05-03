@@ -6,7 +6,7 @@ import ru.gravit.launcher.client.DirBridge;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.utils.config.JsonConfigurable;
+import ru.gravit.launcher.config.JsonConfigurable;
 import ru.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
