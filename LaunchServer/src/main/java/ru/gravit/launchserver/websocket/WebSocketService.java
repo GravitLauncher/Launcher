@@ -40,6 +40,7 @@ import ru.gravit.utils.helper.LogHelper;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.UUID;
 
 @SuppressWarnings("rawtypes")
 public class WebSocketService {
@@ -67,16 +68,23 @@ public class WebSocketService {
         {
             if(server.config.netty.proxy.requests.contains(response.getType()))
             {
+
+                UUID origRequestUUID = null;
                 if(response instanceof SimpleResponse)
                 {
                     SimpleResponse simpleResponse = (SimpleResponse) response;
                     simpleResponse.server = server;
                     simpleResponse.service = this;
                     simpleResponse.ctx = ctx;
+                    origRequestUUID = simpleResponse.requestUUID;
                 }
                 LogHelper.debug("Proxy %s request", response.getType());
                 if(client.session == 0) client.session = new Random().nextLong();
                 ProxyRequest proxyRequest = new ProxyRequest(response, client.session);
+                if(response instanceof SimpleResponse)
+                {
+                    ((SimpleResponse) response).requestUUID = proxyRequest.requestUUID;
+                }
                 proxyRequest.isCheckSign = client.checkSign;
                 try {
                     ResultInterface result = proxyRequest.request();
@@ -90,7 +98,7 @@ public class WebSocketService {
                     }
                     if(result instanceof Request && response instanceof SimpleResponse)
                     {
-                        ((Request) result).requestUUID = ((SimpleResponse) response).requestUUID;
+                        ((Request) result).requestUUID = origRequestUUID;
                     }
                     sendObject(ctx, result);
                 } catch (RequestException e)
