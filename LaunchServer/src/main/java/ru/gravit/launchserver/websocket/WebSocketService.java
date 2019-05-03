@@ -14,6 +14,7 @@ import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launcher.request.JsonResultSerializeAdapter;
+import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.launcher.request.admin.ProxyRequest;
@@ -38,6 +39,7 @@ import ru.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.Random;
 
 @SuppressWarnings("rawtypes")
 public class WebSocketService {
@@ -73,7 +75,8 @@ public class WebSocketService {
                     simpleResponse.ctx = ctx;
                 }
                 LogHelper.debug("Proxy %s request", response.getType());
-                ProxyRequest proxyRequest = new ProxyRequest(response, 0);
+                if(client.session == 0) client.session = new Random().nextLong();
+                ProxyRequest proxyRequest = new ProxyRequest(response, client.session);
                 proxyRequest.isCheckSign = client.checkSign;
                 try {
                     ResultInterface result = proxyRequest.request();
@@ -84,6 +87,10 @@ public class WebSocketService {
                         client.isAuth = true;
                         client.session = authRequestEvent.session;
                         if(authRequestEvent.playerProfile != null) client.username = authRequestEvent.playerProfile.username;
+                    }
+                    if(result instanceof Request && response instanceof SimpleResponse)
+                    {
+                        ((Request) result).requestUUID = ((SimpleResponse) response).requestUUID;
                     }
                     sendObject(ctx, result);
                 } catch (RequestException e)
