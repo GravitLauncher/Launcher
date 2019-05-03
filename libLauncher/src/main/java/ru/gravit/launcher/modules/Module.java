@@ -18,7 +18,5 @@ public interface Module extends AutoCloseable {
 
     default void finish(ModuleContext context) {
         // NOP
-    }
-
-    ;
+    };
 }

@@ -7,6 +7,8 @@ configure(subprojects.findAll { it.name != 'modules' && it.name != 'Radon' }) {
 	apply plugin: 'eclipse'
 	apply plugin: 'java'
 
+    group = 'ru.gravit'
+
 	repositories {
 		mavenCentral()
 		maven { url 'http://oss.sonatype.org/content/groups/public' }
@@ -28,6 +30,12 @@ configure(subprojects.findAll { it.name != 'modules' && it.name != 'Radon' }) {
 		options.encoding = "UTF-8"
 		options.annotationProcessorPath = configurations.aptOnly
 	}
+}
+
+subprojects {
+    tasks.withType(JavaCompile) {
+        options.incremental = true // one flag, and things will get MUCH faster
+    }
 }
 
 wrapper {
