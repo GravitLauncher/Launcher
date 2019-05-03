@@ -7,6 +7,7 @@ import ru.gravit.launcher.downloader.ListDownloader;
 import ru.gravit.launcher.events.request.LauncherRequestEvent;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.websockets.RequestInterface;
+import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.JVMHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -65,7 +66,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     }
 
     @Override
-    public LauncherRequestEvent requestDo() throws Exception {
+    public LauncherRequestEvent requestDo(StandartClientWebSocketService service) throws Exception {
         LauncherRequestEvent result = (LauncherRequestEvent) service.sendRequest(this);
         if (result.needUpdate) update(result);
         return result;

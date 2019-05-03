@@ -12,6 +12,7 @@ import ru.gravit.launcher.hasher.HashedFile;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.update.UpdateRequest.State.Callback;
 import ru.gravit.launcher.request.websockets.RequestInterface;
+import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -166,7 +167,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     }
 
     @Override
-    public UpdateRequestEvent requestDo() throws Exception {
+    public UpdateRequestEvent requestDo(StandartClientWebSocketService service) throws Exception {
         LogHelper.debug("Start update request");
         UpdateRequestEvent e = (UpdateRequestEvent) service.sendRequest(this);
         LogHelper.debug("Start update");
