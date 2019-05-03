@@ -8,7 +8,7 @@ public class BiHookSet<V,R> {
     @FunctionalInterface
     public interface Hook<V, R>
     {
-        boolean hook(V object, R context);
+        boolean hook(V object, R context) throws HookException;
     }
     public void registerHook(Hook<V, R> hook)
     {
@@ -18,11 +18,11 @@ public class BiHookSet<V,R> {
     {
         return list.remove(hook);
     }
-    public boolean hook(V object, R context)
+    public boolean hook(V context, R object) throws HookException
     {
         for(Hook<V, R> hook : list)
         {
-            if(hook.hook(object, context)) return true;
+            if(hook.hook(context, object)) return true;
         }
         return false;
     }

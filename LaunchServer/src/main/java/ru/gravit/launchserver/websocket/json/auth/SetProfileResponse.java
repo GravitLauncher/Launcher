@@ -6,6 +6,7 @@ import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
+import ru.gravit.utils.HookException;
 
 import java.util.Collection;
 
@@ -22,6 +23,12 @@ public class SetProfileResponse extends SimpleResponse {
         if (!client.isAuth) {
             sendError("Access denied");
             return;
+        }
+        try {
+            server.authHookManager.setProfileHook.hook(this, client);
+        } catch (HookException e)
+        {
+            sendError(e.getMessage());
         }
         Collection<ClientProfile> profiles = LaunchServer.server.getProfiles();
         for (ClientProfile p : profiles) {
