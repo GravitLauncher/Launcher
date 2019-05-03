@@ -32,6 +32,12 @@ configure(subprojects.findAll { it.name != 'modules' && it.name != 'Radon' }) {
 	}
 }
 
+subprojects {
+    tasks.withType(JavaCompile) {
+        options.incremental = true // one flag, and things will get MUCH faster
+    }
+}
+
 wrapper {
 	distributionType = Wrapper.DistributionType.ALL
 }
