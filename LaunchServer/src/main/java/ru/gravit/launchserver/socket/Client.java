@@ -8,6 +8,7 @@ import ru.gravit.utils.helper.LogHelper;
 
 public class Client {
     public long session;
+    public boolean proxy;
     public String auth_id;
     public long timestamp;
     public Type type;

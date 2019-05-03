@@ -13,7 +13,9 @@ import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launcher.request.JsonResultSerializeAdapter;
+import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.ResultInterface;
+import ru.gravit.launcher.request.admin.ProxyRequest;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.json.JsonResponseAdapter;
@@ -21,6 +23,7 @@ import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.launchserver.websocket.json.admin.AddLogListenerResponse;
 import ru.gravit.launchserver.websocket.json.admin.ExecCommandResponse;
+import ru.gravit.launchserver.websocket.json.admin.ProxyCommandResponse;
 import ru.gravit.launchserver.websocket.json.auth.*;
 import ru.gravit.launchserver.websocket.json.profile.BatchProfileByUsername;
 import ru.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
@@ -57,6 +60,48 @@ public class WebSocketService {
     void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client) {
         String request = frame.text();
         JsonResponseInterface response = gson.fromJson(request, JsonResponseInterface.class);
+        if(server.config.netty.proxy.enabled)
+        {
+            if(server.config.netty.proxy.requests.contains(response.getType()))
+            {
+                if(response instanceof SimpleResponse)
+                {
+                    SimpleResponse simpleResponse = (SimpleResponse) response;
+                    simpleResponse.server = server;
+                    simpleResponse.service = this;
+                    simpleResponse.ctx = ctx;
+                }
+                LogHelper.debug("Proxy %s request", response.getType());
+                ProxyRequest proxyRequest = new ProxyRequest(response, 0);
+                try {
+                    ResultInterface result = proxyRequest.request();
+                    sendObject(ctx, result);
+                } catch (RequestException e)
+                {
+                    sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                    RequestEvent event;
+                    if(server.config.netty.sendExceptionEnabled)
+                    {
+                        event = new ExceptionEvent(e);
+                    }
+                    else
+                    {
+                        event = new ErrorRequestEvent("Fatal server error. Contact administrator");
+                    }
+                    if(response instanceof SimpleResponse)
+                    {
+                        event.requestUUID = ((SimpleResponse) response).requestUUID;
+                    }
+                    sendObject(ctx, event);
+                }
+            }
+        }
+        process(ctx,response, client);
+    }
+    void process(ChannelHandlerContext ctx, JsonResponseInterface response, Client client)
+    {
         if(response instanceof SimpleResponse)
         {
             SimpleResponse simpleResponse = (SimpleResponse) response;
@@ -115,6 +160,7 @@ public class WebSocketService {
         registerResponse("getSecureToken", GetSecureTokenResponse.class);
         registerResponse("verifySecureToken", VerifySecureTokenResponse.class);
         registerResponse("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
+        registerResponse("proxy", ProxyCommandResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {

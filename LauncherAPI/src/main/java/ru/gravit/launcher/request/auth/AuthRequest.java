@@ -23,6 +23,10 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     private final boolean getSession;
     @LauncherNetworkAPI
     private final ConnectTypes authType;
+    @LauncherNetworkAPI
+    public boolean initProxy;
+    @LauncherNetworkAPI
+    public String password;
 
     public enum ConnectTypes {
         @LauncherNetworkAPI
@@ -30,7 +34,9 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         @LauncherNetworkAPI
         CLIENT,
         @LauncherNetworkAPI
-        BOT
+        BOT,
+        @LauncherNetworkAPI
+        PROXY
     }
 
     @LauncherAPI
@@ -69,6 +75,16 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
     public AuthRequest(String login, byte[] encryptedPassword, String auth_id, ConnectTypes authType) {
         this.login = login;
         this.encryptedPassword = encryptedPassword;
+        this.auth_id = auth_id;
+        this.authType = authType;
+        this.hwid = null;
+        this.customText = "";
+        this.getSession = false;
+    }
+    public AuthRequest(String login, String password, String auth_id, ConnectTypes authType) {
+        this.login = login;
+        this.password = password;
+        this.encryptedPassword = null;
         this.auth_id = auth_id;
         this.authType = authType;
         this.hwid = null;

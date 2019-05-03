@@ -45,6 +45,7 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public String auth_id;
+    public boolean initProxy;
     public ConnectTypes authType;
     public OshiHWID hwid;
 
@@ -119,6 +120,11 @@ public class AuthResponse extends SimpleResponse {
                 clientData.session = random.nextLong();
                 LaunchServer.server.sessionManager.addClient(clientData);
                 result.session = clientData.session;
+            }
+            if(initProxy)
+            {
+                if(!clientData.permissions.canProxy) throw new AuthException("initProxy not allow");
+                clientData.proxy = true;
             }
             if(LaunchServer.server.config.protectHandler.allowGetAccessToken(context))
             {
