@@ -125,6 +125,20 @@ public class WebSocketService {
         ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
     }
 
+    public void sendObjectAll(Object obj) {
+        for(Channel ch : channels)
+        {
+            ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, ResultInterface.class)));
+        }
+    }
+
+    public void sendObjectAll(Object obj, Type type) {
+        for(Channel ch : channels)
+        {
+            ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
+        }
+    }
+
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
         ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, ResultInterface.class))).addListener(ChannelFutureListener.CLOSE);
     }

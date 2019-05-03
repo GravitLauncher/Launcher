@@ -1,8 +1,11 @@
 package ru.gravit.launchserver.command.basic;
 
+import ru.gravit.launcher.events.PingEvent;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.websocket.NettyServerSocketHandler;
+import ru.gravit.launchserver.websocket.WebSocketFrameHandler;
+import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.utils.helper.CommonHelper;
 
 public class TestCommand extends Command {
@@ -32,6 +35,10 @@ public class TestCommand extends Command {
         }
         if (args[0].equals("stop")) {
             handler.close();
+        }
+        if (args[0].equals("eventAll"))
+        {
+            WebSocketFrameHandler.service.sendObjectAll(new PingEvent());
         }
     }
 }
