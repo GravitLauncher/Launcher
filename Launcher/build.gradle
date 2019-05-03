@@ -36,7 +36,7 @@ shadowJar {
 }
 
 dependencies {
-    pack project(':LauncherAPI')
+    pack project(':LauncherAuthlib')
     bundle 'com.github.oshi:oshi-core:3.13.0'
 	bundle 'com.jfoenix:jfoenix:8.0.8'
     bundle 'de.jensd:fontawesomefx:8.9'
