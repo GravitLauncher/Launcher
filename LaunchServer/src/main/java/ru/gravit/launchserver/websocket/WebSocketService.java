@@ -9,6 +9,7 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import ru.gravit.launcher.events.ExceptionEvent;
 import ru.gravit.launcher.events.RequestEvent;
+import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
@@ -73,8 +74,17 @@ public class WebSocketService {
                 }
                 LogHelper.debug("Proxy %s request", response.getType());
                 ProxyRequest proxyRequest = new ProxyRequest(response, 0);
+                proxyRequest.isCheckSign = client.checkSign;
                 try {
                     ResultInterface result = proxyRequest.request();
+                    if(result instanceof AuthRequestEvent)
+                    {
+                        LogHelper.debug("Client auth params get successful");
+                        AuthRequestEvent authRequestEvent = (AuthRequestEvent) result;
+                        client.isAuth = true;
+                        client.session = authRequestEvent.session;
+                        if(authRequestEvent.playerProfile != null) client.username = authRequestEvent.playerProfile.username;
+                    }
                     sendObject(ctx, result);
                 } catch (RequestException e)
                 {
