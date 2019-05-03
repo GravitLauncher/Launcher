@@ -2,8 +2,6 @@ package ru.gravit.launchserver.components;
 
 import ru.gravit.launcher.NeedGarbageCollection;
 import ru.gravit.launchserver.LaunchServer;
-import ru.gravit.launchserver.auth.AuthException;
-import ru.gravit.launchserver.auth.provider.AuthProvider;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.json.auth.AuthResponse;
 import ru.gravit.utils.HookException;

@@ -61,7 +61,8 @@ public class WebSocketService {
     private final Gson gson;
     private final GsonBuilder gsonBuiler;
 
-    void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client) {
+    @SuppressWarnings("unchecked")
+	void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client) {
         String request = frame.text();
         JsonResponseInterface response = gson.fromJson(request, JsonResponseInterface.class);
         if(server.config.netty.proxy.enabled)

@@ -4,7 +4,6 @@ import ru.gravit.launcher.managers.GsonManager;
 import ru.gravit.launcher.modules.ModulesManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.serialize.HInput;
-import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;

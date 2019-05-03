@@ -5,7 +5,6 @@ import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.launchserver.websocket.NettyServerSocketHandler;
 import ru.gravit.launchserver.websocket.WebSocketFrameHandler;
-import ru.gravit.launchserver.websocket.WebSocketService;
 import ru.gravit.utils.helper.CommonHelper;
 
 public class TestCommand extends Command {

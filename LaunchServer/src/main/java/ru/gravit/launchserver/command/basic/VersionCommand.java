@@ -1,6 +1,5 @@
 package ru.gravit.launchserver.command.basic;
 
-import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
 import ru.gravit.utils.Version;

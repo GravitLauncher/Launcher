@@ -4,7 +4,6 @@ import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launcher.OshiHWID;
 import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
-import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.auth.AuthProviderPair;
