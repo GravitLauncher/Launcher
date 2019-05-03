@@ -16,7 +16,6 @@ import ru.gravit.launcher.request.JsonResultSerializeAdapter;
 import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
-import ru.gravit.launchserver.websocket.json.EchoResponse;
 import ru.gravit.launchserver.websocket.json.JsonResponseAdapter;
 import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
@@ -99,7 +98,6 @@ public class WebSocketService {
     }
 
     public void registerResponses() {
-        registerResponse("echo", EchoResponse.class);
         registerResponse("auth", AuthResponse.class);
         registerResponse("checkServer", CheckServerResponse.class);
         registerResponse("joinServer", JoinServerResponse.class);
