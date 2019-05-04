@@ -76,9 +76,9 @@ public final class ServerPinger {
     private Instant cacheTime = null;
 
     @LauncherAPI
-    public ServerPinger(InetSocketAddress address, ClientProfile.Version version) {
-        this.address = Objects.requireNonNull(address, "address");
-        this.version = Objects.requireNonNull(version, "version");
+    public ServerPinger(ClientProfile profile) {
+        this.address = Objects.requireNonNull(profile.getServerSocketAddress(), "address");
+        this.version = Objects.requireNonNull(profile.getVersion(), "version");
     }
 
     private Result doPing() throws IOException {

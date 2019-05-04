@@ -332,7 +332,7 @@ function updateProfilesList(profiles) {
     serverList.getChildren().clear();
     var index = 0;
     profiles.forEach(function(profile, i, arr) {
-        pingers[profile] = new ServerPinger(profile.getServerSocketAddress(), profile.getVersion());
+        pingers[profile] = new ServerPinger(profile);
 
         var serverBtn = new javafx.scene.control.ToggleButton(profile);
 
