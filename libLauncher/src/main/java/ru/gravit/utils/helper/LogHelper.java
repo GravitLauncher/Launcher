@@ -107,7 +107,7 @@ public final class LogHelper {
 
     @LauncherAPI
     public static void dev(String format, Object... args) {
-        debug(String.format(format, args));
+        dev(String.format(format, args));
     }
 
     @LauncherAPI
@@ -377,6 +377,9 @@ public final class LogHelper {
                 break;
             case DEBUG:
                 levelColor = "gravitlauncher-log-debug";
+                break;
+            case DEV:
+                levelColor = "gravitlauncher-log-dev";
                 break;
             default:
                 levelColor = "gravitlauncher-log-unknown";
