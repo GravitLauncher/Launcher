@@ -13,14 +13,14 @@
    <children>
       <Pane prefHeight="425.0" prefWidth="693.0" styleClass="downloadPane">
          <children>
-           <Label fx:id="description" layoutX="14.0" layoutY="302.0" prefHeight="98.0" prefWidth="660.0" text="..." textFill="WHITE" />
-           <Label fx:id="utitle" alignment="TOP_LEFT" layoutX="59.0" layoutY="269.0" prefHeight="18.0" prefWidth="470.0" text="Обновление..." textFill="WHITE">
+           <Label fx:id="description" layoutX="17.0" layoutY="320.0" prefHeight="105.0" prefWidth="660.0" text="..." textFill="WHITE" />
+           <Label fx:id="utitle" alignment="TOP_LEFT" layoutX="59.0" layoutY="279.0" prefHeight="18.0" prefWidth="470.0" text="Обновление..." textFill="WHITE">
              <font>
-               <Font size="13.0" />
+               <Font name="System Bold" size="13.0" />
              </font>
            </Label>
-            <JFXProgressBar fx:id="progress" layoutY="407.0" prefHeight="18.0" prefWidth="693.0" />
-            <JFXSpinner layoutX="14.0" layoutY="261.0" prefHeight="35.0" prefWidth="32.0" />
+            <JFXProgressBar fx:id="progress" layoutY="438.0" prefHeight="12.0" prefWidth="693.0" />
+            <JFXSpinner layoutX="14.0" layoutY="271.0" prefHeight="35.0" prefWidth="32.0" />
          </children></Pane>
    </children>
   <stylesheets>

@@ -21,25 +21,24 @@
 
 /* RAM slider */
 #holder > #ramSlider > .track {
-    -fx-background-color: #D8E0E3;
-    -fx-background-insets: none;
-    -fx-background-radius: 2px;
-    -fx-padding: 2px;
+    -fx-background-color: #909090;
 }
 
 #holder > #ramSlider > .thumb {
-    -fx-background-color: #3498DB;
-    -fx-background-insets: none;
-    -fx-background-radius: 5px;
-    -fx-padding: 5px;
+    -fx-background-color: #5fd97a;
 }
 
-#holder > #ramSlider:hover > .thumb {
-    -fx-background-color: #2F8BC8;
+#holder > #ramSlider > .colored-track {
+    -fx-background-color: #5fd97a;
 }
 
-#holder > #ramSlider:pressed > .thumb {
-    -fx-background-color: #2876AA;
+#holder > #ramSlider > .animated-thumb {
+    -fx-background-color: #5fd97a;
+}
+
+#holder > #ramSlider > .slider-value {
+    -fx-fill: white;
+    -fx-stroke: white;
 }
 
 /* Dir options */
@@ -70,7 +69,7 @@
 }
 
 #holder > #apply,#applyTransfer{
-    -fx-background-color: #61B373;
+    -fx-background-color: #5fd97a;
     -fx-background-radius: 0;
     -fx-text-fill: white;
     -fx-background-position: center;
@@ -80,6 +79,6 @@
 }
 #holder > #apply:hover,#applyTransfer:hover,
 #holder > #apply:focused,#applyTransfer:focused{
-    -fx-background-color: #74C085;
+    -fx-background-color: #75e18c;
 }
 /*-- DrLeonardo Design --*/
