@@ -7,6 +7,7 @@ import ru.gravit.launchserver.auth.AuthException;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
+import ru.gravit.utils.HookException;
 import ru.gravit.utils.helper.LogHelper;
 
 public class CheckServerResponse extends SimpleResponse {
@@ -23,11 +24,12 @@ public class CheckServerResponse extends SimpleResponse {
     public void execute(ChannelHandlerContext ctx, Client pClient) {
         CheckServerRequestEvent result = new CheckServerRequestEvent();
         try {
+            server.authHookManager.checkServerHook.hook(this, pClient);
             result.uuid = pClient.auth.handler.checkServer(username, serverID);
             if (result.uuid != null)
                 result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, result.uuid, username, client, pClient.auth.textureProvider);
             LogHelper.debug("checkServer: %s uuid: %s serverID: %s", result.playerProfile.username, result.uuid.toString(), serverID);
-        } catch (AuthException e) {
+        } catch (AuthException | HookException e) {
             sendError(e.getMessage());
             return;
         } catch (Exception e) {

@@ -9,11 +9,15 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import ru.gravit.launcher.events.ExceptionEvent;
 import ru.gravit.launcher.events.RequestEvent;
+import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launcher.events.request.ErrorRequestEvent;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
 import ru.gravit.launcher.request.JsonResultSerializeAdapter;
+import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.ResultInterface;
+import ru.gravit.launcher.request.admin.ProxyRequest;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.json.JsonResponseAdapter;
@@ -21,6 +25,7 @@ import ru.gravit.launchserver.websocket.json.JsonResponseInterface;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.launchserver.websocket.json.admin.AddLogListenerResponse;
 import ru.gravit.launchserver.websocket.json.admin.ExecCommandResponse;
+import ru.gravit.launchserver.websocket.json.admin.ProxyCommandResponse;
 import ru.gravit.launchserver.websocket.json.auth.*;
 import ru.gravit.launchserver.websocket.json.profile.BatchProfileByUsername;
 import ru.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
@@ -34,6 +39,8 @@ import ru.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.Random;
+import java.util.UUID;
 
 @SuppressWarnings("rawtypes")
 public class WebSocketService {
@@ -54,9 +61,73 @@ public class WebSocketService {
     private final Gson gson;
     private final GsonBuilder gsonBuiler;
 
-    void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client) {
+    @SuppressWarnings("unchecked")
+	void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client) {
         String request = frame.text();
         JsonResponseInterface response = gson.fromJson(request, JsonResponseInterface.class);
+        if(server.config.netty.proxy.enabled)
+        {
+            if(server.config.netty.proxy.requests.contains(response.getType()))
+            {
+
+                UUID origRequestUUID = null;
+                if(response instanceof SimpleResponse)
+                {
+                    SimpleResponse simpleResponse = (SimpleResponse) response;
+                    simpleResponse.server = server;
+                    simpleResponse.service = this;
+                    simpleResponse.ctx = ctx;
+                    origRequestUUID = simpleResponse.requestUUID;
+                }
+                LogHelper.debug("Proxy %s request", response.getType());
+                if(client.session == 0) client.session = new Random().nextLong();
+                ProxyRequest proxyRequest = new ProxyRequest(response, client.session);
+                if(response instanceof SimpleResponse)
+                {
+                    ((SimpleResponse) response).requestUUID = proxyRequest.requestUUID;
+                }
+                proxyRequest.isCheckSign = client.checkSign;
+                try {
+                    ResultInterface result = proxyRequest.request();
+                    if(result instanceof AuthRequestEvent)
+                    {
+                        LogHelper.debug("Client auth params get successful");
+                        AuthRequestEvent authRequestEvent = (AuthRequestEvent) result;
+                        client.isAuth = true;
+                        client.session = authRequestEvent.session;
+                        if(authRequestEvent.playerProfile != null) client.username = authRequestEvent.playerProfile.username;
+                    }
+                    if(result instanceof Request && response instanceof SimpleResponse)
+                    {
+                        ((Request) result).requestUUID = origRequestUUID;
+                    }
+                    sendObject(ctx, result);
+                } catch (RequestException e)
+                {
+                    sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                    RequestEvent event;
+                    if(server.config.netty.sendExceptionEnabled)
+                    {
+                        event = new ExceptionEvent(e);
+                    }
+                    else
+                    {
+                        event = new ErrorRequestEvent("Fatal server error. Contact administrator");
+                    }
+                    if(response instanceof SimpleResponse)
+                    {
+                        event.requestUUID = ((SimpleResponse) response).requestUUID;
+                    }
+                    sendObject(ctx, event);
+                }
+            }
+        }
+        process(ctx,response, client);
+    }
+    void process(ChannelHandlerContext ctx, JsonResponseInterface response, Client client)
+    {
         if(response instanceof SimpleResponse)
         {
             SimpleResponse simpleResponse = (SimpleResponse) response;
@@ -115,6 +186,7 @@ public class WebSocketService {
         registerResponse("getSecureToken", GetSecureTokenResponse.class);
         registerResponse("verifySecureToken", VerifySecureTokenResponse.class);
         registerResponse("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
+        registerResponse("proxy", ProxyCommandResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {
@@ -123,6 +195,20 @@ public class WebSocketService {
 
     public void sendObject(ChannelHandlerContext ctx, Object obj, Type type) {
         ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
+    }
+
+    public void sendObjectAll(Object obj) {
+        for(Channel ch : channels)
+        {
+            ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, ResultInterface.class)));
+        }
+    }
+
+    public void sendObjectAll(Object obj, Type type) {
+        for(Channel ch : channels)
+        {
+            ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
+        }
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {

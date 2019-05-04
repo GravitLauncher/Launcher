@@ -8,7 +8,7 @@ public class HookSet<R> {
     @FunctionalInterface
     public interface Hook<R>
     {
-        boolean hook(R context);
+        boolean hook(R context) throws HookException;
     }
     public void registerHook(Hook<R> hook)
     {
@@ -18,7 +18,7 @@ public class HookSet<R> {
     {
         return list.remove(hook);
     }
-    public boolean hook(R context)
+    public boolean hook(R context) throws HookException
     {
         for(Hook<R> hook : list)
         {

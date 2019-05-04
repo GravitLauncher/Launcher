@@ -27,9 +27,9 @@ jar {
 }
 
 dependencies {
-    pack project(':LauncherAPI')
+    pack project(':LauncherAuthlib')
 	pack 'org.apache.httpcomponents:httpclient:4.5.7'
-	pack 'io.netty:netty-all:4.1.32.Final'
+	pack 'io.netty:netty-all:4.1.36.Final'
 }
 
 shadowJar {

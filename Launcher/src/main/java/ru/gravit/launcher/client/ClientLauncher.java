@@ -16,6 +16,7 @@ import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.launcher.serialize.stream.StreamObject;
 import ru.gravit.launcher.utils.DirWatcher;
 import ru.gravit.utils.PublicURLClassLoader;
+import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.*;
 import ru.gravit.utils.helper.JVMHelper.OS;
 
@@ -201,7 +202,7 @@ public final class ClientLauncher {
         Collections.addAll(args, "--assetsDir", params.assetDir.toString());
         Collections.addAll(args, "--resourcePackDir", params.clientDir.resolve(RESOURCEPACKS_DIR).toString());
         if (version.compareTo(ClientProfile.Version.MC194) >= 0)
-            Collections.addAll(args, "--versionType", "Launcher v" + Launcher.getVersion().getVersionString());
+            Collections.addAll(args, "--versionType", "Launcher v" + Version.getVersion().getVersionString());
 
         // Add server args
         if (params.autoEnter) {
@@ -335,6 +336,7 @@ public final class ClientLauncher {
         context.args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         context.args.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled())));
         context.args.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, Boolean.toString(LogHelper.isDevEnabled())));
+        context.args.add(JVMHelper.jvmProperty(LogHelper.NO_JANSI_PROPERTY, "true")); // Отключаем JAnsi для нормального вывода в DEBUG окно
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.USE_CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.USE_OPTDIR_PROPERTY);

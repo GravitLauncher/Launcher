@@ -34,10 +34,11 @@ import ru.gravit.launchserver.manangers.hook.BuildHookManager;
 import ru.gravit.launchserver.manangers.hook.SocketHookManager;
 import ru.gravit.launchserver.socket.ServerSocketHandler;
 import ru.gravit.launchserver.websocket.NettyServerSocketHandler;
+import ru.gravit.utils.Version;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.command.JLineCommandHandler;
 import ru.gravit.utils.command.StdCommandHandler;
-import ru.gravit.utils.config.JsonConfigurable;
+import ru.gravit.launcher.config.JsonConfigurable;
 import ru.gravit.utils.helper.*;
 
 import java.io.*;
@@ -282,11 +283,21 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public NettyPerformanceConfig performance;
         public NettyBindAddress[] binds;
         public LogLevel logLevel = LogLevel.DEBUG;
+        public NettyProxyConfig proxy = new NettyProxyConfig();
     }
     public class NettyPerformanceConfig
     {
         public int bossThread;
         public int workerThread;
+    }
+    public class NettyProxyConfig
+    {
+        public boolean enabled;
+        public String address = "ws://localhost:9275/api";
+        public String login = "login";
+        public String password = "password";
+        public String auth_id = "std";
+        public ArrayList<String> requests = new ArrayList<>();
     }
     public class NettyBindAddress
     {
@@ -688,8 +699,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.enabled = true;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
-        newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Launcher.getVersion().getVersionString());
-        newConfig.launch4j.fileVer = Launcher.getVersion().getVersionString().concat(".").concat(String.valueOf(Launcher.getVersion().patch));
+        newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
+        newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
         newConfig.launch4j.internalName = "Launcher";
         newConfig.launch4j.trademarks = "This product is licensed under GPLv3";
         newConfig.launch4j.txtFileVersion = "%s, build %d";

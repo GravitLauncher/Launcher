@@ -15,6 +15,11 @@ public final class Version {
     public final int build;
     @LauncherAPI
     public final Type release;
+    public static final int MAJOR = 5;
+    public static final int MINOR = 0;
+    public static final int PATCH = 0;
+    public static final int BUILD = 5;
+    public static final Version.Type RELEASE = Version.Type.BETA;
 
     @LauncherAPI
     public Version(int major, int minor, int patch) {
@@ -41,6 +46,10 @@ public final class Version {
         this.patch = patch;
         this.build = build;
         this.release = release;
+    }
+
+    public static Version getVersion() {
+        return new Version(MAJOR, MINOR, PATCH, BUILD, RELEASE);
     }
 
     @Override

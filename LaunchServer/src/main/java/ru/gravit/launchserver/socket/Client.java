@@ -8,6 +8,7 @@ import ru.gravit.utils.helper.LogHelper;
 
 public class Client {
     public long session;
+    public boolean proxy;
     public String auth_id;
     public long timestamp;
     public Type type;
@@ -18,7 +19,7 @@ public class Client {
     public ClientPermissions permissions;
     public String username;
     public String verifyToken;
-    public LogHelper.OutputEnity logOutput;
+    public transient LogHelper.OutputEnity logOutput;
 
     public transient AuthProviderPair auth;
 

@@ -11,7 +11,7 @@ import ru.gravit.launcher.request.auth.AuthRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.launcher.server.setup.ServerWrapperSetup;
 import ru.gravit.utils.PublicURLClassLoader;
-import ru.gravit.utils.config.JsonConfigurable;
+import ru.gravit.launcher.config.JsonConfigurable;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -172,7 +172,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 auth();
             };
         }
-        LogHelper.info("ServerWrapper: LaunchServer address: %s. Title: %s", config.websocket.address, config.title);
+        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s. Title: %s", config.projectname, config.websocket.address, config.title);
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
@@ -193,7 +193,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
         LauncherConfig cfg = null;
         try {
-            cfg = new LauncherConfig(config.websocket.address, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>());
+            cfg = new LauncherConfig(config.websocket.address, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
             if(config.websocket != null && config.websocket.enabled)
             {
                 cfg.isNettyEnabled = true;
@@ -221,6 +221,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public Config getDefaultConfig() {
         Config newConfig = new Config();
         newConfig.title = "Your profile title";
+        newConfig.projectname = "MineCraft";
         newConfig.login = "login";
         newConfig.password = "password";
         newConfig.mainclass = "";
@@ -242,6 +243,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
     public static final class Config {
         public String title;
+        public String projectname;
         public WebSocketConf websocket;
         public int reconnectCount;
         public int reconnectSleep;

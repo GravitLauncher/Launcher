@@ -1,5 +1,8 @@
 package ru.gravit.launcher.managers;
 
+import ru.gravit.launcher.console.admin.ExecCommand;
+import ru.gravit.launcher.console.admin.LogListenerCommand;
+import ru.gravit.utils.command.BaseCommandCategory;
 import ru.gravit.utils.command.basic.ClearCommand;
 import ru.gravit.utils.command.basic.DebugCommand;
 import ru.gravit.utils.command.basic.GCCommand;
@@ -48,5 +51,9 @@ public class ConsoleManager {
     public static void unlock()
     {
         handler.registerCommand("debug", new DebugCommand());
+        BaseCommandCategory admin = new BaseCommandCategory();
+        admin.registerCommand("exec", new ExecCommand());
+        admin.registerCommand("logListen", new LogListenerCommand());
+        handler.registerCategory(new CommandHandler.Category(admin, "admin", "Server admin commands"));
     }
 }

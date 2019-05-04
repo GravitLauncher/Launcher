@@ -13,8 +13,12 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.logging.LoggingHandler;
+import ru.gravit.launcher.request.Request;
+import ru.gravit.launcher.request.auth.AuthRequest;
+import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.websocket.fileserver.FileServerHandler;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.net.InetSocketAddress;
 
@@ -45,6 +49,18 @@ public class LauncherNettyServer implements AutoCloseable {
                         pipeline.addLast(new WebSocketFrameHandler());
                     }
                 });
+        if(config.proxy != null && config.proxy.enabled)
+        {
+            LogHelper.info("Connect to main server %s");
+            Request.service = StandartClientWebSocketService.initWebSockets(config.proxy.address, false);
+            AuthRequest authRequest = new AuthRequest(config.proxy.login, config.proxy.password, config.proxy.auth_id, AuthRequest.ConnectTypes.PROXY);
+            authRequest.initProxy = true;
+            try {
+                authRequest.request();
+            } catch (Exception e) {
+                LogHelper.error(e);
+            }
+        }
     }
     public ChannelFuture bind(InetSocketAddress address)
     {

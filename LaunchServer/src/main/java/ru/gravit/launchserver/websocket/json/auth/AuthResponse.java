@@ -13,6 +13,7 @@ import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.launchserver.websocket.json.SimpleResponse;
 import ru.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
+import ru.gravit.utils.HookException;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.SecurityHelper;
@@ -43,6 +44,7 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public String auth_id;
+    public boolean initProxy;
     public ConnectTypes authType;
     public OshiHWID hwid;
 
@@ -84,7 +86,7 @@ public class AuthResponse extends SimpleResponse {
             else pair = LaunchServer.server.config.getAuthProviderPair(auth_id);
             AuthContext context = new AuthContext(0, login, password.length(), customText, client, ip, null, false);
             AuthProvider provider = pair.provider;
-            LaunchServer.server.authHookManager.preHook(context, clientData);
+            LaunchServer.server.authHookManager.preHook.hook(context, clientData);
             provider.preAuth(login, password, customText, ip);
             AuthProviderResult aresult = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(aresult.username)) {
@@ -105,7 +107,7 @@ public class AuthResponse extends SimpleResponse {
             //}
             if (authType == ConnectTypes.CLIENT)
                 LaunchServer.server.config.hwidHandler.check(hwid, aresult.username);
-            LaunchServer.server.authHookManager.postHook(context, clientData);
+            LaunchServer.server.authHookManager.postHook.hook(context, clientData);
             clientData.isAuth = true;
             clientData.permissions = aresult.permissions;
             clientData.auth_id = auth_id;
@@ -114,9 +116,16 @@ public class AuthResponse extends SimpleResponse {
             result.permissions = clientData.permissions;
             if(getSession)
             {
-                clientData.session = random.nextLong();
-                LaunchServer.server.sessionManager.addClient(clientData);
+                if(clientData.session == 0) {
+                    clientData.session = random.nextLong();
+                    LaunchServer.server.sessionManager.addClient(clientData);
+                }
                 result.session = clientData.session;
+            }
+            if(initProxy)
+            {
+                if(!clientData.permissions.canProxy) throw new AuthException("initProxy not allow");
+                clientData.proxy = true;
             }
             if(LaunchServer.server.config.protectHandler.allowGetAccessToken(context))
             {
@@ -125,7 +134,7 @@ public class AuthResponse extends SimpleResponse {
                 LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
             }
             sendResult(result);
-        } catch (AuthException | HWIDException e) {
+        } catch (AuthException | HWIDException | HookException e) {
             sendError(e.getMessage());
         }
     }

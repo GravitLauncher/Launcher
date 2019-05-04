@@ -1,7 +1,7 @@
 package ru.gravit.utils.helper;
 
 import org.fusesource.jansi.Ansi;
-import ru.gravit.launcher.Launcher;
+import ru.gravit.utils.Version;
 
 /*
  * Nashorn при инициализации LogHelper пытается инициализировтаь все доступные в нем методы.
@@ -59,8 +59,8 @@ public class FormatHelper {
                 fgBright(Ansi.Color.MAGENTA).a("GravitLauncher "). // sashok724's
                 fgBright(Ansi.Color.BLUE).a("(fork sashok724's Launcher) ").
                 fgBright(Ansi.Color.CYAN).a(product). // Product
-                fgBright(Ansi.Color.WHITE).a(" v").fgBright(Ansi.Color.BLUE).a(Launcher.getVersion().toString()). // Version
-                fgBright(Ansi.Color.WHITE).a(" (build #").fgBright(Ansi.Color.RED).a(Launcher.getVersion().build).fgBright(Ansi.Color.WHITE).a(')'). // Build#
+                fgBright(Ansi.Color.WHITE).a(" v").fgBright(Ansi.Color.BLUE).a(Version.getVersion().toString()). // Version
+                fgBright(Ansi.Color.WHITE).a(" (build #").fgBright(Ansi.Color.RED).a(Version.getVersion().build).fgBright(Ansi.Color.WHITE).a(')'). // Build#
                 reset().toString(); // To file
     }
 
@@ -79,7 +79,7 @@ public class FormatHelper {
     }
 
     static String formatVersion(String product) {
-        return String.format("GravitLauncher (fork sashok724's Launcher) %s v%s", product, Launcher.getVersion().toString());
+        return String.format("GravitLauncher (fork sashok724's Launcher) %s v%s", product, Version.getVersion().toString());
     }
 
     static String formatLicense(String product) {

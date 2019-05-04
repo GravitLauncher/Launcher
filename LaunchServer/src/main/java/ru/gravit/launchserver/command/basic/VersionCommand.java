@@ -1,8 +1,8 @@
 package ru.gravit.launchserver.command.basic;
 
-import ru.gravit.launcher.Launcher;
 import ru.gravit.launchserver.LaunchServer;
 import ru.gravit.launchserver.command.Command;
+import ru.gravit.utils.Version;
 import ru.gravit.utils.helper.LogHelper;
 
 public final class VersionCommand extends Command {
@@ -22,6 +22,6 @@ public final class VersionCommand extends Command {
 
     @Override
     public void invoke(String... args) {
-        LogHelper.subInfo("LaunchServer version: %d.%d.%d (build #%d)", Launcher.MAJOR, Launcher.MINOR, Launcher.PATCH, Launcher.BUILD);
+        LogHelper.subInfo("LaunchServer version: %d.%d.%d (build #%d)", Version.MAJOR, Version.MINOR, Version.PATCH, Version.BUILD);
     }
 }

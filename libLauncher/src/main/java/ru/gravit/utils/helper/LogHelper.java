@@ -4,6 +4,7 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.fusesource.jansi.AnsiOutputStream;
 import ru.gravit.launcher.LauncherAPI;
+import ru.gravit.launcher.LauncherNetworkAPI;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -47,7 +48,12 @@ public final class LogHelper {
     }
 
     public enum OutputTypes {
-        PLAIN, JANSI, HTML
+        @LauncherNetworkAPI
+        PLAIN,
+        @LauncherNetworkAPI
+        JANSI,
+        @LauncherNetworkAPI
+        HTML
     }
 
     private static final Set<OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
@@ -107,7 +113,7 @@ public final class LogHelper {
 
     @LauncherAPI
     public static void dev(String format, Object... args) {
-        debug(String.format(format, args));
+        dev(String.format(format, args));
     }
 
     @LauncherAPI
@@ -377,6 +383,9 @@ public final class LogHelper {
                 break;
             case DEBUG:
                 levelColor = "gravitlauncher-log-debug";
+                break;
+            case DEV:
+                levelColor = "gravitlauncher-log-dev";
                 break;
             default:
                 levelColor = "gravitlauncher-log-unknown";
