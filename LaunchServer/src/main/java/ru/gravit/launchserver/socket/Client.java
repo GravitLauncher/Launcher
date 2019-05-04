@@ -19,7 +19,7 @@ public class Client {
     public ClientPermissions permissions;
     public String username;
     public String verifyToken;
-    public LogHelper.OutputEnity logOutput;
+    public transient LogHelper.OutputEnity logOutput;
 
     public transient AuthProviderPair auth;
 
