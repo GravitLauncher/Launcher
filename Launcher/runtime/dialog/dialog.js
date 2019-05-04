@@ -240,6 +240,18 @@ function verifyLauncher(e) {
             //result.list весь список
             //result.list[0].name имя авторизации(не видно)
             //result.list[0].displayName имя авторизации(видно)
+            result.list.forEach(function(auth_type, i, arr) {
+                (function() {
+                            //profilesList[serverBtn] = profile;
+                            //var hold = serverBtn;
+                            //var hIndex = index;
+                            //serverBtn.setOnAction(function(event) {
+                            //    serverHolder.set(hold);
+                            //    settings.profile = hIndex;
+                            //});
+                            authOptions.getItems().add(auth_type.displayName);
+                        })();
+            });
             overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
                 settings.lastProfiles = result.profiles;
                 updateProfilesList(result.profiles);

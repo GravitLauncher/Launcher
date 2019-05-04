@@ -116,8 +116,10 @@ public class AuthResponse extends SimpleResponse {
             result.permissions = clientData.permissions;
             if(getSession)
             {
-                clientData.session = random.nextLong();
-                LaunchServer.server.sessionManager.addClient(clientData);
+                if(clientData.session == 0) {
+                    clientData.session = random.nextLong();
+                    LaunchServer.server.sessionManager.addClient(clientData);
+                }
                 result.session = clientData.session;
             }
             if(initProxy)

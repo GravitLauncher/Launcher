@@ -49,7 +49,7 @@ public class LauncherNettyServer implements AutoCloseable {
                         pipeline.addLast(new WebSocketFrameHandler());
                     }
                 });
-        if(config.proxy.enabled)
+        if(config.proxy != null && config.proxy.enabled)
         {
             LogHelper.info("Connect to main server %s");
             Request.service = StandartClientWebSocketService.initWebSockets(config.proxy.address, false);
