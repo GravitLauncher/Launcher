@@ -15,6 +15,6 @@ public class ExecCommandRequest extends Request<ExecCommandRequestEvent> impleme
 
     @Override
     public String getType() {
-        return "execCmd";
+        return "cmdExec";
     }
 }
