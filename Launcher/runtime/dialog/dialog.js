@@ -236,9 +236,9 @@ function verifyLauncher(e) {
             initOffline();
         }
         overlay.swap(0, processing.overlay, function(event) makeAuthAvailabilityRequest(function(result) {
-            result.list;
-            result.list[0].name;
-            result.list[0].displayName;
+            //result.list;
+            //result.list[0].name;
+            //result.list[0].displayName;
             result.list.forEach(function(auth_type, i, arr) {
 
                 var serverAuth = new com.jfoenix.controls.JFXComboBox();
