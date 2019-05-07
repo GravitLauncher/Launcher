@@ -80,16 +80,13 @@ function initMenuScene() {
         stage.setY(event.getScreenY() - movePoint.getY());
     });
 
-    var pane = loginPane.lookup("#bar");
+    var pane = menuPane.lookup("#bar");
     bar = pane;
-    menuPane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
-    menuPane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
-    menuPane.lookup("#discord").setOnAction(function(){ openURL(config.discord); });
-    menuPane.lookup("#settings").setOnAction(goSettings);
-    menuPane.lookup("#goConsole").setOnAction(goConsole);
-    menuPane.lookup("#logout").setOnAction(function(){
-        setCurrentScene(loginScene);
-    });
+    pane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
+    pane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
+    pane.lookup("#discord").setOnAction(function(){ openURL(config.discord); });
+    pane.lookup("#settings").setOnAction(goSettings);
+    pane.lookup("#goConsole").setOnAction(goConsole);
 
     var pane = menuPane.lookup("#serverPane");
     serverPane = pane;
@@ -103,6 +100,9 @@ function initMenuScene() {
     serverLabel = serverEntrance.lookup("#serverLabel");
     serverEntrance.lookup("#clientLaunch").setOnAction(function(){
         doUpdate(profilesList[serverHolder.old], loginData.pp, loginData.accessToken);
+    });
+    pane.lookup("#logout").setOnAction(function(){
+        setCurrentScene(loginScene);
     });
 
 }
@@ -236,21 +236,17 @@ function verifyLauncher(e) {
             initOffline();
         }
         overlay.swap(0, processing.overlay, function(event) makeAuthAvailabilityRequest(function(result) {
-            //@DrLeonardo нужно напистаь добавление в список
-            //result.list весь список
-            //result.list[0].name имя авторизации(не видно)
-            //result.list[0].displayName имя авторизации(видно)
+            //result.list;
+            //result.list[0].name;
+            //result.list[0].displayName;
             result.list.forEach(function(auth_type, i, arr) {
+
+                var serverAuth = new com.jfoenix.controls.JFXComboBox();
+                serverAuth.getStyleClass().add("authOptions");
+
                 (function() {
-                            //profilesList[serverBtn] = profile;
-                            //var hold = serverBtn;
-                            //var hIndex = index;
-                            //serverBtn.setOnAction(function(event) {
-                            //    serverHolder.set(hold);
-                            //    settings.profile = hIndex;
-                            //});
-                            authOptions.getItems().add(auth_type.displayName);
-                        })();
+                    authOptions.getItems().add(auth_type.displayName);
+                })();
             });
             overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
                 settings.lastProfiles = result.profiles;
