@@ -29,7 +29,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        LogHelper.debug("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));
+        LogHelper.dev("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));
         client = new Client(0);
         service.registerClient(ctx.channel());
         ctx.executor().schedule(() -> {
