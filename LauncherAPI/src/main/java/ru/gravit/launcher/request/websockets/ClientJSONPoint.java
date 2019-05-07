@@ -27,6 +27,7 @@ public abstract class ClientJSONPoint {
     private static final EventLoopGroup group = new NioEventLoopGroup();
     protected WebSocketClientHandler webSocketClientHandler;
     protected Bootstrap bootstrap = new Bootstrap();
+    protected boolean ssl = false;
     public boolean isClosed;
 
     public ClientJSONPoint(final String uri) throws SSLException {
@@ -39,7 +40,6 @@ public abstract class ClientJSONPoint {
         if (!"ws".equals(protocol) && !"wss".equals(protocol)) {
             throw new IllegalArgumentException("Unsupported protocol: " + protocol);
         }
-        boolean ssl = false;
         if("wss".equals(protocol))
         {
             ssl = true;
@@ -55,7 +55,7 @@ public abstract class ClientJSONPoint {
                     public void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
                         if (sslCtx != null) {
-                            pipeline.addLast(sslCtx.newHandler(ch.alloc()));
+                            pipeline.addLast(sslCtx.newHandler(ch.alloc(), uri.getHost(), 443));
                         }
                         pipeline.addLast("http-codec", new HttpClientCodec());
                         pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
@@ -70,7 +70,7 @@ public abstract class ClientJSONPoint {
                 new WebSocketClientHandler(
                         WebSocketClientHandshakerFactory.newHandshaker(
                                 uri, WebSocketVersion.V13, null, false, EmptyHttpHeaders.INSTANCE, 1280000), this);
-        ch = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
+        ch = bootstrap.connect(uri.getHost(), ssl ? 443 : uri.getPort()).sync().channel();
         webSocketClientHandler.handshakeFuture().sync();
     }
     public ChannelFuture send(String text)
