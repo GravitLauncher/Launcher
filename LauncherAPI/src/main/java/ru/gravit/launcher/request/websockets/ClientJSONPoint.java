@@ -28,6 +28,7 @@ public abstract class ClientJSONPoint {
     protected WebSocketClientHandler webSocketClientHandler;
     protected Bootstrap bootstrap = new Bootstrap();
     protected boolean ssl = false;
+    protected int port = -1;
     public boolean isClosed;
 
     public ClientJSONPoint(final String uri) throws SSLException {
@@ -44,6 +45,12 @@ public abstract class ClientJSONPoint {
         {
             ssl = true;
         }
+        if(uri.getPort() == -1)
+        {
+            if("ws".equals(protocol)) port = 80;
+            else port = 443;
+        }
+        else port = uri.getPort();
         final SslContext sslCtx;
         if (ssl) {
             sslCtx = SslContextBuilder.forClient().build();
@@ -55,7 +62,7 @@ public abstract class ClientJSONPoint {
                     public void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
                         if (sslCtx != null) {
-                            pipeline.addLast(sslCtx.newHandler(ch.alloc(), uri.getHost(), 443));
+                            pipeline.addLast(sslCtx.newHandler(ch.alloc(), uri.getHost(), port));
                         }
                         pipeline.addLast("http-codec", new HttpClientCodec());
                         pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
@@ -70,7 +77,7 @@ public abstract class ClientJSONPoint {
                 new WebSocketClientHandler(
                         WebSocketClientHandshakerFactory.newHandshaker(
                                 uri, WebSocketVersion.V13, null, false, EmptyHttpHeaders.INSTANCE, 1280000), this);
-        ch = bootstrap.connect(uri.getHost(), ssl ? 443 : uri.getPort()).sync().channel();
+        ch = bootstrap.connect(uri.getHost(), port).sync().channel();
         webSocketClientHandler.handshakeFuture().sync();
     }
     public ChannelFuture send(String text)
