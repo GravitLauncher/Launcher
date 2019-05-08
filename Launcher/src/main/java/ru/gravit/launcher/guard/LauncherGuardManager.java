@@ -15,10 +15,12 @@ public class LauncherGuardManager {
             case "wrapper":
             {
                 guard = new LauncherWrapperGuard();
+				break;
             }
             case "java":
             {
                 guard = new LauncherJavaGuard();
+				break;
             }
             default:
             {

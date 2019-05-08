@@ -8,7 +8,7 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-background-color: transparent;
     -fx-background-size: cover;
     -fx-pref-width: 738px;
-    -fx-pref-height: 425px;
+    -fx-pref-height: 450px;
     -fx-background-image: url('images/background.jpg');
 }
 #background {
@@ -37,7 +37,7 @@ Button, CheckBox, ComboBox, RadioButton {
 #mask {
     -fx-background-color: rgba(0, 0, 0, 0.5);
     -fx-pref-width: 692px;
-    -fx-pref-height: 425px;
+    -fx-pref-height: 450px;
 }
 
 /** Errors **/
@@ -55,7 +55,7 @@ Button, CheckBox, ComboBox, RadioButton {
 #bar {
     -fx-background-color: #323232;
     -fx-pref-width: 46px;
-    -fx-pref-height: 425px;
+    -fx-pref-height: 450px;
 }
 /** buttons in bar **/
 #close {
@@ -90,7 +90,7 @@ Button, CheckBox, ComboBox, RadioButton {
 #authPane {
     -fx-background-color: rgba(255, 255, 255, 0.71);
     -fx-pref-width: 270px;
-    -fx-pref-height: 425px;
+    -fx-pref-height: 450px;
 }
 
 #logo {
@@ -106,13 +106,14 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-font-weight: bold;
     -fx-font-size: 13pt;
     -fx-background-radius: 0;
-    -fx-background-color: #61B373;
+    -fx-background-color: #5fd97a;
     -fx-text-fill: #ffffff;
-    -fx-pref-width: 240px;
+    -fx-pref-width: 200px;
     -fx-pref-height: 45px;
+    -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15,0,0,3);
 }
 
-.auth:hover, .auth:pressed { -fx-background-color: #74C085; }
+.auth:hover, .auth:pressed { -fx-background-color: #75e18c; }
 
 #password, #login {
     -fx-background-radius: 0;
@@ -152,49 +153,93 @@ Button, CheckBox, ComboBox, RadioButton {
 }
 #combologin {
     -fx-text-fill: #909090;
+    -fx-prompt-text-fill: #909090;
     -fx-pref-width: 200px;
     -fx-pref-height: 30px;
+}
+.combologin,
+.combologin {
+    -fx-font-size: 13px;
+    -fx-prompt-text-fill: #909090;
+    -fx-text-fill: #909090;
+    -fx-background-color: transparent;
+}
+
+.combologin .list-cell {
+    -fx-background: white;
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.combologin-popup .list-view {
+    -fx-background-color: white, white;
+    -fx-background-insets: 0, 1;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 8, 0.0 , 0 , 0 );
+}
+
+.combologin .list-cell:filled:selected .text,
+.combologin .list-cell:filled:selected .text {
+    -fx-fill: #909090;
+}
+
+.combologin .arrow,
+.combologin .arrow {
+    -fx-background-color: #5fd97a;
+}
+
+.combologin-popup .list-view .list-cell
+{
+    -fx-background-color: white;
+}
+
+.combologin-popup .list-view .list-cell:filled:selected, .combologin-popup .list-view .list-cell:filled:selected:hover
+{
+    -fx-background: -fx-accent;
+    -fx-background-color: -fx-selection-bar;
+    -fx-text-fill: -fx-selection-bar-text;
+}
+
+.combologin-popup .list-view .list-cell:filled:hover
+{
+    -fx-background-color: white;
+    -fx-text-fill: -fx-text-inner-color;
 }
 
 /** web**/
 #news {
     -fx-background-color: transparent;
     -fx-pref-width: 423px;
-    -fx-pref-height: 425px;
+    -fx-pref-height: 450px;
 }
 
 /* MenuPane */
 .serverentrance {
     -fx-background-color: rgba(255, 255, 255, 0.71);
     -fx-pref-width: 386px;
-    -fx-pref-height: 425px;
+    -fx-pref-height: 450px;
 }
 
 /** buttons **/
 .clientLaunch{
     -jfx-button-type: FLAT;
     -fx-font-weight: bold;
-    -fx-font-size: 18pt;
+    -fx-font-size: 16pt;
     -fx-background-radius: 0;
-    -fx-background-color: #61B373;
+    -fx-background-color: #5fd97a;
     -fx-text-fill: #ffffff;
-    -fx-pref-width: 260px;
-    -fx-pref-height: 45px;
 }
 .clientSettings{
     -fx-background-position: center;
     -jfx-button-type: FLAT;
-    -fx-background-color: #61B373;
+    -fx-background-color: #5fd97a;
     -fx-background-radius: 0;
-    -fx-pref-width: 85px;
-    -fx-pref-height: 51px;
 }
 
-.clientLaunch:hover, .clientLaunch:pressed { -fx-background-color: #74C085; }
+.clientLaunch:hover, .clientLaunch:pressed { -fx-background-color: #75e18c; }
 
 /* Pressets options */
 .pressetLight, .pressetMedium, .pressetHigh {
-    -jfx-toggle-color: #61B373;
+    -jfx-toggle-color: #5fd97a;
     -jfx-untoggle-color: #FAFAFA;
     -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
     -jfx-untoggle-line-color: #999999;
@@ -243,7 +288,6 @@ Button, CheckBox, ComboBox, RadioButton {
 /* OptionsPane */
 #optionsPane > #modlist {
     -fx-background-color: transparent;
-
 }
 
 #optionsPane > #modlist > .viewport {
@@ -256,9 +300,18 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-font-size: 12px;
 }
 
+.checkboxOpt {
+    -jfx-checked-color: #5fd97a;
+    -jfx-unchecked-color: #909090;
+}
+
+.modname {
+    -fx-text-fill: #323232;
+}
+
 .lineHead {
     -fx-stroke: #d8d8d8;
-    -fx-stroke-width: 10;
+    -fx-stroke-width: 1;
 }
 
 .separator *.line {

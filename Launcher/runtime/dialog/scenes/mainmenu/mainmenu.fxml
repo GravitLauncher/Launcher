@@ -15,11 +15,11 @@
 
 <Pane fx:id="layout" maxHeight="-1.0" maxWidth="-1.0" prefHeight="400.0" prefWidth="600.0" visible="true" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
   <children>
-    <Pane id="serverPane" prefHeight="425.0" prefWidth="693.0">
+    <Pane id="serverPane" prefHeight="450.0" prefWidth="693.0">
       <children>
-          <ScrollPane id="serverlist" hbarPolicy="NEVER" layoutX="1.0" prefHeight="425.0" prefWidth="307.0" visible="true">
+          <ScrollPane id="serverlist" hbarPolicy="NEVER" layoutX="1.0" prefHeight="450.0" prefWidth="307.0" visible="true">
               <content>
-                  <FlowPane focusTraversable="false" prefHeight="421.0" prefWidth="306.0" prefWrapLength="0.0" rowValignment="TOP" vgap="10.0" visible="true">
+                  <FlowPane focusTraversable="false" prefHeight="446.0" prefWidth="306.0" prefWrapLength="0.0" rowValignment="TOP" vgap="10.0" visible="true">
                       <JFXButton id="servercontainer" ripplerFill="#ffffff80" text="">
                         <FlowPane.margin>
                            <Insets bottom="10.0" />
@@ -30,11 +30,11 @@
                   </FlowPane>
               </content>
         </ScrollPane>
-        <Pane id="serverentrance" layoutX="307.0" prefHeight="425.0" prefWidth="388.0" styleClass="serverentrance">
+        <Pane id="serverentrance" layoutX="306.0" prefHeight="425.0" prefWidth="388.0" styleClass="serverentrance">
           <children>
-              <ScrollPane id="serverinfo" hbarPolicy="NEVER" layoutX="4.0" layoutY="53.0" pannable="true" prefHeight="372.0" prefWidth="382.0" visible="true">
+              <ScrollPane id="serverinfo" hbarPolicy="NEVER" layoutX="4.0" layoutY="53.0" pannable="true" prefHeight="322.0" prefWidth="381.0" visible="true">
                  <content>
-                   <FlowPane id="" focusTraversable="false" orientation="HORIZONTAL" prefHeight="221.0" prefWidth="362.0" rowValignment="TOP" visible="true">
+                   <FlowPane id="" focusTraversable="false" orientation="HORIZONTAL" prefHeight="310.0" prefWidth="369.0" rowValignment="TOP" visible="true">
                      <padding>
                        <Insets bottom="10.0" left="15.0" top="7.0" />
                      </padding>
@@ -44,21 +44,21 @@
                    </FlowPane>
                  </content>
               </ScrollPane>
-            <JFXButton id="clientLaunch" layoutX="20.0" layoutY="355.0" styleClass="clientLaunch" text="ИГРАТЬ">
+            <JFXButton id="clientLaunch" layoutX="121.0" layoutY="380.0" prefHeight="51.0" prefWidth="183.0" styleClass="clientLaunch" text="ИГРАТЬ">
                 <font>
                     <Font size="22.0" />
                 </font>
             </JFXButton>
-            <JFXButton id="clientSettings" alignment="CENTER" centerShape="false" contentDisplay="CENTER" layoutX="281.0" layoutY="355.0" ripplerFill="#84da96" styleClass="clientSettings" text="" textAlignment="CENTER">
+            <JFXButton id="clientSettings" alignment="CENTER" centerShape="false" contentDisplay="CENTER" layoutX="305.0" layoutY="380.0" prefHeight="51.0" prefWidth="60.0" ripplerFill="#84da96" styleClass="clientSettings" text="" textAlignment="CENTER">
                      <graphic>
                         <FontAwesomeIconView fill="WHITE" glyphName="SLIDERS" size="30.0" />
                      </graphic></JFXButton>
-            <Label id="serverStatus" alignment="TOP_RIGHT" contentDisplay="RIGHT" layoutX="246.0" layoutY="12.0" prefHeight="25.0" prefWidth="104.0" text="12/100" textAlignment="RIGHT" textFill="WHITE">
+            <Label id="serverStatus" alignment="TOP_RIGHT" contentDisplay="RIGHT" layoutX="252.0" layoutY="12.0" prefHeight="25.0" prefWidth="97.0" text="12/100" textAlignment="RIGHT" textFill="WHITE">
                 <font>
                     <Font name="System Bold" size="16.0" />
                 </font>
             </Label>
-            <Label id="serverLabel" layoutX="4.0" layoutY="11.0" prefHeight="31.0" prefWidth="265.0" text="СЕРВЕР">
+            <Label id="serverLabel" layoutX="4.0" layoutY="11.0" prefHeight="27.0" prefWidth="266.0" text="СЕРВЕР">
 				<font>
 					<Font name="System Bold" size="18.0" />
 				</font>
@@ -66,6 +66,11 @@
 					<Insets left="14.0" />
 				</padding>
             </Label>
+                    <JFXButton id="logout" alignment="CENTER" contentDisplay="CENTER" layoutX="19.0" layoutY="383.0" ripplerFill="#61616100" text="" textAlignment="CENTER">
+                        <graphic>
+                            <MaterialDesignIconView fill="#323232" glyphName="LOGOUT" size="30" textAlignment="CENTER" />
+                        </graphic>
+                    </JFXButton>
           </children>
         </Pane>
       </children>
@@ -84,22 +89,17 @@
               </JFXButton>
               <JFXButton id="discord" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" ripplerFill="#646464" text="" textAlignment="CENTER">
                   <graphic>
-                      <MaterialDesignIconView fill="WHITE" glyphName="MESSAGE_TEXT" size="30" smooth="false" textAlignment="CENTER" />
+                      <MaterialDesignIconView fill="#5fd97a" glyphName="MESSAGE_TEXT" size="20" smooth="false" textAlignment="CENTER" />
                   </graphic>
               </JFXButton>
               <JFXButton id="settings" alignment="CENTER" contentDisplay="CENTER" layoutY="90.0" ripplerFill="#646464" text="" textAlignment="CENTER">
                   <graphic>
-                      <MaterialDesignIconView fill="WHITE" glyphName="SETTINGS" size="30" textAlignment="CENTER" />
+                      <MaterialDesignIconView fill="WHITE" glyphName="SETTINGS" size="20" textAlignment="CENTER" />
                   </graphic>
               </JFXButton>
               <JFXButton id="goConsole" alignment="CENTER" contentDisplay="CENTER" layoutY="138.0" ripplerFill="#646464" text="" textAlignment="CENTER">
                   <graphic>
-                      <MaterialDesignIconView fill="WHITE" glyphName="CONSOLE" size="30" textAlignment="CENTER" />
-                  </graphic>
-              </JFXButton>
-              <JFXButton id="logout" alignment="CENTER" contentDisplay="CENTER" layoutY="332.0" ripplerFill="#646464" text="" textAlignment="CENTER">
-                  <graphic>
-                      <MaterialDesignIconView fill="WHITE" glyphName="LOGOUT" size="30" textAlignment="CENTER" />
+                      <MaterialDesignIconView fill="WHITE" glyphName="CONSOLE" size="20" textAlignment="CENTER" />
                   </graphic>
               </JFXButton>
           </children>

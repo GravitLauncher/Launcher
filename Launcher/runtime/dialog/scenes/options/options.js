@@ -110,6 +110,7 @@ var options = {
                         if(modFile.subTreeLevel != null && modFile.subTreeLevel > 1)
                             subLevel = modFile.subTreeLevel;
                          var testMod = new com.jfoenix.controls.JFXCheckBox(modName);
+                         testMod.getStyleClass().add("checkboxOpt");
 
                         if(subLevel > 1)
                             for(var i = 1; i < subLevel; i++)
@@ -131,6 +132,7 @@ var options = {
                              options.update();
                          });
                         checkBoxList.add(testMod);
+                        testMod.getStyleClass().add("modname");
                          if(modDescription != "") {
                              textDescr = new javafx.scene.text.Text(modDescription);
                              if(subLevel > 1) {
