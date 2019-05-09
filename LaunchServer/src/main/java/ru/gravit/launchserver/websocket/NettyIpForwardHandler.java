@@ -1,14 +1,14 @@
 package ru.gravit.launchserver.websocket;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandler;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import ru.gravit.utils.helper.LogHelper;
 
-public class NettyIpForwardHandler extends ChannelInboundHandlerAdapter {
+import java.util.List;
+
+public class NettyIpForwardHandler extends MessageToMessageDecoder<HttpRequest> {
     private NettyConnectContext context;
 
     public NettyIpForwardHandler(NettyConnectContext context) {
@@ -17,33 +17,23 @@ public class NettyIpForwardHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        //super.channelRead(ctx,  msg);
-        if(context.ip != null)
-        {
-            ctx.writeAndFlush(msg);
+    protected void decode(ChannelHandlerContext ctx, HttpRequest msg, List<Object> out) throws Exception {
+        if (context.ip != null) {
+            out.add(msg);
             return;
         }
-        if(msg instanceof HttpRequest)
-        {
-            HttpRequest http = (HttpRequest) msg;
-            HttpHeaders headers = http.headers();
-            String realIP = null;
-            if(headers.contains("X-Forwarded-For"))
-            {
-                realIP = headers.get("X-Forwarded-For");
-            }
-            if(headers.contains("X-Real-IP"))
-            {
-                realIP = headers.get("X-Real-IP");
-            }
-            if(realIP != null) {
-                LogHelper.dev("Real IP address %s", realIP);
-                context.ip = realIP;
-            }
-            else LogHelper.error("IpForwarding error. Headers not found");
+        HttpHeaders headers = msg.headers();
+        String realIP = null;
+        if (headers.contains("X-Forwarded-For")) {
+            realIP = headers.get("X-Forwarded-For");
         }
-        else LogHelper.error("IpForwarding error. Real message class %s", msg.getClass().getName());
-        ctx.writeAndFlush(msg);
+        if (headers.contains("X-Real-IP")) {
+            realIP = headers.get("X-Real-IP");
+        }
+        if (realIP != null) {
+            LogHelper.dev("Real IP address %s", realIP);
+            context.ip = realIP;
+        } else LogHelper.error("IpForwarding error. Headers not found");
+        out.add(msg);
     }
 }
