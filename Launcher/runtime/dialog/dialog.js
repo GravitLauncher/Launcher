@@ -59,11 +59,11 @@ function initLoginScene() {
     savePasswordBox = pane.lookup("#rememberchb");
     savePasswordBox.setSelected(settings.login === null || settings.rsaPassword !== null);
 
-    authOptions = pane.lookup("#authOptions");
-
     var link = pane.lookup("#link");
     link.setText(config.linkText);
     link.setOnAction(function(event) app.getHostServices().showDocument(config.linkURL.toURI()));
+
+    authOptions = pane.lookup("#authOptions");
 
     pane.lookup("#goAuth").setOnAction(goAuth);
 }
@@ -187,25 +187,31 @@ function goAuth(event) {
         return;
     }
 
-    var rsaPassword = null;
-    if (!passwordField.isDisable()) {
-        var password = passwordField.getText();
-        if (password !== null && !password.isEmpty()) {
-            rsaPassword = settingsOverlay.setPassword(password);
-        } else if (settings.rsaPassword !== null) {
-            rsaPassword = settings.rsaPassword;
-        } else {
-            return;
-        }
+    // Get auth
+    /* var auth = authOptions.getSelectionModel().getSelectedItem();
+     if (auth === null) {
+         return; // No auth selected
+     }*/
 
-        settings.rsaPassword = savePasswordBox.isSelected() ? rsaPassword : null;
-    }
+     var rsaPassword = null;
+     if (!passwordField.isDisable()) {
+         var password = passwordField.getText();
+         if (password !== null && !password.isEmpty()) {
+             rsaPassword = settingsOverlay.setPassword(password);
+         } else if (settings.rsaPassword !== null) {
+             rsaPassword = settings.rsaPassword;
+         } else {
+             return;
+         }
 
-    settings.login = login;
-    doAuth(login, rsaPassword);
-}
+         settings.rsaPassword = savePasswordBox.isSelected() ? rsaPassword : null;
+     }
 
-/* ======== Console ======== */
+     settings.login = login;
+     doAuth(/*auth, */login, rsaPassword);
+ }
+
+ /* ======== Console ======== */
 function goConsole(event) {
     setConsoleCurrentScene(consoleScene);
 }
@@ -236,18 +242,17 @@ function verifyLauncher(e) {
             initOffline();
         }
         overlay.swap(0, processing.overlay, function(event) makeAuthAvailabilityRequest(function(result) {
-            //result.list;
-            //result.list[0].name;
-            //result.list[0].displayName;
-            result.list.forEach(function(auth_type, i, arr) {
+                //result.list;
+                //result.list[0].name;
+                //result.list[0].displayName;
+                result.list.forEach(function(auth_type, i, arr) {
+                    (function() {
+                        authOptions.getItems().add(auth_type.displayName);
+                        //var sm = authOptions.getSelectionModel();
+                        //sm.selectedIndexProperty()["addListener(javafx.beans.value.ChangeListener)"](settings.auth = i);
+                    })();
 
-                var serverAuth = new com.jfoenix.controls.JFXComboBox();
-                serverAuth.getStyleClass().add("authOptions");
-
-                (function() {
-                    authOptions.getItems().add(auth_type.displayName);
-                })();
-            });
+                });
             overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
                 settings.lastProfiles = result.profiles;
                 updateProfilesList(result.profiles);
