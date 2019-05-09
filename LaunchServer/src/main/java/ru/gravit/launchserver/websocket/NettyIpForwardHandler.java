@@ -18,7 +18,7 @@ public class NettyIpForwardHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        //super.channelRead(ctx, msg);
+        //super.channelRead(ctx,  msg);
         if(context.ip != null)
         {
             ctx.writeAndFlush(msg);
