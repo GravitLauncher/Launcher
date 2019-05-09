@@ -14,6 +14,7 @@ public abstract class SimpleResponse implements JsonResponseInterface {
     public transient LaunchServer server;
     public transient WebSocketService service;
     public transient ChannelHandlerContext ctx;
+    public transient String ip;
     public void sendResult(RequestEvent result)
     {
         result.requestUUID = requestUUID;

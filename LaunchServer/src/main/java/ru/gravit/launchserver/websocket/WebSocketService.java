@@ -35,6 +35,7 @@ import ru.gravit.launchserver.websocket.json.secure.VerifySecureTokenResponse;
 import ru.gravit.launchserver.websocket.json.update.LauncherResponse;
 import ru.gravit.launchserver.websocket.json.update.UpdateListResponse;
 import ru.gravit.launchserver.websocket.json.update.UpdateResponse;
+import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
@@ -62,7 +63,7 @@ public class WebSocketService {
     private final GsonBuilder gsonBuiler;
 
     @SuppressWarnings("unchecked")
-	void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client) {
+	void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
         String request = frame.text();
         JsonResponseInterface response = gson.fromJson(request, JsonResponseInterface.class);
         if(server.config.netty.proxy.enabled)
@@ -77,6 +78,8 @@ public class WebSocketService {
                     simpleResponse.server = server;
                     simpleResponse.service = this;
                     simpleResponse.ctx = ctx;
+                    if(ip != null) simpleResponse.ip = ip;
+                    else simpleResponse.ip = IOHelper.getIP(ctx.channel().remoteAddress());
                     origRequestUUID = simpleResponse.requestUUID;
                 }
                 LogHelper.debug("Proxy %s request", response.getType());
@@ -122,11 +125,12 @@ public class WebSocketService {
                     }
                     sendObject(ctx, event);
                 }
+                return;
             }
         }
-        process(ctx,response, client);
+        process(ctx,response, client, ip);
     }
-    void process(ChannelHandlerContext ctx, JsonResponseInterface response, Client client)
+    void process(ChannelHandlerContext ctx, JsonResponseInterface response, Client client, String ip)
     {
         if(response instanceof SimpleResponse)
         {
@@ -134,6 +138,8 @@ public class WebSocketService {
             simpleResponse.server = server;
             simpleResponse.service = this;
             simpleResponse.ctx = ctx;
+            if(ip != null) simpleResponse.ip = ip;
+            else simpleResponse.ip = IOHelper.getIP(ctx.channel().remoteAddress());
         }
         try {
             response.execute(ctx, client);

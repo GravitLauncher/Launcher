@@ -46,9 +46,8 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) {
         // ping and pong frames already handled
-
         if (frame instanceof TextWebSocketFrame) {
-            service.process(ctx, (TextWebSocketFrame) frame, client);
+            service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
         } else if ((frame instanceof PingWebSocketFrame)) {
             frame.content().retain();
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));

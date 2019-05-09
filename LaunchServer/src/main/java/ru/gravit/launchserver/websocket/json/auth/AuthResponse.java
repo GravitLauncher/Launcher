@@ -61,7 +61,6 @@ public class AuthResponse extends SimpleResponse {
     public void execute(ChannelHandlerContext ctx, Client clientData) throws Exception {
         try {
             AuthRequestEvent result = new AuthRequestEvent();
-            String ip = IOHelper.getIP(ctx.channel().remoteAddress());
             if ((authType == null || authType == ConnectTypes.CLIENT) && ( clientData == null || !clientData.checkSign )) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
