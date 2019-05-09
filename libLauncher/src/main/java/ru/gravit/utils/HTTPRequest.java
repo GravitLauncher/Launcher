@@ -3,6 +3,7 @@ package ru.gravit.utils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -61,6 +62,10 @@ public final class HTTPRequest {
         try {
             return parser.parse(reader);
         } catch (Exception e) {
+            if(200 > statusCode || statusCode > 300) {
+                LogHelper.error("JsonRequest failed. Server response code %d", statusCode);
+                throw new IOException(e);
+            }
             return null;
         }
     }
