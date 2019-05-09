@@ -5,6 +5,7 @@ import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpRequest;
 import ru.gravit.utils.helper.LogHelper;
 
 public class NettyIpForwardHandler extends ChannelInboundHandlerAdapter {
@@ -19,9 +20,9 @@ public class NettyIpForwardHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         //super.channelRead(ctx, msg);
         if(context.ip != null) return;
-        if(msg instanceof DefaultHttpRequest)
+        if(msg instanceof HttpRequest)
         {
-            DefaultHttpRequest http = (DefaultHttpRequest) msg;
+            HttpRequest http = (HttpRequest) msg;
             HttpHeaders headers = http.headers();
             String realIP = null;
             if(headers.contains("X-Forwarded-For"))

@@ -44,10 +44,10 @@ public class LauncherNettyServer implements AutoCloseable {
                         //p.addLast(new LoggingHandler(LogLevel.INFO));
                         pipeline.addLast(new HttpServerCodec());
                         pipeline.addLast(new HttpObjectAggregator(65536));
+                        if (LaunchServer.server.config.netty.ipForwarding) pipeline.addLast(new NettyIpForwardHandler(context));
                         pipeline.addLast(new WebSocketServerCompressionHandler());
                         pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
                         if (LaunchServer.server.config.netty.fileServerEnabled) pipeline.addLast(new FileServerHandler(LaunchServer.server.updatesDir, true));
-                        if (LaunchServer.server.config.netty.ipForwarding) pipeline.addLast(new NettyIpForwardHandler(context));
                         pipeline.addLast(new WebSocketFrameHandler(context));
                     }
                 });
