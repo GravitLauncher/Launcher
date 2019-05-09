@@ -21,7 +21,7 @@ public class NettyIpForwardHandler extends ChannelInboundHandlerAdapter {
         //super.channelRead(ctx, msg);
         if(context.ip != null)
         {
-            ctx.write(msg);
+            ctx.writeAndFlush(msg);
             return;
         }
         if(msg instanceof HttpRequest)
@@ -44,6 +44,6 @@ public class NettyIpForwardHandler extends ChannelInboundHandlerAdapter {
             else LogHelper.error("IpForwarding error. Headers not found");
         }
         else LogHelper.error("IpForwarding error. Real message class %s", msg.getClass().getName());
-        ctx.write(msg);
+        ctx.writeAndFlush(msg);
     }
 }
