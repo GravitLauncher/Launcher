@@ -37,5 +37,6 @@ public class NettyIpForwardHandler extends ChannelInboundHandlerAdapter {
                 context.ip = realIP;
             }
         }
+        else LogHelper.error("IpForwarding error. Real message class %s", msg.getClass().getName());
     }
 }
