@@ -17,6 +17,12 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     public static LaunchServer server;
     public static GsonBuilder builder = new GsonBuilder();
     public static WebSocketService service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), LaunchServer.server, builder);
+    public NettyConnectContext context;
+
+    public WebSocketFrameHandler(NettyConnectContext context) {
+        this.context = context;
+    }
+
     private Client client;
 
     static {

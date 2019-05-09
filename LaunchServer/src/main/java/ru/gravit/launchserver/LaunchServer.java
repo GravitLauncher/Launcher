@@ -275,6 +275,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public class NettyConfig {
         public boolean fileServerEnabled;
         public boolean sendExceptionEnabled;
+        public boolean ipForwarding;
         public String launcherURL;
         public String downloadURL;
         public String launcherEXEURL;
