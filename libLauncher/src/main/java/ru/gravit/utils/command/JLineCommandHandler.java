@@ -1,13 +1,17 @@
 package ru.gravit.utils.command;
 
-import jline.console.ConsoleReader;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.InfoCmp;
 import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.LogHelper.Output;
 
 import java.io.IOException;
 
 public class JLineCommandHandler extends CommandHandler {
-    private final class JLineOutput implements Output {
+    /*private final class JLineOutput implements Output {
         @Override
         public void println(String message) {
             try {
@@ -18,30 +22,38 @@ public class JLineCommandHandler extends CommandHandler {
                 // Ignored
             }
         }
-    }
+    }*/
 
-    private final ConsoleReader reader;
+    private final Terminal terminal;
+    private final TerminalBuilder terminalBuilder;
+    private final LineReader reader;
 
     public JLineCommandHandler() throws IOException {
         super();
+        terminalBuilder = TerminalBuilder.builder();
+        terminal = terminalBuilder.build();
+        reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .build();
 
         // Set reader
-        reader = new ConsoleReader();
-        reader.setExpandEvents(false);
+        //reader = new ConsoleReader();
+        //reader.setExpandEvents(false);
 
         // Replace writer
-        LogHelper.removeStdOutput();
-        LogHelper.addOutput(new JLineOutput(), LogHelper.OutputTypes.JANSI);
+        //LogHelper.removeStdOutput();
+        //LogHelper.addOutput(new JLineOutput(), LogHelper.OutputTypes.JANSI);
     }
 
     @Override
     public void bell() throws IOException {
-        reader.beep();
+
+        //reader.beep();
     }
 
     @Override
     public void clear() throws IOException {
-        reader.clearScreen();
+        terminal.puts(InfoCmp.Capability.clear_screen);
     }
 
     @Override
