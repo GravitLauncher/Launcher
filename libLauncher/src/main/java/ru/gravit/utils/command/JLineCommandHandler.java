@@ -1,7 +1,6 @@
 package ru.gravit.utils.command;
 
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.*;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
@@ -9,6 +8,7 @@ import ru.gravit.utils.helper.LogHelper;
 import ru.gravit.utils.helper.LogHelper.Output;
 
 import java.io.IOException;
+import java.util.List;
 
 public class JLineCommandHandler extends CommandHandler {
     /*private final class JLineOutput implements Output {
@@ -26,14 +26,30 @@ public class JLineCommandHandler extends CommandHandler {
 
     private final Terminal terminal;
     private final TerminalBuilder terminalBuilder;
+    private final Completer completer;
     private final LineReader reader;
+    public class JLineConsoleCompleter implements Completer {
+        @Override
+        public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
+            String completeWord = line.word();
+            if(line.wordIndex() != 0) return;
+            walk((category, name, command) -> {
+                if(name.startsWith(completeWord))
+                {
+                    candidates.add(new Candidate(name));
+                }
+            });
+        }
+    }
 
     public JLineCommandHandler() throws IOException {
         super();
         terminalBuilder = TerminalBuilder.builder();
         terminal = terminalBuilder.build();
+        completer = new JLineConsoleCompleter();
         reader = LineReaderBuilder.builder()
                 .terminal(terminal)
+                .completer(completer)
                 .build();
 
         // Set reader
@@ -47,7 +63,7 @@ public class JLineCommandHandler extends CommandHandler {
 
     @Override
     public void bell() throws IOException {
-
+        terminal.puts(InfoCmp.Capability.bell);
         //reader.beep();
     }
 

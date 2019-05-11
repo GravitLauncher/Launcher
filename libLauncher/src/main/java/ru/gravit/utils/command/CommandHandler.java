@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public abstract class CommandHandler implements Runnable {
     private final List<Category> categories = new ArrayList<>();
@@ -129,6 +130,21 @@ public abstract class CommandHandler implements Runnable {
         } catch (IOException e) {
             LogHelper.error(e);
         }
+    }
+    @FunctionalInterface
+    public interface CommandWalk
+    {
+        void walk(Category category, String name, Command command);
+    }
+    public void walk(CommandWalk callback)
+    {
+        for(CommandHandler.Category category : getCategories())
+        {
+            for (Map.Entry<String, Command> entry : category.category.commandsMap().entrySet())
+                callback.walk(category, entry.getKey(), entry.getValue());
+        }
+        for (Map.Entry<String, Command> entry : getBaseCategory().commandsMap().entrySet())
+            callback.walk(null, entry.getKey(), entry.getValue());
     }
 
     public CommandCategory getBaseCategory() {
