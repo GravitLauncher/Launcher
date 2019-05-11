@@ -11,6 +11,8 @@ public class NewLauncherSettings {
     @LauncherAPI
     public String login;
     @LauncherAPI
+    public String auth;
+    @LauncherAPI
     public byte[] rsaPassword;
     @LauncherAPI
     public int profile;
