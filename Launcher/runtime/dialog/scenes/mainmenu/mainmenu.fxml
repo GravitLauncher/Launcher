@@ -44,7 +44,7 @@
                    </FlowPane>
                  </content>
               </ScrollPane>
-            <JFXButton id="clientLaunch" layoutX="121.0" layoutY="380.0" prefHeight="51.0" prefWidth="183.0" styleClass="clientLaunch" text="ИГРАТЬ">
+            <JFXButton id="clientLaunch" layoutX="19.0" layoutY="380.0" prefHeight="51.0" prefWidth="285.0" styleClass="clientLaunch" text="ИГРАТЬ">
                 <font>
                     <Font size="22.0" />
                 </font>
@@ -53,24 +53,17 @@
                      <graphic>
                         <FontAwesomeIconView fill="WHITE" glyphName="SLIDERS" size="30.0" />
                      </graphic></JFXButton>
-            <Label id="serverStatus" alignment="TOP_RIGHT" contentDisplay="RIGHT" layoutX="252.0" layoutY="12.0" prefHeight="25.0" prefWidth="97.0" text="12/100" textAlignment="RIGHT" textFill="WHITE">
+            <Label id="serverStatus" alignment="TOP_RIGHT" contentDisplay="RIGHT" layoutX="165.0" layoutY="12.0" prefHeight="25.0" prefWidth="97.0" text="12/100" textAlignment="RIGHT" textFill="WHITE">
                 <font>
                     <Font name="System Bold" size="16.0" />
                 </font>
             </Label>
-            <Label id="serverLabel" layoutX="4.0" layoutY="11.0" prefHeight="27.0" prefWidth="266.0" text="СЕРВЕР">
+            <Label id="serverLabel" layoutX="20.0" layoutY="11.0" prefHeight="27.0" prefWidth="203.0" text="СЕРВЕР">
 				<font>
 					<Font name="System Bold" size="18.0" />
 				</font>
-				<padding>
-					<Insets left="14.0" />
-				</padding>
             </Label>
-                    <JFXButton id="logout" alignment="CENTER" contentDisplay="CENTER" layoutX="19.0" layoutY="383.0" ripplerFill="#61616100" text="" textAlignment="CENTER">
-                        <graphic>
-                            <MaterialDesignIconView fill="#323232" glyphName="LOGOUT" size="30" textAlignment="CENTER" />
-                        </graphic>
-                    </JFXButton>
+                    <JFXButton id="logout" alignment="CENTER" contentDisplay="CENTER" layoutX="295.0" layoutY="12.0" prefHeight="25.0" prefWidth="81.0" ripplerFill="#61616100" text="Выйти" textAlignment="CENTER" />
           </children>
         </Pane>
       </children>
