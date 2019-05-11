@@ -20,7 +20,7 @@ public class ConsoleMain {
             LogHelper.warning("Permission canAdmin not found");
         }
         try {
-            Class.forName("jline.Terminal");
+            Class.forName("org.jline.terminal.Terminal");
 
             // JLine2 available
             commandHandler = new JLineCommandHandler();

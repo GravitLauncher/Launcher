@@ -481,7 +481,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             localCommandHandler = new StdCommandHandler(false);
         else
         	try {
-        		Class.forName("jline.Terminal");
+        		Class.forName("org.jline.terminal.Terminal");
 
         		// JLine2 available
         		localCommandHandler = new JLineCommandHandler();

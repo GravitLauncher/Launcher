@@ -23,7 +23,7 @@ public class ConsoleManager {
     {
         CommandHandler localCommandHandler;
         try {
-            Class.forName("jline.Terminal");
+            Class.forName("org.jline.terminal.Terminal");
 
             // JLine2 available
             localCommandHandler = new JLineCommandHandler();
