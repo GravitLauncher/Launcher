@@ -22,9 +22,6 @@ Button, CheckBox, ComboBox, RadioButton {
 
 #serverLabel{
     -fx-text-fill: #323232;
-    -fx-padding: 0 0 0 14;
-    -fx-pref-width: 265px;
-    -fx-pref-height: 25px;
 }
 
 #serverStatus{
@@ -66,12 +63,29 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-pref-width: 46px;
     -fx-pref-height: 45px;
 }
-#hide, #back, #goConsole, #settings, #logout, #discord {
+#hide, #back, #goConsole, #settings, #discord {
     -fx-background-position: center;
     -jfx-button-type: FLAT;
     -fx-background-radius: 0;
     -fx-pref-width: 46px;
     -fx-pref-height: 45px;
+}
+
+#logout{
+    -fx-text-fill:#323232;
+    -fx-font-size:12;
+    -fx-font-weight:normal;
+    -fx-border-color:#CE5757;
+    -fx-border-width:1;
+    -fx-background-color:transparent;
+    -fx-padding:0;
+}
+#logout:hover,
+#logout:focus{
+    -fx-text-fill:#ff6a5e;
+}
+#logout:pressed{
+    -fx-border-color:#cb4d43;
 }
 
 #send {

@@ -460,7 +460,7 @@ var serverHolder = {
 
     set: function(btn){
         pingServer(btn);
-        serverLabel.setText("СЕРВЕР " + profilesList[btn]);
+        serverLabel.setText(profilesList[btn]);
         serverDescription.setText(profilesList[btn].info);
         btn.setSelected(true);
         btn.setDisable(true);
