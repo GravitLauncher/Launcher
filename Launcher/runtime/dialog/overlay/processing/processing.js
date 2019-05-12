@@ -124,9 +124,9 @@ function makeSetProfileRequest(profile, callback) {
     startTask(task);
 }
 
-function makeAuthRequest(login, rsaPassword, callback) {
+function makeAuthRequest(login, rsaPassword, auth_type, callback) {
     var task = rsaPassword === null ? newTask(offlineAuthRequest(login)) :
-        newRequestTask(new AuthRequest(login, rsaPassword, FunctionalBridge.getHWID()));
+        newRequestTask(new AuthRequest(login, rsaPassword, FunctionalBridge.getHWID(), auth_type));
     processing.setTaskProperties(task, callback, null, true);
     task.updateMessage("Авторизация на сервере");
     startTask(task);
