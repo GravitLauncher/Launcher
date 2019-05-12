@@ -5,6 +5,8 @@ var profilesList = [];
 var movePoint = null;
 var pingers = {};
 var loginData;
+// Variable which contains all types of auth. Appending data at line 255
+var authTypes = {};
 
 function initLauncher() {
     initLoginScene();
@@ -186,7 +188,11 @@ function goAuth(event) {
     if (login.isEmpty()) {
         return;
     }
-
+    var auth = authOptions.getSelectionModel().getSelectedItem();
+    if (auth === null) {
+        LogHelper.info("AuthType is not selected");
+        return;
+    }
     var rsaPassword = null;
     if (!passwordField.isDisable()) {
         var password = passwordField.getText();
@@ -202,7 +208,7 @@ function goAuth(event) {
     }
 
     settings.login = login;
-    doAuth(login, rsaPassword);
+    doAuth(login, rsaPassword, authTypes[auth]);
 }
 
 /* ======== Console ======== */
@@ -239,15 +245,24 @@ function verifyLauncher(e) {
             //result.list;
             //result.list[0].name;
             //result.list[0].displayName;
+            var iter = 0;
+            authTypes = {};
             result.list.forEach(function(auth_type, i, arr) {
-
                 var serverAuth = new com.jfoenix.controls.JFXComboBox();
                 serverAuth.getStyleClass().add("authOptions");
-
-                (function() {
-                    authOptions.getItems().add(auth_type.displayName);
-                })();
+                // add display name to items and add name with iter to variable authTypes
+                authOptions.getItems().add(auth_type.displayName);
+                authTypes[auth_type.displayName] = auth_type.name;
+                iter++;
             });
+            var sm = authOptions.getSelectionModel().selectedIndexProperty();
+            // add listener to authOptions select
+            sm.addListener(new javafx.beans.value.ChangeListener({
+                changed: function (observableValue, oldSelection, newSelection) {
+                    // get auth name from authTypes
+                    settings.auth_type = authTypes[authOptions.getSelectionModel().getSelectedItem()];
+                }
+            }));
             overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
                 settings.lastProfiles = result.profiles;
                 updateProfilesList(result.profiles);
@@ -262,13 +277,14 @@ function verifyLauncher(e) {
     }));
 }
 
-function doAuth(login, rsaPassword) {
+function doAuth(login, rsaPassword, auth_type) {
     processing.resetOverlay();
     overlay.show(processing.overlay, function (event) {
         FunctionalBridge.getHWID.join();
-        makeAuthRequest(login, rsaPassword, function (result) {
+        makeAuthRequest(login, rsaPassword, auth_type, function (result) {
             FunctionalBridge.setAuthParams(result);
-            loginData = { pp: result.playerProfile , accessToken: result.accessToken, permissions: result.permissions};
+            loginData = { pp: result.playerProfile , accessToken: result.accessToken, permissions: result.permissions,
+                auth_type: settings.auth_type};
 
             overlay.hide(0, function () {
                 setCurrentScene(menuScene);
