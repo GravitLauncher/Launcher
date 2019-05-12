@@ -145,7 +145,7 @@ LogHelper.debug("Dir: %s", DirBridge.dir);
 var cliParams = {
     login: null, password: null, profile: -1, autoLogin: false,
     updatesDir: null, autoEnter: null, fullScreen: null, ram: -1,
-    offline: false,
+    offline: false,  auth: null,
 
     init: function(params) {
         var named = params.getNamed();
@@ -180,6 +180,11 @@ var cliParams = {
         if (offline !== null) {
             cliParams.offline = java.lang.Boolean.parseBoolean(offline);
         }
+
+        var auth_type = named.get("auth");
+        if (auth_type !== null) {
+            cliParams.auth = auth_type;
+        }
     },
 
     applySettings: function() {
@@ -207,6 +212,9 @@ var cliParams = {
 
         if (cliParams.offline !== null) {
             settings.offline = cliParams.offline;
+        }
+        if (cliParams.auth !== null) {
+            settings.auth_type = cliParams.auth;
         }
     }
 };
