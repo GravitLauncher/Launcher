@@ -18,6 +18,7 @@ cache:
 build:
   stage: build
   script:
+    - git submodule update --init
     - ./gradlew assemble
   artifacts:
     paths:
