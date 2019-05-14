@@ -1,4 +1,4 @@
-var authPane, dimPane, serverPane, bar, consoleBar, optionsPane, consolePane;
+var authPane, dimPane, serverPane, bar, consoleBar, optionsPane, consolePane, loginPaneLayout, serverPaneLayout;
 var loginField, passwordField, savePasswordBox, authOptions;
 var serverList, serverInfo, serverDescription, serverEntrance, serverLabel, serverStatus;
 var profilesList = [];
@@ -42,6 +42,9 @@ function initLoginScene() {
 
     var pane = loginPane.lookup("#authPane");
     authPane = pane;
+
+    var loginLayout = loginPane.lookup("#layout");
+    loginPaneLayout = loginLayout;
 
     loginField = pane.lookup("#login");
     loginField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
@@ -92,6 +95,9 @@ function initMenuScene() {
 
     var pane = menuPane.lookup("#serverPane");
     serverPane = pane;
+
+    var menuLayout = menuPane.lookup("#layout");
+    serverPaneLayout = menuLayout;
 
     pane.lookup("#clientSettings").setOnAction(goOptions);
     serverList = pane.lookup("#serverlist").getContent();
@@ -258,6 +264,7 @@ function verifyLauncher(e) {
                 authTypes[auth_type.displayName] = auth_type.name;
                 iter++;
             });
+            authOptions.getSelectionModel().select(0);
             var sm = authOptions.getSelectionModel().selectedIndexProperty();
             // add listener to authOptions select
             sm.addListener(new javafx.beans.value.ChangeListener({
@@ -416,7 +423,8 @@ var overlay = {
 
         dimPane.setVisible(true);
         dimPane.toFront();
-
+        loginPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(55));
+        serverPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(55));
         fade(dimPane, 0.0, 0.0, 1.0, function(event) {
             dimPane.requestFocus();
             dimPane.getChildren().add(newOverlay);
@@ -436,7 +444,8 @@ var overlay = {
 
                 authPane.setDisable(false);
                 rootPane.requestFocus();
-
+                loginPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(0));
+                serverPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(0));
                 overlay.current = null;
                 if (onFinished !== null) {
                     onFinished();
