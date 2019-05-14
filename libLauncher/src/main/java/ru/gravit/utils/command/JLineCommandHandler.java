@@ -74,6 +74,11 @@ public class JLineCommandHandler extends CommandHandler {
 
     @Override
     public String readLine() throws IOException {
-        return reader.readLine();
+        try {
+            return reader.readLine();
+        } catch(UserInterruptException e)
+        {
+            throw new IOException(e);
+        }
     }
 }
