@@ -3,6 +3,7 @@ Button, CheckBox, ComboBox, RadioButton {
 	-fx-cursor: hand;
 }
 
+
 /* Backgrounds */
 #layout {
     -fx-background-color: transparent;
@@ -32,7 +33,7 @@ Button, CheckBox, ComboBox, RadioButton {
 
 /* Mask */
 #mask {
-    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-effect: DropShadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
     -fx-pref-width: 692px;
     -fx-pref-height: 450px;
 }
