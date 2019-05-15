@@ -3,6 +3,7 @@ package ru.gravit.launcher.server;
 import ru.gravit.launcher.ClientPermissions;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
+import ru.gravit.launcher.config.JsonConfigurable;
 import ru.gravit.launcher.events.request.ProfilesRequestEvent;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.request.Request;
@@ -11,7 +12,6 @@ import ru.gravit.launcher.request.auth.AuthRequest;
 import ru.gravit.launcher.request.update.ProfilesRequest;
 import ru.gravit.launcher.server.setup.ServerWrapperSetup;
 import ru.gravit.utils.PublicURLClassLoader;
-import ru.gravit.launcher.config.JsonConfigurable;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -157,8 +157,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         modulesManager.postInitModules();
-        if(config.websocket.enabled)
-        {
+        if (config.websocket.enabled) {
             Request.service.reconnectCallback = () ->
             {
                 LogHelper.debug("WebSocket connect closed. Try reconnect");
@@ -194,8 +193,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LauncherConfig cfg = null;
         try {
             cfg = new LauncherConfig(config.websocket.address, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
-            if(config.websocket != null && config.websocket.enabled)
-            {
+            if (config.websocket != null && config.websocket.enabled) {
                 cfg.isNettyEnabled = true;
                 cfg.address = config.websocket.address;
             }
@@ -261,8 +259,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String auth_id = "";
         public LauncherConfig.LauncherEnvironment env;
     }
-    public static final class WebSocketConf
-    {
+
+    public static final class WebSocketConf {
         public boolean enabled;
         public String address;
     }

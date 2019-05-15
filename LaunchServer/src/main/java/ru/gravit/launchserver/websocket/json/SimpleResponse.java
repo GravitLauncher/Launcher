@@ -14,18 +14,19 @@ public abstract class SimpleResponse implements JsonResponseInterface {
     public transient LaunchServer server;
     public transient WebSocketService service;
     public transient ChannelHandlerContext ctx;
-    public void sendResult(RequestEvent result)
-    {
+    public transient String ip;
+
+    public void sendResult(RequestEvent result) {
         result.requestUUID = requestUUID;
         service.sendObject(ctx, result);
     }
-    public void sendResultAndClose(RequestEvent result)
-    {
+
+    public void sendResultAndClose(RequestEvent result) {
         result.requestUUID = requestUUID;
         service.sendObjectAndClose(ctx, result);
     }
-    public void sendError(String errorMessage)
-    {
+
+    public void sendError(String errorMessage) {
         ErrorRequestEvent event = new ErrorRequestEvent(errorMessage);
         event.requestUUID = requestUUID;
         service.sendObject(ctx, event);

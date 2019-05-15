@@ -17,8 +17,7 @@ public class JsonRequestAdapter implements JsonSerializer<RequestInterface>, Jso
     public RequestInterface deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends RequestInterface> cls = service.getRequestClass(typename);
-        if(cls == null)
-        {
+        if (cls == null) {
             LogHelper.error("Request type %s not found", typename);
         }
 

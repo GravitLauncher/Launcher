@@ -10,8 +10,8 @@ public class GsonManager {
     public Gson gson;
     public GsonBuilder configGsonBuilder;
     public Gson configGson;
-    public void initGson()
-    {
+
+    public void initGson() {
         gsonBuilder = new GsonBuilder();
         configGsonBuilder = new GsonBuilder();
         configGsonBuilder.setPrettyPrinting();
@@ -22,16 +22,16 @@ public class GsonManager {
         gson = gsonBuilder.create();
         configGson = configGsonBuilder.create();
     }
-    public void registerAdapters(GsonBuilder builder)
-    {
+
+    public void registerAdapters(GsonBuilder builder) {
         builder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
     }
-    public void preConfigGson(GsonBuilder gsonBuilder)
-    {
+
+    public void preConfigGson(GsonBuilder gsonBuilder) {
         //skip
     }
-    public void preGson(GsonBuilder gsonBuilder)
-    {
+
+    public void preGson(GsonBuilder gsonBuilder) {
         //skip
     }
 }

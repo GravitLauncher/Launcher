@@ -3,8 +3,6 @@
 #overlay {
     -fx-background-color: transparent;
     -fx-background-size: cover;
-    -fx-pref-width: 693px;
-    -fx-pref-height: 450px;
     -fx-background-image: url('../../images/background.jpg');
 }
 
@@ -23,8 +21,6 @@
 
 .downloadPane {
     -fx-background-color: rgba(0, 0, 0, 0.3);
-    -fx-pref-width: 693px;
-    -fx-pref-height: 450px;
 }
 
 /* Progress bar */

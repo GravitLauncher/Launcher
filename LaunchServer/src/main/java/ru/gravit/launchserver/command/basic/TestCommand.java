@@ -35,8 +35,7 @@ public class TestCommand extends Command {
         if (args[0].equals("stop")) {
             handler.close();
         }
-        if (args[0].equals("eventAll"))
-        {
+        if (args[0].equals("eventAll")) {
             WebSocketFrameHandler.service.sendObjectAll(new PingEvent());
         }
     }

@@ -40,17 +40,20 @@ public class LauncherNettyServer implements AutoCloseable {
                     @Override
                     public void initChannel(NioSocketChannel ch) {
                         ChannelPipeline pipeline = ch.pipeline();
+                        NettyConnectContext context = new NettyConnectContext();
                         //p.addLast(new LoggingHandler(LogLevel.INFO));
                         pipeline.addLast(new HttpServerCodec());
                         pipeline.addLast(new HttpObjectAggregator(65536));
+                        if (LaunchServer.server.config.netty.ipForwarding)
+                            pipeline.addLast(new NettyIpForwardHandler(context));
                         pipeline.addLast(new WebSocketServerCompressionHandler());
                         pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
-                        if (LaunchServer.server.config.netty.fileServerEnabled) pipeline.addLast(new FileServerHandler(LaunchServer.server.updatesDir, true));
-                        pipeline.addLast(new WebSocketFrameHandler());
+                        if (LaunchServer.server.config.netty.fileServerEnabled)
+                            pipeline.addLast(new FileServerHandler(LaunchServer.server.updatesDir, true));
+                        pipeline.addLast(new WebSocketFrameHandler(context));
                     }
                 });
-        if(config.proxy != null && config.proxy.enabled)
-        {
+        if (config.proxy != null && config.proxy.enabled) {
             LogHelper.info("Connect to main server %s");
             Request.service = StandartClientWebSocketService.initWebSockets(config.proxy.address, false);
             AuthRequest authRequest = new AuthRequest(config.proxy.login, config.proxy.password, config.proxy.auth_id, AuthRequest.ConnectTypes.PROXY);
@@ -62,8 +65,8 @@ public class LauncherNettyServer implements AutoCloseable {
             }
         }
     }
-    public ChannelFuture bind(InetSocketAddress address)
-    {
+
+    public ChannelFuture bind(InetSocketAddress address) {
         return serverBootstrap.bind(address);
     }
 

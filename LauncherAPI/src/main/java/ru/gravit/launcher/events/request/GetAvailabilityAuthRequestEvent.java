@@ -6,8 +6,7 @@ import ru.gravit.launcher.events.RequestEvent;
 import java.util.List;
 
 public class GetAvailabilityAuthRequestEvent extends RequestEvent {
-    public static class AuthAvailability
-    {
+    public static class AuthAvailability {
         @LauncherNetworkAPI
         public String name;
         @LauncherNetworkAPI
@@ -18,6 +17,7 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
             this.displayName = displayName;
         }
     }
+
     @LauncherNetworkAPI
     public List<AuthAvailability> list;
 

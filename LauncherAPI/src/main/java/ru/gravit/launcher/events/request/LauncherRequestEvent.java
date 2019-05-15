@@ -19,6 +19,7 @@ public class LauncherRequestEvent extends RequestEvent implements EventInterface
         this.needUpdate = needUpdate;
         this.url = url;
     }
+
     @LauncherNetworkAPI
     public boolean needUpdate;
 

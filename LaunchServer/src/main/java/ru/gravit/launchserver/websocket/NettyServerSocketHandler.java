@@ -100,13 +100,12 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
         } catch (IOException e) {
             e.printStackTrace();
         }*/
-        LogHelper.info("Starting server socket thread");
+        LogHelper.info("Starting netty server socket thread");
         //SSLEngine engine = sc.createSSLEngine();
         //engine.setUseClientMode(false);
         WebSocketFrameHandler.server = LaunchServer.server;
         nettyServer = new LauncherNettyServer();
-        for(LaunchServer.NettyBindAddress address : LaunchServer.server.config.netty.binds)
-        {
+        for (LaunchServer.NettyBindAddress address : LaunchServer.server.config.netty.binds) {
             nettyServer.bind(new InetSocketAddress(address.address, address.port));
         }
         /*

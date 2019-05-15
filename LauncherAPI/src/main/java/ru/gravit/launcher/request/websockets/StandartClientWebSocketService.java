@@ -16,20 +16,20 @@ import java.util.concurrent.TimeUnit;
 
 public class StandartClientWebSocketService extends ClientWebSocketService {
     public WaitEventHandler waitEventHandler = new WaitEventHandler();
+
     public StandartClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) throws SSLException {
         super(gsonBuilder, address, i);
     }
-    public class RequestFuture implements Future<ResultInterface>
-    {
+
+    public class RequestFuture implements Future<ResultInterface> {
         public final WaitEventHandler.ResultEvent event;
         public boolean isCanceled = false;
 
         @SuppressWarnings("rawtypes")
-		public RequestFuture(RequestInterface request) throws IOException {
+        public RequestFuture(RequestInterface request) throws IOException {
             event = new WaitEventHandler.ResultEvent();
             event.type = request.getType();
-            if(request instanceof Request)
-            {
+            if (request instanceof Request) {
                 event.uuid = ((Request) request).requestUUID;
             }
             waitEventHandler.requests.add(event);
@@ -55,7 +55,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
 
         @Override
         public ResultInterface get() throws InterruptedException, ExecutionException {
-            if(isCanceled) return null;
+            if (isCanceled) return null;
             while (!event.ready) {
                 synchronized (event) {
                     event.wait();
@@ -72,7 +72,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
 
         @Override
         public ResultInterface get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
-            if(isCanceled) return null;
+            if (isCanceled) return null;
             while (!event.ready) {
                 synchronized (event) {
                     event.wait(timeout);
@@ -87,6 +87,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
             return result;
         }
     }
+
     public ResultInterface sendRequest(RequestInterface request) throws IOException, InterruptedException {
         RequestFuture future = new RequestFuture(request);
         ResultInterface result;
@@ -97,6 +98,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         }
         return result;
     }
+
     public RequestFuture asyncSendRequest(RequestInterface request) throws IOException {
         return new RequestFuture(request);
     }
@@ -112,17 +114,14 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         service.registerResults();
         service.registerRequests();
         service.registerHandler(service.waitEventHandler);
-        if(!async)
-        {
+        if (!async) {
             try {
                 service.open();
                 LogHelper.debug("Connect to %s", address);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        else
-        {
+        } else {
             try {
                 service.open();
             } catch (Exception e) {

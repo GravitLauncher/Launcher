@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 public final class HelpCommand extends Command {
     private CommandHandler handler;
+
     private static void printCommand(String name, Command command) {
         String args = command.getArgsDescription();
         //LogHelper.subInfo("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());
@@ -19,7 +20,7 @@ public final class HelpCommand extends Command {
             ansi.fgBright(Ansi.Color.GREEN);
             ansi.a(name + " ");
             ansi.fgBright(Ansi.Color.CYAN);
-            ansi.a(args == null ? "[nothing]": args);
+            ansi.a(args == null ? "[nothing]" : args);
             ansi.reset();
             ansi.a(" - ");
             ansi.fgBright(Ansi.Color.YELLOW);
@@ -29,9 +30,8 @@ public final class HelpCommand extends Command {
         }, () -> LogHelper.htmlFormatLog(LogHelper.Level.INFO, LogHelper.getDataTime(), String.format("<font color=\"green\">%s</font> <font color=\"cyan\">%s</font> - <font color=\"yellow\">%s</font>", name, args == null ? "[nothing]" : args, command.getUsageDescription()), true));
     }
 
-    private static void printCategory(String name, String description)
-    {
-        if(description != null) LogHelper.info("Category: %s - %s", name, description);
+    private static void printCategory(String name, String description) {
+        if (description != null) LogHelper.info("Category: %s - %s", name, description);
         else LogHelper.info("Category: %s", name);
     }
 
@@ -65,8 +65,7 @@ public final class HelpCommand extends Command {
     }
 
     private void printCommands() {
-        for(CommandHandler.Category category : handler.getCategories())
-        {
+        for (CommandHandler.Category category : handler.getCategories()) {
             printCategory(category.name, category.description);
             for (Entry<String, Command> entry : category.category.commandsMap().entrySet())
                 printCommand(entry.getKey(), entry.getValue());

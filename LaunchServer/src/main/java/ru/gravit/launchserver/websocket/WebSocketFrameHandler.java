@@ -17,13 +17,19 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     public static LaunchServer server;
     public static GsonBuilder builder = new GsonBuilder();
     public static WebSocketService service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), LaunchServer.server, builder);
+    public NettyConnectContext context;
+
+    public WebSocketFrameHandler(NettyConnectContext context) {
+        this.context = context;
+    }
+
     private Client client;
 
     static {
         service.registerResponses();
     }
-    public void setClient(Client client)
-    {
+
+    public void setClient(Client client) {
         this.client = client;
     }
 
@@ -40,18 +46,15 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) {
         // ping and pong frames already handled
-
         if (frame instanceof TextWebSocketFrame) {
-            service.process(ctx, (TextWebSocketFrame) frame, client);
+            service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
         } else if ((frame instanceof PingWebSocketFrame)) {
             frame.content().retain();
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
             //return;
-        }
-        else if ((frame instanceof PongWebSocketFrame)) {
+        } else if ((frame instanceof PongWebSocketFrame)) {
             LogHelper.dev("WebSocket Client received pong");
-        }
-        else if ((frame instanceof CloseWebSocketFrame)) {
+        } else if ((frame instanceof CloseWebSocketFrame)) {
             ctx.channel().close();
         } else {
             String message = "unsupported frame type: " + frame.getClass().getName();

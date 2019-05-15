@@ -60,24 +60,22 @@ public class ClientWebSocketService extends ClientJSONPoint {
     @Override
     void onDisconnect() {
         LogHelper.info("WebSocket client disconnect");
-        if(onCloseCallback != null) onCloseCallback.onClose(0,"unsupported param", !isClosed);
+        if (onCloseCallback != null) onCloseCallback.onClose(0, "unsupported param", !isClosed);
     }
 
     @Override
     void onOpen() throws Exception {
-        synchronized (onConnect)
-        {
+        synchronized (onConnect) {
             onConnect.notifyAll();
         }
     }
 
     @FunctionalInterface
-    public interface OnCloseCallback
-    {
+    public interface OnCloseCallback {
         void onClose(int code, String reason, boolean remote);
     }
-    public interface ReconnectCallback
-    {
+
+    public interface ReconnectCallback {
         void onReconnect() throws IOException;
     }
 
@@ -126,8 +124,8 @@ public class ClientWebSocketService extends ClientJSONPoint {
     public void registerHandler(EventHandler eventHandler) {
         handlers.add(eventHandler);
     }
-    public void waitIfNotConnected()
-    {
+
+    public void waitIfNotConnected() {
         /*if(!isOpen() && !isClosed() && !isClosing())
         {
             LogHelper.warning("WebSocket not connected. Try wait onConnect object");
@@ -144,7 +142,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     public void sendObject(Object obj) throws IOException {
         waitIfNotConnected();
-        if(ch == null || !ch.isActive()) reconnectCallback.onReconnect();
+        if (ch == null || !ch.isActive()) reconnectCallback.onReconnect();
         //if(isClosed() && reconnectCallback != null)
         //    reconnectCallback.onReconnect();
         send(gson.toJson(obj, RequestInterface.class));
@@ -152,7 +150,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     public void sendObject(Object obj, Type type) throws IOException {
         waitIfNotConnected();
-        if(ch == null || !ch.isActive()) reconnectCallback.onReconnect();
+        if (ch == null || !ch.isActive()) reconnectCallback.onReconnect();
         //if(isClosed() && reconnectCallback != null)
         //    reconnectCallback.onReconnect();
         send(gson.toJson(obj, type));

@@ -8,6 +8,7 @@ public class LogEvent implements ResultInterface {
     public String getType() {
         return "log";
     }
+
     @LauncherNetworkAPI
     public String string;
 

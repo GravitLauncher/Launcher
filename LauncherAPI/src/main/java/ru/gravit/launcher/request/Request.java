@@ -35,9 +35,11 @@ public abstract class Request<R extends ResultInterface> implements RequestInter
     public R request() throws Exception {
         if (!started.compareAndSet(false, true))
             throw new IllegalStateException("Request already started");
-        if(service == null) service = StandartClientWebSocketService.initWebSockets(Launcher.getConfig().address, false);
+        if (service == null)
+            service = StandartClientWebSocketService.initWebSockets(Launcher.getConfig().address, false);
         return requestDo(service);
     }
+
     @LauncherAPI
     public R request(StandartClientWebSocketService service) throws Exception {
         if (!started.compareAndSet(false, true))
@@ -46,8 +48,7 @@ public abstract class Request<R extends ResultInterface> implements RequestInter
     }
 
     @SuppressWarnings("unchecked")
-	protected R requestDo(StandartClientWebSocketService service) throws Exception
-    {
+    protected R requestDo(StandartClientWebSocketService service) throws Exception {
         return (R) service.sendRequest(this);
     }
 

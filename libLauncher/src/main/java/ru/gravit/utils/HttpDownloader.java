@@ -41,7 +41,7 @@ public final class HttpDownloader extends Observable {
     public void downloadFile(URL url, String file) throws IOException {
         try (BufferedInputStream in = new BufferedInputStream(url.openStream()); FileOutputStream fout = new FileOutputStream(file)) {
 
-            final byte data[] = new byte[BUFER_SIZE];
+            final byte[] data = new byte[BUFER_SIZE];
             int count;
             long timestamp = System.currentTimeMillis();
             int writed_local = 0;

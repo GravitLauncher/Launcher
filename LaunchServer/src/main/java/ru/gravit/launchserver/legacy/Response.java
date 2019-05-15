@@ -82,7 +82,7 @@ public abstract class Response {
     public abstract void reply() throws Exception;
 
 
-    protected static final void writeNoError(HOutput output) throws IOException {
+    protected static void writeNoError(HOutput output) throws IOException {
         output.writeString("", 0);
     }
 }

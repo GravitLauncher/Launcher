@@ -27,27 +27,22 @@ public class ClientLauncherWrapper {
         EnvHelper.checkDangerousParams();
         LauncherConfig config = Launcher.getConfig();
         LogHelper.info("Launcher for project %s", config.projectname);
-        if(config.environment.equals(LauncherConfig.LauncherEnvironment.PROD))
-        {
-            if(System.getProperty(LogHelper.DEBUG_PROPERTY) != null)
-            {
+        if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {
+            if (System.getProperty(LogHelper.DEBUG_PROPERTY) != null) {
                 LogHelper.warning("Found -Dlauncher.debug=true");
             }
-            if(System.getProperty(LogHelper.STACKTRACE_PROPERTY) != null)
-            {
+            if (System.getProperty(LogHelper.STACKTRACE_PROPERTY) != null) {
                 LogHelper.warning("Found -Dlauncher.stacktrace=true");
             }
             LogHelper.info("Debug mode disabled (found env PRODUCTION)");
-        }
-        else
-        {
+        } else {
             LogHelper.info("If need debug output use -Dlauncher.debug=true");
             LogHelper.info("If need stacktrace output use -Dlauncher.stacktrace=true");
-            if(LogHelper.isDebugEnabled()) waitProcess = true;
+            if (LogHelper.isDebugEnabled()) waitProcess = true;
         }
         LogHelper.info("Restart Launcher with JavaAgent...");
         ProcessBuilder processBuilder = new ProcessBuilder();
-        if(waitProcess) processBuilder.inheritIO();
+        if (waitProcess) processBuilder.inheritIO();
         Path javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
         List<String> args = new LinkedList<>();
         args.add(javaBin.toString());

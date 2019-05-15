@@ -33,9 +33,8 @@ public class LauncherEngine {
         initGson();
         ConsoleManager.initConsole();
         LauncherConfig config = Launcher.getConfig();
-        if(config.environment.equals(LauncherConfig.LauncherEnvironment.PROD))
-        {
-            if(!LauncherAgent.isStarted()) throw new SecurityException("LauncherAgent must started");
+        if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {
+            if (!LauncherAgent.isStarted()) throw new SecurityException("LauncherAgent must started");
         }
         long startTime = System.currentTimeMillis();
         try {
@@ -73,8 +72,7 @@ public class LauncherEngine {
         if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
         runtimeProvider.init(false);
         runtimeProvider.preLoad();
-        if(Request.service == null)
-        {
+        if (Request.service == null) {
             String address = Launcher.getConfig().address;
             LogHelper.debug("Start async connection to %s", address);
             Request.service = StandartClientWebSocketService.initWebSockets(address, true);
