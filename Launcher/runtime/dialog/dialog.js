@@ -1,10 +1,11 @@
-var authPane, dimPane, serverPane, bar, consoleBar, optionsPane, consolePane;
+var authPane, dimPane, serverPane, bar, consoleBar, optionsPane, consolePane, loginPaneLayout, serverPaneLayout;
 var loginField, passwordField, savePasswordBox, authOptions;
 var serverList, serverInfo, serverDescription, serverEntrance, serverLabel, serverStatus;
 var profilesList = [];
 var movePoint = null;
 var pingers = {};
 var loginData;
+var authTypes = {};
 
 function initLauncher() {
     initLoginScene();
@@ -40,6 +41,10 @@ function initLoginScene() {
 
     var pane = loginPane.lookup("#authPane");
     authPane = pane;
+
+    var loginLayout = loginPane.lookup("#layout");
+    loginPaneLayout = loginLayout;
+
 
     loginField = pane.lookup("#login");
     loginField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
@@ -90,6 +95,9 @@ function initMenuScene() {
 
     var pane = menuPane.lookup("#serverPane");
     serverPane = pane;
+
+    var menuLayout = menuPane.lookup("#layout");
+    serverPaneLayout = menuLayout;
 
     pane.lookup("#clientSettings").setOnAction(goOptions);
     serverList = pane.lookup("#serverlist").getContent();
@@ -187,13 +195,16 @@ function goAuth(event) {
         return;
     }
 
-    // Get auth
-    /* var auth = authOptions.getSelectionModel().getSelectedItem();
-     if (auth === null) {
-         return; // No auth selected
-     }*/
+    var auth = authOptions.getSelectionModel().getSelectedItem();
+    if (auth === null) {
+        return; // No auth selected
+    }
 
      var rsaPassword = null;
+     var auth = authOptions.getSelectionModel().getSelectedItem();
+     if (auth === null) {
+         return;
+     }
      if (!passwordField.isDisable()) {
          var password = passwordField.getText();
          if (password !== null && !password.isEmpty()) {
@@ -208,7 +219,7 @@ function goAuth(event) {
      }
 
      settings.login = login;
-     doAuth(/*auth, */login, rsaPassword);
+     doAuth(login, rsaPassword, authTypes[auth]);
  }
 
  /* ======== Console ======== */
@@ -242,17 +253,22 @@ function verifyLauncher(e) {
             initOffline();
         }
         overlay.swap(0, processing.overlay, function(event) makeAuthAvailabilityRequest(function(result) {
-                //result.list;
-                //result.list[0].name;
-                //result.list[0].displayName;
-                result.list.forEach(function(auth_type, i, arr) {
-                    (function() {
-                        authOptions.getItems().add(auth_type.displayName);
-                        //var sm = authOptions.getSelectionModel();
-                        //sm.selectedIndexProperty()["addListener(javafx.beans.value.ChangeListener)"](settings.auth = i);
-                    })();
-
-                });
+            var iter = 0;
+            authTypes = {};
+            result.list.forEach(function(auth_type, i, arr) {
+                var serverAuth = new com.jfoenix.controls.JFXComboBox();
+                serverAuth.getStyleClass().add("authOptions");
+                authOptions.getItems().add(auth_type.displayName);
+                authTypes[auth_type.displayName] = auth_type.name;
+                iter++;
+            });
+            authOptions.getSelectionModel().select(0);
+            var sm = authOptions.getSelectionModel().selectedIndexProperty();
+            sm.addListener(new javafx.beans.value.ChangeListener({
+                changed: function (observableValue, oldSelection, newSelection) {
+                    settings.auth = authTypes[authOptions.getSelectionModel().getSelectedItem()];
+                }
+            }));
             overlay.swap(0, processing.overlay, function(event) makeProfilesRequest(function(result) {
                 settings.lastProfiles = result.profiles;
                 updateProfilesList(result.profiles);
@@ -267,13 +283,14 @@ function verifyLauncher(e) {
     }));
 }
 
-function doAuth(login, rsaPassword) {
+function doAuth(login, rsaPassword, auth_type) {
     processing.resetOverlay();
     overlay.show(processing.overlay, function (event) {
         FunctionalBridge.getHWID.join();
-        makeAuthRequest(login, rsaPassword, function (result) {
+        makeAuthRequest(login, rsaPassword, auth_type, function (result) {
             FunctionalBridge.setAuthParams(result);
-            loginData = { pp: result.playerProfile , accessToken: result.accessToken, permissions: result.permissions};
+            loginData = { pp: result.playerProfile , accessToken: result.accessToken, permissions: result.permissions,
+                auth_type: settings.auth};
 
             overlay.hide(0, function () {
                 setCurrentScene(menuScene);
@@ -403,6 +420,8 @@ var overlay = {
         dimPane.setVisible(true);
         dimPane.toFront();
 
+        loginPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(10));
+        serverPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(10));
         fade(dimPane, 0.0, 0.0, 1.0, function(event) {
             dimPane.requestFocus();
             dimPane.getChildren().add(newOverlay);
@@ -423,6 +442,8 @@ var overlay = {
                 authPane.setDisable(false);
                 rootPane.requestFocus();
 
+                loginPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(0));
+                serverPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(0));
                 overlay.current = null;
                 if (onFinished !== null) {
                     onFinished();

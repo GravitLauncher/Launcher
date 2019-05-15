@@ -3,7 +3,7 @@
 #overlay {
     -fx-background-color: transparent;
     -fx-background-size: cover;
-    -fx-background-image: url('../../images/background.jpg');
+    -fx-background-image: url('../../images/downloader/blured.jpg');
 }
 
 #overlay > #utitle {
@@ -20,7 +20,7 @@
 }
 
 .downloadPane {
-    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-background-color: rgba(0, 0, 0, 0.2);
 }
 
 /* Progress bar */

@@ -8,9 +8,9 @@
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="overlay" prefHeight="450.0" prefWidth="693.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
+ <Pane fx:id="overlay" prefHeight="450.0" prefWidth="694.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Pane prefHeight="450.0" prefWidth="693.0" styleClass="downloadPane">
+      <Pane prefHeight="450.0" prefWidth="694.0" styleClass="downloadPane">
          <children>
             <Label fx:id="utitle" alignment="CENTER" layoutX="100.0" layoutY="125.0" prefHeight="30.0" prefWidth="495.0" text="Загрузка обновления..." textFill="WHITE">
                <font>
@@ -23,10 +23,12 @@
                   <Font name="System Bold" size="16.0" />
                </font>
             </Label>
-         </children></Pane>
+         </children>
+      </Pane>
+      <Pane id="mask" layoutX="-1.0" opacity="0.0" prefHeight="450.0" prefWidth="694.0" visible="false" />
    </children>
-  <stylesheets>
-    <URL value="@update.css" />
+   <stylesheets>
+      <URL value="@update.css" />
       <URL value="@../../styles.css" />
-  </stylesheets>
+   </stylesheets>
 </Pane>
