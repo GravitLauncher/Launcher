@@ -8,8 +8,7 @@ import ru.gravit.utils.command.Command;
 import ru.gravit.utils.helper.LogHelper;
 
 public class LogListenerCommand extends Command {
-    public class LogListenerRequest implements RequestInterface
-    {
+    public class LogListenerRequest implements RequestInterface {
         @LauncherNetworkAPI
         public LogHelper.OutputTypes outputType;
 
@@ -22,6 +21,7 @@ public class LogListenerCommand extends Command {
             return "addLogListener";
         }
     }
+
     @Override
     public String getArgsDescription() {
         return null;
@@ -38,8 +38,7 @@ public class LogListenerCommand extends Command {
         Request.service.sendObject(new LogListenerRequest(LogHelper.JANSI ? LogHelper.OutputTypes.JANSI : LogHelper.OutputTypes.PLAIN));
         LogHelper.info("Add log handler");
         Request.service.registerHandler((result) -> {
-            if(result instanceof LogEvent)
-            {
+            if (result instanceof LogEvent) {
                 LogHelper.rawLog(() -> ((LogEvent) result).string, () -> ((LogEvent) result).string, () -> ((LogEvent) result).string);
             }
         });

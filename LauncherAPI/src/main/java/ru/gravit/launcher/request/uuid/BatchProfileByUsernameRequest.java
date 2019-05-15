@@ -18,14 +18,14 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
         @LauncherNetworkAPI
         String client;
     }
+
     @LauncherNetworkAPI
     private final Entry[] list;
 
     @LauncherAPI
     public BatchProfileByUsernameRequest(String... usernames) throws IOException {
         this.list = new Entry[usernames.length];
-        for(int i=0;i<usernames.length;++i)
-        {
+        for (int i = 0; i < usernames.length; ++i) {
             this.list[i].client = "";
             this.list[i].username = usernames[i];
         }

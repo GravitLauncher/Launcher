@@ -28,8 +28,8 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     static {
         service.registerResponses();
     }
-    public void setClient(Client client)
-    {
+
+    public void setClient(Client client) {
         this.client = client;
     }
 
@@ -52,11 +52,9 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             frame.content().retain();
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
             //return;
-        }
-        else if ((frame instanceof PongWebSocketFrame)) {
+        } else if ((frame instanceof PongWebSocketFrame)) {
             LogHelper.dev("WebSocket Client received pong");
-        }
-        else if ((frame instanceof CloseWebSocketFrame)) {
+        } else if ((frame instanceof CloseWebSocketFrame)) {
             ctx.channel().close();
         } else {
             String message = "unsupported frame type: " + frame.getClass().getName();

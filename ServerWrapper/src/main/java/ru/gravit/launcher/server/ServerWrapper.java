@@ -157,8 +157,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         modulesManager.postInitModules();
-        if(config.websocket.enabled)
-        {
+        if (config.websocket.enabled) {
             Request.service.reconnectCallback = () ->
             {
                 LogHelper.debug("WebSocket connect closed. Try reconnect");
@@ -194,8 +193,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LauncherConfig cfg = null;
         try {
             cfg = new LauncherConfig(config.websocket.address, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
-            if(config.websocket != null && config.websocket.enabled)
-            {
+            if (config.websocket != null && config.websocket.enabled) {
                 cfg.isNettyEnabled = true;
                 cfg.address = config.websocket.address;
             }
@@ -261,8 +259,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String auth_id = "";
         public LauncherConfig.LauncherEnvironment env;
     }
-    public static final class WebSocketConf
-    {
+
+    public static final class WebSocketConf {
         public boolean enabled;
         public String address;
     }

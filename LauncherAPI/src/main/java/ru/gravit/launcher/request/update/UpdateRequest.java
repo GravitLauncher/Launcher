@@ -175,13 +175,11 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         HashedDir.Diff diff = e.hdir.diff(localDir, matcher);
         final List<ListDownloader.DownloadTask> adds = new ArrayList<>();
         diff.mismatch.walk(IOHelper.CROSS_SEPARATOR, (path, name, entry) -> {
-            if(entry.getType().equals(HashedEntry.Type.FILE)) {
+            if (entry.getType().equals(HashedEntry.Type.FILE)) {
                 HashedFile file = (HashedFile) entry;
                 totalSize += file.size;
                 adds.add(new ListDownloader.DownloadTask(path, file.size));
-            }
-            else if(entry.getType().equals(HashedEntry.Type.DIR))
-            {
+            } else if (entry.getType().equals(HashedEntry.Type.DIR)) {
                 try {
                     Files.createDirectories(dir.resolve(path));
                 } catch (IOException ex) {

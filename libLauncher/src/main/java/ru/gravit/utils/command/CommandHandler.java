@@ -13,8 +13,7 @@ public abstract class CommandHandler implements Runnable {
     private final List<Category> categories = new ArrayList<>();
     private final CommandCategory baseCategory = new BaseCommandCategory();
 
-    public static class Category
-    {
+    public static class Category {
         public CommandCategory category;
         public String name;
         public String description;
@@ -78,15 +77,13 @@ public abstract class CommandHandler implements Runnable {
             throw new CommandException(String.format("Unknown command: '%s'", name));
         return command;
     }
-    public Command findCommand(String name)
-    {
+
+    public Command findCommand(String name) {
         Command cmd = baseCategory.findCommand(name);
-        if(cmd == null)
-        {
-            for(Category entry : categories)
-            {
+        if (cmd == null) {
+            for (Category entry : categories) {
                 cmd = entry.category.findCommand(name);
-                if(cmd != null) return cmd;
+                if (cmd != null) return cmd;
             }
         }
         return cmd;
@@ -105,17 +102,16 @@ public abstract class CommandHandler implements Runnable {
         baseCategory.registerCommand(name, command);
     }
 
-    public void registerCategory(Category category)
-    {
+    public void registerCategory(Category category) {
         categories.add(category);
     }
-    public boolean unregisterCategory(Category category)
-    {
+
+    public boolean unregisterCategory(Category category) {
         return categories.remove(category);
     }
-    public Category findCategory(String name)
-    {
-        for(Category category : categories) if(category.name.equals(name)) return category;
+
+    public Category findCategory(String name) {
+        for (Category category : categories) if (category.name.equals(name)) return category;
         return null;
     }
 
@@ -131,15 +127,14 @@ public abstract class CommandHandler implements Runnable {
             LogHelper.error(e);
         }
     }
+
     @FunctionalInterface
-    public interface CommandWalk
-    {
+    public interface CommandWalk {
         void walk(Category category, String name, Command command);
     }
-    public void walk(CommandWalk callback)
-    {
-        for(CommandHandler.Category category : getCategories())
-        {
+
+    public void walk(CommandWalk callback) {
+        for (CommandHandler.Category category : getCategories()) {
             for (Map.Entry<String, Command> entry : category.category.commandsMap().entrySet())
                 callback.walk(category, entry.getKey(), entry.getValue());
         }

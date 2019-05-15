@@ -15,31 +15,34 @@ import java.util.jar.JarFile;
 public final class StarterAgent {
 
     private static final class StarterVisitor extends SimpleFileVisitor<Path> {
-    	private static final Set<PosixFilePermission> DPERMS;
-    	static {
-    		Set<PosixFilePermission> perms = new HashSet<>(Arrays.asList(PosixFilePermission.values()));
-    		perms.remove(PosixFilePermission.OTHERS_WRITE);
-    		perms.remove(PosixFilePermission.GROUP_WRITE);
-    		DPERMS = Collections.unmodifiableSet(perms);
-    	}
+        private static final Set<PosixFilePermission> DPERMS;
+
+        static {
+            Set<PosixFilePermission> perms = new HashSet<>(Arrays.asList(PosixFilePermission.values()));
+            perms.remove(PosixFilePermission.OTHERS_WRITE);
+            perms.remove(PosixFilePermission.GROUP_WRITE);
+            DPERMS = Collections.unmodifiableSet(perms);
+        }
 
         private final Path filef;
-		private final boolean fixLib;
+        private final boolean fixLib;
 
-		private StarterVisitor() {
+        private StarterVisitor() {
             this.filef = StarterAgent.libraries.resolve(".libraries_chmoded");
             this.fixLib = !Files.exists(filef) && !Boolean.getBoolean("launcher.noLibrariesPosixPermsFix");
             if (fixLib) {
-            	try {
-            		Files.deleteIfExists(filef);
-            		Files.createFile(filef);
-            	} catch (Throwable ignored) { }
+                try {
+                    Files.deleteIfExists(filef);
+                    Files.createFile(filef);
+                } catch (Throwable ignored) {
+                }
             }
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        	if (fixLib && Files.getFileAttributeView(file, PosixFileAttributeView.class) != null) Files.setPosixFilePermissions(file, DPERMS);
+            if (fixLib && Files.getFileAttributeView(file, PosixFileAttributeView.class) != null)
+                Files.setPosixFilePermissions(file, DPERMS);
             if (file.toFile().getName().endsWith(".jar"))
                 inst.appendToSystemClassLoaderSearch(new JarFile(file.toFile()));
             return super.visitFile(file, attrs);

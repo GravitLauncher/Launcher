@@ -21,17 +21,16 @@ import java.util.List;
 
 public class ListDownloader {
     @FunctionalInterface
-    public interface DownloadCallback
-    {
-        void stateChanged(String filename,long downloadedSize, long size);
+    public interface DownloadCallback {
+        void stateChanged(String filename, long downloadedSize, long size);
     }
+
     @FunctionalInterface
-    public interface DownloadTotalCallback
-    {
+    public interface DownloadTotalCallback {
         void addTotal(long size);
     }
-    public static class DownloadTask
-    {
+
+    public static class DownloadTask {
         public String apply;
         public long size;
 
@@ -40,6 +39,7 @@ public class ListDownloader {
             this.size = size;
         }
     }
+
     public void download(String base, List<DownloadTask> applies, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException, URISyntaxException {
         try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
@@ -48,7 +48,7 @@ public class ListDownloader {
             HttpGet get = null;
             for (DownloadTask apply : applies) {
                 URI u = new URL(base.concat(IOHelper.urlEncode(apply.apply).replace("%2F", "/"))).toURI();
-                callback.stateChanged(apply.apply,0L, apply.size);
+                callback.stateChanged(apply.apply, 0L, apply.size);
                 LogHelper.debug("Download URL: %s", u.toString());
                 if (get == null) get = new HttpGet(u);
                 else {
@@ -60,8 +60,7 @@ public class ListDownloader {
         }
     }
 
-    public void downloadOne(String url, Path target) throws IOException, URISyntaxException
-    {
+    public void downloadOne(String url, Path target) throws IOException, URISyntaxException {
         try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
@@ -97,18 +96,16 @@ public class ListDownloader {
         @Override
         public Path handleResponse(HttpResponse response) throws IOException {
             InputStream source = response.getEntity().getContent();
-            if(callback != null && task != null)
-            {
+            if (callback != null && task != null) {
                 callback.stateChanged(task.apply, 0, task.size);
                 transfer(source, this.target, task.apply, task.size, callback, totalCallback);
-            }
-            else
+            } else
                 IOHelper.transfer(source, this.target);
             return this.target;
         }
     }
-    public static void transfer(InputStream input, Path file, String filename, long size, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException
-    {
+
+    public static void transfer(InputStream input, Path file, String filename, long size, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException {
         try (OutputStream fileOutput = IOHelper.newOutput(file)) {
             long downloaded = 0L;
 

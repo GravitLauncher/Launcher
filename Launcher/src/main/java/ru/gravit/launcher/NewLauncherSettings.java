@@ -37,8 +37,8 @@ public class NewLauncherSettings {
     public List<ClientProfile> lastProfiles = new LinkedList<>();
     @LauncherAPI
     public Map<String, UserSettings> userSettings = new HashMap<>();
-    public static class HashedStoreEntry
-    {
+
+    public static class HashedStoreEntry {
         @LauncherAPI
         public HashedDir hdir;
         @LauncherAPI
@@ -52,15 +52,15 @@ public class NewLauncherSettings {
             this.fullPath = fullPath;
         }
     }
+
     @LauncherAPI
     public transient List<HashedStoreEntry> lastHDirs = new ArrayList<>(16);
+
     @LauncherAPI
-    public void putHDir(String name, Path path, HashedDir dir)
-    {
+    public void putHDir(String name, Path path, HashedDir dir) {
         String fullPath = path.toAbsolutePath().toString();
-        for(HashedStoreEntry e : lastHDirs)
-        {
-            if(e.fullPath.equals(fullPath) && e.name.equals(name)) return;
+        for (HashedStoreEntry e : lastHDirs) {
+            if (e.fullPath.equals(fullPath) && e.name.equals(name)) return;
         }
         lastHDirs.add(new HashedStoreEntry(dir, name, fullPath));
     }

@@ -26,10 +26,8 @@ public class GetHWIDCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
         List<HWID> target = server.config.hwidHandler.getHwid(args[0]);
-        for(HWID hwid : target)
-        {
-            if(hwid == null)
-            {
+        for (HWID hwid : target) {
+            if (hwid == null) {
                 LogHelper.error("HWID %s: null", args[0]);
                 continue;
             }

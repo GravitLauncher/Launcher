@@ -26,14 +26,14 @@ public class JLineCommandHandler extends CommandHandler {
     private final TerminalBuilder terminalBuilder;
     private final Completer completer;
     private final LineReader reader;
+
     public class JLineConsoleCompleter implements Completer {
         @Override
         public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
             String completeWord = line.word();
-            if(line.wordIndex() != 0) return;
+            if (line.wordIndex() != 0) return;
             walk((category, name, command) -> {
-                if(name.startsWith(completeWord))
-                {
+                if (name.startsWith(completeWord)) {
                     candidates.add(new Candidate(name));
                 }
             });
@@ -74,8 +74,7 @@ public class JLineCommandHandler extends CommandHandler {
     public String readLine() throws IOException {
         try {
             return reader.readLine();
-        } catch(UserInterruptException e)
-        {
+        } catch (UserInterruptException e) {
             return null;
         }
     }

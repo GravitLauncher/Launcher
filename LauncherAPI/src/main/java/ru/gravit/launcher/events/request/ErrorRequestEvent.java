@@ -12,6 +12,7 @@ public class ErrorRequestEvent extends RequestEvent implements EventInterface {
     public ErrorRequestEvent(String error) {
         this.error = error;
     }
+
     @LauncherNetworkAPI
     public final String error;
 

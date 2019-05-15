@@ -23,12 +23,10 @@ public class ProfileByUsername extends SimpleResponse {
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         UUID uuid;
-        if(client.auth == null)
-        {
+        if (client.auth == null) {
             LogHelper.warning("Client auth is null. Using default.");
             uuid = LaunchServer.server.config.getAuthProviderPair().handler.usernameToUUID(username);
-        }
-        else uuid = client.auth.handler.usernameToUUID(username);
+        } else uuid = client.auth.handler.usernameToUUID(username);
         sendResult(new ProfileByUsernameRequestEvent(getProfile(LaunchServer.server, uuid, username, this.client, client.auth.textureProvider)));
     }
 }

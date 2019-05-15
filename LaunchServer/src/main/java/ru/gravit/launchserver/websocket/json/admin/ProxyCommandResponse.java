@@ -9,9 +9,10 @@ public class ProxyCommandResponse extends SimpleResponse {
     public JsonResponseInterface response;
     public long session;
     public boolean isCheckSign;
+
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        if(!client.proxy) {
+        if (!client.proxy) {
             sendError("Proxy server error");
             return;
         }

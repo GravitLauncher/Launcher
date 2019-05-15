@@ -28,11 +28,11 @@ jar {
 }
 
 shadowJar {
-   classifier = null
-   relocate 'org.objectweb.asm', 'ru.gravit.repackage.org.objectweb.asm'
-   relocate 'io.netty', 'ru.gravit.repackage.io.netty'
-   configurations = [project.configurations.pack]
-   exclude 'module-info.class'
+    classifier = null
+    relocate 'org.objectweb.asm', 'ru.gravit.repackage.org.objectweb.asm'
+    relocate 'io.netty', 'ru.gravit.repackage.io.netty'
+    configurations = [project.configurations.pack]
+    exclude 'module-info.class'
 }
 
 dependencies {

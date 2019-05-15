@@ -29,12 +29,10 @@ public class BatchProfileByUsername extends SimpleResponse {
         result.playerProfiles = new PlayerProfile[list.length];
         for (int i = 0; i < list.length; ++i) {
             UUID uuid;
-            if(client.auth == null)
-            {
+            if (client.auth == null) {
                 LogHelper.warning("Client auth is null. Using default.");
                 uuid = LaunchServer.server.config.getAuthProviderPair().handler.usernameToUUID(list[i].username);
-            }
-            else uuid = client.auth.handler.usernameToUUID(list[i].username);
+            } else uuid = client.auth.handler.usernameToUUID(list[i].username);
             result.playerProfiles[i] = ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, list[i].username, list[i].client, client.auth.textureProvider);
         }
         sendResult(result);

@@ -33,8 +33,8 @@ public class ConsoleMain {
         LogHelper.info("CommandHandler started. Use 'exit' to exit this console");
         commandHandler.run();
     }
-    public static void registerCommands()
-    {
+
+    public static void registerCommands() {
         commandHandler.registerCommand("help", new HelpCommand(commandHandler));
         commandHandler.registerCommand("exit", new ExitCommand());
         commandHandler.registerCommand("logListener", new LogListenerCommand());

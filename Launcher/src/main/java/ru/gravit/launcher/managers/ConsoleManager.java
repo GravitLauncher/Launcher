@@ -19,8 +19,8 @@ import java.io.IOException;
 public class ConsoleManager {
     public static CommandHandler handler;
     public static Thread thread;
-    public static void initConsole() throws IOException
-    {
+
+    public static void initConsole() throws IOException {
         CommandHandler localCommandHandler;
         try {
             Class.forName("org.jline.terminal.Terminal");
@@ -37,19 +37,19 @@ public class ConsoleManager {
         thread = CommonHelper.newThread("Launcher Console", true, handler);
         thread.start();
     }
-    public static void registerCommands()
-    {
+
+    public static void registerCommands() {
         handler.registerCommand("help", new HelpCommand(handler));
         handler.registerCommand("gc", new GCCommand());
         handler.registerCommand("clear", new ClearCommand(handler));
         handler.registerCommand("unlock", new UnlockCommand());
     }
-    public static boolean checkUnlockKey(String key)
-    {
+
+    public static boolean checkUnlockKey(String key) {
         return true;
     }
-    public static void unlock()
-    {
+
+    public static void unlock() {
         handler.registerCommand("debug", new DebugCommand());
         BaseCommandCategory admin = new BaseCommandCategory();
         admin.registerCommand("exec", new ExecCommand());

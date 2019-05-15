@@ -41,16 +41,13 @@ public abstract class ClientJSONPoint {
         if (!"ws".equals(protocol) && !"wss".equals(protocol)) {
             throw new IllegalArgumentException("Unsupported protocol: " + protocol);
         }
-        if("wss".equals(protocol))
-        {
+        if ("wss".equals(protocol)) {
             ssl = true;
         }
-        if(uri.getPort() == -1)
-        {
-            if("ws".equals(protocol)) port = 80;
+        if (uri.getPort() == -1) {
+            if ("ws".equals(protocol)) port = 80;
             else port = 443;
-        }
-        else port = uri.getPort();
+        } else port = uri.getPort();
         final SslContext sslCtx;
         if (ssl) {
             sslCtx = SslContextBuilder.forClient().build();
@@ -68,7 +65,7 @@ public abstract class ClientJSONPoint {
                         pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
                         pipeline.addLast("ws-handler", webSocketClientHandler);
                     }
-        });
+                });
     }
 
     public void open() throws Exception {
@@ -80,20 +77,22 @@ public abstract class ClientJSONPoint {
         ch = bootstrap.connect(uri.getHost(), port).sync().channel();
         webSocketClientHandler.handshakeFuture().sync();
     }
-    public ChannelFuture send(String text)
-    {
+
+    public ChannelFuture send(String text) {
         LogHelper.dev("Send: %s", text);
         return ch.writeAndFlush(new TextWebSocketFrame(text));
     }
+
     abstract void onMessage(String message) throws Exception;
+
     abstract void onDisconnect() throws Exception;
+
     abstract void onOpen() throws Exception;
 
     public void close() throws InterruptedException {
         //System.out.println("WebSocket Client sending close");
         isClosed = true;
-        if(ch != null && ch.isActive())
-        {
+        if (ch != null && ch.isActive()) {
             ch.writeAndFlush(new CloseWebSocketFrame());
             ch.closeFuture().sync();
         }

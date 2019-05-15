@@ -5,7 +5,7 @@ import ru.gravit.launcher.events.request.RestoreSessionRequestEvent;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.websockets.RequestInterface;
 
-public class RestoreSessionRequest  extends Request<RestoreSessionRequestEvent> implements RequestInterface {
+public class RestoreSessionRequest extends Request<RestoreSessionRequestEvent> implements RequestInterface {
     @LauncherNetworkAPI
     public long session;
 

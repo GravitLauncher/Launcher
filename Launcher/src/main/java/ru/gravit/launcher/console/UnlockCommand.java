@@ -18,14 +18,11 @@ public class UnlockCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
-        if(ConsoleManager.checkUnlockKey(args[0]))
-        {
+        if (ConsoleManager.checkUnlockKey(args[0])) {
             LogHelper.info("Unlock successful");
             ConsoleManager.unlock();
             ConsoleManager.handler.unregisterCommand("unlock");
-        }
-        else
-        {
+        } else {
             LogHelper.error("Unlock key incorrect");
         }
     }

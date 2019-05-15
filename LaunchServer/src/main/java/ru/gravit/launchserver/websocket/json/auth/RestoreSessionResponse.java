@@ -11,6 +11,7 @@ import ru.gravit.launchserver.websocket.json.SimpleResponse;
 public class RestoreSessionResponse extends SimpleResponse {
     @LauncherNetworkAPI
     public long session;
+
     @Override
     public String getType() {
         return "restoreSession";
@@ -19,8 +20,7 @@ public class RestoreSessionResponse extends SimpleResponse {
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
         Client rClient = LaunchServer.server.sessionManager.getClient(session);
-        if(rClient == null)
-        {
+        if (rClient == null) {
             sendError("Session invalid");
         }
         WebSocketFrameHandler frameHandler = ctx.pipeline().get(WebSocketFrameHandler.class);

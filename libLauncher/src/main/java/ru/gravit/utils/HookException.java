@@ -1,7 +1,7 @@
 package ru.gravit.utils;
 
 public class HookException extends RuntimeException {
-	private static final long serialVersionUID = -529141998961943161L;
+    private static final long serialVersionUID = -529141998961943161L;
 
     public HookException(String message) {
         super(message);

@@ -17,19 +17,19 @@ public class StartTest {
 
     @BeforeAll
     public static void prepare() {
-		LogHelper.removeStdOutput();
-		LaunchServer.defaultLauncherEXEBinaryClass = EXENonWarningLauncherBinary.class;
+        LogHelper.removeStdOutput();
+        LaunchServer.defaultLauncherEXEBinaryClass = EXENonWarningLauncherBinary.class;
     }
-    
-	@Test
-	public void checkLaunchServerStarts() {
-			try {
-				LaunchServer srv = new LaunchServer(dir, true, new String[] { "checkInstall" });
-				srv.run();
-				srv.commandHandler.eval(new String[] { "checkInstall" }, false);
-				srv.close();
-			} catch (InvalidKeySpecException | IOException e) {
-				throw new RuntimeException(e);
-			}
-	}
+
+    @Test
+    public void checkLaunchServerStarts() {
+        try {
+            LaunchServer srv = new LaunchServer(dir, true, new String[]{"checkInstall"});
+            srv.run();
+            srv.commandHandler.eval(new String[]{"checkInstall"}, false);
+            srv.close();
+        } catch (InvalidKeySpecException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
