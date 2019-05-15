@@ -33,7 +33,7 @@ public final class StarterAgent {
             	try {
             		Files.deleteIfExists(filef);
             		Files.createFile(filef);
-            	} catch (Throwable t) { }
+            	} catch (Throwable ignored) { }
             }
         }
 

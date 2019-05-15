@@ -46,7 +46,7 @@ public abstract class LauncherBinary {
         return exists;
     }
     
-    public static final Path resolve(LaunchServer server, String ext) {
+    public static Path resolve(LaunchServer server, String ext) {
     	return server.config.copyBinaries ? server.updatesDir.resolve(server.config.binaryName + ext) : server.dir.resolve(server.config.binaryName + ext);
     }
 }

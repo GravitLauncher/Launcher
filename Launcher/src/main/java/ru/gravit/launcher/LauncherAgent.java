@@ -100,56 +100,59 @@ public final class LauncherAgent {
 	 * Use ASM to modify the byte array
 	 */
 	private static byte[] transformClass(String className, byte[] classBytes) {
-		if (className.equals("java.lang.Runtime")) {
-			ClassReader cr=new ClassReader(classBytes);
-			ClassNode cn=new ClassNode();
-			cr.accept(cn,ClassReader.EXPAND_FRAMES);
-			
-			for (Object o : cn.methods.toArray()) {
-				MethodNode m = (MethodNode) o;
-				if(m.name.equals("exec")) {
-					m.instructions.insert(new InsnNode(ARETURN));
-					m.instructions.insert(new InsnNode(ACONST_NULL));
-				}
-			}
-			ClassWriter cw=new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-			cn.accept(cw);
-			return cw.toByteArray();
-		} else if (className.equals("java.lang.ProcessBuilder")) {
-			ClassReader cr=new ClassReader(classBytes);
-			ClassNode cn=new ClassNode();
-			cr.accept(cn,ClassReader.EXPAND_FRAMES);
-			
-			for (Object o : cn.methods.toArray()) {
-				MethodNode m = (MethodNode) o;
-				if(m.name.equals("start")) {
-					m.instructions.insert(new InsnNode(ARETURN));
-					m.instructions.insert(new InsnNode(ACONST_NULL));
-				}
-			}
-			ClassWriter cw=new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-			cn.accept(cw);
-			return cw.toByteArray();
-		} else if (className.equals("java.awt.Robot")) {
-			ClassReader cr=new ClassReader(classBytes);
-			ClassNode cn=new ClassNode();
-			cr.accept(cn,ClassReader.EXPAND_FRAMES);
-			
-			for (Object o : cn.methods.toArray()) {
-				MethodNode m = (MethodNode) o;
-				if(	m.name.equals("createScreenCapture") 	|| m.name.equals("getPixelColor") ||
-					m.name.equals("keyPress") 				|| m.name.equals("keyRelease") ||
-					m.name.equals("mouseMove")				|| m.name.equals("mousePress") ||
-					m.name.equals("mouseWheel"))
-				{
-					m.instructions.insert(new InsnNode(ARETURN));
-					m.instructions.insert(new InsnNode(ACONST_NULL));
-				}
-			}
-			ClassWriter cw=new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-			cn.accept(cw);
-			return cw.toByteArray();
-		}
+        switch (className) {
+            case "java.lang.Runtime": {
+                ClassReader cr = new ClassReader(classBytes);
+                ClassNode cn = new ClassNode();
+                cr.accept(cn, ClassReader.EXPAND_FRAMES);
+
+                for (Object o : cn.methods.toArray()) {
+                    MethodNode m = (MethodNode) o;
+                    if (m.name.equals("exec")) {
+                        m.instructions.insert(new InsnNode(ARETURN));
+                        m.instructions.insert(new InsnNode(ACONST_NULL));
+                    }
+                }
+                ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+                cn.accept(cw);
+                return cw.toByteArray();
+            }
+            case "java.lang.ProcessBuilder": {
+                ClassReader cr = new ClassReader(classBytes);
+                ClassNode cn = new ClassNode();
+                cr.accept(cn, ClassReader.EXPAND_FRAMES);
+
+                for (Object o : cn.methods.toArray()) {
+                    MethodNode m = (MethodNode) o;
+                    if (m.name.equals("start")) {
+                        m.instructions.insert(new InsnNode(ARETURN));
+                        m.instructions.insert(new InsnNode(ACONST_NULL));
+                    }
+                }
+                ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+                cn.accept(cw);
+                return cw.toByteArray();
+            }
+            case "java.awt.Robot": {
+                ClassReader cr = new ClassReader(classBytes);
+                ClassNode cn = new ClassNode();
+                cr.accept(cn, ClassReader.EXPAND_FRAMES);
+
+                for (Object o : cn.methods.toArray()) {
+                    MethodNode m = (MethodNode) o;
+                    if (m.name.equals("createScreenCapture") || m.name.equals("getPixelColor") ||
+                            m.name.equals("keyPress") || m.name.equals("keyRelease") ||
+                            m.name.equals("mouseMove") || m.name.equals("mousePress") ||
+                            m.name.equals("mouseWheel")) {
+                        m.instructions.insert(new InsnNode(ARETURN));
+                        m.instructions.insert(new InsnNode(ACONST_NULL));
+                    }
+                }
+                ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+                cn.accept(cw);
+                return cw.toByteArray();
+            }
+        }
 		return classBytes;
 	}
 	

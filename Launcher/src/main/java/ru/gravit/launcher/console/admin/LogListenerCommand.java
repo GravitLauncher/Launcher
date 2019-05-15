@@ -40,13 +40,7 @@ public class LogListenerCommand extends Command {
         Request.service.registerHandler((result) -> {
             if(result instanceof LogEvent)
             {
-                LogHelper.rawLog(() -> {
-                    return ((LogEvent) result).string;
-                }, () -> {
-                    return ((LogEvent) result).string;
-                }, () -> {
-                    return ((LogEvent) result).string;
-                });
+                LogHelper.rawLog(() -> ((LogEvent) result).string, () -> ((LogEvent) result).string, () -> ((LogEvent) result).string);
             }
         });
     }

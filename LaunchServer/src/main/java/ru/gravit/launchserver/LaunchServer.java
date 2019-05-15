@@ -212,8 +212,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 protectHandler.checkLaunchServerLicense();
             }
             LaunchServer.server.registerObject("permissionsHandler", permissionsHandler);
-            for (int i = 0; i < auth.length; ++i) {
-                AuthProviderPair pair = auth[i];
+            for (AuthProviderPair pair : auth) {
                 LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                 LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
@@ -225,8 +224,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public void close() {
             try {
                 LaunchServer.server.unregisterObject("permissionsHandler", permissionsHandler);
-                for (int i = 0; i < auth.length; ++i) {
-                    AuthProviderPair pair = auth[i];
+                for (AuthProviderPair pair : auth) {
                     LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                     LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                     LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
