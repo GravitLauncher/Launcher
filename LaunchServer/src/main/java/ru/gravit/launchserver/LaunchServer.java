@@ -271,6 +271,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public class LauncherConf {
         public String guardType;
+        public boolean attachLibraryBeforeProGuard;
     }
 
     public class NettyConfig {
