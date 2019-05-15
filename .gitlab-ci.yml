@@ -24,7 +24,7 @@ build:
     - ./gradlew assemble
   artifacts:
     paths:
-      - LaunchServer/build/libs/*.jar
+      - LaunchServer/build/libs/*
       - ServerWrapper/build/libs/*.jar
     expire_in: 1 week
 
