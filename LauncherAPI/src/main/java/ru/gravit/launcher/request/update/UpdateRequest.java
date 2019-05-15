@@ -191,7 +191,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         startTime = Instant.now();
         updateState("UnknownFile", 0L, 100);
         ListDownloader listDownloader = new ListDownloader();
-        if(e.zip)
+        if(e.zip && !adds.isEmpty())
         {
             listDownloader.downloadZip(e.url, dir, this::updateState, (add) -> totalDownloaded += add);
         }
