@@ -39,7 +39,13 @@ public class UpdateResponse extends SimpleResponse {
             return;
         }
         String url = LaunchServer.server.config.netty.downloadURL.replace("%dirname%", dirName);
-        if (server.config.netty.bindings.get(dirName) != null) url = server.config.netty.bindings.get(dirName);
-        service.sendObject(ctx, new UpdateRequestEvent(dir.object, url));
+        boolean zip = false;
+        if (server.config.netty.bindings.get(dirName) != null)
+        {
+            LaunchServer.NettyUpdatesBind bind = server.config.netty.bindings.get(dirName);
+            url = bind.url;
+            zip = bind.zip;
+        }
+        service.sendObject(ctx, new UpdateRequestEvent(dir.object, url, zip));
     }
 }
