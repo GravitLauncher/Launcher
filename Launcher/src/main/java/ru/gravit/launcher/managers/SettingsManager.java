@@ -3,10 +3,10 @@ package ru.gravit.launcher.managers;
 import ru.gravit.launcher.LauncherAPI;
 import ru.gravit.launcher.NewLauncherSettings;
 import ru.gravit.launcher.client.DirBridge;
+import ru.gravit.launcher.config.JsonConfigurable;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
-import ru.gravit.launcher.config.JsonConfigurable;
 import ru.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;

@@ -15,7 +15,7 @@ public final class NativeJVMHalt {
 
     @SuppressWarnings("null")
 	private boolean aaabBooleanC_D() {
-    	return (boolean) (Boolean) (Object) null;
+    	return (boolean) (Boolean) null;
     }
     
     public static void haltA(int code) {
@@ -30,7 +30,7 @@ public final class NativeJVMHalt {
     	}
     	halt.aaabbb38C_D();
         boolean a = halt.aaabBooleanC_D();
-        System.out.println(Boolean.toString(a));
+        System.out.println(a);
     }
     
     public static boolean initFunc() {

@@ -4,6 +4,7 @@ import io.netty.handler.logging.LogLevel;
 import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.LauncherConfig;
 import ru.gravit.launcher.NeedGarbageCollection;
+import ru.gravit.launcher.config.JsonConfigurable;
 import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.managers.ConfigManager;
 import ru.gravit.launcher.managers.GarbageManager;
@@ -38,7 +39,6 @@ import ru.gravit.utils.Version;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.command.JLineCommandHandler;
 import ru.gravit.utils.command.StdCommandHandler;
-import ru.gravit.launcher.config.JsonConfigurable;
 import ru.gravit.utils.helper.*;
 
 import java.io.*;

@@ -7,7 +7,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
-
 import ru.gravit.launcher.utils.NativeJVMHalt;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -20,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
 
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
+import static org.objectweb.asm.Opcodes.ARETURN;
 
 @LauncherAPI
 public final class LauncherAgent {

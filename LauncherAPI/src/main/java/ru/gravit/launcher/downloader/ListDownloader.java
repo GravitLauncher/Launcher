@@ -1,7 +1,6 @@
 package ru.gravit.launcher.downloader;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -96,7 +95,7 @@ public class ListDownloader {
         }
 
         @Override
-        public Path handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+        public Path handleResponse(HttpResponse response) throws IOException {
             InputStream source = response.getEntity().getContent();
             if(callback != null && task != null)
             {

@@ -4,8 +4,6 @@ import org.jline.reader.*;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
-import ru.gravit.utils.helper.LogHelper;
-import ru.gravit.utils.helper.LogHelper.Output;
 
 import java.io.IOException;
 import java.util.List;
