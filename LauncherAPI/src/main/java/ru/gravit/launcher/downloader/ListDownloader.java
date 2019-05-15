@@ -18,6 +18,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class ListDownloader {
     @FunctionalInterface
@@ -55,8 +57,19 @@ public class ListDownloader {
                     get.reset();
                     get.setURI(u);
                 }
-                httpclient.execute(get, new FileDownloadResponseHandler(dstDirFile.resolve(apply.apply), apply, callback, totalCallback));
+                httpclient.execute(get, new FileDownloadResponseHandler(dstDirFile.resolve(apply.apply), apply, callback, totalCallback, false));
             }
+        }
+    }
+    public void downloadZip(String base, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException, URISyntaxException {
+        try (CloseableHttpClient httpclient = HttpClients.custom()
+                .setRedirectStrategy(new LaxRedirectStrategy())
+                .build()) {
+            HttpGet get;
+            URI u = new URL(base).toURI();
+            LogHelper.debug("Download ZIP URL: %s", u.toString());
+            get = new HttpGet(u);
+            httpclient.execute(get, new FileDownloadResponseHandler(dstDirFile, callback, totalCallback, true));
         }
     }
 
@@ -78,24 +91,48 @@ public class ListDownloader {
         private final DownloadTask task;
         private final DownloadCallback callback;
         private final DownloadTotalCallback totalCallback;
+        private final boolean zip;
 
         public FileDownloadResponseHandler(Path target) {
             this.target = target;
             this.task = null;
+            this.zip = false;
             callback = null;
             totalCallback = null;
         }
 
-        public FileDownloadResponseHandler(Path target, DownloadTask task, DownloadCallback callback, DownloadTotalCallback totalCallback) {
+        public FileDownloadResponseHandler(Path target, DownloadTask task, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean zip) {
             this.target = target;
             this.task = task;
             this.callback = callback;
             this.totalCallback = totalCallback;
+            this.zip = zip;
+        }
+
+        public FileDownloadResponseHandler(Path target, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean zip) {
+            this.target = target;
+            this.task = null;
+            this.callback = callback;
+            this.totalCallback = totalCallback;
+            this.zip = zip;
         }
 
         @Override
         public Path handleResponse(HttpResponse response) throws IOException {
             InputStream source = response.getEntity().getContent();
+            if(zip)
+            {
+                try(ZipInputStream input = IOHelper.newZipInput(source))
+                {
+                    ZipEntry entry = input.getNextEntry();
+                    long size = entry.getSize();
+                    String filename = entry.getName();
+                    Path target = this.target.resolve(filename);
+                    LogHelper.dev("Resolved filename %s to %s", filename, target.toAbsolutePath().toString());
+                    transfer(source, target, filename, size, callback, totalCallback);
+                }
+                return null;
+            }
             if (callback != null && task != null) {
                 callback.stateChanged(task.apply, 0, task.size);
                 transfer(source, this.target, task.apply, task.size, callback, totalCallback);

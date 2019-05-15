@@ -263,6 +263,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String txtFileVersion;
         public String txtProductVersion;
     }
+    public static class NettyUpdatesBind
+    {
+        public String url;
+        public boolean zip;
+    }
 
     public class LauncherConf {
         public String guardType;

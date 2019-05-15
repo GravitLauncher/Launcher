@@ -191,7 +191,14 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         startTime = Instant.now();
         updateState("UnknownFile", 0L, 100);
         ListDownloader listDownloader = new ListDownloader();
-        listDownloader.download(e.url, adds, dir, this::updateState, (add) -> totalDownloaded += add);
+        if(e.zip)
+        {
+            listDownloader.downloadZip(e.url, dir, this::updateState, (add) -> totalDownloaded += add);
+        }
+        else
+        {
+            listDownloader.download(e.url, adds, dir, this::updateState, (add) -> totalDownloaded += add);
+        }
         deleteExtraDir(dir, diff.extra, diff.extra.flag);
         LogHelper.debug("Update success");
         return e;
