@@ -18,8 +18,8 @@ public final class Version {
     public static final int MAJOR = 5;
     public static final int MINOR = 0;
     public static final int PATCH = 0;
-    public static final int BUILD = 6;
-    public static final Version.Type RELEASE = Version.Type.BETA;
+    public static final int BUILD = 7;
+    public static final Version.Type RELEASE = Version.Type.STABLE;
 
     @LauncherAPI
     public Version(int major, int minor, int patch) {
