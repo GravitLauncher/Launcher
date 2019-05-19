@@ -4,6 +4,9 @@ var update = {
     initOverlay: function() {
         update.overlay = loadFXML("dialog/overlay/update/update.fxml");
 
+        //var updateLayout = update.overlay.lookup("#overlay");
+        //serverPaneLayout = updateLayout;
+
         update.title = update.overlay.lookup("#utitle");
         update.description = update.overlay.lookup("#description");
         update.progress = update.overlay.lookup("#progress");

@@ -17,7 +17,6 @@ var processing = {
     setError: function(e) {
         LogHelper.error(e);
         processing.description.textProperty().unbind();
-        //processing.errorImage.setImage(processing.errorImage);
         processing.description.getStyleClass().add("error");
         processing.description.setText(e.toString());
     },
@@ -48,8 +47,6 @@ function offlineAuthRequest(login) {
             Request.requestError("Имя пользователя некорректно");
             return;
         }
-
-        // Return offline profile and random access token
         return {
             pp: PlayerProfile.newOfflineProfile(login),
             accessToken: SecurityHelper.randomStringToken()
@@ -57,18 +54,15 @@ function offlineAuthRequest(login) {
     };
 }
 
-/* Export functions */
 function makeLauncherRequest(callback) {
     var task = settings.offline ? newTask(FunctionalBridge.offlineLauncherRequest) :
         newRequestTask(new LauncherRequest());
 
-    // Set task properties and start
     processing.setTaskProperties(task, callback, function() {
         if (settings.offline) {
             return;
         }
 
-        // Repeat request, but in offline mode
         settings.offline = true;
         overlay.swap(2500, processing.overlay, function() makeLauncherRequest(callback));
     }, false);
@@ -78,13 +72,11 @@ function makeLauncherRequest(callback) {
 function makeProfilesRequest(callback) {
     var task = newRequestTask(new ProfilesRequest());
 
-    // Set task properties and start
     processing.setTaskProperties(task, callback, function() {
         if (settings.offline) {
             return;
         }
 
-        // Repeat request, but in offline mode
         settings.offline = true;
         overlay.swap(2500, processing.overlay, function() makeProfilesRequest(callback));
     }, false);
@@ -94,7 +86,6 @@ function makeProfilesRequest(callback) {
 function makeAuthAvailabilityRequest(callback) {
     var task = newRequestTask(new GetAvailabilityAuthRequest());
 
-    // Set task properties and start
     processing.setTaskProperties(task, callback, function() {
         if (settings.offline) {
             return;
@@ -110,7 +101,6 @@ function makeAuthAvailabilityRequest(callback) {
 function makeSetProfileRequest(profile, callback) {
     var task = newRequestTask(new SetProfileRequest(profile));
 
-    // Set task properties and start
     processing.setTaskProperties(task, callback, function() {
         if (settings.offline) {
             return;

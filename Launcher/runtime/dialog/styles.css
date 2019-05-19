@@ -34,8 +34,6 @@ Button, CheckBox, ComboBox, RadioButton {
 /* Mask */
 #mask {
     -fx-effect: DropShadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
-    -fx-pref-width: 692px;
-    -fx-pref-height: 450px;
 }
 
 /** Errors **/
@@ -194,7 +192,7 @@ Button, CheckBox, ComboBox, RadioButton {
 
 .combologin .list-cell:filled:selected .text,
 .combologin .list-cell:filled:selected .text {
-    -fx-fill: #909090;
+    -fx-fill: #323232;
 }
 
 .combologin .arrow,
@@ -211,13 +209,13 @@ Button, CheckBox, ComboBox, RadioButton {
 {
     -fx-background: -fx-accent;
     -fx-background-color: -fx-selection-bar;
-    -fx-text-fill: -fx-selection-bar-text;
+    -fx-text-fill: #909090;
 }
 
 .combologin-popup .list-view .list-cell:filled:hover
 {
     -fx-background-color: white;
-    -fx-text-fill: -fx-text-inner-color;
+    -fx-text-fill: #909090;
 }
 
 /** web**/
