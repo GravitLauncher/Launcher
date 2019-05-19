@@ -3,6 +3,9 @@ package ru.gravit.launcher.managers;
 import ru.gravit.launcher.console.UnlockCommand;
 import ru.gravit.launcher.console.admin.ExecCommand;
 import ru.gravit.launcher.console.admin.LogListenerCommand;
+import ru.gravit.launcher.console.store.CopyStoreDirCommand;
+import ru.gravit.launcher.console.store.LinkStoreDirCommand;
+import ru.gravit.launcher.console.store.StoreListCommand;
 import ru.gravit.utils.command.BaseCommandCategory;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.command.JLineCommandHandler;
@@ -55,5 +58,10 @@ public class ConsoleManager {
         admin.registerCommand("exec", new ExecCommand());
         admin.registerCommand("logListen", new LogListenerCommand());
         handler.registerCategory(new CommandHandler.Category(admin, "admin", "Server admin commands"));
+        BaseCommandCategory store = new BaseCommandCategory();
+        store.registerCommand("storeList", new StoreListCommand());
+        store.registerCommand("copyStoreDir", new CopyStoreDirCommand());
+        store.registerCommand("linkStoreDir", new LinkStoreDirCommand());
+        handler.registerCategory(new CommandHandler.Category(admin, "store", "Store admin commands"));
     }
 }
