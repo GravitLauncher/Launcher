@@ -125,11 +125,25 @@ public class ListDownloader {
                 try(ZipInputStream input = IOHelper.newZipInput(source))
                 {
                     ZipEntry entry = input.getNextEntry();
-                    long size = entry.getSize();
-                    String filename = entry.getName();
-                    Path target = this.target.resolve(filename);
-                    LogHelper.dev("Resolved filename %s to %s", filename, target.toAbsolutePath().toString());
-                    transfer(source, target, filename, size, callback, totalCallback);
+                    while(entry != null)
+                    {
+                        if(entry.isDirectory())
+                        {
+                            entry = input.getNextEntry();
+                            continue;
+                        }
+                        long size = entry.getSize();
+                        String filename = entry.getName();
+                        Path target = this.target.resolve(filename);
+                        if(callback != null)
+                        {
+                            callback.stateChanged(entry.getName(), 0, entry.getSize());
+                        }
+                        LogHelper.dev("Resolved filename %s to %s", filename, target.toAbsolutePath().toString());
+                        transfer(source, target, filename, size, callback, totalCallback);
+                        entry = input.getNextEntry();
+                    }
+
                 }
                 return null;
             }
