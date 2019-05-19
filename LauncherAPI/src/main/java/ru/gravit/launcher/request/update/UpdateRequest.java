@@ -27,6 +27,20 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 public final class UpdateRequest extends Request<UpdateRequestEvent> implements RequestInterface {
+    public interface UpdateController
+    {
+        void preUpdate(UpdateRequest request, UpdateRequestEvent e) throws IOException;
+        void preDiff(UpdateRequest request, UpdateRequestEvent e) throws IOException;
+        void postDiff(UpdateRequest request, UpdateRequestEvent e,HashedDir.Diff diff) throws IOException;
+        void preDownload(UpdateRequest request, UpdateRequestEvent e, List<ListDownloader.DownloadTask> adds) throws IOException;
+        void postDownload(UpdateRequest request, UpdateRequestEvent e) throws IOException;
+        void postUpdate(UpdateRequest request, UpdateRequestEvent e) throws IOException;
+    }
+    private static UpdateController controller;
+
+    public static void setController(UpdateController controller) {
+        UpdateRequest.controller = controller;
+    }
 
     @Override
     public String getType() {
@@ -170,10 +184,14 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     public UpdateRequestEvent requestDo(StandartClientWebSocketService service) throws Exception {
         LogHelper.debug("Start update request");
         UpdateRequestEvent e = (UpdateRequestEvent) service.sendRequest(this);
+        if(controller != null) controller.preUpdate(this, e);
         LogHelper.debug("Start update");
         Launcher.profile.pushOptionalFile(e.hdir, !Launcher.profile.isUpdateFastCheck());
+        if(controller != null) controller.preDiff(this, e);
         HashedDir.Diff diff = e.hdir.diff(localDir, matcher);
+        if(controller != null) controller.postDiff(this, e, diff);
         final List<ListDownloader.DownloadTask> adds = new ArrayList<>();
+        if(controller != null) controller.preDownload(this, e, adds);
         diff.mismatch.walk(IOHelper.CROSS_SEPARATOR, (path, name, entry) -> {
             if (entry.getType().equals(HashedEntry.Type.FILE)) {
                 HashedFile file = (HashedFile) entry;
@@ -186,6 +204,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
                     LogHelper.error(ex);
                 }
             }
+            return false;
         });
         totalSize = diff.mismatch.size();
         startTime = Instant.now();
@@ -199,7 +218,9 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         {
             listDownloader.download(e.url, adds, dir, this::updateState, (add) -> totalDownloaded += add);
         }
+        if(controller != null) controller.postDownload(this, e);
         deleteExtraDir(dir, diff.extra, diff.extra.flag);
+        if(controller != null) controller.postUpdate(this, e);
         LogHelper.debug("Update success");
         return e;
     }
@@ -207,7 +228,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     // Instance
     @LauncherNetworkAPI
     private final String dirName;
-    private transient final Path dir;
+    public transient final Path dir;
     private transient final FileNameMatcher matcher;
 
     private transient final boolean digest;

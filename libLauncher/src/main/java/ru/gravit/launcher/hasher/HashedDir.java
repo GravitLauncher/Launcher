@@ -338,31 +338,32 @@ public final class HashedDir extends HashedEntry {
         }
     }
 
-    public void walk(CharSequence separator, WalkCallback callback) {
+    public void walk(CharSequence separator, WalkCallback callback) throws IOException {
         String append = "";
         walk(append, separator, callback, true);
     }
 
     @FunctionalInterface
     public interface WalkCallback {
-        void walked(String path, String name, HashedEntry entry);
+        boolean walked(String path, String name, HashedEntry entry) throws IOException;
     }
 
-    private void walk(String append, CharSequence separator, WalkCallback callback, boolean noSeparator) {
+    private boolean walk(String append, CharSequence separator, WalkCallback callback, boolean noSeparator) throws IOException {
         for (Map.Entry<String, HashedEntry> entry : map.entrySet()) {
             HashedEntry e = entry.getValue();
             if (e.getType() == Type.FILE) {
                 if (noSeparator)
-                    callback.walked(append + entry.getKey(), entry.getKey(), e);
+                    if(callback.walked(append + entry.getKey(), entry.getKey(), e)) return true;
                 else
-                    callback.walked(append + separator + entry.getKey(), entry.getKey(), e);
+                    if(callback.walked(append + separator + entry.getKey(), entry.getKey(), e)) return true;
             } else {
                 String newAppend;
                 if (noSeparator) newAppend = append + entry.getKey();
                 else newAppend = append + separator + entry.getKey();
-                callback.walked(newAppend, entry.getKey(), e);
-                ((HashedDir) e).walk(newAppend, separator, callback, false);
+                if(callback.walked(newAppend, entry.getKey(), e)) return true;
+                if(((HashedDir) e).walk(newAppend, separator, callback, false)) return true;
             }
         }
+        return false;
     }
 }

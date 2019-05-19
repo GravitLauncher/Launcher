@@ -1,5 +1,6 @@
 package ru.gravit.launcher.managers;
 
+import ru.gravit.launcher.console.FeatureCommand;
 import ru.gravit.launcher.console.UnlockCommand;
 import ru.gravit.launcher.console.admin.ExecCommand;
 import ru.gravit.launcher.console.admin.LogListenerCommand;
@@ -54,6 +55,7 @@ public class ConsoleManager {
 
     public static void unlock() {
         handler.registerCommand("debug", new DebugCommand());
+        handler.registerCommand("feature", new FeatureCommand());
         BaseCommandCategory admin = new BaseCommandCategory();
         admin.registerCommand("exec", new ExecCommand());
         admin.registerCommand("logListen", new LogListenerCommand());

@@ -3,6 +3,7 @@ package ru.gravit.launcher;
 import ru.gravit.launcher.client.ClientModuleManager;
 import ru.gravit.launcher.client.DirBridge;
 import ru.gravit.launcher.client.FunctionalBridge;
+import ru.gravit.launcher.client.LauncherUpdateController;
 import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.gui.RuntimeProvider;
@@ -11,6 +12,7 @@ import ru.gravit.launcher.managers.ConsoleManager;
 import ru.gravit.launcher.request.Request;
 import ru.gravit.launcher.request.RequestException;
 import ru.gravit.launcher.request.auth.RestoreSessionRequest;
+import ru.gravit.launcher.request.update.UpdateRequest;
 import ru.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.EnvHelper;
@@ -95,6 +97,7 @@ public class LauncherEngine {
             };
         }
         LauncherGuardManager.initGuard(false);
+        UpdateRequest.setController(new LauncherUpdateController());
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");

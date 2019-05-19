@@ -37,6 +37,8 @@ public class NewLauncherSettings {
     public List<ClientProfile> lastProfiles = new LinkedList<>();
     @LauncherAPI
     public Map<String, UserSettings> userSettings = new HashMap<>();
+    @LauncherAPI
+    public boolean featureStore;
 
     public static class HashedStoreEntry {
         @LauncherAPI
