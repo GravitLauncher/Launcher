@@ -44,13 +44,15 @@ dependencies {
     pack project(':libLauncher')
     pack project(':LauncherAPI')
     bundle project(':Radon')
-    bundle 'mysql:mysql-connector-java:8.0.13'
-    bundle 'jline:jline:2.14.6'
-    bundle 'net.sf.proguard:proguard-base:6.0.3'
-    bundle 'org.fusesource.jansi:jansi:1.17.1'
+    bundle 'mysql:mysql-connector-java:8.0.16'
+    bundle 'org.jline:jline:3.11.0'
+    bundle 'org.jline:jline-reader:3.11.0'
+    bundle 'org.jline:jline-terminal:3.11.0'
+    bundle 'net.sf.proguard:proguard-base:6.1.0'
+    bundle 'org.fusesource.jansi:jansi:1.18'
     bundle 'commons-io:commons-io:2.6'
-    bundle 'commons-codec:commons-codec:1.11'
-    bundle 'org.javassist:javassist:3.24.1-GA'
+    bundle 'commons-codec:commons-codec:1.12'
+    bundle 'org.javassist:javassist:3.25.0-GA'
     bundle 'io.netty:netty-all:4.1.36.Final'
 
     bundle 'org.slf4j:slf4j-simple:1.7.25'
@@ -79,8 +81,8 @@ dependencies {
     }
 
     compileOnlyA 'com.google.guava:guava:26.0-jre'
-	compileOnlyA 'log4j:log4j:1.2.17' // Do not update (laggy dep).
-	compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
+    compileOnlyA 'log4j:log4j:1.2.17' // Do not update (laggy dep).
+    compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
 }
 
 task hikari(type: Copy) {

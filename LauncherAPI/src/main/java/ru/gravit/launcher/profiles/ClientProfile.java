@@ -259,7 +259,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         file.mark = false;
         if (file.dependenciesCount != null) {
             for (OptionalFile f : file.dependenciesCount) {
-                if(f.isPreset) continue;
+                if (f.isPreset) continue;
                 unmarkOptional(f);
             }
             file.dependenciesCount.clear();

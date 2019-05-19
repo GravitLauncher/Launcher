@@ -38,10 +38,10 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         String accessToken = parts[1];
         String serverID = parts[2];
         if (LogHelper.isDebugEnabled()) {
-        	LogHelper.debug("[AuthHandler] Got username: " + username);
-        	LogHelper.debug("[AuthHandler] Got accessToken: " + accessToken);
-        	LogHelper.debug("[AuthHandler] Got serverID: " + serverID);
-        	LogHelper.debug("[AuthHandler] Got UUID: " + uuid);
+            LogHelper.debug("[AuthHandler] Got username: " + username);
+            LogHelper.debug("[AuthHandler] Got accessToken: " + accessToken);
+            LogHelper.debug("[AuthHandler] Got serverID: " + serverID);
+            LogHelper.debug("[AuthHandler] Got UUID: " + uuid);
         }
         return new Entry(uuid, username, accessToken, serverID);
     }
@@ -54,31 +54,31 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         String accessToken = parts[1];
         String serverID = parts[2];
         if (LogHelper.isDebugEnabled()) {
-        	LogHelper.debug("[AuthHandler] Got username: " + username);
-        	LogHelper.debug("[AuthHandler] Got accessToken: " + accessToken);
-        	LogHelper.debug("[AuthHandler] Got serverID: " + serverID);
-        	LogHelper.debug("[AuthHandler] Got UUID: " + uuid);
+            LogHelper.debug("[AuthHandler] Got username: " + username);
+            LogHelper.debug("[AuthHandler] Got accessToken: " + accessToken);
+            LogHelper.debug("[AuthHandler] Got serverID: " + serverID);
+            LogHelper.debug("[AuthHandler] Got UUID: " + uuid);
         }
         return new Entry(uuid, username, accessToken, serverID);
     }
 
     @Override
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
-    	String response = IOHelper.request(new URL(CommonHelper.replace(updateAuth, "user", IOHelper.urlEncode(username), "uuid", IOHelper.urlEncode(uuid.toString()), "token", IOHelper.urlEncode(accessToken))));
-    	if (LogHelper.isDebugEnabled()) {
-        	LogHelper.debug("[AuthHandler] Set accessToken: " + accessToken);
-        	LogHelper.debug("[AuthHandler] Set UUID: " + uuid);
-        	LogHelper.debug("[AuthHandler] For this username: " + username);
+        String response = IOHelper.request(new URL(CommonHelper.replace(updateAuth, "user", IOHelper.urlEncode(username), "uuid", IOHelper.urlEncode(uuid.toString()), "token", IOHelper.urlEncode(accessToken))));
+        if (LogHelper.isDebugEnabled()) {
+            LogHelper.debug("[AuthHandler] Set accessToken: " + accessToken);
+            LogHelper.debug("[AuthHandler] Set UUID: " + uuid);
+            LogHelper.debug("[AuthHandler] For this username: " + username);
         }
         return goodResponse.equals(response);
     }
 
     @Override
     protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
-    	String response = IOHelper.request(new URL(CommonHelper.replace(updateAuth, "serverid", IOHelper.urlEncode(serverID), "uuid", IOHelper.urlEncode(uuid.toString()))));
-    	if (LogHelper.isDebugEnabled()) {
-        	LogHelper.debug("[AuthHandler] Set serverID: " + serverID);
-        	LogHelper.debug("[AuthHandler] For this UUID: " + uuid);
+        String response = IOHelper.request(new URL(CommonHelper.replace(updateAuth, "serverid", IOHelper.urlEncode(serverID), "uuid", IOHelper.urlEncode(uuid.toString()))));
+        if (LogHelper.isDebugEnabled()) {
+            LogHelper.debug("[AuthHandler] Set serverID: " + serverID);
+            LogHelper.debug("[AuthHandler] For this UUID: " + uuid);
         }
         return goodResponse.equals(response);
     }

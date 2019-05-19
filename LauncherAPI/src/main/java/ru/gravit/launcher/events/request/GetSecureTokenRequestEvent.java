@@ -6,6 +6,7 @@ import ru.gravit.launcher.events.RequestEvent;
 public class GetSecureTokenRequestEvent extends RequestEvent {
     @LauncherNetworkAPI
     public String secureToken;
+
     @Override
     public String getType() {
         return "GetSecureToken";

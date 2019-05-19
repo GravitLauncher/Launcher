@@ -10,20 +10,16 @@ public class LauncherGuardManager {
 
     public static void initGuard(boolean clientInstance) {
         LauncherConfig config = Launcher.getConfig();
-        switch (config.guardType)
-        {
-            case "wrapper":
-            {
+        switch (config.guardType) {
+            case "wrapper": {
                 guard = new LauncherWrapperGuard();
-				break;
+                break;
             }
-            case "java":
-            {
+            case "java": {
                 guard = new LauncherJavaGuard();
-				break;
+                break;
             }
-            default:
-            {
+            default: {
                 guard = new LauncherNoGuard();
             }
         }

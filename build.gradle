@@ -3,33 +3,33 @@ plugins {
 }
 
 configure(subprojects.findAll { it.name != 'modules' && it.name != 'Radon' }) {
-	apply plugin: 'idea'
-	apply plugin: 'eclipse'
-	apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: 'java'
 
     group = 'ru.gravit'
 
-	repositories {
-		mavenCentral()
-		maven { url 'http://oss.sonatype.org/content/groups/public' }
-		maven {
-			url "http://clojars.org/repo/"
-		}
-	}
+    repositories {
+        mavenCentral()
+        maven { url 'http://oss.sonatype.org/content/groups/public' }
+        maven {
+            url "http://clojars.org/repo/"
+        }
+    }
 
-	configurations {
-		apt
-		aptCompileOnly
-		aptOnly
-		aptOnly.extendsFrom apt, aptCompileOnly
-		compile.extendsFrom apt
-		compileOnly.extendsFrom aptCompileOnly
-	}
+    configurations {
+        apt
+        aptCompileOnly
+        aptOnly
+        aptOnly.extendsFrom apt, aptCompileOnly
+        compile.extendsFrom apt
+        compileOnly.extendsFrom aptCompileOnly
+    }
 
-	tasks.withType(JavaCompile) {
-		options.encoding = "UTF-8"
-		options.annotationProcessorPath = configurations.aptOnly
-	}
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+        options.annotationProcessorPath = configurations.aptOnly
+    }
 }
 
 subprojects {
@@ -39,7 +39,7 @@ subprojects {
 }
 
 wrapper {
-	distributionType = Wrapper.DistributionType.ALL
+    distributionType = Wrapper.DistributionType.ALL
 }
 
 defaultTasks 'build'

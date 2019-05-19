@@ -61,7 +61,7 @@ public class AuthResponse extends SimpleResponse {
     public void execute(ChannelHandlerContext ctx, Client clientData) throws Exception {
         try {
             AuthRequestEvent result = new AuthRequestEvent();
-            if ((authType == null || authType == ConnectTypes.CLIENT) && ( clientData == null || !clientData.checkSign )) {
+            if ((authType == null || authType == ConnectTypes.CLIENT) && (clientData == null || !clientData.checkSign)) {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
             }
@@ -113,21 +113,18 @@ public class AuthResponse extends SimpleResponse {
             clientData.updateAuth();
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
-            if(getSession)
-            {
-                if(clientData.session == 0) {
+            if (getSession) {
+                if (clientData.session == 0) {
                     clientData.session = random.nextLong();
                     LaunchServer.server.sessionManager.addClient(clientData);
                 }
                 result.session = clientData.session;
             }
-            if(initProxy)
-            {
-                if(!clientData.permissions.canProxy) throw new AuthException("initProxy not allow");
+            if (initProxy) {
+                if (!clientData.permissions.canProxy) throw new AuthException("initProxy not allow");
                 clientData.proxy = true;
             }
-            if(LaunchServer.server.config.protectHandler.allowGetAccessToken(context))
-            {
+            if (LaunchServer.server.config.protectHandler.allowGetAccessToken(context)) {
                 UUID uuid = pair.handler.auth(aresult);
                 result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, aresult.username, client, clientData.auth.textureProvider);
                 LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
@@ -137,6 +134,7 @@ public class AuthResponse extends SimpleResponse {
             sendError(e.getMessage());
         }
     }
+
     public static class AuthContext {
         public AuthContext(long session, String login, int password_lenght, String customText, String client, String hwid, String ip, boolean isServerAuth) {
             this.session = session;

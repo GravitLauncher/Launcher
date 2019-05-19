@@ -541,8 +541,7 @@ public final class ClientLauncher {
         // Hash directory and compare (ignore update-only matcher entries, it will break offline-mode)
         HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);
         HashedDir.Diff diff = hdir.diff(currentHDir, matcher);
-        if (!diff.isSame())
-        {
+        if (!diff.isSame()) {
             /*AtomicBoolean isFoundFile = new AtomicBoolean(false);
             diff.extra.walk(File.separator, (e,k,v) -> {
                 if(v.getType().equals(HashedEntry.Type.FILE)) { LogHelper.error("Extra file %s", e); isFoundFile.set(true); }

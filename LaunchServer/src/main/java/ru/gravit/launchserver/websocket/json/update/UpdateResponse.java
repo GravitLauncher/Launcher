@@ -34,13 +34,18 @@ public class UpdateResponse extends SimpleResponse {
             }
         }
         SignedObjectHolder<HashedDir> dir = LaunchServer.server.updatesDirMap.get(dirName);
-        if(dir == null)
-        {
+        if (dir == null) {
             service.sendObject(ctx, new ErrorRequestEvent(String.format("Directory %s not found", dirName)));
             return;
         }
-        String url = LaunchServer.server.config.netty.downloadURL.replace("%dirname%",dirName);
-        if(server.config.netty.bindings.get(dirName) != null) url = server.config.netty.bindings.get(dirName);
-        service.sendObject(ctx, new UpdateRequestEvent(dir.object, url));
+        String url = LaunchServer.server.config.netty.downloadURL.replace("%dirname%", dirName);
+        boolean zip = false;
+        if (server.config.netty.bindings.get(dirName) != null)
+        {
+            LaunchServer.NettyUpdatesBind bind = server.config.netty.bindings.get(dirName);
+            url = bind.url;
+            zip = bind.zip;
+        }
+        service.sendObject(ctx, new UpdateRequestEvent(dir.object, url, zip));
     }
 }

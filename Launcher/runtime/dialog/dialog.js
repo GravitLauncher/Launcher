@@ -45,7 +45,6 @@ function initLoginScene() {
     var loginLayout = loginPane.lookup("#layout");
     loginPaneLayout = loginLayout;
 
-
     loginField = pane.lookup("#login");
     loginField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
     loginField.setOnAction(goAuth);
@@ -203,7 +202,7 @@ function goAuth(event) {
      var rsaPassword = null;
      var auth = authOptions.getSelectionModel().getSelectedItem();
      if (auth === null) {
-         return;
+        return;
      }
      if (!passwordField.isDisable()) {
          var password = passwordField.getText();
@@ -419,7 +418,6 @@ var overlay = {
 
         dimPane.setVisible(true);
         dimPane.toFront();
-
         loginPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(10));
         serverPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(10));
         fade(dimPane, 0.0, 0.0, 1.0, function(event) {
@@ -441,7 +439,6 @@ var overlay = {
 
                 authPane.setDisable(false);
                 rootPane.requestFocus();
-
                 loginPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(0));
                 serverPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(0));
                 overlay.current = null;

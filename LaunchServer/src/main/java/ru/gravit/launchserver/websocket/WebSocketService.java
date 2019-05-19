@@ -63,64 +63,54 @@ public class WebSocketService {
     private final GsonBuilder gsonBuiler;
 
     @SuppressWarnings("unchecked")
-	void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
+    void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
         String request = frame.text();
         JsonResponseInterface response = gson.fromJson(request, JsonResponseInterface.class);
-        if(server.config.netty.proxy.enabled)
-        {
-            if(server.config.netty.proxy.requests.contains(response.getType()))
-            {
+        if (server.config.netty.proxy.enabled) {
+            if (server.config.netty.proxy.requests.contains(response.getType())) {
 
                 UUID origRequestUUID = null;
-                if(response instanceof SimpleResponse)
-                {
+                if (response instanceof SimpleResponse) {
                     SimpleResponse simpleResponse = (SimpleResponse) response;
                     simpleResponse.server = server;
                     simpleResponse.service = this;
                     simpleResponse.ctx = ctx;
-                    if(ip != null) simpleResponse.ip = ip;
+                    if (ip != null) simpleResponse.ip = ip;
                     else simpleResponse.ip = IOHelper.getIP(ctx.channel().remoteAddress());
                     origRequestUUID = simpleResponse.requestUUID;
                 }
                 LogHelper.debug("Proxy %s request", response.getType());
-                if(client.session == 0) client.session = new Random().nextLong();
+                if (client.session == 0) client.session = new Random().nextLong();
                 ProxyRequest proxyRequest = new ProxyRequest(response, client.session);
-                if(response instanceof SimpleResponse)
-                {
+                if (response instanceof SimpleResponse) {
                     ((SimpleResponse) response).requestUUID = proxyRequest.requestUUID;
                 }
                 proxyRequest.isCheckSign = client.checkSign;
                 try {
                     ResultInterface result = proxyRequest.request();
-                    if(result instanceof AuthRequestEvent)
-                    {
+                    if (result instanceof AuthRequestEvent) {
                         LogHelper.debug("Client auth params get successful");
                         AuthRequestEvent authRequestEvent = (AuthRequestEvent) result;
                         client.isAuth = true;
                         client.session = authRequestEvent.session;
-                        if(authRequestEvent.playerProfile != null) client.username = authRequestEvent.playerProfile.username;
+                        if (authRequestEvent.playerProfile != null)
+                            client.username = authRequestEvent.playerProfile.username;
                     }
-                    if(result instanceof Request && response instanceof SimpleResponse)
-                    {
+                    if (result instanceof Request && response instanceof SimpleResponse) {
                         ((Request) result).requestUUID = origRequestUUID;
                     }
                     sendObject(ctx, result);
-                } catch (RequestException e)
-                {
+                } catch (RequestException e) {
                     sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
                 } catch (Exception e) {
                     LogHelper.error(e);
                     RequestEvent event;
-                    if(server.config.netty.sendExceptionEnabled)
-                    {
+                    if (server.config.netty.sendExceptionEnabled) {
                         event = new ExceptionEvent(e);
-                    }
-                    else
-                    {
+                    } else {
                         event = new ErrorRequestEvent("Fatal server error. Contact administrator");
                     }
-                    if(response instanceof SimpleResponse)
-                    {
+                    if (response instanceof SimpleResponse) {
                         event.requestUUID = ((SimpleResponse) response).requestUUID;
                     }
                     sendObject(ctx, event);
@@ -128,17 +118,16 @@ public class WebSocketService {
                 return;
             }
         }
-        process(ctx,response, client, ip);
+        process(ctx, response, client, ip);
     }
-    void process(ChannelHandlerContext ctx, JsonResponseInterface response, Client client, String ip)
-    {
-        if(response instanceof SimpleResponse)
-        {
+
+    void process(ChannelHandlerContext ctx, JsonResponseInterface response, Client client, String ip) {
+        if (response instanceof SimpleResponse) {
             SimpleResponse simpleResponse = (SimpleResponse) response;
             simpleResponse.server = server;
             simpleResponse.service = this;
             simpleResponse.ctx = ctx;
-            if(ip != null) simpleResponse.ip = ip;
+            if (ip != null) simpleResponse.ip = ip;
             else simpleResponse.ip = IOHelper.getIP(ctx.channel().remoteAddress());
         }
         try {
@@ -146,16 +135,12 @@ public class WebSocketService {
         } catch (Exception e) {
             LogHelper.error(e);
             RequestEvent event;
-            if(server.config.netty.sendExceptionEnabled)
-            {
+            if (server.config.netty.sendExceptionEnabled) {
                 event = new ExceptionEvent(e);
-            }
-            else
-            {
+            } else {
                 event = new ErrorRequestEvent("Fatal server error. Contact administrator");
             }
-            if(response instanceof SimpleResponse)
-            {
+            if (response instanceof SimpleResponse) {
                 event.requestUUID = ((SimpleResponse) response).requestUUID;
             }
             sendObject(ctx, event);
@@ -204,15 +189,13 @@ public class WebSocketService {
     }
 
     public void sendObjectAll(Object obj) {
-        for(Channel ch : channels)
-        {
+        for (Channel ch : channels) {
             ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, ResultInterface.class)));
         }
     }
 
     public void sendObjectAll(Object obj, Type type) {
-        for(Channel ch : channels)
-        {
+        for (Channel ch : channels) {
             ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
         }
     }

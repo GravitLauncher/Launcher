@@ -12,6 +12,7 @@ public class JoinServerRequestEvent extends RequestEvent implements EventInterfa
     public JoinServerRequestEvent(boolean allow) {
         this.allow = allow;
     }
+
     @LauncherNetworkAPI
     public boolean allow;
 

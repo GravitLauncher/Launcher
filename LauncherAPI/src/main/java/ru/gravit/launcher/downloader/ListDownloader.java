@@ -1,7 +1,6 @@
 package ru.gravit.launcher.downloader;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -19,20 +18,21 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class ListDownloader {
     @FunctionalInterface
-    public interface DownloadCallback
-    {
-        void stateChanged(String filename,long downloadedSize, long size);
+    public interface DownloadCallback {
+        void stateChanged(String filename, long downloadedSize, long size);
     }
+
     @FunctionalInterface
-    public interface DownloadTotalCallback
-    {
+    public interface DownloadTotalCallback {
         void addTotal(long size);
     }
-    public static class DownloadTask
-    {
+
+    public static class DownloadTask {
         public String apply;
         public long size;
 
@@ -41,6 +41,7 @@ public class ListDownloader {
             this.size = size;
         }
     }
+
     public void download(String base, List<DownloadTask> applies, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException, URISyntaxException {
         try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
@@ -49,20 +50,30 @@ public class ListDownloader {
             HttpGet get = null;
             for (DownloadTask apply : applies) {
                 URI u = new URL(base.concat(IOHelper.urlEncode(apply.apply).replace("%2F", "/"))).toURI();
-                callback.stateChanged(apply.apply,0L, apply.size);
+                callback.stateChanged(apply.apply, 0L, apply.size);
                 LogHelper.debug("Download URL: %s", u.toString());
                 if (get == null) get = new HttpGet(u);
                 else {
                     get.reset();
                     get.setURI(u);
                 }
-                httpclient.execute(get, new FileDownloadResponseHandler(dstDirFile.resolve(apply.apply), apply, callback, totalCallback));
+                httpclient.execute(get, new FileDownloadResponseHandler(dstDirFile.resolve(apply.apply), apply, callback, totalCallback, false));
             }
         }
     }
+    public void downloadZip(String base, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException, URISyntaxException {
+        try (CloseableHttpClient httpclient = HttpClients.custom()
+                .setRedirectStrategy(new LaxRedirectStrategy())
+                .build()) {
+            HttpGet get;
+            URI u = new URL(base).toURI();
+            LogHelper.debug("Download ZIP URL: %s", u.toString());
+            get = new HttpGet(u);
+            httpclient.execute(get, new FileDownloadResponseHandler(dstDirFile, callback, totalCallback, true));
+        }
+    }
 
-    public void downloadOne(String url, Path target) throws IOException, URISyntaxException
-    {
+    public void downloadOne(String url, Path target) throws IOException, URISyntaxException {
         try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
@@ -80,36 +91,58 @@ public class ListDownloader {
         private final DownloadTask task;
         private final DownloadCallback callback;
         private final DownloadTotalCallback totalCallback;
+        private final boolean zip;
 
         public FileDownloadResponseHandler(Path target) {
             this.target = target;
             this.task = null;
+            this.zip = false;
             callback = null;
             totalCallback = null;
         }
 
-        public FileDownloadResponseHandler(Path target, DownloadTask task, DownloadCallback callback, DownloadTotalCallback totalCallback) {
+        public FileDownloadResponseHandler(Path target, DownloadTask task, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean zip) {
             this.target = target;
             this.task = task;
             this.callback = callback;
             this.totalCallback = totalCallback;
+            this.zip = zip;
+        }
+
+        public FileDownloadResponseHandler(Path target, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean zip) {
+            this.target = target;
+            this.task = null;
+            this.callback = callback;
+            this.totalCallback = totalCallback;
+            this.zip = zip;
         }
 
         @Override
-        public Path handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+        public Path handleResponse(HttpResponse response) throws IOException {
             InputStream source = response.getEntity().getContent();
-            if(callback != null && task != null)
+            if(zip)
             {
+                try(ZipInputStream input = IOHelper.newZipInput(source))
+                {
+                    ZipEntry entry = input.getNextEntry();
+                    long size = entry.getSize();
+                    String filename = entry.getName();
+                    Path target = this.target.resolve(filename);
+                    LogHelper.dev("Resolved filename %s to %s", filename, target.toAbsolutePath().toString());
+                    transfer(source, target, filename, size, callback, totalCallback);
+                }
+                return null;
+            }
+            if (callback != null && task != null) {
                 callback.stateChanged(task.apply, 0, task.size);
                 transfer(source, this.target, task.apply, task.size, callback, totalCallback);
-            }
-            else
+            } else
                 IOHelper.transfer(source, this.target);
             return this.target;
         }
     }
-    public static void transfer(InputStream input, Path file, String filename, long size, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException
-    {
+
+    public static void transfer(InputStream input, Path file, String filename, long size, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException {
         try (OutputStream fileOutput = IOHelper.newOutput(file)) {
             long downloaded = 0L;
 

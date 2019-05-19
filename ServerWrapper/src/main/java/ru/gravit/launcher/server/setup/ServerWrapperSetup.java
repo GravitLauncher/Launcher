@@ -25,14 +25,14 @@ public class ServerWrapperSetup {
         Path jarPath = Paths.get(jarName);
         String mainClassName = null;
         try (JarFile file = new JarFile(jarPath.toFile())) {
-        	URL jarURL = jarPath.toUri().toURL();
-        	urlClassLoader = new PublicURLClassLoader(new URL[]{jarURL});
-        	LogHelper.info("Check jar MainClass");
-        	mainClassName = file.getManifest().getMainAttributes().getValue("Main-Class");
-        	if (mainClassName == null) {
-            	LogHelper.error("Main-Class not found in MANIFEST");
-            	return;
-        	}
+            URL jarURL = jarPath.toUri().toURL();
+            urlClassLoader = new PublicURLClassLoader(new URL[]{jarURL});
+            LogHelper.info("Check jar MainClass");
+            mainClassName = file.getManifest().getMainAttributes().getValue("Main-Class");
+            if (mainClassName == null) {
+                LogHelper.error("Main-Class not found in MANIFEST");
+                return;
+            }
             try {
                 Class.forName(mainClassName, false, urlClassLoader);
             } catch (ClassNotFoundException e) {

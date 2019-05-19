@@ -42,10 +42,11 @@ public final class JARLauncherBinary extends LauncherBinary {
     public void init() {
         tasks.add(new PrepareBuildTask(server));
         tasks.add(new MainBuildTask(server));
+        if(server.config.launcher.attachLibraryBeforeProGuard) tasks.add(new AttachJarsTask(server));
         tasks.add(new ProGuardBuildTask(server));
         tasks.add(new AdditionalFixesApplyTask(server));
         tasks.add(new RadonBuildTask(server));
-        tasks.add(new AttachJarsTask(server));
+        if(!server.config.launcher.attachLibraryBeforeProGuard) tasks.add(new AttachJarsTask(server));
     }
 
     @Override
