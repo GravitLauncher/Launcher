@@ -99,7 +99,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
             if(tfile.isSame(file))
             {
                 LogHelper.debug("[DIR:%s] Found file %s in %s", en.name, name, path);
-                Path tdir = Paths.get(en.fullPath).resolve(path).resolve(name);
+                Path tdir = Paths.get(en.fullPath).resolve(path);
                 try {
                     if(tfile.isSame(tdir, true))
                     {
@@ -109,7 +109,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                     }
                 } catch (IOException e)
                 {
-                    LogHelper.error("Check file error %s", e.getMessage());
+                    LogHelper.error("Check file error %s %s", e.getClass().getName(), e.getMessage());
                 }
             }
             return HashedDir.WalkAction.CONTINUE;
