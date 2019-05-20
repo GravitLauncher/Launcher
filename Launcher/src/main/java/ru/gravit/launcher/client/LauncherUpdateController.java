@@ -40,7 +40,10 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
             AtomicReference<NewLauncherSettings.HashedStoreEntry> lastEn = new AtomicReference<>(null);
             ArrayList<String> removed = new ArrayList<>();
             diff.mismatch.walk(File.separator, (path, name, entry) -> {
-                if(entry.getType() == HashedEntry.Type.DIR) return HashedDir.WalkAction.CONTINUE;
+                if(entry.getType() == HashedEntry.Type.DIR) {
+                    Files.createDirectories(request.getDir().resolve(path));
+                    return HashedDir.WalkAction.CONTINUE;
+                }
                 HashedFile file = (HashedFile) entry;
                 //Первый экспериментальный способ - честно обходим все возможные Store
                 Path ret = null;
@@ -78,7 +81,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                         Path source = request.getDir().resolve(path);
                         LogHelper.debug("Copy file %s to %s", ret.toAbsolutePath().toString(), source.toAbsolutePath().toString());
                         //Let's go!
-                        Files.copy(source, ret);
+                        Files.copy(ret, source);
                         removed.add(path.concat(File.separator).concat(name));
                     }
                 }
