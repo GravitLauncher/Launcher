@@ -228,7 +228,12 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     // Instance
     @LauncherNetworkAPI
     private final String dirName;
-    public transient final Path dir;
+    private transient final Path dir;
+
+    public Path getDir() {
+        return dir;
+    }
+
     private transient final FileNameMatcher matcher;
 
     private transient final boolean digest;

@@ -29,7 +29,9 @@ public class FeatureCommand extends Command {
             default:
             {
                 LogHelper.info("Features: [store]");
+                return;
             }
         }
+        LogHelper.info("Feature %s %s", args[0], enabled ? "enabled" : "disabled");
     }
 }
