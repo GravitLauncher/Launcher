@@ -51,13 +51,14 @@ public class ListDownloader {
             for (DownloadTask apply : applies) {
                 URI u = new URL(base.concat(IOHelper.urlEncode(apply.apply).replace("%2F", "/"))).toURI();
                 callback.stateChanged(apply.apply, 0L, apply.size);
-                LogHelper.debug("Download URL: %s", u.toString());
+                Path targetPath = dstDirFile.resolve(apply.apply);
+                LogHelper.debug("Download URL: %s to file %s dir: %s", u.toString(), targetPath.toAbsolutePath().toString(), dstDirFile.toAbsolutePath().toString());
                 if (get == null) get = new HttpGet(u);
                 else {
                     get.reset();
                     get.setURI(u);
                 }
-                httpclient.execute(get, new FileDownloadResponseHandler(dstDirFile.resolve(apply.apply), apply, callback, totalCallback, false));
+                httpclient.execute(get, new FileDownloadResponseHandler(targetPath, apply, callback, totalCallback, false));
             }
         }
     }
