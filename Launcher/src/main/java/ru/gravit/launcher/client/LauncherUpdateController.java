@@ -75,7 +75,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                     //Возможно эта проверка избыточна
                     if(file.isSame(ret, true))
                     {
-                        Path source = request.getDir().resolve(path).resolve(name);
+                        Path source = request.getDir().resolve(path);
                         LogHelper.debug("Copy file %s to %s", source.toAbsolutePath().toString(), ret.toAbsolutePath().toString());
                         //Let's go!
                         Files.copy(ret, source);
