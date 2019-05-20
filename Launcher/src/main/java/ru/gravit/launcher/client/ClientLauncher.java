@@ -5,6 +5,7 @@ import ru.gravit.launcher.guard.LauncherGuardManager;
 import ru.gravit.launcher.gui.JSRuntimeProvider;
 import ru.gravit.launcher.hasher.FileNameMatcher;
 import ru.gravit.launcher.hasher.HashedDir;
+import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.managers.ClientGsonManager;
 import ru.gravit.launcher.profiles.ClientProfile;
 import ru.gravit.launcher.profiles.PlayerProfile;
@@ -21,6 +22,7 @@ import ru.gravit.utils.helper.*;
 import ru.gravit.utils.helper.JVMHelper.OS;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.invoke.MethodHandle;
@@ -36,6 +38,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ClientLauncher {
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
@@ -542,16 +545,18 @@ public final class ClientLauncher {
         HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);
         HashedDir.Diff diff = hdir.diff(currentHDir, matcher);
         if (!diff.isSame()) {
-            /*AtomicBoolean isFoundFile = new AtomicBoolean(false);
+            AtomicBoolean isFoundFile = new AtomicBoolean(false);
             diff.extra.walk(File.separator, (e,k,v) -> {
                 if(v.getType().equals(HashedEntry.Type.FILE)) { LogHelper.error("Extra file %s", e); isFoundFile.set(true); }
-                else LogHelper.error("Extra %s", e);
+                //else LogHelper.error("Extra %s", e);
+                return HashedDir.WalkAction.CONTINUE;
             });
-            diff.mismatch.walk(File.separator, (e,k,v) -> {
+            diff.mismatch.walk(File.separator, (e, k, v) -> {
                 if(v.getType().equals(HashedEntry.Type.FILE)) { LogHelper.error("Mismatch file %s", e); isFoundFile.set(true); }
-                else LogHelper.error("Mismatch %s", e);
+                //else LogHelper.error("Mismatch %s", e);
+                return HashedDir.WalkAction.CONTINUE;
             });
-            if(isFoundFile.get())*/
+            if(isFoundFile.get())
             throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
         }
     }
