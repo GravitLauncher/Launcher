@@ -63,7 +63,7 @@ public class ListDownloader {
         }
     }
     public void downloadZip(String base, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException, URISyntaxException {
-        try (CloseableHttpClient httpclient = HttpClients.custom()
+        /*try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
             HttpGet get;
@@ -71,6 +71,17 @@ public class ListDownloader {
             LogHelper.debug("Download ZIP URL: %s", u.toString());
             get = new HttpGet(u);
             httpclient.execute(get, new FileDownloadResponseHandler(dstDirFile, callback, totalCallback, true));
+        }*/
+        try (ZipInputStream input = IOHelper.newZipInput(new URL(base))) {
+            for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
+                if (entry.isDirectory())
+                    continue; // Skip directories
+                // Unpack entry
+                String name = entry.getName();
+                LogHelper.subInfo("Downloading file: '%s'", name);
+                Path fileName = IOHelper.toPath(name);
+                transfer(input, dstDirFile.resolve(fileName), fileName.toString(), entry.getSize(), callback, totalCallback);
+            }
         }
     }
 
