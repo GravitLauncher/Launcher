@@ -82,7 +82,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                         LogHelper.debug("Copy file %s to %s", ret.toAbsolutePath().toString(), source.toAbsolutePath().toString());
                         //Let's go!
                         Files.copy(ret, source);
-                        removed.add(IOHelper.toPath(path).toString());
+                        removed.add(path.replace('\\', '/'));
                     }
                 }
                 return HashedDir.WalkAction.CONTINUE;
