@@ -26,8 +26,7 @@ public class SetProfileResponse extends SimpleResponse {
         }
         try {
             server.authHookManager.setProfileHook.hook(this, client);
-        } catch (HookException e)
-        {
+        } catch (HookException e) {
             sendError(e.getMessage());
         }
         Collection<ClientProfile> profiles = LaunchServer.server.getProfiles();

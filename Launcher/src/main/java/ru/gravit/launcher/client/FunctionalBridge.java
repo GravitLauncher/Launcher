@@ -29,7 +29,7 @@ public class FunctionalBridge {
     public static AtomicReference<HWID> hwid = new AtomicReference<>();
     @LauncherAPI
     public static Thread getHWID = null;
-    
+
     private static long cachedMemorySize = -1;
 
     @LauncherAPI
@@ -57,8 +57,8 @@ public class FunctionalBridge {
 
     @LauncherAPI
     public static int getTotalMemory() {
-    	if (cachedMemorySize > 0) return (int)cachedMemorySize;
-    	return (int)(cachedMemorySize = hwidProvider.getTotalMemory() >> 20);
+        if (cachedMemorySize > 0) return (int) cachedMemorySize;
+        return (int) (cachedMemorySize = hwidProvider.getTotalMemory() >> 20);
     }
 
     @LauncherAPI
@@ -79,21 +79,20 @@ public class FunctionalBridge {
     public static HasherStore getDefaultHasherStore() {
         return HasherManager.getDefaultStore();
     }
+
     @LauncherAPI
-    public static void registerUserSettings(String typename, Class<? extends UserSettings> clazz)
-    {
+    public static void registerUserSettings(String typename, Class<? extends UserSettings> clazz) {
         UserSettings.providers.register(typename, clazz);
     }
+
     @LauncherAPI
-    public static void close() throws Exception
-    {
+    public static void close() throws Exception {
         threadPool.awaitTermination(2, TimeUnit.SECONDS);
     }
 
     @LauncherAPI
     public static void setAuthParams(AuthRequestEvent event) {
-        if(event.session != 0)
-        {
+        if (event.session != 0) {
             Request.setSession(event.session);
         }
         LauncherGuardManager.guard.setProtectToken(event.protectToken);
@@ -105,13 +104,12 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public static void evalCommand(String cmd)
-    {
+    public static void evalCommand(String cmd) {
         ConsoleManager.handler.eval(cmd, false);
     }
+
     @LauncherAPI
-    public static void addPlainOutput(LogHelper.Output output)
-    {
+    public static void addPlainOutput(LogHelper.Output output) {
         LogHelper.addOutput(output, LogHelper.OutputTypes.PLAIN);
     }
 }

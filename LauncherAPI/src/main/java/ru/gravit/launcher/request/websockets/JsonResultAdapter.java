@@ -18,8 +18,7 @@ public class JsonResultAdapter implements JsonSerializer<ResultInterface>, JsonD
     public ResultInterface deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends ResultInterface> cls = service.getResultClass(typename);
-        if(cls == null)
-        {
+        if (cls == null) {
             LogHelper.error("Result type %s not found", typename);
         }
 

@@ -81,6 +81,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements Requ
         this.customText = "";
         this.getSession = false;
     }
+
     public AuthRequest(String login, String password, String auth_id, ConnectTypes authType) {
         this.login = login;
         this.password = password;

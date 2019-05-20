@@ -1,11 +1,11 @@
 dependencies {
-	testCompile 'org.junit.jupiter:junit-jupiter:5.4.1'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.4.1'
 }
 
 test {
-	useJUnitPlatform()
-	testLogging {
-		events "passed", "skipped", "failed"
-	}
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 

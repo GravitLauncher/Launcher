@@ -175,13 +175,11 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         HashedDir.Diff diff = e.hdir.diff(localDir, matcher);
         final List<ListDownloader.DownloadTask> adds = new ArrayList<>();
         diff.mismatch.walk(IOHelper.CROSS_SEPARATOR, (path, name, entry) -> {
-            if(entry.getType().equals(HashedEntry.Type.FILE)) {
+            if (entry.getType().equals(HashedEntry.Type.FILE)) {
                 HashedFile file = (HashedFile) entry;
                 totalSize += file.size;
                 adds.add(new ListDownloader.DownloadTask(path, file.size));
-            }
-            else if(entry.getType().equals(HashedEntry.Type.DIR))
-            {
+            } else if (entry.getType().equals(HashedEntry.Type.DIR)) {
                 try {
                     Files.createDirectories(dir.resolve(path));
                 } catch (IOException ex) {
@@ -193,9 +191,14 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         startTime = Instant.now();
         updateState("UnknownFile", 0L, 100);
         ListDownloader listDownloader = new ListDownloader();
-        listDownloader.download(e.url, adds, dir, this::updateState, (add) -> {
-            totalDownloaded += add;
-        });
+        if(e.zip && !adds.isEmpty())
+        {
+            listDownloader.downloadZip(e.url, dir, this::updateState, (add) -> totalDownloaded += add);
+        }
+        else
+        {
+            listDownloader.download(e.url, adds, dir, this::updateState, (add) -> totalDownloaded += add);
+        }
         deleteExtraDir(dir, diff.extra, diff.extra.flag);
         LogHelper.debug("Update success");
         return e;

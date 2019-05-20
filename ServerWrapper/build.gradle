@@ -4,8 +4,8 @@ String mainClassName = "ru.gravit.launcher.server.ServerWrapper"
 String mainAgentName = "ru.gravit.launcher.server.ServerAgent"
 
 configurations {
-	pack
-	compile.extendsFrom pack
+    pack
+    compile.extendsFrom pack
 }
 
 repositories {
@@ -18,7 +18,7 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 jar {
-	classifier = 'clean'
+    classifier = 'clean'
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
             "Can-Redefine-Classes": "true",
@@ -28,17 +28,17 @@ jar {
 
 dependencies {
     pack project(':LauncherAuthlib')
-	pack 'org.apache.httpcomponents:httpclient:4.5.7'
-	pack 'io.netty:netty-all:4.1.36.Final'
+    pack 'org.apache.httpcomponents:httpclient:4.5.7'
+    pack 'io.netty:netty-all:4.1.36.Final'
 }
 
 shadowJar {
-	classifier = null
-	relocate 'io.netty', 'ru.gravit.repackage.io.netty'
-	configurations = [project.configurations.pack]
-	exclude 'module-info.class'
- }
- 
+    classifier = null
+    relocate 'io.netty', 'ru.gravit.repackage.io.netty'
+    configurations = [project.configurations.pack]
+    exclude 'module-info.class'
+}
 
- build.dependsOn tasks.shadowJar
+
+build.dependsOn tasks.shadowJar
  

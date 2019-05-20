@@ -6,6 +6,7 @@ import ru.gravit.utils.helper.LogHelper;
 
 public final class ClearCommand extends Command {
     private CommandHandler handler;
+
     public ClearCommand(CommandHandler handler) {
         this.handler = handler;
     }

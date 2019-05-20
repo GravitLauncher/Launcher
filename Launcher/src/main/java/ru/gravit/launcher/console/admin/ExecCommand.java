@@ -19,6 +19,6 @@ public class ExecCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         ExecCommandRequestEvent request = new ExecCommandRequest(String.join(" ", args)).request();
-        if(!request.success) LogHelper.error("Error executing command");
+        if (!request.success) LogHelper.error("Error executing command");
     }
 }

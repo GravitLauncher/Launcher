@@ -53,8 +53,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
             try {
                 ListDownloader downloader = new ListDownloader();
                 downloader.downloadOne(result.url, BINARY_PATH);
-            } catch(Throwable e)
-            {
+            } catch (Throwable e) {
                 LogHelper.error(e);
             }
         }

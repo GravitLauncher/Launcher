@@ -8,6 +8,7 @@ public class ExecCommandRequestEvent extends RequestEvent {
     public String getType() {
         return "cmdExec";
     }
+
     @LauncherNetworkAPI
     public boolean success;
 

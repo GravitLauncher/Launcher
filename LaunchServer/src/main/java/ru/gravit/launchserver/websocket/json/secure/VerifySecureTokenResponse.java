@@ -17,7 +17,7 @@ public class VerifySecureTokenResponse extends SimpleResponse {
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
         boolean success = LaunchServer.server.config.protectHandler.verifyClientSecureToken(secureToken, client.verifyToken);
-        if(success) client.isSecure = true;
+        if (success) client.isSecure = true;
         sendResult(new VerifySecureTokenRequestEvent(success));
     }
 }

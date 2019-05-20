@@ -62,7 +62,7 @@ public final class HTTPRequest {
         try {
             return parser.parse(reader);
         } catch (Exception e) {
-            if(200 > statusCode || statusCode > 300) {
+            if (200 > statusCode || statusCode > 300) {
                 LogHelper.error("JsonRequest failed. Server response code %d", statusCode);
                 throw new IOException(e);
             }

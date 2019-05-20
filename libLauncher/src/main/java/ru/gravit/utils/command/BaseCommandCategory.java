@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BaseCommandCategory implements CommandCategory {
     private final Map<String, Command> commands = new ConcurrentHashMap<>(32);
+
     @Override
     public void registerCommand(String name, Command command) {
         VerifyHelper.verifyIDName(name);

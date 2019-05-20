@@ -40,8 +40,8 @@ public class RadonBuildTask implements LauncherBuildTask {
             SessionInfo info = p.createSessionFromConfig();
             info.setInput(inputFile.toFile());
             info.setOutput(outputFile.toFile());
-            List<File> libs = srv.launcherBinary.coreLibs.stream().map(e -> e.toFile()).collect(Collectors.toList());
-            libs.addAll(srv.launcherBinary.addonLibs.stream().map(e -> e.toFile()).collect(Collectors.toList()));
+            List<File> libs = srv.launcherBinary.coreLibs.stream().map(Path::toFile).collect(Collectors.toList());
+            libs.addAll(srv.launcherBinary.addonLibs.stream().map(Path::toFile).collect(Collectors.toList()));
             info.setLibraries(libs);
             Radon r = new Radon(info);
             r.run();

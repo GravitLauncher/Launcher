@@ -11,8 +11,7 @@ import ru.gravit.utils.Version;
  * Поэтому rawAnsiFormat вынесен в отдельный Helper
  */
 public class FormatHelper {
-    public static Ansi rawAnsiFormat(LogHelper.Level level, String dateTime, boolean sub)
-    {
+    public static Ansi rawAnsiFormat(LogHelper.Level level, String dateTime, boolean sub) {
         Ansi.Color levelColor;
         boolean bright = level != LogHelper.Level.DEBUG;
         switch (level) {
@@ -73,8 +72,7 @@ public class FormatHelper {
                 reset().toString(); // To file
     }
 
-    public static String rawFormat(LogHelper.Level level, String dateTime, boolean sub)
-    {
+    public static String rawFormat(LogHelper.Level level, String dateTime, boolean sub) {
         return dateTime + " [" + level.name + (sub ? "]  " : "] ");
     }
 

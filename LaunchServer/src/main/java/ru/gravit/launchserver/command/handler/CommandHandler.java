@@ -38,7 +38,7 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         basic.registerCommand("loadModule", new LoadModuleCommand(server));
         basic.registerCommand("modules", new ModulesCommand(server));
         basic.registerCommand("test", new TestCommand(server));
-        Category basicCategory = new Category(basic,"basic", "Base LaunchServer commands");
+        Category basicCategory = new Category(basic, "basic", "Base LaunchServer commands");
         handler.registerCategory(basicCategory);
 
         // Register sync commands
@@ -50,7 +50,7 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         updates.registerCommand("syncBinaries", new SyncBinariesCommand(server));
         updates.registerCommand("syncUpdates", new SyncUpdatesCommand(server));
         updates.registerCommand("syncProfiles", new SyncProfilesCommand(server));
-        Category updatesCategory = new Category(updates,"updates", "Update and Sync Management");
+        Category updatesCategory = new Category(updates, "updates", "Update and Sync Management");
         handler.registerCategory(updatesCategory);
 
         // Register auth commands
@@ -61,14 +61,14 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         auth.registerCommand("ban", new BanCommand(server));
         auth.registerCommand("unban", new UnbanCommand(server));
         auth.registerCommand("getHWID", new GetHWIDCommand(server));
-        Category authCategory = new Category(auth,"auth", "User Management");
+        Category authCategory = new Category(auth, "auth", "User Management");
         handler.registerCategory(authCategory);
 
         //Register dump commands
         BaseCommandCategory dump = new BaseCommandCategory();
         dump.registerCommand("dumpSessions", new DumpSessionsCommand(server));
         dump.registerCommand("dumpEntryCache", new DumpEntryCacheCommand(server));
-        Category dumpCategory = new Category(dump,"dump", "Dump runtime data");
+        Category dumpCategory = new Category(dump, "dump", "Dump runtime data");
         handler.registerCategory(dumpCategory);
 
         //Register service commands
@@ -86,7 +86,7 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         service.registerCommand("component", new ComponentCommand(server));
         service.registerCommand("givePermission", new GivePermissionsCommand(server));
         service.registerCommand("getPermissions", new GetPermissionsCommand(server));
-        Category serviceCategory = new Category(service,"service", "Managing LaunchServer Components");
+        Category serviceCategory = new Category(service, "service", "Managing LaunchServer Components");
         handler.registerCategory(serviceCategory);
     }
 }

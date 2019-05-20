@@ -35,8 +35,7 @@ public class ServerStatusCommand extends Command {
         LogHelper.info("Uptime: %d days %d hours %d minutes %d seconds", days, hour, min, second);
         LogHelper.info("Uptime (double): %f", (double) JVMHelper.RUNTIME_MXBEAN.getUptime() / 1000);
         int commands = server.commandHandler.getBaseCategory().commandsMap().size();
-        for(CommandHandler.Category category : server.commandHandler.getCategories())
-        {
+        for (CommandHandler.Category category : server.commandHandler.getCategories()) {
             commands += category.category.commandsMap().size();
         }
         LogHelper.info("Sessions: %d | Modules: %d | Commands: %d(%d categories)", server.sessionManager.getSessions().size(), server.modulesManager.modules.size(), commands, server.commandHandler.getCategories().size() + 1);

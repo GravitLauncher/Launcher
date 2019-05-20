@@ -70,7 +70,7 @@ public final class LogHelper {
 
     @LauncherAPI
     public static void addExcCallback(Consumer<Throwable> output) {
-    	EXCEPTIONS_CALLBACKS.add(Objects.requireNonNull(output, "output"));
+        EXCEPTIONS_CALLBACKS.add(Objects.requireNonNull(output, "output"));
     }
 
     @LauncherAPI
@@ -118,7 +118,7 @@ public final class LogHelper {
 
     @LauncherAPI
     public static void error(Throwable exc) {
-    	EXCEPTIONS_CALLBACKS.forEach(e -> e.accept(exc));
+        EXCEPTIONS_CALLBACKS.forEach(e -> e.accept(exc));
         error(isStacktraceEnabled() ? toString(exc) : exc.toString());
     }
 
@@ -172,8 +172,7 @@ public final class LogHelper {
         DEV_ENABLED.set(stacktraceEnabled);
     }
 
-    public static String getDataTime()
-    {
+    public static String getDataTime() {
         return DATE_TIME_FORMATTER.format(LocalDateTime.now());
     }
 
@@ -209,14 +208,14 @@ public final class LogHelper {
             }
         }
     }
+
     @LauncherAPI
-    public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr)
-    {
+    public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr) {
         rawLog(plainStr, jansiStr, null);
     }
+
     @LauncherAPI
-    public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr, Supplier<String> htmlStr)
-    {
+    public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr, Supplier<String> htmlStr) {
         String jansiString = null, plainString = null, htmlString = null;
         for (OutputEnity output : OUTPUTS) {
             if (output.type == OutputTypes.JANSI && JANSI) {
@@ -368,8 +367,7 @@ public final class LogHelper {
         return ansi.reset().toString();
     }
 
-    public static String htmlFormatLog(Level level, String dateTime, String message, boolean sub)
-    {
+    public static String htmlFormatLog(Level level, String dateTime, String message, boolean sub) {
         String levelColor;
         switch (level) {
             case WARNING:
@@ -391,7 +389,7 @@ public final class LogHelper {
                 levelColor = "gravitlauncher-log-unknown";
                 break;
         }
-        if(sub) levelColor += " gravitlauncher-log-sub";
+        if (sub) levelColor += " gravitlauncher-log-sub";
         return String.format("%s <span class=\"gravitlauncher-log %s\">[%s] %s</span>", dateTime, levelColor, level.toString(), sub ? ' ' + message : message);
     }
 

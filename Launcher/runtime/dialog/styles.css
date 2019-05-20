@@ -3,6 +3,7 @@ Button, CheckBox, ComboBox, RadioButton {
 	-fx-cursor: hand;
 }
 
+
 /* Backgrounds */
 #layout {
     -fx-background-color: transparent;

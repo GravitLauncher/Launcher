@@ -18,8 +18,8 @@ public class ProviderMap<R> {
     public ProviderMap() {
         this.name = "Unnamed";
     }
-    public String getName()
-    {
+
+    public String getName() {
         return name;
     }
 
@@ -39,8 +39,8 @@ public class ProviderMap<R> {
         }
         return null;
     }
-    public Class<? extends R> unregister(String name)
-    {
+
+    public Class<? extends R> unregister(String name) {
         return PROVIDERS.remove(name);
     }
 }

@@ -11,24 +11,24 @@ public class JsonAuthHandler extends CachedAuthHandler {
     public URL getUrl;
     public URL updateAuthUrl;
     public URL updateServerIdUrl;
-    public class EntryRequestByUsername
-    {
+
+    public class EntryRequestByUsername {
         public String username;
 
         public EntryRequestByUsername(String username) {
             this.username = username;
         }
     }
-    public class EntryRequestByUUID
-    {
+
+    public class EntryRequestByUUID {
         public UUID uuid;
 
         public EntryRequestByUUID(UUID uuid) {
             this.uuid = uuid;
         }
     }
-    public class UpdateAuthRequest
-    {
+
+    public class UpdateAuthRequest {
         public UUID uuid;
         public String username;
         public String accessToken;
@@ -39,8 +39,8 @@ public class JsonAuthHandler extends CachedAuthHandler {
             this.accessToken = accessToken;
         }
     }
-    public class UpdateServerIDRequest
-    {
+
+    public class UpdateServerIDRequest {
         public UUID uuid;
         public String serverID;
 
@@ -49,10 +49,11 @@ public class JsonAuthHandler extends CachedAuthHandler {
             this.serverID = serverID;
         }
     }
-    public class SuccessResponse
-    {
+
+    public class SuccessResponse {
         public boolean success;
     }
+
     @Override
     protected Entry fetchEntry(String username) throws IOException {
         return Launcher.gsonManager.configGson.fromJson(HTTPRequest.jsonRequest(Launcher.gsonManager.configGson.toJsonTree(new EntryRequestByUsername(username)), getUrl), Entry.class);

@@ -68,19 +68,19 @@ public class DirBridge {
     public static Path getLauncherDir(String projectname) throws IOException {
         return getAppDataDir().resolve(projectname);
     }
+
     @LauncherAPI
-    public static Path getStoreDir(String projectname) throws IOException
-    {
-        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
+    public static Path getStoreDir(String projectname) throws IOException {
+        if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
             return getAppDataDir().resolve("store");
-        else if(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
+        else if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
             return getAppDataDir().resolve("GravitLauncherStore");
         else
             return getAppDataDir().resolve("minecraftStore");
     }
+
     @LauncherAPI
-    public static Path getProjectStoreDir(String projectname) throws IOException
-    {
+    public static Path getProjectStoreDir(String projectname) throws IOException {
         return getStoreDir(projectname).resolve(projectname);
     }
 

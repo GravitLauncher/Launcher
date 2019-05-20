@@ -83,7 +83,7 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
     }
 
     public long getTotalMemory() {
-        if (noHWID) return 1024<<20;
+        if (noHWID) return 1024 << 20;
         if (hardware == null) hardware = systemInfo.getHardware();
         return hardware.getMemory().getTotal();
     }
