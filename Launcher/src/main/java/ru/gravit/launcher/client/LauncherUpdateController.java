@@ -92,7 +92,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
     }
     public Path tryFind(NewLauncherSettings.HashedStoreEntry en, HashedFile file) throws IOException
     {
-        AtomicReference<Path> ret = null;
+        AtomicReference<Path> ret = new AtomicReference<>(null);
         en.hdir.walk(File.separator, (path, name, entry) -> {
             if(entry.getType() == HashedEntry.Type.DIR) return HashedDir.WalkAction.CONTINUE;
             HashedFile tfile = (HashedFile) entry;
