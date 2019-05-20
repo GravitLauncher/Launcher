@@ -76,7 +76,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                 {
                     //Еще раз проверим корректность хеша
                     //Возможно эта проверка избыточна
-                    if(file.isSame(ret, true))
+                    //if(file.isSame(ret, true))
                     {
                         Path source = request.getDir().resolve(path);
                         LogHelper.debug("Copy file %s to %s", ret.toAbsolutePath().toString(), source.toAbsolutePath().toString());
@@ -101,12 +101,12 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
             HashedFile tfile = (HashedFile) entry;
             if(tfile.isSame(file))
             {
-                LogHelper.debug("[DIR:%s] Found file %s in %s", en.name, name, path);
+                LogHelper.dev("[DIR:%s] Found file %s in %s", en.name, name, path);
                 Path tdir = Paths.get(en.fullPath).resolve(path);
                 try {
                     if(tfile.isSame(tdir, true))
                     {
-                        LogHelper.debug("[DIR:%s] Confirmed file %s in %s", en.name, name, path);
+                        LogHelper.dev("[DIR:%s] Confirmed file %s in %s", en.name, name, path);
                         ret.set(tdir);
                         return HashedDir.WalkAction.STOP;
                     }
