@@ -204,7 +204,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
                     LogHelper.error(ex);
                 }
             }
-            return false;
+            return HashedDir.WalkAction.CONTINUE;
         });
         totalSize = diff.mismatch.size();
         startTime = Instant.now();

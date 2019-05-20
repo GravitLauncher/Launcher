@@ -40,7 +40,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
             AtomicReference<NewLauncherSettings.HashedStoreEntry> lastEn = null;
             ArrayList<String> removed = new ArrayList<>();
             diff.mismatch.walk(File.separator, (path, name, entry) -> {
-                if(entry.getType() == HashedEntry.Type.DIR) return false;
+                if(entry.getType() == HashedEntry.Type.DIR) return HashedDir.WalkAction.CONTINUE;
                 HashedFile file = (HashedFile) entry;
                 //Первый экспериментальный способ - честно обходим все возможные Store
                 Path ret = null;
@@ -82,7 +82,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                         removed.add(path.concat(File.separator).concat(name));
                     }
                 }
-                return false;
+                return HashedDir.WalkAction.CONTINUE;
             });
             for(String rem : removed)
             {
@@ -94,7 +94,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
     {
         AtomicReference<Path> ret = null;
         en.hdir.walk(File.separator, (path, name, entry) -> {
-            if(entry.getType() == HashedEntry.Type.DIR) return false;
+            if(entry.getType() == HashedEntry.Type.DIR) return HashedDir.WalkAction.CONTINUE;
             HashedFile tfile = (HashedFile) entry;
             if(tfile.isSame(file))
             {
@@ -105,14 +105,14 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                     {
                         LogHelper.debug("[DIR:%s] Confirmed file %s in %s", en.name, name, path);
                         ret.set(tdir);
-                        return true;
+                        return HashedDir.WalkAction.STOP;
                     }
                 } catch (IOException e)
                 {
                     LogHelper.error("Check file error %s", e.getMessage());
                 }
             }
-            return false;
+            return HashedDir.WalkAction.CONTINUE;
         });
         return ret.get();
     }
