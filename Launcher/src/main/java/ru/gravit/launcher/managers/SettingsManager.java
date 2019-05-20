@@ -8,6 +8,7 @@ import ru.gravit.launcher.hasher.HashedDir;
 import ru.gravit.launcher.serialize.HInput;
 import ru.gravit.launcher.serialize.HOutput;
 import ru.gravit.utils.helper.IOHelper;
+import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -24,6 +25,9 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
                 String fullPath = input.readString(1024);
                 HashedDir dir = new HashedDir(input);
                 settings.lastHDirs.add(new NewLauncherSettings.HashedStoreEntry(dir, dirName, fullPath));
+            } catch (IOException e)
+            {
+                LogHelper.error("Skip file %s exception: %s", file.toAbsolutePath().toString(), e.getMessage());
             }
             return super.visitFile(file, attrs);
         }
