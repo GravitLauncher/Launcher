@@ -13,6 +13,7 @@ import ru.gravit.utils.helper.LogHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -82,6 +83,10 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                         LogHelper.debug("Copy file %s to %s", ret.toAbsolutePath().toString(), source.toAbsolutePath().toString());
                         //Let's go!
                         Files.copy(ret, source);
+                        try(InputStream input = IOHelper.newInput(ret))
+                        {
+                            IOHelper.transfer(input, source);
+                        }
                         removed.add(path.replace('\\', '/'));
                     }
                 }
