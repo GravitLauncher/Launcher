@@ -194,9 +194,12 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         if(controller != null) controller.preDownload(this, e, adds);
         diff.mismatch.walk(IOHelper.CROSS_SEPARATOR, (path, name, entry) -> {
             if (entry.getType().equals(HashedEntry.Type.FILE)) {
-                HashedFile file = (HashedFile) entry;
-                totalSize += file.size;
-                adds.add(new ListDownloader.DownloadTask(path, file.size));
+                if(!entry.flag)
+                {
+                    HashedFile file = (HashedFile) entry;
+                    totalSize += file.size;
+                    adds.add(new ListDownloader.DownloadTask(path, file.size));
+                }
             } else if (entry.getType().equals(HashedEntry.Type.DIR)) {
                 try {
                     Files.createDirectories(dir.resolve(path));

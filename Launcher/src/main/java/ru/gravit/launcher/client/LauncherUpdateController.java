@@ -87,15 +87,12 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                         {
                             IOHelper.transfer(input, source);
                         }
-                        removed.add(path.replace('\\', '/'));
+                        entry.flag = true;
+                        //removed.add(path.replace('\\', '/'));
                     }
                 }
                 return HashedDir.WalkAction.CONTINUE;
             });
-            for(String rem : removed)
-            {
-                diff.mismatch.removeR(rem);
-            }
         }
     }
     public Path tryFind(NewLauncherSettings.HashedStoreEntry en, HashedFile file) throws IOException
