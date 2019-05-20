@@ -37,7 +37,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
         if(SettingsManager.settings.featureStore)
         {
             LogHelper.info("Enabled HStore feature. Find");
-            AtomicReference<NewLauncherSettings.HashedStoreEntry> lastEn = null;
+            AtomicReference<NewLauncherSettings.HashedStoreEntry> lastEn = new AtomicReference<>(null);
             ArrayList<String> removed = new ArrayList<>();
             diff.mismatch.walk(File.separator, (path, name, entry) -> {
                 if(entry.getType() == HashedEntry.Type.DIR) return HashedDir.WalkAction.CONTINUE;
