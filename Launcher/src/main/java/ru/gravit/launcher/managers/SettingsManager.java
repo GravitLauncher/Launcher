@@ -69,6 +69,7 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
     public void saveHDirStore(Path storeProjectPath) throws IOException {
         Files.createDirectories(storeProjectPath);
         for (NewLauncherSettings.HashedStoreEntry e : settings.lastHDirs) {
+            if(!e.needSave) continue;
             Path file = storeProjectPath.resolve(e.name.concat(".bin"));
             if (!Files.exists(file)) Files.createFile(file);
             try (HOutput output = new HOutput(IOHelper.newOutput(file))) {
