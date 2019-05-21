@@ -27,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
 public class ConsoleManager {
     public static CommandHandler handler;
     public static Thread thread;
+    public static boolean isConsoleUnlock = false;
 
     public static void initConsole() throws IOException {
         CommandHandler localCommandHandler;
@@ -69,5 +70,6 @@ public class ConsoleManager {
         store.registerCommand("copyStoreDir", new CopyStoreDirCommand());
         store.registerCommand("linkStoreDir", new LinkStoreDirCommand());
         handler.registerCategory(new CommandHandler.Category(admin, "store", "Store admin commands"));
+        isConsoleUnlock = true;
     }
 }

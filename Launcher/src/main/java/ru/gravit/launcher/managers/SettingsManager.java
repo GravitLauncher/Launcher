@@ -61,6 +61,14 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         settings = config;
         if (settings.updatesDirPath != null)
             settings.updatesDir = Paths.get(settings.updatesDirPath);
+        if(settings.consoleUnlockKey != null && !ConsoleManager.isConsoleUnlock)
+        {
+            if(ConsoleManager.checkUnlockKey(settings.consoleUnlockKey))
+            {
+                ConsoleManager.unlock();
+                LogHelper.info("Console auto unlocked");
+            }
+        }
     }
 
     @LauncherAPI

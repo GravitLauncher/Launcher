@@ -39,6 +39,8 @@ public class NewLauncherSettings {
     public Map<String, UserSettings> userSettings = new HashMap<>();
     @LauncherAPI
     public boolean featureStore;
+    @LauncherAPI
+    public String consoleUnlockKey;
 
     public static class HashedStoreEntry {
         @LauncherAPI
