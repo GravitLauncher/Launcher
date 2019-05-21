@@ -5,6 +5,7 @@ import ru.gravit.utils.helper.SecurityHelper;
 
 public class LaunchServerRuntimeConfig {
     public String clientToken;
+    public String oemUnlockKey;
 
     public void verify() {
         if (clientToken == null) LogHelper.error("[RuntimeConfig] clientToken must not be null");

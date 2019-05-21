@@ -8,6 +8,7 @@ public class AutogenConfig {
     private boolean isInitModules;
     public String guardType;
     public String secretKeyClient;
+    public String oemUnlockKey;
     public String guardLicenseName;
     public String guardLicenseKey;
     public String guardLicenseEncryptKey;

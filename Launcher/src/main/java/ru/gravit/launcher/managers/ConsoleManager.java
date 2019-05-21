@@ -1,5 +1,6 @@
 package ru.gravit.launcher.managers;
 
+import ru.gravit.launcher.Launcher;
 import ru.gravit.launcher.console.FeatureCommand;
 import ru.gravit.launcher.console.UnlockCommand;
 import ru.gravit.launcher.console.admin.ExecCommand;
@@ -19,6 +20,9 @@ import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class ConsoleManager {
     public static CommandHandler handler;
@@ -50,7 +54,7 @@ public class ConsoleManager {
     }
 
     public static boolean checkUnlockKey(String key) {
-        return true;
+        return key.equals(Launcher.getConfig().oemUnlockKey);
     }
 
     public static void unlock() {

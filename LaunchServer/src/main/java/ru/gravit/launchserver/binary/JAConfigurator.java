@@ -83,6 +83,12 @@ public class JAConfigurator implements AutoCloseable {
         body.append("\";");
     }
 
+    public void setOemUnlockKey(String key) {
+        body.append("this.oemUnlockKey = \"");
+        body.append(key);
+        body.append("\";");
+    }
+
     public void setGuardType(String key) {
         body.append("this.guardType = \"");
         body.append(key);
