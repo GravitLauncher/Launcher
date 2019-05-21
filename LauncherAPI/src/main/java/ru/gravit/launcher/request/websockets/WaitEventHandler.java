@@ -5,10 +5,12 @@ import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WaitEventHandler implements ClientWebSocketService.EventHandler {
-    public HashSet<ResultEvent> requests = new HashSet<>();
+    public Set<ResultEvent> requests = ConcurrentHashMap.newKeySet();
 
     @Override
     public void process(ResultInterface result) {
