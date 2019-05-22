@@ -1,8 +1,13 @@
 package ru.gravit.launcher.managers;
 
+import ru.gravit.launcher.Launcher;
+import ru.gravit.launcher.console.FeatureCommand;
 import ru.gravit.launcher.console.UnlockCommand;
 import ru.gravit.launcher.console.admin.ExecCommand;
 import ru.gravit.launcher.console.admin.LogListenerCommand;
+import ru.gravit.launcher.console.store.CopyStoreDirCommand;
+import ru.gravit.launcher.console.store.LinkStoreDirCommand;
+import ru.gravit.launcher.console.store.StoreListCommand;
 import ru.gravit.utils.command.BaseCommandCategory;
 import ru.gravit.utils.command.CommandHandler;
 import ru.gravit.utils.command.JLineCommandHandler;
@@ -15,10 +20,14 @@ import ru.gravit.utils.helper.CommonHelper;
 import ru.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class ConsoleManager {
     public static CommandHandler handler;
     public static Thread thread;
+    public static boolean isConsoleUnlock = false;
 
     public static void initConsole() throws IOException {
         CommandHandler localCommandHandler;
@@ -46,14 +55,21 @@ public class ConsoleManager {
     }
 
     public static boolean checkUnlockKey(String key) {
-        return true;
+        return key.equals(Launcher.getConfig().oemUnlockKey);
     }
 
     public static void unlock() {
         handler.registerCommand("debug", new DebugCommand());
+        handler.registerCommand("feature", new FeatureCommand());
         BaseCommandCategory admin = new BaseCommandCategory();
         admin.registerCommand("exec", new ExecCommand());
         admin.registerCommand("logListen", new LogListenerCommand());
         handler.registerCategory(new CommandHandler.Category(admin, "admin", "Server admin commands"));
+        BaseCommandCategory store = new BaseCommandCategory();
+        store.registerCommand("storeList", new StoreListCommand());
+        store.registerCommand("copyStoreDir", new CopyStoreDirCommand());
+        store.registerCommand("linkStoreDir", new LinkStoreDirCommand());
+        handler.registerCategory(new CommandHandler.Category(admin, "store", "Store admin commands"));
+        isConsoleUnlock = true;
     }
 }

@@ -75,6 +75,7 @@ public class JLineCommandHandler extends CommandHandler {
         try {
             return reader.readLine();
         } catch (UserInterruptException e) {
+            System.exit(0);
             return null;
         }
     }

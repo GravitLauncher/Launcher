@@ -27,6 +27,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
     private String hwidFieldHWDiskSerial;
     private String hwidFieldProcessorID;
     private String hwidFieldBanned;
+    private String hwidFieldMAC;
 
     private String queryHwids;
     private String[] paramsHwids;
@@ -37,7 +38,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
     private String banMessage;
 
     private boolean compareMode = false;
-    //Using queryHWID "queryHwids": "SELECT * FROM `users_hwids` WHERE `totalMemory` = ? or `serialNumber` = ? or `HWDiskSerial` = ? or `processorID` = ?"
+    //Using queryHWID "queryHwids": "SELECT * FROM `users_hwids` WHERE `totalMemory` = ? or `serialNumber` = ? or `HWDiskSerial` = ? or `processorID` = ? or `MACAddr` = ?"
     private int compare = 50; //При наборе схожести в 50 очков
     private boolean oneCompareMode = false;
 
@@ -51,6 +52,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
           `serialNumber` varchar(64) NOT NULL,
           `HWDiskSerial` varchar(64) NOT NULL,
           `processorID` varchar(64) NOT NULL,
+          `MACAddr` varchar(64) NOT NULL,
           `isBanned` tinyint(1) NOT NULL DEFAULT '0'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -90,7 +92,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
     public void onUpdateInfo(OshiHWID hwid, String username, Connection c) throws HWIDException {
         try (PreparedStatement a = c.prepareStatement(queryHwids)) {
 
-            String[] replaceParams = {"totalMemory", String.valueOf(hwid.totalMemory), "serialNumber", hwid.serialNumber, "HWDiskSerial", hwid.HWDiskSerial, "processorID", hwid.processorID};
+            String[] replaceParams = {"totalMemory", String.valueOf(hwid.totalMemory), "serialNumber", hwid.serialNumber, "HWDiskSerial", hwid.HWDiskSerial, "processorID", hwid.processorID, "MAC", hwid.macAddr};
             for (int i = 0; i < paramsHwids.length; i++) {
                 a.setString(i + 1, CommonHelper.replace(paramsHwids[i], replaceParams));
             }
@@ -113,12 +115,13 @@ public class MysqlHWIDHandler extends HWIDHandler {
                     throw new HWIDException(banMessage);
                 }
             } else {
-                ps = c.prepareStatement(String.format("INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`) VALUES (?, ?, ?, ?);",
-                        tableHwids, hwidFieldTotalMemory, hwidFieldSerialNumber, hwidFieldHWDiskSerial, hwidFieldProcessorID));
+                ps = c.prepareStatement(String.format("INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`) VALUES (?, ?, ?, ?, ?);",
+                        tableHwids, hwidFieldTotalMemory, hwidFieldSerialNumber, hwidFieldHWDiskSerial, hwidFieldProcessorID, hwidFieldMAC));
                 ps.setString(1, String.valueOf(hwid.totalMemory));
                 ps.setString(2, hwid.serialNumber);
                 ps.setString(3, hwid.HWDiskSerial);
                 ps.setString(4, hwid.processorID);
+                ps.setString(5, hwid.macAddr);
                 ps.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
                 ps.executeUpdate();
 
@@ -135,7 +138,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
 
     public void onCheckInfo(OshiHWID hwid, String username, Connection c) throws HWIDException {
         try (PreparedStatement a = c.prepareStatement(queryHwids)) {
-            String[] replaceParams = {"totalMemory", String.valueOf(hwid.totalMemory), "serialNumber", hwid.serialNumber, "HWDiskSerial", hwid.HWDiskSerial, "processorID", hwid.processorID};
+            String[] replaceParams = {"totalMemory", String.valueOf(hwid.totalMemory), "serialNumber", hwid.serialNumber, "HWDiskSerial", hwid.HWDiskSerial, "processorID", hwid.processorID, "MAC", hwid.macAddr};
             for (int i = 0; i < paramsHwids.length; i++) {
                 a.setString(i + 1, CommonHelper.replace(paramsHwids[i], replaceParams));
             }
@@ -149,7 +152,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
                     db_hwid.processorID = set.getString(hwidFieldProcessorID);
                     db_hwid.HWDiskSerial = set.getString(hwidFieldHWDiskSerial);
                     db_hwid.totalMemory = Long.valueOf(set.getString(hwidFieldTotalMemory));
-                    db_hwid.macAddr = "";
+                    db_hwid.macAddr = set.getString(hwidFieldMAC);
                     LogHelper.dev("Compare HWID: %s vs %s", hwid.getSerializeString(), db_hwid.getSerializeString());
                     int compare_point = hwid.compare(db_hwid);
                     if (compare_point < compare) continue;
@@ -177,7 +180,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
             OshiHWID oshiHWID = (OshiHWID) hwid;
             try (Connection c = mySQLHolder.getConnection()) {
                 try (PreparedStatement a = c.prepareStatement(queryBan)) {
-                    String[] replaceParamsUpd = {"totalMemory", String.valueOf(oshiHWID.totalMemory), "serialNumber", oshiHWID.serialNumber, "HWDiskSerial", oshiHWID.HWDiskSerial, "processorID", oshiHWID.processorID, "isBanned", isBanned ? "1" : "0"};
+                    String[] replaceParamsUpd = {"totalMemory", String.valueOf(oshiHWID.totalMemory), "serialNumber", oshiHWID.serialNumber, "HWDiskSerial", oshiHWID.HWDiskSerial, "processorID", oshiHWID.processorID, "MAC", oshiHWID.macAddr, "isBanned", isBanned ? "1" : "0"};
                     for (int i = 0; i < paramsBan.length; i++) {
                         a.setString(i + 1, CommonHelper.replace(paramsBan[i], replaceParamsUpd));
                     }
@@ -231,6 +234,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
                             oshiHWID.serialNumber = rs.getString(hwidFieldSerialNumber);
                             oshiHWID.HWDiskSerial = rs.getString(hwidFieldHWDiskSerial);
                             oshiHWID.processorID = rs.getString(hwidFieldProcessorID);
+                            oshiHWID.macAddr = rs.getString(hwidFieldMAC);
                             list.add(oshiHWID);
                         }
                     }

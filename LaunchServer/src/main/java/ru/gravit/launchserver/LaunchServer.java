@@ -263,9 +263,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String txtFileVersion;
         public String txtProductVersion;
     }
+    public static class NettyUpdatesBind
+    {
+        public String url;
+        public boolean zip;
+    }
 
     public class LauncherConf {
         public String guardType;
+        public boolean attachLibraryBeforeProGuard;
     }
 
     public class NettyConfig {
@@ -276,7 +282,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String downloadURL;
         public String launcherEXEURL;
         public String address;
-        public Map<String, String> bindings = new HashMap<>();
+        public Map<String, NettyUpdatesBind> bindings = new HashMap<>();
         public NettyPerformanceConfig performance;
         public NettyBindAddress[] binds;
         public LogLevel logLevel = LogLevel.DEBUG;

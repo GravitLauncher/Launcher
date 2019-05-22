@@ -113,7 +113,10 @@ public final class LogHelper {
 
     @LauncherAPI
     public static void dev(String format, Object... args) {
-        dev(String.format(format, args));
+        if(isDevEnabled())
+        {
+            dev(String.format(format, args));
+        }
     }
 
     @LauncherAPI

@@ -18,6 +18,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class ListDownloader {
     @FunctionalInterface
@@ -49,13 +51,36 @@ public class ListDownloader {
             for (DownloadTask apply : applies) {
                 URI u = new URL(base.concat(IOHelper.urlEncode(apply.apply).replace("%2F", "/"))).toURI();
                 callback.stateChanged(apply.apply, 0L, apply.size);
-                LogHelper.debug("Download URL: %s", u.toString());
+                Path targetPath = dstDirFile.resolve(apply.apply);
+                LogHelper.debug("Download URL: %s to file %s dir: %s", u.toString(), targetPath.toAbsolutePath().toString(), dstDirFile.toAbsolutePath().toString());
                 if (get == null) get = new HttpGet(u);
                 else {
                     get.reset();
                     get.setURI(u);
                 }
-                httpclient.execute(get, new FileDownloadResponseHandler(dstDirFile.resolve(apply.apply), apply, callback, totalCallback));
+                httpclient.execute(get, new FileDownloadResponseHandler(targetPath, apply, callback, totalCallback, false));
+            }
+        }
+    }
+    public void downloadZip(String base, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException, URISyntaxException {
+        /*try (CloseableHttpClient httpclient = HttpClients.custom()
+                .setRedirectStrategy(new LaxRedirectStrategy())
+                .build()) {
+            HttpGet get;
+            URI u = new URL(base).toURI();
+            LogHelper.debug("Download ZIP URL: %s", u.toString());
+            get = new HttpGet(u);
+            httpclient.execute(get, new FileDownloadResponseHandler(dstDirFile, callback, totalCallback, true));
+        }*/
+        try (ZipInputStream input = IOHelper.newZipInput(new URL(base))) {
+            for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
+                if (entry.isDirectory())
+                    continue; // Skip directories
+                // Unpack entry
+                String name = entry.getName();
+                LogHelper.subInfo("Downloading file: '%s'", name);
+                Path fileName = IOHelper.toPath(name);
+                transfer(input, dstDirFile.resolve(fileName), fileName.toString(), entry.getSize(), callback, totalCallback);
             }
         }
     }
@@ -78,24 +103,62 @@ public class ListDownloader {
         private final DownloadTask task;
         private final DownloadCallback callback;
         private final DownloadTotalCallback totalCallback;
+        private final boolean zip;
 
         public FileDownloadResponseHandler(Path target) {
             this.target = target;
             this.task = null;
+            this.zip = false;
             callback = null;
             totalCallback = null;
         }
 
-        public FileDownloadResponseHandler(Path target, DownloadTask task, DownloadCallback callback, DownloadTotalCallback totalCallback) {
+        public FileDownloadResponseHandler(Path target, DownloadTask task, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean zip) {
             this.target = target;
             this.task = task;
             this.callback = callback;
             this.totalCallback = totalCallback;
+            this.zip = zip;
+        }
+
+        public FileDownloadResponseHandler(Path target, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean zip) {
+            this.target = target;
+            this.task = null;
+            this.callback = callback;
+            this.totalCallback = totalCallback;
+            this.zip = zip;
         }
 
         @Override
         public Path handleResponse(HttpResponse response) throws IOException {
             InputStream source = response.getEntity().getContent();
+            if(zip)
+            {
+                try(ZipInputStream input = IOHelper.newZipInput(source))
+                {
+                    ZipEntry entry = input.getNextEntry();
+                    while(entry != null)
+                    {
+                        if(entry.isDirectory())
+                        {
+                            entry = input.getNextEntry();
+                            continue;
+                        }
+                        long size = entry.getSize();
+                        String filename = entry.getName();
+                        Path target = this.target.resolve(filename);
+                        if(callback != null)
+                        {
+                            callback.stateChanged(entry.getName(), 0, entry.getSize());
+                        }
+                        LogHelper.dev("Resolved filename %s to %s", filename, target.toAbsolutePath().toString());
+                        transfer(source, target, filename, size, callback, totalCallback);
+                        entry = input.getNextEntry();
+                    }
+
+                }
+                return null;
+            }
             if (callback != null && task != null) {
                 callback.stateChanged(task.apply, 0, task.size);
                 transfer(source, this.target, task.apply, task.size, callback, totalCallback);

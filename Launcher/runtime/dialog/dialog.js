@@ -5,7 +5,6 @@ var profilesList = [];
 var movePoint = null;
 var pingers = {};
 var loginData;
-// Variable which contains all types of auth. Appending data at line 255
 var authTypes = {};
 
 function initLauncher() {
@@ -195,7 +194,6 @@ function goAuth(event) {
         return;
     }
 
-    // Get auth
     var auth = authOptions.getSelectionModel().getSelectedItem();
     if (auth === null) {
         return; // No auth selected
@@ -220,7 +218,7 @@ function goAuth(event) {
      }
 
      settings.login = login;
-     doAuth(/*auth, */login, rsaPassword, authTypes[auth]);
+     doAuth(login, rsaPassword, authTypes[auth]);
  }
 
  /* ======== Console ======== */
@@ -259,17 +257,14 @@ function verifyLauncher(e) {
             result.list.forEach(function(auth_type, i, arr) {
                 var serverAuth = new com.jfoenix.controls.JFXComboBox();
                 serverAuth.getStyleClass().add("authOptions");
-                // add display name to items and add name with iter to variable authTypes
                 authOptions.getItems().add(auth_type.displayName);
                 authTypes[auth_type.displayName] = auth_type.name;
                 iter++;
             });
             authOptions.getSelectionModel().select(0);
             var sm = authOptions.getSelectionModel().selectedIndexProperty();
-            // add listener to authOptions select
             sm.addListener(new javafx.beans.value.ChangeListener({
                 changed: function (observableValue, oldSelection, newSelection) {
-                    // get auth name from authTypes
                     settings.auth = authTypes[authOptions.getSelectionModel().getSelectedItem()];
                 }
             }));
@@ -423,8 +418,8 @@ var overlay = {
 
         dimPane.setVisible(true);
         dimPane.toFront();
-        loginPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(55));
-        serverPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(55));
+        loginPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(10));
+        serverPaneLayout.setEffect(new javafx.scene.effect.GaussianBlur(10));
         fade(dimPane, 0.0, 0.0, 1.0, function(event) {
             dimPane.requestFocus();
             dimPane.getChildren().add(newOverlay);

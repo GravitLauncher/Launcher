@@ -338,31 +338,44 @@ public final class HashedDir extends HashedEntry {
         }
     }
 
-    public void walk(CharSequence separator, WalkCallback callback) {
+    public void walk(CharSequence separator, WalkCallback callback) throws IOException {
         String append = "";
         walk(append, separator, callback, true);
+    }
+    public enum WalkAction
+    {
+        STOP, CONTINUE
     }
 
     @FunctionalInterface
     public interface WalkCallback {
-        void walked(String path, String name, HashedEntry entry);
+        WalkAction walked(String path, String name, HashedEntry entry) throws IOException;
     }
 
-    private void walk(String append, CharSequence separator, WalkCallback callback, boolean noSeparator) {
+    private WalkAction walk(String append, CharSequence separator, WalkCallback callback, boolean noSeparator) throws IOException {
         for (Map.Entry<String, HashedEntry> entry : map.entrySet()) {
             HashedEntry e = entry.getValue();
             if (e.getType() == Type.FILE) {
                 if (noSeparator)
-                    callback.walked(append + entry.getKey(), entry.getKey(), e);
+                {
+                    WalkAction a = callback.walked(append + entry.getKey(), entry.getKey(), e);
+                    if(a == WalkAction.STOP) return a;
+                }
                 else
-                    callback.walked(append + separator + entry.getKey(), entry.getKey(), e);
+                {
+                    WalkAction a = callback.walked(append + separator + entry.getKey(), entry.getKey(), e);
+                    if(a == WalkAction.STOP) return a;
+                }
             } else {
                 String newAppend;
                 if (noSeparator) newAppend = append + entry.getKey();
                 else newAppend = append + separator + entry.getKey();
-                callback.walked(newAppend, entry.getKey(), e);
-                ((HashedDir) e).walk(newAppend, separator, callback, false);
+                WalkAction a = callback.walked(newAppend, entry.getKey(), e);
+                if(a == WalkAction.STOP) return a;
+                a = ((HashedDir) e).walk(newAppend, separator, callback, false);
+                if(a == WalkAction.STOP) return a;
             }
         }
+        return WalkAction.CONTINUE;
     }
 }

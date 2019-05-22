@@ -1,6 +1,7 @@
 package ru.gravit.launcher.console;
 
 import ru.gravit.launcher.managers.ConsoleManager;
+import ru.gravit.launcher.managers.SettingsManager;
 import ru.gravit.utils.command.Command;
 import ru.gravit.utils.helper.LogHelper;
 
@@ -22,6 +23,8 @@ public class UnlockCommand extends Command {
             LogHelper.info("Unlock successful");
             ConsoleManager.unlock();
             ConsoleManager.handler.unregisterCommand("unlock");
+            LogHelper.info("Write unlock key");
+            SettingsManager.settings.consoleUnlockKey = args[0];
         } else {
             LogHelper.error("Unlock key incorrect");
         }

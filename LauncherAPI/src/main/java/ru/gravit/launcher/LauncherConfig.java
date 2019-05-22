@@ -25,6 +25,7 @@ public final class LauncherConfig extends StreamObject {
     public final String projectname;
     public final int clientPort;
     public String secretKeyClient;
+    public String oemUnlockKey;
     @LauncherAPI
     public final RSAPublicKey publicKey;
 
@@ -45,6 +46,7 @@ public final class LauncherConfig extends StreamObject {
         projectname = config.projectname;
         clientPort = config.clientPort;
         secretKeyClient = config.secretKeyClient;
+        oemUnlockKey = config.oemUnlockKey;
 
         isWarningMissArchJava = config.isWarningMissArchJava;
         guardLicenseEncryptKey = config.guardLicenseEncryptKey;

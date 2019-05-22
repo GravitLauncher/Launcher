@@ -6,6 +6,8 @@ import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
 import ru.gravit.utils.helper.LogHelper;
 
+import java.util.concurrent.TimeUnit;
+
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
 
     private final WebSocketClientHandshaker handshaker;
@@ -30,6 +32,9 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         handshaker.handshake(ctx.channel());
         clientJSONPoint.onOpen();
+        ctx.executor().schedule(() -> {
+            ctx.channel().writeAndFlush(new PingWebSocketFrame());
+        }, 20L, TimeUnit.SECONDS);
     }
 
     @Override
