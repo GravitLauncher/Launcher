@@ -66,6 +66,10 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             LogHelper.dev("Message: %s", textFrame.text());
             // uncomment to print request
             // logger.info(textFrame.text());
+        } else if ((frame instanceof PingWebSocketFrame)) {
+            frame.content().retain();
+            ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
+            //return;
         } else if (frame instanceof PongWebSocketFrame) {
         } else if (frame instanceof CloseWebSocketFrame)
             ch.close();
