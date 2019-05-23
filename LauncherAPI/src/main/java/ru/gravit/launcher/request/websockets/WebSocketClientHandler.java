@@ -32,9 +32,9 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         handshaker.handshake(ctx.channel());
         clientJSONPoint.onOpen();
-        ctx.executor().schedule(() -> {
+        ctx.executor().scheduleWithFixedDelay(() -> {
             ctx.channel().writeAndFlush(new PingWebSocketFrame());
-        }, 20L, TimeUnit.SECONDS);
+        }, 20L, 20L, TimeUnit.SECONDS);
     }
 
     @Override
