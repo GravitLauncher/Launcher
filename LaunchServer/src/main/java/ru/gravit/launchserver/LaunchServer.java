@@ -82,6 +82,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public String binaryName;
 
+        public int OAuthAppID;
+
+        public String OAuthAppSecret;
+
         public boolean copyBinaries = true;
 
         public LauncherConfig.LauncherEnvironment env;
@@ -148,6 +152,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String getLegacyBindAddress() {
             return legacyBindAddress;
         }
+
+        public String getOAuthBackURL() { return netty.OAuthBackURL; }
 
         public void setProjectName(String projectName) {
             this.projectName = projectName;
@@ -281,6 +287,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String launcherURL;
         public String downloadURL;
         public String launcherEXEURL;
+        public String OAuthBackURL;
         public String address;
         public Map<String, NettyUpdatesBind> bindings = new HashMap<>();
         public NettyPerformanceConfig performance;
@@ -586,7 +593,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
 
-        // init modules
+        if(config.OAuthAppSecret == null){
+            LogHelper.warning("OAuthAppSecret is not defied");
+        }
+                // init modules
         modulesManager.initModules();
         if (config.components != null) {
             LogHelper.debug("Init components");
@@ -720,6 +730,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.legacyBindAddress = "0.0.0.0";
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
+        newConfig.OAuthAppID = 0;
+        newConfig.OAuthAppSecret = null;
 
         newConfig.netty = new NettyConfig();
         newConfig.netty.fileServerEnabled = true;
@@ -773,6 +785,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
         newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
         newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
+        newConfig.netty.OAuthBackURL = "https://"  + address + "/OAuth.html";
         newConfig.netty.sendExceptionEnabled = true;
 
         // Write LaunchServer config
