@@ -24,7 +24,8 @@
                       </Pane>
                       <JFXTextField id="login" alignment="CENTER" focusColor="#5fd97a" layoutX="34.0" layoutY="196.0" promptText="Логин" unFocusColor="#dadada" />
                       <JFXPasswordField id="password" alignment="CENTER" focusColor="#5fd97a" layoutX="34.0" layoutY="249.0" promptText="Пароль" unFocusColor="#dadada" />
-                      <JFXButton id="goAuth" layoutX="34.0" layoutY="370.0" styleClass="auth" text="ВОЙТИ" />
+                      <JFXButton id="goAuth" layoutX="34.0" layoutY="370.0" prefWidth="145.0" styleClass="auth" text="ВОЙТИ" />
+                      <JFXButton id="goOAuth" layoutX="197.0" layoutY="365.0" prefHeight="56.0" prefWidth="57.0" styleClass="vkauth" text=" " />
                       <JFXCheckBox id="rememberchb" fx:id="savePassword" checkedColor="#5fd97a" contentDisplay="CENTER" layoutX="63.0" layoutY="297.0" prefWidth="144.0" text="Сохранить пароль" textFill="#dadada" unCheckedColor="#909090" />
                       <JFXComboBox id="authOptions" fx:id="authOptions" focusColor="#5fd97a" layoutX="34.0" layoutY="341.0" prefHeight="25.0" prefWidth="200.0" promptText="Способ авторизации" unFocusColor="#70666600">
                           <styleClass>

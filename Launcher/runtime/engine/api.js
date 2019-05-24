@@ -19,6 +19,7 @@ var RequestType = RequestTypeClass.static;
 var RequestException = RequestExceptionClass.static;
 //var PingRequest = PingRequestClass.static;
 var AuthRequest = AuthRequestClass.static;
+var OAuthRequest = OAuthRequestClass.static;
 var JoinServerRequest = JoinServerRequestClass.static;
 var CheckServerRequest = CheckServerRequestClass.static;
 var UpdateRequest = UpdateRequestClass.static;

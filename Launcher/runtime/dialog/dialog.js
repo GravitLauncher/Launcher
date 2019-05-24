@@ -298,6 +298,16 @@ function doAuth(login, rsaPassword, auth_type) {
         })
     });
 }
+function goOAuth(event) {
+    processing.resetOverlay();
+    overlay.show(processing.overlay, function (event) {
+        FunctionalBridge.getHWID.join();
+        makeOAuthRequest(function (result) {
+            openURL(result);
+            return result;
+        })
+    });
+}
 
 function doUpdate(profile, pp, accessToken) {
     var digest = profile.isUpdateFastCheck();
