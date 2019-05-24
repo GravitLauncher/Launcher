@@ -32,9 +32,9 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         handshaker.handshake(ctx.channel());
         clientJSONPoint.onOpen();
-        ctx.executor().schedule(() -> {
+        ctx.executor().scheduleWithFixedDelay(() -> {
             ctx.channel().writeAndFlush(new PingWebSocketFrame());
-        }, 20L, TimeUnit.SECONDS);
+        }, 20L, 20L, TimeUnit.SECONDS);
     }
 
     @Override
@@ -66,6 +66,10 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             LogHelper.dev("Message: %s", textFrame.text());
             // uncomment to print request
             // logger.info(textFrame.text());
+        } else if ((frame instanceof PingWebSocketFrame)) {
+            frame.content().retain();
+            ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
+            //return;
         } else if (frame instanceof PongWebSocketFrame) {
         } else if (frame instanceof CloseWebSocketFrame)
             ch.close();
