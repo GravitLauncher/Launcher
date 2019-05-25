@@ -2,7 +2,6 @@ rootProject.name = 'GravitLauncher'
 
 include 'Launcher'
 include 'Radon'
-include 'libLauncher'
 include 'LauncherAPI'
 include 'LauncherAuthlib'
 include 'ServerWrapper'
