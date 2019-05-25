@@ -2,7 +2,11 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 dependencies {
-    compile project(':libLauncher')
+    compile 'com.google.code.gson:gson:2.8.5'
+    compileOnly 'org.fusesource.jansi:jansi:1.18'
+    compileOnly 'org.jline:jline:3.11.0'
+    compileOnly 'org.jline:jline-reader:3.11.0'
+    compileOnly 'org.jline:jline-terminal:3.11.0'
     compileOnly 'org.apache.httpcomponents:httpclient:4.5.7'
     compileOnly 'io.netty:netty-all:4.1.36.Final'
 }
