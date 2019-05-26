@@ -157,34 +157,8 @@ RadioButton {
     -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15, 0, 0, 3);
 }
 
-.vkauth {
-    -jfx-button-type: FLAT;
-    -fx-background-radius: 0;
-    -fx-font-size: 0pt;
-    -fx-background-image: url('images/icons/vk.png');
-	-fx-background-repeat: no-repeat;
-    -fx-pref-width: 62px;
-    -fx-pref-height: 62px;
-    -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15, 0, 0, 3);
-}
-
-.vkauth {
-    -jfx-button-type: FLAT;
-    -fx-background-radius: 0;
-	-fx-font-size: 0pt;
-    -fx-background-image: url('images/icons/vk.png');
-	-fx-background-repeat: no-repeat;
-    -fx-pref-width: 62px;
-    -fx-pref-height: 62px;
-    -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15, 0, 0, 3);
-}
-
 .auth:hover,
 .auth:pressed {
-    -fx-background-color: #75e18c;
-}
-.vkauth:hover,
-.vkauth:pressed {
     -fx-background-color: #75e18c;
 }
 
