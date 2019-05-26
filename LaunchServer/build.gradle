@@ -41,7 +41,6 @@ jar {
 }
 
 dependencies {
-    pack project(':libLauncher')
     pack project(':LauncherAPI')
     bundle project(':Radon')
 	bundle 'com.vk.api:sdk:1.0.2'
