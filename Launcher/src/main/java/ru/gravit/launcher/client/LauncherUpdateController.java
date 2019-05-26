@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,7 +38,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
         {
             LogHelper.info("Enabled HStore feature. Find");
             AtomicReference<NewLauncherSettings.HashedStoreEntry> lastEn = new AtomicReference<>(null);
-            ArrayList<String> removed = new ArrayList<>();
+            //ArrayList<String> removed = new ArrayList<>();
             diff.mismatch.walk(File.separator, (path, name, entry) -> {
                 if(entry.getType() == HashedEntry.Type.DIR) {
                     Files.createDirectories(request.getDir().resolve(path));

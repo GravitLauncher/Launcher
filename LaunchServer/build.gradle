@@ -41,7 +41,6 @@ jar {
 }
 
 dependencies {
-    pack project(':libLauncher')
     pack project(':LauncherAPI')
     bundle project(':Radon')
     bundle 'mysql:mysql-connector-java:8.0.16'

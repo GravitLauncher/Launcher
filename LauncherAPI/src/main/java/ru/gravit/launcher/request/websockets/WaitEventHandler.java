@@ -4,7 +4,6 @@ import ru.gravit.launcher.events.RequestEvent;
 import ru.gravit.launcher.request.ResultInterface;
 import ru.gravit.utils.helper.LogHelper;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
