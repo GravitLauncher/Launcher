@@ -65,6 +65,7 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("RequestExceptionClass", RequestException.class);
         bindings.put("PingRequestClass", PingRequest.class);
         bindings.put("AuthRequestClass", AuthRequest.class);
+        bindings.put("OAuthRequestClass", OAuthRequest.class);
         bindings.put("JoinServerRequestClass", JoinServerRequest.class);
         bindings.put("CheckServerRequestClass", CheckServerRequest.class);
         bindings.put("UpdateRequestClass", UpdateRequest.class);

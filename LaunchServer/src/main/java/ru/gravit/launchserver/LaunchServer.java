@@ -58,6 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
 public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
+
     @Override
     public void reload() throws Exception {
         config.close();
@@ -422,6 +423,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final SessionManager sessionManager;
 
+    public final OAuthManager cacheHandler;
+
     public final SocketHookManager socketHookManager;
 
     public final AuthHookManager authHookManager;
@@ -581,7 +584,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         socketHookManager = new SocketHookManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
+        cacheHandler = new OAuthManager();
         GarbageManager.registerNeedGC(sessionManager);
+        GarbageManager.registerNeedGC(cacheHandler);
         reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);
         for (int i = 0; i < config.auth.length; ++i) {
@@ -785,7 +790,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
         newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
         newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
-        newConfig.netty.OAuthBackURL = "https://"  + address + "/OAuth.html";
+        newConfig.netty.OAuthBackURL = "http://"  + address + "/OAuth.html";
         newConfig.netty.sendExceptionEnabled = true;
 
         // Write LaunchServer config

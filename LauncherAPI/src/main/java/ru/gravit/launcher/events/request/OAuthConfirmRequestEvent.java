@@ -4,15 +4,14 @@ import ru.gravit.launcher.LauncherNetworkAPI;
 import ru.gravit.launcher.events.RequestEvent;
 import ru.gravit.utils.event.EventInterface;
 
-import java.net.URL;
 import java.util.UUID;
 
-public class OAuthRequestEvent extends RequestEvent implements EventInterface {
+public class OAuthConfirmRequestEvent extends RequestEvent implements EventInterface {
 
     private static final UUID uuid = UUID.fromString("77e1bfd7-adf9-4f5d-87d6-a7dd068deb74");
 
     @LauncherNetworkAPI
-    public java.net.URL URL;
+    public String str;
 
     @Override
     public UUID getUUID() {
@@ -21,13 +20,13 @@ public class OAuthRequestEvent extends RequestEvent implements EventInterface {
 
     @Override
     public String getType() {
-        return "oauth";
+        return "OAuthURL";
     }
 
-    public OAuthRequestEvent(){
+    public OAuthConfirmRequestEvent(){
     }
-    public OAuthRequestEvent(URL url){
-        this.URL = url;
+    public OAuthConfirmRequestEvent(String str){
+        this.str = str;
     }
 
 

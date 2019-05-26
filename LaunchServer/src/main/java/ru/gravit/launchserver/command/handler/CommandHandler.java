@@ -88,5 +88,8 @@ public abstract class CommandHandler extends ru.gravit.utils.command.CommandHand
         service.registerCommand("getPermissions", new GetPermissionsCommand(server));
         Category serviceCategory = new Category(service, "service", "Managing LaunchServer Components");
         handler.registerCategory(serviceCategory);
+
+        service.registerCommand("cache", new OAuthCacheHandler(server));
+        service.registerCommand("token", new OAuthTokenGet(server));
     }
 }

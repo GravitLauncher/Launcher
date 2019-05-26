@@ -131,8 +131,8 @@ Button, CheckBox, ComboBox, RadioButton {
 	-fx-font-size: 0pt;
     -fx-background-image: url('images/icons/vk.png');
 	-fx-background-repeat: no-repeat;
-    -fx-pref-width: 55px;
-    -fx-pref-height: 55px;
+    -fx-pref-width: 62px;
+    -fx-pref-height: 62px;
     -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15,0,0,3);
 }
 

@@ -70,6 +70,7 @@ function initLoginScene() {
     authOptions = pane.lookup("#authOptions");
 
     pane.lookup("#goAuth").setOnAction(goAuth);
+    pane.lookup("#goOAuth").setOnAction(goOAuth);
 }
 
 /* ======== init Menu window======== */
@@ -220,6 +221,14 @@ function goAuth(event) {
      settings.login = login;
      doAuth(login, rsaPassword, authTypes[auth]);
  }
+ 
+ function goOAuth(event) {
+    if (overlay.current !== null) {
+        return;
+    }
+	
+     doOAuth();
+ }
 
  /* ======== Console ======== */
 function goConsole(event) {
@@ -298,12 +307,15 @@ function doAuth(login, rsaPassword, auth_type) {
         })
     });
 }
-function goOAuth(event) {
+function doOAuth() {
     processing.resetOverlay();
     overlay.show(processing.overlay, function (event) {
         FunctionalBridge.getHWID.join();
         makeOAuthRequest(function (result) {
-            openURL(result);
+            openURL(new java.net.URL(result.URL));
+            overlay.hide(600000, function () {
+                setCurrentScene(menuScene);
+            });
             return result;
         })
     });
