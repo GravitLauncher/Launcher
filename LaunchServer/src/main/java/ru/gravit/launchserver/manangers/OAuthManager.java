@@ -19,6 +19,19 @@ public class OAuthManager implements NeedGarbageCollection {
         for(int i=0; i < 5; i++ )
         {
             LaunchServer.server.cacheHandler.stageArea[i].destroy.run();
+            int finalI = i;
+            LaunchServer.server.cacheHandler.stageArea[i].destroy = new TimerTask() {
+                @Override
+                public void run() {
+                    if(!LaunchServer.server.cacheHandler.stageArea[finalI].init)
+                        return;
+                    LogHelper.debug("cache purged, IP: " + LaunchServer.server.cacheHandler.stageArea[finalI].IP());
+                    LaunchServer.server.cacheHandler.stageArea[finalI].init = false;
+                    LaunchServer.server.cacheHandler.stageArea[finalI].mTimer = null;
+                    LaunchServer.server.cacheHandler.stageArea[finalI].client = null;
+                    LaunchServer.server.cacheHandler.stageArea[finalI].ctx = null;
+                }
+            };
         }
         LogHelper.subInfo("OAuthCache purged");
     }
@@ -38,9 +51,9 @@ public class OAuthManager implements NeedGarbageCollection {
                 this.init =  true;
                 this.client = client;
                 this.ctx = ctx;
-                LogHelper.subDebug("New Entry with IP " + IP());
                 this.mTimer = new Timer();
                 this.mTimer.schedule(destroy, 300000L);
+                LogHelper.subDebug("New Entry with IP " + IP());
             }
         }
 
@@ -66,7 +79,7 @@ public class OAuthManager implements NeedGarbageCollection {
         private TimerTask destroy = new TimerTask() {
             @Override
             public void run() {
-                if(init == false)
+                if(!init)
                     return;
                 LogHelper.debug("cache purged, IP: " + IP());
                 init = false;
