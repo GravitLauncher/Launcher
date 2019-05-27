@@ -314,6 +314,16 @@ function doOAuth() {
         makeOAuthRequest(function (result) {
             openURL(new java.net.URL(result.URL));
             overlay.hide(600000, function () {
+                setCurrentScene(loginScene);
+            });
+            return result;
+        })
+        makeWaitAuth(function (result) {
+            FunctionalBridge.setAuthParams(result);
+            loginData = { pp: result.playerProfile , accessToken: result.accessToken, permissions: result.permissions,
+                auth_type: settings.auth};
+
+            overlay.hide(0, function () {
                 setCurrentScene(menuScene);
             });
             return result;

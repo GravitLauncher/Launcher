@@ -51,11 +51,11 @@ public class OAuthTokenGet extends Command {
                             LaunchServer.server.config.OAuthAppSecret,
                             LaunchServer.server.config.getOAuthBackURL(),
                             code).execute();
-            return authResponse;
         } catch (ApiException e) {
             e.printStackTrace();
         } catch (ClientException e) {
             e.printStackTrace();
         }
+        return authResponse;
     }
 }

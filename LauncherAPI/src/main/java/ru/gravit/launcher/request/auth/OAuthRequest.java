@@ -15,7 +15,6 @@ public final class OAuthRequest extends Request<AuthRequestEvent> implements Req
 
     public OAuthRequest(HWID hwid)
     {
-        LogHelper.info("Requesting");
         this.hwid = hwid;
     }
 

@@ -127,6 +127,11 @@ function makeOAuthRequest(callback) {
     task.updateMessage("Ожидание авторизация на сервере");
     startTask(task);
 }
+function makeOAuthRequest(callback) {
+    var task = newRequestTask(new OAuthRequest(FunctionalBridge.getHWID()));
+    processing.setTaskProperties(task, callback, null, true);
+    startTask(task);
+}
 
 
 function launchClient(assetHDir, clientHDir, profile, params, callback) {
