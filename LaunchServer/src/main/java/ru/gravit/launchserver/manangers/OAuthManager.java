@@ -38,7 +38,7 @@ public class OAuthManager implements NeedGarbageCollection {
                 this.init =  true;
                 this.client = client;
                 this.ctx = ctx;
-                LogHelper.subInfo("New Entry with IP " + IP());
+                LogHelper.subDebug("New Entry with IP " + IP());
                 this.mTimer = new Timer();
                 this.mTimer.schedule(destroy, 300000L);
             }
@@ -68,7 +68,7 @@ public class OAuthManager implements NeedGarbageCollection {
             public void run() {
                 if(init == false)
                     return;
-                LogHelper.info("cache purged, IP: " + IP());
+                LogHelper.debug("cache purged, IP: " + IP());
                 init = false;
                 mTimer = null;
                 client = null;
@@ -111,6 +111,21 @@ public class OAuthManager implements NeedGarbageCollection {
         try {
             throw new OAuthException("OAuth Overloaded");
         } catch (OAuthException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Entry getEntry(String IP){
+        for(int i = 0; i < 5; i++ )
+        {
+            if(LaunchServer.server.cacheHandler.stageArea[i].isInit())
+                if(LaunchServer.server.cacheHandler.stageArea[i].IP().equals(IP))
+                    return LaunchServer.server.cacheHandler.stageArea[i];
+        }
+        try {
+            throw new OAuthException("Not found in cache");
+        }catch (OAuthException e) {
             e.printStackTrace();
         }
         return null;

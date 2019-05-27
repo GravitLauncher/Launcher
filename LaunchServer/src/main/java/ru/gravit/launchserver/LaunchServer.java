@@ -739,7 +739,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
         newConfig.OAuthAppID = 0;
-        newConfig.OAuthAppSecret = null;
+        newConfig.OAuthAppSecret = "";
 
         newConfig.netty = new NettyConfig();
         newConfig.netty.fileServerEnabled = true;
