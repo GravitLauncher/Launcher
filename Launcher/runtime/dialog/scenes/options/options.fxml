@@ -18,9 +18,9 @@
        <Pane id="optionsPane" prefHeight="450.0" prefWidth="692.0" styleClass="optionsPane">
            <children>
            <Line endX="595.0" layoutX="100.0" layoutY="46.0" startX="-100.0" stroke="#5b3636" styleClass="lineHead" />
-           <ScrollPane id="modlist" layoutY="46.0" prefHeight="402.0" prefWidth="693.0">
+           <ScrollPane id="modlist" layoutY="46.0" prefHeight="404.0" prefWidth="693.0">
                <content>
-                   <VBox prefHeight="397.0" prefWidth="678.0">
+                   <VBox prefHeight="394.0" prefWidth="678.0">
                        <children>
                        </children>
                        <padding>
