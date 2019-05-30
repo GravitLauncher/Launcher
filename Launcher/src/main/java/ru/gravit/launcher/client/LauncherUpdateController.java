@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -34,47 +33,40 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
 
     @Override
     public void postDiff(UpdateRequest request, UpdateRequestEvent e, HashedDir.Diff diff) throws IOException {
-        if(e.zip) return;
-        if(SettingsManager.settings.featureStore)
-        {
+        if (e.zip) return;
+        if (SettingsManager.settings.featureStore) {
             LogHelper.info("Enabled HStore feature. Find");
             AtomicReference<NewLauncherSettings.HashedStoreEntry> lastEn = new AtomicReference<>(null);
-            ArrayList<String> removed = new ArrayList<>();
+            //ArrayList<String> removed = new ArrayList<>();
             diff.mismatch.walk(File.separator, (path, name, entry) -> {
-                if(entry.getType() == HashedEntry.Type.DIR) {
+                if (entry.getType() == HashedEntry.Type.DIR) {
                     Files.createDirectories(request.getDir().resolve(path));
                     return HashedDir.WalkAction.CONTINUE;
                 }
                 HashedFile file = (HashedFile) entry;
                 //Первый экспериментальный способ - честно обходим все возможные Store
                 Path ret = null;
-                if(lastEn.get() == null)
-                {
-                    for(NewLauncherSettings.HashedStoreEntry en : SettingsManager.settings.lastHDirs)
-                    {
+                if (lastEn.get() == null) {
+                    for (NewLauncherSettings.HashedStoreEntry en : SettingsManager.settings.lastHDirs) {
                         ret = tryFind(en, file);
-                        if(ret != null) {
+                        if (ret != null) {
                             lastEn.set(en);
                             break;
                         }
                     }
-                }
-                else {
+                } else {
                     ret = tryFind(lastEn.get(), file);
                 }
-                if(ret == null)
-                {
-                    for(NewLauncherSettings.HashedStoreEntry en : SettingsManager.settings.lastHDirs)
-                    {
+                if (ret == null) {
+                    for (NewLauncherSettings.HashedStoreEntry en : SettingsManager.settings.lastHDirs) {
                         ret = tryFind(en, file);
-                        if(ret != null) {
+                        if (ret != null) {
                             lastEn.set(en);
                             break;
                         }
                     }
                 }
-                if(ret != null)
-                {
+                if (ret != null) {
                     //Еще раз проверим корректность хеша
                     //Возможно эта проверка избыточна
                     //if(file.isSame(ret, true))
@@ -83,8 +75,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                         LogHelper.debug("Copy file %s to %s", ret.toAbsolutePath().toString(), source.toAbsolutePath().toString());
                         //Let's go!
                         Files.copy(ret, source);
-                        try(InputStream input = IOHelper.newInput(ret))
-                        {
+                        try (InputStream input = IOHelper.newInput(ret)) {
                             IOHelper.transfer(input, source);
                         }
                         entry.flag = true;
@@ -95,25 +86,22 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
             });
         }
     }
-    public Path tryFind(NewLauncherSettings.HashedStoreEntry en, HashedFile file) throws IOException
-    {
+
+    public Path tryFind(NewLauncherSettings.HashedStoreEntry en, HashedFile file) throws IOException {
         AtomicReference<Path> ret = new AtomicReference<>(null);
         en.hdir.walk(File.separator, (path, name, entry) -> {
-            if(entry.getType() == HashedEntry.Type.DIR) return HashedDir.WalkAction.CONTINUE;
+            if (entry.getType() == HashedEntry.Type.DIR) return HashedDir.WalkAction.CONTINUE;
             HashedFile tfile = (HashedFile) entry;
-            if(tfile.isSame(file))
-            {
+            if (tfile.isSame(file)) {
                 LogHelper.dev("[DIR:%s] Found file %s in %s", en.name, name, path);
                 Path tdir = Paths.get(en.fullPath).resolve(path);
                 try {
-                    if(tfile.isSame(tdir, true))
-                    {
+                    if (tfile.isSame(tdir, true)) {
                         LogHelper.dev("[DIR:%s] Confirmed file %s in %s", en.name, name, path);
                         ret.set(tdir);
                         return HashedDir.WalkAction.STOP;
                     }
-                } catch (IOException e)
-                {
+                } catch (IOException e) {
                     LogHelper.error("Check file error %s %s", e.getClass().getName(), e.getMessage());
                 }
             }

@@ -13,60 +13,44 @@
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="overlay" prefHeight="450.0" prefWidth="693.0" xmlns="http://javafx.com/javafx/8.0.201"
-      xmlns:fx="http://javafx.com/fxml/1">
+<Pane fx:id="overlay" prefHeight="450.0" prefWidth="693.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <Pane id="holder" prefHeight="450.0" prefWidth="694.0">
             <children>
-                <JFXCheckBox fx:id="autoEnter" checkedColor="#5fd97a" layoutX="14.0" layoutY="137.0"
-                             text="Автовход на сервер" unCheckedColor="#909090"/>
-                <Text fill="#8c8c8c" layoutX="40.0" layoutY="153.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер"
-                      wrappingWidth="636.9999872148037" y="15.0"/>
-                <JFXCheckBox fx:id="fullScreen" checkedColor="#5fd97a" layoutX="13.0" layoutY="260.0"
-                             text="Клиент в полный экран" unCheckedColor="#909090"/>
-                <Text fill="#8c8c8c" layoutX="40.0" layoutY="277.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="Включение данной функции позволяет запустить игру сразу в полноэкранном режиме"
-                      wrappingWidth="636.9999872148037" y="15.0"/>
-                <JFXCheckBox id="debug" checkedColor="#5fd97a" layoutX="13.0" layoutY="193.0" text="Режим Отладки"
-                             unCheckedColor="#909090"/>
-                <Text fill="#8c8c8c" layoutX="40.0" layoutY="208.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="Режим отладки позволяет просмотреть лог запуска и работы программы в реальном времени прямо из лаунчера, что упрощает поиск нужной информации"
-                      wrappingWidth="637.0000016447157" y="15.0"/>
+                <JFXCheckBox fx:id="autoEnter" checkedColor="#5fd97a" layoutX="14.0" layoutY="137.0" text="Автовход на сервер" unCheckedColor="#909090" />
+                <Text fill="#8c8c8c" layoutX="40.0" layoutY="153.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер" wrappingWidth="636.9999872148037" y="15.0" />
+                <JFXCheckBox fx:id="fullScreen" checkedColor="#5fd97a" layoutX="13.0" layoutY="244.0" text="Клиент в полный экран" unCheckedColor="#909090" />
+                <Text fill="#8c8c8c" layoutX="40.0" layoutY="261.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Включение данной функции позволяет запустить игру сразу в полноэкранном режиме" wrappingWidth="636.9999872148037" y="15.0" />
+                <JFXCheckBox id="debug" checkedColor="#5fd97a" layoutX="13.0" layoutY="183.0" text="Режим Отладки" unCheckedColor="#909090" />
+                <Text fill="#8c8c8c" layoutX="40.0" layoutY="198.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Режим отладки позволяет просмотреть лог запуска и работы программы в реальном времени прямо из лаунчера, что упрощает поиск нужной информации" wrappingWidth="637.0000016447157" y="15.0" />
                 <TextFlow layoutX="126.0" layoutY="15.0" prefHeight="16.0" prefWidth="112.0">
-                    <Text fx:id="ramLabel"/>
+                    <Text fx:id="ramLabel" />
                 </TextFlow>
-                <JFXButton fx:id="deleteDir" layoutX="370.0" layoutY="380.0" prefHeight="25.0" prefWidth="245.0"
-                           text="Удалить клиенты" textAlignment="CENTER" wrapText="true"/>
-                <JFXButton fx:id="changeDir" layoutY="419.0" prefHeight="30.0" prefWidth="200.0"
-                           text="Сменить директорию загрузки" textAlignment="CENTER" wrapText="true"/>
-                <Hyperlink id="dirLabel" alignment="BASELINE_LEFT" layoutX="201.0" layoutY="420.0" prefHeight="30.0"
-                           prefWidth="493.0" text="C:/Users"/>
-                <JFXButton fx:id="apply" defaultButton="true" layoutX="530.0" layoutY="380.0" prefHeight="23.0"
-                           prefWidth="100.0" text="Применить"/>
+                <JFXButton fx:id="deleteDir" layoutX="370.0" layoutY="380.0" prefHeight="25.0" prefWidth="245.0" text="Удалить клиенты" textAlignment="CENTER" wrapText="true" />
+                <JFXButton fx:id="changeDir" layoutY="419.0" prefHeight="30.0" prefWidth="200.0" text="Сменить директорию загрузки" textAlignment="CENTER" wrapText="true" />
+                <Hyperlink id="dirLabel" alignment="BASELINE_LEFT" layoutX="201.0" layoutY="420.0" prefHeight="30.0" prefWidth="493.0" text="C:/Users" />
+                <JFXButton fx:id="apply" defaultButton="true" layoutX="530.0" layoutY="380.0" prefHeight="23.0" prefWidth="100.0" text="Применить" />
                 <Text layoutX="16.0" layoutY="28.0">Выделение памяти:</Text>
-                <JFXSlider fx:id="ramSlider" layoutX="14.0" layoutY="76.0" prefHeight="14.0" prefWidth="663.0"/>
+                <JFXSlider fx:id="ramSlider" layoutX="14.0" layoutY="76.0" prefHeight="14.0" prefWidth="663.0" />
                 <Pane fx:id="transferDialog" prefHeight="425.0" prefWidth="694.0" visible="false">
                     <children>
-                        <Text fill="WHITE" layoutX="147.0" layoutY="198.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                              text="Перенести все данные в новую директорию?" wrappingWidth="400.13671875">
+                        <Text fill="WHITE" layoutX="147.0" layoutY="198.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Перенести все данные в новую директорию?" wrappingWidth="400.13671875">
                             <font>
-                                <Font size="19.0"/>
+                                <Font size="19.0" />
                             </font>
                         </Text>
-                        <JFXButton fx:id="applyTransfer" layoutX="165.0" layoutY="226.0" mnemonicParsing="false"
-                                   prefHeight="25.0" prefWidth="124.0" text="Да, перенести!"/>
-                        <JFXButton fx:id="cancelTransfer" layoutX="379.0" layoutY="226.0" mnemonicParsing="false"
-                                   prefHeight="25.0" prefWidth="124.0" text="Нет, не нужно."/>
+                        <JFXButton fx:id="applyTransfer" layoutX="165.0" layoutY="226.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="124.0" text="Да, перенести!" />
+                        <JFXButton fx:id="cancelTransfer" layoutX="379.0" layoutY="226.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="124.0" text="Нет, не нужно." />
                     </children>
                 </Pane>
-                <Line endX="594.0" layoutX="100.0" layoutY="420.0" startX="-100.0" stroke="#5b3636"
-                      styleClass="lineHead"/>
+                <Line endX="594.0" layoutX="100.0" layoutY="420.0" startX="-100.0" stroke="#5b3636" styleClass="lineHead" />
+            <JFXCheckBox fx:id="featureStore" checkedColor="#5fd97a" layoutX="13.0" layoutY="292.0" text="Поиск файлов в других клиентах" unCheckedColor="#909090" />
+            <Text fill="#8c8c8c" layoutX="40.0" layoutY="309.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Используется для экономии вашего трафика, аналогичные файлы будут скопированы с других игровых клиентов" wrappingWidth="636.9999872148037" y="15.0" />
             </children>
         </Pane>
     </children>
     <stylesheets>
-        <URL value="@settings.css"/>
-        <URL value="@../../styles.css"/>
+        <URL value="@settings.css" />
+        <URL value="@../../styles.css" />
     </stylesheets>
 </Pane>

@@ -252,6 +252,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public static class ExeConf {
         public boolean enabled;
+        public boolean setMaxVersion;
+        public String maxVersion;
         public String productName;
         public String productVer;
         public String fileDesc;
@@ -263,8 +265,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String txtFileVersion;
         public String txtProductVersion;
     }
-    public static class NettyUpdatesBind
-    {
+
+    public static class NettyUpdatesBind {
         public String url;
         public boolean zip;
     }
@@ -705,6 +707,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.launch4j.txtProductVersion = "%s, build %d";
         newConfig.launch4j.productName = "GravitLauncher";
         newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
+        newConfig.launch4j.maxVersion = "1.8.999";
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.hwidHandler = new AcceptHWIDHandler();

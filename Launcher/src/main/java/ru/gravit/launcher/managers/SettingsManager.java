@@ -25,8 +25,7 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
                 String fullPath = input.readString(1024);
                 HashedDir dir = new HashedDir(input);
                 settings.lastHDirs.add(new NewLauncherSettings.HashedStoreEntry(dir, dirName, fullPath));
-            } catch (IOException e)
-            {
+            } catch (IOException e) {
                 LogHelper.error("Skip file %s exception: %s", file.toAbsolutePath().toString(), e.getMessage());
             }
             return super.visitFile(file, attrs);
@@ -61,10 +60,8 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         settings = config;
         if (settings.updatesDirPath != null)
             settings.updatesDir = Paths.get(settings.updatesDirPath);
-        if(settings.consoleUnlockKey != null && !ConsoleManager.isConsoleUnlock)
-        {
-            if(ConsoleManager.checkUnlockKey(settings.consoleUnlockKey))
-            {
+        if (settings.consoleUnlockKey != null && !ConsoleManager.isConsoleUnlock) {
+            if (ConsoleManager.checkUnlockKey(settings.consoleUnlockKey)) {
                 ConsoleManager.unlock();
                 LogHelper.info("Console auto unlocked");
             }
@@ -81,7 +78,7 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
     public void saveHDirStore(Path storeProjectPath) throws IOException {
         Files.createDirectories(storeProjectPath);
         for (NewLauncherSettings.HashedStoreEntry e : settings.lastHDirs) {
-            if(!e.needSave) continue;
+            if (!e.needSave) continue;
             Path file = storeProjectPath.resolve(e.name.concat(".bin"));
             if (!Files.exists(file)) Files.createFile(file);
             try (HOutput output = new HOutput(IOHelper.newOutput(file))) {

@@ -137,11 +137,11 @@ var options = {
                              textDescr = new javafx.scene.text.Text(modDescription);
                              if(subLevel > 1) {
                                  for(var i = 1; i < subLevel; i++){
-                                    textDescr.setWrappingWidth(630-(25*i));
+                                    textDescr.setWrappingWidth(620-(25*i));
                                     textDescr.setTranslateX(25+(25*i));
                                  }
                              } else {
-                                 textDescr.setWrappingWidth(630);
+                                 textDescr.setWrappingWidth(620);
                                  textDescr.setTranslateX(25);
                              }
                              textDescr.setTextAlignment(javafx.scene.text.TextAlignment.JUSTIFY);

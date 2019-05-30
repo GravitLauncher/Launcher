@@ -19,15 +19,12 @@ public class FeatureCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
         boolean enabled = Boolean.valueOf(args[1]);
-        switch (args[0])
-        {
-            case "store":
-            {
+        switch (args[0]) {
+            case "store": {
                 SettingsManager.settings.featureStore = enabled;
                 break;
             }
-            default:
-            {
+            default: {
                 LogHelper.info("Features: [store]");
                 return;
             }

@@ -27,15 +27,20 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 public final class UpdateRequest extends Request<UpdateRequestEvent> implements RequestInterface {
-    public interface UpdateController
-    {
+    public interface UpdateController {
         void preUpdate(UpdateRequest request, UpdateRequestEvent e) throws IOException;
+
         void preDiff(UpdateRequest request, UpdateRequestEvent e) throws IOException;
-        void postDiff(UpdateRequest request, UpdateRequestEvent e,HashedDir.Diff diff) throws IOException;
+
+        void postDiff(UpdateRequest request, UpdateRequestEvent e, HashedDir.Diff diff) throws IOException;
+
         void preDownload(UpdateRequest request, UpdateRequestEvent e, List<ListDownloader.DownloadTask> adds) throws IOException;
+
         void postDownload(UpdateRequest request, UpdateRequestEvent e) throws IOException;
+
         void postUpdate(UpdateRequest request, UpdateRequestEvent e) throws IOException;
     }
+
     private static UpdateController controller;
 
     public static void setController(UpdateController controller) {
@@ -184,18 +189,17 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     public UpdateRequestEvent requestDo(StandartClientWebSocketService service) throws Exception {
         LogHelper.debug("Start update request");
         UpdateRequestEvent e = (UpdateRequestEvent) service.sendRequest(this);
-        if(controller != null) controller.preUpdate(this, e);
+        if (controller != null) controller.preUpdate(this, e);
         LogHelper.debug("Start update");
         Launcher.profile.pushOptionalFile(e.hdir, !Launcher.profile.isUpdateFastCheck());
-        if(controller != null) controller.preDiff(this, e);
+        if (controller != null) controller.preDiff(this, e);
         HashedDir.Diff diff = e.hdir.diff(localDir, matcher);
-        if(controller != null) controller.postDiff(this, e, diff);
+        if (controller != null) controller.postDiff(this, e, diff);
         final List<ListDownloader.DownloadTask> adds = new ArrayList<>();
-        if(controller != null) controller.preDownload(this, e, adds);
+        if (controller != null) controller.preDownload(this, e, adds);
         diff.mismatch.walk(IOHelper.CROSS_SEPARATOR, (path, name, entry) -> {
             if (entry.getType().equals(HashedEntry.Type.FILE)) {
-                if(!entry.flag)
-                {
+                if (!entry.flag) {
                     HashedFile file = (HashedFile) entry;
                     totalSize += file.size;
                     adds.add(new ListDownloader.DownloadTask(path, file.size));
@@ -214,17 +218,14 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         updateState("UnknownFile", 0L, 100);
         ListDownloader listDownloader = new ListDownloader();
         LogHelper.info("Download %s to %s", dirName, dir.toAbsolutePath().toString());
-        if(e.zip && !adds.isEmpty())
-        {
+        if (e.zip && !adds.isEmpty()) {
             listDownloader.downloadZip(e.url, dir, this::updateState, (add) -> totalDownloaded += add);
-        }
-        else
-        {
+        } else {
             listDownloader.download(e.url, adds, dir, this::updateState, (add) -> totalDownloaded += add);
         }
-        if(controller != null) controller.postDownload(this, e);
+        if (controller != null) controller.postDownload(this, e);
         deleteExtraDir(dir, diff.extra, diff.extra.flag);
-        if(controller != null) controller.postUpdate(this, e);
+        if (controller != null) controller.postUpdate(this, e);
         LogHelper.debug("Update success");
         return e;
     }

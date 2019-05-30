@@ -63,7 +63,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
             }
             ResultInterface result = event.result;
             waitEventHandler.requests.remove(event);
-            if (event.result.getType().equals("error")) {
+            if (event.result.getType().equals("error") || event.result.getType().equals("exception")) {
                 ErrorRequestEvent errorRequestEvent = (ErrorRequestEvent) event.result;
                 throw new ExecutionException(new RequestException(errorRequestEvent.error));
             }
@@ -80,7 +80,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
             }
             ResultInterface result = event.result;
             waitEventHandler.requests.remove(event);
-            if (event.result.getType().equals("error")) {
+            if (event.result.getType().equals("error") || event.result.getType().equals("exception")) {
                 ErrorRequestEvent errorRequestEvent = (ErrorRequestEvent) event.result;
                 throw new ExecutionException(new RequestException(errorRequestEvent.error));
             }

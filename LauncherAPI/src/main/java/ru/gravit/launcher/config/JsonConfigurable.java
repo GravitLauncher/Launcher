@@ -33,7 +33,7 @@ public abstract class JsonConfigurable<T> {
     @LauncherAPI
     public void saveConfig(Path configPath) throws IOException {
         try (BufferedWriter writer = IOHelper.newWriter(configPath)) {
-            Launcher.gsonManager.gson.toJson(getConfig(), type, writer);
+            Launcher.gsonManager.configGson.toJson(getConfig(), type, writer);
         }
     }
 
@@ -41,7 +41,7 @@ public abstract class JsonConfigurable<T> {
     public void loadConfig(Path configPath) throws IOException {
         if (generateConfigIfNotExists(configPath)) return;
         try (BufferedReader reader = IOHelper.newReader(configPath)) {
-            setConfig(Launcher.gsonManager.gson.fromJson(reader, type));
+            setConfig(Launcher.gsonManager.configGson.fromJson(reader, type));
         }
     }
 
