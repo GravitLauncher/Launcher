@@ -78,7 +78,7 @@ public final class EXEL4JLauncherBinary extends LauncherBinary {
         // Prepare JRE
         Jre jre = new Jre();
         jre.setMinVersion("1.8.0");
-        if(server.config.launch4j.setMaxVersion)
+        if (server.config.launch4j.setMaxVersion)
             jre.setMaxVersion(server.config.launch4j.maxVersion);
         jre.setRuntimeBits(Jre.RUNTIME_BITS_64_AND_32);
         jre.setJdkPreference(Jre.JDK_PREFERENCE_PREFER_JRE);

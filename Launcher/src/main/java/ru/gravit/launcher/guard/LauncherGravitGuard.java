@@ -32,14 +32,12 @@ public class LauncherGravitGuard implements LauncherGuardInterface {
             String projectName = Launcher.getConfig().projectname;
             String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
             return DirBridge.getGuardDir().resolve(wrapperUnpackName);
-        } else if(ClientLauncher.getJavaBinPath() != null)
-        {
+        } else if (ClientLauncher.getJavaBinPath() != null) {
             javaBinPath = ClientLauncher.getJavaBinPath();
             String projectName = Launcher.getConfig().projectname;
             String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
             return DirBridge.getGuardDir().resolve(wrapperUnpackName);
-        }
-        else
+        } else
             return IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
     }
 
@@ -60,7 +58,7 @@ public class LauncherGravitGuard implements LauncherGuardInterface {
         } catch (IOException e) {
             throw new SecurityException(e);
         }
-        if(clientInstance) GravitGuardBridge.callGuard();
+        if (clientInstance) GravitGuardBridge.callGuard();
     }
 
     @Override
@@ -71,7 +69,7 @@ public class LauncherGravitGuard implements LauncherGuardInterface {
     @Override
     public void addCustomEnv(ClientLauncherContext context) {
         Map<String, String> env = context.builder.environment();
-        if(javaBinPath == null)
+        if (javaBinPath == null)
             env.put("JAVA_HOME", System.getProperty("java.home"));
         else
             env.put("JAVA_HOME", javaBinPath.toAbsolutePath().toString());

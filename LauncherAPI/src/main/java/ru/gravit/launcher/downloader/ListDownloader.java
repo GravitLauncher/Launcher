@@ -62,6 +62,7 @@ public class ListDownloader {
             }
         }
     }
+
     public void downloadZip(String base, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException, URISyntaxException {
         /*try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
@@ -132,23 +133,18 @@ public class ListDownloader {
         @Override
         public Path handleResponse(HttpResponse response) throws IOException {
             InputStream source = response.getEntity().getContent();
-            if(zip)
-            {
-                try(ZipInputStream input = IOHelper.newZipInput(source))
-                {
+            if (zip) {
+                try (ZipInputStream input = IOHelper.newZipInput(source)) {
                     ZipEntry entry = input.getNextEntry();
-                    while(entry != null)
-                    {
-                        if(entry.isDirectory())
-                        {
+                    while (entry != null) {
+                        if (entry.isDirectory()) {
                             entry = input.getNextEntry();
                             continue;
                         }
                         long size = entry.getSize();
                         String filename = entry.getName();
                         Path target = this.target.resolve(filename);
-                        if(callback != null)
-                        {
+                        if (callback != null) {
                             callback.stateChanged(entry.getName(), 0, entry.getSize());
                         }
                         LogHelper.dev("Resolved filename %s to %s", filename, target.toAbsolutePath().toString());

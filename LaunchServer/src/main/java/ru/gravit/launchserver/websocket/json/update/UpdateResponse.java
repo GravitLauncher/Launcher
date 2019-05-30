@@ -40,8 +40,7 @@ public class UpdateResponse extends SimpleResponse {
         }
         String url = LaunchServer.server.config.netty.downloadURL.replace("%dirname%", dirName);
         boolean zip = false;
-        if (server.config.netty.bindings.get(dirName) != null)
-        {
+        if (server.config.netty.bindings.get(dirName) != null) {
             LaunchServer.NettyUpdatesBind bind = server.config.netty.bindings.get(dirName);
             url = bind.url;
             zip = bind.zip;

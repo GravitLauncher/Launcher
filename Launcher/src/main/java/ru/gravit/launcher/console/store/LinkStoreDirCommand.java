@@ -26,20 +26,16 @@ public class LinkStoreDirCommand extends Command {
         verifyArgs(args, 1);
         int ind = 1;
         int index = Integer.valueOf(args[0]);
-        for(NewLauncherSettings.HashedStoreEntry e : SettingsManager.settings.lastHDirs)
-        {
-            if(ind == index)
-            {
+        for (NewLauncherSettings.HashedStoreEntry e : SettingsManager.settings.lastHDirs) {
+            if (ind == index) {
                 LogHelper.info("Copy [%d] FullPath: %s name: %s", ind, e.fullPath, e.name);
                 Path path = Paths.get(e.fullPath);
-                if(!Files.isDirectory(path))
-                {
+                if (!Files.isDirectory(path)) {
                     LogHelper.error("Directory %s not found", path.toAbsolutePath().toString());
                     return;
                 }
                 Path target = Paths.get(SettingsManager.settings.updatesDirPath).resolve(e.name);
-                if(Files.exists(target))
-                {
+                if (Files.exists(target)) {
                     LogHelper.error("Directory %s already exists", target.toAbsolutePath().toString());
                     return;
                 }
