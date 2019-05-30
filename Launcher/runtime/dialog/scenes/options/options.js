@@ -129,7 +129,7 @@ var options = {
                                  profile.unmarkOptional(modFile);
                                  LogHelper.debug("Unselected mod %s", modFile.name);
                              }
-                             //options.update();
+                             options.update();
                          });
                         checkBoxList.add(testMod);
                         testMod.getStyleClass().add("modname");
