@@ -41,7 +41,7 @@ dependencies {
     bundle 'com.jfoenix:jfoenix:8.0.8'
     bundle 'de.jensd:fontawesomefx:8.9'
     bundle 'org.apache.httpcomponents:httpclient:4.5.7'
-    pack 'io.netty:netty-all:4.1.36.Final'
+    pack 'io.netty:netty-codec-http:4.1.36.Final'
     pack 'org.ow2.asm:asm-tree:7.1'
 }
 
