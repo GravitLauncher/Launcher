@@ -131,6 +131,7 @@ var options = {
                              }
                              options.update();
                          });
+                        testMod.setFocusTraversable(false);
                         checkBoxList.add(testMod);
                         testMod.getStyleClass().add("modname");
                          if(modDescription != "") {
