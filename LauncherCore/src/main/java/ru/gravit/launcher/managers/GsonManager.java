@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ru.gravit.launcher.hasher.HashedEntry;
 import ru.gravit.launcher.hasher.HashedEntryAdapter;
+import ru.gravit.utils.helper.CommonHelper;
 
 public class GsonManager {
     public GsonBuilder gsonBuilder;
@@ -12,8 +13,8 @@ public class GsonManager {
     public Gson configGson;
 
     public void initGson() {
-        gsonBuilder = new GsonBuilder();
-        configGsonBuilder = new GsonBuilder();
+        gsonBuilder = CommonHelper.newBuilder();
+        configGsonBuilder = CommonHelper.newBuilder();
         configGsonBuilder.setPrettyPrinting();
         registerAdapters(gsonBuilder);
         registerAdapters(configGsonBuilder);
