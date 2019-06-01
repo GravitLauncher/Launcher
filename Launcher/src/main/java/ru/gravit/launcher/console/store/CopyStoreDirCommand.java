@@ -26,20 +26,16 @@ public class CopyStoreDirCommand extends Command {
         int ind = 1;
         int index = Integer.valueOf(args[0]);
         boolean overwrite = Boolean.valueOf(args[1]);
-        for(NewLauncherSettings.HashedStoreEntry e : SettingsManager.settings.lastHDirs)
-        {
-            if(ind == index)
-            {
+        for (NewLauncherSettings.HashedStoreEntry e : SettingsManager.settings.lastHDirs) {
+            if (ind == index) {
                 LogHelper.info("Copy [%d] FullPath: %s name: %s", ind, e.fullPath, e.name);
                 Path path = Paths.get(e.fullPath);
-                if(!Files.isDirectory(path))
-                {
+                if (!Files.isDirectory(path)) {
                     LogHelper.error("Directory %s not found", path.toAbsolutePath().toString());
                     return;
                 }
                 Path target = Paths.get(SettingsManager.settings.updatesDirPath).resolve(e.name);
-                if(Files.exists(target) && !overwrite)
-                {
+                if (Files.exists(target) && !overwrite) {
                     LogHelper.error("Directory %s found, flag overwrite not found", target.toAbsolutePath().toString());
                     return;
                 }

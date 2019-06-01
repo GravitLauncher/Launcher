@@ -342,8 +342,8 @@ public final class HashedDir extends HashedEntry {
         String append = "";
         walk(append, separator, callback, true);
     }
-    public enum WalkAction
-    {
+
+    public enum WalkAction {
         STOP, CONTINUE
     }
 
@@ -356,24 +356,21 @@ public final class HashedDir extends HashedEntry {
         for (Map.Entry<String, HashedEntry> entry : map.entrySet()) {
             HashedEntry e = entry.getValue();
             if (e.getType() == Type.FILE) {
-                if (noSeparator)
-                {
+                if (noSeparator) {
                     WalkAction a = callback.walked(append + entry.getKey(), entry.getKey(), e);
-                    if(a == WalkAction.STOP) return a;
-                }
-                else
-                {
+                    if (a == WalkAction.STOP) return a;
+                } else {
                     WalkAction a = callback.walked(append + separator + entry.getKey(), entry.getKey(), e);
-                    if(a == WalkAction.STOP) return a;
+                    if (a == WalkAction.STOP) return a;
                 }
             } else {
                 String newAppend;
                 if (noSeparator) newAppend = append + entry.getKey();
                 else newAppend = append + separator + entry.getKey();
                 WalkAction a = callback.walked(newAppend, entry.getKey(), e);
-                if(a == WalkAction.STOP) return a;
+                if (a == WalkAction.STOP) return a;
                 a = ((HashedDir) e).walk(newAppend, separator, callback, false);
-                if(a == WalkAction.STOP) return a;
+                if (a == WalkAction.STOP) return a;
             }
         }
         return WalkAction.CONTINUE;

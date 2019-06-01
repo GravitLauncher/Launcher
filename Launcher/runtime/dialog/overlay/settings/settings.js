@@ -33,6 +33,11 @@ var settingsOverlay = {
             }
         });
 
+        var featureStore = holder.lookup("#featureStore");
+        featureStore.setSelected(settings.featureStore);
+        featureStore.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
+            function(o, ov, nv) settings.featureStore = nv);
+
         var fullScreenBox = holder.lookup("#fullScreen");
         fullScreenBox.setSelected(settings.fullScreen);
         fullScreenBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
@@ -145,7 +150,7 @@ LogHelper.debug("Dir: %s", DirBridge.dir);
 var cliParams = {
     login: null, password: null, profile: -1, autoLogin: false,
     updatesDir: null, autoEnter: null, fullScreen: null, ram: -1,
-    offline: false,
+    offline: false, featureStore: null,
 
     init: function(params) {
         var named = params.getNamed();
@@ -167,6 +172,10 @@ var cliParams = {
         if (autoEnter !== null) {
             cliParams.autoEnter = java.lang.Boolean.parseBoolean(autoEnter);
         }
+        var featureStore = named.get("featureStore");
+        if (featureStore !== null) {
+            cliParams.featureStore = java.lang.Boolean.parseBoolean(featureStore);
+        }
         var fullScreen = named.get("fullScreen");
         if (fullScreen !== null) {
             cliParams.fullScreen = java.lang.Boolean.parseBoolean(fullScreen);
@@ -175,7 +184,6 @@ var cliParams = {
         if (ram !== null) {
             cliParams.ram = java.lang.Integer.parseInt(ram);
         }
-
         var offline = named.get("offline");
         if (offline !== null) {
             cliParams.offline = java.lang.Boolean.parseBoolean(offline);
@@ -192,11 +200,13 @@ var cliParams = {
         if (cliParams.profile >= 0) {
             settings.profile = cliParams.profile;
         }
-
         if (cliParams.updatesDir !== null) {
         }
         if (cliParams.autoEnter !== null) {
             settings.autoLogin = cliParams.autoEnter;
+        }
+        if (cliParams.featureStore !== null) {
+            settings.featureStore = cliParams.featureStore;
         }
         if (cliParams.fullScreen !== null) {
             settings.fullScreen = cliParams.fullScreen;
@@ -204,7 +214,6 @@ var cliParams = {
         if (cliParams.ram >= 0) {
             settingsOverlay.setRAM(cliParams.ram);
         }
-
         if (cliParams.offline !== null) {
             settings.offline = cliParams.offline;
         }

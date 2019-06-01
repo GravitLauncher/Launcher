@@ -11,6 +11,10 @@ public class LauncherGuardManager {
     public static void initGuard(boolean clientInstance) {
         LauncherConfig config = Launcher.getConfig();
         switch (config.guardType) {
+            case "gravitguard": {
+                guard = new LauncherGravitGuard();
+                break;
+            }
             case "wrapper": {
                 guard = new LauncherWrapperGuard();
                 break;

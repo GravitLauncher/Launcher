@@ -1,14 +1,11 @@
 /*-- DrLeonardo Design --*/
-
-#overlay>#description {
+#overlay > #description {
     -fx-font-size: 12pt;
     -fx-text-fill: #fff;
     -fx-wrap-text: true;
 }
 
-#overlay>#description.error {
-    -fx-text-fill: #CE5757;
+#overlay > #description.error {
+    -fx-text-fill: red;
 }
-
-
 /*-- DrLeonardo Design --*/
