@@ -46,19 +46,27 @@ public final class MySQLAuthProvider extends AuthProvider {
     }
 
     @Override
-    public AuthProviderResult oauth(int i) throws Exception {
+    public AuthProviderResult oauth(int a) throws SQLException, AuthException {
         try (Connection c = mySQLHolder.getConnection()) {
             PreparedStatement s = c.prepareStatement(oauthQuery);
-            String[] replaceParams = {"%i%", String.valueOf(i)};
-                s.setString(1, oauthQuery.replace("?", String.valueOf(i)));
+            String[] replaceParams = {"int", String.valueOf(a)};
+            String[] queryParams = {"%int%"};
+            String message = "Аккаунт не найден";
+            for (int i = 0; i < queryParams.length; i++)
+                s.setString(i + 1, CommonHelper.replace(queryParams[i], replaceParams));
+
             // Execute SQL query
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             try (ResultSet set = s.executeQuery()) {
-                return set.next() ? new AuthProviderResult(set.getString(1),
-                        SecurityHelper.randomStringToken(),
-                        LaunchServer.server.config.permissionsHandler.getPermissions(set.getString(1))) : authError(message);
+                return set.next() ?
+                        new AuthProviderResult(set.getString(1),
+                                SecurityHelper.randomStringToken(),
+                                        LaunchServer.server.config.permissionsHandler.getPermissions(set.getString(1))) :
+                        authError(message);
             }
-        }    }
+        }
+
+    }
 
     @Override
     public void close() {

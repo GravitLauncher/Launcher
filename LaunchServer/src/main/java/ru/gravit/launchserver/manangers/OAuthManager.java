@@ -84,6 +84,10 @@ public class OAuthManager implements NeedGarbageCollection {
             else
                 return null;
         }
+
+        public AuthRequestEvent getAuthRequestEvent() {
+            return authRequestEvent;
+        }
     }
 
     private Entry[] stageArea;
@@ -115,29 +119,38 @@ public class OAuthManager implements NeedGarbageCollection {
         }
     }
 
-    public static void stretchCache(String IP, AuthRequestEvent authRequestEvent){
+    public static void stretchCache(String IP, AuthRequestEvent authRequestEvent) throws OAuthException {
             for(Entry e: LaunchServer.server.cacheHandler.stageArea)
             {
-                if(e.getIP().equals(IP))
+                if(e.isInit() && e.getIP().equals(IP))
                     e.setter(authRequestEvent);
             }
-            try {
-                throw new OAuthException("Not found");
-            } catch (OAuthException e) {
-                e.printStackTrace();
-            }
+            throw new OAuthException("Not found");
     }
-    public static void stretchCache(ChannelHandlerContext ctx, AuthRequestEvent authRequestEvent){
+    public static void stretchCache(ChannelHandlerContext ctx, AuthRequestEvent authRequestEvent) throws OAuthException {
             for(Entry e: LaunchServer.server.cacheHandler.stageArea)
             {
-                if(e.getIP().equals(IOHelper.getIP(ctx.channel().remoteAddress())))
+                if(e.isInit() && e.getIP().equals(IOHelper.getIP(ctx.channel().remoteAddress())))
                     e.setter(authRequestEvent);
             }
-            try {
-                throw new OAuthException("Not found");
-            } catch (OAuthException e) {
-                e.printStackTrace();
-            }
+            throw new OAuthException("Not found");
+    }
+
+    public static void stretchCache(ChannelHandlerContext ctx, Client client, AuthRequestEvent authRequestEvent) throws OAuthException {
+                Entry e = getUnused();
+                e.setter(ctx, client);
+                e.setter(authRequestEvent);
+                LogHelper.subDebug("New Entry IP: " + e.getIP());
+    }
+
+    public static Entry findEntry(ChannelHandlerContext ctx) throws OAuthException {
+        for(Entry e: LaunchServer.server.cacheHandler.stageArea)
+        {
+            if(e.isInit() && e.getIP().equals(IOHelper.getIP(ctx.channel().remoteAddress())))
+                if(e.getAuthRequestEvent() != null)
+                    return e;
+        }
+        throw new OAuthException("Not found");
     }
 
     public static Entry getUnused() throws OAuthException {

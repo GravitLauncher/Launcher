@@ -20,6 +20,6 @@ public final class OAuthRequest extends Request<AuthRequestEvent> implements Req
 
     @Override
     public String getType() {
-        return "oauth";
+        return "OAuthURL";
     }
 }

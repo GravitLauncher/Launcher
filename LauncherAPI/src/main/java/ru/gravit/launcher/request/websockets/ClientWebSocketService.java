@@ -101,7 +101,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     public void registerResults() {
         registerResult("auth", AuthRequestEvent.class);
-        registerResult("oauth", OAuthRequestEvent.class);
+        registerResult("OAuthURL", AuthRequestEvent.class);
         registerResult("checkServer", CheckServerRequestEvent.class);
         registerResult("joinServer", JoinServerRequestEvent.class);
         registerResult("launcher", LauncherRequestEvent.class);
