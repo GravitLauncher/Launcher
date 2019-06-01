@@ -1,10 +1,15 @@
 /*-- DrLeonardo Design --*/
-Button, CheckBox, ComboBox, RadioButton {
-	-fx-cursor: hand;
+
+Button,
+CheckBox,
+ComboBox,
+RadioButton {
+    -fx-cursor: hand;
 }
 
 
 /* Backgrounds */
+
 #layout {
     -fx-background-color: transparent;
     -fx-background-size: cover;
@@ -12,48 +17,61 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-pref-height: 450px;
     -fx-background-image: url('images/background.jpg');
 }
+
 #background {
     -fx-background-color: #fff;
 }
+
+
 /** Labels **/
-#background > #settingsTitle {
+
+#background>#settingsTitle {
     -fx-font-size: 14pt;
     -fx-alignment: baseline-center;
 }
 
-#serverLabel{
+#serverLabel {
     -fx-text-fill: #323232;
 }
 
-#serverStatus{
+#serverStatus {
     -fx-text-fill: #323232;
     -fx-pref-width: 120px;
     -fx-pref-height: 25px;
 }
 
+
 /* Mask */
+
 #mask {
-    -fx-effect: DropShadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
+    -fx-effect: DropShadow( gaussian, rgba(255, 255, 255, 0.5), 0, 0, 0, 1);
 }
 
+
 /** Errors **/
-#errormessage{
+
+#errormessage {
     -fx-background-color: transparent;
     -fx-text-alignment: center;
     -fx-text-fill: #CE5757;
 }
 
-.error{
+.error {
     -fx-text-fill: #CE5757;
 }
 
+
 /* bars */
+
 #bar {
     -fx-background-color: #323232;
     -fx-pref-width: 46px;
     -fx-pref-height: 450px;
 }
+
+
 /** buttons in bar **/
+
 #close {
     -fx-background-position: center;
     -jfx-button-type: FLAT;
@@ -62,7 +80,12 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-pref-width: 46px;
     -fx-pref-height: 45px;
 }
-#hide, #back, #goConsole, #settings, #discord {
+
+#hide,
+#back,
+#goConsole,
+#settings,
+#discord {
     -fx-background-position: center;
     -jfx-button-type: FLAT;
     -fx-background-radius: 0;
@@ -70,21 +93,23 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-pref-height: 45px;
 }
 
-#logout{
-    -fx-text-fill:#323232;
-    -fx-font-size:12;
-    -fx-font-weight:normal;
-    -fx-border-color:#CE5757;
-    -fx-border-width:1;
-    -fx-background-color:transparent;
-    -fx-padding:0;
+#logout {
+    -fx-text-fill: #323232;
+    -fx-font-size: 12;
+    -fx-font-weight: normal;
+    -fx-border-color: #CE5757;
+    -fx-border-width: 1;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
 }
+
 #logout:hover,
-#logout:focus{
-    -fx-text-fill:#ff6a5e;
+#logout:focus {
+    -fx-text-fill: #ff6a5e;
 }
-#logout:pressed{
-    -fx-border-color:#cb4d43;
+
+#logout:pressed {
+    -fx-border-color: #cb4d43;
 }
 
 #send {
@@ -97,9 +122,13 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-pref-height: 30px;
 }
 
-#send:pressed { -fx-background-color: #d8d8d8; }
+#send:pressed {
+    -fx-background-color: #d8d8d8;
+}
+
 
 /* LoginMenu */
+
 #authPane {
     -fx-background-color: rgba(255, 255, 255, 0.71);
     -fx-pref-width: 270px;
@@ -113,7 +142,9 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-pref-height: 32px;
 }
 
+
 /** Buttons & textarea**/
+
 .auth {
     -jfx-button-type: FLAT;
     -fx-font-weight: bold;
@@ -121,20 +152,40 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-background-radius: 0;
     -fx-background-color: #5fd97a;
     -fx-text-fill: #ffffff;
-    -fx-pref-width: 200px;
+    -fx-pref-width: 145px;
     -fx-pref-height: 45px;
-    -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15,0,0,3);
+    -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15, 0, 0, 3);
 }
 
-.auth:hover, .auth:pressed { -fx-background-color: #75e18c; }
+.vkauth {
+    -jfx-button-type: FLAT;
+    -fx-background-radius: 0;
+    -fx-font-size: 0pt;
+    -fx-background-image: url('images/icons/vk.png');
+	-fx-background-repeat: no-repeat;
+    -fx-pref-width: 62px;
+    -fx-pref-height: 62px;
+    -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15, 0, 0, 3);
+}
 
-#password, #login {
+
+.auth:hover,
+.auth:pressed {
+    -fx-background-color: #75e18c;
+}
+.vkauth:hover,
+.vkauth:pressed {
+    -fx-background-color: #75e18c;
+}
+
+#password,
+#login {
     -fx-background-radius: 0;
     -fx-pref-width: 200px;
     -fx-pref-height: 30px;
 }
 
-.text-input{
+.text-input {
     -fx-focus-color: transparent;
     -fx-background-repeat: no-repeat;
     -fx-text-fill: #909090;
@@ -145,7 +196,9 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-font-weight: bold;
 }
 
+
 /** Hyperlink **/
+
 #link {
     -fx-font-weight: bold;
     -fx-font-size: 7pt;
@@ -155,21 +208,28 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-pref-height: 17px;
 }
 
-#link:hover, #link:pressed { -fx-opacity: 0.8; }
+#link:hover,
+#link:pressed {
+    -fx-opacity: 0.8;
+}
+
 
 /** CheckBox & ComboBox**/
-#rememberchb{
+
+#rememberchb {
     -fx-font-size: 13;
     -fx-text-fill: #909090;
     -fx-pref-width: 145px;
     -fx-pref-height: 30px;
 }
+
 #combologin {
     -fx-text-fill: #909090;
     -fx-prompt-text-fill: #909090;
     -fx-pref-width: 200px;
     -fx-pref-height: 30px;
 }
+
 .combologin,
 .combologin {
     -fx-font-size: 13px;
@@ -187,7 +247,7 @@ Button, CheckBox, ComboBox, RadioButton {
 .combologin-popup .list-view {
     -fx-background-color: white, white;
     -fx-background-insets: 0, 1;
-    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 8, 0.0 , 0 , 0 );
+    -fx-effect: dropshadow( three-pass-box, rgba(0, 0, 0, 0.6), 8, 0.0, 0, 0);
 }
 
 .combologin .list-cell:filled:selected .text,
@@ -200,40 +260,44 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-background-color: #5fd97a;
 }
 
-.combologin-popup .list-view .list-cell
-{
+.combologin-popup .list-view .list-cell {
     -fx-background-color: white;
 }
 
-.combologin-popup .list-view .list-cell:filled:selected, .combologin-popup .list-view .list-cell:filled:selected:hover
-{
+.combologin-popup .list-view .list-cell:filled:selected,
+.combologin-popup .list-view .list-cell:filled:selected:hover {
     -fx-background: -fx-accent;
     -fx-background-color: -fx-selection-bar;
     -fx-text-fill: #909090;
 }
 
-.combologin-popup .list-view .list-cell:filled:hover
-{
+.combologin-popup .list-view .list-cell:filled:hover {
     -fx-background-color: white;
     -fx-text-fill: #909090;
 }
 
+
 /** web**/
+
 #news {
     -fx-background-color: transparent;
     -fx-pref-width: 423px;
     -fx-pref-height: 450px;
 }
 
+
 /* MenuPane */
+
 .serverentrance {
     -fx-background-color: rgba(255, 255, 255, 0.71);
     -fx-pref-width: 386px;
     -fx-pref-height: 450px;
 }
 
+
 /** buttons **/
-.clientLaunch{
+
+.clientLaunch {
     -jfx-button-type: FLAT;
     -fx-font-weight: bold;
     -fx-font-size: 16pt;
@@ -241,17 +305,25 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-background-color: #5fd97a;
     -fx-text-fill: #ffffff;
 }
-.clientSettings{
+
+.clientSettings {
     -fx-background-position: center;
     -jfx-button-type: FLAT;
     -fx-background-color: #5fd97a;
     -fx-background-radius: 0;
 }
 
-.clientLaunch:hover, .clientLaunch:pressed { -fx-background-color: #75e18c; }
+.clientLaunch:hover,
+.clientLaunch:pressed {
+    -fx-background-color: #75e18c;
+}
+
 
 /* Pressets options */
-.pressetLight, .pressetMedium, .pressetHigh {
+
+.pressetLight,
+.pressetMedium,
+.pressetHigh {
     -jfx-toggle-color: #5fd97a;
     -jfx-untoggle-color: #FAFAFA;
     -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
@@ -260,7 +332,9 @@ Button, CheckBox, ComboBox, RadioButton {
     -jfx-disable-visual-focus: false;
 }
 
+
 /* Scrolls */
+
 .scroll-pane {
     -fx-background-color: transparent;
 }
@@ -298,12 +372,14 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-background-color: rgba(0, 0, 0, 0.19);
 }
 
+
 /* OptionsPane */
-#optionsPane > #modlist {
+
+#optionsPane>#modlist {
     -fx-background-color: transparent;
 }
 
-#optionsPane > #modlist > .viewport {
+#optionsPane>#modlist>.viewport {
     -fx-background-color: transparent;
 }
 
@@ -332,39 +408,44 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-border-width: 0 0 10 0;
 }
 
-#serverlist{
-    -fx-background-color: transparent;
-}
-#serverlist > .viewport {
+#serverlist {
     -fx-background-color: transparent;
 }
 
-#serverdesc{
-    -fx-background-color: transparent;
-}
-#serverdesc > .viewport {
+#serverlist>.viewport {
     -fx-background-color: transparent;
 }
 
-#serverinfo{
-    -fx-background-color: transparent;
-}
-#serverinfo > .viewport {
+#serverdesc {
     -fx-background-color: transparent;
 }
 
-#servercontainer{
+#serverdesc>.viewport {
+    -fx-background-color: transparent;
+}
+
+#serverinfo {
+    -fx-background-color: transparent;
+}
+
+#serverinfo>.viewport {
+    -fx-background-color: transparent;
+}
+
+#servercontainer {
     -fx-background-color: transparent;
     -jfx-button-type: FLAT;
     -fx-pref-width: 282px;
     -fx-pref-height: 75px;
 }
 
-.toggle-button:disabled{
+.toggle-button:disabled {
     -fx-opacity: 1.0;
 }
 
-.heading{
+.heading {
     -fx-text-fill: #555555;
 }
+
+
 /*-- DrLeonardo Design --*/
