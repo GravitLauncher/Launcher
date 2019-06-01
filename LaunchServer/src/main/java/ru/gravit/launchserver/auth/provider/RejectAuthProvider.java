@@ -31,6 +31,11 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
     }
 
     @Override
+    public AuthProviderResult oauth(int i) throws Exception {
+        return authError(message);
+    }
+
+    @Override
     public void close() {
         // Do nothing
     }

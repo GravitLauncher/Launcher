@@ -16,6 +16,7 @@ import java.sql.SQLException;
 public final class MySQLAuthProvider extends AuthProvider {
     private MySQLSourceConfig mySQLHolder;
     private String query;
+    private String oauthQuery;
     private String message;
     private String[] queryParams;
     private boolean usePermission;
@@ -43,6 +44,21 @@ public final class MySQLAuthProvider extends AuthProvider {
         }
 
     }
+
+    @Override
+    public AuthProviderResult oauth(int i) throws Exception {
+        try (Connection c = mySQLHolder.getConnection()) {
+            PreparedStatement s = c.prepareStatement(oauthQuery);
+            String[] replaceParams = {"%i%", String.valueOf(i)};
+                s.setString(1, oauthQuery.replace("?", String.valueOf(i)));
+            // Execute SQL query
+            s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
+            try (ResultSet set = s.executeQuery()) {
+                return set.next() ? new AuthProviderResult(set.getString(1),
+                        SecurityHelper.randomStringToken(),
+                        LaunchServer.server.config.permissionsHandler.getPermissions(set.getString(1))) : authError(message);
+            }
+        }    }
 
     @Override
     public void close() {

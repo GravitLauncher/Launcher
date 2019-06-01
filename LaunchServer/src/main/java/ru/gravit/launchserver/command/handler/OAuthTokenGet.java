@@ -39,23 +39,24 @@ public class OAuthTokenGet extends Command {
     @Override
     public void invoke(String... args) {
         String code = args[0];
-        UserAuthResponse authResponse = mToken(code, vk);
-        LogHelper.subInfo(authResponse.getAccessToken());
+        UserAuthResponse authResponse = null;
+        try {
+            authResponse = mToken(code, vk);
+            LogHelper.subInfo(authResponse.getAccessToken());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public static UserAuthResponse mToken(String code, VkApiClient vk) {
-        UserAuthResponse authResponse= null;
-        try {
+    public static UserAuthResponse mToken(String code, VkApiClient vk) throws ClientException, ApiException {
+        UserAuthResponse authResponse;
             authResponse = vk.oAuth().
-                    userAuthorizationCodeFlow(LaunchServer.server.config.OAuthAppID,
+                    userAuthorizationCodeFlow(
+                            LaunchServer.server.config.OAuthAppID,
                             LaunchServer.server.config.OAuthAppSecret,
                             LaunchServer.server.config.getOAuthBackURL(),
                             code).execute();
-        } catch (ApiException e) {
-            e.printStackTrace();
-        } catch (ClientException e) {
-            e.printStackTrace();
-        }
+
         return authResponse;
     }
 }

@@ -307,17 +307,25 @@ function doAuth(login, rsaPassword, auth_type) {
         })
     });
 }
+
 function doOAuth() {
     processing.resetOverlay();
     overlay.show(processing.overlay, function (event) {
         FunctionalBridge.getHWID.join();
-        makeOAuthRequest(function (result) {
-            openURL(new java.net.URL(result.URL));
-            overlay.hide(600000, function () {
+            openURL(getOAuthURL());
+            overlay.hide(300000, function () {
                 setCurrentScene(loginScene);
             });
-            return result;
-        })
+            makeOAuthRequest(function (result) {
+                FunctionalBridge.setAuthParams(result);
+                loginData = { pp: result.playerProfile , accessToken: result.accessToken, permissions: result.permissions,
+                    auth_type: "OAuth"};
+
+                overlay.hide(0, function () {
+                    setCurrentScene(menuScene);
+                });
+                return result;
+            })
     });
 }
 

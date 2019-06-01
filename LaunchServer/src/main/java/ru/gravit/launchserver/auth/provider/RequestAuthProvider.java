@@ -37,6 +37,11 @@ public final class RequestAuthProvider extends AuthProvider {
     }
 
     @Override
+    public AuthProviderResult oauth(int i) throws Exception {
+        return null;
+    }
+
+    @Override
     public void close() {
         // Do nothing
     }

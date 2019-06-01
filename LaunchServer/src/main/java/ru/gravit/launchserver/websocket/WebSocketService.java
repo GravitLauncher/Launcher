@@ -161,8 +161,7 @@ public class WebSocketService {
 
     public void registerResponses() {
         registerResponse("auth", AuthResponse.class);
-        registerResponse("oauth", OAuthResponse.class);
-        registerResponse("OAuthURL", OAuthConfirmResponse.class);
+        registerResponse("OAuthURL", OAuthResponse.class);
         registerResponse("checkServer", CheckServerResponse.class);
         registerResponse("joinServer", JoinServerResponse.class);
         registerResponse("profiles", ProfilesResponse.class);

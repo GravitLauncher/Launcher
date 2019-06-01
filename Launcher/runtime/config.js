@@ -11,6 +11,9 @@ var config = {
     // Menu config
     discord: new java.net.URL("https://discord.gg/aJK6nMN"),
 
+    OAuthAppID: 0,
+    OAuthBackURL: "https://%address%/OAuth.html",
+
     // Settings defaults
     settingsMagic: 0xC0DE5, // Magic, don't touch
     autoEnterDefault: false, // Should autoEnter be enabled by default?

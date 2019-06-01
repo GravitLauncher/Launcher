@@ -23,9 +23,10 @@ public final class OAuthCacheHandler extends Command {
 
     @Override
     public void invoke(String... args) {
-        LogHelper.subInfo("Length of Cache "  + OAuthManager.stageAreaLength());
-        for(int i=0; i < OAuthManager.stageAreaLength(); i++ ){
-            LogHelper.subInfo("IP is: " + LaunchServer.server.cacheHandler.stageArea[i].IP());
+        LogHelper.subInfo("Length of Cache "  + OAuthManager.getCacheLength());
+        for(OAuthManager.Entry e:  OAuthManager.getStageArea() ){
+            if(e.isInit())
+                LogHelper.subInfo("IP is: " + e.getIP());
         }
     }
 }

@@ -1,9 +1,10 @@
 package ru.gravit.launchserver.manangers;
 
-import com.vk.api.sdk.actions.OAuth;
 import io.netty.channel.ChannelHandlerContext;
 import ru.gravit.launcher.NeedGarbageCollection;
+import ru.gravit.launcher.events.request.AuthRequestEvent;
 import ru.gravit.launchserver.LaunchServer;
+import ru.gravit.launchserver.auth.provider.AuthProviderResult;
 import ru.gravit.launchserver.socket.Client;
 import ru.gravit.utils.helper.IOHelper;
 import ru.gravit.utils.helper.LogHelper;
@@ -16,136 +17,138 @@ public class OAuthManager implements NeedGarbageCollection {
 
     @Override
     public void garbageCollection() {
-        for(int i=0; i < 5; i++ )
-        {
-            LaunchServer.server.cacheHandler.stageArea[i].destroy.run();
-            int finalI = i;
-            LaunchServer.server.cacheHandler.stageArea[i].destroy = new TimerTask() {
-                @Override
-                public void run() {
-                    if(!LaunchServer.server.cacheHandler.stageArea[finalI].init)
-                        return;
-                    LogHelper.debug("cache purged, IP: " + LaunchServer.server.cacheHandler.stageArea[finalI].IP());
-                    LaunchServer.server.cacheHandler.stageArea[finalI].init = false;
-                    LaunchServer.server.cacheHandler.stageArea[finalI].mTimer = null;
-                    LaunchServer.server.cacheHandler.stageArea[finalI].client = null;
-                    LaunchServer.server.cacheHandler.stageArea[finalI].ctx = null;
-                }
-            };
-        }
+            for(Entry e: LaunchServer.server.cacheHandler.stageArea)
+            {
+                e.destroy();
+            }
         LogHelper.subInfo("OAuthCache purged");
-    }
-
-    public Entry[] stageArea;
-
-    public OAuthManager(){
-        if(stageArea == null) {
-            stageArea = newEntryArray();
-        }
     }
 
     public static class Entry{
 
-        public void setEntry(Client client, ChannelHandlerContext ctx){
-            if(client != null && ctx != null) {
-                this.init =  true;
-                this.client = client;
-                this.ctx = ctx;
-                this.mTimer = new Timer();
-                this.mTimer.schedule(destroy, 300000L);
-                LogHelper.subDebug("New Entry with IP " + IP());
-            }
+        public void setter(ChannelHandlerContext ctx, Client client){
+            this.init = true;
+            this.ctx = ctx;
+            this.client = client;
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    destroy();
+                }
+            }, 300000L);
         }
 
-        public void Entry(){
-            this.init = false;
-            this.mTimer = null;
-            this.client = null;
+        public void setter(AuthRequestEvent authRequestEvent){
+            this.authRequestEvent = authRequestEvent;
+        }
+
+        public Entry(){
+            this.init =  false;
             this.ctx = null;
+            this.client = null;
+            this.authRequestEvent = null;
+            new Timer().cancel();
         }
 
-        private boolean init = false;
+        private boolean init;
 
-        private Client client = null;
+        private ChannelHandlerContext ctx;
 
-        private ChannelHandlerContext ctx = null;
+        private Client client;
 
-        private Timer mTimer = null;
+        private AuthRequestEvent authRequestEvent;
 
-        public String IP(){
-           return IOHelper.getIP(getCtx().channel().remoteAddress());
+        public void destroy(){
+            this.init =  false;
+            this.ctx = null;
+            this.client = null;
+            this.authRequestEvent = null;
+            new Timer().cancel();
         }
-
-        private TimerTask destroy = new TimerTask() {
-            @Override
-            public void run() {
-                if(!init)
-                    return;
-                LogHelper.debug("cache purged, IP: " + IP());
-                init = false;
-                mTimer = null;
-                client = null;
-                ctx = null;
-            }
-        };
 
         public boolean isInit() {
             return init;
-        }
-
-        public Client getClient() {
-            return client;
         }
 
         public ChannelHandlerContext getCtx() {
             return ctx;
         }
 
-    }
-    public static int stageAreaLength(){
-        int i = 0;
-        for(int e=0; e < 5; e++ )
-        {
-            i += LaunchServer.server.cacheHandler.stageArea[e].isInit() ? 1 : 0;
+        public Client getClient() {
+            return client;
         }
+
+        public String getIP(){
+            if(isInit())
+                return IOHelper.getIP(getCtx().channel().remoteAddress());
+            else
+                return null;
+        }
+    }
+
+    private Entry[] stageArea;
+
+    public static Entry[] getStageArea(){
+        return LaunchServer.server.cacheHandler.stageArea;
+    }
+
+    public static Integer getCacheLength(){
+        int i = 0;
+        for(Entry e : LaunchServer.server.cacheHandler.stageArea)
+            i = e.isInit() ? 1 : 0;
         return i;
     }
 
-    public static void stretchCache(Client client, ChannelHandlerContext ctx){
-        getUnused().setEntry(client, ctx);
+    public OAuthManager(){
+        stageArea = new Entry[]{
+                new Entry(), new Entry(), new Entry(), new Entry(), new Entry()
+        };
     }
 
-    public static Entry getUnused(){
-        for(int i=0; i < 5; i++ )
-        {
-            if(!LaunchServer.server.cacheHandler.stageArea[i].isInit())
-                return LaunchServer.server.cacheHandler.stageArea[i];
-        }
+    public static void stretchCache(ChannelHandlerContext ctx, Client client){
         try {
-            throw new OAuthException("OAuth Overloaded");
+           Entry e = getUnused();
+           e.setter(ctx, client);
+           LogHelper.subDebug("New Entry IP: " + e.getIP());
         } catch (OAuthException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
-    public static Entry getEntry(String IP){
-        for(int i = 0; i < 5; i++ )
+    public static void stretchCache(String IP, AuthRequestEvent authRequestEvent){
+            for(Entry e: LaunchServer.server.cacheHandler.stageArea)
+            {
+                if(e.getIP().equals(IP))
+                    e.setter(authRequestEvent);
+            }
+            try {
+                throw new OAuthException("Not found");
+            } catch (OAuthException e) {
+                e.printStackTrace();
+            }
+    }
+    public static void stretchCache(ChannelHandlerContext ctx, AuthRequestEvent authRequestEvent){
+            for(Entry e: LaunchServer.server.cacheHandler.stageArea)
+            {
+                if(e.getIP().equals(IOHelper.getIP(ctx.channel().remoteAddress())))
+                    e.setter(authRequestEvent);
+            }
+            try {
+                throw new OAuthException("Not found");
+            } catch (OAuthException e) {
+                e.printStackTrace();
+            }
+    }
+
+    public static Entry getUnused() throws OAuthException {
+        for(Entry e: LaunchServer.server.cacheHandler.stageArea)
         {
-            if(LaunchServer.server.cacheHandler.stageArea[i].isInit())
-                if(LaunchServer.server.cacheHandler.stageArea[i].IP().equals(IP))
-                    return LaunchServer.server.cacheHandler.stageArea[i];
+            if(e.isInit())
+                continue;
+            return e;
         }
-        try {
-            throw new OAuthException("Not found in cache");
-        }catch (OAuthException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
-    public static Entry[] newEntryArray(){
-        return new Entry[]{new Entry(), new Entry(), new Entry(), new Entry(), new Entry()};
+        throw new OAuthException("OAuth Overloaded");
     }
 
     public static final class OAuthException extends IOException {
@@ -159,6 +162,4 @@ public class OAuthManager implements NeedGarbageCollection {
             return getMessage();
         }
     }
-
-
 }

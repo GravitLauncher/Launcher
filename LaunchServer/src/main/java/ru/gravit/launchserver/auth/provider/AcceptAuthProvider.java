@@ -10,6 +10,11 @@ public final class AcceptAuthProvider extends AuthProvider {
     }
 
     @Override
+    public AuthProviderResult oauth(int i) throws Exception {
+        return new AuthProviderResult(String.valueOf(i), SecurityHelper.randomStringToken()); // Same as login
+    }
+
+    @Override
     public void close() {
         // Do nothing
     }
