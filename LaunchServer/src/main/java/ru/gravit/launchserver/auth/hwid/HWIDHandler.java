@@ -15,6 +15,7 @@ public abstract class HWIDHandler implements AutoCloseable {
             providers.register("accept", AcceptHWIDHandler.class);
             providers.register("mysql", MysqlHWIDHandler.class);
             providers.register("json", JsonHWIDHandler.class);
+            providers.register("jsonfile", JsonFileHWIDHandler.class);
             providers.register("memory", MemoryHWIDHandler.class);
             registredHandl = true;
         }
