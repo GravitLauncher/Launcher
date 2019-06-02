@@ -1,7 +1,7 @@
 apply plugin: 'com.github.johnrengelman.shadow'
 
-String mainClassName = "ru.gravit.launcher.ClientLauncherWrapper"
-String mainAgentName = "ru.gravit.launcher.LauncherAgent"
+String mainClassName = "pro.gravit.launcher.ClientLauncherWrapper"
+String mainAgentName = "pro.gravit.launcher.LauncherAgent"
 
 repositories {
     maven {
@@ -30,8 +30,8 @@ jar {
 
 shadowJar {
     classifier = null
-    relocate 'org.objectweb.asm', 'ru.gravit.repackage.org.objectweb.asm'
-    relocate 'io.netty', 'ru.gravit.repackage.io.netty'
+    relocate 'org.objectweb.asm', 'pro.gravit.repackage.org.objectweb.asm'
+    relocate 'io.netty', 'pro.gravit.repackage.io.netty'
     configurations = [project.configurations.pack]
     exclude 'module-info.class'
 }
