@@ -1,6 +1,6 @@
 package net.minecraftforge.fml;
 
-import ru.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.JVMHelper;
 
 // FMLSecurityManager запрещает делать System.exit из классов
 // Не входящих в пакеты самого Forge

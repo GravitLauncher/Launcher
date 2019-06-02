@@ -1,7 +1,7 @@
 apply plugin: 'com.github.johnrengelman.shadow'
 
-String mainClassName = "ru.gravit.launcher.server.ServerWrapper"
-String mainAgentName = "ru.gravit.launcher.server.ServerAgent"
+String mainClassName = "pro.gravit.launcher.server.ServerWrapper"
+String mainAgentName = "pro.gravit.launcher.server.ServerAgent"
 
 configurations {
     pack

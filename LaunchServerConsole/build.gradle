@@ -1,4 +1,4 @@
-String mainClassName = "ru.gravit.launchserver.console.ConsoleMain"
+String mainClassName = "pro.gravit.launchserver.console.ConsoleMain"
 
 
 repositories {
