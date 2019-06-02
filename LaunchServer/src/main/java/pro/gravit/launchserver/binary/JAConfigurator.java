@@ -29,12 +29,12 @@ public class JAConfigurator implements AutoCloseable {
     }
 
     public void addModuleClass(String fullName) {
-        moduleBody.append("ru.gravit.launcher.modules.Module mod");
+        moduleBody.append("pro.gravit.launcher.modules.Module mod");
         moduleBody.append(autoincrement);
         moduleBody.append(" = new ");
         moduleBody.append(fullName);
         moduleBody.append("();");
-        moduleBody.append("ru.gravit.launcher.Launcher.modulesManager.registerModule( mod");
+        moduleBody.append("pro.gravit.launcher.Launcher.modulesManager.registerModule( mod");
         moduleBody.append(autoincrement);
         moduleBody.append(");");
         autoincrement++;

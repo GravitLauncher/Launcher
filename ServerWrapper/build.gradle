@@ -34,7 +34,7 @@ dependencies {
 
 shadowJar {
     classifier = null
-    relocate 'io.netty', 'ru.gravit.repackage.io.netty'
+    relocate 'io.netty', 'pro.gravit.repackage.io.netty'
     configurations = [project.configurations.pack]
     exclude 'module-info.class'
 }
