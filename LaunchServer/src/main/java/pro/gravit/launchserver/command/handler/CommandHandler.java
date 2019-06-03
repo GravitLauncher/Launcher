@@ -2,6 +2,8 @@ package pro.gravit.launchserver.command.handler;
 
 import pro.gravit.launchserver.command.auth.*;
 import pro.gravit.launchserver.command.basic.*;
+import pro.gravit.launchserver.command.dao.GetUserCommand;
+import pro.gravit.launchserver.command.dao.RegisterCommand;
 import pro.gravit.launchserver.command.hash.*;
 import pro.gravit.launchserver.command.install.CheckInstallCommand;
 import pro.gravit.launchserver.command.install.MultiCommand;
@@ -56,6 +58,13 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         updates.registerCommand("syncProfiles", new SyncProfilesCommand(server));
         Category updatesCategory = new Category(updates, "updates", "Update and Sync Management");
         handler.registerCategory(updatesCategory);
+
+        //Register dao commands
+        BaseCommandCategory dao = new BaseCommandCategory();
+        dao.registerCommand("register", new RegisterCommand(server));
+        dao.registerCommand("getUser", new GetUserCommand(server));
+        Category daoCategory = new Category(dao, "DAO", "Data Management");
+        handler.registerCategory(daoCategory);
 
         // Register auth commands
         BaseCommandCategory auth = new BaseCommandCategory();
