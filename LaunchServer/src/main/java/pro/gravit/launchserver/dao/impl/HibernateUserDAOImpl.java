@@ -12,23 +12,25 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.components.HibernateConfiguratorComponent;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;
-import pro.gravit.launchserver.hibernate.HibernateManager;
 
 public class HibernateUserDAOImpl implements UserDAO {
-	private final LaunchServer srv;
+	private final HibernateConfiguratorComponent hibernate;
 
 	public HibernateUserDAOImpl(LaunchServer srv) {
-		this.srv = srv;
+		hibernate = (HibernateConfiguratorComponent) srv.config.components.values().stream().filter(e -> HibernateConfiguratorComponent.class.isInstance(e)).findFirst().get();
 	}
 
     public User findById(int id) {
-        return HibernateManager.getSessionFactory(srv).openSession().get(User.class, id);
+        try (Session s =  hibernate.sessionFactory.openSession()) {
+        	return s.get(User.class, id);
+        }
     }
 
     public User findByUsername(String username) {
-        EntityManager em = HibernateManager.getSessionFactory(srv).createEntityManager();
+        EntityManager em = hibernate.sessionFactory.createEntityManager();
         em.getTransaction().begin();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<User> personCriteria = cb.createQuery(User.class);
@@ -40,7 +42,7 @@ public class HibernateUserDAOImpl implements UserDAO {
     }
 
     public User findByUUID(UUID uuid) {
-        EntityManager em = HibernateManager.getSessionFactory(srv).createEntityManager();
+        EntityManager em = hibernate.sessionFactory.createEntityManager();
         em.getTransaction().begin();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<User> personCriteria = cb.createQuery(User.class);
@@ -52,31 +54,33 @@ public class HibernateUserDAOImpl implements UserDAO {
     }
 
     public void save(User user) {
-        Session session = HibernateManager.getSessionFactory(srv).openSession();
-        Transaction tx1 = session.beginTransaction();
-        session.save(user);
-        tx1.commit();
-        session.close();
+        try (Session session = hibernate.sessionFactory.openSession()) {
+        	Transaction tx1 = session.beginTransaction();
+        	session.save(user);
+        	tx1.commit();
+    	}
     }
 
     public void update(User user) {
-        Session session = HibernateManager.getSessionFactory(srv).openSession();
-        Transaction tx1 = session.beginTransaction();
-        session.update(user);
-        tx1.commit();
-        session.close();
+        try (Session session = hibernate.sessionFactory.openSession()) {
+        	Transaction tx1 = session.beginTransaction();
+        	session.update(user);
+        	tx1.commit();
+    	}
     }
 
     public void delete(User user) {
-        Session session = HibernateManager.getSessionFactory(srv).openSession();
-        Transaction tx1 = session.beginTransaction();
-        session.delete(user);
-        tx1.commit();
-        session.close();
+        try (Session session = hibernate.sessionFactory.openSession()) {
+        	Transaction tx1 = session.beginTransaction();
+        	session.delete(user);
+        	tx1.commit();
+        }
     }
 
     @SuppressWarnings("unchecked")
 	public List<User> findAll() {
-        return (List<User>) HibernateManager.getSessionFactory(srv).openSession().createQuery("From User").list();
+    	try (Session s = hibernate.sessionFactory.openSession()) {
+    		return (List<User>) s.createQuery("From User").list();
+    	}
     }
 }
