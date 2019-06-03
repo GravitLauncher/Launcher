@@ -2,6 +2,7 @@ package pro.gravit.launchserver.hibernate;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import pro.gravit.launchserver.dao.UserDAO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;

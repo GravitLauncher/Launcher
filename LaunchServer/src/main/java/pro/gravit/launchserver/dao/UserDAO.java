@@ -1,4 +1,6 @@
-package pro.gravit.launchserver.hibernate;
+package pro.gravit.launchserver.dao;
+
+import pro.gravit.launchserver.hibernate.User;
 
 import java.util.List;
 import java.util.UUID;

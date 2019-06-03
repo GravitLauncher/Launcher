@@ -1,13 +1,17 @@
-package pro.gravit.launchserver.hibernate;
+package pro.gravit.launchserver.dao;
+
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.hibernate.User;
 
 import java.util.List;
 import java.util.UUID;
 
 public class UserService {
 
-    private UserDAO usersDao = new UserDAOImpl();
+    private final UserDAO usersDao;
 
-    public UserService() {
+    public UserService(LaunchServer server) {
+        usersDao = LaunchServerDaoFactory.createUserDao();
     }
 
     public User findUser(int id) {
