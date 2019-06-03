@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.auth.provider;
 
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.hibernate.HibernateManager;
 import pro.gravit.utils.ProviderMap;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ public abstract class AuthProvider implements AutoCloseable {
             providers.register("mysql", MySQLAuthProvider.class);
             providers.register("request", RequestAuthProvider.class);
             providers.register("json", JsonAuthProvider.class);
+            providers.register("hibernate", HibernateAuthProvider.class);
             registredProv = true;
         }
     }

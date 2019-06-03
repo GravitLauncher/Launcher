@@ -53,6 +53,7 @@ dependencies {
     bundle 'commons-codec:commons-codec:1.12'
     bundle 'org.javassist:javassist:3.25.0-GA'
     bundle 'io.netty:netty-all:4.1.36.Final'
+    bundle 'org.hibernate:hibernate-core:5.4.3.Final'
 
     bundle 'org.slf4j:slf4j-simple:1.7.25'
     bundle 'org.slf4j:slf4j-api:1.7.25'
