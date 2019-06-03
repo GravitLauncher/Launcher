@@ -66,7 +66,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             ctx.channel().close();
         } else {
             String message = "unsupported frame type: " + frame.getClass().getName();
-            throw new UnsupportedOperationException(message);
+            LogHelper.error(new UnsupportedOperationException(message)); // prevent strange crash here.
         }
     }
 }
