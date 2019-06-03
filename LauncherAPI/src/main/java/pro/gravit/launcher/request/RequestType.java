@@ -1,10 +1,10 @@
 package pro.gravit.launcher.request;
 
+import java.io.IOException;
+
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.stream.EnumSerializer;
-
-import java.io.IOException;
 
 public enum RequestType implements EnumSerializer.Itf {
     PING(0), // Ping request

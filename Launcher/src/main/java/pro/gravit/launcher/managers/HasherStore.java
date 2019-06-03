@@ -1,5 +1,12 @@
 package pro.gravit.launcher.managers;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Map;
+
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
@@ -7,13 +14,6 @@ import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Map;
 
 public class HasherStore {
     public Map<String, HasherStoreEnity> store;

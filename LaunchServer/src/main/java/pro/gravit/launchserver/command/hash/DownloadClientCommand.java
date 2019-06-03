@@ -1,5 +1,12 @@
 package pro.gravit.launchserver.command.hash;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.ClientProfile.Version;
@@ -9,13 +16,6 @@ import pro.gravit.utils.HttpDownloader;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
 
 public final class DownloadClientCommand extends Command {
 

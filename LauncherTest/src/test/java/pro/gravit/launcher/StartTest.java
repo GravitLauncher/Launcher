@@ -1,15 +1,16 @@
 package pro.gravit.launcher;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import pro.gravit.launcher.test.utils.EXENonWarningLauncherBinary;
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.spec.InvalidKeySpecException;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import pro.gravit.launcher.test.utils.EXENonWarningLauncherBinary;
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.utils.helper.LogHelper;
 
 public class StartTest {
     @TempDir

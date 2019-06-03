@@ -1,14 +1,14 @@
 package pro.gravit.launcher.request;
 
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.request.websockets.RequestInterface;
 import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import pro.gravit.utils.helper.SecurityHelper;
-
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Request<R extends ResultInterface> implements RequestInterface {
     private static long session = SecurityHelper.secureRandom.nextLong();

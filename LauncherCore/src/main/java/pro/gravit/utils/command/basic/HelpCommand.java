@@ -1,13 +1,14 @@
 package pro.gravit.utils.command.basic;
 
+import java.util.Map.Entry;
+
 import org.fusesource.jansi.Ansi;
+
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.helper.FormatHelper;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.util.Map.Entry;
 
 public final class HelpCommand extends Command {
     private CommandHandler handler;

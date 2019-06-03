@@ -1,6 +1,7 @@
 package pro.gravit.launcher.server;
 
 import com.google.gson.GsonBuilder;
+
 import pro.gravit.launcher.managers.GsonManager;
 
 public class ServerWrapperGsonManager extends GsonManager {

@@ -1,10 +1,10 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.serialize.HInput;
-import pro.gravit.launcher.serialize.HOutput;
-
 import java.io.IOException;
 import java.util.StringJoiner;
+
+import pro.gravit.launcher.serialize.HInput;
+import pro.gravit.launcher.serialize.HOutput;
 
 public class ClientPermissions {
     public static final ClientPermissions DEFAULT = new ClientPermissions();

@@ -1,13 +1,5 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.managers.GsonManager;
-import pro.gravit.launcher.modules.ModulesManager;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.serialize.HInput;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.NoSuchFileException;
@@ -17,6 +9,14 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
+
+import pro.gravit.launcher.managers.GsonManager;
+import pro.gravit.launcher.modules.ModulesManager;
+import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.serialize.HInput;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 public final class Launcher {
 

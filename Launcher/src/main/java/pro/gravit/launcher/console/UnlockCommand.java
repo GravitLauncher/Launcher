@@ -1,8 +1,8 @@
 package pro.gravit.launcher.console;
 
 import pro.gravit.launcher.managers.ConsoleManager;
-import pro.gravit.utils.command.Command;
 import pro.gravit.launcher.managers.SettingsManager;
+import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 
 public class UnlockCommand extends Command {

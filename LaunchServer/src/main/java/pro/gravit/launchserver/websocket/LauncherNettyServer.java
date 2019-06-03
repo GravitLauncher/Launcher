@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.websocket;
 
+import java.net.InetSocketAddress;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -19,8 +21,6 @@ import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.websocket.fileserver.FileServerHandler;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.net.InetSocketAddress;
 
 public class LauncherNettyServer implements AutoCloseable {
     public final ServerBootstrap serverBootstrap;

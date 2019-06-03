@@ -1,19 +1,23 @@
 package pro.gravit.launcher.managers;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.jar.JarFile;
+
 import pro.gravit.launcher.modules.Module;
 import pro.gravit.launcher.modules.ModuleContext;
 import pro.gravit.launcher.modules.ModulesManager;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.jar.JarFile;
 
 public class SimpleModuleManager implements ModulesManager {
     protected final class ModulesVisitor extends SimpleFileVisitor<Path> {

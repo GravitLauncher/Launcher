@@ -1,19 +1,23 @@
 package pro.gravit.launcher.managers;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.NewLauncherSettings;
 import pro.gravit.launcher.client.DirBridge;
+import pro.gravit.launcher.config.JsonConfigurable;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.launcher.config.JsonConfigurable;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 
 public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
     public class StoreFileVisitor extends SimpleFileVisitor<Path> {

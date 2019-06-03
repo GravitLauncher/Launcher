@@ -1,20 +1,20 @@
 package pro.gravit.launcher.guard;
 
-import pro.gravit.launcher.bridge.GravitGuardBridge;
-import pro.gravit.utils.helper.UnpackHelper;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.client.ClientLauncher;
-import pro.gravit.launcher.client.ClientLauncherContext;
-import pro.gravit.launcher.client.DirBridge;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
+
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.bridge.GravitGuardBridge;
+import pro.gravit.launcher.client.ClientLauncher;
+import pro.gravit.launcher.client.ClientLauncherContext;
+import pro.gravit.launcher.client.DirBridge;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.UnpackHelper;
 
 //Используется для всех типов защит, совместимых с новым GravitGuard API
 public class LauncherGravitGuard implements LauncherGuardInterface {

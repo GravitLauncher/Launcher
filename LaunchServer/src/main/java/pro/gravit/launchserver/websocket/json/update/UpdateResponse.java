@@ -1,14 +1,14 @@
 package pro.gravit.launchserver.websocket.json.update;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.websocket.json.SimpleResponse;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.socket.Client;
+import pro.gravit.launchserver.websocket.json.SimpleResponse;
 
 public class UpdateResponse extends SimpleResponse {
     public String dirName;

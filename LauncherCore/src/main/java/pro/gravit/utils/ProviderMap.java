@@ -1,10 +1,10 @@
 package pro.gravit.utils;
 
-import pro.gravit.utils.helper.VerifyHelper;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+
+import pro.gravit.utils.helper.VerifyHelper;
 
 public class ProviderMap<R> {
     protected final Map<String, Class<? extends R>> PROVIDERS = new ConcurrentHashMap<>(4);

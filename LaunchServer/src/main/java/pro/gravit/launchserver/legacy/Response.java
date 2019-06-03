@@ -1,18 +1,18 @@
 package pro.gravit.launchserver.legacy;
 
-import pro.gravit.launchserver.legacy.update.LauncherResponse;
-import pro.gravit.launchserver.legacy.update.LegacyLauncherResponse;
-import pro.gravit.launchserver.socket.Client;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.RequestType;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.legacy.update.LauncherResponse;
+import pro.gravit.launchserver.legacy.update.LegacyLauncherResponse;
+import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Response {
     @FunctionalInterface

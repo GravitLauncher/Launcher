@@ -1,14 +1,14 @@
 package pro.gravit.launchserver.websocket.json.update;
 
+import java.util.Arrays;
+import java.util.Base64;
+
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
-import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.utils.Version;
-
-import java.util.Arrays;
-import java.util.Base64;
 
 public class LauncherResponse extends SimpleResponse {
     public Version version;

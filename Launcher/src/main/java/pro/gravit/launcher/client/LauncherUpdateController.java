@@ -1,16 +1,5 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.hasher.HashedDir;
-import pro.gravit.launcher.hasher.HashedEntry;
-import pro.gravit.launcher.hasher.HashedFile;
-import pro.gravit.launcher.NewLauncherSettings;
-import pro.gravit.launcher.downloader.ListDownloader;
-import pro.gravit.launcher.events.request.UpdateRequestEvent;
-import pro.gravit.launcher.managers.SettingsManager;
-import pro.gravit.launcher.request.update.UpdateRequest;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +8,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+
+import pro.gravit.launcher.NewLauncherSettings;
+import pro.gravit.launcher.downloader.ListDownloader;
+import pro.gravit.launcher.events.request.UpdateRequestEvent;
+import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.hasher.HashedEntry;
+import pro.gravit.launcher.hasher.HashedFile;
+import pro.gravit.launcher.managers.SettingsManager;
+import pro.gravit.launcher.request.update.UpdateRequest;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public class LauncherUpdateController implements UpdateRequest.UpdateController {
     @Override

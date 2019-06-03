@@ -1,12 +1,12 @@
 package pro.gravit.launchserver.websocket.json.auth;
 
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.events.request.CheckServerRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
 import pro.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
-import pro.gravit.launcher.events.request.CheckServerRequestEvent;
 import pro.gravit.utils.HookException;
 import pro.gravit.utils.helper.LogHelper;
 

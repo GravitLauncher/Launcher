@@ -1,13 +1,13 @@
 package pro.gravit.launcher.request.uuid;
 
+import java.util.Objects;
+import java.util.UUID;
+
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
-import pro.gravit.launcher.request.websockets.RequestInterface;
 import pro.gravit.launcher.request.Request;
-
-import java.util.Objects;
-import java.util.UUID;
+import pro.gravit.launcher.request.websockets.RequestInterface;
 
 public final class ProfileByUUIDRequest extends Request<ProfileByUUIDRequestEvent> implements RequestInterface {
     @LauncherNetworkAPI

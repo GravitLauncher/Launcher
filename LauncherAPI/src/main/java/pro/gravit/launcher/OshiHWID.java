@@ -1,9 +1,9 @@
 package pro.gravit.launcher;
 
-import com.google.gson.Gson;
-
 import java.util.Objects;
 import java.util.StringJoiner;
+
+import com.google.gson.Gson;
 
 public class OshiHWID implements HWID {
     public static Gson gson = new Gson();

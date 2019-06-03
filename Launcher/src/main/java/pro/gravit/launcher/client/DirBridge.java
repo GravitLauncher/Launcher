@@ -1,13 +1,13 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
 
 public class DirBridge {
 

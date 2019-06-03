@@ -1,11 +1,11 @@
 package pro.gravit.launcher.events.request;
 
-import pro.gravit.launcher.LauncherNetworkAPI;
-import pro.gravit.utils.event.EventInterface;
-import pro.gravit.launcher.events.RequestEvent;
-
 import java.util.HashSet;
 import java.util.UUID;
+
+import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.events.RequestEvent;
+import pro.gravit.utils.event.EventInterface;
 
 public class UpdateListRequestEvent extends RequestEvent implements EventInterface {
     private static final UUID uuid = UUID.fromString("5fa836ae-6b61-401c-96ac-d8396f07ec6b");

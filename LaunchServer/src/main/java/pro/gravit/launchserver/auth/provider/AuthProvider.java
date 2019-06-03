@@ -1,9 +1,9 @@
 package pro.gravit.launchserver.auth.provider;
 
+import java.io.IOException;
+
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.utils.ProviderMap;
-
-import java.io.IOException;
 
 public abstract class AuthProvider implements AutoCloseable {
     public static ProviderMap<AuthProvider> providers = new ProviderMap<>("AuthProvider");

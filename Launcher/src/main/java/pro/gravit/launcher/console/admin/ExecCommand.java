@@ -1,8 +1,8 @@
 package pro.gravit.launcher.console.admin;
 
-import pro.gravit.utils.command.Command;
 import pro.gravit.launcher.events.request.ExecCommandRequestEvent;
 import pro.gravit.launcher.request.admin.ExecCommandRequest;
+import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 
 public class ExecCommand extends Command {

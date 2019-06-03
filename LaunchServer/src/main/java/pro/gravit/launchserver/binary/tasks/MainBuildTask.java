@@ -1,18 +1,6 @@
 package pro.gravit.launchserver.binary.tasks;
 
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.asm.ClassMetadataReader;
-import pro.gravit.launchserver.binary.BuildContext;
-import pro.gravit.launchserver.binary.JAConfigurator;
-import pro.gravit.launcher.AutogenConfig;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
+import static pro.gravit.utils.helper.IOHelper.newZipEntry;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,7 +16,19 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static pro.gravit.utils.helper.IOHelper.newZipEntry;
+import javassist.CannotCompileException;
+import javassist.NotFoundException;
+import pro.gravit.launcher.AutogenConfig;
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.serialize.HOutput;
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.asm.ClassMetadataReader;
+import pro.gravit.launchserver.binary.BuildContext;
+import pro.gravit.launchserver.binary.JAConfigurator;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 public class MainBuildTask implements LauncherBuildTask {
     private final LaunchServer server;

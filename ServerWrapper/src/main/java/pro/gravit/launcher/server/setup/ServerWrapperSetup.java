@@ -1,11 +1,5 @@
 package pro.gravit.launcher.server.setup;
 
-import pro.gravit.utils.PublicURLClassLoader;
-import pro.gravit.launcher.server.ServerWrapper;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
@@ -13,6 +7,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.jar.JarFile;
+
+import pro.gravit.launcher.server.ServerWrapper;
+import pro.gravit.utils.PublicURLClassLoader;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public class ServerWrapperSetup {
     public ServerWrapperCommands commands;

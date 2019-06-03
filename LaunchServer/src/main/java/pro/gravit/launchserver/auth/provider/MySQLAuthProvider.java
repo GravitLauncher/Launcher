@@ -1,5 +1,10 @@
 package pro.gravit.launchserver.auth.provider;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
@@ -7,11 +12,6 @@ import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public final class MySQLAuthProvider extends AuthProvider {
     private MySQLSourceConfig mySQLHolder;

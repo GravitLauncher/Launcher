@@ -1,10 +1,5 @@
 package pro.gravit.utils;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -13,6 +8,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public final class HTTPRequest {
     private static final int TIMEOUT = 10000;

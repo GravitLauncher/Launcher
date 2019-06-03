@@ -1,6 +1,17 @@
 package pro.gravit.launchserver.websocket.json.auth;
 
+import java.security.SecureRandom;
+import java.util.Collection;
+import java.util.Random;
+import java.util.UUID;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.OshiHWID;
+import pro.gravit.launcher.events.request.AuthRequestEvent;
+import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
@@ -10,21 +21,11 @@ import pro.gravit.launchserver.auth.provider.AuthProviderResult;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
 import pro.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
-import pro.gravit.launcher.OshiHWID;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.utils.HookException;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import java.security.SecureRandom;
-import java.util.Collection;
-import java.util.Random;
-import java.util.UUID;
 
 public class AuthResponse extends SimpleResponse {
     public transient static Random random = new SecureRandom();

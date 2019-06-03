@@ -1,14 +1,14 @@
 package pro.gravit.launchserver.websocket.json.auth;
 
+import java.util.Collection;
+
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.events.request.SetProfileRequestEvent;
+import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
-import pro.gravit.launcher.events.request.SetProfileRequestEvent;
-import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.utils.HookException;
-
-import java.util.Collection;
 
 public class SetProfileResponse extends SimpleResponse {
     public String client;

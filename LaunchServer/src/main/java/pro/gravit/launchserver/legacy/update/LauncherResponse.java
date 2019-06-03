@@ -1,15 +1,15 @@
 package pro.gravit.launchserver.legacy.update;
 
-import pro.gravit.launchserver.socket.Client;
+import java.io.IOException;
+import java.util.Arrays;
+
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.SerializeLimits;
 import pro.gravit.launcher.serialize.signed.DigestBytesHolder;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.legacy.Response;
-
-import java.io.IOException;
-import java.util.Arrays;
+import pro.gravit.launchserver.socket.Client;
 
 public final class LauncherResponse extends Response {
 

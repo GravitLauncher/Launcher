@@ -1,10 +1,10 @@
 package pro.gravit.launcher.bridge;
 
-import pro.gravit.launcher.LauncherAPI;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import pro.gravit.launcher.LauncherAPI;
 
 @LauncherAPI
 public class GravitGuardBridge {

@@ -1,8 +1,8 @@
 package pro.gravit.launcher.events;
 
-import pro.gravit.utils.event.EventInterface;
-
 import java.util.UUID;
+
+import pro.gravit.utils.event.EventInterface;
 
 //Набор стандартных событий
 public class ControlEvent implements EventInterface {

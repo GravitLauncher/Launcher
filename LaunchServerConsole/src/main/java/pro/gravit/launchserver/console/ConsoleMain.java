@@ -1,13 +1,13 @@
 package pro.gravit.launchserver.console;
 
+import java.io.IOException;
+
 import pro.gravit.launcher.server.ServerWrapper;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
 import pro.gravit.utils.command.basic.HelpCommand;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.IOException;
 
 public class ConsoleMain {
     public static CommandHandler commandHandler;

@@ -1,14 +1,14 @@
 package pro.gravit.launchserver.auth.handler;
 
-import pro.gravit.launchserver.auth.MySQLSourceConfig;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
+
+import pro.gravit.launchserver.auth.MySQLSourceConfig;
+import pro.gravit.utils.helper.LogHelper;
 
 public final class MySQLAuthHandler extends CachedAuthHandler {
     private MySQLSourceConfig mySQLHolder;

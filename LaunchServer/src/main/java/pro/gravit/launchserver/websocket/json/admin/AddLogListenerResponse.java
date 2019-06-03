@@ -1,9 +1,9 @@
 package pro.gravit.launchserver.websocket.json.admin;
 
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.events.request.LogEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
-import pro.gravit.launcher.events.request.LogEvent;
 import pro.gravit.utils.helper.LogHelper;
 
 public class AddLogListenerResponse extends SimpleResponse {

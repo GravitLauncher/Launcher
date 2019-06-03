@@ -1,17 +1,17 @@
 package pro.gravit.launchserver.websocket.json.profile;
 
+import java.io.IOException;
+import java.util.UUID;
+
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launchserver.auth.texture.TextureProvider;
-import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.websocket.json.SimpleResponse;
 import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.Texture;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.texture.TextureProvider;
+import pro.gravit.launchserver.socket.Client;
+import pro.gravit.launchserver.websocket.json.SimpleResponse;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.IOException;
-import java.util.UUID;
 
 public class ProfileByUUIDResponse extends SimpleResponse {
     public UUID uuid;

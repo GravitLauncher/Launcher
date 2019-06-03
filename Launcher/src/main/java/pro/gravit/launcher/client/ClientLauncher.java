@@ -1,28 +1,5 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.*;
-import pro.gravit.launcher.hasher.FileNameMatcher;
-import pro.gravit.launcher.hasher.HashedDir;
-import pro.gravit.launcher.serialize.HInput;
-import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.launcher.serialize.stream.StreamObject;
-import pro.gravit.utils.PublicURLClassLoader;
-import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.*;
-import pro.gravit.launcher.*;
-import pro.gravit.launcher.guard.LauncherGuardManager;
-import pro.gravit.launcher.gui.JSRuntimeProvider;
-import pro.gravit.launcher.managers.ClientGsonManager;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.PlayerProfile;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.RequestException;
-import pro.gravit.launcher.request.auth.RestoreSessionRequest;
-import pro.gravit.launcher.utils.DirWatcher;
-import pro.gravit.utils.helper.*;
-import pro.gravit.utils.helper.JVMHelper.OS;
-
-import javax.swing.*;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.invoke.MethodHandle;
@@ -37,7 +14,43 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.Set;
+
+import javax.swing.JOptionPane;
+
+import pro.gravit.launcher.ClientLauncherWrapper;
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherAgent;
+import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.guard.LauncherGuardManager;
+import pro.gravit.launcher.gui.JSRuntimeProvider;
+import pro.gravit.launcher.hasher.FileNameMatcher;
+import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.managers.ClientGsonManager;
+import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.PlayerProfile;
+import pro.gravit.launcher.request.Request;
+import pro.gravit.launcher.request.RequestException;
+import pro.gravit.launcher.request.auth.RestoreSessionRequest;
+import pro.gravit.launcher.serialize.HInput;
+import pro.gravit.launcher.serialize.HOutput;
+import pro.gravit.launcher.serialize.stream.StreamObject;
+import pro.gravit.launcher.utils.DirWatcher;
+import pro.gravit.utils.PublicURLClassLoader;
+import pro.gravit.utils.Version;
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.EnvHelper;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.JVMHelper.OS;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 public final class ClientLauncher {
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {

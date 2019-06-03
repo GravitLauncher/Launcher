@@ -1,7 +1,12 @@
 package pro.gravit.utils.helper;
 
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.utils.command.CommandException;
+import java.lang.reflect.Type;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
@@ -16,13 +21,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import java.lang.reflect.Type;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.utils.command.CommandException;
 
 public final class CommonHelper {
     @LauncherAPI

@@ -1,10 +1,10 @@
 package pro.gravit.launchserver.websocket.json.secure;
 
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.events.request.VerifySecureTokenRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
-import pro.gravit.launcher.events.request.VerifySecureTokenRequestEvent;
 
 public class VerifySecureTokenResponse extends SimpleResponse {
     public String secureToken;

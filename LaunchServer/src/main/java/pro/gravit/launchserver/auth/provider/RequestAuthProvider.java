@@ -1,16 +1,16 @@
 package pro.gravit.launchserver.auth.provider;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class RequestAuthProvider extends AuthProvider {
     private String url;

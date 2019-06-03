@@ -1,9 +1,9 @@
 package pro.gravit.launchserver.auth.hwid;
 
+import java.util.List;
+
 import pro.gravit.launcher.HWID;
 import pro.gravit.utils.ProviderMap;
-
-import java.util.List;
 
 public abstract class HWIDHandler implements AutoCloseable {
     public static ProviderMap<HWIDHandler> providers = new ProviderMap<>("HWIDHandler");

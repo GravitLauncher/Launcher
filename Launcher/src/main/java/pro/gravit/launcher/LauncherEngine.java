@@ -1,5 +1,8 @@
 package pro.gravit.launcher;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import pro.gravit.launcher.client.ClientModuleManager;
 import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.launcher.client.FunctionalBridge;
@@ -18,9 +21,6 @@ import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.EnvHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LauncherEngine {
 
