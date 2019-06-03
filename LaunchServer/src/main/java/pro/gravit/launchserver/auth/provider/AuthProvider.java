@@ -22,6 +22,7 @@ public abstract class AuthProvider implements AutoCloseable {
             providers.register("mysql", MySQLAuthProvider.class);
             providers.register("request", RequestAuthProvider.class);
             providers.register("json", JsonAuthProvider.class);
+            providers.register("hibernate", HibernateAuthProvider.class);
             registredProv = true;
         }
     }

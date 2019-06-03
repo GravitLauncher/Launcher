@@ -11,6 +11,7 @@ public abstract class Component {
         if (!registredComp) {
             providers.register("authLimiter", AuthLimiterComponent.class);
             providers.register("commandRemover", CommandRemoverComponent.class);
+            providers.register("hibernate", HibernateConfiguratorComponent.class);
             registredComp = true;
         }
     }

@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -25,7 +26,8 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
     private transient String updateServerIDSQL;
 
     @Override
-    public void init() {
+    public void init(LaunchServer srv) {
+    	super.init(srv);
         //Verify
         if (mySQLHolder == null) LogHelper.error("[Verify][AuthHandler] mySQLHolder cannot be null");
         if (uuidColumn == null) LogHelper.error("[Verify][AuthHandler] uuidColumn cannot be null");

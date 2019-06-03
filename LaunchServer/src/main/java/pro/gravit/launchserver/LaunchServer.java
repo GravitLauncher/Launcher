@@ -66,6 +66,7 @@ import pro.gravit.launchserver.binary.ProguardConf;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
+import pro.gravit.launchserver.dao.UserService;
 import pro.gravit.launchserver.legacy.Response;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.manangers.MirrorManager;
@@ -458,6 +459,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final ModulesManager modulesManager;
 
+    public final UserService userService;
+
     public final MirrorManager mirrorManager;
 
     public final ReloadManager reloadManager;
@@ -611,6 +614,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         socketHookManager = new SocketHookManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
+        userService = new UserService(this);
         GarbageManager.registerNeedGC(sessionManager);
         reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);

@@ -24,7 +24,7 @@ public class AuthProviderPair {
 
     public void init(LaunchServer srv) {
         provider.init(srv);
-        handler.init();
+        handler.init(srv);
     }
 
     public void close() throws IOException {
