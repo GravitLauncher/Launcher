@@ -3,6 +3,7 @@ package pro.gravit.launchserver.command.dao;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.dao.User;
+import pro.gravit.utils.helper.LogHelper;
 
 import java.util.UUID;
 
@@ -29,5 +30,6 @@ public class RegisterCommand extends Command {
         user.setPassword(args[1]);
         user.uuid = UUID.randomUUID();
         LaunchServer.server.userService.saveUser(user);
+        LogHelper.info("User %s registered. UUID: %s", user.username, user.uuid.toString());
     }
 }

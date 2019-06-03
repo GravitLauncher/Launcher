@@ -5,6 +5,7 @@ import pro.gravit.launchserver.command.basic.*;
 import pro.gravit.launchserver.command.dao.GetAllUsersCommand;
 import pro.gravit.launchserver.command.dao.GetUserCommand;
 import pro.gravit.launchserver.command.dao.RegisterCommand;
+import pro.gravit.launchserver.command.dao.SetUserPasswordCommand;
 import pro.gravit.launchserver.command.hash.*;
 import pro.gravit.launchserver.command.install.CheckInstallCommand;
 import pro.gravit.launchserver.command.install.MultiCommand;
@@ -63,6 +64,7 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         //Register dao commands
         BaseCommandCategory dao = new BaseCommandCategory();
         dao.registerCommand("register", new RegisterCommand(server));
+        dao.registerCommand("setUserPassword", new SetUserPasswordCommand(server));
         dao.registerCommand("getUser", new GetUserCommand(server));
         dao.registerCommand("getAllUsers", new GetAllUsersCommand(server));
         Category daoCategory = new Category(dao, "DAO", "Data Management");

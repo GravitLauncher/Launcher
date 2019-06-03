@@ -5,30 +5,33 @@ import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.utils.helper.LogHelper;
 
-public class GetUserCommand extends Command {
-    public GetUserCommand(LaunchServer server) {
+public class SetUserPasswordCommand extends Command {
+
+    public SetUserPasswordCommand(LaunchServer server) {
         super(server);
     }
 
     @Override
     public String getArgsDescription() {
-        return "[username]";
+        return "[username] [new password]";
     }
 
     @Override
     public String getUsageDescription() {
-        return "get user information";
+        return "Set user password";
     }
 
     @Override
     public void invoke(String... args) throws Exception {
-        verifyArgs(args, 1);
+        verifyArgs(args, 2);
         User user = server.userService.findUserByUsername(args[0]);
         if(user == null)
         {
-            LogHelper.error("User %s not found", args[0]);
+            LogHelper.error("User %s not found", args[1]);
             return;
         }
-        LogHelper.info("[%s] UUID: %s", user.username, user.uuid.toString());
+        user.setPassword(args[1]);
+        server.userService.updateUser(user);
+        LogHelper.info("[%s] UUID: %s | New Password: %s", user.username, user.uuid.toString(), args[1]);
     }
 }
