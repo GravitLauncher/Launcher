@@ -1,8 +1,10 @@
-package pro.gravit.launchserver.hibernate;
+package pro.gravit.launchserver.dao.impl;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;
+import pro.gravit.launchserver.hibernate.HibernateManager;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -11,7 +13,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.UUID;
 
-public class UserDAOImpl implements UserDAO {
+public class HibernateUserDAOImpl implements UserDAO {
 
     public User findById(int id) {
         return HibernateManager.sessionFactory.openSession().get(User.class, id);

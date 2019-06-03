@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.hibernate;
+package pro.gravit.launchserver.dao;
 
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;

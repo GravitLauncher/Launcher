@@ -2,7 +2,7 @@ package pro.gravit.launchserver.auth.provider;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
-import pro.gravit.launchserver.hibernate.User;
+import pro.gravit.launchserver.dao.User;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;

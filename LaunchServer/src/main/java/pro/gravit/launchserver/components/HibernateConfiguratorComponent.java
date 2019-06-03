@@ -4,8 +4,8 @@ import org.hibernate.cfg.Configuration;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.dao.LaunchServerDaoFactory;
 import pro.gravit.launchserver.hibernate.HibernateManager;
-import pro.gravit.launchserver.hibernate.User;
-import pro.gravit.launchserver.hibernate.UserDAOImpl;
+import pro.gravit.launchserver.dao.User;
+import pro.gravit.launchserver.dao.impl.HibernateUserDAOImpl;
 import pro.gravit.utils.helper.CommonHelper;
 
 import java.nio.file.Paths;
@@ -20,7 +20,7 @@ public class HibernateConfiguratorComponent extends Component {
     public boolean parallelHibernateInit;
     @Override
     public void preInit(LaunchServer launchServer) {
-        LaunchServerDaoFactory.setUserDaoProvider(UserDAOImpl::new);
+        LaunchServerDaoFactory.setUserDaoProvider(HibernateUserDAOImpl::new);
         Runnable init = () -> {
             Configuration cfg = new Configuration()
                     .addAnnotatedClass(User.class)

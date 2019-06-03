@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.auth.handler;
 
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.hibernate.User;
+import pro.gravit.launchserver.dao.User;
 
 import java.io.IOException;
 import java.util.UUID;
