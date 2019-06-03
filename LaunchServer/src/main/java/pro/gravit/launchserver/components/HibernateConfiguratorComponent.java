@@ -21,7 +21,7 @@ public class HibernateConfiguratorComponent extends Component {
     public boolean parallelHibernateInit;
     @Override
     public void preInit(LaunchServer launchServer) {
-        LaunchServerDaoFactory.setUserDaoProvider(HibernateUserDAOImpl::new);
+        LaunchServerDaoFactory.setUserDaoProvider(launchServer, HibernateUserDAOImpl::new);
         Runnable init = () -> {
             Configuration cfg = new Configuration()
                     .addAnnotatedClass(User.class)
@@ -32,7 +32,7 @@ public class HibernateConfiguratorComponent extends Component {
                     .setProperty("hibernate.connection.pool_size", pool_size);
             if(hibernateConfig != null)
                 cfg.configure(Paths.get(hibernateConfig).toFile());
-            HibernateManager.sessionFactory = cfg.buildSessionFactory();
+            HibernateManager.setSessionFactory(launchServer, cfg.buildSessionFactory());
         };
         if(parallelHibernateInit)
             CommonHelper.newThread("Hibernate Thread", true, init);

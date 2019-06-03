@@ -10,7 +10,7 @@ public class UserService {
     private final UserDAO usersDao;
 
     public UserService(LaunchServer server) {
-        usersDao = LaunchServerDaoFactory.createUserDao();
+        usersDao = LaunchServerDaoFactory.createUserDao(server);
     }
 
     public User findUser(int id) {
