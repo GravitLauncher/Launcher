@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.UUID;
 
 public class UserDAOImpl implements UserDAO {
 
@@ -22,9 +23,21 @@ public class UserDAOImpl implements UserDAO {
         CriteriaQuery<User> personCriteria = cb.createQuery(User.class);
         Root<User> rootUser = personCriteria.from(User.class);
         personCriteria.select(rootUser).where(cb.equal(rootUser.get("username"), username));
-        User ret = em.createQuery(personCriteria).getSingleResult();
+        List<User> ret = em.createQuery(personCriteria).getResultList();
         em.close();
-        return ret;
+        return ret.size() == 0 ? null : ret.get(0);
+    }
+
+    public User findByUUID(UUID uuid) {
+        EntityManager em = HibernateManager.sessionFactory.createEntityManager();
+        em.getTransaction().begin();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<User> personCriteria = cb.createQuery(User.class);
+        Root<User> rootUser = personCriteria.from(User.class);
+        personCriteria.select(rootUser).where(cb.equal(rootUser.get("uuid"), uuid));
+        List<User> ret = em.createQuery(personCriteria).getResultList();
+        em.close();
+        return ret.size() == 0 ? null : ret.get(0);
     }
 
     public void save(User user) {

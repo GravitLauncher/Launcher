@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.hibernate;
 
 import java.util.List;
+import java.util.UUID;
 
 public class UserService {
 
@@ -15,6 +16,9 @@ public class UserService {
 
     public User findUserByUsername(String username) {
         return usersDao.findByUsername(username);
+    }
+    public User findUserByUUID(UUID uuid) {
+        return usersDao.findByUUID(uuid);
     }
 
     public void saveUser(User user) {

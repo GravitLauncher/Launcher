@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -17,8 +18,12 @@ public class User {
     private long id;
     @Column(unique = true)
     public String username;
+    @Column(unique = true)
+    public UUID uuid;
     @Column(name = "password")
     private byte[] password;
+    private String accessToken;
+    public String serverID;
     private String password_salt;
     public void setPassword(String password)
     {
@@ -45,5 +50,13 @@ public class User {
         LogHelper.info(Arrays.toString(enpassword));
         LogHelper.info(Arrays.toString(this.password));
         return Arrays.equals(enpassword, this.password);
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 }

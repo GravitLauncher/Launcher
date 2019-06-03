@@ -2,6 +2,7 @@ package pro.gravit.launchserver.auth.handler;
 
 import pro.gravit.launchserver.auth.provider.AuthProviderResult;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.provider.HibernateAuthProvider;
 import pro.gravit.utils.ProviderMap;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ public abstract class AuthHandler implements AutoCloseable {
             providers.register("memory", MemoryAuthHandler.class);
             providers.register("mysql", MySQLAuthHandler.class);
             providers.register("request", RequestAuthHandler.class);
+            providers.register("hibernate", HibernateAuthHandler.class);
             registredHandl = true;
         }
     }

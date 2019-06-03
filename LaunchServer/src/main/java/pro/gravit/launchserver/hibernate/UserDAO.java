@@ -1,10 +1,12 @@
 package pro.gravit.launchserver.hibernate;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface UserDAO {
     User findById(int id);
     User findByUsername(String username);
+    User findByUUID(UUID uuid);
     void save(User user);
     void update(User user);
     void delete(User user);
