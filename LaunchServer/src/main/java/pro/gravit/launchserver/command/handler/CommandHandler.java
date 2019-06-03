@@ -2,6 +2,7 @@ package pro.gravit.launchserver.command.handler;
 
 import pro.gravit.launchserver.command.auth.*;
 import pro.gravit.launchserver.command.basic.*;
+import pro.gravit.launchserver.command.dao.GetAllUsersCommand;
 import pro.gravit.launchserver.command.dao.GetUserCommand;
 import pro.gravit.launchserver.command.dao.RegisterCommand;
 import pro.gravit.launchserver.command.hash.*;
@@ -63,6 +64,7 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         BaseCommandCategory dao = new BaseCommandCategory();
         dao.registerCommand("register", new RegisterCommand(server));
         dao.registerCommand("getUser", new GetUserCommand(server));
+        dao.registerCommand("getAllUsers", new GetAllUsersCommand(server));
         Category daoCategory = new Category(dao, "DAO", "Data Management");
         handler.registerCategory(daoCategory);
 
