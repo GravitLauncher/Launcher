@@ -5,7 +5,6 @@ import java.util.Base64;
 
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.LauncherRequestEvent;
-import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
 import pro.gravit.utils.Version;
@@ -15,9 +14,6 @@ public class LauncherResponse extends SimpleResponse {
     public String hash;
     public byte[] digest;
     public int launcher_type;
-    //REPLACED TO REAL URL
-    public static final String JAR_URL = LaunchServer.server.config.netty.launcherURL;
-    public static final String EXE_URL = LaunchServer.server.config.netty.launcherEXEURL;
 
     @Override
     public String getType() {
@@ -33,23 +29,23 @@ public class LauncherResponse extends SimpleResponse {
             bytes = digest;
         if (launcher_type == 1) // JAR
         {
-            byte[] hash = LaunchServer.server.launcherBinary.getBytes().getDigest();
-            if (hash == null) service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, JAR_URL));
+            byte[] hash = server.launcherBinary.getBytes().getDigest();
+            if (hash == null) service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, server.config.netty.launcherURL));
             if (Arrays.equals(bytes, hash)) {
                 client.checkSign = true;
-                sendResult(new LauncherRequestEvent(false, JAR_URL));
+                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherURL));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, JAR_URL));
+                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherURL));
             }
         } else if (launcher_type == 2) //EXE
         {
-            byte[] hash = LaunchServer.server.launcherEXEBinary.getBytes().getDigest();
-            if (hash == null) sendResultAndClose(new LauncherRequestEvent(true, EXE_URL));
+            byte[] hash = server.launcherEXEBinary.getBytes().getDigest();
+            if (hash == null) sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL));
             if (Arrays.equals(bytes, hash)) {
                 client.checkSign = true;
-                sendResult(new LauncherRequestEvent(false, EXE_URL));
+                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherEXEURL));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, EXE_URL));
+                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL));
             }
         } else sendError("Request launcher type error");
 

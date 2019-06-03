@@ -5,7 +5,6 @@ import java.util.Collection;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.SetProfileRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
 import pro.gravit.utils.HookException;
@@ -29,11 +28,11 @@ public class SetProfileResponse extends SimpleResponse {
         } catch (HookException e) {
             sendError(e.getMessage());
         }
-        Collection<ClientProfile> profiles = LaunchServer.server.getProfiles();
+        Collection<ClientProfile> profiles = server.getProfiles();
         for (ClientProfile p : profiles) {
             if (p.getTitle().equals(this.client)) {
                 if (!p.isWhitelistContains(client.username)) {
-                    sendError(LaunchServer.server.config.whitelistRejectString);
+                    sendError(server.config.whitelistRejectString);
                     return;
                 }
                 client.profile = p;

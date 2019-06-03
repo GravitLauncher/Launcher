@@ -9,10 +9,10 @@ public class AuthProviderResult {
     public final String accessToken;
     public final ClientPermissions permissions;
 
-    public AuthProviderResult(String username, String accessToken) {
+    public AuthProviderResult(String username, String accessToken, LaunchServer server) {
         this.username = username;
         this.accessToken = accessToken;
-        permissions = LaunchServer.server.config.permissionsHandler.getPermissions(username);
+        permissions = server.config.permissionsHandler.getPermissions(username);
     }
 
     public AuthProviderResult(String username, String accessToken, ClientPermissions permissions) {

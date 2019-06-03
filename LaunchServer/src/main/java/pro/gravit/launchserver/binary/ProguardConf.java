@@ -71,7 +71,7 @@ public class ProguardConf {
         SecureRandom rand = SecurityHelper.newRandom();
         rand.setSeed(SecureRandom.getSeed(32));
         try (PrintWriter out = new PrintWriter(new OutputStreamWriter(IOHelper.newOutput(words), IOHelper.UNICODE_CHARSET))) {
-            String projectName = LaunchServer.server.config.projectName.replaceAll("\\W", "");
+            String projectName = srv.config.projectName.replaceAll("\\W", "");
             String lowName = projectName.toLowerCase();
             String upName = projectName.toUpperCase();
             for (int i = 0; i < Short.MAX_VALUE; i++) out.println(generateString(rand, lowName, upName, 3));

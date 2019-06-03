@@ -38,10 +38,10 @@ public class Client {
         timestamp = System.currentTimeMillis();
     }
 
-    public void updateAuth() {
+    public void updateAuth(LaunchServer server) {
         if (!isAuth) return;
-        if (auth_id.isEmpty()) auth = LaunchServer.server.config.getAuthProviderPair();
-        else auth = LaunchServer.server.config.getAuthProviderPair(auth_id);
+        if (auth_id.isEmpty()) auth = server.config.getAuthProviderPair();
+        else auth = server.config.getAuthProviderPair(auth_id);
     }
 
     public enum Type {

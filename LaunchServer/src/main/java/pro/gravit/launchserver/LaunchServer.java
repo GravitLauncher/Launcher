@@ -97,11 +97,13 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = Launcher.gsonManager.gson.fromJson(reader, Config.class);
         }
+        config.server = this;
         config.verify();
         config.init();
     }
 
     public static final class Config {
+    	private transient LaunchServer server = null;
         public int legacyPort;
 
         private String legacyAddress;
@@ -236,30 +238,30 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public void init() {
             Launcher.applyLauncherEnv(env);
             for (AuthProviderPair provider : auth) {
-                provider.init();
+                provider.init(server);
             }
             permissionsHandler.init();
             hwidHandler.init();
             if (protectHandler != null) {
                 protectHandler.checkLaunchServerLicense();
             }
-            LaunchServer.server.registerObject("permissionsHandler", permissionsHandler);
+            server.registerObject("permissionsHandler", permissionsHandler);
             for (AuthProviderPair pair : auth) {
-                LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
-                LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
-                LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
+                server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
+                server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
             }
 
-            Arrays.stream(mirrors).forEach(LaunchServer.server.mirrorManager::addMirror);
+            Arrays.stream(mirrors).forEach(server.mirrorManager::addMirror);
         }
 
         public void close() {
             try {
-                LaunchServer.server.unregisterObject("permissionsHandler", permissionsHandler);
+                server.unregisterObject("permissionsHandler", permissionsHandler);
                 for (AuthProviderPair pair : auth) {
-                    LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
-                    LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
-                    LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                    server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
+                    server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
+                    server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
                 }
             } catch (Exception e) {
                 LogHelper.error(e);
@@ -426,7 +428,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final Path updatesDir;
 
-    public static LaunchServer server = null;
+    //public static LaunchServer server = null;
 
     public final Path profilesDir;
     // Server config
@@ -509,7 +511,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         Response.registerResponses();
         Component.registerComponents();
         ProtectHandler.registerHandlers();
-        LaunchServer.server = this;
+        //LaunchServer.server = this;
 
         // Set command handler
         CommandHandler localCommandHandler;
@@ -526,7 +528,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 localCommandHandler = new StdCommandHandler(true);
                 LogHelper.warning("JLine2 isn't in classpath, using std");
             }
-        pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler);
+        pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler, this);
         commandHandler = localCommandHandler;
 
         // Set key pair
@@ -568,6 +570,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = Launcher.gsonManager.gson.fromJson(reader, Config.class);
         }
+        config.server = this;
         if (!Files.exists(runtimeConfigFile)) {
             LogHelper.info("Reset LaunchServer runtime config file");
             runtime = new LaunchServerRuntimeConfig();
@@ -582,7 +585,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         config.verify();
         Launcher.applyLauncherEnv(config.env);
         for (AuthProviderPair provider : config.auth) {
-            provider.init();
+            provider.init(this);
         }
         config.permissionsHandler.init();
         config.hwidHandler.init();

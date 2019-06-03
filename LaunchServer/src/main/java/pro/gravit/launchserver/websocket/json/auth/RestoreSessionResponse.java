@@ -3,7 +3,6 @@ package pro.gravit.launchserver.websocket.json.auth;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.RestoreSessionRequestEvent;
-import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.WebSocketFrameHandler;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
@@ -19,7 +18,7 @@ public class RestoreSessionResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        Client rClient = LaunchServer.server.sessionManager.getClient(session);
+        Client rClient = server.sessionManager.getClient(session);
         if (rClient == null) {
             sendError("Session invalid");
         }

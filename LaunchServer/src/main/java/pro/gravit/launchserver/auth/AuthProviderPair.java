@@ -2,6 +2,7 @@ package pro.gravit.launchserver.auth;
 
 import java.io.IOException;
 
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
@@ -21,8 +22,8 @@ public class AuthProviderPair {
         this.name = name;
     }
 
-    public void init() {
-        provider.init();
+    public void init(LaunchServer srv) {
+        provider.init(srv);
         handler.init();
     }
 

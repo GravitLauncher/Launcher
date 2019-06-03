@@ -25,7 +25,7 @@ public class UpdateResponse extends SimpleResponse {
             return;
         }
         if (!client.permissions.canAdmin) {
-            for (ClientProfile p : LaunchServer.server.getProfiles()) {
+            for (ClientProfile p : server.getProfiles()) {
                 if (!client.profile.getTitle().equals(p.getTitle())) continue;
                 if (!p.isWhitelistContains(client.username)) {
                     service.sendObject(ctx, new ErrorRequestEvent("You don't download this folder"));
@@ -33,12 +33,12 @@ public class UpdateResponse extends SimpleResponse {
                 }
             }
         }
-        SignedObjectHolder<HashedDir> dir = LaunchServer.server.updatesDirMap.get(dirName);
+        SignedObjectHolder<HashedDir> dir = server.updatesDirMap.get(dirName);
         if (dir == null) {
             service.sendObject(ctx, new ErrorRequestEvent(String.format("Directory %s not found", dirName)));
             return;
         }
-        String url = LaunchServer.server.config.netty.downloadURL.replace("%dirname%", dirName);
+        String url = server.config.netty.downloadURL.replace("%dirname%", dirName);
         boolean zip = false;
         if (server.config.netty.bindings.get(dirName) != null) {
             LaunchServer.NettyUpdatesBind bind = server.config.netty.bindings.get(dirName);

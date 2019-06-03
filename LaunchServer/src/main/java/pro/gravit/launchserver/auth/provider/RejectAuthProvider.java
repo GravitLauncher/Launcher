@@ -23,7 +23,7 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
         if (whitelist != null) {
             for (String username : whitelist) {
                 if (login.equals(username)) {
-                    return new AuthProviderResult(login, SecurityHelper.randomStringToken());
+                    return new AuthProviderResult(login, SecurityHelper.randomStringToken(), srv);
                 }
             }
         }

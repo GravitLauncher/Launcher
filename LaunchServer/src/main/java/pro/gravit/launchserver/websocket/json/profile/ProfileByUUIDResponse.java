@@ -50,8 +50,8 @@ public class ProfileByUUIDResponse extends SimpleResponse {
         String username;
         if (client.auth == null) {
             LogHelper.warning("Client auth is null. Using default.");
-            username = LaunchServer.server.config.getAuthProviderPair().handler.uuidToUsername(uuid);
+            username = server.config.getAuthProviderPair().handler.uuidToUsername(uuid);
         } else username = client.auth.handler.uuidToUsername(uuid);
-        sendResult(new ProfileByUUIDRequestEvent(getProfile(LaunchServer.server, uuid, username, this.client, client.auth.textureProvider)));
+        sendResult(new ProfileByUUIDRequestEvent(getProfile(server, uuid, username, this.client, client.auth.textureProvider)));
     }
 }

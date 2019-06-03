@@ -33,11 +33,11 @@ import pro.gravit.utils.helper.VerifyHelper;
 
 @SuppressWarnings({"unused", "rawtypes"})
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
-    private static SSLServerSocketFactory ssf;
+    private SSLServerSocketFactory ssf;
 
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
 
-    public static LauncherNettyServer nettyServer;
+    public LauncherNettyServer nettyServer;
 
     private final AtomicReference<ServerSocket> serverSocket = new AtomicReference<>();
 
@@ -47,9 +47,10 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private Set<Socket> sockets;
     private volatile Listener listener;
 
+	private transient final LaunchServer server;
+
     public NettyServerSocketHandler(LaunchServer server) {
-        // Instance
-        LaunchServer server1 = server;
+        this.server = server;
     }
 
     @Override
@@ -109,9 +110,8 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
         LogHelper.info("Starting netty server socket thread");
         //SSLEngine engine = sc.createSSLEngine();
         //engine.setUseClientMode(false);
-        WebSocketFrameHandler.server = LaunchServer.server;
-        nettyServer = new LauncherNettyServer();
-        for (LaunchServer.NettyBindAddress address : LaunchServer.server.config.netty.binds) {
+        nettyServer = new LauncherNettyServer(server);
+        for (LaunchServer.NettyBindAddress address : server.config.netty.binds) {
             nettyServer.bind(new InetSocketAddress(address.address, address.port));
         }
         /*

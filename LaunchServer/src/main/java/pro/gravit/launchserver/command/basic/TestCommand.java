@@ -4,7 +4,6 @@ import pro.gravit.launcher.events.PingEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.websocket.NettyServerSocketHandler;
-import pro.gravit.launchserver.websocket.WebSocketFrameHandler;
 import pro.gravit.utils.helper.CommonHelper;
 
 public class TestCommand extends Command {
@@ -36,7 +35,7 @@ public class TestCommand extends Command {
             handler.close();
         }
         if (args[0].equals("eventAll")) {
-            WebSocketFrameHandler.service.sendObjectAll(new PingEvent());
+            handler.nettyServer.frameHandler.service.sendObjectAll(new PingEvent());
         }
     }
 }

@@ -19,7 +19,8 @@ public final class RequestAuthProvider extends AuthProvider {
     private boolean usePermission;
 
     @Override
-    public void init() {
+    public void init(LaunchServer srv) {
+    	super.init(srv);
         if (url == null) LogHelper.error("[Verify][AuthProvider] url cannot be null");
         if (response == null) LogHelper.error("[Verify][AuthProvider] response cannot be null");
         pattern = Pattern.compile(response);
@@ -32,7 +33,7 @@ public final class RequestAuthProvider extends AuthProvider {
         // Match username
         Matcher matcher = pattern.matcher(currentResponse);
         return matcher.matches() && matcher.groupCount() >= 1 ?
-                new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(Long.getLong(matcher.group("permission"))) : LaunchServer.server.config.permissionsHandler.getPermissions(login)) :
+                new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(Long.getLong(matcher.group("permission"))) : srv.config.permissionsHandler.getPermissions(login)) :
                 authError(currentResponse);
     }
 

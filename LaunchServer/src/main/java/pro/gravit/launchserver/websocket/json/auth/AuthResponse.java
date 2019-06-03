@@ -12,7 +12,6 @@ import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.OshiHWID;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.hwid.HWIDException;
@@ -68,13 +67,13 @@ public class AuthResponse extends SimpleResponse {
             }
             if (password == null) {
                 try {
-                    password = IOHelper.decode(SecurityHelper.newRSADecryptCipher(LaunchServer.server.privateKey).
+                    password = IOHelper.decode(SecurityHelper.newRSADecryptCipher(server.privateKey).
                             doFinal(encryptedPassword));
                 } catch (IllegalBlockSizeException | BadPaddingException ignored) {
                     throw new AuthException("Password decryption error");
                 }
             }
-            clientData.permissions = LaunchServer.server.config.permissionsHandler.getPermissions(login);
+            clientData.permissions = server.config.permissionsHandler.getPermissions(login);
             if (authType == ConnectTypes.BOT && !clientData.permissions.canBot) {
                 AuthProvider.authError("authType: BOT not allowed for this account");
             }
@@ -82,22 +81,22 @@ public class AuthResponse extends SimpleResponse {
                 AuthProvider.authError("authType: SERVER not allowed for this account");
             }
             AuthProviderPair pair;
-            if (auth_id.isEmpty()) pair = LaunchServer.server.config.getAuthProviderPair();
-            else pair = LaunchServer.server.config.getAuthProviderPair(auth_id);
+            if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
+            else pair = server.config.getAuthProviderPair(auth_id);
             AuthContext context = new AuthContext(0, login, password.length(), customText, client, ip, null, false);
             AuthProvider provider = pair.provider;
-            LaunchServer.server.authHookManager.preHook.hook(context, clientData);
+            server.authHookManager.preHook.hook(context, clientData);
             provider.preAuth(login, password, customText, ip);
             AuthProviderResult aresult = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(aresult.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", aresult.username));
                 return;
             }
-            Collection<ClientProfile> profiles = LaunchServer.server.getProfiles();
+            Collection<ClientProfile> profiles = server.getProfiles();
             for (ClientProfile p : profiles) {
                 if (p.getTitle().equals(client)) {
                     if (!p.isWhitelistContains(login)) {
-                        throw new AuthException(LaunchServer.server.config.whitelistRejectString);
+                        throw new AuthException(server.config.whitelistRejectString);
                     }
                     clientData.profile = p;
                 }
@@ -106,18 +105,18 @@ public class AuthResponse extends SimpleResponse {
             //    throw new AuthException("You profile not found");
             //}
             if (authType == ConnectTypes.CLIENT)
-                LaunchServer.server.config.hwidHandler.check(hwid, aresult.username);
-            LaunchServer.server.authHookManager.postHook.hook(context, clientData);
+                server.config.hwidHandler.check(hwid, aresult.username);
+            server.authHookManager.postHook.hook(context, clientData);
             clientData.isAuth = true;
             clientData.permissions = aresult.permissions;
             clientData.auth_id = auth_id;
-            clientData.updateAuth();
+            clientData.updateAuth(server);
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
             if (getSession) {
                 if (clientData.session == 0) {
                     clientData.session = random.nextLong();
-                    LaunchServer.server.sessionManager.addClient(clientData);
+                    server.sessionManager.addClient(clientData);
                 }
                 result.session = clientData.session;
             }
@@ -125,9 +124,9 @@ public class AuthResponse extends SimpleResponse {
                 if (!clientData.permissions.canProxy) throw new AuthException("initProxy not allow");
                 clientData.proxy = true;
             }
-            if (LaunchServer.server.config.protectHandler.allowGetAccessToken(context)) {
+            if (server.config.protectHandler.allowGetAccessToken(context)) {
                 UUID uuid = pair.handler.auth(aresult);
-                result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, aresult.username, client, clientData.auth.textureProvider);
+                result.playerProfile = ProfileByUUIDResponse.getProfile(server, uuid, aresult.username, client, clientData.auth.textureProvider);
                 LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
             }
             sendResult(result);
