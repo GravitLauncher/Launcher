@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
+import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
     public static LaunchServer server;
-    public static GsonBuilder builder = new GsonBuilder();
+    public static GsonBuilder builder = CommonHelper.newBuilder();
     public static WebSocketService service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), LaunchServer.server, builder);
     public NettyConnectContext context;
 

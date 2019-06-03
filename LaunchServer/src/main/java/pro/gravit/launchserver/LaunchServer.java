@@ -36,8 +36,6 @@ import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
 import pro.gravit.utils.helper.*;
-import pro.gravit.launchserver.binary.*;
-import pro.gravit.launchserver.manangers.*;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
