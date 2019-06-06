@@ -1,11 +1,13 @@
 package pro.gravit.launchserver.auth.handler;
 
-import pro.gravit.launchserver.auth.provider.AuthProviderResult;
-import pro.gravit.launchserver.auth.AuthException;
-import pro.gravit.utils.ProviderMap;
-
 import java.io.IOException;
 import java.util.UUID;
+
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.provider.AuthProviderResult;
+import pro.gravit.utils.ProviderMap;
+
 
 public abstract class AuthHandler implements AutoCloseable {
     public static ProviderMap<AuthHandler> providers = new ProviderMap<>("AuthHandler");
@@ -23,9 +25,12 @@ public abstract class AuthHandler implements AutoCloseable {
             providers.register("memory", MemoryAuthHandler.class);
             providers.register("mysql", MySQLAuthHandler.class);
             providers.register("request", RequestAuthHandler.class);
+            providers.register("hibernate", HibernateAuthHandler.class);
             registredHandl = true;
         }
     }
+
+	protected transient LaunchServer srv;
 
     public abstract UUID auth(AuthProviderResult authResult) throws IOException;
 
@@ -43,7 +48,7 @@ public abstract class AuthHandler implements AutoCloseable {
 
     public abstract String uuidToUsername(UUID uuid) throws IOException;
 
-    public void init() {
-
+    public void init(LaunchServer srv) {
+    	this.srv = srv;
     }
 }

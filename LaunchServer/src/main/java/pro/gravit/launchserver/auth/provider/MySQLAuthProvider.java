@@ -1,5 +1,10 @@
 package pro.gravit.launchserver.auth.provider;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
@@ -7,11 +12,6 @@ import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public final class MySQLAuthProvider extends AuthProvider {
     private MySQLSourceConfig mySQLHolder;
@@ -21,7 +21,8 @@ public final class MySQLAuthProvider extends AuthProvider {
     private boolean usePermission;
 
     @Override
-    public void init() {
+    public void init(LaunchServer srv) {
+    	super.init(srv);
         if (query == null) LogHelper.error("[Verify][AuthProvider] query cannot be null");
         if (message == null) LogHelper.error("[Verify][AuthProvider] message cannot be null");
         if (mySQLHolder == null) LogHelper.error("[Verify][AuthProvider] mySQLHolder cannot be null");
@@ -38,7 +39,7 @@ public final class MySQLAuthProvider extends AuthProvider {
             // Execute SQL query
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             try (ResultSet set = s.executeQuery()) {
-                return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(set.getLong(2)) : LaunchServer.server.config.permissionsHandler.getPermissions(set.getString(1))) : authError(message);
+                return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(set.getLong(2)) : srv.config.permissionsHandler.getPermissions(set.getString(1))) : authError(message);
             }
         }
 

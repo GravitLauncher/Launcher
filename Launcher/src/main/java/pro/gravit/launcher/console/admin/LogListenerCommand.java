@@ -1,10 +1,10 @@
 package pro.gravit.launcher.console.admin;
 
 import pro.gravit.launcher.LauncherNetworkAPI;
-import pro.gravit.utils.command.Command;
 import pro.gravit.launcher.events.request.LogEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.websockets.RequestInterface;
+import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 
 public class LogListenerCommand extends Command {

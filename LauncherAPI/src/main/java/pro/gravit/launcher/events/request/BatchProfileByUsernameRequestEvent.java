@@ -1,11 +1,11 @@
 package pro.gravit.launcher.events.request;
 
+import java.util.UUID;
+
 import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.utils.event.EventInterface;
-import pro.gravit.launcher.events.RequestEvent;
-
-import java.util.UUID;
 
 public class BatchProfileByUsernameRequestEvent extends RequestEvent implements EventInterface {
     private static final UUID uuid = UUID.fromString("c1d6729e-be2c-48cc-b5ae-af8c012232c3");

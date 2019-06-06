@@ -1,13 +1,13 @@
 package pro.gravit.utils.command;
 
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public abstract class CommandHandler implements Runnable {
     private final List<Category> categories = new ArrayList<>();

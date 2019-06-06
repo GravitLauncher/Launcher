@@ -1,12 +1,12 @@
 package pro.gravit.launcher.server;
 
-import pro.gravit.launcher.managers.SimpleModuleManager;
-import pro.gravit.launcher.managers.SimpleModulesConfigManager;
-import pro.gravit.utils.PublicURLClassLoader;
-
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+
+import pro.gravit.launcher.managers.SimpleModuleManager;
+import pro.gravit.launcher.managers.SimpleModulesConfigManager;
+import pro.gravit.utils.PublicURLClassLoader;
 
 public class ModulesManager extends SimpleModuleManager {
     public SimpleModulesConfigManager modulesConfigManager;

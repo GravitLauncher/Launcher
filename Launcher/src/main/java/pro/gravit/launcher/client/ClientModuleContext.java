@@ -1,10 +1,10 @@
 package pro.gravit.launcher.client;
 
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.modules.ModuleContext;
 import pro.gravit.launcher.modules.ModulesConfigManager;
 import pro.gravit.launcher.modules.ModulesManager;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherEngine;
 
 public class ClientModuleContext implements ModuleContext {
     public final LauncherEngine engine;

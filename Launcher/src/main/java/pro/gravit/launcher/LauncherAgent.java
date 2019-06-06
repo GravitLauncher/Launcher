@@ -1,14 +1,7 @@
 package pro.gravit.launcher;
 
-import cpw.mods.fml.SafeExitJVMLegacy;
-import net.minecraftforge.fml.SafeExitJVM;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import pro.gravit.launcher.utils.NativeJVMHalt;
-import pro.gravit.utils.helper.LogHelper;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
+import static org.objectweb.asm.Opcodes.ARETURN;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,8 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
 
-import static org.objectweb.asm.Opcodes.ACONST_NULL;
-import static org.objectweb.asm.Opcodes.ARETURN;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.MethodNode;
+
+import cpw.mods.fml.SafeExitJVMLegacy;
+import net.minecraftforge.fml.SafeExitJVM;
+import pro.gravit.launcher.utils.NativeJVMHalt;
+import pro.gravit.utils.helper.LogHelper;
 
 @LauncherAPI
 public final class LauncherAgent {

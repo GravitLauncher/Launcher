@@ -2,6 +2,7 @@ package pro.gravit.launcher.managers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedEntryAdapter;
 import pro.gravit.utils.helper.CommonHelper;

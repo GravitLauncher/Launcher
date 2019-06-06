@@ -1,8 +1,8 @@
 package pro.gravit.launcher.console.store;
 
-import pro.gravit.utils.command.Command;
 import pro.gravit.launcher.NewLauncherSettings;
 import pro.gravit.launcher.managers.SettingsManager;
+import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 
 public class StoreListCommand extends Command {

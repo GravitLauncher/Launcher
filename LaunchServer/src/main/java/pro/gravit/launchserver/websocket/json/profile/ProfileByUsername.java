@@ -1,13 +1,12 @@
 package pro.gravit.launchserver.websocket.json.profile;
 
+import java.util.UUID;
+
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
-import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
-import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.util.UUID;
 
 public class ProfileByUsername extends SimpleResponse {
     String username;
@@ -23,8 +22,8 @@ public class ProfileByUsername extends SimpleResponse {
         UUID uuid;
         if (client.auth == null) {
             LogHelper.warning("Client auth is null. Using default.");
-            uuid = LaunchServer.server.config.getAuthProviderPair().handler.usernameToUUID(username);
+            uuid = server.config.getAuthProviderPair().handler.usernameToUUID(username);
         } else uuid = client.auth.handler.usernameToUUID(username);
-        sendResult(new ProfileByUsernameRequestEvent(ProfileByUUIDResponse.getProfile(LaunchServer.server, uuid, username, this.client, client.auth.textureProvider)));
+        sendResult(new ProfileByUsernameRequestEvent(ProfileByUUIDResponse.getProfile(server, uuid, username, this.client, client.auth.textureProvider)));
     }
 }

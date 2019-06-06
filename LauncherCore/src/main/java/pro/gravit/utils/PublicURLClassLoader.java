@@ -1,9 +1,9 @@
 package pro.gravit.utils;
 
-import pro.gravit.launcher.LauncherAPI;
-
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import pro.gravit.launcher.LauncherAPI;
 
 public class PublicURLClassLoader extends URLClassLoader {
     @LauncherAPI

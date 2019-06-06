@@ -4,9 +4,9 @@ import pro.gravit.launcher.HWID;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
+import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.websockets.RequestInterface;
 import pro.gravit.utils.helper.VerifyHelper;
-import pro.gravit.launcher.request.Request;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements RequestInterface {
     @LauncherNetworkAPI

@@ -1,14 +1,14 @@
 package pro.gravit.utils.event;
 
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public class EventManager {
     public static final int QUEUE_MAX_SIZE = 2048;

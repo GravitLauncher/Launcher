@@ -1,11 +1,11 @@
 package pro.gravit.launcher.hasher;
 
+import java.io.IOException;
+
+import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.stream.EnumSerializer;
 import pro.gravit.launcher.serialize.stream.StreamObject;
-import pro.gravit.launcher.LauncherAPI;
-
-import java.io.IOException;
 
 public abstract class HashedEntry extends StreamObject {
     @LauncherAPI

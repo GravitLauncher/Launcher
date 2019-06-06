@@ -1,5 +1,7 @@
 package com.mojang.authlib.yggdrasil;
 
+import java.util.UUID;
+
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.request.auth.CheckServerRequest;
@@ -9,8 +11,6 @@ import pro.gravit.launcher.request.uuid.ProfileByUUIDRequest;
 import pro.gravit.launcher.request.uuid.ProfileByUsernameRequest;
 import pro.gravit.launcher.serialize.SerializeLimits;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.util.UUID;
 
 // Used to bypass Launcher's class name obfuscation and access API
 @LauncherAPI

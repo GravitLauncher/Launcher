@@ -1,13 +1,19 @@
 package pro.gravit.launcher.hwid;
 
+import java.net.NetworkInterface;
+
 import oshi.SystemInfo;
-import oshi.hardware.*;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.ComputerSystem;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
+import oshi.hardware.SoundCard;
+import oshi.hardware.UsbDevice;
 import pro.gravit.launcher.HWID;
 import pro.gravit.launcher.LauncherHWIDInterface;
 import pro.gravit.launcher.OshiHWID;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.net.NetworkInterface;
 
 public class OshiHWIDProvider implements LauncherHWIDInterface {
     public SystemInfo systemInfo;

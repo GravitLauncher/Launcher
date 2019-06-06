@@ -1,13 +1,13 @@
 package pro.gravit.launchserver.websocket.json;
 
+import java.util.UUID;
+
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.WebSocketService;
-
-import java.util.UUID;
 
 public abstract class SimpleResponse implements JsonResponseInterface {
     public UUID requestUUID;

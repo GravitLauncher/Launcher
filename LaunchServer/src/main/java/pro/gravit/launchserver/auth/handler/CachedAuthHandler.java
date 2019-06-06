@@ -1,16 +1,16 @@
 package pro.gravit.launchserver.auth.handler;
 
-import pro.gravit.launchserver.auth.provider.AuthProviderResult;
-import pro.gravit.launcher.NeedGarbageCollection;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.VerifyHelper;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
+import pro.gravit.launcher.NeedGarbageCollection;
+import pro.gravit.launchserver.auth.provider.AuthProviderResult;
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.utils.helper.VerifyHelper;
 
 public abstract class CachedAuthHandler extends AuthHandler implements NeedGarbageCollection {
     public static final class Entry {

@@ -1,8 +1,8 @@
 package pro.gravit.utils.command;
 
-import pro.gravit.utils.helper.VerifyHelper;
-
 import java.util.UUID;
+
+import pro.gravit.utils.helper.VerifyHelper;
 
 public abstract class Command {
 

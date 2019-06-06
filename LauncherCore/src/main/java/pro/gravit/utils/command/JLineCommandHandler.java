@@ -1,12 +1,17 @@
 package pro.gravit.utils.command;
 
-import org.jline.reader.*;
+import java.io.IOException;
+import java.util.List;
+
+import org.jline.reader.Candidate;
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.ParsedLine;
+import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
-
-import java.io.IOException;
-import java.util.List;
 
 public class JLineCommandHandler extends CommandHandler {
     /*private final class JLineOutput implements Output {

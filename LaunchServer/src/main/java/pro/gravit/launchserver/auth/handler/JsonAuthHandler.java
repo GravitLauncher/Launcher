@@ -1,11 +1,11 @@
 package pro.gravit.launchserver.auth.handler;
 
-import pro.gravit.launcher.Launcher;
-import pro.gravit.utils.HTTPRequest;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.UUID;
+
+import pro.gravit.launcher.Launcher;
+import pro.gravit.utils.HTTPRequest;
 
 public class JsonAuthHandler extends CachedAuthHandler {
     public URL getUrl;

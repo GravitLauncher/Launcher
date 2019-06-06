@@ -1,11 +1,11 @@
 package pro.gravit.launchserver.command.auth;
 
+import java.util.List;
+
 import pro.gravit.launcher.HWID;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.util.List;
 
 public class GetHWIDCommand extends Command {
     public GetHWIDCommand(LaunchServer server) {

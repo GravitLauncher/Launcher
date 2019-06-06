@@ -1,11 +1,11 @@
 package pro.gravit.launcher.server;
 
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.managers.SimpleModulesConfigManager;
 import pro.gravit.launcher.modules.ModuleContext;
 import pro.gravit.launcher.modules.ModulesConfigManager;
 import pro.gravit.launcher.modules.ModulesManager;
 import pro.gravit.utils.PublicURLClassLoader;
-import pro.gravit.launcher.Launcher;
 
 public class ServerModuleContext implements ModuleContext {
     public final PublicURLClassLoader classLoader;

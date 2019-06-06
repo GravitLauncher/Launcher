@@ -1,22 +1,5 @@
 package pro.gravit.launcher.server;
 
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.server.setup.ServerWrapperSetup;
-import pro.gravit.utils.PublicURLClassLoader;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.config.JsonConfigurable;
-import pro.gravit.launcher.events.request.ProfilesRequestEvent;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.RequestException;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.update.ProfilesRequest;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -28,6 +11,23 @@ import java.nio.file.Paths;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.HashMap;
+
+import pro.gravit.launcher.ClientPermissions;
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.config.JsonConfigurable;
+import pro.gravit.launcher.events.request.ProfilesRequestEvent;
+import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.request.Request;
+import pro.gravit.launcher.request.RequestException;
+import pro.gravit.launcher.request.auth.AuthRequest;
+import pro.gravit.launcher.request.update.ProfilesRequest;
+import pro.gravit.launcher.server.setup.ServerWrapperSetup;
+import pro.gravit.utils.PublicURLClassLoader;
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public ModulesManager modulesManager;

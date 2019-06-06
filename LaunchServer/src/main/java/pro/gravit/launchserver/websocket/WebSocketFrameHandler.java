@@ -1,32 +1,40 @@
 package pro.gravit.launchserver.websocket;
 
+import java.util.concurrent.TimeUnit;
+
 import com.google.gson.GsonBuilder;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.handler.codec.http.websocketx.*;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
+import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-import java.util.concurrent.TimeUnit;
-
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
-    public static LaunchServer server;
-    public static GsonBuilder builder = new GsonBuilder();
-    public static WebSocketService service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), LaunchServer.server, builder);
+    public final LaunchServer srv;
+    public static GsonBuilder builder = CommonHelper.newBuilder();
+    public final WebSocketService service;
     public NettyConnectContext context;
 
-    public WebSocketFrameHandler(NettyConnectContext context) {
+    public WebSocketFrameHandler(NettyConnectContext context, LaunchServer srv) {
         this.context = context;
+        this.srv = srv;
+        service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), srv, builder);
+        service.registerResponses();
     }
 
     private Client client;
 
     static {
-        service.registerResponses();
     }
 
     public void setClient(Client client) {
@@ -58,7 +66,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             ctx.channel().close();
         } else {
             String message = "unsupported frame type: " + frame.getClass().getName();
-            throw new UnsupportedOperationException(message);
+            LogHelper.error(new UnsupportedOperationException(message)); // prevent strange crash here.
         }
     }
 }

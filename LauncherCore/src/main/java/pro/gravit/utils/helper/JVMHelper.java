@@ -1,7 +1,5 @@
 package pro.gravit.utils.helper;
 
-import pro.gravit.launcher.LauncherAPI;
-
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
@@ -13,6 +11,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+
+import pro.gravit.launcher.LauncherAPI;
 
 public final class JVMHelper {
     @LauncherAPI

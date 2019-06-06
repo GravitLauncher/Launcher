@@ -1,10 +1,5 @@
 package pro.gravit.launchserver.asm;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Opcodes;
-import pro.gravit.utils.helper.IOHelper;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +7,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Opcodes;
+
+import pro.gravit.utils.helper.IOHelper;
 
 /**
  * Позволяет искать методы внутри незагруженных классов и общие суперклассы для

@@ -1,10 +1,5 @@
 package pro.gravit.launchserver.binary.tasks;
 
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.UnpackHelper;
-
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -12,6 +7,11 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.UnpackHelper;
 
 public class PrepareBuildTask implements LauncherBuildTask {
     private final LaunchServer server;

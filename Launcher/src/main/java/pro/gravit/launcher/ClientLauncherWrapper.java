@@ -1,18 +1,18 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.client.ClientLauncher;
-import pro.gravit.launcher.client.DirBridge;
-import pro.gravit.utils.helper.EnvHelper;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import pro.gravit.launcher.client.ClientLauncher;
+import pro.gravit.launcher.client.DirBridge;
+import pro.gravit.utils.helper.EnvHelper;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public class ClientLauncherWrapper {
     public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";

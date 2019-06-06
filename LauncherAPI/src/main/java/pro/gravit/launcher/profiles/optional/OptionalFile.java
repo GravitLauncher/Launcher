@@ -1,13 +1,13 @@
 package pro.gravit.launcher.profiles.optional;
 
+import java.io.IOException;
+import java.util.Objects;
+import java.util.Set;
+
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.IOException;
-import java.util.Objects;
-import java.util.Set;
 
 public class OptionalFile {
     @LauncherAPI

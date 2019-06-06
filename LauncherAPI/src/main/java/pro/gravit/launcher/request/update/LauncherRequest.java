@@ -1,22 +1,22 @@
 package pro.gravit.launcher.request.update;
 
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.launcher.LauncherNetworkAPI;
-import pro.gravit.launcher.downloader.ListDownloader;
-import pro.gravit.launcher.events.request.LauncherRequestEvent;
-import pro.gravit.launcher.request.websockets.RequestInterface;
-import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.downloader.ListDownloader;
+import pro.gravit.launcher.events.request.LauncherRequestEvent;
+import pro.gravit.launcher.request.Request;
+import pro.gravit.launcher.request.websockets.RequestInterface;
+import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 public final class LauncherRequest extends Request<LauncherRequestEvent> implements RequestInterface {
     @LauncherNetworkAPI

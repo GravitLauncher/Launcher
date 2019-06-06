@@ -1,10 +1,10 @@
 package pro.gravit.launchserver.command.hash;
 
+import java.io.IOException;
+
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.IOException;
 
 public final class SyncProfilesCommand extends Command {
     public SyncProfilesCommand(LaunchServer server) {

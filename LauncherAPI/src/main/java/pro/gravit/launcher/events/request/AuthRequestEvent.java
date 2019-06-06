@@ -1,12 +1,12 @@
 package pro.gravit.launcher.events.request;
 
+import java.util.UUID;
+
+import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.utils.event.EventInterface;
-import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.events.RequestEvent;
-
-import java.util.UUID;
 
 public class AuthRequestEvent extends RequestEvent implements EventInterface {
     private static final UUID uuid = UUID.fromString("77e1bfd7-adf9-4f5d-87d6-a7dd068deb74");

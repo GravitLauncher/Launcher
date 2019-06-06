@@ -1,11 +1,11 @@
 package pro.gravit.launchserver.binary;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.IOException;
-import java.nio.file.Files;
 
 public class EXELauncherBinary extends LauncherBinary {
 

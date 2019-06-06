@@ -1,10 +1,11 @@
 package pro.gravit.launchserver.auth;
 
+import java.io.IOException;
+
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
-
-import java.io.IOException;
 
 public class AuthProviderPair {
     public AuthProvider provider;
@@ -21,9 +22,9 @@ public class AuthProviderPair {
         this.name = name;
     }
 
-    public void init() {
-        provider.init();
-        handler.init();
+    public void init(LaunchServer srv) {
+        provider.init(srv);
+        handler.init(srv);
     }
 
     public void close() throws IOException {

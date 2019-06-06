@@ -1,5 +1,11 @@
 package pro.gravit.launchserver.command.dump;
 
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.UUID;
+
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
@@ -7,12 +13,6 @@ import pro.gravit.launchserver.auth.handler.CachedAuthHandler;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.Reader;
-import java.io.Writer;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.UUID;
 
 public class DumpEntryCacheCommand extends Command {
     public DumpEntryCacheCommand(LaunchServer server) {

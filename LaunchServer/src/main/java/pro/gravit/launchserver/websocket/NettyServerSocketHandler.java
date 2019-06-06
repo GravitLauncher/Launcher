@@ -1,22 +1,16 @@
 package pro.gravit.launchserver.websocket;
 
-import pro.gravit.launcher.ssl.LauncherKeyStore;
-import pro.gravit.launcher.ssl.LauncherTrustManager;
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.legacy.Response;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.VerifyHelper;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.TrustManager;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.*;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Map;
 import java.util.Objects;
@@ -25,13 +19,25 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.TrustManager;
+
+import pro.gravit.launcher.ssl.LauncherKeyStore;
+import pro.gravit.launcher.ssl.LauncherTrustManager;
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.legacy.Response;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.VerifyHelper;
+
 @SuppressWarnings({"unused", "rawtypes"})
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
-    private static SSLServerSocketFactory ssf;
+    private SSLServerSocketFactory ssf;
 
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
 
-    public static LauncherNettyServer nettyServer;
+    public LauncherNettyServer nettyServer;
 
     private final AtomicReference<ServerSocket> serverSocket = new AtomicReference<>();
 
@@ -41,9 +47,10 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private Set<Socket> sockets;
     private volatile Listener listener;
 
+	private transient final LaunchServer server;
+
     public NettyServerSocketHandler(LaunchServer server) {
-        // Instance
-        LaunchServer server1 = server;
+        this.server = server;
     }
 
     @Override
@@ -103,9 +110,8 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
         LogHelper.info("Starting netty server socket thread");
         //SSLEngine engine = sc.createSSLEngine();
         //engine.setUseClientMode(false);
-        WebSocketFrameHandler.server = LaunchServer.server;
-        nettyServer = new LauncherNettyServer();
-        for (LaunchServer.NettyBindAddress address : LaunchServer.server.config.netty.binds) {
+        nettyServer = new LauncherNettyServer(server);
+        for (LaunchServer.NettyBindAddress address : server.config.netty.binds) {
             nettyServer.bind(new InetSocketAddress(address.address, address.port));
         }
         /*

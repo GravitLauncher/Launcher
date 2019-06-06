@@ -1,12 +1,11 @@
 package pro.gravit.launchserver.websocket.json.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launcher.events.request.CheckServerRequestEvent;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
 import pro.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
-import pro.gravit.launcher.events.request.CheckServerRequestEvent;
 import pro.gravit.utils.HookException;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -27,7 +26,7 @@ public class CheckServerResponse extends SimpleResponse {
             server.authHookManager.checkServerHook.hook(this, pClient);
             result.uuid = pClient.auth.handler.checkServer(username, serverID);
             if (result.uuid != null)
-                result.playerProfile = ProfileByUUIDResponse.getProfile(LaunchServer.server, result.uuid, username, client, pClient.auth.textureProvider);
+                result.playerProfile = ProfileByUUIDResponse.getProfile(server, result.uuid, username, client, pClient.auth.textureProvider);
             LogHelper.debug("checkServer: %s uuid: %s serverID: %s", result.playerProfile.username, result.uuid.toString(), serverID);
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());

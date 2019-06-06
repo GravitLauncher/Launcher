@@ -1,10 +1,10 @@
 package pro.gravit.launcher.managers;
 
-import pro.gravit.launcher.NeedGarbageCollection;
-
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import pro.gravit.launcher.NeedGarbageCollection;
 
 public class GarbageManager {
     static class Entry {

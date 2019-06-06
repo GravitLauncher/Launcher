@@ -1,12 +1,12 @@
 package pro.gravit.launcher.request.websockets;
 
-import pro.gravit.launcher.events.RequestEvent;
-import pro.gravit.launcher.request.ResultInterface;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import pro.gravit.launcher.events.RequestEvent;
+import pro.gravit.launcher.request.ResultInterface;
+import pro.gravit.utils.helper.LogHelper;
 
 public class WaitEventHandler implements ClientWebSocketService.EventHandler {
     public Set<ResultEvent> requests = ConcurrentHashMap.newKeySet();

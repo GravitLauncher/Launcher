@@ -1,13 +1,14 @@
 package pro.gravit.launchserver.auth.provider;
 
+import java.io.IOException;
+import java.net.URL;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.utils.HTTPRequest;
 import pro.gravit.utils.helper.SecurityHelper;
-
-import java.io.IOException;
-import java.net.URL;
 
 public final class JsonAuthProvider extends AuthProvider {
     private static Gson gson = new Gson();

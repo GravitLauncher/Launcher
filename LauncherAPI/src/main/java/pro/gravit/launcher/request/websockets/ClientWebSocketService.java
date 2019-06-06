@@ -1,20 +1,39 @@
 package pro.gravit.launcher.request.websockets;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import pro.gravit.launcher.events.ExceptionEvent;
-import pro.gravit.launcher.events.request.*;
-import pro.gravit.launcher.hasher.HashedEntry;
-import pro.gravit.launcher.hasher.HashedEntryAdapter;
-import pro.gravit.launcher.request.ResultInterface;
-import pro.gravit.utils.helper.LogHelper;
-
-import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import javax.net.ssl.SSLException;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import pro.gravit.launcher.events.ExceptionEvent;
+import pro.gravit.launcher.events.request.AuthRequestEvent;
+import pro.gravit.launcher.events.request.BatchProfileByUsernameRequestEvent;
+import pro.gravit.launcher.events.request.CheckServerRequestEvent;
+import pro.gravit.launcher.events.request.ErrorRequestEvent;
+import pro.gravit.launcher.events.request.ExecCommandRequestEvent;
+import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
+import pro.gravit.launcher.events.request.GetSecureTokenRequestEvent;
+import pro.gravit.launcher.events.request.JoinServerRequestEvent;
+import pro.gravit.launcher.events.request.LauncherRequestEvent;
+import pro.gravit.launcher.events.request.LogEvent;
+import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
+import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
+import pro.gravit.launcher.events.request.ProfilesRequestEvent;
+import pro.gravit.launcher.events.request.RestoreSessionRequestEvent;
+import pro.gravit.launcher.events.request.SetProfileRequestEvent;
+import pro.gravit.launcher.events.request.UpdateListRequestEvent;
+import pro.gravit.launcher.events.request.UpdateRequestEvent;
+import pro.gravit.launcher.events.request.VerifySecureTokenRequestEvent;
+import pro.gravit.launcher.hasher.HashedEntry;
+import pro.gravit.launcher.hasher.HashedEntryAdapter;
+import pro.gravit.launcher.request.ResultInterface;
+import pro.gravit.utils.helper.LogHelper;
 
 public class ClientWebSocketService extends ClientJSONPoint {
     public final GsonBuilder gsonBuilder;

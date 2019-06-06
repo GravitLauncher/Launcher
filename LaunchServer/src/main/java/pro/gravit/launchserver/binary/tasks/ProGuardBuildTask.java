@@ -1,15 +1,15 @@
 package pro.gravit.launchserver.binary.tasks;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 import proguard.Configuration;
 import proguard.ConfigurationParser;
 import proguard.ParseException;
 import proguard.ProGuard;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-
-import java.io.IOException;
-import java.nio.file.Path;
 
 public class ProGuardBuildTask implements LauncherBuildTask {
     private final LaunchServer server;

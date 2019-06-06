@@ -1,9 +1,9 @@
 package pro.gravit.launchserver.auth.hwid;
 
-import pro.gravit.launcher.HWID;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import pro.gravit.launcher.HWID;
 
 public class AcceptHWIDHandler extends HWIDHandler {
 

@@ -1,16 +1,18 @@
 package pro.gravit.launchserver.websocket;
 
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.UUID;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import pro.gravit.launchserver.websocket.json.JsonResponseAdapter;
-import pro.gravit.launchserver.websocket.json.JsonResponseInterface;
-import pro.gravit.launchserver.websocket.json.SimpleResponse;
-import pro.gravit.launchserver.websocket.json.auth.*;
 import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
@@ -24,10 +26,19 @@ import pro.gravit.launcher.request.ResultInterface;
 import pro.gravit.launcher.request.admin.ProxyRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
+import pro.gravit.launchserver.websocket.json.JsonResponseAdapter;
+import pro.gravit.launchserver.websocket.json.JsonResponseInterface;
+import pro.gravit.launchserver.websocket.json.SimpleResponse;
 import pro.gravit.launchserver.websocket.json.admin.AddLogListenerResponse;
 import pro.gravit.launchserver.websocket.json.admin.ExecCommandResponse;
 import pro.gravit.launchserver.websocket.json.admin.ProxyCommandResponse;
-import pro.gravit.launchserver.websocket.json.auth.*;
+import pro.gravit.launchserver.websocket.json.auth.AuthResponse;
+import pro.gravit.launchserver.websocket.json.auth.CheckServerResponse;
+import pro.gravit.launchserver.websocket.json.auth.GetAvailabilityAuthResponse;
+import pro.gravit.launchserver.websocket.json.auth.JoinServerResponse;
+import pro.gravit.launchserver.websocket.json.auth.ProfilesResponse;
+import pro.gravit.launchserver.websocket.json.auth.RestoreSessionResponse;
+import pro.gravit.launchserver.websocket.json.auth.SetProfileResponse;
 import pro.gravit.launchserver.websocket.json.profile.BatchProfileByUsername;
 import pro.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
 import pro.gravit.launchserver.websocket.json.profile.ProfileByUsername;
@@ -38,11 +49,6 @@ import pro.gravit.launchserver.websocket.json.update.UpdateListResponse;
 import pro.gravit.launchserver.websocket.json.update.UpdateResponse;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.UUID;
 
 @SuppressWarnings("rawtypes")
 public class WebSocketService {

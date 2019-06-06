@@ -1,21 +1,5 @@
 package pro.gravit.launcher.request.update;
 
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.launcher.LauncherNetworkAPI;
-import pro.gravit.launcher.downloader.ListDownloader;
-import pro.gravit.launcher.events.request.UpdateRequestEvent;
-import pro.gravit.launcher.hasher.FileNameMatcher;
-import pro.gravit.launcher.hasher.HashedDir;
-import pro.gravit.launcher.hasher.HashedEntry;
-import pro.gravit.launcher.hasher.HashedFile;
-import pro.gravit.launcher.request.websockets.RequestInterface;
-import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.update.UpdateRequest.State.Callback;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,6 +9,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
+
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.downloader.ListDownloader;
+import pro.gravit.launcher.events.request.UpdateRequestEvent;
+import pro.gravit.launcher.hasher.FileNameMatcher;
+import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.hasher.HashedEntry;
+import pro.gravit.launcher.hasher.HashedFile;
+import pro.gravit.launcher.request.Request;
+import pro.gravit.launcher.request.update.UpdateRequest.State.Callback;
+import pro.gravit.launcher.request.websockets.RequestInterface;
+import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public final class UpdateRequest extends Request<UpdateRequestEvent> implements RequestInterface {
     public interface UpdateController {

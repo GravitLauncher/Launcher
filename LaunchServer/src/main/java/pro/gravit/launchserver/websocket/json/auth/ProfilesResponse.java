@@ -1,11 +1,10 @@
 package pro.gravit.launchserver.websocket.json.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.websocket.json.SimpleResponse;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
+import pro.gravit.launchserver.socket.Client;
+import pro.gravit.launchserver.websocket.json.SimpleResponse;
 
 public class ProfilesResponse extends SimpleResponse {
     @Override
@@ -19,6 +18,6 @@ public class ProfilesResponse extends SimpleResponse {
             service.sendObject(ctx, new ErrorRequestEvent("Access denied"));
             return;
         }
-        sendResult(new ProfilesRequestEvent(LaunchServer.server.getProfiles()));
+        sendResult(new ProfilesRequestEvent(server.getProfiles()));
     }
 }

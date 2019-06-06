@@ -6,7 +6,7 @@ public final class AcceptAuthProvider extends AuthProvider {
 
     @Override
     public AuthProviderResult auth(String login, String password, String ip) {
-        return new AuthProviderResult(login, SecurityHelper.randomStringToken()); // Same as login
+        return new AuthProviderResult(login, SecurityHelper.randomStringToken(), srv); // Same as login
     }
 
     @Override

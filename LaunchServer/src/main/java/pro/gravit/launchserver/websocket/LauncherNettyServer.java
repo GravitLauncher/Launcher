@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.websocket;
 
+import java.net.InetSocketAddress;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -20,16 +22,15 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.websocket.fileserver.FileServerHandler;
 import pro.gravit.utils.helper.LogHelper;
 
-import java.net.InetSocketAddress;
-
 public class LauncherNettyServer implements AutoCloseable {
     public final ServerBootstrap serverBootstrap;
     public final EventLoopGroup bossGroup;
     public final EventLoopGroup workerGroup;
+    public WebSocketFrameHandler frameHandler = null;
     private static final String WEBSOCKET_PATH = "/api";
 
-    public LauncherNettyServer() {
-        LaunchServer.NettyConfig config = LaunchServer.server.config.netty;
+    public LauncherNettyServer(LaunchServer server) {
+        LaunchServer.NettyConfig config = server.config.netty;
         bossGroup = new NioEventLoopGroup(config.performance.bossThread);
         workerGroup = new NioEventLoopGroup(config.performance.workerThread);
         serverBootstrap = new ServerBootstrap();
@@ -44,13 +45,14 @@ public class LauncherNettyServer implements AutoCloseable {
                         //p.addLast(new LoggingHandler(LogLevel.INFO));
                         pipeline.addLast(new HttpServerCodec());
                         pipeline.addLast(new HttpObjectAggregator(65536));
-                        if (LaunchServer.server.config.netty.ipForwarding)
+                        if (server.config.netty.ipForwarding)
                             pipeline.addLast(new NettyIpForwardHandler(context));
                         pipeline.addLast(new WebSocketServerCompressionHandler());
                         pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
-                        if (LaunchServer.server.config.netty.fileServerEnabled)
-                            pipeline.addLast(new FileServerHandler(LaunchServer.server.updatesDir, true));
-                        pipeline.addLast(new WebSocketFrameHandler(context));
+                        if (server.config.netty.fileServerEnabled)
+                            pipeline.addLast(new FileServerHandler(server.updatesDir, true));
+                        frameHandler = new WebSocketFrameHandler(context, server);
+                        pipeline.addLast(frameHandler);
                     }
                 });
         if (config.proxy != null && config.proxy.enabled) {

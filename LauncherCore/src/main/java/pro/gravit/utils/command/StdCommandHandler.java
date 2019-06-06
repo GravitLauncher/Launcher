@@ -1,9 +1,9 @@
 package pro.gravit.utils.command;
 
-import pro.gravit.utils.helper.IOHelper;
-
 import java.io.BufferedReader;
 import java.io.IOException;
+
+import pro.gravit.utils.helper.IOHelper;
 
 public class StdCommandHandler extends CommandHandler {
     private final BufferedReader reader;

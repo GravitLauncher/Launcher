@@ -1,24 +1,27 @@
 package pro.gravit.launcher.request.websockets;
 
-import com.google.gson.GsonBuilder;
-import pro.gravit.launcher.events.request.ErrorRequestEvent;
-import pro.gravit.launcher.request.RequestException;
-import pro.gravit.launcher.request.ResultInterface;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.utils.helper.LogHelper;
-
-import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLException;
+
+import com.google.gson.GsonBuilder;
+
+import pro.gravit.launcher.events.request.ErrorRequestEvent;
+import pro.gravit.launcher.request.Request;
+import pro.gravit.launcher.request.RequestException;
+import pro.gravit.launcher.request.ResultInterface;
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.LogHelper;
+
 public class StandartClientWebSocketService extends ClientWebSocketService {
     public WaitEventHandler waitEventHandler = new WaitEventHandler();
 
     public StandartClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) throws SSLException {
-        super(gsonBuilder, address, i);
+        super(null, address, i);
     }
 
     public class RequestFuture implements Future<ResultInterface> {
@@ -106,7 +109,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
     public static StandartClientWebSocketService initWebSockets(String address, boolean async) {
         StandartClientWebSocketService service;
         try {
-            service = new StandartClientWebSocketService(new GsonBuilder(), address, 5000);
+            service = new StandartClientWebSocketService(CommonHelper.newBuilder(), address, 5000);
         } catch (SSLException e) {
             LogHelper.error(e);
             return null;

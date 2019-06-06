@@ -1,20 +1,50 @@
 package pro.gravit.launchserver.command.handler;
 
-import pro.gravit.launchserver.command.auth.*;
-import pro.gravit.launchserver.command.basic.*;
-import pro.gravit.launchserver.command.hash.*;
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.command.auth.AuthCommand;
+import pro.gravit.launchserver.command.auth.BanCommand;
+import pro.gravit.launchserver.command.auth.GetHWIDCommand;
+import pro.gravit.launchserver.command.auth.UUIDToUsernameCommand;
+import pro.gravit.launchserver.command.auth.UnbanCommand;
+import pro.gravit.launchserver.command.auth.UsernameToUUIDCommand;
+import pro.gravit.launchserver.command.basic.BuildCommand;
+import pro.gravit.launchserver.command.basic.LogConnectionsCommand;
+import pro.gravit.launchserver.command.basic.ProguardCleanCommand;
+import pro.gravit.launchserver.command.basic.RebindCommand;
+import pro.gravit.launchserver.command.basic.RegenProguardDictCommand;
+import pro.gravit.launchserver.command.basic.RemoveMappingsProguardCommand;
+import pro.gravit.launchserver.command.basic.RestartCommand;
+import pro.gravit.launchserver.command.basic.StopCommand;
+import pro.gravit.launchserver.command.basic.TestCommand;
+import pro.gravit.launchserver.command.basic.VersionCommand;
+import pro.gravit.launchserver.command.dao.GetAllUsersCommand;
+import pro.gravit.launchserver.command.dao.GetUserCommand;
+import pro.gravit.launchserver.command.dao.RegisterCommand;
+import pro.gravit.launchserver.command.dao.SetUserPasswordCommand;
+import pro.gravit.launchserver.command.dump.DumpEntryCacheCommand;
+import pro.gravit.launchserver.command.dump.DumpSessionsCommand;
+import pro.gravit.launchserver.command.hash.DownloadAssetCommand;
+import pro.gravit.launchserver.command.hash.DownloadClientCommand;
+import pro.gravit.launchserver.command.hash.IndexAssetCommand;
+import pro.gravit.launchserver.command.hash.SyncBinariesCommand;
+import pro.gravit.launchserver.command.hash.SyncProfilesCommand;
+import pro.gravit.launchserver.command.hash.SyncUpdatesCommand;
+import pro.gravit.launchserver.command.hash.UnindexAssetCommand;
 import pro.gravit.launchserver.command.install.CheckInstallCommand;
 import pro.gravit.launchserver.command.install.MultiCommand;
 import pro.gravit.launchserver.command.modules.LoadModuleCommand;
 import pro.gravit.launchserver.command.modules.ModulesCommand;
-import pro.gravit.launchserver.command.service.*;
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.command.auth.*;
-import pro.gravit.launchserver.command.basic.*;
-import pro.gravit.launchserver.command.dump.DumpEntryCacheCommand;
-import pro.gravit.launchserver.command.dump.DumpSessionsCommand;
-import pro.gravit.launchserver.command.hash.*;
-import pro.gravit.launchserver.command.service.*;
+import pro.gravit.launchserver.command.service.ComponentCommand;
+import pro.gravit.launchserver.command.service.ConfigCommand;
+import pro.gravit.launchserver.command.service.ConfigHelpCommand;
+import pro.gravit.launchserver.command.service.ConfigListCommand;
+import pro.gravit.launchserver.command.service.GetModulusCommand;
+import pro.gravit.launchserver.command.service.GetPermissionsCommand;
+import pro.gravit.launchserver.command.service.GivePermissionsCommand;
+import pro.gravit.launchserver.command.service.ReloadAllCommand;
+import pro.gravit.launchserver.command.service.ReloadCommand;
+import pro.gravit.launchserver.command.service.ReloadListCommand;
+import pro.gravit.launchserver.command.service.ServerStatusCommand;
 import pro.gravit.utils.command.BaseCommandCategory;
 import pro.gravit.utils.command.basic.ClearCommand;
 import pro.gravit.utils.command.basic.DebugCommand;
@@ -22,8 +52,7 @@ import pro.gravit.utils.command.basic.GCCommand;
 import pro.gravit.utils.command.basic.HelpCommand;
 
 public abstract class CommandHandler extends pro.gravit.utils.command.CommandHandler {
-    public static void registerCommands(pro.gravit.utils.command.CommandHandler handler) {
-        LaunchServer server = LaunchServer.server;
+    public static void registerCommands(pro.gravit.utils.command.CommandHandler handler, LaunchServer server) {
         BaseCommandCategory basic = new BaseCommandCategory();
         // Register basic commands
         basic.registerCommand("help", new HelpCommand(handler));
@@ -56,6 +85,15 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         updates.registerCommand("syncProfiles", new SyncProfilesCommand(server));
         Category updatesCategory = new Category(updates, "updates", "Update and Sync Management");
         handler.registerCategory(updatesCategory);
+
+        //Register dao commands
+        BaseCommandCategory dao = new BaseCommandCategory();
+        dao.registerCommand("register", new RegisterCommand(server));
+        dao.registerCommand("setUserPassword", new SetUserPasswordCommand(server));
+        dao.registerCommand("getUser", new GetUserCommand(server));
+        dao.registerCommand("getAllUsers", new GetAllUsersCommand(server));
+        Category daoCategory = new Category(dao, "DAO", "Data Management");
+        handler.registerCategory(daoCategory);
 
         // Register auth commands
         BaseCommandCategory auth = new BaseCommandCategory();

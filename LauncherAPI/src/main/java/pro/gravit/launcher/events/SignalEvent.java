@@ -1,8 +1,8 @@
 package pro.gravit.launcher.events;
 
-import pro.gravit.utils.event.EventInterface;
-
 import java.util.UUID;
+
+import pro.gravit.utils.event.EventInterface;
 
 //Используется, что бы послать короткое сообщение, которое вмещается в int
 public class SignalEvent implements EventInterface {

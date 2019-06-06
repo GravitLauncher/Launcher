@@ -1,10 +1,10 @@
 package pro.gravit.launchserver.manangers;
 
-import pro.gravit.utils.helper.IOHelper;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+
+import pro.gravit.utils.helper.IOHelper;
 
 public class MirrorManager {
     public class Mirror {

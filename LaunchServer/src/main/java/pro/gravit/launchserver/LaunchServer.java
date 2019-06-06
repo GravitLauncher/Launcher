@@ -1,6 +1,49 @@
 package pro.gravit.launchserver;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.lang.ProcessBuilder.Redirect;
+import java.lang.reflect.InvocationTargetException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.KeyPair;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Timer;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.zip.CRC32;
+
 import io.netty.handler.logging.LogLevel;
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.NeedGarbageCollection;
+import pro.gravit.launcher.config.JsonConfigurable;
+import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.managers.ConfigManager;
+import pro.gravit.launcher.managers.GarbageManager;
+import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.handler.MemoryAuthHandler;
@@ -15,49 +58,37 @@ import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.provider.RejectAuthProvider;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
-import pro.gravit.launchserver.binary.*;
+import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
+import pro.gravit.launchserver.binary.EXELauncherBinary;
+import pro.gravit.launchserver.binary.JARLauncherBinary;
+import pro.gravit.launchserver.binary.LauncherBinary;
+import pro.gravit.launchserver.binary.ProguardConf;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
+import pro.gravit.launchserver.dao.UserService;
 import pro.gravit.launchserver.legacy.Response;
-import pro.gravit.launchserver.manangers.*;
+import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
+import pro.gravit.launchserver.manangers.MirrorManager;
+import pro.gravit.launchserver.manangers.ModulesManager;
+import pro.gravit.launchserver.manangers.ReconfigurableManager;
+import pro.gravit.launchserver.manangers.ReloadManager;
+import pro.gravit.launchserver.manangers.SessionManager;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
 import pro.gravit.launchserver.manangers.hook.SocketHookManager;
 import pro.gravit.launchserver.socket.ServerSocketHandler;
 import pro.gravit.launchserver.websocket.NettyServerSocketHandler;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.NeedGarbageCollection;
-import pro.gravit.launcher.config.JsonConfigurable;
-import pro.gravit.launcher.hasher.HashedDir;
-import pro.gravit.launcher.managers.ConfigManager;
-import pro.gravit.launcher.managers.GarbageManager;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
-import pro.gravit.utils.helper.*;
-import pro.gravit.launchserver.binary.*;
-import pro.gravit.launchserver.manangers.*;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
-
-import java.io.*;
-import java.lang.ProcessBuilder.Redirect;
-import java.lang.reflect.InvocationTargetException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.KeyPair;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.zip.CRC32;
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.utils.helper.VerifyHelper;
 
 public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     @Override
@@ -67,11 +98,13 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = Launcher.gsonManager.gson.fromJson(reader, Config.class);
         }
+        config.server = this;
         config.verify();
         config.init();
     }
 
     public static final class Config {
+    	private transient LaunchServer server = null;
         public int legacyPort;
 
         private String legacyAddress;
@@ -206,30 +239,30 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public void init() {
             Launcher.applyLauncherEnv(env);
             for (AuthProviderPair provider : auth) {
-                provider.init();
+                provider.init(server);
             }
             permissionsHandler.init();
             hwidHandler.init();
             if (protectHandler != null) {
                 protectHandler.checkLaunchServerLicense();
             }
-            LaunchServer.server.registerObject("permissionsHandler", permissionsHandler);
+            server.registerObject("permissionsHandler", permissionsHandler);
             for (AuthProviderPair pair : auth) {
-                LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
-                LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
-                LaunchServer.server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
+                server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
+                server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
             }
 
-            Arrays.stream(mirrors).forEach(LaunchServer.server.mirrorManager::addMirror);
+            Arrays.stream(mirrors).forEach(server.mirrorManager::addMirror);
         }
 
         public void close() {
             try {
-                LaunchServer.server.unregisterObject("permissionsHandler", permissionsHandler);
+                server.unregisterObject("permissionsHandler", permissionsHandler);
                 for (AuthProviderPair pair : auth) {
-                    LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
-                    LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
-                    LaunchServer.server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                    server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
+                    server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
+                    server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
                 }
             } catch (Exception e) {
                 LogHelper.error(e);
@@ -396,7 +429,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final Path updatesDir;
 
-    public static LaunchServer server = null;
+    //public static LaunchServer server = null;
 
     public final Path profilesDir;
     // Server config
@@ -425,6 +458,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     // Server
 
     public final ModulesManager modulesManager;
+
+    public final UserService userService;
 
     public final MirrorManager mirrorManager;
 
@@ -479,7 +514,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         Response.registerResponses();
         Component.registerComponents();
         ProtectHandler.registerHandlers();
-        LaunchServer.server = this;
+        //LaunchServer.server = this;
 
         // Set command handler
         CommandHandler localCommandHandler;
@@ -496,7 +531,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 localCommandHandler = new StdCommandHandler(true);
                 LogHelper.warning("JLine2 isn't in classpath, using std");
             }
-        pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler);
+        pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler, this);
         commandHandler = localCommandHandler;
 
         // Set key pair
@@ -538,6 +573,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = Launcher.gsonManager.gson.fromJson(reader, Config.class);
         }
+        config.server = this;
         if (!Files.exists(runtimeConfigFile)) {
             LogHelper.info("Reset LaunchServer runtime config file");
             runtime = new LaunchServerRuntimeConfig();
@@ -552,7 +588,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         config.verify();
         Launcher.applyLauncherEnv(config.env);
         for (AuthProviderPair provider : config.auth) {
-            provider.init();
+            provider.init(this);
         }
         config.permissionsHandler.init();
         config.hwidHandler.init();
@@ -578,6 +614,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         socketHookManager = new SocketHookManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
+        userService = new UserService(this);
         GarbageManager.registerNeedGC(sessionManager);
         reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);

@@ -1,10 +1,10 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.managers.SimpleModuleManager;
-import pro.gravit.launcher.LauncherEngine;
-
 import java.net.URL;
 import java.util.ArrayList;
+
+import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.managers.SimpleModuleManager;
 
 public class ClientModuleManager extends SimpleModuleManager {
     public ClientModuleManager(LauncherEngine engine) {

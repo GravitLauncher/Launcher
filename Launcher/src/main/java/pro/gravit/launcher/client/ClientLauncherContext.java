@@ -1,11 +1,11 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.PlayerProfile;
-
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
+
+import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.PlayerProfile;
 
 public class ClientLauncherContext {
     public Path javaBin;

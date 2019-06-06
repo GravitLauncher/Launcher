@@ -1,12 +1,13 @@
 package pro.gravit.launchserver.auth.handler;
 
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.UUID;
+
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public final class RequestAuthHandler extends CachedAuthHandler {
     private String usernameFetch;
@@ -19,7 +20,8 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     private String goodResponse = "OK";
 
     @Override
-    public void init() {
+    public void init(LaunchServer srv) {
+    	super.init(srv);
         if (usernameFetch == null)
             LogHelper.error("[Verify][AuthHandler] usernameFetch cannot be null");
         if (uuidFetch == null)

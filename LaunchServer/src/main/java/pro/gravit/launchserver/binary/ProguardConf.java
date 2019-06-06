@@ -1,11 +1,5 @@
 package pro.gravit.launchserver.binary;
 
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.UnpackHelper;
-
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -14,6 +8,12 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.utils.helper.UnpackHelper;
 
 public class ProguardConf {
     private static final String chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ";
@@ -71,7 +71,7 @@ public class ProguardConf {
         SecureRandom rand = SecurityHelper.newRandom();
         rand.setSeed(SecureRandom.getSeed(32));
         try (PrintWriter out = new PrintWriter(new OutputStreamWriter(IOHelper.newOutput(words), IOHelper.UNICODE_CHARSET))) {
-            String projectName = LaunchServer.server.config.projectName.replaceAll("\\W", "");
+            String projectName = srv.config.projectName.replaceAll("\\W", "");
             String lowName = projectName.toLowerCase();
             String upName = projectName.toUpperCase();
             for (int i = 0; i < Short.MAX_VALUE; i++) out.println(generateString(rand, lowName, upName, 3));

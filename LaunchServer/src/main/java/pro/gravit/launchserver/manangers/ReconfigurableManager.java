@@ -1,11 +1,11 @@
 package pro.gravit.launchserver.manangers;
 
+import java.util.HashMap;
+import java.util.Objects;
+
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
-
-import java.util.HashMap;
-import java.util.Objects;
 
 public class ReconfigurableManager {
     private final HashMap<String, Reconfigurable> RECONFIGURABLE = new HashMap<>();

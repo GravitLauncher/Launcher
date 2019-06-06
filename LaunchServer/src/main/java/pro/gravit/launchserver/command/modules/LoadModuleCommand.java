@@ -1,10 +1,10 @@
 package pro.gravit.launchserver.command.modules;
 
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.command.Command;
-
 import java.net.URI;
 import java.nio.file.Paths;
+
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.command.Command;
 
 public class LoadModuleCommand extends Command {
     public LoadModuleCommand(LaunchServer server) {
