@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public abstract class JsonConfigurable<T> {
     private Type type;
@@ -42,6 +43,10 @@ public abstract class JsonConfigurable<T> {
         if (generateConfigIfNotExists(configPath)) return;
         try (BufferedReader reader = IOHelper.newReader(configPath)) {
             setConfig(Launcher.gsonManager.configGson.fromJson(reader, type));
+        } catch (Exception e)
+        {
+            LogHelper.error(e);
+            resetConfig(configPath);
         }
     }
 
