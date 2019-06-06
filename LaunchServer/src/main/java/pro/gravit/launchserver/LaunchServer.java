@@ -52,8 +52,8 @@ import pro.gravit.launchserver.auth.hwid.HWIDHandler;
 import pro.gravit.launchserver.auth.permissions.DefaultPermissionsHandler;
 import pro.gravit.launchserver.auth.permissions.JsonFilePermissionsHandler;
 import pro.gravit.launchserver.auth.permissions.PermissionsHandler;
-import pro.gravit.launchserver.auth.protect.NoProtectHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
+import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.provider.RejectAuthProvider;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
@@ -755,7 +755,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
                 , "std")};
         newConfig.auth[0].displayName = "Default";
-        newConfig.protectHandler = new NoProtectHandler();
+        newConfig.protectHandler = new StdProtectHandler();
         if (testEnv) newConfig.permissionsHandler = new DefaultPermissionsHandler();
         else newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.legacyPort = 7240;

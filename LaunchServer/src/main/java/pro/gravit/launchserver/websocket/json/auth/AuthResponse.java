@@ -73,17 +73,10 @@ public class AuthResponse extends SimpleResponse {
                     throw new AuthException("Password decryption error");
                 }
             }
-            clientData.permissions = server.config.permissionsHandler.getPermissions(login);
-            if (authType == ConnectTypes.BOT && !clientData.permissions.canBot) {
-                AuthProvider.authError("authType: BOT not allowed for this account");
-            }
-            if (authType == ConnectTypes.SERVER && !clientData.permissions.canServer) {
-                AuthProvider.authError("authType: SERVER not allowed for this account");
-            }
             AuthProviderPair pair;
             if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
             else pair = server.config.getAuthProviderPair(auth_id);
-            AuthContext context = new AuthContext(0, login, password.length(), customText, client, ip, null, false);
+            AuthContext context = new AuthContext(0, login, password.length(), customText, client, ip, null, authType);
             AuthProvider provider = pair.provider;
             server.authHookManager.preHook.hook(context, clientData);
             provider.preAuth(login, password, customText, ip);
@@ -113,6 +106,12 @@ public class AuthResponse extends SimpleResponse {
             clientData.updateAuth(server);
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
+            if (authType == ConnectTypes.BOT && !clientData.permissions.canBot) {
+                AuthProvider.authError("authType: BOT not allowed for this account");
+            }
+            if (authType == ConnectTypes.SERVER && !clientData.permissions.canServer) {
+                AuthProvider.authError("authType: SERVER not allowed for this account");
+            }
             if (getSession) {
                 if (clientData.session == 0) {
                     clientData.session = random.nextLong();
@@ -136,7 +135,7 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public static class AuthContext {
-        public AuthContext(long session, String login, int password_lenght, String customText, String client, String hwid, String ip, boolean isServerAuth) {
+        public AuthContext(long session, String login, int password_lenght, String customText, String client, String hwid, String ip, ConnectTypes authType) {
             this.session = session;
             this.login = login;
             this.password_lenght = password_lenght;
@@ -144,7 +143,7 @@ public class AuthResponse extends SimpleResponse {
             this.client = client;
             this.hwid = hwid;
             this.ip = ip;
-            this.isServerAuth = isServerAuth;
+            this.authType = authType;
         }
 
         public long session;
@@ -154,6 +153,6 @@ public class AuthResponse extends SimpleResponse {
         public String hwid;
         public String customText;
         public String ip;
-        public boolean isServerAuth;
+        public ConnectTypes authType;
     }
 }
