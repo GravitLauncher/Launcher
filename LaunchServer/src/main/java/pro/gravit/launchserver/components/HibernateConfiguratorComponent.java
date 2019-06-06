@@ -7,6 +7,7 @@ import org.hibernate.cfg.Configuration;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.dao.LaunchServerDaoFactory;
 import pro.gravit.launchserver.dao.User;
+import pro.gravit.launchserver.dao.UserHWID;
 import pro.gravit.launchserver.dao.impl.HibernateUserDAOImpl;
 import pro.gravit.launchserver.hibernate.SessionFactoryManager;
 import pro.gravit.utils.helper.CommonHelper;
@@ -25,6 +26,7 @@ public class HibernateConfiguratorComponent extends Component {
         Runnable init = () -> {
             Configuration cfg = new Configuration()
                     .addAnnotatedClass(User.class)
+                    .addAnnotatedClass(UserHWID.class)
                     .setProperty("hibernate.connection.driver_class", driver)
                     .setProperty("hibernate.connection.url", url)
                     .setProperty("hibernate.connection.username", username)

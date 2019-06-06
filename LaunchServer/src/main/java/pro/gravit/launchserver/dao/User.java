@@ -4,14 +4,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.utils.helper.LogHelper;
@@ -33,6 +29,12 @@ public class User {
     public String serverID;
     private String password_salt;
     public long permissions;
+    //TODO: заменить EAGER на LASY и придумать способ сохранить сессию
+    // [ERROR] org.hibernate.LazyInitializationException:
+    // failed to lazily initialize a collection of role: pro.gravit.launchserver.dao.User.hwids, could not initialize proxy - no Session
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    public Collection<UserHWID> hwids;
     public void setPassword(String password)
     {
         password_salt = SecurityHelper.randomStringAESKey();
