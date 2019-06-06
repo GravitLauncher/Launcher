@@ -12,25 +12,25 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.components.HibernateConfiguratorComponent;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;
+import pro.gravit.launchserver.hibernate.SessionFactoryManager;
 
 public class HibernateUserDAOImpl implements UserDAO {
-	private final HibernateConfiguratorComponent hibernate;
+	private final SessionFactoryManager manager;
 
 	public HibernateUserDAOImpl(LaunchServer srv) {
-		hibernate = (HibernateConfiguratorComponent) srv.config.components.values().stream().filter(e -> HibernateConfiguratorComponent.class.isInstance(e)).findFirst().get();
+		manager = SessionFactoryManager.forLaunchServer(srv);
 	}
 
     public User findById(int id) {
-        try (Session s =  hibernate.sessionFactory.openSession()) {
+        try (Session s =  manager.fact.openSession()) {
         	return s.get(User.class, id);
         }
     }
 
     public User findByUsername(String username) {
-        EntityManager em = hibernate.sessionFactory.createEntityManager();
+        EntityManager em = manager.fact.createEntityManager();
         em.getTransaction().begin();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<User> personCriteria = cb.createQuery(User.class);
@@ -42,7 +42,7 @@ public class HibernateUserDAOImpl implements UserDAO {
     }
 
     public User findByUUID(UUID uuid) {
-        EntityManager em = hibernate.sessionFactory.createEntityManager();
+        EntityManager em = manager.fact.createEntityManager();
         em.getTransaction().begin();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<User> personCriteria = cb.createQuery(User.class);
@@ -54,7 +54,7 @@ public class HibernateUserDAOImpl implements UserDAO {
     }
 
     public void save(User user) {
-        try (Session session = hibernate.sessionFactory.openSession()) {
+        try (Session session = manager.fact.openSession()) {
         	Transaction tx1 = session.beginTransaction();
         	session.save(user);
         	tx1.commit();
@@ -62,7 +62,7 @@ public class HibernateUserDAOImpl implements UserDAO {
     }
 
     public void update(User user) {
-        try (Session session = hibernate.sessionFactory.openSession()) {
+        try (Session session = manager.fact.openSession()) {
         	Transaction tx1 = session.beginTransaction();
         	session.update(user);
         	tx1.commit();
@@ -70,7 +70,7 @@ public class HibernateUserDAOImpl implements UserDAO {
     }
 
     public void delete(User user) {
-        try (Session session = hibernate.sessionFactory.openSession()) {
+        try (Session session = manager.fact.openSession()) {
         	Transaction tx1 = session.beginTransaction();
         	session.delete(user);
         	tx1.commit();
@@ -79,7 +79,7 @@ public class HibernateUserDAOImpl implements UserDAO {
 
     @SuppressWarnings("unchecked")
 	public List<User> findAll() {
-    	try (Session s = hibernate.sessionFactory.openSession()) {
+    	try (Session s = manager.fact.openSession()) {
     		return (List<User>) s.createQuery("From User").list();
     	}
     }

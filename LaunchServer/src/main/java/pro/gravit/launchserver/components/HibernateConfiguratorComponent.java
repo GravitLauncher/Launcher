@@ -2,13 +2,13 @@ package pro.gravit.launchserver.components;
 
 import java.nio.file.Paths;
 
-import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.dao.LaunchServerDaoFactory;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.impl.HibernateUserDAOImpl;
+import pro.gravit.launchserver.hibernate.SessionFactoryManager;
 import pro.gravit.utils.helper.CommonHelper;
 
 public class HibernateConfiguratorComponent extends Component {
@@ -19,7 +19,6 @@ public class HibernateConfiguratorComponent extends Component {
     public String pool_size;
     public String hibernateConfig;
     public boolean parallelHibernateInit;
-    public SessionFactory sessionFactory = null;
     @Override
     public void preInit(LaunchServer launchServer) {
         LaunchServerDaoFactory.setUserDaoProvider(launchServer, HibernateUserDAOImpl::new);
@@ -33,7 +32,7 @@ public class HibernateConfiguratorComponent extends Component {
                     .setProperty("hibernate.connection.pool_size", pool_size);
             if(hibernateConfig != null)
                 cfg.configure(Paths.get(hibernateConfig).toFile());
-            sessionFactory = cfg.buildSessionFactory();
+            SessionFactoryManager.forLaunchServer(launchServer).fact = cfg.buildSessionFactory();
         };
         if(parallelHibernateInit)
             CommonHelper.newThread("Hibernate Thread", true, init);

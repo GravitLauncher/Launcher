@@ -8,16 +8,20 @@ import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.auth.AuthResponse;
+import pro.gravit.utils.BiHookSet.Hook;
 import pro.gravit.utils.HookException;
 
-public class AuthLimiterComponent extends Component implements NeedGarbageCollection {
+public class AuthLimiterComponent extends Component implements NeedGarbageCollection, AutoCloseable {
+	private transient final Hook<AuthResponse.AuthContext, Client> prA = this::preAuthHook;
+	private transient LaunchServer srv;
     @Override
     public void preInit(LaunchServer launchServer) {
+    	srv = launchServer;
     }
 
     @Override
     public void init(LaunchServer launchServer) {
-        launchServer.authHookManager.preHook.registerHook(this::preAuthHook);
+        launchServer.authHookManager.preHook.registerHook(prA);
     }
 
     @Override
@@ -105,4 +109,9 @@ public class AuthLimiterComponent extends Component implements NeedGarbageCollec
         map.put(ip, new AuthEntry(1, System.currentTimeMillis()));
         return false;
     }
+
+	@Override
+	public void close() throws Exception {
+        srv.authHookManager.preHook.unregisterHook(prA);
+	}
 }
