@@ -51,7 +51,7 @@ public final class DownloadClientCommand extends Command {
         // Create profile file
         LogHelper.subInfo("Creaing profile file: '%s'", dirName);
         ClientProfile client;
-        String profilePath = String.format("ru/gravit/launchserver/defaults/profile%s.cfg", version.name);
+        String profilePath = String.format("pro/gravit/launchserver/defaults/profile%s.cfg", version.name);
         try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL(profilePath))) {
             client = Launcher.gsonManager.configGson.fromJson(reader, ClientProfile.class);
         }
