@@ -13,6 +13,7 @@ import com.google.gson.reflect.TypeToken;
 
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.Reloadable;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -46,7 +47,8 @@ public class JsonLongFilePermissionsHandler extends PermissionsHandler implement
     }
 
     @Override
-    public void init() {
+    public void init(LaunchServer server) {
+        super.init(server);
         Type type = new TypeToken<Map<String, ClientPermissions>>() {
         }.getType();
         Path path = Paths.get(filename);

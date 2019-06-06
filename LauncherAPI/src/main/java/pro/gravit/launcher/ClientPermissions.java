@@ -48,12 +48,12 @@ public class ClientPermissions {
     @LauncherAPI
     public long toLong() {
         long result = 0;
-        result |= canAdmin ? 0 : 1;
-        result |= canServer ? 0 : (1 << 1);
-        result |= canUSR1 ? 0 : (1 << 2);
-        result |= canUSR2 ? 0 : (1 << 3);
-        result |= canUSR3 ? 0 : (1 << 4);
-        result |= canBot ? 0 : (1 << 5);
+        result |= !canAdmin ? 0 : 1;
+        result |= !canServer ? 0 : (1 << 1);
+        result |= !canUSR1 ? 0 : (1 << 2);
+        result |= !canUSR2 ? 0 : (1 << 3);
+        result |= !canUSR3 ? 0 : (1 << 4);
+        result |= !canBot ? 0 : (1 << 5);
         return result;
     }
 

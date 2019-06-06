@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -31,6 +32,7 @@ public class User {
     private String accessToken;
     public String serverID;
     private String password_salt;
+    public long permissions;
     public void setPassword(String password)
     {
         password_salt = SecurityHelper.randomStringAESKey();
@@ -56,6 +58,14 @@ public class User {
         LogHelper.info(Arrays.toString(enpassword));
         LogHelper.info(Arrays.toString(this.password));
         return Arrays.equals(enpassword, this.password);
+    }
+    public ClientPermissions getPermissions()
+    {
+        return new ClientPermissions(permissions);
+    }
+    public void setPermissions(ClientPermissions permissions)
+    {
+        this.permissions = permissions.toLong();
     }
 
     public String getAccessToken() {

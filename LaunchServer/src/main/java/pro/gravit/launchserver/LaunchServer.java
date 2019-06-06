@@ -241,7 +241,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             for (AuthProviderPair provider : auth) {
                 provider.init(server);
             }
-            permissionsHandler.init();
+            permissionsHandler.init(server);
             hwidHandler.init();
             if (protectHandler != null) {
                 protectHandler.checkLaunchServerLicense();
@@ -590,7 +590,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         for (AuthProviderPair provider : config.auth) {
             provider.init(this);
         }
-        config.permissionsHandler.init();
+        config.permissionsHandler.init(this);
         config.hwidHandler.init();
         if (config.protectHandler != null) {
             config.protectHandler.checkLaunchServerLicense();
