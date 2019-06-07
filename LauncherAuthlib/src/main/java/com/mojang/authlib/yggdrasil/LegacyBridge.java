@@ -1,11 +1,11 @@
 package com.mojang.authlib.yggdrasil;
 
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.request.auth.CheckServerRequest;
-import ru.gravit.launcher.request.auth.JoinServerRequest;
-import ru.gravit.utils.helper.CommonHelper;
-import ru.gravit.utils.helper.IOHelper;
-import ru.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.request.auth.CheckServerRequest;
+import pro.gravit.launcher.request.auth.JoinServerRequest;
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 // Used by 1.6.4 and below versions
 @LauncherAPI

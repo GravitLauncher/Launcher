@@ -1,16 +1,16 @@
 package com.mojang.authlib.yggdrasil;
 
-import ru.gravit.launcher.LauncherAPI;
-import ru.gravit.launcher.profiles.PlayerProfile;
-import ru.gravit.launcher.request.auth.CheckServerRequest;
-import ru.gravit.launcher.request.auth.JoinServerRequest;
-import ru.gravit.launcher.request.uuid.BatchProfileByUsernameRequest;
-import ru.gravit.launcher.request.uuid.ProfileByUUIDRequest;
-import ru.gravit.launcher.request.uuid.ProfileByUsernameRequest;
-import ru.gravit.launcher.serialize.SerializeLimits;
-import ru.gravit.utils.helper.LogHelper;
-
 import java.util.UUID;
+
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.profiles.PlayerProfile;
+import pro.gravit.launcher.request.auth.CheckServerRequest;
+import pro.gravit.launcher.request.auth.JoinServerRequest;
+import pro.gravit.launcher.request.uuid.BatchProfileByUsernameRequest;
+import pro.gravit.launcher.request.uuid.ProfileByUUIDRequest;
+import pro.gravit.launcher.request.uuid.ProfileByUsernameRequest;
+import pro.gravit.launcher.serialize.SerializeLimits;
+import pro.gravit.utils.helper.LogHelper;
 
 // Used to bypass Launcher's class name obfuscation and access API
 @LauncherAPI
