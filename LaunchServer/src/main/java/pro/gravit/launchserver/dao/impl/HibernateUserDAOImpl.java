@@ -11,9 +11,11 @@ import javax.persistence.criteria.Root;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import pro.gravit.launcher.OshiHWID;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;
+import pro.gravit.launchserver.dao.UserHWID;
 import pro.gravit.launchserver.hibernate.SessionFactoryManager;
 
 public class HibernateUserDAOImpl implements UserDAO {
@@ -51,6 +53,27 @@ public class HibernateUserDAOImpl implements UserDAO {
         List<User> ret = em.createQuery(personCriteria).getResultList();
         em.close();
         return ret.size() == 0 ? null : ret.get(0);
+    }
+
+    @Override
+    public List<UserHWID> findHWID(OshiHWID hwid) {
+        EntityManager em = manager.fact.createEntityManager();
+        em.getTransaction().begin();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<UserHWID> personCriteria = cb.createQuery(UserHWID.class);
+        Root<UserHWID> rootUser = personCriteria.from(UserHWID.class);
+        personCriteria.select(rootUser).where(
+                cb.or(
+                        cb.equal(rootUser.get("totalMemory"), hwid.totalMemory),
+                        cb.equal(rootUser.get("HWDiskSerial"), hwid.HWDiskSerial),
+                        cb.equal(rootUser.get("serialNumber"), hwid.serialNumber),
+                        cb.equal(rootUser.get("processorID"), hwid.processorID),
+                        cb.equal(rootUser.get("macAddr"), hwid.macAddr)
+                )
+        );
+        List<UserHWID> ret = em.createQuery(personCriteria).getResultList();
+        em.close();
+        return ret;
     }
 
     public void save(User user) {

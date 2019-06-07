@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import pro.gravit.launcher.OshiHWID;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;
+import pro.gravit.launchserver.dao.UserHWID;
 
 public class DefaultUserDAOImpl implements UserDAO {
 	public DefaultUserDAOImpl(LaunchServer srv) { }
@@ -23,6 +25,11 @@ public class DefaultUserDAOImpl implements UserDAO {
     @Override
     public User findByUUID(UUID uuid) {
         return null;
+    }
+
+    @Override
+    public List<UserHWID> findHWID(OshiHWID hwid) {
+        return new ArrayList<>();
     }
 
     @Override
