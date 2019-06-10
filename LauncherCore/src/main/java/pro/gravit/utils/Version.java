@@ -23,7 +23,7 @@ public final class Version {
     public static final int MAJOR = 5;
     public static final int MINOR = 0;
     public static final int PATCH = 3;
-    public static final int BUILD = 2;
+    public static final int BUILD = 3;
     public static final Version.Type RELEASE = Version.Type.STABLE;
 
     @LauncherAPI

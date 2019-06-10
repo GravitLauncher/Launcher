@@ -21,7 +21,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
     public WaitEventHandler waitEventHandler = new WaitEventHandler();
 
     public StandartClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) throws SSLException {
-        super(null, address, i);
+        super(gsonBuilder, address, i);
     }
 
     public class RequestFuture implements Future<ResultInterface> {
