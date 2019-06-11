@@ -21,7 +21,7 @@ public class StdProtectHandler extends ProtectHandler {
 
     @Override
     public boolean allowGetAccessToken(AuthResponse.AuthContext context) {
-        return !(context.authType == AuthResponse.ConnectTypes.CLIENT);
+        return (context.authType == AuthResponse.ConnectTypes.CLIENT);
     }
 
     @Override
