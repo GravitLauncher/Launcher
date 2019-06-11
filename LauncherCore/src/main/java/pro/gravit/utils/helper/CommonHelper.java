@@ -154,7 +154,7 @@ public final class CommonHelper {
     
     private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
     	private static final ByteArrayToBase64TypeAdapter INSTANCE = new ByteArrayToBase64TypeAdapter();
-    	private static final Map<byte[], JsonArray> exclusions = new ConcurrentHashMap<>();
+    	private static final Map<byte[], JsonElement> exclusions = new ConcurrentHashMap<>();
     	private final Base64.Decoder decoder = Base64.getUrlDecoder();
     	private final Base64.Encoder encoder = Base64.getUrlEncoder();
     	public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
@@ -170,7 +170,7 @@ public final class CommonHelper {
         }
 
         public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(encoder.encodeToString(src));
+            return exclusions.getOrDefault(src, new JsonPrimitive(encoder.encodeToString(src)));
         }
     }
 }
