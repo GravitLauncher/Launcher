@@ -5,6 +5,8 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -140,10 +142,21 @@ public final class CommonHelper {
                 ByteArrayToBase64TypeAdapter.INSTANCE);
     }
 
+    public static void addExc(byte[] exclusion) {
+    	JsonArray add = new JsonArray(exclusion.length);
+    	for (byte b : exclusion) add.add(new JsonPrimitive(b));
+    	ByteArrayToBase64TypeAdapter.exclusions.put(exclusion, add);
+    }
+
+    public static void removeExc(byte[] exclusion) {
+    	ByteArrayToBase64TypeAdapter.exclusions.remove(exclusion);
+    }
+    
     private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
     	private static final ByteArrayToBase64TypeAdapter INSTANCE = new ByteArrayToBase64TypeAdapter();
-    	private Base64.Decoder decoder = Base64.getUrlDecoder();
-    	private Base64.Encoder encoder = Base64.getUrlEncoder();
+    	private static final Map<byte[], JsonArray> exclusions = new ConcurrentHashMap<>();
+    	private final Base64.Decoder decoder = Base64.getUrlDecoder();
+    	private final Base64.Encoder encoder = Base64.getUrlEncoder();
     	public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
     		if (json.isJsonArray()) {
     			JsonArray byteArr = json.getAsJsonArray();
