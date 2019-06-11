@@ -143,12 +143,14 @@ public final class CommonHelper {
     }
 
     public static void addExc(byte[] exclusion) {
+    	if (exclusion == null) return;
     	JsonArray add = new JsonArray(exclusion.length);
     	for (byte b : exclusion) add.add(new JsonPrimitive(b));
     	ByteArrayToBase64TypeAdapter.exclusions.put(exclusion, add);
     }
 
     public static void removeExc(byte[] exclusion) {
+    	if (exclusion == null) return;
     	ByteArrayToBase64TypeAdapter.exclusions.remove(exclusion);
     }
     

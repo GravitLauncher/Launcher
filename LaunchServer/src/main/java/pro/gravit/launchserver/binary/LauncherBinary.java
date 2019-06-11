@@ -41,8 +41,7 @@ public abstract class LauncherBinary {
 
     public final boolean sync() throws IOException {
         boolean exists = exists();
-        if (sign != null)
-        	CommonHelper.removeExc(sign);
+        CommonHelper.removeExc(sign);
         if (binary != null) {
         	CommonHelper.removeExc(binary.getBytes());
         	CommonHelper.removeExc(binary.getDigest());
@@ -50,9 +49,11 @@ public abstract class LauncherBinary {
         binary = exists ? new DigestBytesHolder(IOHelper.read(syncBinaryFile), SecurityHelper.DigestAlgorithm.SHA512) : null;
         sign = exists ? SecurityHelper.sign(IOHelper.read(syncBinaryFile), server.privateKey) : null;
     	CommonHelper.addExc(sign);
-    	CommonHelper.addExc(binary.getBytes());
-    	CommonHelper.addExc(binary.getDigest());
-        return exists;
+    	if (binary != null) {
+    		CommonHelper.addExc(binary.getBytes());
+    		CommonHelper.addExc(binary.getDigest());
+    	}
+    	return exists;
     }
 
     public static Path resolve(LaunchServer server, String ext) {
