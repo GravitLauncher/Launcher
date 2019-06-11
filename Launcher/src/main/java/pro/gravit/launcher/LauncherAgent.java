@@ -10,6 +10,7 @@ import java.lang.instrument.Instrumentation;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.jar.JarFile;
 
 import org.objectweb.asm.ClassReader;
@@ -54,13 +55,14 @@ public final class LauncherAgent {
                 if (trimmedArg.contains("r")) rt = false;
             }
         }
-        try {
-            if (ManagementFactory.getOperatingSystemMXBean().getName().startsWith("Windows")) replaceClasses(pb, rt);
-            else replaceClasses(false, false);
-        } catch (Error e) {
-            NativeJVMHalt.haltA(294);
-            throw e;
-        }
+        if (System.getProperty("java.vm.name").toUpperCase(Locale.US).indexOf("HOTSPOT") != -1)
+        	try {
+        		if (ManagementFactory.getOperatingSystemMXBean().getName().startsWith("Windows")) replaceClasses(pb, rt);
+        		else replaceClasses(false, false);
+        	} catch (Error e) {
+        		NativeJVMHalt.haltA(294);
+        		throw e;
+        	}
     }
 
     public static boolean isStarted() {
