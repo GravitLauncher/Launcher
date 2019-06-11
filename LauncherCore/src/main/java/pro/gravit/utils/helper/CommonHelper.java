@@ -142,8 +142,8 @@ public final class CommonHelper {
 
     private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
     	private static final ByteArrayToBase64TypeAdapter INSTANCE = new ByteArrayToBase64TypeAdapter();
-    	private Base64.Decoder decoder = Base64.getUrlDecoder();
-    	private Base64.Encoder encoder = Base64.getUrlEncoder();
+    	private final Base64.Decoder decoder = Base64.getUrlDecoder();
+    	private final Base64.Encoder encoder = Base64.getUrlEncoder();
     	public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
     		if (json.isJsonArray()) {
     			JsonArray byteArr = json.getAsJsonArray();
