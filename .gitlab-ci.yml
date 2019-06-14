@@ -1,4 +1,4 @@
-image: java:8-jdk
+image: azul/zulu-openjdk:8
 
 stages:
   - build
