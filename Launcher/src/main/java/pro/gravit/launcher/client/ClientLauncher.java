@@ -148,7 +148,6 @@ public final class ClientLauncher {
         }
     }
 
-    private static final String[] EMPTY_ARRAY = new String[0];
     private static final String SOCKET_HOST = "127.0.0.1";
     private static final int SOCKET_PORT = Launcher.getConfig().clientPort;
     private static final String MAGICAL_INTEL_OPTION = "-XX:HeapDumpPath=ThisTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
@@ -277,21 +276,22 @@ public final class ClientLauncher {
         Collection<String> args = new LinkedList<>();
         if (profile.getVersion().compareTo(ClientProfile.Version.MC164) >= 0)
             addClientArgs(args, profile, params);
-        else
+        else {
             addClientLegacyArgs(args, profile, params);
+            System.setProperty("minecraft.applet.TargetDirectory", params.clientDir.toString());
+        }
         Collections.addAll(args, profile.getClientArgs());
         LogHelper.debug("Args: " + args);
         // Resolve main class and method
         Class<?> mainClass = classLoader.loadClass(profile.getMainClass());
-        MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
-        // Invoke main method with exception wrapping
+        MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
-        System.setProperty("minecraft.applet.TargetDirectory", params.clientDir.toString()); // For 1.5.2
-        mainMethod.invoke((Object) args.toArray(EMPTY_ARRAY));
+        // Invoke main method
+        mainMethod.invoke((Object) args.toArray(new String[0]));
     }
 
-    private static Process process = null;
+	private static Process process = null;
     private static boolean clientStarted = false;
     private static Thread writeParamsThread;
 
