@@ -55,6 +55,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
     public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
     public static final String READ = "r";
     public static final int HTTP_CACHE_SECONDS = 60;
+	private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "false"));
     private final Path base;
     private final boolean fullOut;
 
@@ -143,11 +144,12 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         // Write the content.
         ChannelFuture sendFileFuture;
         ChannelFuture lastContentFuture;
-        if (ctx.pipeline().get(SslHandler.class) == null) {
+        if (OLD_ALGO) {
             sendFileFuture =
                     ctx.write(new DefaultFileRegion(raf.getChannel(), 0, fileLength), ctx.newProgressivePromise());
             // Write the end marker.
             lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+        	lastContentFuture.addListener(new ClosingChannelFutureListener(raf));
         } else {
             sendFileFuture =
                     ctx.writeAndFlush(new HttpChunkedInput(new ChunkedFile(raf, 0, fileLength, 8192)),
@@ -158,7 +160,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 
         // Decide whether to close the connection or not.
         if (!HttpUtil.isKeepAlive(request)) {
-            lastContentFuture.addListener(new ClosingChannelFutureListener(raf));
             lastContentFuture.addListener(ChannelFutureListener.CLOSE);
         }
     }
