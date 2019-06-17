@@ -11,24 +11,27 @@
 
 <!-- DrLeonardo Design -->
 
-<Pane fx:id="background" prefWidth="738.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
+<Pane prefHeight="450.0" prefWidth="740.0" xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Pane fx:id="bar" layoutX="692.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
-            <children>
-                <JFXButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" ripplerFill="#646464"
-                           text="" textAlignment="CENTER">
-                    <graphic>
-                        <MaterialDesignIconView fill="WHITE" glyphName="MINUS" size="30" textAlignment="CENTER"/>
-                    </graphic>
-                </JFXButton>
-                <JFXButton id="close" alignment="CENTER" contentDisplay="CENTER" ripplerFill="#fb8c8c" text=""
-                           textAlignment="CENTER">
-                    <graphic>
-                        <MaterialDesignIconView fill="WHITE" glyphName="CLOSE" size="30" textAlignment="CENTER"/>
-                    </graphic>
-                </JFXButton>
-            </children>
-        </Pane>
+        <Pane fx:id="bar" layoutX="694.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
+           <children>
+               <JFXButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" ripplerFill="#646464" text="" textAlignment="CENTER">
+                   <graphic>
+                       <MaterialDesignIconView fill="WHITE" glyphName="MINUS" size="30" textAlignment="CENTER" />
+                   </graphic>
+               </JFXButton>
+               <JFXButton id="close" alignment="CENTER" contentDisplay="CENTER" ripplerFill="#fb8c8c" text="" textAlignment="CENTER">
+                   <graphic>
+                       <MaterialDesignIconView fill="WHITE" glyphName="CLOSE" size="30" textAlignment="CENTER" />
+                   </graphic>
+               </JFXButton>
+               <JFXButton id="back" alignment="CENTER" contentDisplay="CENTER" layoutY="405.0" ripplerFill="#646464" text="" textAlignment="CENTER">
+                   <graphic>
+                       <MaterialDesignIconView fill="WHITE" glyphName="CHEVRON_LEFT" size="30" textAlignment="CENTER" />
+                   </graphic>
+               </JFXButton>
+           </children>
+       </Pane>
         <JFXTextArea fx:id="output" focusColor="#d8d8d8" prefHeight="419.0" prefWidth="692.0" unFocusColor="#ffffff00">
             <padding>
                 <Insets left="10.0" top="10.0"/>

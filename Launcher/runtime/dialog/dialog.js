@@ -121,16 +121,10 @@ function initConsoleScene() {
         if(movePoint === null) {
             return;
         }
-
-        consoleStage.setX(event.getScreenX() - movePoint.getX());
-        consoleStage.setY(event.getScreenY() - movePoint.getY());
     });
 
     var pane = consoleMenu.lookup("#bar");
     consoleBar = pane;
-    pane.lookup("#close").setOnAction(function(){
-        consoleStage.hide();
-    });
     var text = consoleMenu.lookup("#textField");
     var output = consoleMenu.lookup("#output");
     var appendFunction = function(line) javafx.application.Platform.runLater(function() output.appendText(line));
@@ -141,7 +135,11 @@ function initConsoleScene() {
     FunctionalBridge.addPlainOutput(function(string) {
         appendFunction(string+"\n");
     })
-    pane.lookup("#hide").setOnAction(function(event) { consoleStage.setIconified(true) });
+    pane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
+    pane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
+    pane.lookup("#back").setOnAction(function(){
+        setCurrentScene(menuScene);
+    });
 
     var pane = consoleMenu.lookup("#consolePane");
     consolePane = pane;
@@ -223,7 +221,7 @@ function goAuth(event) {
 
  /* ======== Console ======== */
 function goConsole(event) {
-    setConsoleCurrentScene(consoleScene);
+    setCurrentScene(consoleScene);
 }
 
 /* ======== Settings ======== */
