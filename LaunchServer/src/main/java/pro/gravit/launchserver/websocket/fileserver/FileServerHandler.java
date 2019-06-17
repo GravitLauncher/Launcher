@@ -55,7 +55,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
     public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
     public static final String READ = "r";
     public static final int HTTP_CACHE_SECONDS = 60;
-	private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "false"));
+	private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
     private final Path base;
     private final boolean fullOut;
 
