@@ -100,7 +100,7 @@ var options = {
                             return;
                         }
 
-                        if(modFile.permissions != 0 && ((loginData.permissions.toLong() & modFile.permissions) = 0))
+                        if(modFile.permissions != 0 && ((loginData.permissions.toLong() & modFile.permissions) == 0))
                         {
                             LogHelper.debug("optionalMod %s permissions deny",modFile.name);
                             return;
