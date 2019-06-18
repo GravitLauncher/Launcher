@@ -1,4 +1,6 @@
 language: java
+jdk: 
+  - oraclejdk8
 # Use https (public access) instead of git for git-submodules. This modifies only Travis-CI behavior!
 # disable the default submodule logic
 git:
