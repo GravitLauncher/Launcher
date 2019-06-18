@@ -130,6 +130,9 @@ function initConsoleScene() {
     var appendFunction = function(line) javafx.application.Platform.runLater(function() output.appendText(line));
     consoleMenu.lookup("#send").setOnAction(function(){
         execCommand(text.getText());
+		if (text.getText()=="clear") {
+			output.setText("");
+		}
         text.setText("");
     });
     FunctionalBridge.addPlainOutput(function(string) {

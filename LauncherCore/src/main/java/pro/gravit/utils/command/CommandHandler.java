@@ -153,5 +153,5 @@ public abstract class CommandHandler implements Runnable {
     public abstract void bell() throws IOException;
 
 
-    public abstract void clear() throws IOException;
+    public abstract void clear() throws IOException, InterruptedException;
 }
