@@ -2,7 +2,6 @@ image: frekele/java
 
 stages:
   - build
-  - test
   - deploy
 
 before_script:
@@ -28,11 +27,6 @@ build:
       - LaunchServer/build/libs/*
       - ServerWrapper/build/libs/*.jar
     expire_in: 1 week
-
-test:
-  stage: test
-  script:
-    - ./gradlew check
 
 after_script:
   - echo "End CI"
