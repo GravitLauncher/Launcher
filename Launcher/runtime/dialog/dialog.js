@@ -131,6 +131,9 @@ function initConsoleScene() {
     consoleMenu.lookup("#send").setOnAction(function(){
         execCommand(text.getText());
         text.setText("");
+		if (text.getText()=="clear") {
+			
+		}
     });
     FunctionalBridge.addPlainOutput(function(string) {
         appendFunction(string+"\n");

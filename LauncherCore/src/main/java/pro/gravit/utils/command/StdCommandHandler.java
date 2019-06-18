@@ -18,8 +18,19 @@ public class StdCommandHandler extends CommandHandler {
     }
 
     @Override
-    public void clear() {
-        throw new UnsupportedOperationException("clear terminal");
+    public void clear() throws IOException, InterruptedException {
+        //throw new UnsupportedOperationException("clear terminal");
+		String os = System.getProperty("os.name");
+
+        if (os.contains("Windows"))
+        {
+            
+		new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+        }
+        else
+        {
+            Runtime.getRuntime().exec("clear");
+        }
     }
 
     @Override
