@@ -83,7 +83,7 @@ var options = {
             var nodelist = new java.util.ArrayList;
 
             modlist.getChildren().forEach(function(node,i,arr) {
-                if(node instanceof com.jfoenix.controls.JFXCheckBox)
+                if(node instanceof javafx.scene.control.CheckBox)
                     nodelist.add(node);
             });
             nodelist.forEach(function(node,i,arr) {
@@ -109,7 +109,7 @@ var options = {
                             modDescription = modFile.info;
                         if(modFile.subTreeLevel != null && modFile.subTreeLevel > 1)
                             subLevel = modFile.subTreeLevel;
-                         var testMod = new com.jfoenix.controls.JFXCheckBox(modName);
+                         var testMod = new javafx.scene.control.CheckBox(modName);
                          testMod.getStyleClass().add("checkboxOpt");
 
                         if(subLevel > 1)
