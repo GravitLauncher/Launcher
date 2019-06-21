@@ -10,6 +10,7 @@ import pro.gravit.launcher.client.LauncherUpdateController;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
+import pro.gravit.launcher.gui.GuiRuntimeProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.request.Request;
@@ -71,9 +72,18 @@ public class LauncherEngine {
         Launcher.modulesManager = new ClientModuleManager(this);
         LauncherConfig.getAutogenConfig().initModules();
         Launcher.modulesManager.preInitModules();
-        if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
+		// INIT GUI
+		try 
+		{
+			Class.forName( "javafx.application.Application" );
+			if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
+		} 
+		catch( ClassNotFoundException e ) {
+			if (runtimeProvider == null) runtimeProvider = new GuiRuntimeProvider();
+		}
         runtimeProvider.init(false);
         runtimeProvider.preLoad();
+		// INIT GUI
         if (Request.service == null) {
             String address = Launcher.getConfig().address;
             LogHelper.debug("Start async connection to %s", address);

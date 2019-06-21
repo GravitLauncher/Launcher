@@ -21,7 +21,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-
+import pro.gravit.launchergui.api.GuiEngine;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.utils.command.CommandException;
 
@@ -64,6 +64,11 @@ public final class CommonHelper {
     @LauncherAPI
     public static ScriptEngine newScriptEngine() {
         return nashornFactory.getScriptEngine();
+    }
+	
+	@LauncherAPI
+    public static GuiEngine newGuiEngine() {
+        return GuiEngine.getGuiEngine();
     }
 
     @LauncherAPI

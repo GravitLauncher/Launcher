@@ -38,6 +38,7 @@ shadowJar {
 
 dependencies {
     pack project(':LauncherAuthlib')
+	bundle project(':LauncherGUI')
 	//compile group: 'org.openjfx', name: 'javafx-controls', version: '12', classifier: 'win'
 	//compile group: 'org.openjfx', name: 'javafx-graphics', version: '12', classifier: 'win'
 	//compile group: 'org.openjfx', name: 'javafx-base', version: '12', classifier: 'win'
