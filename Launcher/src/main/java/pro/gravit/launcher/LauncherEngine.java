@@ -75,7 +75,7 @@ public class LauncherEngine {
 		// INIT GUI
 		try 
 		{
-			Class.forName( "javafx.application.Application" );
+			Class.forName( "com.jfoenixparts.controls.JFXPButton" );
 			if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
 		} 
 		catch( ClassNotFoundException e ) {
