@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ProgressIndicator?>
+<?import com.jfoenixparts.controls.JFXPSpinner?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.Pane?>
@@ -13,7 +13,7 @@
         <!-- Description -->
         <Label fx:id="description" alignment="CENTER" contentDisplay="CENTER" layoutX="205.0" layoutY="328.0"
                prefHeight="87.0" prefWidth="283.0" text="..." textAlignment="CENTER"/>
-        <ProgressIndicator fx:id="spinner" layoutX="291.0" layoutY="165.0" prefHeight="120.0" prefWidth="110.0"/>
+        <JFXPSpinner fx:id="spinner" layoutX="291.0" layoutY="165.0" prefHeight="120.0" prefWidth="110.0"/>
     </children>
     <stylesheets>
         <URL value="@processing.css"/>

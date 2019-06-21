@@ -2,7 +2,7 @@
 
 /* Server buttons */
 .server-button {
-    -jfx-button-type: FLAT;
+    -jfxp-button-type: FLAT;
     -fx-font-weight: bold;
     -fx-font-size: 16pt;
     -fx-background-color: transparent;

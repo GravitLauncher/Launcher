@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
+<?import com.jfoenixparts.controls.JFXPButton?>
 <?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
@@ -38,21 +38,21 @@
        </Pane>
        <Pane fx:id="bar" layoutX="694.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
            <children>
-               <Button id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0"  text="" textAlignment="CENTER">
+               <JFXPButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" ripplerFill="#646464" text="" textAlignment="CENTER">
                    <graphic>
                        <MaterialDesignIconView fill="WHITE" glyphName="MINUS" size="30" textAlignment="CENTER" />
                    </graphic>
-               </Button>
-               <Button id="close" alignment="CENTER" contentDisplay="CENTER"  text="" textAlignment="CENTER">
+               </JFXPButton>
+               <JFXPButton id="close" alignment="CENTER" contentDisplay="CENTER" ripplerFill="#fb8c8c" text="" textAlignment="CENTER">
                    <graphic>
                        <MaterialDesignIconView fill="WHITE" glyphName="CLOSE" size="30" textAlignment="CENTER" />
                    </graphic>
-               </Button>
-               <Button id="back" alignment="CENTER" contentDisplay="CENTER" layoutY="405.0"  text="" textAlignment="CENTER">
+               </JFXPButton>
+               <JFXPButton id="back" alignment="CENTER" contentDisplay="CENTER" layoutY="405.0" ripplerFill="#646464" text="" textAlignment="CENTER">
                    <graphic>
                        <MaterialDesignIconView fill="WHITE" glyphName="CHEVRON_LEFT" size="30" textAlignment="CENTER" />
                    </graphic>
-               </Button>
+               </JFXPButton>
            </children>
        </Pane>
    </children>

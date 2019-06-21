@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
+<?import com.jfoenixparts.controls.JFXPButton?>
+<?import com.jfoenixparts.controls.JFXPCheckBox?>
+<?import com.jfoenixparts.controls.JFXPComboBox?>
+<?import com.jfoenixparts.controls.JFXPMasonryPane?>
+<?import com.jfoenixparts.controls.JFXPPasswordField?>
+<?import com.jfoenixparts.controls.JFXPTextField?>
 <?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
 <?import java.lang.String?>
 <?import java.net.URL?>
@@ -21,40 +22,40 @@
                   <children>
                       <Pane fx:id="logo" layoutX="72.0" layoutY="62.0" prefWidth="124.0" styleClass="logo">
                       </Pane>
-                      <TextField id="login" alignment="CENTER" layoutX="34.0" layoutY="196.0" promptText="Логин" />
-                      <PasswordField id="password" alignment="CENTER" layoutX="34.0" layoutY="249.0" promptText="Пароль" />
-                      <Button id="goAuth" layoutX="34.0" layoutY="370.0" styleClass="auth" text="ВОЙТИ" />
-                      <CheckBox id="rememberchb" fx:id="savePassword" contentDisplay="CENTER" layoutX="63.0" layoutY="297.0" prefWidth="144.0" text="Сохранить пароль" textFill="#dadada" />
-                      <ComboBox id="authOptions" fx:id="authOptions" layoutX="34.0" layoutY="341.0" prefHeight="25.0" prefWidth="200.0" promptText="Способ авторизации">
+                      <JFXPTextField id="login" alignment="CENTER" focusColor="#5fd97a" layoutX="34.0" layoutY="196.0" promptText="Логин" unFocusColor="#dadada" />
+                      <JFXPPasswordField id="password" alignment="CENTER" focusColor="#5fd97a" layoutX="34.0" layoutY="249.0" promptText="Пароль" unFocusColor="#dadada" />
+                      <JFXPButton id="goAuth" layoutX="34.0" layoutY="370.0" styleClass="auth" text="ВОЙТИ" />
+                      <JFXPCheckBox id="rememberchb" fx:id="savePassword" checkedColor="#5fd97a" contentDisplay="CENTER" layoutX="63.0" layoutY="297.0" prefWidth="144.0" text="Сохранить пароль" textFill="#dadada" unCheckedColor="#909090" />
+                      <JFXPComboBox id="authOptions" fx:id="authOptions" focusColor="#5fd97a" layoutX="34.0" layoutY="341.0" prefHeight="25.0" prefWidth="200.0" promptText="Способ авторизации" unFocusColor="#70666600">
                           <styleClass>
                               <String fx:value="combologin" />
                               <String fx:value="combologin-popup" />
                           </styleClass>
-                      </ComboBox>
+                      </JFXPComboBox>
                       <Hyperlink id="link" fx:id="link" layoutX="94.0" layoutY="422.0" prefHeight="19.0" prefWidth="81.0" textAlignment="CENTER" />
                   </children>
               </Pane>
-              <Pane fx:id="news" prefHeight="432.0" prefWidth="423.0" styleClass="news" />
+              <JFXPMasonryPane fx:id="news" prefHeight="432.0" prefWidth="423.0" styleClass="news" />
           </children>
       </Pane>
       <Pane id="mask" opacity="0.0" prefHeight="450.0" prefWidth="694.0" visible="false" />
       <Pane fx:id="bar" layoutX="694.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
           <children>
-              <Button id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0"  text="" textAlignment="CENTER">
+              <JFXPButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" ripplerFill="#646464" text="" textAlignment="CENTER">
                   <graphic>
                       <MaterialDesignIconView fill="WHITE" glyphName="MINUS" size="30" textAlignment="CENTER" />
                   </graphic>
-              </Button>
-              <Button id="close" alignment="CENTER" contentDisplay="CENTER"  text="" textAlignment="CENTER">
+              </JFXPButton>
+              <JFXPButton id="close" alignment="CENTER" contentDisplay="CENTER" ripplerFill="#fb8c8c" text="" textAlignment="CENTER">
                   <graphic>
                       <MaterialDesignIconView fill="WHITE" glyphName="CLOSE" size="30" textAlignment="CENTER" />
                   </graphic>
-              </Button>
-              <Button id="discord" alignment="CENTER" contentDisplay="CENTER" layoutY="370.0"  text="" textAlignment="CENTER">
+              </JFXPButton>
+              <JFXPButton id="discord" alignment="CENTER" contentDisplay="CENTER" layoutY="370.0" ripplerFill="#646464" text="" textAlignment="CENTER">
                   <graphic>
                       <MaterialDesignIconView fill="#5fd97a" glyphName="MESSAGE_TEXT" size="20" textAlignment="CENTER" />
                   </graphic>
-              </Button>
+              </JFXPButton>
           </children>
             </Pane>
         </children>

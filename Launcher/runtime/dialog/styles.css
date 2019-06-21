@@ -1,60 +1,3 @@
-/*-- Without jfoenix --*/
-Button {
-	-fx-background-color: TRANSPARENT, TRANSPARENT, TRANSPARENT, TRANSPARENT;
-    -fx-background-radius: 3px;
-    -fx-background-insets: 0px;
-}
-
-CheckBox .box-container {
-    -fx-shape: "M 400 100 L 400 100 A 50 50 0 1 1 400 250 A 50 50 0 1 1 400 100 ";
-    -fx-padding: 10;
-}
-
-CheckBox .box,
-CheckBox:indeterminate .box,
-CheckBox:indeterminate:selected .box{
-    -fx-pref-width: 18;
-    -fx-pref-height: 18;
-
-    -fx-background-color: TRANSPARENT;
-    -fx-background-radius: 2;
-
-    -fx-border-color: #909090;
-    -fx-border-style: solid;
-    -fx-border-radius: 2;
-    -fx-border-width: 2;
-}
-
-CheckBox:selected .box {
-    -fx-border-color: #5fd97a;
-	-fx-background-color: #5fd97a;
-}
-
-CheckBox .mark {
-	 -fx-background-color: TRANSPARENT;
-}
-
-CheckBox:selected .mark {
-    -fx-shape: "M384 690l452-452 60 60-512 512-238-238 60-60z";
-    -fx-max-width: 15;
-    -fx-max-height: 12;
-
-    -fx-background-color: WHITE;
-
-    -fx-border-color: WHITE;
-    -fx-border-width: 2;
-    -fx-border-radius: 2;
-}
-
-CheckBox .indeterminate-mark{
-    -fx-background-color: #5fd97a;
-    -fx-background-radius: 2;
-    -fx-border-width: 0;
-    -fx-max-width: 10;
-    -fx-max-height: 10;
-}
-
-
 /*-- DrLeonardo Design --*/
 Button, CheckBox, ComboBox, RadioButton {
 	-fx-cursor: hand;
@@ -113,7 +56,7 @@ Button, CheckBox, ComboBox, RadioButton {
 /** buttons in bar **/
 #close {
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
+    -jfxp-button-type: FLAT;
     -fx-background-radius: 0;
     -fx-background-color: #CE5757;
     -fx-pref-width: 46px;
@@ -121,7 +64,7 @@ Button, CheckBox, ComboBox, RadioButton {
 }
 #hide, #back, #goConsole, #settings, #discord {
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
+    -jfxp-button-type: FLAT;
     -fx-background-radius: 0;
     -fx-pref-width: 46px;
     -fx-pref-height: 45px;
@@ -148,7 +91,7 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-background-radius: 0;
     -fx-text-fill: black;
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
+    -jfxp-button-type: FLAT;
     -fx-background-color: #ffffff;
     -fx-pref-width: 150px;
     -fx-pref-height: 30px;
@@ -172,7 +115,7 @@ Button, CheckBox, ComboBox, RadioButton {
 
 /** Buttons & textarea**/
 .auth {
-    -jfx-button-type: FLAT;
+    -jfxp-button-type: FLAT;
     -fx-font-weight: bold;
     -fx-font-size: 13pt;
     -fx-background-radius: 0;
@@ -291,7 +234,7 @@ Button, CheckBox, ComboBox, RadioButton {
 
 /** buttons **/
 .clientLaunch{
-    -jfx-button-type: FLAT;
+    -jfxp-button-type: FLAT;
     -fx-font-weight: bold;
     -fx-font-size: 16pt;
     -fx-background-radius: 0;
@@ -300,7 +243,7 @@ Button, CheckBox, ComboBox, RadioButton {
 }
 .clientSettings{
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
+    -jfxp-button-type: FLAT;
     -fx-background-color: #5fd97a;
     -fx-background-radius: 0;
 }
@@ -309,12 +252,12 @@ Button, CheckBox, ComboBox, RadioButton {
 
 /* Pressets options */
 .pressetLight, .pressetMedium, .pressetHigh {
-    -jfx-toggle-color: #5fd97a;
-    -jfx-untoggle-color: #FAFAFA;
-    -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
-    -jfx-untoggle-line-color: #999999;
-    -jfx-size: 10.0;
-    -jfx-disable-visual-focus: false;
+    -jfxp-toggle-color: #5fd97a;
+    -jfxp-untoggle-color: #FAFAFA;
+    -jfxp-toggle-line-color: rgba(116, 192, 133, 0.79);
+    -jfxp-untoggle-line-color: #999999;
+    -jfxp-size: 10.0;
+    -jfxp-disable-visual-focus: false;
 }
 
 /* Scrolls */
@@ -370,6 +313,11 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-font-size: 12px;
 }
 
+.checkboxOpt {
+    -jfxp-checked-color: #5fd97a;
+    -jfxp-unchecked-color: #909090;
+}
+
 .modname {
     -fx-text-fill: #323232;
 }
@@ -407,7 +355,7 @@ Button, CheckBox, ComboBox, RadioButton {
 
 #servercontainer{
     -fx-background-color: transparent;
-    -jfx-button-type: FLAT;
+    -jfxp-button-type: FLAT;
     -fx-pref-width: 282px;
     -fx-pref-height: 75px;
 }

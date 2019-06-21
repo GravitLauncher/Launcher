@@ -258,7 +258,7 @@ function verifyLauncher(e) {
             var iter = 0;
             authTypes = {};
             result.list.forEach(function(auth_type, i, arr) {
-                var serverAuth = new javafx.scene.control.ComboBox();
+                var serverAuth = new com.jfoenixparts.controls.JFXPComboBox();
                 serverAuth.getStyleClass().add("authOptions");
                 authOptions.getItems().add(auth_type.displayName);
                 authTypes[auth_type.displayName] = auth_type.name;

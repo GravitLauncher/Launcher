@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
+<?import com.jfoenixparts.controls.JFXPButton?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
 <?import java.net.URL?>
@@ -22,10 +22,10 @@
                         <ScrollPane id="serverlist" hbarPolicy="NEVER" layoutX="1.0" prefHeight="450.0" prefWidth="307.0" visible="true">
                             <content>
                                 <FlowPane focusTraversable="false" prefHeight="446.0" prefWidth="306.0" prefWrapLength="0.0" rowValignment="TOP" vgap="10.0" visible="true">
-                                    <Button id="servercontainer"  text="">
+                                    <JFXPButton id="servercontainer" ripplerFill="#ffffff80" text="">
                                         <FlowPane.margin>
                                             <Insets bottom="10.0" />
-                                        </FlowPane.margin></Button>
+                                        </FlowPane.margin></JFXPButton>
                                     <padding>
                                         <Insets left="10.0" top="10.0" />
                                     </padding>
@@ -46,15 +46,15 @@
                                         </FlowPane>
                                     </content>
                                 </ScrollPane>
-                                <Button id="clientLaunch" layoutX="19.0" layoutY="380.0" prefHeight="51.0" prefWidth="285.0" styleClass="clientLaunch" text="ИГРАТЬ">
+                                <JFXPButton id="clientLaunch" layoutX="19.0" layoutY="380.0" prefHeight="51.0" prefWidth="285.0" styleClass="clientLaunch" text="ИГРАТЬ">
                                     <font>
                                         <Font size="22.0" />
                                     </font>
-                                </Button>
-                                <Button id="clientSettings" alignment="CENTER" centerShape="false" contentDisplay="CENTER" layoutX="305.0" layoutY="380.0" prefHeight="51.0" prefWidth="60.0"  styleClass="clientSettings" text="" textAlignment="CENTER">
+                                </JFXPButton>
+                                <JFXPButton id="clientSettings" alignment="CENTER" centerShape="false" contentDisplay="CENTER" layoutX="305.0" layoutY="380.0" prefHeight="51.0" prefWidth="60.0" ripplerFill="#84da96" styleClass="clientSettings" text="" textAlignment="CENTER">
                                     <graphic>
                                         <FontAwesomeIconView fill="WHITE" glyphName="SLIDERS" size="30.0" />
-                                    </graphic></Button>
+                                    </graphic></JFXPButton>
                                 <Label id="serverStatus" alignment="TOP_RIGHT" contentDisplay="RIGHT" layoutX="165.0" layoutY="12.0" prefHeight="25.0" prefWidth="97.0" text="12/100" textAlignment="RIGHT" textFill="WHITE">
                                     <font>
                                         <Font name="System Bold" size="16.0" />
@@ -65,7 +65,7 @@
                                         <Font name="System Bold" size="18.0" />
                                     </font>
                                 </Label>
-                                <Button id="logout" alignment="CENTER" contentDisplay="CENTER" layoutX="295.0" layoutY="12.0" prefHeight="25.0" prefWidth="81.0"  text="Выйти" textAlignment="CENTER" />
+                                <JFXPButton id="logout" alignment="CENTER" contentDisplay="CENTER" layoutX="295.0" layoutY="12.0" prefHeight="25.0" prefWidth="81.0" ripplerFill="#61616100" text="Выйти" textAlignment="CENTER" />
                             </children>
                         </Pane>
                     </children>
@@ -74,31 +74,31 @@
         </Pane>
         <Pane fx:id="bar" layoutX="694.0" prefHeight="425.0" prefWidth="43.0" styleClass="bar">
             <children>
-                <Button id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0"  text="" textAlignment="CENTER">
+                <JFXPButton id="hide" alignment="CENTER" contentDisplay="CENTER" layoutY="45.0" ripplerFill="#646464" text="" textAlignment="CENTER">
                     <graphic>
                         <MaterialDesignIconView fill="WHITE" glyphName="MINUS" size="30" textAlignment="CENTER" />
                     </graphic>
-                </Button>
-                <Button id="close" alignment="CENTER" contentDisplay="CENTER"  text="" textAlignment="CENTER">
+                </JFXPButton>
+                <JFXPButton id="close" alignment="CENTER" contentDisplay="CENTER" ripplerFill="#fb8c8c" text="" textAlignment="CENTER">
                     <graphic>
                         <MaterialDesignIconView fill="WHITE" glyphName="CLOSE" size="30" textAlignment="CENTER" />
                     </graphic>
-                </Button>
-                <Button id="discord" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0"  text="" textAlignment="CENTER">
+                </JFXPButton>
+                <JFXPButton id="discord" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" ripplerFill="#646464" text="" textAlignment="CENTER">
                     <graphic>
                         <MaterialDesignIconView fill="#5fd97a" glyphName="MESSAGE_TEXT" size="20" smooth="false" textAlignment="CENTER" />
                     </graphic>
-                </Button>
-                <Button id="settings" alignment="CENTER" contentDisplay="CENTER" layoutY="90.0"  text="" textAlignment="CENTER">
+                </JFXPButton>
+                <JFXPButton id="settings" alignment="CENTER" contentDisplay="CENTER" layoutY="90.0" ripplerFill="#646464" text="" textAlignment="CENTER">
                     <graphic>
                         <MaterialDesignIconView fill="WHITE" glyphName="SETTINGS" size="20" textAlignment="CENTER" />
                     </graphic>
-                </Button>
-                <Button id="goConsole" alignment="CENTER" contentDisplay="CENTER" layoutY="138.0"  text="" textAlignment="CENTER">
+                </JFXPButton>
+                <JFXPButton id="goConsole" alignment="CENTER" contentDisplay="CENTER" layoutY="138.0" ripplerFill="#646464" text="" textAlignment="CENTER">
                     <graphic>
                         <MaterialDesignIconView fill="WHITE" glyphName="CONSOLE" size="20" textAlignment="CENTER" />
                     </graphic>
-                </Button>
+                </JFXPButton>
             </children>
         </Pane>
         <Pane id="mask" opacity="0.0" prefHeight="450.0" prefWidth="694.0" visible="false" />
