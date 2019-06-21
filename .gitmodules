@@ -4,3 +4,6 @@
 [submodule "Radon"]
 	path = Radon
 	url = git@github.com:GravitLauncher/Radon.git
+[submodule "JFoenixParts"]
+	path = JFoenixParts
+	url = git@github.com:leshasmlesha/JFoenixParts.git

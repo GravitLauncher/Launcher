@@ -1,5 +1,5 @@
 rootProject.name = 'GravitLauncher'
-
+includeBuild 'JFoenixParts'
 include 'Launcher'
 include 'Radon'
 include 'LauncherCore'
