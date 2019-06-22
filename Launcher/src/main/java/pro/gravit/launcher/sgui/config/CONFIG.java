@@ -2,12 +2,13 @@ package pro.gravit.launcher.sgui.config;
 
 import java.io.IOException;
 import pro.gravit.launcher.client.DirBridge;
-import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.launcher.sgui.api.GuiEngine;
 import pro.gravit.launcher.sgui.api.GuiEngineConfig;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public class CONFIG extends GuiEngineConfig {
-	void main(GuiEngine engine) throws IOException {
+	public void main(GuiEngine engine) throws IOException {
         engine.configset("dir", "GravitLauncher");
 		engine.configset("title", "GravitLauncher");
 		engine.configset("favicon", "favicon.png");
@@ -28,6 +29,6 @@ public class CONFIG extends GuiEngineConfig {
 			if (!IOHelper.isDir(DirBridge.defaultUpdatesDir)) {
 				java.nio.file.Files.createDirectory(DirBridge.defaultUpdatesDir);
 				}
-		System.out.println("Настройка...");
+		LogHelper.info("Настройка...");
 	}
 }

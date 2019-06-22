@@ -24,6 +24,7 @@ public class GuiRuntimeProvider implements RuntimeProvider {
     @Override
     public void run(String[] args) throws NoSuchMethodException, IOException {
         preLoad();
+		loadConfig("INIT");
         LogHelper.info("Invoking start() function");
         Launcher.modulesManager.postInitModules();
         engine.start((String[]) args);
@@ -33,7 +34,8 @@ public class GuiRuntimeProvider implements RuntimeProvider {
     @Override
     public void preLoad() throws IOException {
         if (!isPreLoaded) {
-            loadConfig("API");
+            //loadConfig("API");
+			//loadConfig("SETTINGS");
             loadConfig("CONFIG");
             isPreLoaded = true;
         }
@@ -41,6 +43,6 @@ public class GuiRuntimeProvider implements RuntimeProvider {
 
     @Override
     public void init(boolean clientInstance) {
-        loadConfig("INIT");
+        
     }
 }

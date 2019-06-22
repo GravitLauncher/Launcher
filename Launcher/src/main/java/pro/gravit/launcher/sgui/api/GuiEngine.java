@@ -2,7 +2,10 @@ package pro.gravit.launcher.sgui.api;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import pro.gravit.launcher.sgui.Application;
+import pro.gravit.utils.helper.LogHelper;
 public class GuiEngine {
 	private Map<String, String> Configs = new HashMap<String, String>();
 	private Map<String, Object> Settings = new HashMap<String, Object>();
@@ -11,15 +14,14 @@ public class GuiEngine {
 	}
 	public void config(GuiEngine engine,String config) {
 		try {
-			System.out.println("Настройка "+config+" Загружена");
+			LogHelper.info("Настройка "+config+" Загружена");
 			Class c = Class.forName("pro.gravit.launcher.sgui.config."+config);
-			Object configclass = c.newInstance();
-			GuiEngineConfig runclass = (GuiEngineConfig) configclass;
-			runclass.main(engine);
-			
+			Method runmethod = c.getMethod("main", GuiEngine.class);
+			runmethod.invoke(c.newInstance(), engine);
 	}
-catch (Exception e){
-    System.out.println("Ошибка при загрузке настройки "+config);
+catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e){
+    LogHelper.info("Ошибка при загрузке настройки "+config);
+	e.printStackTrace();
 }
 	}
 	public void configset(String path, String value) {

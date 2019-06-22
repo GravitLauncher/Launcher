@@ -75,11 +75,19 @@ public class LauncherEngine {
 		// INIT GUI
 		try 
 		{
+			Class.forName( "com.jfoenixparts.controls.JFXPButton" );
+			if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
+		} 
+		catch( ClassNotFoundException e ) {
+			runtimeProvider = new GuiRuntimeProvider();
+		}
+		try 
+		{
 			Class.forName( "javafx.application.Application" );
 			if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
 		} 
 		catch( ClassNotFoundException e ) {
-			if (runtimeProvider == null) runtimeProvider = new GuiRuntimeProvider();
+			runtimeProvider = new GuiRuntimeProvider();
 		}
         runtimeProvider.init(false);
         runtimeProvider.preLoad();

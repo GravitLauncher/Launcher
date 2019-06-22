@@ -4,14 +4,17 @@ import java.io.IOException;
 import pro.gravit.launcher.managers.SettingsManager;
 import pro.gravit.launcher.sgui.api.GuiEngine;
 import pro.gravit.launcher.sgui.api.GuiEngineConfig;
+import pro.gravit.utils.helper.LogHelper;
 
 public class INIT extends GuiEngineConfig {
-	private SettingsManager settingsManager;
-	void main(GuiEngine engine) throws IOException {
+	private SettingsManager settingsManagerClass;
+	public void main(GuiEngine engine) throws IOException {
+		engine.config(engine, "SETTINGS");
+		SettingsManager settingsManager = (SettingsManager) engine.configget("SettingsManagerClass",true);
 		engine.configset("version-gui","0.0.1");
 		settingsManager.loadConfig();
-        engine.configset("SettingsManager", settingsManager.settings);
+        engine.configset("SettingsManager", SettingsManager.settings);
         settingsManager.loadHDirStore();
-		System.out.println("Инициализация...");
+		LogHelper.info("Инициализация...");
 	}
 }
