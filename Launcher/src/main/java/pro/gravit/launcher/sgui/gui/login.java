@@ -1,4 +1,4 @@
-package pro.gravit.launchergui.gui;
+package pro.gravit.launcher.sgui.gui;
 
 import java.awt.Container;
 import java.awt.Dimension;
@@ -23,6 +23,6 @@ public class login {
 		frame.add(contents);
 		frame.setPreferredSize(new Dimension(400,100));
 		frame.pack();
-		frame.setVisible(true);
+		
 	}
 }
