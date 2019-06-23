@@ -10,7 +10,6 @@ import pro.gravit.launcher.client.LauncherUpdateController;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
-import pro.gravit.launcher.gui.GuiRuntimeProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.request.Request;
@@ -75,23 +74,22 @@ public class LauncherEngine {
 		// INIT GUI
 		try 
 		{
-			Class.forName( "com.jfoenixparts.controls.JFXPButton" );
-			if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
-		} 
-		catch( ClassNotFoundException e ) {
-			runtimeProvider = new GuiRuntimeProvider();
-		}
-		try 
-		{
 			Class.forName( "javafx.application.Application" );
 			if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
 		} 
 		catch( ClassNotFoundException e ) {
-			runtimeProvider = new GuiRuntimeProvider();
+			if (runtimeProvider == null) runtimeProvider = new GuiRuntimeProvider();
+		}
+		try 
+		{
+			Class.forName( "com.jfoenixparts.controls.JFXPButton" );
+			if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
+		} 
+		catch( ClassNotFoundException e ) {
+			if (runtimeProvider == null) runtimeProvider = new GuiRuntimeProvider();
 		}
         runtimeProvider.init(false);
         runtimeProvider.preLoad();
-		// INIT GUI
         if (Request.service == null) {
             String address = Launcher.getConfig().address;
             LogHelper.debug("Start async connection to %s", address);

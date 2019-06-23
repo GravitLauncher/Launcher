@@ -11,8 +11,8 @@ public class login {
 	public static JButton loginbutton = new JButton("Войти");
     public static JTextField login = new JTextField("Логин");
 	public static JPasswordField password = new JPasswordField("Пароль");
+	public static JFrame frame = new JFrame("Имя лаунчера не задано(Лаунчер не собран)");
 	static {
-		JFrame frame = new JFrame("Имя лаунчера не задано(Лаунчер не собран)");
 		JPanel contents = new JPanel();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         contents.add(login);
@@ -23,6 +23,7 @@ public class login {
 		frame.add(contents);
 		frame.setPreferredSize(new Dimension(400,100));
 		frame.pack();
+		frame.setVisible(true);
 		
 	}
 }
