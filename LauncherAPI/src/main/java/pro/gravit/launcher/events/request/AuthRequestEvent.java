@@ -15,8 +15,6 @@ public class AuthRequestEvent extends RequestEvent implements EventInterface {
     }
 
     @LauncherNetworkAPI
-    public String error;
-    @LauncherNetworkAPI
     public ClientPermissions permissions;
     @LauncherNetworkAPI
     public PlayerProfile playerProfile;
@@ -40,8 +38,7 @@ public class AuthRequestEvent extends RequestEvent implements EventInterface {
         this.protectToken = protectToken;
     }
 
-    public AuthRequestEvent(String error, ClientPermissions permissions, PlayerProfile playerProfile, String accessToken, String protectToken, long session) {
-        this.error = error;
+    public AuthRequestEvent(ClientPermissions permissions, PlayerProfile playerProfile, String accessToken, String protectToken, long session) {
         this.permissions = permissions;
         this.playerProfile = playerProfile;
         this.accessToken = accessToken;
