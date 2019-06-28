@@ -9,6 +9,7 @@ import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.websocket.json.SimpleResponse;
+import pro.gravit.utils.helper.IOHelper;
 
 public class UpdateResponse extends SimpleResponse {
     public String dirName;
@@ -38,7 +39,7 @@ public class UpdateResponse extends SimpleResponse {
             service.sendObject(ctx, new ErrorRequestEvent(String.format("Directory %s not found", dirName)));
             return;
         }
-        String url = server.config.netty.downloadURL.replace("%dirname%", dirName);
+        String url = server.config.netty.downloadURL.replace("%dirname%", IOHelper.urlEncode(dirName));
         boolean zip = false;
         if (server.config.netty.bindings.get(dirName) != null) {
             LaunchServer.NettyUpdatesBind bind = server.config.netty.bindings.get(dirName);
