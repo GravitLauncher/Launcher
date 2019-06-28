@@ -1,9 +1,7 @@
 package pro.gravit.launchserver.websocket;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -12,12 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -27,9 +20,7 @@ import javax.net.ssl.TrustManager;
 import pro.gravit.launcher.ssl.LauncherKeyStore;
 import pro.gravit.launcher.ssl.LauncherTrustManager;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.legacy.Response;
 import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.VerifyHelper;
 
 @SuppressWarnings({"unused", "rawtypes"})
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
@@ -39,13 +30,8 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
 
     public LauncherNettyServer nettyServer;
 
-    private final AtomicReference<ServerSocket> serverSocket = new AtomicReference<>();
-
     // API
-    private final Map<String, Response.Factory> customResponses = new ConcurrentHashMap<>(2);
-    private final AtomicLong idCounter = new AtomicLong(0L);
     private Set<Socket> sockets;
-    private volatile Listener listener;
 
 	private transient final LaunchServer server;
 
@@ -55,15 +41,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
 
     @Override
     public void close() {
-        ServerSocket socket = serverSocket.getAndSet(null);
-        if (socket != null) {
-            LogHelper.info("Closing server socket listener");
-            try {
-                socket.close();
-            } catch (IOException e) {
-                LogHelper.error(e);
-            }
-        }
+        //TODO: Close Impl
     }
 
     public SSLContext SSLContextInit() throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, IOException, CertificateException {
@@ -148,38 +126,5 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
             }
         }
         */
-    }
-
-
-    public void registerCustomResponse(String name, Response.Factory factory) {
-        VerifyHelper.verifyIDName(name);
-        VerifyHelper.putIfAbsent(customResponses, name, Objects.requireNonNull(factory, "factory"),
-                String.format("Custom response has been already registered: '%s'", name));
-    }
-
-
-    public void setListener(Listener listener) {
-        this.listener = listener;
-    }
-
-    /*package*/ void onDisconnect(long id, Exception e) {
-        if (listener != null) {
-            listener.onDisconnect(id, e);
-        }
-    }
-
-    /*package*/ boolean onHandshake(long id, Integer type) {
-        return listener == null || listener.onHandshake(id, type);
-    }
-
-    public interface Listener {
-
-        boolean onConnect(long id, InetAddress address);
-
-
-        void onDisconnect(long id, Exception e);
-
-
-        boolean onHandshake(long id, Integer type);
     }
 }

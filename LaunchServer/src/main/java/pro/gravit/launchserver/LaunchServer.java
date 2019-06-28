@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.reflect.InvocationTargetException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -38,7 +36,6 @@ import io.netty.handler.logging.LogLevel;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.NeedGarbageCollection;
-import pro.gravit.launcher.config.JsonConfigurable;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.managers.GarbageManager;
@@ -67,7 +64,6 @@ import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.dao.UserService;
-import pro.gravit.launchserver.legacy.Response;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.manangers.MirrorManager;
 import pro.gravit.launchserver.manangers.ModulesManager;
@@ -76,8 +72,6 @@ import pro.gravit.launchserver.manangers.ReloadManager;
 import pro.gravit.launchserver.manangers.SessionManager;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
-import pro.gravit.launchserver.manangers.hook.SocketHookManager;
-import pro.gravit.launchserver.socket.ServerSocketHandler;
 import pro.gravit.launchserver.websocket.NettyServerSocketHandler;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.command.CommandHandler;
@@ -194,11 +188,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public void setEnv(LauncherConfig.LauncherEnvironment env) {
             this.env = env;
-        }
-
-
-        public SocketAddress getSocketAddress() {
-            return new InetSocketAddress(legacyBindAddress, legacyPort);
         }
 
 
@@ -452,8 +441,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final SessionManager sessionManager;
 
-    public final SocketHookManager socketHookManager;
-
     public final AuthHookManager authHookManager;
     // Server
 
@@ -476,8 +463,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
 
     public final CommandHandler commandHandler;
-
-    public final ServerSocketHandler serverSocketHandler;
 
     public final NettyServerSocketHandler nettyServerSocketHandler;
 
@@ -511,7 +496,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         TextureProvider.registerProviders();
         HWIDHandler.registerHandlers();
         PermissionsHandler.registerHandlers();
-        Response.registerResponses();
         Component.registerComponents();
         ProtectHandler.registerHandlers();
         //LaunchServer.server = this;
@@ -611,7 +595,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         mirrorManager = new MirrorManager();
         reloadManager = new ReloadManager();
         reconfigurableManager = new ReconfigurableManager();
-        socketHookManager = new SocketHookManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
         userService = new UserService(this);
@@ -656,10 +639,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         if (!IOHelper.isDir(profilesDir))
             Files.createDirectory(profilesDir);
         syncProfilesDir();
-
-
-        // Set server socket thread
-        serverSocketHandler = new ServerSocketHandler(this, sessionManager);
 
         // post init modules
         modulesManager.postInitModules();
@@ -708,7 +687,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     public void close() {
-        serverSocketHandler.close();
 
         // Close handlers & providers
         config.close();
@@ -841,12 +819,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         return updatesDirMap.entrySet();
     }
 
-
-    public void rebindServerSocket() {
-        serverSocketHandler.close();
-        CommonHelper.newThread("Server Socket Thread", false, serverSocketHandler).start();
-    }
-
     public void rebindNettyServerSocket() {
         nettyServerSocketHandler.close();
         CommonHelper.newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
@@ -862,7 +834,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             JVMHelper.RUNTIME.addShutdownHook(CommonHelper.newThread(null, false, this::close));
             CommonHelper.newThread("Command Thread", true, commandHandler).start();
         }
-        rebindServerSocket();
         if (config.netty != null)
             rebindNettyServerSocket();
         modulesManager.finishModules();
