@@ -69,7 +69,6 @@ public class WebSocketService {
     private final Gson gson;
     private final GsonBuilder gsonBuiler;
 
-    @SuppressWarnings("unchecked")
     void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
         String request = frame.text();
         JsonResponseInterface response = gson.fromJson(request, JsonResponseInterface.class);

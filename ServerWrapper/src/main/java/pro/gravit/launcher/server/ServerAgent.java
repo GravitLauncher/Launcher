@@ -63,7 +63,7 @@ public class ServerAgent {
                 proxyClass = Class.forName(proxyClassName);
                 MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(proxyClass, "premain", MethodType.methodType(void.class, String.class, Instrumentation.class));
                 Object[] args = {agentArgument, instrumentation};
-                mainMethod.invoke(args);
+                mainMethod.invoke(null, args);
             } catch (Throwable e) {
                 LogHelper.error(e);
             }

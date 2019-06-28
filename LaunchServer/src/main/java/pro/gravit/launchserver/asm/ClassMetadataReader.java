@@ -59,7 +59,7 @@ public class ClassMetadataReader implements Closeable {
     public byte[] getClassData(String className) throws IOException {
         for (JarFile f : cp) {
             if (f.getEntry(className + ".class") != null) {
-                byte[] bytes = null;
+                byte[] bytes;
                 try (InputStream in = f.getInputStream(f.getEntry(className + ".class"))) {
                     bytes = IOHelper.read(in);
                 }

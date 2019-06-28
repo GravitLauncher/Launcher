@@ -954,9 +954,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         if (object instanceof NeedGarbageCollection) {
             GarbageManager.registerNeedGC((NeedGarbageCollection) object);
         }
-        if (object instanceof JsonConfigurable) {
-
-        }
     }
 
     public void unregisterObject(String name, Object object) {
@@ -968,9 +965,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
         if (object instanceof NeedGarbageCollection) {
             GarbageManager.unregisterNeedGC((NeedGarbageCollection) object);
-        }
-        if (object instanceof JsonConfigurable) {
-
         }
     }
 

@@ -50,8 +50,8 @@ public class DumpEntryCacheCommand extends Command {
             LogHelper.subInfo("Write %d entryCache, %d usernameCache", entryCache.size(), usernamesCache.size());
         } else if (args[0].equals("load")) {
             LogHelper.info("CachedAuthHandler read from %s", args[1]);
-            int size_entry = 0;
-            int size_username = 0;
+            int size_entry;
+            int size_username;
             try (Reader reader = IOHelper.newReader(Paths.get(args[1]))) {
                 EntryAndUsername entryAndUsername = Launcher.gsonManager.configGson.fromJson(reader, EntryAndUsername.class);
                 size_entry = entryAndUsername.entryCache.size();

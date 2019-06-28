@@ -111,8 +111,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         try {
             service = new StandartClientWebSocketService(CommonHelper.newBuilder(), address, 5000);
         } catch (SSLException e) {
-            LogHelper.error(e);
-            return null;
+            throw new SecurityException(e);
         }
         service.registerResults();
         service.registerRequests();

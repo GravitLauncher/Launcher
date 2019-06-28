@@ -43,7 +43,7 @@ public class DumpSessionsCommand extends Command {
             LogHelper.subInfo("Write %d sessions", clientSet.size());
         } else if (args[0].equals("load")) {
             LogHelper.info("Sessions read from %s", args[1]);
-            int size = 0;
+            int size;
             try (Reader reader = IOHelper.newReader(Paths.get(args[1]))) {
                 Type setType = new TypeToken<HashSet<Client>>() {
                 }.getType();
