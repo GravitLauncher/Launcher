@@ -99,11 +99,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public static final class Config {
     	private transient LaunchServer server = null;
-        public int legacyPort;
-
-        private String legacyAddress;
-
-        private String legacyBindAddress;
 
         public String projectName;
 
@@ -169,15 +164,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public String startScript;
 
-        public String getLegacyAddress() {
-            return legacyAddress;
-        }
-
-
-        public String getLegacyBindAddress() {
-            return legacyBindAddress;
-        }
-
         public void setProjectName(String projectName) {
             this.projectName = projectName;
         }
@@ -191,13 +177,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
 
 
-        public void setLegacyAddress(String legacyAddress) {
-            this.legacyAddress = legacyAddress;
-        }
-
-
         public void verify() {
-            VerifyHelper.verify(getLegacyAddress(), VerifyHelper.NOT_EMPTY, "LaunchServer address can't be empty");
             if (auth == null || auth[0] == null) {
                 throw new NullPointerException("AuthHandler must not be null");
             }
@@ -736,8 +716,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.protectHandler = new StdProtectHandler();
         if (testEnv) newConfig.permissionsHandler = new DefaultPermissionsHandler();
         else newConfig.permissionsHandler = new JsonFilePermissionsHandler();
-        newConfig.legacyPort = 7240;
-        newConfig.legacyBindAddress = "0.0.0.0";
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
@@ -787,8 +765,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             LogHelper.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
-
-        newConfig.legacyAddress = address;
+        
         newConfig.netty.address = "ws://" + address + ":9274/api";
         newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
         newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
