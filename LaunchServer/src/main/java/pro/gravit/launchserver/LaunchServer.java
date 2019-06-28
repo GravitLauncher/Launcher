@@ -463,8 +463,22 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         launcherLibraries = dir.resolve("launcher-libraries");
         launcherLibrariesCompile = dir.resolve("launcher-libraries-compile");
         this.args = Arrays.asList(args);
-        configFile = dir.resolve("LaunchServer.conf");
-        runtimeConfigFile = dir.resolve("RuntimeLaunchServer.conf");
+        if(IOHelper.exists(dir.resolve("LaunchServer.conf")))
+        {
+            configFile = dir.resolve("LaunchServer.conf");
+        }
+        else
+        {
+            configFile = dir.resolve("LaunchServer.json");
+        }
+        if(IOHelper.exists(dir.resolve("RuntimeLaunchServer.conf")))
+        {
+            runtimeConfigFile = dir.resolve("RuntimeLaunchServer.conf");
+        }
+        else
+        {
+            runtimeConfigFile = dir.resolve("RuntimeLaunchServer.json");
+        }
         publicKeyFile = dir.resolve("public.key");
         privateKeyFile = dir.resolve("private.key");
         updatesDir = dir.resolve("updates");
@@ -765,7 +779,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             LogHelper.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
-        
+
         newConfig.netty.address = "ws://" + address + ":9274/api";
         newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
         newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";

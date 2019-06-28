@@ -58,7 +58,7 @@ public final class DownloadClientCommand extends Command {
         client.setTitle(dirName);
         client.setDir(dirName);
         try (BufferedWriter writer = IOHelper.newWriter(IOHelper.resolveIncremental(server.profilesDir,
-                dirName, "cfg"))) {
+                dirName, "json"))) {
             Launcher.gsonManager.configGson.toJson(client, writer);
         }
 
