@@ -219,7 +219,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         ListDownloader listDownloader = new ListDownloader();
         LogHelper.info("Download %s to %s", dirName, dir.toAbsolutePath().toString());
         if (e.zip && !adds.isEmpty()) {
-            listDownloader.downloadZip(e.url, dir, this::updateState, (add) -> totalDownloaded += add);
+            listDownloader.downloadZip(e.url, adds, dir, this::updateState, (add) -> totalDownloaded += add, e.fullDownload);
         } else {
             listDownloader.download(e.url, adds, dir, this::updateState, (add) -> totalDownloaded += add);
         }

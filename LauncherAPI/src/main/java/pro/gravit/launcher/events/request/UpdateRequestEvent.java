@@ -11,6 +11,8 @@ public class UpdateRequestEvent extends RequestEvent {
     public String url;
     @LauncherNetworkAPI
     public boolean zip;
+    @LauncherNetworkAPI
+    public boolean fullDownload;
 
     @Override
     public String getType() {

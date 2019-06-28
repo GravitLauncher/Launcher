@@ -64,7 +64,7 @@ public class ListDownloader {
         }
     }
 
-    public void downloadZip(String base, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException, URISyntaxException {
+    public void downloadZip(String base, List<DownloadTask> applies, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean fullDownload) throws IOException, URISyntaxException {
         /*try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
@@ -81,8 +81,11 @@ public class ListDownloader {
                 // Unpack entry
                 String name = entry.getName();
                 LogHelper.subInfo("Downloading file: '%s'", name);
-                Path fileName = IOHelper.toPath(name);
-                transfer(input, dstDirFile.resolve(fileName), fileName.toString(), entry.getSize(), callback, totalCallback);
+                if(fullDownload || applies.stream().anyMatch((t) -> t.apply.equals(name)))
+                {
+                    Path fileName = IOHelper.toPath(name);
+                    transfer(input, dstDirFile.resolve(fileName), fileName.toString(), entry.getSize(), callback, totalCallback);
+                }
             }
         }
     }
@@ -134,6 +137,16 @@ public class ListDownloader {
         @Override
         public Path handleResponse(HttpResponse response) throws IOException {
             InputStream source = response.getEntity().getContent();
+            int returnCode = response.getStatusLine().getStatusCode();
+            if(returnCode != 200)
+            {
+                throw new IllegalStateException(String.format("Request download file %s return code %d", target.toString(), returnCode));
+            }
+            long contentLength = response.getEntity().getContentLength();
+            if (task != null && contentLength != task.size)
+            {
+                LogHelper.warning("Missing content length: expected %d | found %d", task.size, contentLength);
+            }
             if (zip) {
                 try (ZipInputStream input = IOHelper.newZipInput(source)) {
                     ZipEntry entry = input.getNextEntry();
