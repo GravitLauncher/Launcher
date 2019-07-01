@@ -62,6 +62,7 @@ import pro.gravit.launchserver.binary.LauncherBinary;
 import pro.gravit.launchserver.binary.ProguardConf;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
+import pro.gravit.launchserver.components.RegLimiterComponent;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.dao.UserService;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
@@ -761,6 +762,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         authLimiterComponent.rateLimitMilis = 8000;
         authLimiterComponent.message = "Превышен лимит авторизаций";
         newConfig.components.put("authLimiter", authLimiterComponent);
+        RegLimiterComponent regLimiterComponent = new RegLimiterComponent();
+        regLimiterComponent.rateLimit = 3;
+        regLimiterComponent.rateLimitMilis = 1000 * 60 * 60 * 10; //Блок на 10 часов
+        regLimiterComponent.message = "Превышен лимит регистраций";
+        newConfig.components.put("regLimiter", regLimiterComponent);
 
         // Set server address
         String address;
