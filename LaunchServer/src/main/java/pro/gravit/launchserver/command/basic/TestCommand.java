@@ -34,8 +34,5 @@ public class TestCommand extends Command {
         if (args[0].equals("stop")) {
             handler.close();
         }
-        if (args[0].equals("eventAll")) {
-            handler.nettyServer.frameHandler.service.sendObjectAll(new PingEvent());
-        }
     }
 }
