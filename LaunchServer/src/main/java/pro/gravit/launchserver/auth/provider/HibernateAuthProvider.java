@@ -7,9 +7,14 @@ import pro.gravit.launchserver.dao.User;
 import pro.gravit.utils.helper.SecurityHelper;
 
 public class HibernateAuthProvider extends AuthProvider {
+    public boolean autoReg;
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws Exception {
         User user = srv.config.dao.userService.findUserByUsername(login);
+        if(user == null && autoReg)
+        {
+            user = srv.config.dao.userService.registerNewUser(login, password);
+        }
         if(user == null || !user.verifyPassword(password))
         {
             if(user ==null) throw new AuthException("Username incorrect");

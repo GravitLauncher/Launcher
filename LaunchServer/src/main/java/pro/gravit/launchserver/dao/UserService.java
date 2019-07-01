@@ -24,6 +24,15 @@ public class UserService {
         return usersDao.findByUUID(uuid);
     }
 
+    public User registerNewUser(String username, String password)
+    {
+        User user = new User();
+        user.username = username;
+        user.setPassword(password);
+        user.uuid = UUID.randomUUID();
+        return user;
+    }
+
     public void saveUser(User user) {
         usersDao.save(user);
     }
