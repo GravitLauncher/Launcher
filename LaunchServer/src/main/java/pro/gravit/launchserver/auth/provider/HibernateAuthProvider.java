@@ -15,7 +15,7 @@ public class HibernateAuthProvider extends AuthProvider {
         if(user == null && autoReg)
         {
             AuthHookManager.RegContext context = new AuthHookManager.RegContext(login, password, ip, false);
-            if(AuthHookManager.registraion.hook(context))
+            if(srv.authHookManager.registraion.hook(context))
             {
                 user = srv.config.dao.userService.registerNewUser(login, password);
             }
