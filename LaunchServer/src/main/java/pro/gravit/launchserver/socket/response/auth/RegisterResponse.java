@@ -24,6 +24,12 @@ public class RegisterResponse extends SimpleResponse {
             sendError("Hash invalid");
             return;
         }
+        User checkUser = server.userService.findUserByUsername(login);
+        if(checkUser != null)
+        {
+            sendError("User already register");
+            return;
+        }
         User user = new User();
         user.username = login;
         user.setPassword(password);
