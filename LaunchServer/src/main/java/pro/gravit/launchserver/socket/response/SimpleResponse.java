@@ -31,9 +31,4 @@ public abstract class SimpleResponse implements JsonResponseInterface {
         event.requestUUID = requestUUID;
         service.sendObject(ctx, event);
     }
-
-    @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-
-    }
 }

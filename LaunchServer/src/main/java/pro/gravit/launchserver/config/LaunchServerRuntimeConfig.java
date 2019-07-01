@@ -6,6 +6,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 public class LaunchServerRuntimeConfig {
     public String clientToken;
     public String oemUnlockKey;
+    public String registerApiKey;
 
     public void verify() {
         if (clientToken == null) LogHelper.error("[RuntimeConfig] clientToken must not be null");
@@ -13,5 +14,6 @@ public class LaunchServerRuntimeConfig {
 
     public void reset() {
         clientToken = SecurityHelper.randomStringToken();
+        registerApiKey = SecurityHelper.randomStringToken();
     }
 }
