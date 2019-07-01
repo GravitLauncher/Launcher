@@ -301,10 +301,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public NettyProxyConfig proxy = new NettyProxyConfig();
     }
 
-    public class NettySSLConfig {
-        public String protocol;
-    }
-
     public class NettyPerformanceConfig {
         public boolean usingEpoll;
         public int bossThread;
