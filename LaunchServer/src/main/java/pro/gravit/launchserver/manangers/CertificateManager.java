@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.manangers;
 
 
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -12,6 +13,7 @@ import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.ECKeyParameters;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.openssl.PEMWriter;
@@ -46,11 +48,11 @@ public class CertificateManager {
     //public X509CertificateHolder server;
     //public AsymmetricKeyParameter serverKey;
 
-    public int validDays = 0;
+    public int validDays = 60;
     public int minusHours = 6;
 
     public X509CertificateHolder generateCertificate(String subjectName, PublicKey subjectPublicKey) throws OperatorCreationException {
-        SubjectPublicKeyInfo subjectPubKeyInfo = SubjectPublicKeyInfo.getInstance(subjectPublicKey);
+        SubjectPublicKeyInfo subjectPubKeyInfo = SubjectPublicKeyInfo.getInstance(subjectPublicKey.getEncoded());
         BigInteger serial = BigInteger.valueOf(SecurityHelper.newRandom().nextLong());
         Date startDate = Date.from(Instant.now().minus(minusHours, ChronoUnit.HOURS));
         Date endDate = Date.from(startDate.toInstant().plus(validDays, ChronoUnit.DAYS));
@@ -87,11 +89,26 @@ public class CertificateManager {
         caKey = PrivateKeyFactory.createKey(pair.getPrivate().getEncoded());
     }
 
+    public KeyPair generateKeyPair() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
+        ECGenParameterSpec  ecGenSpec = new ECGenParameterSpec("secp384r1");
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
+        generator.initialize(ecGenSpec, SecurityHelper.newRandom());
+        return generator.generateKeyPair();
+    }
+
     public void writePrivateKey(Path file, PrivateKey privateKey) throws IOException {
         try (PemWriter writer = new PemWriter(IOHelper.newWriter(file))) {
             writer.writeObject(new PemObject("PRIVATE KEY", privateKey.getEncoded()));
         }
     }
+
+    public void writePrivateKey(Path file, AsymmetricKeyParameter key) throws IOException {
+        PrivateKeyInfo info = PrivateKeyInfoFactory.createPrivateKeyInfo(key);
+        try (PemWriter writer = new PemWriter(IOHelper.newWriter(file))) {
+            writer.writeObject(new PemObject("PRIVATE KEY", info.getEncoded()));
+        }
+    }
+
     public void writeCertificate(Path file, X509CertificateHolder holder) throws IOException {
         try (PemWriter writer = new PemWriter(IOHelper.newWriter(file))) {
             writer.writeObject(new PemObject("CERTIFICATE", holder.toASN1Structure().getEncoded()));
