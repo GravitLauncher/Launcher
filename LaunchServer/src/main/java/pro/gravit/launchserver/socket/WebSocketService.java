@@ -173,11 +173,11 @@ public class WebSocketService {
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class)));
+        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class)));
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj, Type type) {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
+        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
     }
 
     public void sendObjectAll(Object obj) {
@@ -193,11 +193,11 @@ public class WebSocketService {
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class))).addListener(ChannelFutureListener.CLOSE);
+        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class))).addListener(ChannelFutureListener.CLOSE);
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj, Type type) {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type))).addListener(ChannelFutureListener.CLOSE);
+        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type))).addListener(ChannelFutureListener.CLOSE);
     }
 
     public void sendEvent(EventResult obj) {

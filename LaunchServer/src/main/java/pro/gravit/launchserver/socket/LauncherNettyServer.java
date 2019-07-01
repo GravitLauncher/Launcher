@@ -8,9 +8,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
@@ -24,7 +22,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.handlers.NettyIpForwardHandler;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.handlers.fileserver.FileServerHandler;
-import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public class LauncherNettyServer implements AutoCloseable {
@@ -36,16 +34,25 @@ public class LauncherNettyServer implements AutoCloseable {
 
     public LauncherNettyServer(LaunchServer server) {
         LaunchServer.NettyConfig config = server.config.netty;
-        bossGroup = new NioEventLoopGroup(config.performance.bossThread);
-        workerGroup = new NioEventLoopGroup(config.performance.workerThread);
+        NettyObjectFactory.setUsingEpoll(config.performance.usingEpoll);
+        if(config.performance.usingEpoll)
+        {
+            LogHelper.debug("Netty: Epoll enabled");
+        }
+        if(config.performance.usingEpoll && JVMHelper.OS_TYPE != JVMHelper.OS.LINUX)
+        {
+            LogHelper.error("netty,perfomance.usingEpoll work only Linux systems");
+        }
+        bossGroup = NettyObjectFactory.newEventLoopGroup(config.performance.bossThread);
+        workerGroup = NettyObjectFactory.newEventLoopGroup(config.performance.workerThread);
         serverBootstrap = new ServerBootstrap();
         service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), server);
         serverBootstrap.group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel.class)
+                .channel(NettyObjectFactory.getServerSocketChannelClass())
                 .handler(new LoggingHandler(config.logLevel))
-                .childHandler(new ChannelInitializer<NioSocketChannel>() {
+                .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    public void initChannel(NioSocketChannel ch) {
+                    public void initChannel(SocketChannel ch) {
                         ChannelPipeline pipeline = ch.pipeline();
                         NettyConnectContext context = new NettyConnectContext();
                         //p.addLast(new LoggingHandler(LogLevel.INFO));

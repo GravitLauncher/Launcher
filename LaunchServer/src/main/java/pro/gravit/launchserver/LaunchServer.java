@@ -301,7 +301,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public NettyProxyConfig proxy = new NettyProxyConfig();
     }
 
+    public class NettySSLConfig {
+        public String protocol;
+    }
+
     public class NettyPerformanceConfig {
+        public boolean usingEpoll;
         public int bossThread;
         public int workerThread;
     }
@@ -743,6 +748,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.netty.fileServerEnabled = true;
         newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
         newConfig.netty.performance = new NettyPerformanceConfig();
+        newConfig.netty.performance.usingEpoll = JVMHelper.OS_TYPE == JVMHelper.OS.LINUX; //Only linux
         newConfig.netty.performance.bossThread = 2;
         newConfig.netty.performance.workerThread = 8;
 
