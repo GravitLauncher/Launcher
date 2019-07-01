@@ -35,9 +35,9 @@ public class ClientsCommand extends Command {
             else
             {
                 LogHelper.info("Client name %s | ip %s", client.username == null ? "null" : client.username, ip);
-                LogHelper.info("Data: checkSign %s | isSecure %s | auth_id %s", client.checkSign ? "true" : "false", client.isSecure ? "true" : "false",
+                LogHelper.subInfo("Data: checkSign %s | isSecure %s | auth_id %s", client.checkSign ? "true" : "false", client.isSecure ? "true" : "false",
                             client.auth_id);
-                LogHelper.info("Permissions: %s (long %d)", client.permissions == null ? "null" : client.permissions.toString(), client.permissions == null ? 0 : client.permissions.toString());
+                LogHelper.subInfo("Permissions: %s (long %d)", client.permissions == null ? "null" : client.permissions.toString(), client.permissions == null ? 0 : client.permissions.toLong());
             }
         }));
     }
