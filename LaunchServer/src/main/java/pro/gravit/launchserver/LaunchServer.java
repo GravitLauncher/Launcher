@@ -575,7 +575,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
         config.permissionsHandler.init(this);
         config.hwidHandler.init();
-        config.dao.init(this);
+        if(config.dao != null)
+            config.dao.init(this);
         if (config.protectHandler != null) {
             config.protectHandler.checkLaunchServerLicense();
         }

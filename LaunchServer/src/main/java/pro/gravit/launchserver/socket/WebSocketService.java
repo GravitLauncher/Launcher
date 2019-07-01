@@ -44,7 +44,7 @@ import pro.gravit.utils.helper.LogHelper;
 @SuppressWarnings("rawtypes")
 public class WebSocketService {
     public final ChannelGroup channels;
-    public static ProviderMap<JsonResponseInterface> providers;
+    public static ProviderMap<JsonResponseInterface> providers = new ProviderMap<>();
 
     public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;

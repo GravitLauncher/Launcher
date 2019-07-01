@@ -27,5 +27,5 @@ public class AuthHookManager {
             this.trustContext = trustContext;
         }
     }
-    public HookSet<RegContext> registraion;
+    public HookSet<RegContext> registraion = new HookSet<>();
 }
