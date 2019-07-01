@@ -32,17 +32,7 @@ import pro.gravit.launchserver.command.install.CheckInstallCommand;
 import pro.gravit.launchserver.command.install.MultiCommand;
 import pro.gravit.launchserver.command.modules.LoadModuleCommand;
 import pro.gravit.launchserver.command.modules.ModulesCommand;
-import pro.gravit.launchserver.command.service.ComponentCommand;
-import pro.gravit.launchserver.command.service.ConfigCommand;
-import pro.gravit.launchserver.command.service.ConfigHelpCommand;
-import pro.gravit.launchserver.command.service.ConfigListCommand;
-import pro.gravit.launchserver.command.service.GetModulusCommand;
-import pro.gravit.launchserver.command.service.GetPermissionsCommand;
-import pro.gravit.launchserver.command.service.GivePermissionsCommand;
-import pro.gravit.launchserver.command.service.ReloadAllCommand;
-import pro.gravit.launchserver.command.service.ReloadCommand;
-import pro.gravit.launchserver.command.service.ReloadListCommand;
-import pro.gravit.launchserver.command.service.ServerStatusCommand;
+import pro.gravit.launchserver.command.service.*;
 import pro.gravit.utils.command.BaseCommandCategory;
 import pro.gravit.utils.command.basic.ClearCommand;
 import pro.gravit.utils.command.basic.DebugCommand;
@@ -124,6 +114,7 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         service.registerCommand("component", new ComponentCommand(server));
         service.registerCommand("givePermission", new GivePermissionsCommand(server));
         service.registerCommand("getPermissions", new GetPermissionsCommand(server));
+        service.registerCommand("clients", new ClientsCommand(server));
         Category serviceCategory = new Category(service, "service", "Managing LaunchServer Components");
         handler.registerCategory(serviceCategory);
     }

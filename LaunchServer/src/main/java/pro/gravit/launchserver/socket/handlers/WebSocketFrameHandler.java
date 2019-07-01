@@ -23,15 +23,13 @@ import pro.gravit.utils.helper.LogHelper;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
     public final LaunchServer srv;
-    public static GsonBuilder builder = CommonHelper.newBuilder();
     public final WebSocketService service;
     public NettyConnectContext context;
 
-    public WebSocketFrameHandler(NettyConnectContext context, LaunchServer srv) {
+    public WebSocketFrameHandler(NettyConnectContext context, LaunchServer srv, WebSocketService service) {
         this.context = context;
         this.srv = srv;
-        service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), srv, builder);
-        service.registerResponses();
+        this.service = service;
     }
 
     private Client client;
@@ -42,6 +40,8 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     public void setClient(Client client) {
         this.client = client;
     }
+
+    public Client getClient() { return client; }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {

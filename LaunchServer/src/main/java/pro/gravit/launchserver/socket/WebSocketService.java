@@ -13,19 +13,16 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
-import pro.gravit.launcher.hasher.HashedEntry;
-import pro.gravit.launcher.hasher.HashedEntryAdapter;
-import pro.gravit.launcher.request.JsonResultSerializeAdapter;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.ResultInterface;
 import pro.gravit.launcher.request.admin.ProxyRequest;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.socket.response.JsonResponseAdapter;
 import pro.gravit.launchserver.socket.response.JsonResponseInterface;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.admin.AddLogListenerResponse;
@@ -40,27 +37,27 @@ import pro.gravit.launchserver.socket.response.secure.VerifySecureTokenResponse;
 import pro.gravit.launchserver.socket.response.update.LauncherResponse;
 import pro.gravit.launchserver.socket.response.update.UpdateListResponse;
 import pro.gravit.launchserver.socket.response.update.UpdateResponse;
+import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 @SuppressWarnings("rawtypes")
 public class WebSocketService {
     public final ChannelGroup channels;
+    public static ProviderMap<JsonResponseInterface> providers;
 
-    public WebSocketService(ChannelGroup channels, LaunchServer server, GsonBuilder gson) {
+    public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;
         this.server = server;
-        this.gsonBuiler = gson;
-        this.gsonBuiler.registerTypeAdapter(JsonResponseInterface.class, new JsonResponseAdapter(this));
-        this.gsonBuiler.registerTypeAdapter(ResultInterface.class, new JsonResultSerializeAdapter());
-        this.gsonBuiler.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
-        this.gson = gsonBuiler.create();
+        //this.gsonBuiler.registerTypeAdapter(JsonResponseInterface.class, new JsonResponseAdapter(this));
+        //this.gsonBuiler.registerTypeAdapter(ResultInterface.class, new JsonResultSerializeAdapter());
+        //this.gsonBuiler.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
+        this.gson = Launcher.gsonManager.gson;
     }
 
     private final LaunchServer server;
     private static final HashMap<String, Class> responses = new HashMap<>();
     private final Gson gson;
-    private final GsonBuilder gsonBuiler;
 
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
         String request = frame.text();
@@ -150,34 +147,30 @@ public class WebSocketService {
         return responses.get(type);
     }
 
-    public void registerResponse(String key, Class responseInterfaceClass) {
-        responses.put(key, responseInterfaceClass);
-    }
-
     public void registerClient(Channel channel) {
         channels.add(channel);
     }
 
-    public void registerResponses() {
-        registerResponse("auth", AuthResponse.class);
-        registerResponse("checkServer", CheckServerResponse.class);
-        registerResponse("joinServer", JoinServerResponse.class);
-        registerResponse("profiles", ProfilesResponse.class);
-        registerResponse("launcher", LauncherResponse.class);
-        registerResponse("updateList", UpdateListResponse.class);
-        registerResponse("cmdExec", ExecCommandResponse.class);
-        registerResponse("setProfile", SetProfileResponse.class);
-        registerResponse("addLogListener", AddLogListenerResponse.class);
-        registerResponse("update", UpdateResponse.class);
-        registerResponse("restoreSession", RestoreSessionResponse.class);
-        registerResponse("batchProfileByUsername", BatchProfileByUsername.class);
-        registerResponse("profileByUsername", ProfileByUsername.class);
-        registerResponse("profileByUUID", ProfileByUUIDResponse.class);
-        registerResponse("getSecureToken", GetSecureTokenResponse.class);
-        registerResponse("verifySecureToken", VerifySecureTokenResponse.class);
-        registerResponse("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
-        registerResponse("proxy", ProxyCommandResponse.class);
-        registerResponse("register", RegisterResponse.class);
+    public static void registerResponses() {
+        providers.register("auth", AuthResponse.class);
+        providers.register("checkServer", CheckServerResponse.class);
+        providers.register("joinServer", JoinServerResponse.class);
+        providers.register("profiles", ProfilesResponse.class);
+        providers.register("launcher", LauncherResponse.class);
+        providers.register("updateList", UpdateListResponse.class);
+        providers.register("cmdExec", ExecCommandResponse.class);
+        providers.register("setProfile", SetProfileResponse.class);
+        providers.register("addLogListener", AddLogListenerResponse.class);
+        providers.register("update", UpdateResponse.class);
+        providers.register("restoreSession", RestoreSessionResponse.class);
+        providers.register("batchProfileByUsername", BatchProfileByUsername.class);
+        providers.register("profileByUsername", ProfileByUsername.class);
+        providers.register("profileByUUID", ProfileByUUIDResponse.class);
+        providers.register("getSecureToken", GetSecureTokenResponse.class);
+        providers.register("verifySecureToken", VerifySecureTokenResponse.class);
+        providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
+        providers.register("proxy", ProxyCommandResponse.class);
+        providers.register("register", RegisterResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {

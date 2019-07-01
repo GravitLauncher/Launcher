@@ -74,6 +74,7 @@ import pro.gravit.launchserver.manangers.ReloadManager;
 import pro.gravit.launchserver.manangers.SessionManager;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
+import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.command.CommandHandler;
@@ -495,6 +496,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         PermissionsHandler.registerHandlers();
         Component.registerComponents();
         ProtectHandler.registerHandlers();
+        WebSocketService.registerResponses();
         //LaunchServer.server = this;
 
         // Set command handler
