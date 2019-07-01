@@ -6,7 +6,6 @@ import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserHWID;
 import pro.gravit.launchserver.dao.UserService;
 import pro.gravit.launchserver.dao.impl.HibernateUserDAOImpl;
-import pro.gravit.launchserver.hibernate.SessionFactoryManager;
 import pro.gravit.utils.helper.CommonHelper;
 
 import java.nio.file.Paths;
@@ -22,8 +21,6 @@ public class HibernateDaoProvider extends DaoProvider {
 
     @Override
     public void init(LaunchServer server) {
-        userDAO = new HibernateUserDAOImpl(server);
-        userService = new UserService(userDAO);
         Runnable init = () -> {
             Configuration cfg = new Configuration()
                     .addAnnotatedClass(User.class)
@@ -35,7 +32,8 @@ public class HibernateDaoProvider extends DaoProvider {
                     .setProperty("hibernate.connection.pool_size", pool_size);
             if(hibernateConfig != null)
                 cfg.configure(Paths.get(hibernateConfig).toFile());
-            SessionFactoryManager.forLaunchServer(server).fact = cfg.buildSessionFactory();
+            userDAO = new HibernateUserDAOImpl(cfg.buildSessionFactory());
+            userService = new UserService(userDAO);
         };
         if(parallelHibernateInit)
             CommonHelper.newThread("Hibernate Thread", true, init);

@@ -9,30 +9,29 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import pro.gravit.launcher.OshiHWID;
-import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;
 import pro.gravit.launchserver.dao.UserHWID;
-import pro.gravit.launchserver.hibernate.SessionFactoryManager;
 
 public class HibernateUserDAOImpl implements UserDAO {
-	private final SessionFactoryManager manager;
+	private final SessionFactory factory;
 
-	public HibernateUserDAOImpl(LaunchServer srv) {
-		manager = SessionFactoryManager.forLaunchServer(srv);
+	public HibernateUserDAOImpl(SessionFactory factory) {
+		this.factory = factory;
 	}
 
     public User findById(int id) {
-        try (Session s =  manager.fact.openSession()) {
+        try (Session s =  factory.openSession()) {
         	return s.get(User.class, id);
         }
     }
 
     public User findByUsername(String username) {
-        EntityManager em = manager.fact.createEntityManager();
+        EntityManager em = factory.createEntityManager();
         em.getTransaction().begin();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<User> personCriteria = cb.createQuery(User.class);
@@ -44,7 +43,7 @@ public class HibernateUserDAOImpl implements UserDAO {
     }
 
     public User findByUUID(UUID uuid) {
-        EntityManager em = manager.fact.createEntityManager();
+        EntityManager em = factory.createEntityManager();
         em.getTransaction().begin();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<User> personCriteria = cb.createQuery(User.class);
@@ -57,7 +56,7 @@ public class HibernateUserDAOImpl implements UserDAO {
 
     @Override
     public List<UserHWID> findHWID(OshiHWID hwid) {
-        EntityManager em = manager.fact.createEntityManager();
+        EntityManager em = factory.createEntityManager();
         em.getTransaction().begin();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<UserHWID> personCriteria = cb.createQuery(UserHWID.class);
@@ -77,7 +76,7 @@ public class HibernateUserDAOImpl implements UserDAO {
     }
 
     public void save(User user) {
-        try (Session session = manager.fact.openSession()) {
+        try (Session session = factory.openSession()) {
         	Transaction tx1 = session.beginTransaction();
         	session.save(user);
         	tx1.commit();
@@ -85,7 +84,7 @@ public class HibernateUserDAOImpl implements UserDAO {
     }
 
     public void update(User user) {
-        try (Session session = manager.fact.openSession()) {
+        try (Session session = factory.openSession()) {
         	Transaction tx1 = session.beginTransaction();
         	session.update(user);
         	tx1.commit();
@@ -93,7 +92,7 @@ public class HibernateUserDAOImpl implements UserDAO {
     }
 
     public void delete(User user) {
-        try (Session session = manager.fact.openSession()) {
+        try (Session session = factory.openSession()) {
         	Transaction tx1 = session.beginTransaction();
         	session.delete(user);
         	tx1.commit();
@@ -102,7 +101,7 @@ public class HibernateUserDAOImpl implements UserDAO {
 
     @SuppressWarnings("unchecked")
 	public List<User> findAll() {
-    	try (Session s = manager.fact.openSession()) {
+    	try (Session s = factory.openSession()) {
     		return (List<User>) s.createQuery("From User").list();
     	}
     }
