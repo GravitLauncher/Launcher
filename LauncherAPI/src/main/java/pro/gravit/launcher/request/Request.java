@@ -6,11 +6,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
-import pro.gravit.launcher.request.websockets.RequestInterface;
+import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import pro.gravit.utils.helper.SecurityHelper;
 
-public abstract class Request<R extends ResultInterface> implements RequestInterface {
+public abstract class Request<R extends WebSocketEvent> implements WebSocketRequest {
     private static long session = SecurityHelper.secureRandom.nextLong();
     @LauncherNetworkAPI
     public UUID requestUUID = UUID.randomUUID();

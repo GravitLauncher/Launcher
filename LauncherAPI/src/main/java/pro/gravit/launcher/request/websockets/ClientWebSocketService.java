@@ -15,7 +15,7 @@ import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.request.*;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedEntryAdapter;
-import pro.gravit.launcher.request.ResultInterface;
+import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.utils.helper.LogHelper;
 
 public class ClientWebSocketService extends ClientJSONPoint {
@@ -24,8 +24,8 @@ public class ClientWebSocketService extends ClientJSONPoint {
     public OnCloseCallback onCloseCallback;
     public final Boolean onConnect;
     public ReconnectCallback reconnectCallback;
-    private HashMap<String, Class<? extends RequestInterface>> requests;
-    private HashMap<String, Class<? extends ResultInterface>> results;
+    private HashMap<String, Class<? extends WebSocketRequest>> requests;
+    private HashMap<String, Class<? extends WebSocketEvent>> results;
     private HashSet<EventHandler> handlers;
 
     public ClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) throws SSLException {
@@ -34,8 +34,8 @@ public class ClientWebSocketService extends ClientJSONPoint {
         results = new HashMap<>();
         handlers = new HashSet<>();
         this.gsonBuilder = gsonBuilder;
-        this.gsonBuilder.registerTypeAdapter(RequestInterface.class, new JsonRequestAdapter(this));
-        this.gsonBuilder.registerTypeAdapter(ResultInterface.class, new JsonResultAdapter(this));
+        this.gsonBuilder.registerTypeAdapter(WebSocketRequest.class, new JsonRequestAdapter(this));
+        this.gsonBuilder.registerTypeAdapter(WebSocketEvent.class, new JsonResultAdapter(this));
         this.gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = gsonBuilder.create();
         this.onConnect = true;
@@ -53,7 +53,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     @Override
     void onMessage(String message) {
-        ResultInterface result = gson.fromJson(message, ResultInterface.class);
+        WebSocketEvent result = gson.fromJson(message, WebSocketEvent.class);
         for (EventHandler handler : handlers) {
             handler.process(result);
         }
@@ -81,15 +81,15 @@ public class ClientWebSocketService extends ClientJSONPoint {
         void onReconnect() throws IOException;
     }
 
-    public Class<? extends RequestInterface> getRequestClass(String key) {
+    public Class<? extends WebSocketRequest> getRequestClass(String key) {
         return requests.get(key);
     }
 
-    public Class<? extends ResultInterface> getResultClass(String key) {
+    public Class<? extends WebSocketEvent> getResultClass(String key) {
         return results.get(key);
     }
 
-    public void registerRequest(String key, Class<? extends RequestInterface> clazz) {
+    public void registerRequest(String key, Class<? extends WebSocketRequest> clazz) {
         requests.put(key, clazz);
     }
 
@@ -97,7 +97,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     }
 
-    public void registerResult(String key, Class<? extends ResultInterface> clazz) {
+    public void registerResult(String key, Class<? extends WebSocketEvent> clazz) {
         results.put(key, clazz);
     }
 
@@ -148,7 +148,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
         if (ch == null || !ch.isActive()) reconnectCallback.onReconnect();
         //if(isClosed() && reconnectCallback != null)
         //    reconnectCallback.onReconnect();
-        send(gson.toJson(obj, RequestInterface.class));
+        send(gson.toJson(obj, WebSocketRequest.class));
     }
 
     public void sendObject(Object obj, Type type) throws IOException {
@@ -161,6 +161,6 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     @FunctionalInterface
     public interface EventHandler {
-        void process(ResultInterface resultInterface);
+        void process(WebSocketEvent webSocketEvent);
     }
 }

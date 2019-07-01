@@ -12,7 +12,7 @@ import com.google.gson.GsonBuilder;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
-import pro.gravit.launcher.request.ResultInterface;
+import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -24,12 +24,12 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         super(gsonBuilder, address, i);
     }
 
-    public class RequestFuture implements Future<ResultInterface> {
+    public class RequestFuture implements Future<WebSocketEvent> {
         public final WaitEventHandler.ResultEvent event;
         public boolean isCanceled = false;
 
         @SuppressWarnings("rawtypes")
-        public RequestFuture(RequestInterface request) throws IOException {
+        public RequestFuture(WebSocketRequest request) throws IOException {
             event = new WaitEventHandler.ResultEvent();
             event.type = request.getType();
             if (request instanceof Request) {
@@ -57,14 +57,14 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         }
 
         @Override
-        public ResultInterface get() throws InterruptedException, ExecutionException {
+        public WebSocketEvent get() throws InterruptedException, ExecutionException {
             if (isCanceled) return null;
             while (!event.ready) {
                 synchronized (event) {
                     event.wait();
                 }
             }
-            ResultInterface result = event.result;
+            WebSocketEvent result = event.result;
             waitEventHandler.requests.remove(event);
             if (event.result.getType().equals("error") || event.result.getType().equals("exception")) {
                 ErrorRequestEvent errorRequestEvent = (ErrorRequestEvent) event.result;
@@ -74,14 +74,14 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         }
 
         @Override
-        public ResultInterface get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
+        public WebSocketEvent get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
             if (isCanceled) return null;
             while (!event.ready) {
                 synchronized (event) {
                     event.wait(timeout);
                 }
             }
-            ResultInterface result = event.result;
+            WebSocketEvent result = event.result;
             waitEventHandler.requests.remove(event);
             if (event.result.getType().equals("error") || event.result.getType().equals("exception")) {
                 ErrorRequestEvent errorRequestEvent = (ErrorRequestEvent) event.result;
@@ -91,9 +91,9 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         }
     }
 
-    public ResultInterface sendRequest(RequestInterface request) throws IOException, InterruptedException {
+    public WebSocketEvent sendRequest(WebSocketRequest request) throws IOException, InterruptedException {
         RequestFuture future = new RequestFuture(request);
-        ResultInterface result;
+        WebSocketEvent result;
         try {
             result = future.get();
         } catch (ExecutionException e) {
@@ -102,7 +102,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         return result;
     }
 
-    public RequestFuture asyncSendRequest(RequestInterface request) throws IOException {
+    public RequestFuture asyncSendRequest(WebSocketRequest request) throws IOException {
         return new RequestFuture(request);
     }
 

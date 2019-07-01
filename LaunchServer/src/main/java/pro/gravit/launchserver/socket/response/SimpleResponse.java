@@ -6,10 +6,9 @@ import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.WebSocketService;
 
-public abstract class SimpleResponse implements JsonResponseInterface {
+public abstract class SimpleResponse implements WebSocketServerResponse {
     public UUID requestUUID;
     public transient LaunchServer server;
     public transient WebSocketService service;

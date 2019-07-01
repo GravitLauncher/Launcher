@@ -4,10 +4,10 @@ import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.websockets.RequestInterface;
+import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.helper.VerifyHelper;
 
-public final class ProfileByUsernameRequest extends Request<ProfileByUsernameRequestEvent> implements RequestInterface {
+public final class ProfileByUsernameRequest extends Request<ProfileByUsernameRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
     private final String username;
 

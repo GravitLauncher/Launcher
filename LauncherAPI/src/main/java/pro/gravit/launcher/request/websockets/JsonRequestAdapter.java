@@ -13,7 +13,7 @@ import com.google.gson.JsonSerializer;
 
 import pro.gravit.utils.helper.LogHelper;
 
-public class JsonRequestAdapter implements JsonSerializer<RequestInterface>, JsonDeserializer<RequestInterface> {
+public class JsonRequestAdapter implements JsonSerializer<WebSocketRequest>, JsonDeserializer<WebSocketRequest> {
     private final ClientWebSocketService service;
     private static final String PROP_NAME = "type";
 
@@ -22,19 +22,19 @@ public class JsonRequestAdapter implements JsonSerializer<RequestInterface>, Jso
     }
 
     @Override
-    public RequestInterface deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public WebSocketRequest deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
-        Class<? extends RequestInterface> cls = service.getRequestClass(typename);
+        Class<? extends WebSocketRequest> cls = service.getRequestClass(typename);
         if (cls == null) {
             LogHelper.error("Request type %s not found", typename);
         }
 
 
-        return (RequestInterface) context.deserialize(json, cls);
+        return (WebSocketRequest) context.deserialize(json, cls);
     }
 
     @Override
-    public JsonElement serialize(RequestInterface src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(WebSocketRequest src, Type typeOfSrc, JsonSerializationContext context) {
         // note : won't work, you must delegate this
         JsonObject jo = context.serialize(src).getAsJsonObject();
 

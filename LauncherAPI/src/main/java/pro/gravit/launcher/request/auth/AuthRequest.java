@@ -5,10 +5,10 @@ import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.websockets.RequestInterface;
+import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.helper.VerifyHelper;
 
-public final class AuthRequest extends Request<AuthRequestEvent> implements RequestInterface {
+public final class AuthRequest extends Request<AuthRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
     private final String login;
     @LauncherNetworkAPI

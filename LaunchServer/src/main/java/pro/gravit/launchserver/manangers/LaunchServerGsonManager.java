@@ -6,7 +6,7 @@ import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedEntryAdapter;
 import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.request.JsonResultSerializeAdapter;
-import pro.gravit.launcher.request.ResultInterface;
+import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.hwid.HWIDHandler;
 import pro.gravit.launchserver.auth.permissions.PermissionsHandler;
@@ -16,7 +16,7 @@ import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
 import pro.gravit.launchserver.socket.WebSocketService;
-import pro.gravit.launchserver.socket.response.JsonResponseInterface;
+import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.utils.UniversalJsonAdapter;
 
 public class LaunchServerGsonManager extends GsonManager {
@@ -31,8 +31,8 @@ public class LaunchServerGsonManager extends GsonManager {
         builder.registerTypeAdapter(Component.class, new UniversalJsonAdapter<>(Component.providers));
         builder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(ProtectHandler.providers));
         builder.registerTypeAdapter(DaoProvider.class, new UniversalJsonAdapter<>(DaoProvider.providers));
-        builder.registerTypeAdapter(JsonResponseInterface.class, new UniversalJsonAdapter<>(WebSocketService.providers));
+        builder.registerTypeAdapter(WebSocketServerResponse.class, new UniversalJsonAdapter<>(WebSocketService.providers));
         builder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
-        builder.registerTypeAdapter(ResultInterface.class, new JsonResultSerializeAdapter());
+        builder.registerTypeAdapter(WebSocketEvent.class, new JsonResultSerializeAdapter());
     }
 }

@@ -2,8 +2,8 @@ package pro.gravit.launcher.events;
 
 import java.util.UUID;
 
-import pro.gravit.launcher.request.ResultInterface;
+import pro.gravit.launcher.request.WebSocketEvent;
 
-public abstract class RequestEvent implements ResultInterface {
+public abstract class RequestEvent implements WebSocketEvent {
     public UUID requestUUID;
 }

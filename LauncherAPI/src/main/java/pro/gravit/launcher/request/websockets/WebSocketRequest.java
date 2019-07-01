@@ -1,5 +1,5 @@
 package pro.gravit.launcher.request.websockets;
 
-public interface RequestInterface {
+public interface WebSocketRequest {
     String getType();
 }

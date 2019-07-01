@@ -1,5 +1,5 @@
 package pro.gravit.launcher.request;
 
-public interface ResultInterface {
+public interface WebSocketEvent {
     String getType();
 }

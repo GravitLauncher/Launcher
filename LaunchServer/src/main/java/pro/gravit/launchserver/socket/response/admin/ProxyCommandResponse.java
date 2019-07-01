@@ -2,11 +2,11 @@ package pro.gravit.launchserver.socket.response.admin;
 
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.socket.response.JsonResponseInterface;
+import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
 public class ProxyCommandResponse extends SimpleResponse {
-    public JsonResponseInterface response;
+    public WebSocketServerResponse response;
     public long session;
     public boolean isCheckSign;
 
