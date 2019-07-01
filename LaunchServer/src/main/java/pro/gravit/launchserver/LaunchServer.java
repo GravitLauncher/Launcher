@@ -66,12 +66,7 @@ import pro.gravit.launchserver.components.RegLimiterComponent;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.dao.UserService;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
-import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
-import pro.gravit.launchserver.manangers.MirrorManager;
-import pro.gravit.launchserver.manangers.ModulesManager;
-import pro.gravit.launchserver.manangers.ReconfigurableManager;
-import pro.gravit.launchserver.manangers.ReloadManager;
-import pro.gravit.launchserver.manangers.SessionManager;
+import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
 import pro.gravit.launchserver.socket.WebSocketService;
@@ -441,6 +436,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final ConfigManager configManager;
 
+    public final CertificateManager certificateManager;
+
 
     public final BuildHookManager buildHookManager;
 
@@ -599,6 +596,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         reconfigurableManager = new ReconfigurableManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
+        certificateManager = new CertificateManager();
         GarbageManager.registerNeedGC(sessionManager);
         reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);
