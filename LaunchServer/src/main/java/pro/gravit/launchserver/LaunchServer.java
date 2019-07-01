@@ -214,10 +214,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             }
             permissionsHandler.init(server);
             hwidHandler.init();
+            dao.init(server);
             if (protectHandler != null) {
                 protectHandler.checkLaunchServerLicense();
             }
             server.registerObject("permissionsHandler", permissionsHandler);
+            server.registerObject("daoProvider", dao);
             for (AuthProviderPair pair : auth) {
                 server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
@@ -570,6 +572,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
         config.permissionsHandler.init(this);
         config.hwidHandler.init();
+        config.dao.init(this);
         if (config.protectHandler != null) {
             config.protectHandler.checkLaunchServerLicense();
         }
