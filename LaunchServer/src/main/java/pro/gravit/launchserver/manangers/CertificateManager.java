@@ -1,22 +1,41 @@
 package pro.gravit.launchserver.manangers;
 
 
+import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.crypto.params.ECKeyParameters;
+import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcECContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemWriter;
+import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigInteger;
-import java.security.PublicKey;
+import java.nio.file.Path;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.spec.ECGenParameterSpec;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
@@ -46,5 +65,36 @@ public class CertificateManager {
         ContentSigner sigGen = new BcECContentSignerBuilder(sigAlgId, digAlgId).build(caKey);
 
         return v3CertGen.build(sigGen);
+    }
+
+    public void generateCA() throws NoSuchAlgorithmException, IOException, OperatorCreationException, InvalidAlgorithmParameterException {
+        ECGenParameterSpec  ecGenSpec = new ECGenParameterSpec("secp384r1");
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
+        generator.initialize(ecGenSpec, SecurityHelper.newRandom());
+        KeyPair pair = generator.generateKeyPair();
+        LocalDateTime startDate = LocalDate.now().atStartOfDay();
+
+        X509v3CertificateBuilder builder= new X509v3CertificateBuilder(
+                new X500Name("CN=ca"),
+                new BigInteger("0"),
+                Date.from(startDate.atZone(ZoneId.systemDefault()).toInstant()),
+                Date.from(startDate.plusDays(3650).atZone(ZoneId.systemDefault()).toInstant()),
+                new X500Name("CN=ca"),
+                SubjectPublicKeyInfo.getInstance(pair.getPublic().getEncoded()));
+        JcaContentSignerBuilder csBuilder= new JcaContentSignerBuilder("SHA256WITHECDSA");
+        ContentSigner signer = csBuilder.build(pair.getPrivate());
+        ca = builder.build(signer);
+        caKey = PrivateKeyFactory.createKey(pair.getPrivate().getEncoded());
+    }
+
+    public void writePrivateKey(Path file, PrivateKey privateKey) throws IOException {
+        try (PemWriter writer = new PemWriter(IOHelper.newWriter(file))) {
+            writer.writeObject(new PemObject("PRIVATE KEY", privateKey.getEncoded()));
+        }
+    }
+    public void writeCertificate(Path file, X509CertificateHolder holder) throws IOException {
+        try (PemWriter writer = new PemWriter(IOHelper.newWriter(file))) {
+            writer.writeObject(new PemObject("CERTIFICATE", holder.toASN1Structure().getEncoded()));
+        }
     }
 }
