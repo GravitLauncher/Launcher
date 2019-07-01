@@ -3,7 +3,7 @@ package pro.gravit.launchserver.command.basic;
 import pro.gravit.launcher.events.PingEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.launchserver.websocket.NettyServerSocketHandler;
+import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.utils.helper.CommonHelper;
 
 public class TestCommand extends Command {
