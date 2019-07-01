@@ -9,7 +9,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 public class HibernateAuthProvider extends AuthProvider {
     @Override
     public AuthProviderResult auth(String login, String password, String ip) throws Exception {
-        User user = srv.userService.findUserByUsername(login);
+        User user = srv.config.dao.userService.findUserByUsername(login);
         if(user == null || !user.verifyPassword(password))
         {
             if(user ==null) throw new AuthException("Username incorrect");

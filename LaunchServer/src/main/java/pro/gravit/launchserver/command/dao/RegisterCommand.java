@@ -29,7 +29,7 @@ public class RegisterCommand extends Command {
         user.username = args[0];
         user.setPassword(args[1]);
         user.uuid = UUID.randomUUID();
-        server.userService.saveUser(user);
+        server.config.dao.userService.saveUser(user);
         LogHelper.info("User %s registered. UUID: %s", user.username, user.uuid.toString());
     }
 }

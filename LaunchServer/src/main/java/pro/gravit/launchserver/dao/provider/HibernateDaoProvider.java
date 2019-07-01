@@ -1,18 +1,17 @@
-package pro.gravit.launchserver.components;
-
-import java.nio.file.Paths;
+package pro.gravit.launchserver.dao.provider;
 
 import org.hibernate.cfg.Configuration;
-
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.dao.LaunchServerDaoFactory;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserHWID;
+import pro.gravit.launchserver.dao.UserService;
 import pro.gravit.launchserver.dao.impl.HibernateUserDAOImpl;
 import pro.gravit.launchserver.hibernate.SessionFactoryManager;
 import pro.gravit.utils.helper.CommonHelper;
 
-public class HibernateConfiguratorComponent extends Component {
+import java.nio.file.Paths;
+
+public class HibernateDaoProvider extends DaoProvider {
     public String driver;
     public String url;
     public String username;
@@ -20,9 +19,11 @@ public class HibernateConfiguratorComponent extends Component {
     public String pool_size;
     public String hibernateConfig;
     public boolean parallelHibernateInit;
+
     @Override
-    public void preInit(LaunchServer launchServer) {
-        LaunchServerDaoFactory.setUserDaoProvider(launchServer, HibernateUserDAOImpl::new);
+    public void init(LaunchServer server) {
+        userDAO = new HibernateUserDAOImpl(server);
+        userService = new UserService(userDAO);
         Runnable init = () -> {
             Configuration cfg = new Configuration()
                     .addAnnotatedClass(User.class)
@@ -34,30 +35,11 @@ public class HibernateConfiguratorComponent extends Component {
                     .setProperty("hibernate.connection.pool_size", pool_size);
             if(hibernateConfig != null)
                 cfg.configure(Paths.get(hibernateConfig).toFile());
-            SessionFactoryManager.forLaunchServer(launchServer).fact = cfg.buildSessionFactory();
+            SessionFactoryManager.forLaunchServer(server).fact = cfg.buildSessionFactory();
         };
         if(parallelHibernateInit)
             CommonHelper.newThread("Hibernate Thread", true, init);
         else
             init.run();
-    }
-
-    @Override
-    public void init(LaunchServer launchServer) {
-
-    }
-
-    @Override
-    public void postInit(LaunchServer launchServer) {
-        //UserService service = new UserService();
-        //List<User> users = service.findAllUsers();
-        //User newUser = new User();
-        //newUser.username = "VeryTestUser";
-        //newUser.setPassword("12345");
-        //service.saveUser(newUser);
-        //for(User u : users)
-        //{
-        //    LogHelper.info("Found User %s", u.username);
-        //}
     }
 }

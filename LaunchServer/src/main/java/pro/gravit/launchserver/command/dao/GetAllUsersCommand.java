@@ -23,7 +23,7 @@ public class GetAllUsersCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         int count = 0;
-        for(User user : server.userService.findAllUsers())
+        for(User user : server.config.dao.userService.findAllUsers())
         {
             LogHelper.subInfo("[%s] UUID: %s", user.username, user.uuid.toString());
             count++;

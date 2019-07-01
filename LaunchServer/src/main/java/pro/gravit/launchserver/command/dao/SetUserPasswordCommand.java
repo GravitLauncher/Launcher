@@ -24,14 +24,14 @@ public class SetUserPasswordCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
-        User user = server.userService.findUserByUsername(args[0]);
+        User user = server.config.dao.userService.findUserByUsername(args[0]);
         if(user == null)
         {
             LogHelper.error("User %s not found", args[1]);
             return;
         }
         user.setPassword(args[1]);
-        server.userService.updateUser(user);
+        server.config.dao.userService.updateUser(user);
         LogHelper.info("[%s] UUID: %s | New Password: %s", user.username, user.uuid.toString(), args[1]);
     }
 }

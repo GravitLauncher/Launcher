@@ -10,6 +10,7 @@ import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.components.Component;
+import pro.gravit.launchserver.dao.provider.DaoProvider;
 import pro.gravit.utils.UniversalJsonAdapter;
 
 public class LaunchServerGsonManager extends GsonManager {
@@ -23,5 +24,6 @@ public class LaunchServerGsonManager extends GsonManager {
         builder.registerTypeAdapter(HWIDHandler.class, new UniversalJsonAdapter<>(HWIDHandler.providers));
         builder.registerTypeAdapter(Component.class, new UniversalJsonAdapter<>(Component.providers));
         builder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(ProtectHandler.providers));
+        builder.registerTypeAdapter(DaoProvider.class, new UniversalJsonAdapter<>(DaoProvider.providers));
     }
 }

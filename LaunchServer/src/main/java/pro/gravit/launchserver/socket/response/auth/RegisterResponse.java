@@ -24,7 +24,7 @@ public class RegisterResponse extends SimpleResponse {
             sendError("Hash invalid");
             return;
         }
-        User checkUser = server.userService.findUserByUsername(login);
+        User checkUser = server.config.dao.userService.findUserByUsername(login);
         if(checkUser != null)
         {
             sendError("User already register");
@@ -34,7 +34,7 @@ public class RegisterResponse extends SimpleResponse {
         user.username = login;
         user.setPassword(password);
         user.uuid = UUID.randomUUID();
-        server.userService.saveUser(user);
+        server.config.dao.userService.saveUser(user);
     }
     @Override
     public String getType() {
