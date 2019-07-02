@@ -1,4 +1,6 @@
-package pro.gravit.launcher;
+package pro.gravit.launcher.hwid;
+
+import pro.gravit.launcher.hwid.HWID;
 
 @FunctionalInterface
 public interface LauncherHWIDInterface {

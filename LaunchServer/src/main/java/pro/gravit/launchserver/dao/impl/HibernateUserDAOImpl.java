@@ -12,7 +12,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
-import pro.gravit.launcher.OshiHWID;
+import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;
 import pro.gravit.launchserver.dao.UserHWID;

@@ -37,6 +37,7 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.launcher.profiles.ClientProfile;
@@ -495,6 +496,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         Component.registerComponents();
         ProtectHandler.registerHandlers();
         WebSocketService.registerResponses();
+        HWIDProvider.registerHWIDs();
         //LaunchServer.server = this;
 
         // Set command handler

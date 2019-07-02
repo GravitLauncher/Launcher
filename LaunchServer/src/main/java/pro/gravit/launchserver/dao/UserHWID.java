@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.dao;
 
-import pro.gravit.launcher.HWID;
-import pro.gravit.launcher.OshiHWID;
+import pro.gravit.launcher.hwid.HWID;
+import pro.gravit.launcher.hwid.OshiHWID;
 
 import javax.persistence.*;
 import java.util.function.Supplier;

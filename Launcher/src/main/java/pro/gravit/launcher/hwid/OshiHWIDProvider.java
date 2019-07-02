@@ -10,9 +10,6 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
-import pro.gravit.launcher.HWID;
-import pro.gravit.launcher.LauncherHWIDInterface;
-import pro.gravit.launcher.OshiHWID;
 import pro.gravit.utils.helper.LogHelper;
 
 public class OshiHWIDProvider implements LauncherHWIDInterface {

@@ -1,4 +1,4 @@
-package pro.gravit.launcher;
+package pro.gravit.launcher.hwid;
 
 public interface HWID {
     String getSerializeString();

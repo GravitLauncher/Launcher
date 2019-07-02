@@ -59,6 +59,9 @@ var VerifyHelper = VerifyHelperClass.static;
 var NewLauncherSettings = NewLauncherSettingsClass.static;
 var SettingsManager = SettingsManagerClass.static;
 
+var NoHWID = NoHWIDClass.static;
+var OshiHWID = OshiHWID.static;
+
 // Helper JS class API imports
 var JSApplication = null;
 if (typeof JSApplicationClass !== 'undefined') {

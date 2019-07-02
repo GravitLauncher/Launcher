@@ -32,6 +32,7 @@ import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
@@ -427,6 +428,7 @@ public final class ClientLauncher {
         if (engine.runtimeProvider == null) engine.runtimeProvider = new JSRuntimeProvider();
         engine.runtimeProvider.init(true);
         engine.runtimeProvider.preLoad();
+        HWIDProvider.registerHWIDs();
         LauncherGuardManager.initGuard(true);
         LogHelper.debug("Reading ClientLauncher params");
         Params params;

@@ -1,9 +1,10 @@
-package pro.gravit.launcher;
+package pro.gravit.launcher.hwid;
 
 import java.util.Objects;
 import java.util.StringJoiner;
 
 import com.google.gson.Gson;
+import pro.gravit.launcher.LauncherAPI;
 
 public class OshiHWID implements HWID {
     public static Gson gson = new Gson();

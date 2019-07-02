@@ -9,7 +9,8 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.OshiHWID;
+import pro.gravit.launcher.hwid.HWID;
+import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthException;
@@ -46,7 +47,7 @@ public class AuthResponse extends SimpleResponse {
     public String auth_id;
     public boolean initProxy;
     public ConnectTypes authType;
-    public OshiHWID hwid;
+    public HWID hwid;
 
     public enum ConnectTypes {
         SERVER, CLIENT, BOT
@@ -76,7 +77,7 @@ public class AuthResponse extends SimpleResponse {
             AuthProviderPair pair;
             if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
             else pair = server.config.getAuthProviderPair(auth_id);
-            AuthContext context = new AuthContext(0, login, password.length(), customText, client, ip, null, authType);
+            AuthContext context = new AuthContext(0, login, password.length(), customText, client, null, ip, authType);
             AuthProvider provider = pair.provider;
             server.authHookManager.preHook.hook(context, clientData);
             provider.preAuth(login, password, customText, ip);

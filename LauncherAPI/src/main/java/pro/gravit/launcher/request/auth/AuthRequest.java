@@ -1,6 +1,6 @@
 package pro.gravit.launcher.request.auth;
 
-import pro.gravit.launcher.HWID;
+import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;

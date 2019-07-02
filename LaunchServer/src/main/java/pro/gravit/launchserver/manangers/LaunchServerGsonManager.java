@@ -4,6 +4,8 @@ import com.google.gson.GsonBuilder;
 
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedEntryAdapter;
+import pro.gravit.launcher.hwid.HWID;
+import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.request.JsonResultSerializeAdapter;
 import pro.gravit.launcher.request.WebSocketEvent;
@@ -31,6 +33,7 @@ public class LaunchServerGsonManager extends GsonManager {
         builder.registerTypeAdapter(Component.class, new UniversalJsonAdapter<>(Component.providers));
         builder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(ProtectHandler.providers));
         builder.registerTypeAdapter(DaoProvider.class, new UniversalJsonAdapter<>(DaoProvider.providers));
+        builder.registerTypeAdapter(HWID.class, new UniversalJsonAdapter<>(HWIDProvider.hwids));
         builder.registerTypeAdapter(WebSocketServerResponse.class, new UniversalJsonAdapter<>(WebSocketService.providers));
         builder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         builder.registerTypeAdapter(WebSocketEvent.class, new JsonResultSerializeAdapter());
