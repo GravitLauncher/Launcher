@@ -60,7 +60,7 @@ var NewLauncherSettings = NewLauncherSettingsClass.static;
 var SettingsManager = SettingsManagerClass.static;
 
 var NoHWID = NoHWIDClass.static;
-var OshiHWID = OshiHWID.static;
+var OshiHWID = OshiHWIDClass.static;
 
 // Helper JS class API imports
 var JSApplication = null;
