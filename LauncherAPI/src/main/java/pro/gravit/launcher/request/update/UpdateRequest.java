@@ -3,16 +3,12 @@ package pro.gravit.launcher.request.update;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.StringTokenizer;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
@@ -215,7 +211,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
                 } catch (IOException ex) {
                     LogHelper.error(ex);
                 }
-                if (UpdateData.needsZip((HashedDir)getPathed(name, e.hdir))) {
+                if (UpdateData.needsZipUpdate((HashedDir)getPathed(name, e.hdir), (HashedDir) entry)) {
                     adds.add(new ListDownloader.DownloadTask(path, -1, true));
                     return HashedDir.WalkAction.SKIP_DIR;
                 }

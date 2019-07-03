@@ -3,8 +3,6 @@ package pro.gravit.launcher.downloader;
 import java.io.IOError;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
