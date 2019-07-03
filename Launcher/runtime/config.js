@@ -18,7 +18,7 @@ var config = {
     ramDefault: 1024, // Default RAM amount (0 for auto)
 
     jvm: {
-        enable: true,
+        enable: false,
         jvmMustdie32Dir: "jre-8u202-win32",
         jvmMustdie64Dir: "jre-8u202-win64",
     }
