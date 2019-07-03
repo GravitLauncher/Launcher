@@ -302,7 +302,7 @@ function doAuth(login, rsaPassword, auth_type) {
 function doUpdate(profile, pp, accessToken) {
     var digest = profile.isUpdateFastCheck();
     overlay.swap(0, update.overlay, function(event) {
-        if(config.jvm.enable) {
+        if (config.jvm.enable) {
             makeSetProfileRequest(profile, function() {
                 ClientLauncher.setProfile(profile);
                 var jvmDir = settings.updatesDir.resolve(jvmDirName);
@@ -326,7 +326,7 @@ function doUpdate(profile, pp, accessToken) {
                     });
                 });
             });
-        }else{
+        } else {
             update.resetOverlay("Обновление файлов ресурсов");
             var assetDirName = profile.getAssetDir();
             var assetDir = settings.updatesDir.resolve(assetDirName);

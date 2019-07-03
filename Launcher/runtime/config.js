@@ -18,23 +18,11 @@ var config = {
     ramDefault: 1024, // Default RAM amount (0 for auto)
 
     jvm: {
-        enable: false,
+        enable: true,
         jvmMustdie32Dir: "jre-8u202-win32",
         jvmMustdie64Dir: "jre-8u202-win64",
     }
 };
-
-if(config.jvm.enable) {
-    switch (JVMHelper.OS_TYPE) {
-        case JVMHelperOS.MUSTDIE:
-            jvmDirName = JVMHelper.OS_BITS === 32 ? config.jvm.jvmMustdie32Dir : 
-                jvmDirName = JVMHelper.OS_BITS === 64 ? config.jvm.jvmMustdie64Dir : config.jvm.enable = false;
-            break;
-        default:
-            config.jvm.enable = false;
-            break;
-    }
-}
 
 DirBridge.dir = DirBridge.getLauncherDir(config.dir);
 DirBridge.dirStore = DirBridge.getStoreDir(config.dir);
