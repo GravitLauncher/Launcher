@@ -3,7 +3,6 @@ package pro.gravit.launcher.request.websockets;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import javax.net.ssl.SSLException;

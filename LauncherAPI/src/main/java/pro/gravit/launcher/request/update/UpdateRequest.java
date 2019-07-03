@@ -210,6 +210,10 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
                 } catch (IOException ex) {
                     LogHelper.error(ex);
                 }
+                if (entry.size() < IOHelper.MB32) {
+                    adds.add(new ListDownloader.DownloadTask(path, -1, true));
+                    return HashedDir.WalkAction.SKIP_DIR;
+                }
             }
             return HashedDir.WalkAction.CONTINUE;
         });

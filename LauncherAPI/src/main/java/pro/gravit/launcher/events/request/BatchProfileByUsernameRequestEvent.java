@@ -1,7 +1,5 @@
 package pro.gravit.launcher.events.request;
 
-import java.util.UUID;
-
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;

@@ -8,6 +8,7 @@ import pro.gravit.launcher.profiles.ClientProfile;
 
 
 public class SetProfileRequestEvent extends RequestEvent {
+	@SuppressWarnings("unused")
     private static final UUID uuid = UUID.fromString("08c0de9e-4364-4152-9066-8354a3a48541");
     @LauncherNetworkAPI
     public ClientProfile newProfile;

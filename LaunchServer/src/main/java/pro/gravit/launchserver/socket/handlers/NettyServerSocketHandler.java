@@ -23,9 +23,9 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.LauncherNettyServer;
 import pro.gravit.utils.helper.LogHelper;
 
-@SuppressWarnings({"unused", "rawtypes"})
+@SuppressWarnings("unused")
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
-    private SSLServerSocketFactory ssf;
+	private SSLServerSocketFactory ssf;
 
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
 

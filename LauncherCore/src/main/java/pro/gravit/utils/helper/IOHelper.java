@@ -298,6 +298,15 @@ public final class IOHelper {
     }
 
     @LauncherAPI
+    public static boolean isHidden(Path path) {
+        try {
+			return Files.isHidden(path);
+		} catch (IOException e) {
+			return false;
+		}
+    }
+
+    @LauncherAPI
     public static boolean isValidFileName(String fileName) {
         return !fileName.equals(".") && !fileName.equals("..") &&
                 fileName.chars().noneMatch(ch -> ch == '/' || ch == '\\') && isValidPath(fileName);

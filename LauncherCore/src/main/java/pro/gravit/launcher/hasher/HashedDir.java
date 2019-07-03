@@ -350,7 +350,7 @@ public final class HashedDir extends HashedEntry {
     }
 
     public enum WalkAction {
-        STOP, CONTINUE
+        STOP, SKIP_DIR, CONTINUE
     }
 
     @FunctionalInterface
@@ -375,7 +375,9 @@ public final class HashedDir extends HashedEntry {
                 else newAppend = append + separator + entry.getKey();
                 WalkAction a = callback.walked(newAppend, entry.getKey(), e);
                 if (a == WalkAction.STOP) return a;
-                a = ((HashedDir) e).walk(newAppend, separator, callback, false);
+                if (a == WalkAction.CONTINUE)
+                	a = ((HashedDir) e).walk(newAppend, separator, callback, false);
+                else a = WalkAction.CONTINUE; // skip
                 if (a == WalkAction.STOP) return a;
             }
         }

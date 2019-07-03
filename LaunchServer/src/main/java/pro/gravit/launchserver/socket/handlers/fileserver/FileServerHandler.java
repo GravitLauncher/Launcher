@@ -3,7 +3,6 @@ package pro.gravit.launchserver.socket.handlers.fileserver;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
-import static io.netty.handler.codec.http.HttpResponseStatus.FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
 import static io.netty.handler.codec.http.HttpResponseStatus.METHOD_NOT_ALLOWED;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
@@ -22,13 +21,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.TimeZone;
-import java.util.regex.Pattern;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -48,6 +47,8 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
@@ -56,12 +57,10 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
     public static final String READ = "r";
     public static final int HTTP_CACHE_SECONDS = 60;
 	private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
-    private final Path base;
-    private final boolean fullOut;
+    private final List<Path> base;
 
-    public FileServerHandler(Path base, boolean fullOut) {
+    public FileServerHandler(List<Path> base) {
         this.base = base;
-        this.fullOut = fullOut;
     }
 
     @Override
@@ -83,13 +82,13 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
             return;
         }
 
-        File file = base.resolve(path).toFile();
-        if (file.isHidden() || !file.exists()) {
+        Optional<File> fileO = base.stream().map(t -> t.resolve(path)).filter(t -> IOHelper.isFile(t) && !IOHelper.isHidden(t)).map(t -> t.toFile()).findFirst();
+        if (!fileO.isPresent()) {
             sendError(ctx, NOT_FOUND);
             return;
         }
-
-        if (file.isDirectory()) {
+        File file = fileO.get();
+        /*if (file.isDirectory()) {
             if (fullOut) {
                 if (uri.endsWith("/")) {
                     sendListing(ctx, file, uri);
@@ -98,12 +97,12 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
                 }
             } else sendError(ctx, NOT_FOUND); // can not handle dirs
             return;
-        }
+        }*/
 
-        if (!file.isFile()) {
+        /*if (!file.isFile()) {
             sendError(ctx, FORBIDDEN);
             return;
-        }
+        }*/
 
         // Cache Validation
         String ifModifiedSince = request.headers().get(HttpHeaderNames.IF_MODIFIED_SINCE);
@@ -166,13 +165,11 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
+        LogHelper.error(cause);
         if (ctx.channel().isActive()) {
             sendError(ctx, INTERNAL_SERVER_ERROR);
         }
     }
-
-    private static final Pattern INSECURE_URI = Pattern.compile(".*[<>&\"].*");
 
     private static String sanitizeUri(String uri) {
         // Decode the path.
@@ -190,60 +187,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         uri = uri.replace(File.separatorChar, '/');
 
         return Paths.get(uri).normalize().toString().substring(1);
-    }
-
-    private static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[^-\\._]?[^<>&\\\"]*");
-
-    private static void sendListing(ChannelHandlerContext ctx, File dir, String dirPath) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
-
-        StringBuilder buf = new StringBuilder()
-                .append("<!DOCTYPE html>\r\n")
-                .append("<html><head><meta charset='utf-8' /><title>")
-                .append("Listing of: ")
-                .append(dirPath)
-                .append("</title></head><body>\r\n")
-
-                .append("<h3>Listing of: ")
-                .append(dirPath)
-                .append("</h3>\r\n")
-
-                .append("<ul>")
-                .append("<li><a href=\"../\">..</a></li>\r\n");
-
-        for (File f : dir.listFiles()) {
-            if (f.isHidden() || !f.canRead()) {
-                continue;
-            }
-
-            String name = f.getName();
-            if (!ALLOWED_FILE_NAME.matcher(name).matches()) {
-                continue;
-            }
-
-            buf.append("<li><a href=\"")
-                    .append(name)
-                    .append("\">")
-                    .append(name)
-                    .append("</a></li>\r\n");
-        }
-
-        buf.append("</ul></body></html>\r\n");
-        ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
-        response.content().writeBytes(buffer);
-        buffer.release();
-
-        // Close the connection as soon as the error message is sent.
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-    }
-
-    private static void sendRedirect(ChannelHandlerContext ctx, String newUri) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, FOUND);
-        response.headers().set(HttpHeaderNames.LOCATION, newUri);
-
-        // Close the connection as soon as the error message is sent.
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
     private static void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {

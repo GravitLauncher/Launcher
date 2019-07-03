@@ -58,7 +58,8 @@ public class WebSocketService {
     private static final HashMap<String, Class> responses = new HashMap<>();
     private final Gson gson;
 
-    public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
+    @SuppressWarnings("unchecked")
+	public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
         String request = frame.text();
         WebSocketServerResponse response = gson.fromJson(request, WebSocketServerResponse.class);
         if (server.config.netty.proxy.enabled) {

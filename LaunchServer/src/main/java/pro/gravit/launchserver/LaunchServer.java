@@ -31,12 +31,14 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
+import java.util.zip.ZipOutputStream;
 
 import io.netty.handler.logging.LogLevel;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.managers.GarbageManager;
@@ -65,7 +67,6 @@ import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.RegLimiterComponent;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
-import pro.gravit.launchserver.dao.UserService;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
 import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
@@ -457,6 +458,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final Timer taskPool;
 
+	public final Path optimizedUpdatesDir;
+
     public static Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
 
     public LaunchServer(Path dir, boolean testEnv, String[] args) throws IOException, InvalidKeySpecException {
@@ -485,6 +488,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         publicKeyFile = dir.resolve("public.key");
         privateKeyFile = dir.resolve("private.key");
         updatesDir = dir.resolve("updates");
+        optimizedUpdatesDir = dir.resolve("optimized_updates");
         profilesDir = dir.resolve("profiles");
 
         //Registration handlers and providers
@@ -634,6 +638,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         // Sync updates dir
         if (!IOHelper.isDir(updatesDir))
             Files.createDirectory(updatesDir);
+        if (!IOHelper.isDir(optimizedUpdatesDir))
+            Files.createDirectory(optimizedUpdatesDir);
+        updatesDirMap = null;
         syncUpdatesDir(null);
 
         // Sync profiles dir
@@ -872,6 +879,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
         LogHelper.info("Syncing updates dir");
+        boolean start = updatesDirMap == null;
         Map<String, SignedObjectHolder<HashedDir>> newUpdatesDirMap = new HashMap<>(16);
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(updatesDir)) {
             for (final Path updateDir : dirStream) {
@@ -894,17 +902,43 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                         continue;
                     }
                 }
-
                 // Sync and sign update dir
                 LogHelper.info("Syncing '%s' update dir", name);
                 HashedDir updateHDir = new HashedDir(updateDir, null, true, true);
+                if (!start) processUpdate(updateDir, updateHDir, name);
                 newUpdatesDirMap.put(name, new SignedObjectHolder<>(updateHDir, privateKey));
             }
         }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
     }
 
-    public void restart() {
+    private void processUpdate(Path updateDir, HashedDir updateHDir, String name) throws IOException {
+    	updateHDir.walk(IOHelper.CROSS_SEPARATOR, (path, filename, entry) -> {
+    		if (entry.getType().equals(HashedEntry.Type.DIR)) {
+                if (entry.size() < IOHelper.MB32) {
+                	Path p = updateDir.resolve(path);
+            		Path out = optimizedUpdatesDir.resolve(name).resolve(path);
+                	try (ZipOutputStream compressed = new ZipOutputStream(IOHelper.newOutput(out))) {
+                		IOHelper.walk(p, new SimpleFileVisitor<Path>() {
+                			@Override
+                			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                				compressed.putNextEntry(IOHelper.newZipEntry(
+                						p.relativize(file).toString()
+                						.replace(IOHelper.PLATFORM_SEPARATOR, IOHelper.CROSS_SEPARATOR)));
+                				IOHelper.transfer(file, compressed);
+                				return super.visitFile(file, attrs);
+                			}
+                		}, true);
+                	}
+                    return HashedDir.WalkAction.SKIP_DIR;
+                }
+            }
+    		return HashedDir.WalkAction.CONTINUE;
+    	});
+
+	}
+
+	public void restart() {
         ProcessBuilder builder = new ProcessBuilder();
         if (config.startScript != null) builder.command(Collections.singletonList(config.startScript));
         else throw new IllegalArgumentException("Please create start script and link it as startScript in config.");
