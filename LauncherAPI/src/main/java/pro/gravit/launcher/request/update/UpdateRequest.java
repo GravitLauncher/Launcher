@@ -3,12 +3,14 @@ package pro.gravit.launcher.request.update;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.StringTokenizer;
 
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
@@ -210,7 +212,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
                 } catch (IOException ex) {
                     LogHelper.error(ex);
                 }
-                if (entry.size() < IOHelper.MB16) {
+                if (getPathed(name, e.hdir).size() < IOHelper.MB16) {
                     adds.add(new ListDownloader.DownloadTask(path, -1, true));
                     return HashedDir.WalkAction.SKIP_DIR;
                 }
@@ -309,5 +311,12 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         if (stateCallback != null)
             stateCallback.call(new State(filePath, fileDownloaded, fileSize,
                     totalDownloaded, totalSize, Duration.between(startTime, Instant.now())));
+    }
+    
+    private static HashedEntry getPathed(String path, HashedDir in) {
+    	String[] parts = path.split(IOHelper.CROSS_SEPARATOR);
+    	HashedEntry current = in;
+    	for (String part : parts) current = ((HashedDir) current).getEntry(part);
+    	return current;
     }
 }
