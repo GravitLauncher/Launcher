@@ -302,26 +302,51 @@ function doAuth(login, rsaPassword, auth_type) {
 function doUpdate(profile, pp, accessToken) {
     var digest = profile.isUpdateFastCheck();
     overlay.swap(0, update.overlay, function(event) {
-
-        update.resetOverlay("Обновление файлов ресурсов");
-        var assetDirName = profile.getAssetDir();
-        var assetDir = settings.updatesDir.resolve(assetDirName);
-        var assetMatcher = profile.getAssetUpdateMatcher();
-        makeSetProfileRequest(profile, function() {
-            ClientLauncher.setProfile(profile);
-            makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
-                settings.putHDir(assetDirName, assetDir, assetHDir.hdir);
-
-                update.resetOverlay("Обновление файлов клиента");
-                var clientDirName = profile.getDir();
-                var clientDir = settings.updatesDir.resolve(clientDirName);
-                var clientMatcher = profile.getClientUpdateMatcher();
-                makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
-                    settings.putHDir(clientDirName, clientDir, clientHDir.hdir);
-                    doLaunchClient(assetDir, assetHDir.hdir, clientDir, clientHDir.hdir, profile, pp, accessToken);
+        if(config.jvm.enable) {
+            makeSetProfileRequest(profile, function() {
+                ClientLauncher.setProfile(profile);
+                var jvmDir = settings.updatesDir.resolve(jvmDirName);
+                update.resetOverlay("Обновление файлов JVM");
+                makeUpdateRequest(jvmDirName, jvmDir, null, digest, function(jvmHDir) {
+                    ClientLauncher.setJavaBinPath(jvmDir);
+                    update.resetOverlay("Обновление файлов ресурсов");
+                    var assetDirName = profile.getAssetDir();
+                    var assetDir = settings.updatesDir.resolve(assetDirName);
+                    var assetMatcher = profile.getAssetUpdateMatcher();
+                    makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
+                        settings.putHDir(assetDirName, assetDir, assetHDir.hdir);
+                        update.resetOverlay("Обновление файлов клиента");
+                        var clientDirName = profile.getDir();
+                        var clientDir = settings.updatesDir.resolve(clientDirName);
+                        var clientMatcher = profile.getClientUpdateMatcher();
+                        makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
+                            settings.putHDir(clientDirName, clientDir, clientHDir.hdir);
+                            doLaunchClient(assetDir, assetHDir.hdir, clientDir, clientHDir.hdir, profile, pp, accessToken);
+                        });
+                    });
                 });
             });
-        });
+        }else{
+            update.resetOverlay("Обновление файлов ресурсов");
+            var assetDirName = profile.getAssetDir();
+            var assetDir = settings.updatesDir.resolve(assetDirName);
+            var assetMatcher = profile.getAssetUpdateMatcher();
+            makeSetProfileRequest(profile, function() {
+                ClientLauncher.setProfile(profile);
+                makeUpdateRequest(assetDirName, assetDir, assetMatcher, digest, function(assetHDir) {
+                    settings.putHDir(assetDirName, assetDir, assetHDir.hdir);
+
+                    update.resetOverlay("Обновление файлов клиента");
+                    var clientDirName = profile.getDir();
+                    var clientDir = settings.updatesDir.resolve(clientDirName);
+                    var clientMatcher = profile.getClientUpdateMatcher();
+                    makeUpdateRequest(clientDirName, clientDir, clientMatcher, digest, function(clientHDir) {
+                        settings.putHDir(clientDirName, clientDir, clientHDir.hdir);
+                        doLaunchClient(assetDir, assetHDir.hdir, clientDir, clientHDir.hdir, profile, pp, accessToken);
+                    });
+                });
+            });
+        }
     });
 }
 
