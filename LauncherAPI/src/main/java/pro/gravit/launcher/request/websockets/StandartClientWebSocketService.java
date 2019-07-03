@@ -20,8 +20,8 @@ import pro.gravit.utils.helper.LogHelper;
 public class StandartClientWebSocketService extends ClientWebSocketService {
     public WaitEventHandler waitEventHandler = new WaitEventHandler();
 
-    public StandartClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) throws SSLException {
-        super(gsonBuilder, address, i);
+    public StandartClientWebSocketService(String address, int i) throws SSLException {
+        super(address, i);
     }
 
     public class RequestFuture implements Future<WebSocketEvent> {
@@ -109,7 +109,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
     public static StandartClientWebSocketService initWebSockets(String address, boolean async) {
         StandartClientWebSocketService service;
         try {
-            service = new StandartClientWebSocketService(CommonHelper.newBuilder(), address, 5000);
+            service = new StandartClientWebSocketService(address, 5000);
         } catch (SSLException e) {
             throw new SecurityException(e);
         }

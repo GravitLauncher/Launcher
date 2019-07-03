@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import pro.gravit.launcher.client.UserSettings;
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.HWIDProvider;
+import pro.gravit.launcher.request.websockets.ClientWebSocketService;
 import pro.gravit.utils.UniversalJsonAdapter;
 
 public class ClientGsonManager extends GsonManager {
@@ -13,5 +14,6 @@ public class ClientGsonManager extends GsonManager {
         super.registerAdapters(builder);
         builder.registerTypeAdapter(UserSettings.class, new UniversalJsonAdapter<>(UserSettings.providers));
         builder.registerTypeAdapter(HWID.class, new UniversalJsonAdapter<>(HWIDProvider.hwids));
+        ClientWebSocketService.appendTypeAdapters(builder);
     }
 }

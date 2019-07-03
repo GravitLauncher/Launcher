@@ -11,34 +11,37 @@ import javax.net.ssl.SSLException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.request.*;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedEntryAdapter;
 import pro.gravit.launcher.request.WebSocketEvent;
+import pro.gravit.utils.ProviderMap;
+import pro.gravit.utils.UniversalJsonAdapter;
 import pro.gravit.utils.helper.LogHelper;
 
 public class ClientWebSocketService extends ClientJSONPoint {
-    public final GsonBuilder gsonBuilder;
     public final Gson gson;
     public OnCloseCallback onCloseCallback;
     public final Boolean onConnect;
     public ReconnectCallback reconnectCallback;
-    private HashMap<String, Class<? extends WebSocketRequest>> requests;
-    private HashMap<String, Class<? extends WebSocketEvent>> results;
+    public static ProviderMap<WebSocketEvent> results = new ProviderMap<>();
+    public static ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
     private HashSet<EventHandler> handlers;
 
-    public ClientWebSocketService(GsonBuilder gsonBuilder, String address, int i) throws SSLException {
+    public ClientWebSocketService(String address, int i) throws SSLException {
         super(createURL(address));
-        requests = new HashMap<>();
-        results = new HashMap<>();
         handlers = new HashSet<>();
-        this.gsonBuilder = gsonBuilder;
-        this.gsonBuilder.registerTypeAdapter(WebSocketRequest.class, new JsonRequestAdapter(this));
-        this.gsonBuilder.registerTypeAdapter(WebSocketEvent.class, new JsonResultAdapter(this));
-        this.gsonBuilder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
-        this.gson = gsonBuilder.create();
+        this.gson = Launcher.gsonManager.gson;
         this.onConnect = true;
+    }
+
+    public static void appendTypeAdapters(GsonBuilder builder)
+    {
+        builder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
+        builder.registerTypeAdapter(WebSocketEvent.class, new UniversalJsonAdapter<>(ClientWebSocketService.results));
+        builder.registerTypeAdapter(WebSocketRequest.class, new UniversalJsonAdapter<>(ClientWebSocketService.requests));
     }
 
     private static URI createURL(String address) {
@@ -81,47 +84,31 @@ public class ClientWebSocketService extends ClientJSONPoint {
         void onReconnect() throws IOException;
     }
 
-    public Class<? extends WebSocketRequest> getRequestClass(String key) {
-        return requests.get(key);
-    }
-
-    public Class<? extends WebSocketEvent> getResultClass(String key) {
-        return results.get(key);
-    }
-
-    public void registerRequest(String key, Class<? extends WebSocketRequest> clazz) {
-        requests.put(key, clazz);
-    }
-
     public void registerRequests() {
 
     }
 
-    public void registerResult(String key, Class<? extends WebSocketEvent> clazz) {
-        results.put(key, clazz);
-    }
-
     public void registerResults() {
-        registerResult("auth", AuthRequestEvent.class);
-        registerResult("checkServer", CheckServerRequestEvent.class);
-        registerResult("joinServer", JoinServerRequestEvent.class);
-        registerResult("launcher", LauncherRequestEvent.class);
-        registerResult("profileByUsername", ProfileByUsernameRequestEvent.class);
-        registerResult("profileByUUID", ProfileByUUIDRequestEvent.class);
-        registerResult("batchProfileByUsername", BatchProfileByUsernameRequestEvent.class);
-        registerResult("profiles", ProfilesRequestEvent.class);
-        registerResult("setProfile", SetProfileRequestEvent.class);
-        registerResult("updateList", UpdateListRequestEvent.class);
-        registerResult("error", ErrorRequestEvent.class);
-        registerResult("update", UpdateRequestEvent.class);
-        registerResult("restoreSession", RestoreSessionRequestEvent.class);
-        registerResult("getSecureToken", GetSecureTokenRequestEvent.class);
-        registerResult("verifySecureToken", VerifySecureTokenRequestEvent.class);
-        registerResult("log", LogEvent.class);
-        registerResult("cmdExec", ExecCommandRequestEvent.class);
-        registerResult("getAvailabilityAuth", GetAvailabilityAuthRequestEvent.class);
-        registerResult("exception", ExceptionEvent.class);
-        registerResult("register", RegisterRequestEvent.class);
+        results.register("auth", AuthRequestEvent.class);
+        results.register("checkServer", CheckServerRequestEvent.class);
+        results.register("joinServer", JoinServerRequestEvent.class);
+        results.register("launcher", LauncherRequestEvent.class);
+        results.register("profileByUsername", ProfileByUsernameRequestEvent.class);
+        results.register("profileByUUID", ProfileByUUIDRequestEvent.class);
+        results.register("batchProfileByUsername", BatchProfileByUsernameRequestEvent.class);
+        results.register("profiles", ProfilesRequestEvent.class);
+        results.register("setProfile", SetProfileRequestEvent.class);
+        results.register("updateList", UpdateListRequestEvent.class);
+        results.register("error", ErrorRequestEvent.class);
+        results.register("update", UpdateRequestEvent.class);
+        results.register("restoreSession", RestoreSessionRequestEvent.class);
+        results.register("getSecureToken", GetSecureTokenRequestEvent.class);
+        results.register("verifySecureToken", VerifySecureTokenRequestEvent.class);
+        results.register("log", LogEvent.class);
+        results.register("cmdExec", ExecCommandRequestEvent.class);
+        results.register("getAvailabilityAuth", GetAvailabilityAuthRequestEvent.class);
+        results.register("exception", ExceptionEvent.class);
+        results.register("register", RegisterRequestEvent.class);
     }
 
     public void registerHandler(EventHandler eventHandler) {

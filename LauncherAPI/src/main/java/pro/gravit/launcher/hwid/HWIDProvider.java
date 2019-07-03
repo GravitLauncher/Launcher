@@ -7,5 +7,6 @@ public class HWIDProvider {
     public static void registerHWIDs()
     {
         hwids.register("oshi", OshiHWID.class);
+        hwids.register("no", NoHWID.class);
     }
 }

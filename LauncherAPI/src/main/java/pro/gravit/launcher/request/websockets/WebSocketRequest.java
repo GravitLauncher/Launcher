@@ -1,5 +1,7 @@
 package pro.gravit.launcher.request.websockets;
 
-public interface WebSocketRequest {
+import pro.gravit.utils.TypeSerializeInterface;
+
+public interface WebSocketRequest extends TypeSerializeInterface {
     String getType();
 }
