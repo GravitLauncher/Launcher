@@ -915,7 +915,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     private void processUpdate(Path updateDir, HashedDir updateHDir, String name) throws IOException {
     	updateHDir.walk(IOHelper.CROSS_SEPARATOR, (path, filename, entry) -> {
     		if (entry.getType().equals(HashedEntry.Type.DIR)) {
-                if (entry.size() < IOHelper.MB32) {
+                if (entry.size() < IOHelper.MB16) {
                 	Path p = updateDir.resolve(path);
             		Path out = optimizedUpdatesDir.resolve(name).resolve(path);
                 	try (ZipOutputStream compressed = new ZipOutputStream(IOHelper.newOutput(out))) {

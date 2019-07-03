@@ -62,7 +62,7 @@ import javax.imageio.ImageReader;
 import pro.gravit.launcher.LauncherAPI;
 
 public final class IOHelper {
-	public static final long MB32 = 1 << 25;
+	public static final long MB16 = 1 << 24;
     private static final class DeleteDirVisitor extends SimpleFileVisitor<Path> {
         private final Path dir;
         private final boolean self;
