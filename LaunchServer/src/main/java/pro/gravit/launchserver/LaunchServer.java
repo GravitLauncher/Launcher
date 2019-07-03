@@ -37,6 +37,7 @@ import io.netty.handler.logging.LogLevel;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.NeedGarbageCollection;
+import pro.gravit.launcher.downloader.UpdateData;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hwid.HWIDProvider;
@@ -915,7 +916,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     private void processUpdate(Path updateDir, HashedDir updateHDir, String name) throws IOException {
     	updateHDir.walk(IOHelper.CROSS_SEPARATOR, (path, filename, entry) -> {
     		if (entry.getType().equals(HashedEntry.Type.DIR)) {
-                if (entry.size() < IOHelper.MB16) {
+                if (UpdateData.needsZip((HashedDir) entry)) {
                 	Path p = updateDir.resolve(path);
             		Path out = optimizedUpdatesDir.resolve(name).resolve(path);
                 	try (ZipOutputStream compressed = new ZipOutputStream(IOHelper.newOutput(out))) {

@@ -11,11 +11,14 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.downloader.ListDownloader;
+import pro.gravit.launcher.downloader.UpdateData;
 import pro.gravit.launcher.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
@@ -212,7 +215,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
                 } catch (IOException ex) {
                     LogHelper.error(ex);
                 }
-                if (getPathed(name, e.hdir).size() < IOHelper.MB16) {
+                if (UpdateData.needsZip((HashedDir)getPathed(name, e.hdir))) {
                     adds.add(new ListDownloader.DownloadTask(path, -1, true));
                     return HashedDir.WalkAction.SKIP_DIR;
                 }
