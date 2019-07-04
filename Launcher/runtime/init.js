@@ -79,6 +79,18 @@ function setRootParent(parent) {
 
 function start(args) {
 
+    if (config.jvm.enable) {
+        switch (JVMHelper.OS_TYPE) {
+            case JVMHelperOS.MUSTDIE:
+                jvmDirName = JVMHelper.OS_BITS === 32 ? config.jvm.jvmMustdie32Dir : 
+                    jvmDirName = JVMHelper.OS_BITS === 64 ? config.jvm.jvmMustdie64Dir : config.jvm.enable = false;
+                break;
+            default:
+                config.jvm.enable = false;
+                break;
+        }
+    }
+
     LogHelper.debug("Setting FX properties");
     java.lang.System.setProperty("prism.lcdtext", "false");
 
