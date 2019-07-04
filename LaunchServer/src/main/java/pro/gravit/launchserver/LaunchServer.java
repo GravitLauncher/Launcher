@@ -714,7 +714,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         // Create new config
         LogHelper.info("Creating LaunchServer config");
         Config newConfig = new Config();
-        newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/", "https://mirror.gravit.pro/"};
+        newConfig.mirrors = new String[]{"https://mirror.gravit.pro/"};
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.enabled = true;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
