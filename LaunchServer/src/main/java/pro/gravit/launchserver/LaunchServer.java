@@ -497,6 +497,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         ProtectHandler.registerHandlers();
         WebSocketService.registerResponses();
         HWIDProvider.registerHWIDs();
+        DaoProvider.registerProviders();
         //LaunchServer.server = this;
 
         // Set command handler
