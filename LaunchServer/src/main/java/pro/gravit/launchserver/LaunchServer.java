@@ -163,6 +163,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public boolean enabledRadon;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
+        public boolean zipDownload;
 
         public String startScript;
 
@@ -768,6 +769,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.stripLineNumbers = true;
         newConfig.deleteTempFiles = true;
         newConfig.isWarningMissArchJava = true;
+        newConfig.zipDownload = true;
 
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
@@ -880,7 +882,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
         LogHelper.info("Syncing updates dir");
-        boolean start = updatesDirMap == null;
+        boolean work = updatesDirMap != null;
         Map<String, SignedObjectHolder<HashedDir>> newUpdatesDirMap = new HashMap<>(16);
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(updatesDir)) {
             for (final Path updateDir : dirStream) {
@@ -906,7 +908,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 // Sync and sign update dir
                 LogHelper.info("Syncing '%s' update dir", name);
                 HashedDir updateHDir = new HashedDir(updateDir, null, true, true);
-                if (!start) processUpdate(updateDir, updateHDir, name);
+                if (work && config.zipDownload) processUpdate(updateDir, updateHDir, name);
                 newUpdatesDirMap.put(name, new SignedObjectHolder<>(updateHDir, privateKey));
             }
         }

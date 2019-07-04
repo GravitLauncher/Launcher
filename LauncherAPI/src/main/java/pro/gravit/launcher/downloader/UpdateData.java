@@ -4,6 +4,7 @@ import java.io.IOError;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.utils.helper.IOHelper;
@@ -37,7 +38,7 @@ public final class UpdateData {
 		if (!needsZip(orig)) return false;
 		double coffSize = BigDecimal.valueOf(entry.size).divide(BigDecimal.valueOf(orig.size)).doubleValue();
 		double coffCnt = BigDecimal.valueOf(entry.cnt).divide(BigDecimal.valueOf(orig.cnt)).doubleValue();
-		return coffSize >= SIMPLE_DOWNLOAD_SIZE_COFF && SIMPLE_DOWNLOAD_FILE_COPF <= coffCnt;
+		return LauncherConfig.getAutogenConfig().isUseBetterUpdate && coffSize >= SIMPLE_DOWNLOAD_SIZE_COFF && SIMPLE_DOWNLOAD_FILE_COPF <= coffCnt;
 	}
 	
 	private static Pair count(HashedDir hDir) {

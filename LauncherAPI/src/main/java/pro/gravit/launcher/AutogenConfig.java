@@ -6,6 +6,7 @@ public class AutogenConfig {
     public int clientPort;
     @SuppressWarnings("unused")
     private boolean isInitModules;
+    public boolean isUseBetterUpdate;
     public String guardType;
     public String secretKeyClient;
     public String oemUnlockKey;
