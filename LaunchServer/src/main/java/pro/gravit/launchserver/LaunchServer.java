@@ -142,11 +142,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public Map<String, Component> components;
 
-        // Misc options
-        public int threadCount;
-
-        public int threadCoreCount;
-
         public ExeConf launch4j;
         public NettyConfig netty;
         public GuardLicenseConf guardLicense;
@@ -751,9 +746,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         newConfig.launcher = new LauncherConf();
         newConfig.launcher.guardType = "no";
-
-        newConfig.threadCoreCount = 0; // on your own
-        newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
 
         newConfig.enabledRadon = true;
         newConfig.genMappings = true;
