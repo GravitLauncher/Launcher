@@ -1,7 +1,10 @@
 package pro.gravit.utils.command;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import org.jline.reader.Candidate;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public abstract class Command {
@@ -28,6 +31,29 @@ public abstract class Command {
 
 
     public abstract String getUsageDescription();
+
+    public Candidate buildCandidate(CommandHandler.Category category, String commandName)
+    {
+        return new Candidate(commandName);
+    }
+
+    public List<Candidate> complete(List<String> words, int wordIndex, String word)
+    {
+        return new ArrayList<>();
+    }
+
+    public List<Candidate> subCommandComplete(String word, List<String> commands)
+    {
+        List<Candidate> candidates = new ArrayList<>();
+        for(String s : commands)
+        {
+            if(word.startsWith(s))
+            {
+                candidates.add(new Candidate(s));
+            }
+        }
+        return candidates;
+    }
 
 
     public abstract void invoke(String... args) throws Exception;
