@@ -6,7 +6,15 @@ import org.jline.reader.Candidate;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public abstract class Command {
-    public Map<String, Command> childCommands = new HashMap<>();
+    public Map<String, Command> childCommands;
+
+    public Command() {
+        childCommands = new HashMap<>();
+    }
+
+    public Command(Map<String, Command> childCommands) {
+        this.childCommands = childCommands;
+    }
 
     protected static String parseUsername(String username) throws CommandException {
         try {

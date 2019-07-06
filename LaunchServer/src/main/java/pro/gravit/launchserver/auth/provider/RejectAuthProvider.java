@@ -1,9 +1,13 @@
 package pro.gravit.launchserver.auth.provider;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.utils.command.Command;
+import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -36,31 +40,15 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
     }
 
     @Override
-    public void reconfig(String action, String[] args) {
-        switch (action) {
-            case "message":
+    public Map<String, Command> getCommands() {
+        Map<String, Command> commands = new HashMap<>();
+        commands.put("message", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
                 message = args[0];
                 LogHelper.info("New reject message: %s", message);
-                break;
-            case "whitelist.add":
-                if (whitelist == null) whitelist = new ArrayList<>();
-                whitelist.add(args[0]);
-                break;
-            case "whitelist.remove":
-                if (whitelist == null) whitelist = new ArrayList<>();
-                whitelist.remove(args[0]);
-                break;
-            case "whitelist.clear":
-                whitelist.clear();
-                break;
-        }
-    }
-
-    @Override
-    public void printConfigHelp() {
-        LogHelper.info("message [new message] - set message");
-        LogHelper.info("whitelist.add [username] - add username to whitelist");
-        LogHelper.info("whitelist.remove [username] - remove username into whitelist");
-        LogHelper.info("whitelist.clear - clear whitelist");
+            }
+        });
+        return commands;
     }
 }

@@ -105,8 +105,6 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         service.registerCommand("reloadAll", new ReloadAllCommand(server));
         service.registerCommand("reloadList", new ReloadListCommand(server));
         service.registerCommand("config", new ConfigCommand(server));
-        service.registerCommand("configHelp", new ConfigHelpCommand(server));
-        service.registerCommand("configList", new ConfigListCommand(server));
         service.registerCommand("serverStatus", new ServerStatusCommand(server));
         service.registerCommand("checkInstall", new CheckInstallCommand(server));
         service.registerCommand("multi", new MultiCommand(server));

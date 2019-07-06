@@ -510,7 +510,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 localCommandHandler = new StdCommandHandler(true);
                 LogHelper.warning("JLine2 isn't in classpath, using std");
             }
-        pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler, this);
         commandHandler = localCommandHandler;
 
         // Set key pair
@@ -606,6 +605,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
 
         Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
+
+        pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler, this);
 
         // init modules
         modulesManager.initModules();
