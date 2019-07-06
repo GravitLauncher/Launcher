@@ -68,7 +68,7 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                     String filename = e.getName();
                     output.putNextEntry(IOHelper.newZipEntry(e));
                     if (filename.endsWith(".class")) {
-                        byte[] bytes = null;
+                        byte[] bytes;
                         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(2048)) {
                             IOHelper.transfer(input, outputStream);
                             bytes = outputStream.toByteArray();

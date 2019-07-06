@@ -33,7 +33,7 @@ public abstract class ClientJSONPoint {
     protected WebSocketClientHandler webSocketClientHandler;
     protected Bootstrap bootstrap = new Bootstrap();
     protected boolean ssl = false;
-    protected int port = -1;
+    protected int port;
     public boolean isClosed;
 
     public ClientJSONPoint(final String uri) throws SSLException {

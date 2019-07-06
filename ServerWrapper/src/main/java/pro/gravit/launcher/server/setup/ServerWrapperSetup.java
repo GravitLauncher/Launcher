@@ -23,7 +23,7 @@ public class ServerWrapperSetup {
         System.out.println("Print jar filename:");
         String jarName = commands.commandHandler.readLine();
         Path jarPath = Paths.get(jarName);
-        String mainClassName = null;
+        String mainClassName;
         try (JarFile file = new JarFile(jarPath.toFile())) {
             URL jarURL = jarPath.toUri().toURL();
             urlClassLoader = new PublicURLClassLoader(new URL[]{jarURL});

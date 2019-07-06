@@ -1,3 +1,60 @@
+/*-- Without jfoenix --*/
+Button {
+	-fx-background-color: TRANSPARENT, TRANSPARENT, TRANSPARENT, TRANSPARENT;
+    -fx-background-radius: 3px;
+    -fx-background-insets: 0px;
+}
+
+CheckBox .box-container {
+    -fx-shape: "M 400 100 L 400 100 A 50 50 0 1 1 400 250 A 50 50 0 1 1 400 100 ";
+    -fx-padding: 10;
+}
+
+CheckBox .box,
+CheckBox:indeterminate .box,
+CheckBox:indeterminate:selected .box{
+    -fx-pref-width: 18;
+    -fx-pref-height: 18;
+
+    -fx-background-color: TRANSPARENT;
+    -fx-background-radius: 2;
+
+    -fx-border-color: #909090;
+    -fx-border-style: solid;
+    -fx-border-radius: 2;
+    -fx-border-width: 2;
+}
+
+CheckBox:selected .box {
+    -fx-border-color: #5fd97a;
+	-fx-background-color: #5fd97a;
+}
+
+CheckBox .mark {
+	 -fx-background-color: TRANSPARENT;
+}
+
+CheckBox:selected .mark {
+    -fx-shape: "M384 690l452-452 60 60-512 512-238-238 60-60z";
+    -fx-max-width: 15;
+    -fx-max-height: 12;
+
+    -fx-background-color: WHITE;
+
+    -fx-border-color: WHITE;
+    -fx-border-width: 2;
+    -fx-border-radius: 2;
+}
+
+CheckBox .indeterminate-mark{
+    -fx-background-color: #5fd97a;
+    -fx-background-radius: 2;
+    -fx-border-width: 0;
+    -fx-max-width: 10;
+    -fx-max-height: 10;
+}
+
+
 /*-- DrLeonardo Design --*/
 Button, CheckBox, ComboBox, RadioButton {
 	-fx-cursor: hand;
@@ -311,11 +368,6 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-font-smoothing-type: lcd;
     -fx-fill: #8c8c8c;
     -fx-font-size: 12px;
-}
-
-.checkboxOpt {
-    -jfx-checked-color: #5fd97a;
-    -jfx-unchecked-color: #909090;
 }
 
 .modname {

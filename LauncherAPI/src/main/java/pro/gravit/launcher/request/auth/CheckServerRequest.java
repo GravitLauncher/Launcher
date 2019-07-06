@@ -4,10 +4,10 @@ import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.CheckServerRequestEvent;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.websockets.RequestInterface;
+import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.helper.VerifyHelper;
 
-public final class CheckServerRequest extends Request<CheckServerRequestEvent> implements RequestInterface {
+public final class CheckServerRequest extends Request<CheckServerRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
     private final String username;
     @LauncherNetworkAPI

@@ -9,8 +9,8 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
-import pro.gravit.launcher.HWID;
-import pro.gravit.launcher.OshiHWID;
+import pro.gravit.launcher.hwid.HWID;
+import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.utils.HTTPRequest;
 import pro.gravit.utils.helper.LogHelper;
 

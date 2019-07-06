@@ -8,11 +8,11 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-public class JsonResultSerializeAdapter implements JsonSerializer<ResultInterface> {
+public class JsonResultSerializeAdapter implements JsonSerializer<WebSocketEvent> {
     private static final String PROP_NAME = "type";
 
     @Override
-    public JsonElement serialize(ResultInterface src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(WebSocketEvent src, Type typeOfSrc, JsonSerializationContext context) {
         // note : won't work, you must delegate this
         JsonObject jo = context.serialize(src).getAsJsonObject();
 

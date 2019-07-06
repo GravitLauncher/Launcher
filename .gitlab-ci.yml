@@ -1,14 +1,14 @@
-image: java:8-jdk
+image: frekele/java
 
 stages:
   - build
-  - test
   - deploy
 
 before_script:
   #  - echo `pwd` # debug
   #  - echo "$CI_BUILD_NAME, $CI_BUILD_REF_NAME $CI_BUILD_STAGE" # debug
   - export GRADLE_USER_HOME=`pwd`/.gradle
+  - apt-get update -qq && apt-get install -y -qq git git-core
 
 cache:
   paths:
@@ -27,11 +27,6 @@ build:
       - LaunchServer/build/libs/*
       - ServerWrapper/build/libs/*.jar
     expire_in: 1 week
-
-test:
-  stage: test
-  script:
-    - ./gradlew check
 
 after_script:
   - echo "End CI"

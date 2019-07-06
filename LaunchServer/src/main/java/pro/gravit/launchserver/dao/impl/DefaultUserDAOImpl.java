@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import pro.gravit.launcher.OshiHWID;
+import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;

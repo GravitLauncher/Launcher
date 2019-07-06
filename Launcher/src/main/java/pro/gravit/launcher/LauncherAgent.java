@@ -10,6 +10,7 @@ import java.lang.instrument.Instrumentation;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.jar.JarFile;
 
 import org.objectweb.asm.ClassReader;
@@ -54,13 +55,14 @@ public final class LauncherAgent {
                 if (trimmedArg.contains("r")) rt = false;
             }
         }
-        try {
-            if (ManagementFactory.getOperatingSystemMXBean().getName().startsWith("Windows")) replaceClasses(pb, rt);
-            else replaceClasses(false, false);
-        } catch (Error e) {
-            NativeJVMHalt.haltA(294);
-            throw e;
-        }
+        if (System.getProperty("java.vm.name").toUpperCase(Locale.US).contains("HOTSPOT"))
+        	try {
+        		if (ManagementFactory.getOperatingSystemMXBean().getName().startsWith("Windows")) replaceClasses(pb, rt);
+        		else replaceClasses(false, false);
+        	} catch (Error e) {
+        		NativeJVMHalt.haltA(294);
+        		throw e;
+        	}
     }
 
     public static boolean isStarted() {
@@ -168,7 +170,7 @@ public final class LauncherAgent {
     private static byte[] getClassFile(Class<?> clazz) throws IOException {
         try (InputStream is = clazz.getResourceAsStream("/" + clazz.getName().replace('.', '/') + ".class");
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            int r = 0;
+            int r;
             byte[] buffer = new byte[8192];
             while ((r = is.read(buffer)) >= 0) {
                 baos.write(buffer, 0, r);

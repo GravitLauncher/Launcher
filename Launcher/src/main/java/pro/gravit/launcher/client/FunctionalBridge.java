@@ -6,7 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import pro.gravit.launcher.HWID;
+import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.guard.LauncherGuardManager;

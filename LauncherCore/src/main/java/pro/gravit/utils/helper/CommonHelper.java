@@ -13,6 +13,7 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -141,9 +142,17 @@ public final class CommonHelper {
 
     private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
     	private static final ByteArrayToBase64TypeAdapter INSTANCE = new ByteArrayToBase64TypeAdapter();
-    	private Base64.Decoder decoder = Base64.getUrlDecoder();
-    	private Base64.Encoder encoder = Base64.getUrlEncoder();
+    	private final Base64.Decoder decoder = Base64.getUrlDecoder();
+    	private final Base64.Encoder encoder = Base64.getUrlEncoder();
     	public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    		if (json.isJsonArray()) {
+    			JsonArray byteArr = json.getAsJsonArray();
+    			byte[] arr = new byte[byteArr.size()];
+    			for (int i = 0; i < arr.length; i++) {
+    				arr[i] = byteArr.get(i).getAsByte();
+    			}
+    			return arr;
+    		}
             return decoder.decode(json.getAsString());
         }
 

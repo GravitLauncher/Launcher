@@ -7,7 +7,7 @@ import java.util.List;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.websocket.json.auth.AuthResponse;
+import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.BiHookSet.Hook;
 import pro.gravit.utils.HookException;
 

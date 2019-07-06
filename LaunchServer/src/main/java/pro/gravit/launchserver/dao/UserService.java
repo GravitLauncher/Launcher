@@ -9,8 +9,8 @@ public class UserService {
 
     private final UserDAO usersDao;
 
-    public UserService(LaunchServer server) {
-        usersDao = LaunchServerDaoFactory.createUserDao(server);
+    public UserService(UserDAO usersDAO) {
+        this.usersDao = usersDAO;
     }
 
     public User findUser(int id) {
@@ -22,6 +22,15 @@ public class UserService {
     }
     public User findUserByUUID(UUID uuid) {
         return usersDao.findByUUID(uuid);
+    }
+
+    public User registerNewUser(String username, String password)
+    {
+        User user = new User();
+        user.username = username;
+        user.setPassword(password);
+        user.uuid = UUID.randomUUID();
+        return user;
     }
 
     public void saveUser(User user) {

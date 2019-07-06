@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import pro.gravit.launcher.HWID;
+import pro.gravit.launcher.hwid.HWID;
 
 public class MemoryHWIDHandler extends HWIDHandler {
     public class Entry {

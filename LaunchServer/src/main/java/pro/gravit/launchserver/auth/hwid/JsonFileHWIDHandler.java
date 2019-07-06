@@ -12,7 +12,7 @@ import java.util.Objects;
 
 import com.google.gson.reflect.TypeToken;
 
-import pro.gravit.launcher.HWID;
+import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;

@@ -25,6 +25,8 @@ import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedFile;
+import pro.gravit.launcher.hwid.NoHWID;
+import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launcher.managers.SettingsManager;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
@@ -129,6 +131,9 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("VerifyHelperClass", VerifyHelper.class);
         bindings.put("DirBridgeClass", DirBridge.class);
         bindings.put("FunctionalBridgeClass", FunctionalBridge.class);
+
+        bindings.put("NoHWIDClass", NoHWID.class);
+        bindings.put("OshiHWIDClass", OshiHWID.class);
 
         // Load JS API if available
         try {

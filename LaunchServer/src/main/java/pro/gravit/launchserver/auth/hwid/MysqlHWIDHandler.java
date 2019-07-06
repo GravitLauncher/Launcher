@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import pro.gravit.launcher.HWID;
-import pro.gravit.launcher.OshiHWID;
+import pro.gravit.launcher.hwid.HWID;
+import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.LogHelper;

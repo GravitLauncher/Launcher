@@ -21,12 +21,12 @@ import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedFile;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.update.UpdateRequest.State.Callback;
-import pro.gravit.launcher.request.websockets.RequestInterface;
+import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-public final class UpdateRequest extends Request<UpdateRequestEvent> implements RequestInterface {
+public final class UpdateRequest extends Request<UpdateRequestEvent> implements WebSocketRequest {
     public interface UpdateController {
         void preUpdate(UpdateRequest request, UpdateRequestEvent e) throws IOException;
 
@@ -219,7 +219,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         ListDownloader listDownloader = new ListDownloader();
         LogHelper.info("Download %s to %s", dirName, dir.toAbsolutePath().toString());
         if (e.zip && !adds.isEmpty()) {
-            listDownloader.downloadZip(e.url, dir, this::updateState, (add) -> totalDownloaded += add);
+            listDownloader.downloadZip(e.url, adds, dir, this::updateState, (add) -> totalDownloaded += add, e.fullDownload);
         } else {
             listDownloader.download(e.url, adds, dir, this::updateState, (add) -> totalDownloaded += add);
         }
