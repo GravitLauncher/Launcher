@@ -10,6 +10,7 @@ var settingsManagerClass = Java.extend(SettingsManagerClass.static, {
         new_settings.fullScreen = config.fullScreenDefault;
         new_settings.ram = config.ramDefault;
 
+        new_settings.featureStore = config.featureStoreDefault;
         new_settings.lastDigest = null;
         new_settings.lastProfiles.clear();
         new_settings.lastHDirs.clear();
