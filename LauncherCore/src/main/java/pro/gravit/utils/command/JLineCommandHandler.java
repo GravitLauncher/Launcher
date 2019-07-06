@@ -1,6 +1,7 @@
 package pro.gravit.utils.command;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.jline.reader.Candidate;
@@ -47,7 +48,8 @@ public class JLineCommandHandler extends CommandHandler {
             else
             {
                 Command target = findCommand(line.words().get(0));
-                List<Candidate> candidates1 = target.complete(line.words(), line.wordIndex(), completeWord);
+                List<String> words = line.words();
+                List<Candidate> candidates1 = target.complete(words.subList(1, words.size()), line.wordIndex() - 1, completeWord);
                 candidates.addAll(candidates1);
             }
         }

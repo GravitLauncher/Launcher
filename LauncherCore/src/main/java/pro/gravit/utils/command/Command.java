@@ -1,14 +1,12 @@
 package pro.gravit.utils.command;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import org.jline.reader.Candidate;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public abstract class Command {
-
+    public Map<String, Command> childCommands = new HashMap<>();
 
     protected static String parseUsername(String username) throws CommandException {
         try {
@@ -39,20 +37,31 @@ public abstract class Command {
 
     public List<Candidate> complete(List<String> words, int wordIndex, String word)
     {
-        return new ArrayList<>();
+        if(wordIndex == 0)
+        {
+            List<Candidate> candidates = new ArrayList<>();
+            childCommands.forEach((k,v) -> {
+                if(k.startsWith(word))
+                {
+                    candidates.add(new Candidate(k));
+                }
+            });
+            return candidates;
+        }
+        else
+        {
+            Command cmd = childCommands.get(words.get(0));
+            if(cmd == null) return new ArrayList<>();
+            return cmd.complete(words.subList(1, words.size()), wordIndex - 1, word);
+        }
     }
 
-    public List<Candidate> subCommandComplete(String word, List<String> commands)
+    public void invokeSubcommands(String... args) throws Exception
     {
-        List<Candidate> candidates = new ArrayList<>();
-        for(String s : commands)
-        {
-            if(word.startsWith(s))
-            {
-                candidates.add(new Candidate(s));
-            }
-        }
-        return candidates;
+        verifyArgs(args, 1);
+        Command command = childCommands.get(args[0]);
+        if(command == null) throw new CommandException(String.format("Unknown sub command: '%s'", args[0]));
+        command.invoke(Arrays.copyOfRange(args, 1, args.length));
     }
 
 
