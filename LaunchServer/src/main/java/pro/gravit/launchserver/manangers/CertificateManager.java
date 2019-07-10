@@ -7,32 +7,29 @@ import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
-import org.bouncycastle.crypto.params.ECKeyParameters;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
-import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.spec.ECParameterSpec;
-import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcECContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
-import java.io.FileWriter;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Path;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.spec.ECGenParameterSpec;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -113,5 +110,29 @@ public class CertificateManager {
         try (PemWriter writer = new PemWriter(IOHelper.newWriter(file))) {
             writer.writeObject(new PemObject("CERTIFICATE", holder.toASN1Structure().getEncoded()));
         }
+    }
+
+    public AsymmetricKeyParameter readPrivateKey(Path file) throws IOException {
+        AsymmetricKeyParameter ret;
+        try(PemReader reader = new PemReader(IOHelper.newReader(file)))
+        {
+            byte[] bytes = reader.readPemObject().getContent();
+            try(ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes))
+            {
+
+                ret = PrivateKeyFactory.createKey(inputStream);
+            }
+        }
+        return ret;
+    }
+
+    public X509CertificateHolder readCertificate(Path file) throws IOException {
+        X509CertificateHolder ret;
+        try(PemReader reader = new PemReader(IOHelper.newReader(file)))
+        {
+            byte[] bytes = reader.readPemObject().getContent();
+            ret = new X509CertificateHolder(bytes);
+        }
+        return ret;
     }
 }

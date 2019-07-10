@@ -44,6 +44,10 @@ public class TestCommand extends Command {
             server.certificateManager.writePrivateKey(Paths.get("ca.key"), server.certificateManager.caKey);
             server.certificateManager.writeCertificate(Paths.get("ca.crt"), server.certificateManager.ca);
         }
+        if(args[0].equals("readCA")) {
+            server.certificateManager.ca = server.certificateManager.readCertificate(Paths.get("ca.crt"));
+            server.certificateManager.caKey = server.certificateManager.readPrivateKey(Paths.get("ca.key"));
+        }
         if(args[0].equals("genCert")) {
             verifyArgs(args, 2);
             String name = args[1];
