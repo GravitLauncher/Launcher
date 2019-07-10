@@ -157,21 +157,19 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         modulesManager.postInitModules();
-        if (config.websocket.enabled) {
-            Request.service.reconnectCallback = () ->
-            {
-                LogHelper.debug("WebSocket connect closed. Try reconnect");
-                try {
-                    Request.service.open();
-                    LogHelper.debug("Connect to %s", config.websocket.address);
-                } catch (Exception e) {
-                    LogHelper.error(e);
-                    throw new RequestException(String.format("Connect error: %s", e.getMessage() != null ? e.getMessage() : "null"));
-                }
-                auth();
-            };
-        }
-        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s. Title: %s", config.projectname, config.websocket.address, config.title);
+        Request.service.reconnectCallback = () ->
+        {
+            LogHelper.debug("WebSocket connect closed. Try reconnect");
+            try {
+                Request.service.open();
+                LogHelper.debug("Connect to %s", config.address);
+            } catch (Exception e) {
+                LogHelper.error(e);
+                throw new RequestException(String.format("Connect error: %s", e.getMessage() != null ? e.getMessage() : "null"));
+            }
+            auth();
+        };
+        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s. Title: %s", config.projectname, config.address, config.title);
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
@@ -192,11 +190,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
         LauncherConfig cfg = null;
         try {
-            cfg = new LauncherConfig(config.websocket.address, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
-            if (config.websocket != null && config.websocket.enabled) {
-                cfg.isNettyEnabled = true;
-                cfg.address = config.websocket.address;
-            }
+            cfg = new LauncherConfig(config.address, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
+            cfg.isNettyEnabled = true;
+            cfg.address = config.address;
         } catch (InvalidKeySpecException | IOException e) {
             LogHelper.error(e);
         }
@@ -228,8 +224,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         newConfig.reconnectCount = 10;
         newConfig.reconnectSleep = 1000;
         newConfig.websocket = new WebSocketConf();
-        newConfig.websocket.address = "ws://localhost:9274/api";
-        newConfig.websocket.enabled = false;
+        newConfig.address = "ws://localhost:9274/api";
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         return newConfig;
     }
@@ -242,6 +237,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static final class Config {
         public String title;
         public String projectname;
+        public String address;
         public WebSocketConf websocket;
         public int reconnectCount;
         public int reconnectSleep;
@@ -261,8 +257,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public static final class WebSocketConf {
-        public boolean enabled;
-        public String address;
     }
 
     public ClientProfile profile;
