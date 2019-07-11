@@ -15,6 +15,7 @@ var config = {
     settingsMagic: 0xC0DE5, // Magic, don't touch
     autoEnterDefault: false, // Should autoEnter be enabled by default?
     fullScreenDefault: false, // Should fullScreen be enabled by default?
+    featureStoreDefault: true, // Should featureStore be enabled by default?
     ramDefault: 1024, // Default RAM amount (0 for auto)
 
     jvm: {

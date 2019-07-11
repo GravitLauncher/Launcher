@@ -2,8 +2,8 @@ package pro.gravit.launchserver.socket.response.admin;
 
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
+import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 
 public class ProxyCommandResponse extends SimpleResponse {
     public WebSocketServerResponse response;

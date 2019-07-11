@@ -69,7 +69,13 @@ import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.RegLimiterComponent;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
-import pro.gravit.launchserver.manangers.*;
+import pro.gravit.launchserver.manangers.CertificateManager;
+import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
+import pro.gravit.launchserver.manangers.MirrorManager;
+import pro.gravit.launchserver.manangers.ModulesManager;
+import pro.gravit.launchserver.manangers.ReconfigurableManager;
+import pro.gravit.launchserver.manangers.ReloadManager;
+import pro.gravit.launchserver.manangers.SessionManager;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
 import pro.gravit.launchserver.socket.WebSocketService;
@@ -143,11 +149,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public HWIDHandler hwidHandler;
 
         public Map<String, Component> components;
-
-        // Misc options
-        public int threadCount;
-
-        public int threadCoreCount;
 
         public ExeConf launch4j;
         public NettyConfig netty;
@@ -521,7 +522,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 localCommandHandler = new StdCommandHandler(true);
                 LogHelper.warning("JLine2 isn't in classpath, using std");
             }
-        pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler, this);
         commandHandler = localCommandHandler;
 
         // Set key pair
@@ -617,6 +617,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
 
         Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
+
+        pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler, this);
 
         // init modules
         modulesManager.initModules();
@@ -760,9 +762,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         newConfig.launcher = new LauncherConf();
         newConfig.launcher.guardType = "no";
-
-        newConfig.threadCoreCount = 0; // on your own
-        newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
 
         newConfig.enabledRadon = true;
         newConfig.genMappings = true;

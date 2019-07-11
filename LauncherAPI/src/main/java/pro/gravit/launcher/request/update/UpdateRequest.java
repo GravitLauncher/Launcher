@@ -22,8 +22,8 @@ import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedFile;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.update.UpdateRequest.State.Callback;
-import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
+import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 

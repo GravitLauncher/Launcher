@@ -1,5 +1,23 @@
 package pro.gravit.launchserver.manangers;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.nio.file.Path;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.ECGenParameterSpec;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -17,21 +35,11 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcECContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
+
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
-
-import java.io.IOException;
-import java.math.BigInteger;
-import java.nio.file.Path;
-import java.security.*;
-import java.security.spec.ECGenParameterSpec;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 
 public class CertificateManager {
     public X509CertificateHolder ca;
@@ -105,5 +113,29 @@ public class CertificateManager {
         try (PemWriter writer = new PemWriter(IOHelper.newWriter(file))) {
             writer.writeObject(new PemObject("CERTIFICATE", holder.toASN1Structure().getEncoded()));
         }
+    }
+
+    public AsymmetricKeyParameter readPrivateKey(Path file) throws IOException {
+        AsymmetricKeyParameter ret;
+        try(PemReader reader = new PemReader(IOHelper.newReader(file)))
+        {
+            byte[] bytes = reader.readPemObject().getContent();
+            try(ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes))
+            {
+
+                ret = PrivateKeyFactory.createKey(inputStream);
+            }
+        }
+        return ret;
+    }
+
+    public X509CertificateHolder readCertificate(Path file) throws IOException {
+        X509CertificateHolder ret;
+        try(PemReader reader = new PemReader(IOHelper.newReader(file)))
+        {
+            byte[] bytes = reader.readPemObject().getContent();
+            ret = new X509CertificateHolder(bytes);
+        }
+        return ret;
     }
 }

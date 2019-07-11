@@ -9,9 +9,9 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.OshiHWID;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
