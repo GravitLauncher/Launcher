@@ -11,7 +11,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 public abstract class LauncherBinary {
     public final LaunchServer server;
     public final Path syncBinaryFile;
-    private volatile DigestBytesHolder binary;
+    private volatile byte[] digest;
     private volatile byte[] sign;
 
     protected LauncherBinary(LaunchServer server, Path binaryFile) {
@@ -27,8 +27,8 @@ public abstract class LauncherBinary {
     }
 
 
-    public final DigestBytesHolder getBytes() {
-        return binary;
+    public final byte[] getDigest() {
+        return digest;
     }
 
     public final byte[] getSign() {
@@ -40,7 +40,7 @@ public abstract class LauncherBinary {
 
     public final boolean sync() throws IOException {
         boolean exists = exists();
-        binary = exists ? new DigestBytesHolder(IOHelper.read(syncBinaryFile), SecurityHelper.DigestAlgorithm.SHA512) : null;
+        digest = exists ? SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, IOHelper.read(syncBinaryFile)) : null;
         sign = exists ? SecurityHelper.sign(IOHelper.read(syncBinaryFile), server.privateKey) : null;
 
         return exists;

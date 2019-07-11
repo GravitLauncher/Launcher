@@ -41,7 +41,6 @@ import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.handler.MemoryAuthHandler;
@@ -448,7 +447,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     // Updates and profiles
     private volatile List<ClientProfile> profilesList;
-    public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
+    public volatile Map<String, HashedDir> updatesDirMap;
 
     public final Timer taskPool;
 
@@ -808,12 +807,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         this.profilesList = Collections.unmodifiableList(profilesList);
     }
 
-    public SignedObjectHolder<HashedDir> getUpdateDir(String name) {
+    public HashedDir getUpdateDir(String name) {
         return updatesDirMap.get(name);
     }
 
 
-    public Set<Entry<String, SignedObjectHolder<HashedDir>>> getUpdateDirs() {
+    public Set<Entry<String, HashedDir>> getUpdateDirs() {
         return updatesDirMap.entrySet();
     }
 
@@ -866,7 +865,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
         LogHelper.info("Syncing updates dir");
-        Map<String, SignedObjectHolder<HashedDir>> newUpdatesDirMap = new HashMap<>(16);
+        Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(updatesDir)) {
             for (final Path updateDir : dirStream) {
                 if (Files.isHidden(updateDir))
@@ -882,7 +881,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
                 // Add from previous map (it's guaranteed to be non-null)
                 if (dirs != null && !dirs.contains(name)) {
-                    SignedObjectHolder<HashedDir> hdir = updatesDirMap.get(name);
+                    HashedDir hdir = updatesDirMap.get(name);
                     if (hdir != null) {
                         newUpdatesDirMap.put(name, hdir);
                         continue;
@@ -892,7 +891,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 // Sync and sign update dir
                 LogHelper.info("Syncing '%s' update dir", name);
                 HashedDir updateHDir = new HashedDir(updateDir, null, true, true);
-                newUpdatesDirMap.put(name, new SignedObjectHolder<>(updateHDir, privateKey));
+                newUpdatesDirMap.put(name, updateHDir);
             }
         }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);

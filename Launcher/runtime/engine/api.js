@@ -41,8 +41,6 @@ var HInput = HInputClass.static;
 var HOutput = HOutputClass.static;
 var StreamObject = StreamObjectClass.static;
 var StreamObjectAdapter = StreamObjectAdapterClass.static;
-var SignedBytesHolder = SignedBytesHolderClass.static;
-var SignedObjectHolder = SignedObjectHolderClass.static;
 var EnumSerializer = EnumSerializerClass.static;
 var OptionalFile = OptionalFileClass.static;
 
