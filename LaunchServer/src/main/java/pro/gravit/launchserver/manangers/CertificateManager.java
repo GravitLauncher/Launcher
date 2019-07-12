@@ -25,6 +25,8 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.math.BigInteger;
 import java.nio.file.Path;
 import java.security.*;
@@ -105,29 +107,45 @@ public class CertificateManager {
     }
 
     public void writePrivateKey(Path file, PrivateKey privateKey) throws IOException {
-        try (PemWriter writer = new PemWriter(IOHelper.newWriter(file))) {
-            writer.writeObject(new PemObject("PRIVATE KEY", privateKey.getEncoded()));
+        writePrivateKey(IOHelper.newWriter(file), privateKey);
+    }
+
+    public void writePrivateKey(Writer writer, PrivateKey privateKey) throws IOException {
+        try (PemWriter writer1 = new PemWriter(writer)) {
+            writer1.writeObject(new PemObject("PRIVATE KEY", privateKey.getEncoded()));
         }
     }
 
     public void writePrivateKey(Path file, AsymmetricKeyParameter key) throws IOException {
+        writePrivateKey(IOHelper.newWriter(file), key);
+    }
+
+    public void writePrivateKey(Writer writer, AsymmetricKeyParameter key) throws IOException {
         PrivateKeyInfo info = PrivateKeyInfoFactory.createPrivateKeyInfo(key);
-        try (PemWriter writer = new PemWriter(IOHelper.newWriter(file))) {
-            writer.writeObject(new PemObject("PRIVATE KEY", info.getEncoded()));
+        try (PemWriter writer1 = new PemWriter(writer)) {
+            writer1.writeObject(new PemObject("PRIVATE KEY", info.getEncoded()));
         }
     }
 
     public void writeCertificate(Path file, X509CertificateHolder holder) throws IOException {
-        try (PemWriter writer = new PemWriter(IOHelper.newWriter(file))) {
-            writer.writeObject(new PemObject("CERTIFICATE", holder.toASN1Structure().getEncoded()));
+        writeCertificate(IOHelper.newWriter(file), holder);
+    }
+
+    public void writeCertificate(Writer writer, X509CertificateHolder holder) throws IOException {
+        try (PemWriter writer1 = new PemWriter(writer)) {
+            writer1.writeObject(new PemObject("CERTIFICATE", holder.toASN1Structure().getEncoded()));
         }
     }
 
     public AsymmetricKeyParameter readPrivateKey(Path file) throws IOException {
+        return readPrivateKey(IOHelper.newReader(file));
+    }
+
+    public AsymmetricKeyParameter readPrivateKey(Reader reader) throws IOException {
         AsymmetricKeyParameter ret;
-        try(PemReader reader = new PemReader(IOHelper.newReader(file)))
+        try(PemReader reader1 = new PemReader(reader))
         {
-            byte[] bytes = reader.readPemObject().getContent();
+            byte[] bytes = reader1.readPemObject().getContent();
             try(ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes))
             {
 
@@ -138,10 +156,14 @@ public class CertificateManager {
     }
 
     public X509CertificateHolder readCertificate(Path file) throws IOException {
+        return readCertificate(IOHelper.newReader(file));
+    }
+
+    public X509CertificateHolder readCertificate(Reader reader) throws IOException {
         X509CertificateHolder ret;
-        try(PemReader reader = new PemReader(IOHelper.newReader(file)))
+        try(PemReader reader1 = new PemReader(reader))
         {
-            byte[] bytes = reader.readPemObject().getContent();
+            byte[] bytes = reader1.readPemObject().getContent();
             ret = new X509CertificateHolder(bytes);
         }
         return ret;
