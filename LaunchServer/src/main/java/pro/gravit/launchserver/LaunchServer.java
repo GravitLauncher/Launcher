@@ -61,11 +61,7 @@ import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.provider.RejectAuthProvider;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
-import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
-import pro.gravit.launchserver.binary.EXELauncherBinary;
-import pro.gravit.launchserver.binary.JARLauncherBinary;
-import pro.gravit.launchserver.binary.LauncherBinary;
-import pro.gravit.launchserver.binary.ProguardConf;
+import pro.gravit.launchserver.binary.*;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.RegLimiterComponent;
@@ -256,6 +252,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public static class ExeConf {
         public boolean enabled;
+        public String alternative;
         public boolean setMaxVersion;
         public String maxVersion;
         public String productName;
@@ -721,6 +718,19 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 LogHelper.error(e);
             }
         }
+        if(config.launch4j.alternative != null)
+        {
+            switch (config.launch4j.alternative) {
+                case "simple":
+                    return new SimpleEXELauncherBinary(this);
+                case "no":
+                    //None
+                    break;
+                default:
+                    LogHelper.warning("Alternative %s not found", config.launch4j.alternative);
+                    break;
+            }
+        }
         try {
             Class.forName("net.sf.launch4j.Builder");
             if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
@@ -766,6 +776,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.enabled = true;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
+        newConfig.launch4j.alternative = "no";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
         newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
         newConfig.launch4j.internalName = "Launcher";
