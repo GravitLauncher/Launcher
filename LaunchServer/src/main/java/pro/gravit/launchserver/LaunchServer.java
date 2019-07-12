@@ -64,7 +64,6 @@ import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.RegLimiterComponent;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
-import pro.gravit.launchserver.dao.UserService;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
 import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
@@ -152,7 +151,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
-        public boolean enabledRadon;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
 
@@ -747,7 +745,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.launcher = new LauncherConf();
         newConfig.launcher.guardType = "no";
 
-        newConfig.enabledRadon = true;
         newConfig.genMappings = true;
         newConfig.enabledProGuard = true;
         newConfig.stripLineNumbers = true;
