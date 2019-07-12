@@ -42,7 +42,7 @@ jar {
 
 dependencies {
     pack project(':LauncherAPI')
-    bundle project(':Radon')
+    bundle 'org.ow2.asm:asm-commons:7.1'
     bundle 'mysql:mysql-connector-java:8.0.16'
     bundle 'org.jline:jline:3.11.0'
     bundle 'org.jline:jline-reader:3.11.0'
