@@ -13,7 +13,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -33,6 +35,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
 import io.netty.handler.logging.LogLevel;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
+import org.bouncycastle.operator.OperatorCreationException;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.NeedGarbageCollection;
@@ -391,6 +397,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final Path privateKeyFile;
 
+    public final Path caCertFile;
+
+    public final Path caKeyFile;
+
+    public final Path serverCertFile;
+
+    public final Path serverKeyFile;
+
     public final Path updatesDir;
 
     //public static LaunchServer server = null;
@@ -478,6 +492,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         privateKeyFile = dir.resolve("private.key");
         updatesDir = dir.resolve("updates");
         profilesDir = dir.resolve("profiles");
+
+        caCertFile = dir.resolve("ca.crt");
+        caKeyFile = dir.resolve("ca.key");
+
+        serverCertFile = dir.resolve("server.crt");
+        serverKeyFile = dir.resolve("server.key");
 
         //Registration handlers and providers
         AuthHandler.registerHandlers();
@@ -591,6 +611,41 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
         certificateManager = new CertificateManager();
+        //Generate or set new Certificate API
+        certificateManager.orgName = config.projectName;
+        if(IOHelper.isFile(caCertFile) && IOHelper.isFile(caKeyFile))
+        {
+            certificateManager.ca = certificateManager.readCertificate(caCertFile);
+            certificateManager.caKey = certificateManager.readPrivateKey(caKeyFile);
+        }
+        else
+        {
+            try {
+                certificateManager.generateCA();
+                certificateManager.writeCertificate(caCertFile, certificateManager.ca);
+                certificateManager.writePrivateKey(caKeyFile, certificateManager.caKey);
+            } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException | OperatorCreationException e) {
+                LogHelper.error(e);
+            }
+        }
+        if(IOHelper.isFile(serverCertFile) && IOHelper.isFile(serverKeyFile))
+        {
+            certificateManager.server = certificateManager.readCertificate(serverCertFile);
+            certificateManager.serverKey = certificateManager.readPrivateKey(serverKeyFile);
+        }
+        else
+        {
+            try {
+                KeyPair pair = certificateManager.generateKeyPair();
+                certificateManager.server = certificateManager.generateCertificate(config.projectName.concat(" Server"), pair.getPublic());
+                certificateManager.serverKey = PrivateKeyFactory.createKey(pair.getPrivate().getEncoded());
+                certificateManager.writePrivateKey(serverKeyFile, pair.getPrivate());
+                certificateManager.writeCertificate(serverCertFile, certificateManager.server);
+            } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | OperatorCreationException e) {
+                LogHelper.error(e);
+            }
+        }
+
         GarbageManager.registerNeedGC(sessionManager);
         reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);

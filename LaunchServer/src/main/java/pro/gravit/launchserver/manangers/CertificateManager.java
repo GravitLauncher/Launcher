@@ -42,11 +42,17 @@ public class CertificateManager {
     public X509CertificateHolder ca;
     public AsymmetricKeyParameter caKey;
 
+    public X509CertificateHolder server;
+    public AsymmetricKeyParameter serverKey;
+
+
     //public X509CertificateHolder server;
     //public AsymmetricKeyParameter serverKey;
 
     public int validDays = 60;
     public int minusHours = 6;
+
+    public String orgName;
 
     public X509CertificateHolder generateCertificate(String subjectName, PublicKey subjectPublicKey) throws OperatorCreationException {
         SubjectPublicKeyInfo subjectPubKeyInfo = SubjectPublicKeyInfo.getInstance(subjectPublicKey.getEncoded());
@@ -56,6 +62,7 @@ public class CertificateManager {
 
         X500NameBuilder subject = new X500NameBuilder();
         subject.addRDN(BCStyle.CN, subjectName);
+        subject.addRDN(BCStyle.O, orgName);
         X509v3CertificateBuilder v3CertGen = new X509v3CertificateBuilder(ca.getSubject(), serial,
                 startDate, endDate, subject.build(), subjectPubKeyInfo);
 
@@ -73,8 +80,12 @@ public class CertificateManager {
         KeyPair pair = generator.generateKeyPair();
         LocalDateTime startDate = LocalDate.now().atStartOfDay();
 
+        X500NameBuilder subject = new X500NameBuilder();
+        subject.addRDN(BCStyle.CN, orgName.concat(" CA"));
+        subject.addRDN(BCStyle.O, orgName);
+
         X509v3CertificateBuilder builder= new X509v3CertificateBuilder(
-                new X500Name("CN=ca"),
+                subject.build(),
                 new BigInteger("0"),
                 Date.from(startDate.atZone(ZoneId.systemDefault()).toInstant()),
                 Date.from(startDate.plusDays(3650).atZone(ZoneId.systemDefault()).toInstant()),
