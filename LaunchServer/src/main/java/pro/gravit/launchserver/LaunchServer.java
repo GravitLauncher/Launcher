@@ -275,6 +275,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public class LauncherConf {
         public String guardType;
         public boolean attachLibraryBeforeProGuard;
+        public boolean compress;
     }
 
     public class NettyConfig {
@@ -810,6 +811,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         newConfig.launcher = new LauncherConf();
         newConfig.launcher.guardType = "no";
+        newConfig.launcher.compress = true;
 
         newConfig.genMappings = true;
         newConfig.enabledProGuard = true;
