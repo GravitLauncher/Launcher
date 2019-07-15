@@ -7,7 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.Texture;
-import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -17,7 +17,7 @@ public class ProfileByUUIDResponse extends SimpleResponse {
     public UUID uuid;
     public String client;
 
-    public static PlayerProfile getProfile(LaunchServer server, UUID uuid, String username, String client, TextureProvider textureProvider) {
+    public static PlayerProfile getProfile(UUID uuid, String username, String client, TextureProvider textureProvider) {
         // Get skin texture
         Texture skin;
         try {
@@ -48,10 +48,19 @@ public class ProfileByUUIDResponse extends SimpleResponse {
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         String username;
+        AuthProviderPair pair;
         if (client.auth == null) {
             LogHelper.warning("Client auth is null. Using default.");
-            username = server.config.getAuthProviderPair().handler.uuidToUsername(uuid);
-        } else username = client.auth.handler.uuidToUsername(uuid);
-        sendResult(new ProfileByUUIDRequestEvent(getProfile(server, uuid, username, this.client, client.auth.textureProvider)));
+            pair = server.config.getAuthProviderPair();
+        } else {
+            pair = client.auth;
+        }
+        if(pair == null)
+        {
+            sendError("ProfileByUUIDResponse: AuthProviderPair is null");
+            return;
+        }
+        username = pair.handler.uuidToUsername(uuid);
+        sendResult(new ProfileByUUIDRequestEvent(getProfile(uuid, username, this.client, client.auth.textureProvider)));
     }
 }

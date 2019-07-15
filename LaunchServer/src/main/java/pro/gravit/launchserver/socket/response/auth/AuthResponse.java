@@ -130,7 +130,7 @@ public class AuthResponse extends SimpleResponse {
             }
             if (server.config.protectHandler.allowGetAccessToken(context)) {
                 UUID uuid = pair.handler.auth(aresult);
-                result.playerProfile = ProfileByUUIDResponse.getProfile(server, uuid, aresult.username, client, clientData.auth.textureProvider);
+                result.playerProfile = ProfileByUUIDResponse.getProfile(uuid, aresult.username, client, clientData.auth.textureProvider);
                 LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
             }
             sendResult(result);

@@ -3,7 +3,6 @@ package pro.gravit.launcher.request.websockets;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import javax.net.ssl.SSLException;
@@ -30,7 +29,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
     public static ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
     private HashSet<EventHandler> handlers;
 
-    public ClientWebSocketService(String address, int i) throws SSLException {
+    public ClientWebSocketService(String address) throws SSLException {
         super(createURL(address));
         handlers = new HashSet<>();
         this.gson = Launcher.gsonManager.gson;

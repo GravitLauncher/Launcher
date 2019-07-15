@@ -32,7 +32,7 @@ public class BatchProfileByUsername extends SimpleResponse {
                 LogHelper.warning("Client auth is null. Using default.");
                 uuid = server.config.getAuthProviderPair().handler.usernameToUUID(list[i].username);
             } else uuid = client.auth.handler.usernameToUUID(list[i].username);
-            result.playerProfiles[i] = ProfileByUUIDResponse.getProfile(server, uuid, list[i].username, list[i].client, client.auth.textureProvider);
+            result.playerProfiles[i] = ProfileByUUIDResponse.getProfile(uuid, list[i].username, list[i].client, client.auth.textureProvider);
         }
         sendResult(result);
     }
