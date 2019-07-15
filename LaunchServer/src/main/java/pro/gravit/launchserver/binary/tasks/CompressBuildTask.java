@@ -6,6 +6,7 @@ import pro.gravit.utils.helper.IOHelper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -28,9 +29,18 @@ public class CompressBuildTask implements LauncherBuildTask {
         {
             outputStream.setMethod(ZipOutputStream.DEFLATED);
             outputStream.setLevel(Deflater.BEST_COMPRESSION);
-            try(ZipInputStream inputStream = IOHelper.newZipInput(inputFile))
+            try(ZipInputStream input = IOHelper.newZipInput(inputFile))
             {
-
+                ZipEntry e = input.getNextEntry();
+                while (e != null) {
+                    if (e.isDirectory()) {
+                        e = input.getNextEntry();
+                        continue;
+                    }
+                    outputStream.putNextEntry(IOHelper.newZipEntry(e));
+                    IOHelper.transfer(input, outputStream);
+                    e = input.getNextEntry();
+                }
             }
         }
         return output;
