@@ -50,7 +50,7 @@ public class AuthResponse extends SimpleResponse {
     public HWID hwid;
 
     public enum ConnectTypes {
-        SERVER, CLIENT, BOT
+        SERVER, CLIENT, BOT, API
     }
 
     @Override
@@ -128,7 +128,7 @@ public class AuthResponse extends SimpleResponse {
                 if (!clientData.permissions.canProxy) throw new AuthException("initProxy not allow");
                 clientData.proxy = true;
             }
-            if (server.config.protectHandler.allowGetAccessToken(context)) {
+            if (authType != ConnectTypes.API && server.config.protectHandler.allowGetAccessToken(context)) {
                 UUID uuid = pair.handler.auth(aresult);
                 result.playerProfile = ProfileByUUIDResponse.getProfile(uuid, aresult.username, client, clientData.auth.textureProvider);
                 LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
@@ -140,10 +140,10 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public static class AuthContext {
-        public AuthContext(long session, String login, int password_lenght, String customText, String client, String hwid, String ip, ConnectTypes authType) {
+        public AuthContext(long session, String login, int password_length, String customText, String client, String hwid, String ip, ConnectTypes authType) {
             this.session = session;
             this.login = login;
-            this.password_lenght = password_lenght;
+            this.password_length = password_length;
             this.customText = customText;
             this.client = client;
             this.hwid = hwid;
@@ -153,7 +153,7 @@ public class AuthResponse extends SimpleResponse {
 
         public long session;
         public String login;
-        public int password_lenght; //Use AuthProvider for get password
+        public int password_length; //Use AuthProvider for get password
         public String client;
         public String hwid;
         public String customText;
