@@ -993,6 +993,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 			}
                 		}, true);
                 	}
+                	((HashedDir) entry).zipSize = Files.size(out);
                     return HashedDir.WalkAction.SKIP_DIR;
                 }
             }
