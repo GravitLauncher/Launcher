@@ -211,6 +211,10 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
                     LogHelper.error(ex);
                 }
             }
+            if (isSmaller(((HashedDir)getPathed(name, e.hdir)).zipSize, entry.size())) {
+                adds.add(new ListDownloader.DownloadTask(path + ".zip", -1, true));
+                return HashedDir.WalkAction.SKIP_DIR;
+            }
             return HashedDir.WalkAction.CONTINUE;
         });
         totalSize = diff.mismatch.size();
@@ -230,7 +234,11 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         return e;
     }
 
-    // Instance
+    private boolean isSmaller(long zipSize, long size) {
+		return zipSize != -1 && zipSize < size;
+	}
+
+	// Instance
     @LauncherNetworkAPI
     private final String dirName;
     private transient final Path dir;
@@ -305,5 +313,12 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
         if (stateCallback != null)
             stateCallback.call(new State(filePath, fileDownloaded, fileSize,
                     totalDownloaded, totalSize, Duration.between(startTime, Instant.now())));
+    }
+    
+    private static HashedEntry getPathed(String path, HashedDir in) {
+    	String[] parts = path.split(IOHelper.CROSS_SEPARATOR);
+    	HashedEntry current = in;
+    	for (String part : parts) current = ((HashedDir) current).getEntry(part);
+    	return current;
     }
 }

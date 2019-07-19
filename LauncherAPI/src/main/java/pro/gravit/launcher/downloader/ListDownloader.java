@@ -36,10 +36,17 @@ public class ListDownloader {
     public static class DownloadTask {
         public String apply;
         public long size;
+        public boolean isZip;
 
         public DownloadTask(String apply, long size) {
             this.apply = apply;
             this.size = size;
+            isZip = false;
+        }
+        public DownloadTask(String apply, long size, boolean isZip) {
+            this.apply = apply;
+            this.size = size;
+            this.isZip = isZip;
         }
     }
 
@@ -59,7 +66,7 @@ public class ListDownloader {
                     get.reset();
                     get.setURI(u);
                 }
-                httpclient.execute(get, new FileDownloadResponseHandler(targetPath, apply, callback, totalCallback, false));
+                httpclient.execute(get, new FileDownloadResponseHandler(targetPath, apply, callback, totalCallback));
             }
         }
     }
@@ -118,12 +125,12 @@ public class ListDownloader {
             totalCallback = null;
         }
 
-        public FileDownloadResponseHandler(Path target, DownloadTask task, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean zip) {
+        public FileDownloadResponseHandler(Path target, DownloadTask task, DownloadCallback callback, DownloadTotalCallback totalCallback) {
             this.target = target;
             this.task = task;
             this.callback = callback;
             this.totalCallback = totalCallback;
-            this.zip = zip;
+            this.zip = task != null ? task.isZip : false;
         }
 
         public FileDownloadResponseHandler(Path target, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean zip) {
@@ -137,16 +144,6 @@ public class ListDownloader {
         @Override
         public Path handleResponse(HttpResponse response) throws IOException {
             InputStream source = response.getEntity().getContent();
-            int returnCode = response.getStatusLine().getStatusCode();
-            if(returnCode != 200)
-            {
-                throw new IllegalStateException(String.format("Request download file %s return code %d", target.toString(), returnCode));
-            }
-            long contentLength = response.getEntity().getContentLength();
-            if (task != null && contentLength != task.size)
-            {
-                LogHelper.warning("Missing content length: expected %d | found %d", task.size, contentLength);
-            }
             if (zip) {
                 try (ZipInputStream input = IOHelper.newZipInput(source)) {
                     ZipEntry entry = input.getNextEntry();
@@ -171,12 +168,13 @@ public class ListDownloader {
             }
             if (callback != null && task != null) {
                 callback.stateChanged(task.apply, 0, task.size);
-                transfer(source, this.target, task.apply, task.size, callback, totalCallback);
+                transfer(source, target, task.apply, task.size < 0 ? source.available() : task.size, callback, totalCallback);
             } else
-                IOHelper.transfer(source, this.target);
+                IOHelper.transfer(source, IOHelper.newOutput(target));
             return this.target;
         }
     }
+
 
     public static void transfer(InputStream input, Path file, String filename, long size, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException {
         try (OutputStream fileOutput = IOHelper.newOutput(file)) {

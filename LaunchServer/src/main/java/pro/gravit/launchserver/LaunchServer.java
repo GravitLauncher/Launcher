@@ -97,7 +97,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public static final class Config {
     	private transient LaunchServer server = null;
-
+    	public boolean zipDownload;
         public String projectName;
 
         public String[] mirrors;
