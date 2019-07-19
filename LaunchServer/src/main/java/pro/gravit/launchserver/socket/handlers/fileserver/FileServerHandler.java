@@ -22,7 +22,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -48,6 +50,7 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
+import pro.gravit.utils.helper.IOHelper;
 
 public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
@@ -56,10 +59,10 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
     public static final String READ = "r";
     public static final int HTTP_CACHE_SECONDS = 60;
 	private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
-    private final Path base;
+    private final List<Path> base;
     private final boolean fullOut;
 
-    public FileServerHandler(Path base, boolean fullOut) {
+    public FileServerHandler(List<Path> base, boolean fullOut) {
         this.base = base;
         this.fullOut = fullOut;
     }
@@ -83,12 +86,12 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
             return;
         }
 
-        File file = base.resolve(path).toFile();
-        if (file.isHidden() || !file.exists()) {
+        Optional<File> fileO = base.stream().map(t -> t.resolve(path)).filter(t -> IOHelper.exists(t) && !IOHelper.isHidden(t)).map(t -> t.toFile()).findFirst();
+        if (!fileO.isPresent()) {
             sendError(ctx, NOT_FOUND);
             return;
         }
-
+        File file = fileO.get();
         if (file.isDirectory()) {
             if (fullOut) {
                 if (uri.endsWith("/")) {
@@ -171,8 +174,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
             sendError(ctx, INTERNAL_SERVER_ERROR);
         }
     }
-
-    private static final Pattern INSECURE_URI = Pattern.compile(".*[<>&\"].*");
 
     private static String sanitizeUri(String uri) {
         // Decode the path.

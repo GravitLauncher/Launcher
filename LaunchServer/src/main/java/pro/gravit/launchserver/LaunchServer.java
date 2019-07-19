@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
+import java.util.zip.ZipOutputStream;
 
 import io.netty.handler.logging.LogLevel;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
@@ -43,6 +44,7 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.managers.GarbageManager;
@@ -67,6 +69,7 @@ import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.RegLimiterComponent;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
+import pro.gravit.launchserver.hasher.UpdateData;
 import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
@@ -282,6 +285,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public boolean fileServerEnabled;
         public boolean sendExceptionEnabled;
         public boolean ipForwarding;
+        public boolean directoryListing = true;
         public String launcherURL;
         public String downloadURL;
         public String launcherEXEURL;
@@ -463,6 +467,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public static Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
 
+	public final Path optimizedUpdatesDir;
+    
     public LaunchServer(Path dir, boolean testEnv, String[] args) throws IOException, InvalidKeySpecException {
         this.dir = dir;
         this.testEnv = testEnv;
@@ -489,6 +495,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         publicKeyFile = dir.resolve("public.key");
         privateKeyFile = dir.resolve("private.key");
         updatesDir = dir.resolve("updates");
+        optimizedUpdatesDir = dir.resolve("optimized_updates");
         profilesDir = dir.resolve("profiles");
 
         caCertFile = dir.resolve("ca.crt");
@@ -681,6 +688,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         // Sync updates dir
         if (!IOHelper.isDir(updatesDir))
             Files.createDirectory(updatesDir);
+        if (!IOHelper.isDir(optimizedUpdatesDir))
+            Files.createDirectory(optimizedUpdatesDir);
+        updatesDirMap = null; // small hack
         syncUpdatesDir(null);
 
         // Sync profiles dir
@@ -818,6 +828,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.stripLineNumbers = true;
         newConfig.deleteTempFiles = true;
         newConfig.isWarningMissArchJava = true;
+        newConfig.zipDownload = true;
 
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
@@ -931,6 +942,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
         LogHelper.info("Syncing updates dir");
         Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
+        boolean work = updatesDirMap != null;
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(updatesDir)) {
             for (final Path updateDir : dirStream) {
                 if (Files.isHidden(updateDir))
@@ -956,12 +968,39 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 // Sync and sign update dir
                 LogHelper.info("Syncing '%s' update dir", name);
                 HashedDir updateHDir = new HashedDir(updateDir, null, true, true);
+                if (work && config.zipDownload) processUpdate(updateDir, updateHDir, name);
                 newUpdatesDirMap.put(name, updateHDir);
             }
         }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
     }
 
+    private void processUpdate(Path updateDir, HashedDir updateHDir, String name) throws IOException {
+    	updateHDir.walk(IOHelper.CROSS_SEPARATOR, (path, filename, entry) -> {
+    		if (entry.getType().equals(HashedEntry.Type.DIR)) {
+                if (UpdateData.needsZip((HashedDir) entry)) {
+                	Path p = updateDir.resolve(path);
+            		Path out = optimizedUpdatesDir.resolve(name).resolve(path + ".zip");
+                	try (ZipOutputStream compressed = new ZipOutputStream(IOHelper.newOutput(out))) {
+                		IOHelper.walk(p, new SimpleFileVisitor<Path>() {
+                			@Override
+                			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                				compressed.putNextEntry(IOHelper.newZipEntry(
+                						p.relativize(file).toString()
+                						.replace(IOHelper.PLATFORM_SEPARATOR, IOHelper.CROSS_SEPARATOR)));
+                				IOHelper.transfer(file, compressed);
+                				return super.visitFile(file, attrs);
+                			}
+                		}, true);
+                	}
+                    return HashedDir.WalkAction.SKIP_DIR;
+                }
+            }
+    		return HashedDir.WalkAction.CONTINUE;
+    	});
+
+	}
+    
     public void restart() {
         ProcessBuilder builder = new ProcessBuilder();
         if (config.startScript != null) builder.command(Collections.singletonList(config.startScript));

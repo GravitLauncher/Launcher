@@ -168,6 +168,7 @@ public final class IOHelper {
     private static final Pattern CROSS_SEPARATOR_PATTERN = Pattern.compile(CROSS_SEPARATOR, Pattern.LITERAL);
 
     private static final Pattern PLATFORM_SEPARATOR_PATTERN = Pattern.compile(PLATFORM_SEPARATOR, Pattern.LITERAL);
+	public static final int MB = 1 << 20;
 
     @LauncherAPI
     public static void close(AutoCloseable closeable) {
@@ -765,6 +766,15 @@ public final class IOHelper {
     public static void write(Path file, byte[] bytes) throws IOException {
         createParentDirs(file);
         Files.write(file, bytes, WRITE_OPTIONS);
+    }
+
+    @LauncherAPI
+    public static boolean isHidden(Path path) {
+        try {
+			return Files.isHidden(path);
+		} catch (IOException e) {
+			return false;
+		}
     }
 
     private IOHelper() {

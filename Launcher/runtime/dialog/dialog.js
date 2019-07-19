@@ -203,10 +203,6 @@ function goAuth(event) {
     }
 
      var rsaPassword = null;
-     var auth = authOptions.getSelectionModel().getSelectedItem();
-     if (auth === null) {
-        return;
-     }
      if (!passwordField.isDisable()) {
          var password = passwordField.getText();
          if (password !== null && !password.isEmpty()) {

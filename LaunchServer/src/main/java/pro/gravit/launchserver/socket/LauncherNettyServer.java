@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.socket;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -63,7 +64,7 @@ public class LauncherNettyServer implements AutoCloseable {
                         pipeline.addLast(new WebSocketServerCompressionHandler());
                         pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
                         if (server.config.netty.fileServerEnabled)
-                            pipeline.addLast(new FileServerHandler(server.updatesDir, true));
+                            pipeline.addLast(new FileServerHandler(Arrays.asList(server.updatesDir, server.optimizedUpdatesDir), server.config.netty.directoryListing));
                         pipeline.addLast(new WebSocketFrameHandler(context, server, service));
                     }
                 });
