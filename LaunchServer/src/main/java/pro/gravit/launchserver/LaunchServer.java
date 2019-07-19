@@ -969,7 +969,22 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 LogHelper.info("Syncing '%s' update dir", name);
                 HashedDir updateHDir = new HashedDir(updateDir, null, true, true);
                 if (work && config.zipDownload) processUpdate(updateDir, updateHDir, name);
-                newUpdatesDirMap.put(name, updateHDir);
+                HashedDir old = newUpdatesDirMap.put(name, updateHDir);
+                if (old != null) {
+                	HashedDir.Diff diff = old.diff(updateHDir, null);
+                	diff.extra.walk(IOHelper.CROSS_SEPARATOR, (String path, String namef, HashedEntry entry) -> {
+                		if (entry.getType().equals(HashedEntry.Type.FILE)) {
+                			LogHelper.info("Modified/added: " + path);
+                		}
+                		return HashedDir.WalkAction.CONTINUE;
+                	});
+                	diff.mismatch.walk(IOHelper.CROSS_SEPARATOR, (String path, String namef, HashedEntry entry) -> {
+                		if (entry.getType().equals(HashedEntry.Type.FILE)) {
+                			LogHelper.info("Removed: " + path);
+                		}
+                		return HashedDir.WalkAction.CONTINUE;
+                	});
+                }
             }
         }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
@@ -999,7 +1014,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             }
     		return HashedDir.WalkAction.CONTINUE;
     	});
-
 	}
     
     public void restart() {
