@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -40,6 +41,15 @@ import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
 import org.bouncycastle.operator.OperatorCreationException;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.internal.Streams;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.NeedGarbageCollection;
@@ -468,6 +478,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public static Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
 
 	public final Path optimizedUpdatesDir;
+
+	public final Path updatesCache;
+
+	public final JsonParser parser;
     
     public LaunchServer(Path dir, boolean testEnv, String[] args) throws IOException, InvalidKeySpecException {
         this.dir = dir;
@@ -475,6 +489,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         taskPool = new Timer("Timered task worker thread", true);
         launcherLibraries = dir.resolve("launcher-libraries");
         launcherLibrariesCompile = dir.resolve("launcher-libraries-compile");
+        updatesCache = dir.resolve("cache-updates.hdir.json");
+        parser = new JsonParser();
         this.args = Arrays.asList(args);
         if(IOHelper.exists(dir.resolve("LaunchServer.conf")))
         {
@@ -942,7 +958,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
         LogHelper.info("Syncing updates dir");
         Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
-        boolean work = updatesDirMap != null;
+        if (updatesDirMap == null && IOHelper.exists(updatesCache)) {
+        	try (JsonReader r = Launcher.gsonManager.configGson.newJsonReader(IOHelper.newReader(updatesCache))) {
+        		parser.parse(r).getAsJsonObject().entrySet().forEach(e -> {
+        			newUpdatesDirMap.put(e.getKey(), Launcher.gsonManager.configGson.fromJson(e.getValue(), HashedDir.class));
+        		});
+        	}
+    		updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
+    		return;
+        }
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(updatesDir)) {
             for (final Path updateDir : dirStream) {
                 if (Files.isHidden(updateDir))
@@ -968,7 +992,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 // Sync and sign update dir
                 LogHelper.info("Syncing '%s' update dir", name);
                 HashedDir updateHDir = new HashedDir(updateDir, null, true, true);
-                if (work && config.zipDownload) processUpdate(updateDir, updateHDir, name);
+                if (config.zipDownload) processUpdate(updateDir, updateHDir, name);
                 HashedDir old = newUpdatesDirMap.put(name, updateHDir);
                 if (old != null) {
                 	HashedDir.Diff diff = old.diff(updateHDir, null);
@@ -987,6 +1011,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 }
             }
         }
+    	try (JsonWriter w = Launcher.gsonManager.configGson.newJsonWriter(IOHelper.newWriter(updatesCache))) {
+    		w.setLenient(true);
+    		JsonObject o = new JsonObject();
+    		newUpdatesDirMap.entrySet().forEach(e -> {
+    			o.add(e.getKey(), parser.parse(Launcher.gsonManager.configGson.toJson(e.getValue(), HashedDir.class)));
+    		});
+    		Streams.write(o, w);
+    	}
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
     }
 
