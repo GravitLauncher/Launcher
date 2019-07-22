@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.reflect.InvocationTargetException;
@@ -37,19 +38,10 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipOutputStream;
 
 import io.netty.handler.logging.LogLevel;
-import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
-import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
 import org.bouncycastle.operator.OperatorCreationException;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-
+import com.google.gson.reflect.TypeToken;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.NeedGarbageCollection;
@@ -480,8 +472,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 	public final Path optimizedUpdatesDir;
 
 	public final Path updatesCache;
-
-	public final JsonParser parser;
     
     public LaunchServer(Path dir, boolean testEnv, String[] args) throws IOException, InvalidKeySpecException {
         this.dir = dir;
@@ -490,7 +480,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         launcherLibraries = dir.resolve("launcher-libraries");
         launcherLibrariesCompile = dir.resolve("launcher-libraries-compile");
         updatesCache = dir.resolve("cache-updates.hdir.json");
-        parser = new JsonParser();
         this.args = Arrays.asList(args);
         if(IOHelper.exists(dir.resolve("LaunchServer.conf")))
         {
@@ -959,11 +948,16 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         LogHelper.info("Syncing updates dir");
         Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
         if (updatesDirMap == null && IOHelper.exists(updatesCache)) {
-        	try (JsonReader r = Launcher.gsonManager.configGson.newJsonReader(IOHelper.newReader(updatesCache))) {
-        		parser.parse(r).getAsJsonObject().entrySet().forEach(e -> {
-        			newUpdatesDirMap.put(e.getKey(), Launcher.gsonManager.configGson.fromJson(e.getValue(), HashedDir.class));
-        		});
-        	}
+            if (IOHelper.exists(updatesCache)) {
+                LogHelper.info("Load sessions from %s", IOHelper.getFileName(updatesCache));
+                Type setType = new TypeToken<HashMap<String, HashedDir>>() {
+                }.getType();
+                try (Reader reader = IOHelper.newReader(updatesCache)) {
+                	newUpdatesDirMap = Launcher.gsonManager.configGson.fromJson(reader, setType);
+                } catch (IOException e) {
+                    LogHelper.error(e);
+                }
+            }
     		updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
     		return;
         }
@@ -1011,14 +1005,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 }
             }
         }
-    	try (JsonWriter w = Launcher.gsonManager.configGson.newJsonWriter(IOHelper.newWriter(updatesCache))) {
-    		w.setLenient(true);
-    		JsonObject o = new JsonObject();
-    		newUpdatesDirMap.entrySet().forEach(e -> {
-    			o.add(e.getKey(), parser.parse(Launcher.gsonManager.configGson.toJson(e.getValue(), HashedDir.class)));
-    		});
-    		Streams.write(o, w);
-    	}
+        try (Writer writer = IOHelper.newWriter(updatesCache)) {
+            LogHelper.info("Write sessions to %s", IOHelper.getFileName(updatesCache));
+            Launcher.gsonManager.configGson.toJson(newUpdatesDirMap, writer);
+        } catch (IOException e) {
+            LogHelper.error(e);
+        }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
     }
 
