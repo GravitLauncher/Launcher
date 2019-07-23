@@ -23,15 +23,21 @@ import pro.gravit.utils.helper.VerifyHelper;
 public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     public enum Version {
+    	MC125("1.2.5", 29),
         MC147("1.4.7", 51),
         MC152("1.5.2", 61),
         MC164("1.6.4", 78),
         MC172("1.7.2", 4),
         MC1710("1.7.10", 5),
         MC189("1.8.9", 47),
+        MC19("1.9", 107),
+        MC192("1.9.2", 109),
         MC194("1.9.4", 110),
         MC1102("1.10.2", 210),
+        MC111("1.11", 315),
         MC1112("1.11.2", 316),
+        MC112("1.12", 335),
+        MC1121("1.12.1", 338),
         MC1122("1.12.2", 340),
         MC113("1.13", 393),
         MC1131("1.13.1", 401),
@@ -39,7 +45,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         MC114("1.14", 477),
         MC1141("1.14.1", 480),
         MC1142("1.14.2", 485),
-        MC1143("1.14.3", 490);
+        MC1143("1.14.3", 490),
+        MC1144("1.14.4", 498);
         private static final Map<String, Version> VERSIONS;
 
         static {
