@@ -9,6 +9,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -19,8 +26,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 
+import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.VerifyHelper;
 
 public class ListDownloader {
     @FunctionalInterface
@@ -43,28 +52,48 @@ public class ListDownloader {
         }
     }
 
+    private static final AtomicInteger COUNTER_THR = new AtomicInteger(0);
+	private static final ThreadFactory FACTORY = r -> CommonHelper.newThread("Downloader Thread #" + COUNTER_THR.incrementAndGet(), true, r);
+
     public void download(String base, List<DownloadTask> applies, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException, URISyntaxException {
         try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
-
-            HttpGet get = null;
             for (DownloadTask apply : applies) {
                 URI u = new URL(base.concat(IOHelper.urlEncode(apply.apply).replace("%2F", "/"))).toURI();
                 callback.stateChanged(apply.apply, 0L, apply.size);
                 Path targetPath = dstDirFile.resolve(apply.apply);
                 LogHelper.debug("Download URL: %s to file %s dir: %s", u.toString(), targetPath.toAbsolutePath().toString(), dstDirFile.toAbsolutePath().toString());
-                if (get == null) get = new HttpGet(u);
-                else {
-                    get.reset();
-                    get.setURI(u);
+                HttpGet get = new HttpGet(u);              
+                List<IOException> excs = new CopyOnWriteArrayList<>();
+                ExecutorService executor = newExecutor();
+                executor.submit(() -> {
+					try {
+						httpclient.execute(get, new FileDownloadResponseHandler(targetPath, apply, callback, totalCallback, false));
+					} catch (IOException e) {
+						excs.add(e);
+					}
+				});
+                executor.shutdown();
+                try {
+					executor.awaitTermination(24, TimeUnit.HOURS);
+				} catch (InterruptedException e) {
+					LogHelper.error(e);
+				}
+                if (!excs.isEmpty()) {
+                	IOException toThrow = excs.remove(0);
+                	excs.forEach(toThrow::addSuppressed);
+                	throw toThrow;
                 }
-                httpclient.execute(get, new FileDownloadResponseHandler(targetPath, apply, callback, totalCallback, false));
             }
         }
     }
 
-    public void downloadZip(String base, List<DownloadTask> applies, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean fullDownload) throws IOException, URISyntaxException {
+    private ExecutorService newExecutor() {
+		return new ThreadPoolExecutor(0, VerifyHelper.verifyInt(Integer.parseInt(System.getProperty("launcher.downloadThreads", "3")), VerifyHelper.POSITIVE, "Thread max count must be positive."), 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), FACTORY);
+	}
+
+	public void downloadZip(String base, List<DownloadTask> applies, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean fullDownload) throws IOException, URISyntaxException {
         /*try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
@@ -182,7 +211,6 @@ public class ListDownloader {
         try (OutputStream fileOutput = IOHelper.newOutput(file)) {
             long downloaded = 0L;
 
-            // Download with digest update
             byte[] bytes = IOHelper.newBuffer();
             while (downloaded < size) {
                 int remaining = (int) Math.min(size - downloaded, bytes.length);
@@ -195,7 +223,6 @@ public class ListDownloader {
 
                 // Update state
                 downloaded += length;
-                //totalDownloaded += length;
                 totalCallback.addTotal(length);
                 callback.stateChanged(filename, downloaded, size);
             }
