@@ -49,8 +49,15 @@ public class ListDownloader {
                 .build()) {
 
             HttpGet get = null;
+            URI baseUri = new URI(base);
+            String scheme = baseUri.getScheme();
+            String host = baseUri.getHost();
+            int port = baseUri.getPort();
+            if (port != -1)
+                host = host + ":" + port;
+            String path = baseUri.getPath();
             for (DownloadTask apply : applies) {
-                URI u = new URL(base.concat(IOHelper.urlEncode(apply.apply).replace("%2F", "/"))).toURI();
+                URI u = new URI(scheme, host, path + apply.apply, "", "");
                 callback.stateChanged(apply.apply, 0L, apply.size);
                 Path targetPath = dstDirFile.resolve(apply.apply);
                 LogHelper.debug("Download URL: %s to file %s dir: %s", u.toString(), targetPath.toAbsolutePath().toString(), dstDirFile.toAbsolutePath().toString());

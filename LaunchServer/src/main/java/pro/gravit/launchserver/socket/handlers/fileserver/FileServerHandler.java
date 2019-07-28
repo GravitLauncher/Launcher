@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -77,7 +79,15 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         }
 
         final String uri = request.uri();
-        final String path = sanitizeUri(uri);
+        final String path;
+
+        try {
+            path = Paths.get(new URI(uri).getPath()).normalize().toString().substring(1);
+        } catch (URISyntaxException e) {
+            sendError(ctx, BAD_REQUEST);
+            return;
+        }
+
         if (path == null) {
             sendError(ctx, FORBIDDEN);
             return;
@@ -170,26 +180,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         if (ctx.channel().isActive()) {
             sendError(ctx, INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private static final Pattern INSECURE_URI = Pattern.compile(".*[<>&\"].*");
-
-    private static String sanitizeUri(String uri) {
-        // Decode the path.
-        try {
-            uri = URLDecoder.decode(uri, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new Error(e);
-        }
-
-        if (uri.isEmpty() || uri.charAt(0) != '/') {
-            return null;
-        }
-
-        // Convert file separators.
-        uri = uri.replace(File.separatorChar, '/');
-
-        return Paths.get(uri).normalize().toString().substring(1);
     }
 
     private static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[^-\\._]?[^<>&\\\"]*");
