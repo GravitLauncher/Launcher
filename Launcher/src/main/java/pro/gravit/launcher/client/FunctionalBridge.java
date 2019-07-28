@@ -6,7 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import pro.gravit.launcher.HWID;
+import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.guard.LauncherGuardManager;
@@ -17,7 +17,6 @@ import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.managers.HasherManager;
 import pro.gravit.launcher.managers.HasherStore;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
 import pro.gravit.utils.helper.LogHelper;
 
 public class FunctionalBridge {
@@ -33,12 +32,12 @@ public class FunctionalBridge {
     private static long cachedMemorySize = -1;
 
     @LauncherAPI
-    public static HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, SignedObjectHolder<HashedDir> hdir, FileNameMatcher matcher, boolean digest) {
+    public static HashedDirRunnable offlineUpdateRequest(String dirName, Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) {
         return () -> {
             if (hdir == null) {
                 Request.requestError(java.lang.String.format("Директории '%s' нет в кэше", dirName));
             }
-            ClientLauncher.verifyHDir(dir, hdir.object, matcher, digest);
+            ClientLauncher.verifyHDir(dir, hdir, matcher, digest);
             return hdir;
         };
     }
@@ -100,7 +99,7 @@ public class FunctionalBridge {
 
     @FunctionalInterface
     public interface HashedDirRunnable {
-        SignedObjectHolder<HashedDir> run() throws Exception;
+        HashedDir run() throws Exception;
     }
 
     @LauncherAPI

@@ -3,12 +3,12 @@ package pro.gravit.launcher.console.admin;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.LogEvent;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.websockets.RequestInterface;
+import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 
 public class LogListenerCommand extends Command {
-    public class LogListenerRequest implements RequestInterface {
+    public class LogListenerRequest implements WebSocketRequest {
         @LauncherNetworkAPI
         public LogHelper.OutputTypes outputType;
 

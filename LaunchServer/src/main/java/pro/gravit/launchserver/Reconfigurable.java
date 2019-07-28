@@ -1,7 +1,9 @@
 package pro.gravit.launchserver;
 
-public interface Reconfigurable {
-    void reconfig(String action, String[] args);
+import pro.gravit.utils.command.Command;
 
-    void printConfigHelp();
+import java.util.Map;
+
+public interface Reconfigurable {
+    Map<String, Command> getCommands();
 }

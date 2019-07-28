@@ -5,10 +5,8 @@ import java.util.UUID;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;
-import pro.gravit.utils.event.EventInterface;
 
-public class BatchProfileByUsernameRequestEvent extends RequestEvent implements EventInterface {
-    private static final UUID uuid = UUID.fromString("c1d6729e-be2c-48cc-b5ae-af8c012232c3");
+public class BatchProfileByUsernameRequestEvent extends RequestEvent {
     @LauncherNetworkAPI
     public String error;
     @LauncherNetworkAPI
@@ -19,11 +17,6 @@ public class BatchProfileByUsernameRequestEvent extends RequestEvent implements 
     }
 
     public BatchProfileByUsernameRequestEvent() {
-    }
-
-    @Override
-    public UUID getUUID() {
-        return uuid;
     }
 
     @Override

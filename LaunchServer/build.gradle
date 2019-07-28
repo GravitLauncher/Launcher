@@ -42,7 +42,7 @@ jar {
 
 dependencies {
     pack project(':LauncherAPI')
-    bundle project(':Radon')
+    bundle 'org.ow2.asm:asm-commons:7.1'
     bundle 'mysql:mysql-connector-java:8.0.16'
     bundle 'org.jline:jline:3.11.0'
     bundle 'org.jline:jline-reader:3.11.0'
@@ -54,6 +54,7 @@ dependencies {
     bundle 'org.javassist:javassist:3.25.0-GA'
     bundle 'io.netty:netty-all:4.1.36.Final'
     bundle 'org.hibernate:hibernate-core:5.4.3.Final'
+    bundle 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
     bundle 'org.slf4j:slf4j-simple:1.7.25'
     bundle 'org.slf4j:slf4j-api:1.7.25'

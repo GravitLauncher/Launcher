@@ -41,8 +41,6 @@ var HInput = HInputClass.static;
 var HOutput = HOutputClass.static;
 var StreamObject = StreamObjectClass.static;
 var StreamObjectAdapter = StreamObjectAdapterClass.static;
-var SignedBytesHolder = SignedBytesHolderClass.static;
-var SignedObjectHolder = SignedObjectHolderClass.static;
 var EnumSerializer = EnumSerializerClass.static;
 var OptionalFile = OptionalFileClass.static;
 
@@ -58,6 +56,9 @@ var DigestAlgorithm = DigestAlgorithmClass.static;
 var VerifyHelper = VerifyHelperClass.static;
 var NewLauncherSettings = NewLauncherSettingsClass.static;
 var SettingsManager = SettingsManagerClass.static;
+
+var NoHWID = NoHWIDClass.static;
+var OshiHWID = OshiHWIDClass.static;
 
 // Helper JS class API imports
 var JSApplication = null;

@@ -10,6 +10,7 @@ import pro.gravit.launcher.client.LauncherUpdateController;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
+import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.request.Request;
@@ -34,6 +35,7 @@ public class LauncherEngine {
         // Start Launcher
         initGson();
         ConsoleManager.initConsole();
+        HWIDProvider.registerHWIDs();
         LauncherConfig config = Launcher.getConfig();
         if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {
             if (!LauncherAgent.isStarted()) throw new SecurityException("LauncherAgent must started");

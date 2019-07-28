@@ -5,9 +5,9 @@ import java.util.UUID;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;
-import pro.gravit.utils.event.EventInterface;
 
-public class CheckServerRequestEvent extends RequestEvent implements EventInterface {
+
+public class CheckServerRequestEvent extends RequestEvent {
     private static final UUID _uuid = UUID.fromString("8801d07c-51ba-4059-b61d-fe1f1510b28a");
     @LauncherNetworkAPI
     public UUID uuid;
@@ -19,11 +19,6 @@ public class CheckServerRequestEvent extends RequestEvent implements EventInterf
     }
 
     public CheckServerRequestEvent() {
-    }
-
-    @Override
-    public UUID getUUID() {
-        return _uuid;
     }
 
     @Override

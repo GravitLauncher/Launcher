@@ -5,14 +5,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import pro.gravit.launcher.events.RequestEvent;
-import pro.gravit.launcher.request.ResultInterface;
+import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.utils.helper.LogHelper;
 
 public class WaitEventHandler implements ClientWebSocketService.EventHandler {
     public Set<ResultEvent> requests = ConcurrentHashMap.newKeySet();
 
     @Override
-    public void process(ResultInterface result) {
+    public void process(WebSocketEvent result) {
         LogHelper.debug("Processing event %s type", result.getType());
         UUID checkUUID = null;
         if (result instanceof RequestEvent) {
@@ -36,7 +36,7 @@ public class WaitEventHandler implements ClientWebSocketService.EventHandler {
     }
 
     public static class ResultEvent {
-        public ResultInterface result;
+        public WebSocketEvent result;
         public UUID uuid;
         public String type;
         public boolean ready;

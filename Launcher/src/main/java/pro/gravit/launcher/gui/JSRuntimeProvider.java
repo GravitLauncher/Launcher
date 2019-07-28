@@ -25,6 +25,8 @@ import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedFile;
+import pro.gravit.launcher.hwid.NoHWID;
+import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launcher.managers.SettingsManager;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
@@ -47,8 +49,6 @@ import pro.gravit.launcher.request.uuid.ProfileByUUIDRequest;
 import pro.gravit.launcher.request.uuid.ProfileByUsernameRequest;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.launcher.serialize.signed.SignedBytesHolder;
-import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
 import pro.gravit.launcher.serialize.stream.EnumSerializer;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.utils.HTTPRequest;
@@ -110,8 +110,6 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("HOutputClass", HOutput.class);
         bindings.put("StreamObjectClass", StreamObject.class);
         bindings.put("StreamObjectAdapterClass", StreamObject.Adapter.class);
-        bindings.put("SignedBytesHolderClass", SignedBytesHolder.class);
-        bindings.put("SignedObjectHolderClass", SignedObjectHolder.class);
         bindings.put("EnumSerializerClass", EnumSerializer.class);
         bindings.put("OptionalFileClass", OptionalFile.class);
         bindings.put("UserSettingsClass", UserSettings.class);
@@ -129,6 +127,9 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("VerifyHelperClass", VerifyHelper.class);
         bindings.put("DirBridgeClass", DirBridge.class);
         bindings.put("FunctionalBridgeClass", FunctionalBridge.class);
+
+        bindings.put("NoHWIDClass", NoHWID.class);
+        bindings.put("OshiHWIDClass", OshiHWID.class);
 
         // Load JS API if available
         try {

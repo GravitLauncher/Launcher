@@ -23,7 +23,7 @@ public class ServerWrapperSetup {
         System.out.println("Print jar filename:");
         String jarName = commands.commandHandler.readLine();
         Path jarPath = Paths.get(jarName);
-        String mainClassName = null;
+        String mainClassName;
         try (JarFile file = new JarFile(jarPath.toFile())) {
             URL jarURL = jarPath.toUri().toURL();
             urlClassLoader = new PublicURLClassLoader(new URL[]{jarURL});
@@ -41,10 +41,10 @@ public class ServerWrapperSetup {
             }
         }
         LogHelper.info("Found MainClass %s", mainClassName);
-        System.out.println("Print launchserver websocket host:");
+        System.out.println("Print launchserver websocket host( ws://host:port/api ):");
         String address = commands.commandHandler.readLine();
         wrapper.config.mainclass = mainClassName;
-        wrapper.config.websocket.address = address;
+        wrapper.config.address = address;
         if (!Files.exists(ServerWrapper.publicKeyFile)) {
             LogHelper.error("public.key not found");
             for (int i = 0; i < 10; ++i) {

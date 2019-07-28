@@ -33,7 +33,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
 
     @Override
     public void postDiff(UpdateRequest request, UpdateRequestEvent e, HashedDir.Diff diff) throws IOException {
-        if (e.zip) return;
+        if (e.zip && e.fullDownload) return;
         if (SettingsManager.settings.featureStore) {
             LogHelper.info("Enabled HStore feature. Find");
             AtomicReference<NewLauncherSettings.HashedStoreEntry> lastEn = new AtomicReference<>(null);

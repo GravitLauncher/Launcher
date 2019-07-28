@@ -7,15 +7,15 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.reflect.InvocationTargetException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -35,15 +35,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
 import io.netty.handler.logging.LogLevel;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
+import org.bouncycastle.operator.OperatorCreationException;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.NeedGarbageCollection;
-import pro.gravit.launcher.config.JsonConfigurable;
 import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.handler.MemoryAuthHandler;
@@ -58,27 +61,17 @@ import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.provider.RejectAuthProvider;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
-import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
-import pro.gravit.launchserver.binary.EXELauncherBinary;
-import pro.gravit.launchserver.binary.JARLauncherBinary;
-import pro.gravit.launchserver.binary.LauncherBinary;
-import pro.gravit.launchserver.binary.ProguardConf;
+import pro.gravit.launchserver.binary.*;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
+import pro.gravit.launchserver.components.RegLimiterComponent;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
-import pro.gravit.launchserver.dao.UserService;
-import pro.gravit.launchserver.legacy.Response;
-import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
-import pro.gravit.launchserver.manangers.MirrorManager;
-import pro.gravit.launchserver.manangers.ModulesManager;
-import pro.gravit.launchserver.manangers.ReconfigurableManager;
-import pro.gravit.launchserver.manangers.ReloadManager;
-import pro.gravit.launchserver.manangers.SessionManager;
+import pro.gravit.launchserver.dao.provider.DaoProvider;
+import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
-import pro.gravit.launchserver.manangers.hook.SocketHookManager;
-import pro.gravit.launchserver.socket.ServerSocketHandler;
-import pro.gravit.launchserver.websocket.NettyServerSocketHandler;
+import pro.gravit.launchserver.socket.WebSocketService;
+import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
@@ -88,7 +81,6 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.VerifyHelper;
 
 public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     @Override
@@ -105,11 +97,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public static final class Config {
     	private transient LaunchServer server = null;
-        public int legacyPort;
-
-        private String legacyAddress;
-
-        private String legacyBindAddress;
 
         public String projectName;
 
@@ -124,6 +111,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         // Handlers & Providers
 
         public AuthProviderPair[] auth;
+
+        public DaoProvider dao;
 
         private transient AuthProviderPair authDefault;
 
@@ -153,11 +142,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public Map<String, Component> components;
 
-        // Misc options
-        public int threadCount;
-
-        public int threadCoreCount;
-
         public ExeConf launch4j;
         public NettyConfig netty;
         public GuardLicenseConf guardLicense;
@@ -169,20 +153,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public boolean isWarningMissArchJava;
         public boolean enabledProGuard;
-        public boolean enabledRadon;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
 
         public String startScript;
-
-        public String getLegacyAddress() {
-            return legacyAddress;
-        }
-
-
-        public String getLegacyBindAddress() {
-            return legacyBindAddress;
-        }
 
         public void setProjectName(String projectName) {
             this.projectName = projectName;
@@ -197,18 +171,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
 
 
-        public SocketAddress getSocketAddress() {
-            return new InetSocketAddress(legacyBindAddress, legacyPort);
-        }
-
-
-        public void setLegacyAddress(String legacyAddress) {
-            this.legacyAddress = legacyAddress;
-        }
-
-
         public void verify() {
-            VerifyHelper.verify(getLegacyAddress(), VerifyHelper.NOT_EMPTY, "LaunchServer address can't be empty");
             if (auth == null || auth[0] == null) {
                 throw new NullPointerException("AuthHandler must not be null");
             }
@@ -243,10 +206,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             }
             permissionsHandler.init(server);
             hwidHandler.init();
+            dao.init(server);
             if (protectHandler != null) {
                 protectHandler.checkLaunchServerLicense();
             }
             server.registerObject("permissionsHandler", permissionsHandler);
+            server.registerObject("daoProvider", dao);
             for (AuthProviderPair pair : auth) {
                 server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
@@ -287,6 +252,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public static class ExeConf {
         public boolean enabled;
+        public String alternative;
         public boolean setMaxVersion;
         public String maxVersion;
         public String productName;
@@ -309,6 +275,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public class LauncherConf {
         public String guardType;
         public boolean attachLibraryBeforeProGuard;
+        public boolean compress;
     }
 
     public class NettyConfig {
@@ -327,6 +294,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     public class NettyPerformanceConfig {
+        public boolean usingEpoll;
         public int bossThread;
         public int workerThread;
     }
@@ -427,6 +395,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final Path privateKeyFile;
 
+    public final Path caCertFile;
+
+    public final Path caKeyFile;
+
+    public final Path serverCertFile;
+
+    public final Path serverKeyFile;
+
     public final Path updatesDir;
 
     //public static LaunchServer server = null;
@@ -452,14 +428,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final SessionManager sessionManager;
 
-    public final SocketHookManager socketHookManager;
-
     public final AuthHookManager authHookManager;
     // Server
 
     public final ModulesManager modulesManager;
-
-    public final UserService userService;
 
     public final MirrorManager mirrorManager;
 
@@ -469,6 +441,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final ConfigManager configManager;
 
+    public final CertificateManager certificateManager;
+
 
     public final BuildHookManager buildHookManager;
 
@@ -477,15 +451,13 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final CommandHandler commandHandler;
 
-    public final ServerSocketHandler serverSocketHandler;
-
     public final NettyServerSocketHandler nettyServerSocketHandler;
 
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     // Updates and profiles
     private volatile List<ClientProfile> profilesList;
-    public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
+    public volatile Map<String, HashedDir> updatesDirMap;
 
     public final Timer taskPool;
 
@@ -498,12 +470,32 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         launcherLibraries = dir.resolve("launcher-libraries");
         launcherLibrariesCompile = dir.resolve("launcher-libraries-compile");
         this.args = Arrays.asList(args);
-        configFile = dir.resolve("LaunchServer.conf");
-        runtimeConfigFile = dir.resolve("RuntimeLaunchServer.conf");
+        if(IOHelper.exists(dir.resolve("LaunchServer.conf")))
+        {
+            configFile = dir.resolve("LaunchServer.conf");
+        }
+        else
+        {
+            configFile = dir.resolve("LaunchServer.json");
+        }
+        if(IOHelper.exists(dir.resolve("RuntimeLaunchServer.conf")))
+        {
+            runtimeConfigFile = dir.resolve("RuntimeLaunchServer.conf");
+        }
+        else
+        {
+            runtimeConfigFile = dir.resolve("RuntimeLaunchServer.json");
+        }
         publicKeyFile = dir.resolve("public.key");
         privateKeyFile = dir.resolve("private.key");
         updatesDir = dir.resolve("updates");
         profilesDir = dir.resolve("profiles");
+
+        caCertFile = dir.resolve("ca.crt");
+        caKeyFile = dir.resolve("ca.key");
+
+        serverCertFile = dir.resolve("server.crt");
+        serverKeyFile = dir.resolve("server.key");
 
         //Registration handlers and providers
         AuthHandler.registerHandlers();
@@ -511,9 +503,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         TextureProvider.registerProviders();
         HWIDHandler.registerHandlers();
         PermissionsHandler.registerHandlers();
-        Response.registerResponses();
         Component.registerComponents();
         ProtectHandler.registerHandlers();
+        WebSocketService.registerResponses();
+        HWIDProvider.registerHWIDs();
+        DaoProvider.registerProviders();
         //LaunchServer.server = this;
 
         // Set command handler
@@ -531,7 +525,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 localCommandHandler = new StdCommandHandler(true);
                 LogHelper.warning("JLine2 isn't in classpath, using std");
             }
-        pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler, this);
         commandHandler = localCommandHandler;
 
         // Set key pair
@@ -592,6 +585,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
         config.permissionsHandler.init(this);
         config.hwidHandler.init();
+        if(config.dao != null)
+            config.dao.init(this);
         if (config.protectHandler != null) {
             config.protectHandler.checkLaunchServerLicense();
         }
@@ -611,10 +606,44 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         mirrorManager = new MirrorManager();
         reloadManager = new ReloadManager();
         reconfigurableManager = new ReconfigurableManager();
-        socketHookManager = new SocketHookManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
-        userService = new UserService(this);
+        certificateManager = new CertificateManager();
+        //Generate or set new Certificate API
+        certificateManager.orgName = config.projectName;
+        if(IOHelper.isFile(caCertFile) && IOHelper.isFile(caKeyFile))
+        {
+            certificateManager.ca = certificateManager.readCertificate(caCertFile);
+            certificateManager.caKey = certificateManager.readPrivateKey(caKeyFile);
+        }
+        else
+        {
+            try {
+                certificateManager.generateCA();
+                certificateManager.writeCertificate(caCertFile, certificateManager.ca);
+                certificateManager.writePrivateKey(caKeyFile, certificateManager.caKey);
+            } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException | OperatorCreationException e) {
+                LogHelper.error(e);
+            }
+        }
+        if(IOHelper.isFile(serverCertFile) && IOHelper.isFile(serverKeyFile))
+        {
+            certificateManager.server = certificateManager.readCertificate(serverCertFile);
+            certificateManager.serverKey = certificateManager.readPrivateKey(serverKeyFile);
+        }
+        else
+        {
+            try {
+                KeyPair pair = certificateManager.generateKeyPair();
+                certificateManager.server = certificateManager.generateCertificate(config.projectName.concat(" Server"), pair.getPublic());
+                certificateManager.serverKey = PrivateKeyFactory.createKey(pair.getPrivate().getEncoded());
+                certificateManager.writePrivateKey(serverKeyFile, pair.getPrivate());
+                certificateManager.writeCertificate(serverCertFile, certificateManager.server);
+            } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | OperatorCreationException e) {
+                LogHelper.error(e);
+            }
+        }
+
         GarbageManager.registerNeedGC(sessionManager);
         reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);
@@ -626,6 +655,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
 
         Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
+
+        pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler, this);
 
         // init modules
         modulesManager.initModules();
@@ -656,10 +687,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         if (!IOHelper.isDir(profilesDir))
             Files.createDirectory(profilesDir);
         syncProfilesDir();
-
-
-        // Set server socket thread
-        serverSocketHandler = new ServerSocketHandler(this, sessionManager);
 
         // post init modules
         modulesManager.postInitModules();
@@ -692,6 +719,19 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 LogHelper.error(e);
             }
         }
+        if(config.launch4j.alternative != null)
+        {
+            switch (config.launch4j.alternative) {
+                case "simple":
+                    return new SimpleEXELauncherBinary(this);
+                case "no":
+                    //None
+                    break;
+                default:
+                    LogHelper.warning("Alternative %s not found", config.launch4j.alternative);
+                    break;
+            }
+        }
         try {
             Class.forName("net.sf.launch4j.Builder");
             if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
@@ -708,7 +748,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     public void close() {
-        serverSocketHandler.close();
 
         // Close handlers & providers
         config.close();
@@ -734,10 +773,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         // Create new config
         LogHelper.info("Creating LaunchServer config");
         Config newConfig = new Config();
-        newConfig.mirrors = new String[]{"http://mirror.gravitlauncher.ml/", "https://mirror.gravit.pro/"};
+        newConfig.mirrors = new String[]{"https://mirror.gravit.pro/"};
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.enabled = true;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
+        newConfig.launch4j.alternative = "no";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
         newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
         newConfig.launch4j.internalName = "Launcher";
@@ -758,8 +798,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.protectHandler = new StdProtectHandler();
         if (testEnv) newConfig.permissionsHandler = new DefaultPermissionsHandler();
         else newConfig.permissionsHandler = new JsonFilePermissionsHandler();
-        newConfig.legacyPort = 7240;
-        newConfig.legacyBindAddress = "0.0.0.0";
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
@@ -767,16 +805,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.netty.fileServerEnabled = true;
         newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
         newConfig.netty.performance = new NettyPerformanceConfig();
+        newConfig.netty.performance.usingEpoll = JVMHelper.OS_TYPE == JVMHelper.OS.LINUX; //Only linux
         newConfig.netty.performance.bossThread = 2;
         newConfig.netty.performance.workerThread = 8;
 
         newConfig.launcher = new LauncherConf();
         newConfig.launcher.guardType = "no";
+        newConfig.launcher.compress = true;
 
-        newConfig.threadCoreCount = 0; // on your own
-        newConfig.threadCount = JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() >= 4 ? JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors() / 2 : JVMHelper.OPERATING_SYSTEM_MXBEAN.getAvailableProcessors();
-
-        newConfig.enabledRadon = true;
         newConfig.genMappings = true;
         newConfig.enabledProGuard = true;
         newConfig.stripLineNumbers = true;
@@ -789,6 +825,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         authLimiterComponent.rateLimitMilis = 8000;
         authLimiterComponent.message = "Превышен лимит авторизаций";
         newConfig.components.put("authLimiter", authLimiterComponent);
+        RegLimiterComponent regLimiterComponent = new RegLimiterComponent();
+        regLimiterComponent.rateLimit = 3;
+        regLimiterComponent.rateLimitMilis = 1000 * 60 * 60 * 10; //Блок на 10 часов
+        regLimiterComponent.message = "Превышен лимит регистраций";
+        newConfig.components.put("regLimiter", regLimiterComponent);
 
         // Set server address
         String address;
@@ -810,7 +851,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             newConfig.projectName = "MineCraft";
         }
 
-        newConfig.legacyAddress = address;
         newConfig.netty.address = "ws://" + address + ":9274/api";
         newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
         newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
@@ -832,19 +872,13 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         this.profilesList = Collections.unmodifiableList(profilesList);
     }
 
-    public SignedObjectHolder<HashedDir> getUpdateDir(String name) {
+    public HashedDir getUpdateDir(String name) {
         return updatesDirMap.get(name);
     }
 
 
-    public Set<Entry<String, SignedObjectHolder<HashedDir>>> getUpdateDirs() {
+    public Set<Entry<String, HashedDir>> getUpdateDirs() {
         return updatesDirMap.entrySet();
-    }
-
-
-    public void rebindServerSocket() {
-        serverSocketHandler.close();
-        CommonHelper.newThread("Server Socket Thread", false, serverSocketHandler).start();
     }
 
     public void rebindNettyServerSocket() {
@@ -862,7 +896,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             JVMHelper.RUNTIME.addShutdownHook(CommonHelper.newThread(null, false, this::close));
             CommonHelper.newThread("Command Thread", true, commandHandler).start();
         }
-        rebindServerSocket();
         if (config.netty != null)
             rebindNettyServerSocket();
         modulesManager.finishModules();
@@ -897,7 +930,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
         LogHelper.info("Syncing updates dir");
-        Map<String, SignedObjectHolder<HashedDir>> newUpdatesDirMap = new HashMap<>(16);
+        Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(updatesDir)) {
             for (final Path updateDir : dirStream) {
                 if (Files.isHidden(updateDir))
@@ -913,7 +946,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
                 // Add from previous map (it's guaranteed to be non-null)
                 if (dirs != null && !dirs.contains(name)) {
-                    SignedObjectHolder<HashedDir> hdir = updatesDirMap.get(name);
+                    HashedDir hdir = updatesDirMap.get(name);
                     if (hdir != null) {
                         newUpdatesDirMap.put(name, hdir);
                         continue;
@@ -923,7 +956,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 // Sync and sign update dir
                 LogHelper.info("Syncing '%s' update dir", name);
                 HashedDir updateHDir = new HashedDir(updateDir, null, true, true);
-                newUpdatesDirMap.put(name, new SignedObjectHolder<>(updateHDir, privateKey));
+                newUpdatesDirMap.put(name, updateHDir);
             }
         }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
@@ -954,9 +987,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         if (object instanceof NeedGarbageCollection) {
             GarbageManager.registerNeedGC((NeedGarbageCollection) object);
         }
-        if (object instanceof JsonConfigurable) {
-
-        }
     }
 
     public void unregisterObject(String name, Object object) {
@@ -968,9 +998,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
         if (object instanceof NeedGarbageCollection) {
             GarbageManager.unregisterNeedGC((NeedGarbageCollection) object);
-        }
-        if (object instanceof JsonConfigurable) {
-
         }
     }
 

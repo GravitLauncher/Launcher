@@ -7,9 +7,9 @@ import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.websockets.RequestInterface;
+import pro.gravit.launcher.request.websockets.WebSocketRequest;
 
-public final class ProfileByUUIDRequest extends Request<ProfileByUUIDRequestEvent> implements RequestInterface {
+public final class ProfileByUUIDRequest extends Request<ProfileByUUIDRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
     private final UUID uuid;
 

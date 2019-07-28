@@ -41,11 +41,13 @@ public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeseriali
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public JsonElement serialize(R src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject jo = context.serialize(src).getAsJsonObject();
-
-        @SuppressWarnings("unchecked")
         String classPath = providerMap.getName((Class<? extends R>) src.getClass());
+        if (classPath == null && src instanceof TypeSerializeInterface) {
+            classPath = ((TypeSerializeInterface) src).getType();
+        }
         jo.add(PROP_NAME, new JsonPrimitive(classPath));
 
         return jo;

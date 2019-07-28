@@ -55,7 +55,7 @@ public final class LauncherAgent {
                 if (trimmedArg.contains("r")) rt = false;
             }
         }
-        if (System.getProperty("java.vm.name").toUpperCase(Locale.US).indexOf("HOTSPOT") != -1)
+        if (System.getProperty("java.vm.name").toUpperCase(Locale.US).contains("HOTSPOT"))
         	try {
         		if (ManagementFactory.getOperatingSystemMXBean().getName().startsWith("Windows")) replaceClasses(pb, rt);
         		else replaceClasses(false, false);
@@ -170,7 +170,7 @@ public final class LauncherAgent {
     private static byte[] getClassFile(Class<?> clazz) throws IOException {
         try (InputStream is = clazz.getResourceAsStream("/" + clazz.getName().replace('.', '/') + ".class");
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            int r = 0;
+            int r;
             byte[] buffer = new byte[8192];
             while ((r = is.read(buffer)) >= 0) {
                 baos.write(buffer, 0, r);

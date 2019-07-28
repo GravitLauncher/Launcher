@@ -2,7 +2,7 @@ package pro.gravit.launchserver.command.auth;
 
 import java.util.List;
 
-import pro.gravit.launcher.HWID;
+import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 

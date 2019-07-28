@@ -14,6 +14,7 @@ import java.util.Set;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.profiles.optional.OptionalDepend;
 import pro.gravit.launcher.profiles.optional.OptionalFile;
 import pro.gravit.launcher.profiles.optional.OptionalType;
 import pro.gravit.utils.helper.IOHelper;
@@ -22,20 +23,30 @@ import pro.gravit.utils.helper.VerifyHelper;
 public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     public enum Version {
+    	MC125("1.2.5", 29),
         MC147("1.4.7", 51),
         MC152("1.5.2", 61),
         MC164("1.6.4", 78),
         MC172("1.7.2", 4),
         MC1710("1.7.10", 5),
         MC189("1.8.9", 47),
+        MC19("1.9", 107),
+        MC192("1.9.2", 109),
         MC194("1.9.4", 110),
         MC1102("1.10.2", 210),
+        MC111("1.11", 315),
         MC1112("1.11.2", 316),
+        MC112("1.12", 335),
+        MC1121("1.12.1", 338),
         MC1122("1.12.2", 340),
         MC113("1.13", 393),
         MC1131("1.13.1", 401),
         MC1132("1.13.2", 402),
-        MC114("1.14", 477);
+        MC114("1.14", 477),
+        MC1141("1.14.1", 480),
+        MC1142("1.14.2", 485),
+        MC1143("1.14.3", 490),
+        MC1144("1.14.4", 498);
         private static final Map<String, Version> VERSIONS;
 
         static {
@@ -399,6 +410,16 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
         // Client launcher
         VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Main class can't be empty");
+        for (String s : update) {
+            if (s == null) throw new IllegalArgumentException("Found null entry in update");
+        }
+        for (String s : updateVerify) {
+            if (s == null) throw new IllegalArgumentException("Found null entry in updateVerify");
+        }
+        for (String s : updateExclusions) {
+            if (s == null) throw new IllegalArgumentException("Found null entry in updateExclusions");
+        }
+
         for (String s : classPath) {
             if (s == null) throw new IllegalArgumentException("Found null entry in classPath");
         }
@@ -412,6 +433,15 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             if (f == null) throw new IllegalArgumentException("Found null entry in updateOptional");
             if (f.name == null) throw new IllegalArgumentException("Optional: name must not be null");
             if (f.list == null) throw new IllegalArgumentException("Optional: list must not be null");
+            for (String s : f.list) {
+                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.list", f.name));
+            }
+            if(f.conflictFile != null) for (OptionalDepend s : f.conflictFile) {
+                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.conflictFile", f.name));
+            }
+            if(f.dependenciesFile != null)  for (OptionalDepend s : f.dependenciesFile) {
+                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.dependenciesFile", f.name));
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.dao;
 
-import pro.gravit.launcher.OshiHWID;
+import pro.gravit.launcher.hwid.OshiHWID;
 
 import java.util.List;
 import java.util.UUID;

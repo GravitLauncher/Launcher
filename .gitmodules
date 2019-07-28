@@ -1,6 +1,3 @@
 [submodule "modules"]
 	path = modules
 	url = git@github.com:GravitLauncher/LauncherModules.git
-[submodule "Radon"]
-	path = Radon
-	url = git@github.com:GravitLauncher/Radon.git

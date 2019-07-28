@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.auth.protect;
 
-import pro.gravit.launchserver.websocket.json.auth.AuthResponse;
+import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.ProviderMap;
 
 public abstract class ProtectHandler {

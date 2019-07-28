@@ -1,5 +1,5 @@
 # Modification of the launcher sashok724's v3 from Gravit [![Build Status](https://travis-ci.com/GravitLauncher/Launcher.svg?branch=master)](https://travis-ci.com/GravitLauncher/Launcher)
-* Discord channel: https://discord.gg/aJK6nMN
+* [Discord channel](https://discord.gg/XTAZevy)
 * [See license](LICENSE)
 * [See code of conduct](CODE_OF_CONDUCT.md)
 * [WIKI](https://yii2.gravit.pro)
