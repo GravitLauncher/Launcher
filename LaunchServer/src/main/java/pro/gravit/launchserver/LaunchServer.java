@@ -147,14 +147,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public GuardLicenseConf guardLicense;
 
         public String whitelistRejectString;
-
-        public boolean genMappings;
         public LauncherConf launcher;
-
-        public boolean isWarningMissArchJava;
-        public boolean enabledProGuard;
-        public boolean stripLineNumbers;
-        public boolean deleteTempFiles;
 
         public String startScript;
 
@@ -276,6 +269,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String guardType;
         public boolean attachLibraryBeforeProGuard;
         public boolean compress;
+        public boolean warningMissArchJava;
+        public boolean enabledProGuard;
+        public boolean stripLineNumbers;
+        public boolean deleteTempFiles;
+        public boolean proguardGenMappings;
     }
 
     public class NettyConfig {
@@ -802,12 +800,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.launcher = new LauncherConf();
         newConfig.launcher.guardType = "no";
         newConfig.launcher.compress = true;
-
-        newConfig.genMappings = true;
-        newConfig.enabledProGuard = true;
-        newConfig.stripLineNumbers = true;
-        newConfig.deleteTempFiles = true;
-        newConfig.isWarningMissArchJava = true;
+        newConfig.launcher.warningMissArchJava = true;
+        newConfig.launcher.attachLibraryBeforeProGuard = false;
+        newConfig.launcher.deleteTempFiles = true;
+        newConfig.launcher.enabledProGuard = true;
+        newConfig.launcher.stripLineNumbers = true;
+        newConfig.launcher.proguardGenMappings = true;
 
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();

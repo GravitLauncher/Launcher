@@ -135,7 +135,7 @@ public class MainBuildTask implements LauncherBuildTask {
             jaConfigurator.setSecretKey(SecurityHelper.randomStringAESKey());
             jaConfigurator.setClientPort(32148 + SecurityHelper.newRandom().nextInt(512));
             jaConfigurator.setGuardType(server.config.launcher.guardType);
-            jaConfigurator.setWarningMissArchJava(server.config.isWarningMissArchJava);
+            jaConfigurator.setWarningMissArchJava(server.config.launcher.warningMissArchJava);
             jaConfigurator.setEnv(server.config.env);
             if (server.runtime.oemUnlockKey == null) server.runtime.oemUnlockKey = SecurityHelper.randomStringToken();
             jaConfigurator.setOemUnlockKey(server.runtime.oemUnlockKey);

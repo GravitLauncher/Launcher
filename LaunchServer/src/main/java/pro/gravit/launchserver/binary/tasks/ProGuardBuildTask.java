@@ -26,7 +26,7 @@ public class ProGuardBuildTask implements LauncherBuildTask {
     @Override
     public Path process(Path inputFile) throws IOException {
         Path outputJar = server.launcherBinary.nextLowerPath(this);
-        if (server.config.enabledProGuard) {
+        if (server.config.launcher.enabledProGuard) {
             Configuration proguard_cfg = new Configuration();
             ConfigurationParser parser = new ConfigurationParser(server.proguardConf.buildConfig(inputFile, outputJar),
                     server.proguardConf.proguard.toFile(), System.getProperties());

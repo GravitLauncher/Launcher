@@ -64,12 +64,12 @@ public final class JARLauncherBinary extends LauncherBinary {
             long time_task_end = System.currentTimeMillis();
             long time_task = time_task_end - time_this;
             time_this = time_task_end;
-            if (isNeedDelete && server.config.deleteTempFiles) Files.deleteIfExists(oldPath);
+            if (isNeedDelete && server.config.launcher.deleteTempFiles) Files.deleteIfExists(oldPath);
             isNeedDelete = task.allowDelete();
             LogHelper.subInfo("Task %s processed from %d millis", task.getName(), time_task);
         }
         long time_end = System.currentTimeMillis();
-        if (isNeedDelete && server.config.deleteTempFiles) IOHelper.move(thisPath, syncBinaryFile);
+        if (isNeedDelete && server.config.launcher.deleteTempFiles) IOHelper.move(thisPath, syncBinaryFile);
         else IOHelper.copy(thisPath, syncBinaryFile);
         LogHelper.info("Build successful from %d millis", time_end - time_start);
     }
