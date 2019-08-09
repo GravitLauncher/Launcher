@@ -2,8 +2,6 @@ package pro.gravit.launchserver.socket;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.Random;
-import java.util.UUID;
 
 import com.google.gson.Gson;
 
@@ -15,18 +13,13 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.RequestEvent;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.WebSocketEvent;
-import pro.gravit.launcher.request.admin.ProxyRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.admin.AddLogListenerResponse;
 import pro.gravit.launchserver.socket.response.admin.ExecCommandResponse;
-import pro.gravit.launchserver.socket.response.admin.ProxyCommandResponse;
 import pro.gravit.launchserver.socket.response.auth.*;
 import pro.gravit.launchserver.socket.response.profile.BatchProfileByUsername;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
@@ -61,58 +54,6 @@ public class WebSocketService {
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
         String request = frame.text();
         WebSocketServerResponse response = gson.fromJson(request, WebSocketServerResponse.class);
-        if (server.config.netty.proxy.enabled) {
-            if (server.config.netty.proxy.requests.contains(response.getType())) {
-
-                UUID origRequestUUID = null;
-                if (response instanceof SimpleResponse) {
-                    SimpleResponse simpleResponse = (SimpleResponse) response;
-                    simpleResponse.server = server;
-                    simpleResponse.service = this;
-                    simpleResponse.ctx = ctx;
-                    if (ip != null) simpleResponse.ip = ip;
-                    else simpleResponse.ip = IOHelper.getIP(ctx.channel().remoteAddress());
-                    origRequestUUID = simpleResponse.requestUUID;
-                }
-                LogHelper.debug("Proxy %s request", response.getType());
-                if (client.session == 0) client.session = new Random().nextLong();
-                ProxyRequest proxyRequest = new ProxyRequest(response, client.session);
-                if (response instanceof SimpleResponse) {
-                    ((SimpleResponse) response).requestUUID = proxyRequest.requestUUID;
-                }
-                proxyRequest.isCheckSign = client.checkSign;
-                try {
-                    WebSocketEvent result = proxyRequest.request();
-                    if (result instanceof AuthRequestEvent) {
-                        LogHelper.debug("Client auth params get successful");
-                        AuthRequestEvent authRequestEvent = (AuthRequestEvent) result;
-                        client.isAuth = true;
-                        client.session = authRequestEvent.session;
-                        if (authRequestEvent.playerProfile != null)
-                            client.username = authRequestEvent.playerProfile.username;
-                    }
-                    if (result instanceof Request && response instanceof SimpleResponse) {
-                        ((Request) result).requestUUID = origRequestUUID;
-                    }
-                    sendObject(ctx, result);
-                } catch (RequestException e) {
-                    sendObject(ctx, new ErrorRequestEvent(e.getMessage()));
-                } catch (Exception e) {
-                    LogHelper.error(e);
-                    RequestEvent event;
-                    if (server.config.netty.sendExceptionEnabled) {
-                        event = new ExceptionEvent(e);
-                    } else {
-                        event = new ErrorRequestEvent("Fatal server error. Contact administrator");
-                    }
-                    if (response instanceof SimpleResponse) {
-                        event.requestUUID = ((SimpleResponse) response).requestUUID;
-                    }
-                    sendObject(ctx, event);
-                }
-                return;
-            }
-        }
         process(ctx, response, client, ip);
     }
 
@@ -168,7 +109,6 @@ public class WebSocketService {
         providers.register("getSecureToken", GetSecureTokenResponse.class);
         providers.register("verifySecureToken", VerifySecureTokenResponse.class);
         providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
-        providers.register("proxy", ProxyCommandResponse.class);
         providers.register("register", RegisterResponse.class);
     }
 

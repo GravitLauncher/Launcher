@@ -22,6 +22,8 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.handlers.NettyIpForwardHandler;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.handlers.fileserver.FileServerHandler;
+import pro.gravit.utils.BiHookSet;
+import pro.gravit.utils.HookSet;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -30,6 +32,7 @@ public class LauncherNettyServer implements AutoCloseable {
     public final EventLoopGroup bossGroup;
     public final EventLoopGroup workerGroup;
     public final WebSocketService service;
+    public final BiHookSet<NettyConnectContext,SocketChannel> pipelineHook = new BiHookSet<>();
     private static final String WEBSOCKET_PATH = "/api";
 
     public LauncherNettyServer(LaunchServer server) {
@@ -65,19 +68,9 @@ public class LauncherNettyServer implements AutoCloseable {
                         if (server.config.netty.fileServerEnabled)
                             pipeline.addLast(new FileServerHandler(server.updatesDir, true));
                         pipeline.addLast(new WebSocketFrameHandler(context, server, service));
+                        pipelineHook.hook(context, ch);
                     }
                 });
-        if (config.proxy != null && config.proxy.enabled) {
-            LogHelper.info("Connect to main server %s");
-            Request.service = StandartClientWebSocketService.initWebSockets(config.proxy.address, false);
-            AuthRequest authRequest = new AuthRequest(config.proxy.login, config.proxy.password, config.proxy.auth_id, AuthRequest.ConnectTypes.PROXY);
-            authRequest.initProxy = true;
-            try {
-                authRequest.request();
-            } catch (Exception e) {
-                LogHelper.error(e);
-            }
-        }
     }
 
     public ChannelFuture bind(InetSocketAddress address) {

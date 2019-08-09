@@ -290,22 +290,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public NettyPerformanceConfig performance;
         public NettyBindAddress[] binds;
         public LogLevel logLevel = LogLevel.DEBUG;
-        public NettyProxyConfig proxy = new NettyProxyConfig();
     }
 
     public class NettyPerformanceConfig {
         public boolean usingEpoll;
         public int bossThread;
         public int workerThread;
-    }
-
-    public class NettyProxyConfig {
-        public boolean enabled;
-        public String address = "ws://localhost:9275/api";
-        public String login = "login";
-        public String password = "password";
-        public String auth_id = "std";
-        public ArrayList<String> requests = new ArrayList<>();
     }
 
     public class NettyBindAddress {

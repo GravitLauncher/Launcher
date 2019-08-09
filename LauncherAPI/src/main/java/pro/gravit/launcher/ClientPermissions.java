@@ -20,8 +20,6 @@ public class ClientPermissions {
     public boolean canUSR3;
     @LauncherAPI
     public boolean canBot;
-    @LauncherAPI
-    public boolean canProxy;
 
     public ClientPermissions(HInput input) throws IOException {
         this(input.readLong());

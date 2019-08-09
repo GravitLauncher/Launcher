@@ -45,12 +45,11 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public String auth_id;
-    public boolean initProxy;
     public ConnectTypes authType;
     public HWID hwid;
 
     public enum ConnectTypes {
-        SERVER, CLIENT, BOT, API
+        SERVER, CLIENT, API
     }
 
     @Override
@@ -111,9 +110,6 @@ public class AuthResponse extends SimpleResponse {
                 clientData.username = login;
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
-            if (authType == ConnectTypes.BOT && !clientData.permissions.canBot) {
-                AuthProvider.authError("authType: BOT not allowed for this account");
-            }
             if (authType == ConnectTypes.SERVER && !clientData.permissions.canServer) {
                 AuthProvider.authError("authType: SERVER not allowed for this account");
             }
@@ -123,10 +119,6 @@ public class AuthResponse extends SimpleResponse {
                     server.sessionManager.addClient(clientData);
                 }
                 result.session = clientData.session;
-            }
-            if (initProxy) {
-                if (!clientData.permissions.canProxy) throw new AuthException("initProxy not allow");
-                clientData.proxy = true;
             }
             if (authType != ConnectTypes.API && server.config.protectHandler.allowGetAccessToken(context)) {
                 UUID uuid = pair.handler.auth(aresult);
