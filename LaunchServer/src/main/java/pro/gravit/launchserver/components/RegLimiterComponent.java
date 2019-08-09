@@ -38,7 +38,7 @@ public class RegLimiterComponent extends Component implements NeedGarbageCollect
 
     public boolean registerHook(AuthHookManager.RegContext context)
     {
-        if (limiter.check(context.ip)) {
+        if (!limiter.check(context.ip)) {
             throw new HookException(message);
         }
         return false;

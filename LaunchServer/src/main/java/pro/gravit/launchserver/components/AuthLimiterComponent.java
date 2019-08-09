@@ -32,7 +32,7 @@ public class AuthLimiterComponent extends Component implements NeedGarbageCollec
     }
 
     public boolean preAuthHook(AuthResponse.AuthContext context, Client client) {
-        if (!excludeIps.contains(context.ip) && limiter.check(context.ip)) {
+        if (!excludeIps.contains(context.ip) && !limiter.check(context.ip)) {
             throw new HookException(message);
         }
         return false;
