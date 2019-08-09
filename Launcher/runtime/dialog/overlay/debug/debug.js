@@ -4,6 +4,15 @@ var debug = {
     initOverlay: function() {
         debug.overlay = loadFXML("dialog/overlay/debug/debug.fxml");
 
+		debug.overlay.lookup("#version").setText(
+            java.lang.String.format(
+                "%s | Java %s x%s",
+                FunctionalBridge.getLauncherVersion(),
+                java.lang.System.getProperty("java.version"),
+                JVMHelper.JVM_BITS
+            )
+        );
+
         debug.output = debug.overlay.lookup("#output");
         debug.output.setEditable(false);
 
