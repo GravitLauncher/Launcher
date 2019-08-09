@@ -87,6 +87,14 @@ public class BuildHookManager {
         MODULE_CLASS.add(clazz);
     }
 
+    public void unregisterClientModuleClass(String clazz) {
+        MODULE_CLASS.remove(clazz);
+    }
+
+    public void clearClientModuleClassList() {
+        MODULE_CLASS.clear();
+    }
+
     public void registerIgnoredClass(String clazz) {
         CLASS_BLACKLIST.add(clazz);
     }
