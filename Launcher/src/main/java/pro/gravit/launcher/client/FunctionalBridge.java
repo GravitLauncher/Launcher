@@ -18,6 +18,7 @@ import pro.gravit.launcher.managers.HasherManager;
 import pro.gravit.launcher.managers.HasherStore;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.Version;
 
 public class FunctionalBridge {
     @LauncherAPI
@@ -110,5 +111,15 @@ public class FunctionalBridge {
     @LauncherAPI
     public static void addPlainOutput(LogHelper.Output output) {
         LogHelper.addOutput(output, LogHelper.OutputTypes.PLAIN);
+    }
+    
+    @LauncherAPI
+    public static String getLauncherVersion() {
+        return String.format("GravitLauncher v%d.%d.%d build %d",
+            Version.MAJOR,
+            Version.MINOR,
+            Version.PATCH,
+            Version.BUILD
+        );
     }
 }
