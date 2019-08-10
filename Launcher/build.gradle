@@ -58,3 +58,28 @@ task dumpLibs(type: Copy) {
 
 
 build.dependsOn tasks.genRuntimeJS, tasks.dumpLibs, tasks.shadowJar
+
+publishing {
+    publications {
+        launcherclientapi(MavenPublication) {
+            artifactId = 'launcher-client-api'
+            artifact jar
+            pom {
+                name = 'GravitLauncher Client API'
+                description = 'GravitLauncher Client Module API'
+                url = 'https://launcher.gravit.pro'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/GravitLauncher/Launcher.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:GravitLauncher/Launcher.git'
+                    url = 'https://launcher.gravit.pro/'
+                }
+            }
+        }
+    }
+}

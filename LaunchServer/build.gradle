@@ -41,7 +41,7 @@ jar {
 }
 
 
-task clean(type: Jar, dependsOn: jar) {
+task cleanjar(type: Jar, dependsOn: jar) {
     classifier = 'clean'
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
@@ -159,4 +159,31 @@ task dumpClientLibs(type: Copy) {
     from parent.childProjects.Launcher.tasks.dumpLibs.destinationDir
 }
 
-build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle, tasks.clean
+build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle, tasks.cleanjar
+
+
+
+publishing {
+    publications {
+        launchserverapi(MavenPublication) {
+            artifactId = 'launchserver-api'
+            artifact cleanjar
+            pom {
+                name = 'GravitLauncher LaunchServer API'
+                description = 'GravitLauncher LaunchServer Module API'
+                url = 'https://launcher.gravit.pro'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/GravitLauncher/Launcher.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:GravitLauncher/Launcher.git'
+                    url = 'https://launcher.gravit.pro/'
+                }
+            }
+        }
+    }
+}

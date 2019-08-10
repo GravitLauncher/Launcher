@@ -1,6 +1,9 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '5.0.0' apply false
+    id 'maven-publish'
 }
+group = 'pro.gravit.launcher'
+version = '5.0.5-SNAPSHOT'
 
 configure(subprojects.findAll { it.name != 'modules' }) {
     apply plugin: 'idea'
@@ -43,3 +46,16 @@ wrapper {
 }
 
 defaultTasks 'build'
+
+publishing {
+    repositories {
+        maven {
+            // change URLs to point to your repos, e.g. http://my.org/repo
+            url = version.endsWith('SNAPSHOT') ? mavenSnapshotRepository : mavenReleaseRepository
+            credentials {
+                username mavenUsername
+                password mavenPassword
+            }
+        }
+    }
+}

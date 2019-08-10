@@ -8,3 +8,32 @@ dependencies {
     compileOnly 'org.jline:jline-terminal:3.11.0'
     compile 'com.google.code.gson:gson:2.8.5'
 }
+
+jar {
+    classifier = 'clean'
+}
+
+publishing {
+    publications {
+        launchercore(MavenPublication) {
+            artifactId = 'launcher-core'
+            artifact jar
+            pom {
+                name = 'GravitLauncher Core Utils'
+                description = 'GravitLauncher Core Utils'
+                url = 'https://launcher.gravit.pro'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/GravitLauncher/Launcher.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:GravitLauncher/Launcher.git'
+                    url = 'https://launcher.gravit.pro/'
+                }
+            }
+        }
+    }
+}
