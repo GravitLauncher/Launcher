@@ -40,6 +40,19 @@ jar {
     )
 }
 
+
+task clean(type: Jar, dependsOn: jar) {
+    classifier = 'clean'
+    manifest.attributes("Main-Class": mainClassName,
+            "Premain-Class": mainAgentName,
+            "Can-Redefine-Classes": "true",
+            "Can-Retransform-Classes": "true",
+            "Can-Set-Native-Method-Prefix": "true"
+    )
+    from sourceSets.main.output
+}
+
+
 dependencies {
     pack project(':LauncherAPI')
     bundle 'org.ow2.asm:asm-commons:7.1'
@@ -146,4 +159,4 @@ task dumpClientLibs(type: Copy) {
     from parent.childProjects.Launcher.tasks.dumpLibs.destinationDir
 }
 
-build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle
+build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle, tasks.clean
