@@ -35,3 +35,7 @@ publishing {
         }
     }
 }
+
+signing {
+    sign publishing.publications.launcherwsapi
+}

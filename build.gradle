@@ -1,6 +1,7 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '5.0.0' apply false
     id 'maven-publish'
+    id 'signing'
 }
 group = 'pro.gravit.launcher'
 version = '5.0.5-SNAPSHOT'

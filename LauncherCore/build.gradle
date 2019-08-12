@@ -37,3 +37,7 @@ publishing {
         }
     }
 }
+
+signing {
+    sign publishing.publications.launchercore
+}
