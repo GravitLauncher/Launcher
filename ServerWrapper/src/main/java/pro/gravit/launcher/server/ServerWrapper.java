@@ -105,7 +105,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             loadConfig();
             ServerWrapperSetup setup = new ServerWrapperSetup();
             setup.run();
-            System.exit(0);
+            System.exit(1);
         }
         modulesManager = new ModulesManager(wrapper);
         modulesManager.autoload(modulesDir);

@@ -27,15 +27,6 @@ import pro.gravit.utils.helper.LogHelper;
 
 public final class DirWatcher implements Runnable, AutoCloseable {
     private final class RegisterFileVisitor extends SimpleFileVisitor<Path> {
-        private final Deque<String> path = new LinkedList<>();
-
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            FileVisitResult result = super.postVisitDirectory(dir, exc);
-            if (!DirWatcher.this.dir.equals(dir))
-                path.removeLast();
-            return result;
-        }
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
@@ -46,7 +37,6 @@ public final class DirWatcher implements Runnable, AutoCloseable {
             }
 
             // Maybe it's unnecessary to go deeper
-            path.add(IOHelper.getFileName(dir));
             //if (matcher != null && !matcher.shouldVerify(path)) {
             //    return FileVisitResult.SKIP_SUBTREE;
             //}

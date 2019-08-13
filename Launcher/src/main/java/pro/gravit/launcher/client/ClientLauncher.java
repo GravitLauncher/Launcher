@@ -14,11 +14,15 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.JOptionPane;
 
@@ -55,16 +59,16 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 public final class ClientLauncher {
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
-        private final Collection<Path> result;
+        private final Stream.Builder<Path> result;
 
-        private ClassPathFileVisitor(Collection<Path> result) {
+        private ClassPathFileVisitor(Stream.Builder<Path> result) {
             this.result = result;
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (IOHelper.hasExtension(file, "jar") || IOHelper.hasExtension(file, "zip"))
-                result.add(file);
+                result.accept(file);
             return super.visitFile(file, attrs);
         }
     }
@@ -282,10 +286,17 @@ public final class ClientLauncher {
             System.setProperty("minecraft.applet.TargetDirectory", params.clientDir.toString());
         }
         Collections.addAll(args, profile.getClientArgs());
-        LogHelper.debug("Args: " + args);
+        List<String> copy = new ArrayList<>(args);
+        for (int i = 0, l = copy.size(); i < l; i++) {
+            String s = copy.get(i);
+            if ( i + 1 < l && ("--accessToken".equals(s) || "--session".equals(s))) {
+                copy.set(i + 1, "censored");
+            }
+        }
+        LogHelper.debug("Args: " + copy);
         // Resolve main class and method
         Class<?> mainClass = classLoader.loadClass(profile.getMainClass());
-        MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
+        MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
         // Invoke main method
@@ -407,7 +418,7 @@ public final class ClientLauncher {
                 Thread.sleep(200);
             }
             if (!clientStarted) {
-                LogHelper.error("Write Client Params not successful. Using debug mode for more information");
+                LogHelper.error("Client did not start properly. Enable debug mode for more information");
             }
         }
         clientStarted = false;
@@ -515,29 +526,24 @@ public final class ClientLauncher {
     }
 
     private static URL[] resolveClassPath(Path clientDir, String... classPath) throws IOException {
-        Collection<Path> result = new LinkedList<>();
-        for (String classPathEntry : classPath) {
-            Path path = clientDir.resolve(IOHelper.toPath(classPathEntry));
-            if (IOHelper.isDir(path)) { // Recursive walking and adding
-                IOHelper.walk(path, new ClassPathFileVisitor(result), false);
-                continue;
-            }
-            result.add(path);
-        }
-        return result.stream().map(IOHelper::toURL).toArray(URL[]::new);
+        return resolveClassPathStream(clientDir, classPath).map(IOHelper::toURL).toArray(URL[]::new);
     }
 
     private static LinkedList<Path> resolveClassPathList(Path clientDir, String... classPath) throws IOException {
-        LinkedList<Path> result = new LinkedList<>();
+        return resolveClassPathStream(clientDir, classPath).collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    private static Stream<Path> resolveClassPathStream(Path clientDir, String... classPath) throws IOException {
+        Stream.Builder<Path> builder = Stream.builder();
         for (String classPathEntry : classPath) {
             Path path = clientDir.resolve(IOHelper.toPath(classPathEntry));
             if (IOHelper.isDir(path)) { // Recursive walking and adding
-                IOHelper.walk(path, new ClassPathFileVisitor(result), false);
+                IOHelper.walk(path, new ClassPathFileVisitor(builder), false);
                 continue;
             }
-            result.add(path);
+            builder.accept(path);
         }
-        return result;
+        return builder.build();
     }
 
     private static void initGson() {

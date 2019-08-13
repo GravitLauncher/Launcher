@@ -68,6 +68,7 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
 
     public String getMacAddr() {
         for (NetworkIF networkIF : hardware.getNetworkIFs()) {
+            if (networkIF.getNetworkInterface().isVirtual()) continue;
             for (String ipv4 : networkIF.getIPv4addr()) {
                 if (ipv4.startsWith("127.")) continue;
                 if (ipv4.startsWith("10.")) continue;
