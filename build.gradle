@@ -33,12 +33,7 @@ configure(subprojects.findAll { it.name != 'modules' }) {
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
         options.annotationProcessorPath = configurations.aptOnly
-    }
-}
-
-subprojects {
-    tasks.withType(JavaCompile) {
-        options.incremental = true // one flag, and things will get MUCH faster
+        options.incremental = true // one flag, and things will get MUCH faster    
     }
 }
 

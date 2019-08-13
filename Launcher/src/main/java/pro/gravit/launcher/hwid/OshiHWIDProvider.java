@@ -8,7 +8,6 @@ import oshi.hardware.ComputerSystem;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
-import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import pro.gravit.utils.helper.LogHelper;
 
