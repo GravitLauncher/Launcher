@@ -15,15 +15,11 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.handlers.NettyIpForwardHandler;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.handlers.fileserver.FileServerHandler;
 import pro.gravit.utils.BiHookSet;
-import pro.gravit.utils.HookSet;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 

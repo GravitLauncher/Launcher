@@ -3,8 +3,6 @@ package pro.gravit.launchserver.dao;
 import java.util.List;
 import java.util.UUID;
 
-import pro.gravit.launchserver.LaunchServer;
-
 public class UserService {
 
     private final UserDAO usersDao;

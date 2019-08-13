@@ -1,14 +1,12 @@
 package pro.gravit.launchserver.components;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
-import pro.gravit.utils.BiHookSet.Hook;
 import pro.gravit.utils.HookException;
 
 public class AuthLimiterComponent extends Component implements NeedGarbageCollection, AutoCloseable {

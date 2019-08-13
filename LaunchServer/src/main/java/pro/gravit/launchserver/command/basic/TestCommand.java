@@ -1,15 +1,14 @@
 package pro.gravit.launchserver.command.basic;
 
+import java.nio.file.Paths;
+import java.security.KeyPair;
+
 import org.bouncycastle.cert.X509CertificateHolder;
-import pro.gravit.launcher.events.PingEvent;
+
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.utils.helper.CommonHelper;
-
-import java.nio.file.Paths;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 
 public class TestCommand extends Command {
     public TestCommand(LaunchServer server) {

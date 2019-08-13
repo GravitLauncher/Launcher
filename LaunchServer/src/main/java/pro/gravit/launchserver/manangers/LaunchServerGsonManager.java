@@ -2,14 +2,11 @@ package pro.gravit.launchserver.manangers;
 
 import com.google.gson.GsonBuilder;
 
-import pro.gravit.launcher.hasher.HashedEntry;
-import pro.gravit.launcher.hasher.HashedEntryAdapter;
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.request.JsonResultSerializeAdapter;
 import pro.gravit.launcher.request.WebSocketEvent;
-import pro.gravit.launcher.request.websockets.ClientWebSocketService;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.hwid.HWIDHandler;
 import pro.gravit.launchserver.auth.permissions.PermissionsHandler;

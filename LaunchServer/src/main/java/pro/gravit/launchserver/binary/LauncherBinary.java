@@ -3,7 +3,6 @@ package pro.gravit.launchserver.binary;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import pro.gravit.launcher.serialize.signed.DigestBytesHolder;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;

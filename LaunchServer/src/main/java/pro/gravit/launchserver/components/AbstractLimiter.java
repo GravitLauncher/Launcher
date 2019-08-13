@@ -1,9 +1,9 @@
 package pro.gravit.launchserver.components;
 
-import pro.gravit.launcher.NeedGarbageCollection;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import pro.gravit.launcher.NeedGarbageCollection;
 
 public class AbstractLimiter<T> implements NeedGarbageCollection {
     public final int maxTrys;
