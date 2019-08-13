@@ -168,7 +168,9 @@ public class ListDownloader {
                         if (callback != null) {
                             callback.stateChanged(entry.getName(), 0, entry.getSize());
                         }
-                        LogHelper.dev("Resolved filename %s to %s", filename, target.toAbsolutePath().toString());
+                        if (LogHelper.isDevEnabled()) {
+                            LogHelper.dev("Resolved filename %s to %s", filename, target.toAbsolutePath().toString());
+                        }
                         transfer(source, target, filename, size, callback, totalCallback);
                         entry = input.getNextEntry();
                     }

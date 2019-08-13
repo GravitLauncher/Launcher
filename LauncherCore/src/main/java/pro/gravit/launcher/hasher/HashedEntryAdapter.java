@@ -26,7 +26,6 @@ public class HashedEntryAdapter implements JsonSerializer<HashedEntry>, JsonDese
         if (typename.equals("dir")) cls = HashedDir.class;
         if (typename.equals("file")) cls = HashedFile.class;
 
-
         return (HashedEntry) context.deserialize(json, cls);
     }
 

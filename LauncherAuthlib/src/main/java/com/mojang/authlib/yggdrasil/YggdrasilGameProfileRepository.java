@@ -47,7 +47,9 @@ public final class YggdrasilGameProfileRepository implements GameProfileReposito
                 sliceProfiles = new BatchProfileByUsernameRequest(sliceUsernames).request().playerProfiles;
             } catch (Exception e) {
                 for (String username : sliceUsernames) {
-                    LogHelper.debug("Couldn't find profile '%s': %s", username, e);
+                    if (LogHelper.isDebugEnabled()) {
+                        LogHelper.debug("Couldn't find profile '%s': %s", username, e);
+                    }
                     callback.onProfileLookupFailed(new GameProfile((UUID) null, username), e);
                 }
 
@@ -61,13 +63,17 @@ public final class YggdrasilGameProfileRepository implements GameProfileReposito
                 PlayerProfile pp = sliceProfiles[i];
                 if (pp == null) {
                     String username = sliceUsernames[i];
-                    LogHelper.debug("Couldn't find profile '%s'", username);
+                    if (LogHelper.isDebugEnabled()) {
+                        LogHelper.debug("Couldn't find profile '%s'", username);
+                    }
                     callback.onProfileLookupFailed(new GameProfile((UUID) null, username), new ProfileNotFoundException("Server did not find the requested profile"));
                     continue;
                 }
 
                 // Report as looked up
-                LogHelper.debug("Successfully looked up profile '%s'", pp.username);
+                if (LogHelper.isDebugEnabled()) {
+                    LogHelper.debug("Successfully looked up profile '%s'", pp.username);
+                }
                 callback.onProfileLookupSucceeded(YggdrasilMinecraftSessionService.toGameProfile(pp));
             }
 

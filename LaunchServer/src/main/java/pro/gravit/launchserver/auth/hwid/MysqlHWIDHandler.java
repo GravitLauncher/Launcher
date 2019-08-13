@@ -153,11 +153,15 @@ public class MysqlHWIDHandler extends HWIDHandler {
                     db_hwid.HWDiskSerial = set.getString(hwidFieldHWDiskSerial);
                     db_hwid.totalMemory = Long.valueOf(set.getString(hwidFieldTotalMemory));
                     db_hwid.macAddr = set.getString(hwidFieldMAC);
-                    LogHelper.dev("Compare HWID: %s vs %s", hwid.getSerializeString(), db_hwid.getSerializeString());
+                    if (LogHelper.isDevEnabled()) {
+                        LogHelper.dev("Compare HWID: %s vs %s", hwid.getSerializeString(), db_hwid.getSerializeString());
+                    }
                     int compare_point = hwid.compare(db_hwid);
                     if (compare_point < compare) continue;
                     else {
-                        LogHelper.debug("User %s hwid check: found compare %d in %d", username, compare_point, set.getInt("id"));
+                        if (LogHelper.isDevEnabled()) {
+                            LogHelper.debug("User %s hwid check: found compare %d in %d", username, compare_point, set.getInt("id"));
+                        }
                     }
                 }
                 if (oneCompareMode) isOne = true;
@@ -175,7 +179,9 @@ public class MysqlHWIDHandler extends HWIDHandler {
     }
 
     public void setIsBanned(HWID hwid, boolean isBanned) {
-        LogHelper.debug("%s Request HWID: %s", isBanned ? "Ban" : "UnBan", hwid.toString());
+        if (LogHelper.isDebugEnabled()) {
+            LogHelper.debug("%s Request HWID: %s", isBanned ? "Ban" : "UnBan", hwid.toString());
+        }
         if (hwid instanceof OshiHWID) {
             OshiHWID oshiHWID = (OshiHWID) hwid;
             try (Connection c = mySQLHolder.getConnection()) {
@@ -214,7 +220,9 @@ public class MysqlHWIDHandler extends HWIDHandler {
     public List<HWID> getHwid(String username) {
         ArrayList<HWID> list = new ArrayList<>();
         try (Connection c = mySQLHolder.getConnection()) {
-            LogHelper.debug("Try find HWID from username %s", username);
+            if (LogHelper.isDebugEnabled()) {
+                LogHelper.debug("Try find HWID from username %s", username);
+            }
             PreparedStatement s = c.prepareStatement(String.format("SELECT %s, %s FROM `%s` WHERE `%s` = ? LIMIT 1", userFieldHwid, userFieldLogin, tableUsers, userFieldLogin));
             s.setString(1, username);
 

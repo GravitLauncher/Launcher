@@ -2,6 +2,7 @@ package pro.gravit.launchserver.socket.handlers;
 
 import java.util.concurrent.TimeUnit;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -40,11 +41,14 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        LogHelper.dev("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));
+        if (LogHelper.isDevEnabled()) {
+            LogHelper.dev("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));
+        }
         client = new Client(0);
-        service.registerClient(ctx.channel());
+        Channel ch = ctx.channel();
+        service.registerClient(ch);
         ctx.executor().schedule(() -> {
-            ctx.channel().writeAndFlush(new PingWebSocketFrame());
+            ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise());
         }, 30L, TimeUnit.SECONDS);
     }
 
@@ -58,7 +62,9 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
             //return;
         } else if ((frame instanceof PongWebSocketFrame)) {
-            LogHelper.dev("WebSocket Client received pong");
+           if (LogHelper.isDevEnabled()) {
+               LogHelper.dev("WebSocket Client received pong");
+           }
         } else if ((frame instanceof CloseWebSocketFrame)) {
             ctx.channel().close();
         } else {

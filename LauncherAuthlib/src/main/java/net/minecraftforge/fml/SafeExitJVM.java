@@ -6,10 +6,6 @@ import pro.gravit.utils.helper.JVMHelper;
 // Не входящих в пакеты самого Forge
 public class SafeExitJVM {
     public static void exit(int code) {
-        try {
-            JVMHelper.RUNTIME.halt(code);
-        } catch (Throwable e) {
-            System.exit(code);
-        }
+        JVMHelper.RUNTIME.halt(code);
     }
 }

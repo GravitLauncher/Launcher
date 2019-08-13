@@ -1,5 +1,6 @@
 package pro.gravit.launchserver.socket;
 
+import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -20,12 +21,12 @@ public class NettyObjectFactory {
         else
             return new NioEventLoopGroup(threads);
     }
-    public static Class<? extends ServerChannel> getServerSocketChannelClass()
+    public static ChannelFactory<? extends ServerChannel> getServerSocketChannelFactory()
     {
         if(epoll)
-            return EpollServerSocketChannel.class;
+            return EpollServerSocketChannel::new;
         else
-            return NioServerSocketChannel.class;
+            return NioServerSocketChannel::new;
     }
 
 }

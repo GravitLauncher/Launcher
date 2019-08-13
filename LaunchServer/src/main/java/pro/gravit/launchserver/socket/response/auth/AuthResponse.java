@@ -112,6 +112,7 @@ public class AuthResponse extends SimpleResponse {
             result.permissions = clientData.permissions;
             if (authType == ConnectTypes.SERVER && !clientData.permissions.canServer) {
                 AuthProvider.authError("authType: SERVER not allowed for this account");
+                return;
             }
             if (getSession) {
                 if (clientData.session == 0) {
@@ -123,7 +124,9 @@ public class AuthResponse extends SimpleResponse {
             if (authType != ConnectTypes.API && server.config.protectHandler.allowGetAccessToken(context)) {
                 UUID uuid = pair.handler.auth(aresult);
                 result.playerProfile = ProfileByUUIDResponse.getProfile(uuid, aresult.username, client, clientData.auth.textureProvider);
-                LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
+                if (LogHelper.isDebugEnabled()) {
+                    LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
+                }
             }
             sendResult(result);
         } catch (AuthException | HWIDException | HookException e) {

@@ -33,6 +33,7 @@ import java.util.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
+import io.netty.channel.epoll.Epoll;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.operator.OperatorCreationException;
 
@@ -359,7 +360,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         LogHelper.printLicense("LaunchServer");
         if (!StarterAgent.isAgentStarted()) {
             LogHelper.error("StarterAgent is not started!");
-            LogHelper.error("Your should add to JVM options this option: `-javaagent:LaunchServer.jar`");
+            LogHelper.error("You should add to JVM options this option: `-javaagent:LaunchServer.jar`");
         }
 
         // Start LaunchServer
@@ -810,7 +811,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.netty.fileServerEnabled = true;
         newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
         newConfig.netty.performance = new NettyPerformanceConfig();
-        newConfig.netty.performance.usingEpoll = JVMHelper.OS_TYPE == JVMHelper.OS.LINUX; //Only linux
+        newConfig.netty.performance.usingEpoll = Epoll.isAvailable();
         newConfig.netty.performance.bossThread = 2;
         newConfig.netty.performance.workerThread = 8;
 

@@ -540,7 +540,7 @@ public final class ClientLauncher {
         return result;
     }
 
-    public static void initGson() {
+    private static void initGson() {
         Launcher.gsonManager = new ClientGsonManager();
         Launcher.gsonManager.initGson();
     }
@@ -552,8 +552,8 @@ public final class ClientLauncher {
     }
 
     public static void verifyHDir(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) throws IOException {
-        if (matcher != null)
-            matcher = matcher.verifyOnly();
+        //if (matcher != null)
+        //    matcher = matcher.verifyOnly();
 
         // Hash directory and compare (ignore update-only matcher entries, it will break offline-mode)
         HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);

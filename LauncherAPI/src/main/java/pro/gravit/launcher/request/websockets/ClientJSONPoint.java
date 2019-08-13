@@ -85,7 +85,7 @@ public abstract class ClientJSONPoint {
 
     public ChannelFuture send(String text) {
         LogHelper.dev("Send: %s", text);
-        return ch.writeAndFlush(new TextWebSocketFrame(text));
+        return ch.writeAndFlush(new TextWebSocketFrame(text), ch.voidPromise());
     }
 
     abstract void onMessage(String message) throws Exception;
@@ -98,7 +98,7 @@ public abstract class ClientJSONPoint {
         //System.out.println("WebSocket Client sending close");
         isClosed = true;
         if (ch != null && ch.isActive()) {
-            ch.writeAndFlush(new CloseWebSocketFrame());
+            ch.writeAndFlush(new CloseWebSocketFrame(), ch.voidPromise());
             ch.closeFuture().sync();
         }
 
@@ -106,7 +106,7 @@ public abstract class ClientJSONPoint {
     }
 
     public void eval(final String text) throws IOException {
-        ch.writeAndFlush(new TextWebSocketFrame(text));
+        ch.writeAndFlush(new TextWebSocketFrame(text), ch.voidPromise());
     }
 
 }

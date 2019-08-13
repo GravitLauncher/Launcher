@@ -27,7 +27,9 @@ public class CheckServerResponse extends SimpleResponse {
             result.uuid = pClient.auth.handler.checkServer(username, serverID);
             if (result.uuid != null)
                 result.playerProfile = ProfileByUUIDResponse.getProfile(result.uuid, username, client, pClient.auth.textureProvider);
-            LogHelper.debug("checkServer: %s uuid: %s serverID: %s", result.playerProfile.username, result.uuid.toString(), serverID);
+            if (LogHelper.isDebugEnabled()) {
+                LogHelper.debug("checkServer: %s uuid: %s serverID: %s", result.playerProfile.username, result.uuid.toString(), serverID);
+            }
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());
             return;
