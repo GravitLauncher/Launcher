@@ -42,16 +42,15 @@ wrapper {
 }
 
 defaultTasks 'build'
-
-if (hasProperty('mavenUsername') && hasProperty('mavenPassword'))
-publishing {
-    repositories {
-        maven {
-            // change URLs to point to your repos, e.g. http://my.org/repo
-            url = version.endsWith('SNAPSHOT') ? 'https://oss.sonatype.org/content/repositories/snapshots/' : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-            credentials {
-                username getProperty('mavenUsername')
-                password getProperty('mavenPassword')
+if (hasProperty('mavenUsername') && hasProperty('mavenPassword') && hasProperty('mavenReleaseRepository') && hasProperty('mavenSnapshotRepository')) {
+    publishing {
+        repositories {
+            maven {
+                url = version.endsWith('SNAPSHOT') ? getProperty('mavenSnapshotRepository') : getProperty('mavenReleaseRepository')
+                credentials {
+                    username getProperty('mavenUsername')
+                    password getProperty('mavenPassword')
+                }
             }
         }
     }

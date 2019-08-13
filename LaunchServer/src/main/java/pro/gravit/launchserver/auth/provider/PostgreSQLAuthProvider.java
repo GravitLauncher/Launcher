@@ -37,6 +37,6 @@ public final class PostgreSQLAuthProvider extends AuthProvider {
 
     @Override
     public void close() {
-        // Do nothing
+    	postgreSQLHolder.close();
     }
 }
