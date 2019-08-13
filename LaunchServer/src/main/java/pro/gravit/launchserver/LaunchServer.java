@@ -157,6 +157,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public String whitelistRejectString;
         public LauncherConf launcher;
+        public CertificateConf certificate;
 
         public String startScript;
 
@@ -267,6 +268,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public String txtFileVersion;
         public String txtProductVersion;
+    }
+
+    public static class CertificateConf
+    {
+        public boolean enabled;
     }
 
     public static class NettyUpdatesBind {
@@ -608,39 +614,41 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         certificateManager = new CertificateManager();
         //Generate or set new Certificate API
         certificateManager.orgName = config.projectName;
-        if(IOHelper.isFile(caCertFile) && IOHelper.isFile(caKeyFile))
+        if(config.certificate != null && config.certificate.enabled)
         {
-            certificateManager.ca = certificateManager.readCertificate(caCertFile);
-            certificateManager.caKey = certificateManager.readPrivateKey(caKeyFile);
-        }
-        else
-        {
-            try {
-                certificateManager.generateCA();
-                certificateManager.writeCertificate(caCertFile, certificateManager.ca);
-                certificateManager.writePrivateKey(caKeyFile, certificateManager.caKey);
-            } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException | OperatorCreationException e) {
-                LogHelper.error(e);
+            if(IOHelper.isFile(caCertFile) && IOHelper.isFile(caKeyFile))
+            {
+                certificateManager.ca = certificateManager.readCertificate(caCertFile);
+                certificateManager.caKey = certificateManager.readPrivateKey(caKeyFile);
+            }
+            else
+            {
+                try {
+                    certificateManager.generateCA();
+                    certificateManager.writeCertificate(caCertFile, certificateManager.ca);
+                    certificateManager.writePrivateKey(caKeyFile, certificateManager.caKey);
+                } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException | OperatorCreationException e) {
+                    LogHelper.error(e);
+                }
+            }
+            if(IOHelper.isFile(serverCertFile) && IOHelper.isFile(serverKeyFile))
+            {
+                certificateManager.server = certificateManager.readCertificate(serverCertFile);
+                certificateManager.serverKey = certificateManager.readPrivateKey(serverKeyFile);
+            }
+            else
+            {
+                try {
+                    KeyPair pair = certificateManager.generateKeyPair();
+                    certificateManager.server = certificateManager.generateCertificate(config.projectName.concat(" Server"), pair.getPublic());
+                    certificateManager.serverKey = PrivateKeyFactory.createKey(pair.getPrivate().getEncoded());
+                    certificateManager.writePrivateKey(serverKeyFile, pair.getPrivate());
+                    certificateManager.writeCertificate(serverCertFile, certificateManager.server);
+                } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | OperatorCreationException e) {
+                    LogHelper.error(e);
+                }
             }
         }
-        if(IOHelper.isFile(serverCertFile) && IOHelper.isFile(serverKeyFile))
-        {
-            certificateManager.server = certificateManager.readCertificate(serverCertFile);
-            certificateManager.serverKey = certificateManager.readPrivateKey(serverKeyFile);
-        }
-        else
-        {
-            try {
-                KeyPair pair = certificateManager.generateKeyPair();
-                certificateManager.server = certificateManager.generateCertificate(config.projectName.concat(" Server"), pair.getPublic());
-                certificateManager.serverKey = PrivateKeyFactory.createKey(pair.getPrivate().getEncoded());
-                certificateManager.writePrivateKey(serverKeyFile, pair.getPrivate());
-                certificateManager.writeCertificate(serverCertFile, certificateManager.server);
-            } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | OperatorCreationException e) {
-                LogHelper.error(e);
-            }
-        }
-
         GarbageManager.registerNeedGC(sessionManager);
         reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);
@@ -815,6 +823,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.launcher.enabledProGuard = true;
         newConfig.launcher.stripLineNumbers = true;
         newConfig.launcher.proguardGenMappings = true;
+
+        newConfig.certificate = new CertificateConf();
+        newConfig.certificate.enabled = false;
 
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
