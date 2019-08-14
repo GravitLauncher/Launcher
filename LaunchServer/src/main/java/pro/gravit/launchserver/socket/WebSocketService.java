@@ -9,6 +9,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.ChannelMatchers;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.ExceptionEvent;
@@ -120,22 +121,22 @@ public class WebSocketService {
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {
-        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class)));
+        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class)), ctx.voidPromise());
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj, Type type) {
-        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
+        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)), ctx.voidPromise());
     }
 
     public void sendObjectAll(Object obj) {
         for (Channel ch : channels) {
-            ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class)));
+            ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class)), ch.voidPromise());
         }
     }
 
     public void sendObjectAll(Object obj, Type type) {
         for (Channel ch : channels) {
-            ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
+            ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)), ch.voidPromise());
         }
     }
 
@@ -148,7 +149,7 @@ public class WebSocketService {
     }
 
     public void sendEvent(EventResult obj) {
-        channels.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
+        channels.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)), ChannelMatchers.all(), true);
     }
 
     public static class EventResult implements WebSocketEvent {

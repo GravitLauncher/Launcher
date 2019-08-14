@@ -1,6 +1,7 @@
 package pro.gravit.launcher.managers;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -19,7 +20,7 @@ public class GarbageManager {
 
     private static final Timer timer = new Timer("GarbageTimer");
 
-    private static final ArrayList<Entry> NEED_GARBARE_COLLECTION = new ArrayList<>();
+    private static final Set<Entry> NEED_GARBARE_COLLECTION = new HashSet<>();
 
     public static void gc() {
         for (Entry gc : NEED_GARBARE_COLLECTION)

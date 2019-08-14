@@ -7,6 +7,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
@@ -20,7 +21,6 @@ import pro.gravit.launchserver.socket.handlers.NettyIpForwardHandler;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.handlers.fileserver.FileServerHandler;
 import pro.gravit.utils.BiHookSet;
-import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public class LauncherNettyServer implements AutoCloseable {
@@ -38,16 +38,16 @@ public class LauncherNettyServer implements AutoCloseable {
         {
             LogHelper.debug("Netty: Epoll enabled");
         }
-        if(config.performance.usingEpoll && JVMHelper.OS_TYPE != JVMHelper.OS.LINUX)
+        if(config.performance.usingEpoll && !Epoll.isAvailable())
         {
-            LogHelper.error("netty,perfomance.usingEpoll work only Linux systems");
+            LogHelper.error("Epoll is not available: (netty,perfomance.usingEpoll configured wrongly)", Epoll.unavailabilityCause());
         }
         bossGroup = NettyObjectFactory.newEventLoopGroup(config.performance.bossThread);
         workerGroup = NettyObjectFactory.newEventLoopGroup(config.performance.workerThread);
         serverBootstrap = new ServerBootstrap();
         service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), server);
         serverBootstrap.group(bossGroup, workerGroup)
-                .channel(NettyObjectFactory.getServerSocketChannelClass())
+                .channelFactory(NettyObjectFactory.getServerSocketChannelFactory())
                 .handler(new LoggingHandler(config.logLevel))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override

@@ -33,7 +33,10 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
     public static final boolean NO_TEXTURES = Boolean.parseBoolean("launcher.com.mojang.authlib.noTextures");
 
     public static void fillTextureProperties(GameProfile profile, PlayerProfile pp) {
-        LogHelper.debug("fillTextureProperties, Username: '%s'", profile.getName());
+        boolean debug = LogHelper.isDebugEnabled();
+        if (debug) {
+            LogHelper.debug("fillTextureProperties, Username: '%s'", profile.getName());
+        }
         if (NO_TEXTURES)
             return;
 
@@ -42,12 +45,16 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
         if (pp.skin != null) {
             properties.put(Launcher.SKIN_URL_PROPERTY, new Property(Launcher.SKIN_URL_PROPERTY, pp.skin.url, ""));
             properties.put(Launcher.SKIN_DIGEST_PROPERTY, new Property(Launcher.SKIN_DIGEST_PROPERTY, SecurityHelper.toHex(pp.skin.digest), ""));
-            LogHelper.debug("fillTextureProperties, Has skin texture for username '%s'", profile.getName());
+            if (debug) {
+                LogHelper.debug("fillTextureProperties, Has skin texture for username '%s'", profile.getName());
+            }
         }
         if (pp.cloak != null) {
             properties.put(Launcher.CLOAK_URL_PROPERTY, new Property(Launcher.CLOAK_URL_PROPERTY, pp.cloak.url, ""));
             properties.put(Launcher.CLOAK_DIGEST_PROPERTY, new Property(Launcher.CLOAK_DIGEST_PROPERTY, SecurityHelper.toHex(pp.cloak.digest), ""));
-            LogHelper.debug("fillTextureProperties, Has cloak texture for username '%s'", profile.getName());
+            if (debug) {
+                LogHelper.debug("fillTextureProperties, Has cloak texture for username '%s'", profile.getName());
+            }
         }
     }
 
@@ -92,7 +99,10 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
     public GameProfile fillProfileProperties(GameProfile profile, boolean requireSecure) {
         // Verify has UUID
         UUID uuid = profile.getUUID();
-        LogHelper.debug("fillProfileProperties, UUID: %s", uuid);
+        boolean debug = LogHelper.isDebugEnabled();
+        if (debug) {
+            LogHelper.debug("fillProfileProperties, UUID: %s", uuid);
+        }
         if (uuid == null)
             return profile;
 
@@ -101,25 +111,33 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
         try {
             pp = new ProfileByUUIDRequest(uuid).request().playerProfile;
         } catch (Exception e) {
-            LogHelper.debug("Couldn't fetch profile properties for '%s': %s", profile, e);
+            if (debug) {
+                LogHelper.debug("Couldn't fetch profile properties for '%s': %s", profile, e);
+            }
             return profile;
         }
 
         // Verify is found
         if (pp == null) {
-            LogHelper.debug("Couldn't fetch profile properties for '%s' as the profile does not exist", profile);
+            if (debug) {
+                LogHelper.debug("Couldn't fetch profile properties for '%s' as the profile does not exist", profile);
+            }
             return profile;
         }
 
         // Create new game profile from player profile
-        LogHelper.debug("Successfully fetched profile properties for '%s'", profile);
+        if (debug) {
+            LogHelper.debug("Successfully fetched profile properties for '%s'", profile);
+        }
         fillTextureProperties(profile, pp);
         return toGameProfile(pp);
     }
 
     @Override
     public Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> getTextures(GameProfile profile, boolean requireSecure) {
-        LogHelper.debug("getTextures, Username: '%s', UUID: '%s'", profile.getName(), profile.getUUID());
+        if (LogHelper.isDebugEnabled()) {
+            LogHelper.debug("getTextures, Username: '%s', UUID: '%s'", profile.getName(), profile.getUUID());
+        }
         Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textures = new EnumMap<>(MinecraftProfileTexture.Type.class);
 
         // Add textures
@@ -151,7 +169,9 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
     @Override
     public GameProfile hasJoinedServer(GameProfile profile, String serverID) throws AuthenticationUnavailableException {
         String username = profile.getName();
-        LogHelper.debug("checkServer, Username: '%s', Server ID: %s", username, serverID);
+        if (LogHelper.isDebugEnabled()) {
+            LogHelper.debug("checkServer, Username: '%s', Server ID: %s", username, serverID);
+        }
 
         // Make checkServer request
         PlayerProfile pp;
@@ -180,7 +200,9 @@ public final class YggdrasilMinecraftSessionService extends BaseMinecraftSession
 
         // Join server
         String username = profile.getName();
-        LogHelper.debug("joinServer, Username: '%s', Access token: %s, Server ID: %s", username, accessToken, serverID);
+        if (LogHelper.isDebugEnabled()) {
+            LogHelper.debug("joinServer, Username: '%s', Access token: %s, Server ID: %s", username, accessToken, serverID);
+        }
 
         // Make joinServer request
         boolean success;

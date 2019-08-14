@@ -56,8 +56,8 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         @Override
         public WebSocketEvent get() throws InterruptedException, ExecutionException {
             if (isCanceled) return null;
-            while (!event.ready) {
-                synchronized (event) {
+            synchronized (event) {
+                while (!event.ready) {
                     event.wait();
                 }
             }
@@ -73,8 +73,8 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
         @Override
         public WebSocketEvent get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
             if (isCanceled) return null;
-            while (!event.ready) {
-                synchronized (event) {
+            synchronized (event) {
+                while (!event.ready) {
                     event.wait(timeout);
                 }
             }

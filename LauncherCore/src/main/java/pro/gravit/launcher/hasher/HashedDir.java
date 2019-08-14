@@ -173,16 +173,24 @@ public final class HashedDir extends HashedEntry {
         for (String s : dirs) {
             HashedEntry e = current.get(s);
             if (e == null) {
-                LogHelper.debug("Null %s", s);
-                for (String x : current.keySet()) LogHelper.debug("Contains %s", x);
+                if (LogHelper.isDebugEnabled()) {
+                    LogHelper.debug("Null %s", s);
+                }
+                if (LogHelper.isDebugEnabled()) {
+                    for (String x : current.keySet()) LogHelper.debug("Contains %s", x);
+                }
                 break;
             }
             if (e.getType() == Type.DIR) {
                 current = ((HashedDir) e).map;
-                LogHelper.debug("Found dir %s", s);
+                if (LogHelper.isDebugEnabled()) {
+                    LogHelper.debug("Found dir %s", s);
+                }
             } else {
                 current.remove(s);
-                LogHelper.debug("Found filename %s", s);
+                if (LogHelper.isDebugEnabled()) {
+                    LogHelper.debug("Found filename %s", s);
+                }
                 break;
             }
         }

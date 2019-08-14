@@ -345,14 +345,9 @@ public final class LogHelper {
 
     @LauncherAPI
     public static String toString(Throwable exc) {
-        try (StringWriter sw = new StringWriter()) {
-            try (PrintWriter pw = new PrintWriter(sw)) {
-                exc.printStackTrace(pw);
-            }
-            return sw.toString();
-        } catch (IOException e) {
-            throw new InternalError(e);
-        }
+        StringWriter sw = new StringWriter();
+        exc.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 
     @LauncherAPI

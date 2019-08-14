@@ -60,7 +60,9 @@ public class ListDownloader {
                 URI u = new URI(scheme, host, path + apply.apply, "", "");
                 callback.stateChanged(apply.apply, 0L, apply.size);
                 Path targetPath = dstDirFile.resolve(apply.apply);
-                LogHelper.debug("Download URL: %s to file %s dir: %s", u.toString(), targetPath.toAbsolutePath().toString(), dstDirFile.toAbsolutePath().toString());
+                if (LogHelper.isDebugEnabled()) {
+                    LogHelper.debug("Download URL: %s to file %s dir: %s", u.toString(), targetPath.toAbsolutePath().toString(), dstDirFile.toAbsolutePath().toString());
+                }
                 if (get == null) get = new HttpGet(u);
                 else {
                     get.reset();
@@ -104,7 +106,9 @@ public class ListDownloader {
 
             HttpGet get;
             URI u = new URL(url).toURI();
-            LogHelper.debug("Download URL: %s", u.toString());
+            if (LogHelper.isDebugEnabled()) {
+                LogHelper.debug("Download URL: %s", u.toString());
+            }
             get = new HttpGet(u);
             httpclient.execute(get, new FileDownloadResponseHandler(target.toAbsolutePath()));
         }
@@ -168,7 +172,9 @@ public class ListDownloader {
                         if (callback != null) {
                             callback.stateChanged(entry.getName(), 0, entry.getSize());
                         }
-                        LogHelper.dev("Resolved filename %s to %s", filename, target.toAbsolutePath().toString());
+                        if (LogHelper.isDevEnabled()) {
+                            LogHelper.dev("Resolved filename %s to %s", filename, target.toAbsolutePath().toString());
+                        }
                         transfer(source, target, filename, size, callback, totalCallback);
                         entry = input.getNextEntry();
                     }

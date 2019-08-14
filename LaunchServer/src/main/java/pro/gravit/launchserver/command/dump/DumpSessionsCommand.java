@@ -4,6 +4,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,7 +42,7 @@ public class DumpSessionsCommand extends Command {
             public void invoke(String... args) throws Exception {
                 verifyArgs(args, 1);
                 LogHelper.info("Sessions write to %s", args[0]);
-                Set<Client> clientSet = server.sessionManager.getSessions();
+                Collection<Client> clientSet = server.sessionManager.getSessions();
                 try (Writer writer = IOHelper.newWriter(Paths.get(args[0]))) {
                     Launcher.gsonManager.configGson.toJson(clientSet, writer);
                 }

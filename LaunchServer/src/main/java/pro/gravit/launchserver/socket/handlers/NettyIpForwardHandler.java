@@ -36,7 +36,9 @@ public class NettyIpForwardHandler extends MessageToMessageDecoder<HttpRequest> 
             realIP = headers.get("X-Real-IP");
         }
         if (realIP != null) {
-            LogHelper.dev("Real IP address %s", realIP);
+            if (LogHelper.isDevEnabled()) {
+                LogHelper.dev("Real IP address %s", realIP);
+            }
             context.ip = realIP;
         } else LogHelper.error("IpForwarding error. Headers not found");
         out.add(msg);

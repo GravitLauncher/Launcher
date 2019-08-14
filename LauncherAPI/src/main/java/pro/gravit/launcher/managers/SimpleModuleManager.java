@@ -50,7 +50,9 @@ public class SimpleModuleManager implements ModulesManager {
     public void autoload(Path dir) throws IOException {
         LogHelper.info("Load modules");
         if (Files.notExists(dir)) Files.createDirectory(dir);
-        IOHelper.walk(dir, new ModulesVisitor(), true);
+        else {
+            IOHelper.walk(dir, new ModulesVisitor(), true);
+        }
         sort();
         LogHelper.info("Loaded %d modules", modules.size());
     }
