@@ -113,7 +113,6 @@ Button, CheckBox, ComboBox, RadioButton {
 /** buttons in bar **/
 #close {
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
     -fx-background-radius: 0;
     -fx-background-color: #CE5757;
     -fx-pref-width: 46px;
@@ -121,7 +120,6 @@ Button, CheckBox, ComboBox, RadioButton {
 }
 #hide, #back, #goConsole, #settings, #discord {
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
     -fx-background-radius: 0;
     -fx-pref-width: 46px;
     -fx-pref-height: 45px;
@@ -148,7 +146,6 @@ Button, CheckBox, ComboBox, RadioButton {
     -fx-background-radius: 0;
     -fx-text-fill: black;
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
     -fx-background-color: #ffffff;
     -fx-pref-width: 150px;
     -fx-pref-height: 30px;
@@ -172,7 +169,6 @@ Button, CheckBox, ComboBox, RadioButton {
 
 /** Buttons & textarea**/
 .auth {
-    -jfx-button-type: FLAT;
     -fx-font-weight: bold;
     -fx-font-size: 13pt;
     -fx-background-radius: 0;
@@ -291,7 +287,6 @@ Button, CheckBox, ComboBox, RadioButton {
 
 /** buttons **/
 .clientLaunch{
-    -jfx-button-type: FLAT;
     -fx-font-weight: bold;
     -fx-font-size: 16pt;
     -fx-background-radius: 0;
@@ -300,22 +295,11 @@ Button, CheckBox, ComboBox, RadioButton {
 }
 .clientSettings{
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
     -fx-background-color: #5fd97a;
     -fx-background-radius: 0;
 }
 
 .clientLaunch:hover, .clientLaunch:pressed { -fx-background-color: #75e18c; }
-
-/* Pressets options */
-.pressetLight, .pressetMedium, .pressetHigh {
-    -jfx-toggle-color: #5fd97a;
-    -jfx-untoggle-color: #FAFAFA;
-    -jfx-toggle-line-color: rgba(116, 192, 133, 0.79);
-    -jfx-untoggle-line-color: #999999;
-    -jfx-size: 10.0;
-    -jfx-disable-visual-focus: false;
-}
 
 /* Scrolls */
 .scroll-pane {
@@ -407,7 +391,6 @@ Button, CheckBox, ComboBox, RadioButton {
 
 #servercontainer{
     -fx-background-color: transparent;
-    -jfx-button-type: FLAT;
     -fx-pref-width: 282px;
     -fx-pref-height: 75px;
 }
