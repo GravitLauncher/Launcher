@@ -10,5 +10,5 @@ include 'LaunchServerConsole'
 include 'LauncherTest'
 include 'modules'
 file('modules').eachDir { sub ->
-    if (sub.name.endsWith('_module')) include 'modules:' + sub.name
+    if (sub.name.endsWith('_module') || sub.name.endsWith('_swmodule') || sub.name.endsWith('_lmodule')) include 'modules:' + sub.name
 }

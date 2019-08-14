@@ -1,4 +1,4 @@
-apply from: '../test_support.gradle'
+apply from: '../scripts/test_support.gradle'
 
 dependencies {
     compile project(':LaunchServer')
