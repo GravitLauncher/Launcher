@@ -46,7 +46,6 @@
     -fx-background-radius: 0;
     -fx-text-fill: white;
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
     -fx-background-color: #CE5757;
     -fx-pref-width: 150px;
     -fx-pref-height: 25px;
@@ -73,7 +72,6 @@
     -fx-background-radius: 0;
     -fx-text-fill: white;
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
     -fx-pref-width: 150px;
     -fx-pref-height: 25px;
 }
