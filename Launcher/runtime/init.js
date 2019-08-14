@@ -9,7 +9,8 @@ var LauncherApp = Java.extend(JSApplication, {
         settings = SettingsManager.settings;
         settingsManager.loadHDirStore();
         cliParams.applySettings();
-    }, start: function(primaryStage) {
+    },
+    start: function(primaryStage) {
         stage = primaryStage;
         stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
         stage.setResizable(false);
@@ -45,7 +46,8 @@ var LauncherApp = Java.extend(JSApplication, {
         setCurrentScene(loginScene);
         initLauncher();
 
-    }, stop: function() {
+    },
+    stop: function() {
         settingsManager.saveConfig();
         settingsManager.saveHDirStore();
         options.save();
@@ -82,7 +84,7 @@ function start(args) {
     if (config.jvm.enable) {
         switch (JVMHelper.OS_TYPE) {
             case JVMHelperOS.MUSTDIE:
-                jvmDirName = JVMHelper.OS_BITS === 32 ? config.jvm.jvmMustdie32Dir : 
+                jvmDirName = JVMHelper.OS_BITS === 32 ? config.jvm.jvmMustdie32Dir :
                     jvmDirName = JVMHelper.OS_BITS === 64 ? config.jvm.jvmMustdie64Dir : config.jvm.enable = false;
                 break;
             default:
