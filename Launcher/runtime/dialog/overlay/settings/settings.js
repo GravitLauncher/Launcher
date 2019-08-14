@@ -1,7 +1,11 @@
 var settingsOverlay = {
-/* ===================== OVERLAY ===================== */
-    overlay: null, ramLabel: null, dirLabel: null, transferDialog: null,
-    deleteDirPressedAgain: false, count: 0,
+    /* ===================== OVERLAY ===================== */
+    overlay: null,
+    ramLabel: null,
+    dirLabel: null,
+    transferDialog: null,
+    deleteDirPressedAgain: false,
+    count: 0,
 
     initOverlay: function() {
         settingsOverlay.overlay = loadFXML("dialog/overlay/settings/settings.fxml");
@@ -14,8 +18,7 @@ var settingsOverlay = {
             function(o, ov, nv) settings.autoEnter = nv);
 
         settingsOverlay.dirLabel = holder.lookup("#dirLabel");
-        settingsOverlay.dirLabel.setOnAction(function(event)
-            app.getHostServices().showDocument(settings.updatesDir.toUri()));
+        settingsOverlay.dirLabel.setOnAction(function(event) app.getHostServices().showDocument(settings.updatesDir.toUri()));
         settingsOverlay.updateDirLabel();
 
         settingsOverlay.transferDialog = holder.lookup("#transferDialog");
@@ -70,17 +73,17 @@ var settingsOverlay = {
 
             settingsOverlay.deleteUpdatesDir();
             settingsOverlay.deleteDirPressedAgain = false;
-            settingsOverlay.count = settingsOverlay.count+1;
-			if(settingsOverlay.count>9){
-				javafx.application.Platform.exit();
-			}
+            settingsOverlay.count = settingsOverlay.count + 1;
+            if (settingsOverlay.count > 9) {
+                javafx.application.Platform.exit();
+            }
             deleteDirButton.setText(
-				settingsOverlay.count>8?"Прощай :(":
-				(settingsOverlay.count>7?"Я умираю!":
-				(settingsOverlay.count>5?"DeathCry, спаси!":
-				(settingsOverlay.count>4?"Умоляю, перестань!":
-				(settingsOverlay.count>3?"Да хорош уже!":"Ещё раз")
-			))));
+                settingsOverlay.count > 8 ? "Прощай :(" :
+                (settingsOverlay.count > 7 ? "Я умираю!" :
+                    (settingsOverlay.count > 5 ? "DeathCry, спаси!" :
+                        (settingsOverlay.count > 4 ? "Умоляю, перестань!" :
+                            (settingsOverlay.count > 3 ? "Да хорош уже!" : "Ещё раз")
+                        ))));
         });
 
         var debugBox = settingsOverlay.overlay.lookup("#debug");
@@ -93,8 +96,7 @@ var settingsOverlay = {
 
     transferCatalogDialog: function(newDir) {
         settingsOverlay.transferDialog.setVisible(true);
-        settingsOverlay.transferDialog.lookup("#cancelTransfer").setOnAction(function(event)
-        {
+        settingsOverlay.transferDialog.lookup("#cancelTransfer").setOnAction(function(event) {
             settings.updatesDir = newDir;
             DirBridge.dirUpdates = settings.updatesDir;
             settingsOverlay.updateDirLabel();
@@ -133,11 +135,11 @@ var settingsOverlay = {
 
 
     setRAM: function(ram) {
-		if (ram>762&&ram<1024){
-        settings.ram = java.lang.Math["min(int,int)"](ram, FunctionalBridge.getJVMTotalMemory());
-		}else{
-        settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, FunctionalBridge.getJVMTotalMemory());
-		}
+        if (ram > 762 && ram < 1024) {
+            settings.ram = java.lang.Math["min(int,int)"](ram, FunctionalBridge.getJVMTotalMemory());
+        } else {
+            settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, FunctionalBridge.getJVMTotalMemory());
+        }
     },
 
     updateDirLabel: function() {
@@ -148,9 +150,16 @@ LogHelper.debug("Dir: %s", DirBridge.dir);
 
 /* ====================== CLI PARAMS ===================== */
 var cliParams = {
-    login: null, password: null, profile: -1, autoLogin: false,
-    updatesDir: null, autoEnter: null, fullScreen: null, ram: -1,
-    offline: false, featureStore: null,
+    login: null,
+    password: null,
+    profile: -1,
+    autoLogin: false,
+    updatesDir: null,
+    autoEnter: null,
+    fullScreen: null,
+    ram: -1,
+    offline: false,
+    featureStore: null,
 
     init: function(params) {
         var named = params.getNamed();
@@ -200,8 +209,7 @@ var cliParams = {
         if (cliParams.profile >= 0) {
             settings.profile = cliParams.profile;
         }
-        if (cliParams.updatesDir !== null) {
-        }
+        if (cliParams.updatesDir !== null) {}
         if (cliParams.autoEnter !== null) {
             settings.autoLogin = cliParams.autoEnter;
         }

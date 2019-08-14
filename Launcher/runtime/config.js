@@ -2,7 +2,7 @@
 var config = {
     dir: "GravitLauncher", // Launcher directory
     title: "GravitLauncher", // Window title
-    icons: [ "favicon.png" ], // Window icon paths
+    icons: ["favicon.png"], // Window icon paths
 
     // Auth config
     linkText: "GravitLauncher", // Text for link under "Auth" button

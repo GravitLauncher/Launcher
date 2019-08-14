@@ -6,16 +6,16 @@
     -fx-background-image: url('../../images/downloader/blured.jpg');
 }
 
-#overlay > #utitle {
+#overlay>#utitle {
     -fx-alignment: top-left;
 }
 
-#overlay > #description {
+#overlay>#description {
     -fx-alignment: top-left;
     -fx-wrap-text: true;
 }
 
-#overlay > #description.error {
+#overlay>#description.error {
     -fx-text-fill: #CE5757;
 }
 
@@ -29,15 +29,15 @@
     -fx-background-color: transparent;
 }
 
-.progress-indicator{
-    -fx-background-color: transparent ;
+.progress-indicator {
+    -fx-background-color: transparent;
 }
 
 .progress-indicator .indicator {
-    -fx-background-color: transparent ;
+    -fx-background-color: transparent;
 }
 
-.progress-bar > .bar {
+.progress-bar>.bar {
     -fx-background-image: url("../../images/downloader/line.png");
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -45,9 +45,10 @@
     -fx-padding: 0;
 }
 
-.progress-bar > .track {
+.progress-bar>.track {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-background-radius: 3px;
 }
+
 /*-- DrLeonardo Design --*/

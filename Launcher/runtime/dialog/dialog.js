@@ -24,9 +24,9 @@ function initLauncher() {
 
 /* ======== init Login window======== */
 function initLoginScene() {
-    loginPane.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    loginPane.setOnMousePressed(function(event) { movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY()) });
     loginPane.setOnMouseDragged(function(event) {
-        if(movePoint === null) {
+        if (movePoint === null) {
             return;
         }
         stage.setX(event.getScreenX() - movePoint.getX());
@@ -35,9 +35,9 @@ function initLoginScene() {
 
     var pane = loginPane.lookup("#bar");
     bar = pane;
-    loginPane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
-    loginPane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
-    loginPane.lookup("#discord").setOnAction(function(){ openURL(config.discord); });
+    loginPane.lookup("#close").setOnAction(function(event) { javafx.application.Platform.exit() });
+    loginPane.lookup("#hide").setOnAction(function(event) { stage.setIconified(true) });
+    loginPane.lookup("#discord").setOnAction(function() { openURL(config.discord); });
 
     var pane = loginPane.lookup("#authPane");
     authPane = pane;
@@ -46,14 +46,14 @@ function initLoginScene() {
     loginPaneLayout = loginLayout;
 
     loginField = pane.lookup("#login");
-    loginField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
+    loginField.setOnMouseMoved(function(event) { rootPane.fireEvent(event) });
     loginField.setOnAction(goAuth);
     if (settings.login !== null) {
         loginField.setText(settings.login);
     }
 
     passwordField = pane.lookup("#password");
-    passwordField.setOnMouseMoved(function(event){rootPane.fireEvent(event)});
+    passwordField.setOnMouseMoved(function(event) { rootPane.fireEvent(event) });
     passwordField.setOnAction(goAuth);
     if (settings.rsaPassword !== null) {
         passwordField.getStyleClass().add("hasSaved");
@@ -74,9 +74,9 @@ function initLoginScene() {
 
 /* ======== init Menu window======== */
 function initMenuScene() {
-    menuPane.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    menuPane.setOnMousePressed(function(event) { movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY()) });
     menuPane.setOnMouseDragged(function(event) {
-        if(movePoint === null) {
+        if (movePoint === null) {
             return;
         }
 
@@ -86,9 +86,9 @@ function initMenuScene() {
 
     var pane = menuPane.lookup("#bar");
     bar = pane;
-    pane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
-    pane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
-    pane.lookup("#discord").setOnAction(function(){ openURL(config.discord); });
+    pane.lookup("#close").setOnAction(function(event) { javafx.application.Platform.exit() });
+    pane.lookup("#hide").setOnAction(function(event) { stage.setIconified(true) });
+    pane.lookup("#discord").setOnAction(function() { openURL(config.discord); });
     pane.lookup("#settings").setOnAction(goSettings);
     pane.lookup("#goConsole").setOnAction(goConsole);
 
@@ -105,10 +105,10 @@ function initMenuScene() {
     serverEntrance = pane.lookup("#serverentrance");
     serverStatus = serverEntrance.lookup("#serverStatus");
     serverLabel = serverEntrance.lookup("#serverLabel");
-    serverEntrance.lookup("#clientLaunch").setOnAction(function(){
+    serverEntrance.lookup("#clientLaunch").setOnAction(function() {
         doUpdate(profilesList[serverHolder.old], loginData.pp, loginData.accessToken);
     });
-    pane.lookup("#logout").setOnAction(function(){
+    pane.lookup("#logout").setOnAction(function() {
         setCurrentScene(loginScene);
     });
 
@@ -116,9 +116,9 @@ function initMenuScene() {
 
 /* ======== init Console window======== */
 function initConsoleScene() {
-    consoleMenu.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    consoleMenu.setOnMousePressed(function(event) { movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY()) });
     consoleMenu.setOnMouseDragged(function(event) {
-        if(movePoint === null) {
+        if (movePoint === null) {
             return;
         }
 
@@ -128,21 +128,21 @@ function initConsoleScene() {
 
     var pane = consoleMenu.lookup("#bar");
     consoleBar = pane;
-    pane.lookup("#close").setOnAction(function(){
+    pane.lookup("#close").setOnAction(function() {
         consoleStage.hide();
     });
     var text = consoleMenu.lookup("#textField");
     var output = consoleMenu.lookup("#output");
     var appendFunction = function(line) javafx.application.Platform.runLater(function() output.appendText(line));
-    consoleMenu.lookup("#send").setOnAction(function(){
+    consoleMenu.lookup("#send").setOnAction(function() {
         execCommand(text.getText());
-		if (text.getText() == "clear") {
-			output.setText("");
-		}
+        if (text.getText() == "clear") {
+            output.setText("");
+        }
         text.setText("");
     });
     FunctionalBridge.addPlainOutput(function(string) {
-        appendFunction(string+"\n");
+        appendFunction(string + "\n");
     })
     pane.lookup("#hide").setOnAction(function(event) { consoleStage.setIconified(true) });
 
@@ -153,9 +153,9 @@ function initConsoleScene() {
 
 /* ======== init Options window======== */
 function initOptionsScene() {
-    optionsMenu.setOnMousePressed(function(event){ movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY())});
+    optionsMenu.setOnMousePressed(function(event) { movePoint = new javafx.geometry.Point2D(event.getSceneX(), event.getSceneY()) });
     optionsMenu.setOnMouseDragged(function(event) {
-        if(movePoint === null) {
+        if (movePoint === null) {
             return;
         }
 
@@ -165,9 +165,9 @@ function initOptionsScene() {
 
     var pane = optionsMenu.lookup("#bar");
     bar = pane;
-    pane.lookup("#close").setOnAction(function(event){ javafx.application.Platform.exit()});
-    pane.lookup("#hide").setOnAction(function(event){ stage.setIconified(true)});
-    pane.lookup("#back").setOnAction(function(){
+    pane.lookup("#close").setOnAction(function(event) { javafx.application.Platform.exit() });
+    pane.lookup("#hide").setOnAction(function(event) { stage.setIconified(true) });
+    pane.lookup("#back").setOnAction(function() {
         setCurrentScene(menuScene);
     });
 }
@@ -202,29 +202,29 @@ function goAuth(event) {
         return; // No auth selected
     }
 
-     var rsaPassword = null;
-     var auth = authOptions.getSelectionModel().getSelectedItem();
-     if (auth === null) {
+    var rsaPassword = null;
+    var auth = authOptions.getSelectionModel().getSelectedItem();
+    if (auth === null) {
         return;
-     }
-     if (!passwordField.isDisable()) {
-         var password = passwordField.getText();
-         if (password !== null && !password.isEmpty()) {
-             rsaPassword = settingsOverlay.setPassword(password);
-         } else if (settings.rsaPassword !== null) {
-             rsaPassword = settings.rsaPassword;
-         } else {
-             return;
-         }
+    }
+    if (!passwordField.isDisable()) {
+        var password = passwordField.getText();
+        if (password !== null && !password.isEmpty()) {
+            rsaPassword = settingsOverlay.setPassword(password);
+        } else if (settings.rsaPassword !== null) {
+            rsaPassword = settings.rsaPassword;
+        } else {
+            return;
+        }
 
-         settings.rsaPassword = savePasswordBox.isSelected() ? rsaPassword : null;
-     }
+        settings.rsaPassword = savePasswordBox.isSelected() ? rsaPassword : null;
+    }
 
-     settings.login = login;
-     doAuth(login, rsaPassword, authTypes[auth]);
- }
+    settings.login = login;
+    doAuth(login, rsaPassword, authTypes[auth]);
+}
 
- /* ======== Console ======== */
+/* ======== Console ======== */
 function goConsole(event) {
     setConsoleCurrentScene(consoleScene);
 }
@@ -267,7 +267,7 @@ function verifyLauncher(e) {
             authOptions.getSelectionModel().select(0);
             var sm = authOptions.getSelectionModel().selectedIndexProperty();
             sm.addListener(new javafx.beans.value.ChangeListener({
-                changed: function (observableValue, oldSelection, newSelection) {
+                changed: function(observableValue, oldSelection, newSelection) {
                     settings.auth = authTypes[authOptions.getSelectionModel().getSelectedItem()];
                 }
             }));
@@ -287,14 +287,18 @@ function verifyLauncher(e) {
 
 function doAuth(login, rsaPassword, auth_type) {
     processing.resetOverlay();
-    overlay.show(processing.overlay, function (event) {
+    overlay.show(processing.overlay, function(event) {
         FunctionalBridge.getHWID.join();
-        makeAuthRequest(login, rsaPassword, auth_type, function (result) {
+        makeAuthRequest(login, rsaPassword, auth_type, function(result) {
             FunctionalBridge.setAuthParams(result);
-            loginData = { pp: result.playerProfile , accessToken: result.accessToken, permissions: result.permissions,
-                auth_type: settings.auth};
+            loginData = {
+                pp: result.playerProfile,
+                accessToken: result.accessToken,
+                permissions: result.permissions,
+                auth_type: settings.auth
+            };
 
-            overlay.hide(0, function () {
+            overlay.hide(0, function() {
                 setCurrentScene(menuScene);
             });
             return result;
@@ -355,10 +359,8 @@ function doUpdate(profile, pp, accessToken) {
 
 function doLaunchClient(assetDir, assetHDir, clientDir, clientHDir, profile, pp, accessToken) {
     processing.resetOverlay();
-    overlay.swap(0, processing.overlay, function(event)
-    launchClient(assetHDir, clientHDir, profile, new ClientLauncherParams(settings.lastDigest,
-        assetDir, clientDir, pp, accessToken, settings.autoEnter, settings.fullScreen, settings.ram, 0, 0), doDebugClient)
-);
+    overlay.swap(0, processing.overlay, function(event) launchClient(assetHDir, clientHDir, profile, new ClientLauncherParams(settings.lastDigest,
+        assetDir, clientDir, pp, accessToken, settings.autoEnter, settings.fullScreen, settings.ram, 0, 0), doDebugClient));
 }
 
 function doDebugClient(process) {
@@ -398,10 +400,10 @@ function updateProfilesList(profiles) {
         if (profile.getOptional() != null) profile.updateOptionalGraph();
         index++;
     });
-    LogHelper.debug("Load selected %d profile",settings.profile);
-    if(profiles.length > 0) {
-        if(settings.profile >= profiles.length)
-            settings.profile = profiles.length-1;
+    LogHelper.debug("Load selected %d profile", settings.profile);
+    if (profiles.length > 0) {
+        if (settings.profile >= profiles.length)
+            settings.profile = profiles.length - 1;
         serverHolder.set(serverList.getChildren().get(settings.profile));
     }
 }
@@ -412,11 +414,11 @@ function pingServer(btn) {
     var task = newTask(function() pingers[profile].ping());
     task.setOnSucceeded(function(event) {
         var result = task.getValue();
-        if(btn==serverHolder.old){
+        if (btn == serverHolder.old) {
             setServerStatus(java.lang.String.format("%d из %d", result.onlinePlayers, result.maxPlayers));
         }
     });
-    task.setOnFailed(function(event){ if(btn==serverHolder.old){setServerStatus("Недоступен")}});
+    task.setOnFailed(function(event) { if (btn == serverHolder.old) { setServerStatus("Недоступен") } });
     startTask(task);
 }
 
@@ -482,7 +484,7 @@ var overlay = {
         fade(overlay.current, delay, 1.0, 0.0, function(event) {
             dimPane.requestFocus();
 
-            if(overlay.current==null){
+            if (overlay.current == null) {
                 overlay.show(newOverlay, onFinished);
                 return;
             }
@@ -504,13 +506,13 @@ var overlay = {
 var serverHolder = {
     old: null,
 
-    set: function(btn){
+    set: function(btn) {
         pingServer(btn);
         serverLabel.setText(profilesList[btn]);
         serverDescription.setText(profilesList[btn].info);
         btn.setSelected(true);
         btn.setDisable(true);
-        if(serverHolder.old!=null){
+        if (serverHolder.old != null) {
             serverHolder.old.setSelected(false);
             serverHolder.old.setDisable(false);
         }
