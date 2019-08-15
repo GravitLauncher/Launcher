@@ -6,6 +6,8 @@ var settingsOverlay = {
     transferDialog: null,
     deleteDirPressedAgain: false,
     count: 0,
+    descLabel: null,
+    description: null,
 
     initOverlay: function() {
         settingsOverlay.overlay = loadFXML("dialog/overlay/settings/settings.fxml");
@@ -16,6 +18,9 @@ var settingsOverlay = {
         autoEnterBox.setSelected(settings.autoEnter);
         autoEnterBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) settings.autoEnter = nv);
+        autoEnterBox.setOnMouseEntered(function() {
+            settingsOverlay.updateDesc(autoEnterBox.getText(), "Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер");
+        });
 
         settingsOverlay.dirLabel = holder.lookup("#dirLabel");
         settingsOverlay.dirLabel.setOnAction(function(event) app.getHostServices().showDocument(settings.updatesDir.toUri()));
@@ -36,15 +41,24 @@ var settingsOverlay = {
             }
         });
 
+        this.descLabel = holder.lookup("#descLabel");
+        this.description = holder.lookup("#description");
+
         var featureStore = holder.lookup("#featureStore");
         featureStore.setSelected(settings.featureStore);
         featureStore.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) settings.featureStore = nv);
+        featureStore.setOnMouseEntered(function() {
+            settingsOverlay.updateDesc(featureStore.getText(), "Используется для экономии вашего трафика, аналогичные файлы будут скопированы с других игровых клиентов");
+        });
 
         var fullScreenBox = holder.lookup("#fullScreen");
         fullScreenBox.setSelected(settings.fullScreen);
         fullScreenBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) settings.fullScreen = nv);
+        fullScreenBox.setOnMouseEntered(function() {
+            settingsOverlay.updateDesc(fullScreenBox.getText(), "Включение данной функции позволяет запустить игру сразу в полноэкранном режиме");
+        });
 
         settingsOverlay.ramLabel = holder.lookup("#ramLabel");
         settingsOverlay.updateRAMLabel();
@@ -90,8 +104,20 @@ var settingsOverlay = {
         debugBox.setSelected(settings.debug);
         debugBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) settings.debug = nv);
+        debugBox.setOnMouseEntered(function() {
+            settingsOverlay.updateDesc(debugBox.getText(), "Режим отладки позволяет просмотреть лог запуска и работы программы в реальном времени прямо из лаунчера, что упрощает поиск нужной информации");
+        });
 
         holder.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
+    },
+
+    updateDesc: function(label, desc) {
+        //На случай если человек решил избавится от этой фишки
+        if (this.descLabel == null) return;
+        if (this.description == null) return;
+
+        this.descLabel.setText(label);
+        this.description.setText(desc);
     },
 
     transferCatalogDialog: function(newDir) {
