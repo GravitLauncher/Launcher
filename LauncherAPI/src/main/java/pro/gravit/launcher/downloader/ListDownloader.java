@@ -9,6 +9,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -19,10 +22,16 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.*;
 
 public class ListDownloader {
+    private static final AtomicInteger COUNTER_THR = new AtomicInteger(0);
+	private static final ThreadFactory FACTORY = r -> CommonHelper.newThread("Downloader Thread #" + COUNTER_THR.incrementAndGet(), true, r);
+
+	private static ExecutorService newExecutor() {
+		return new ThreadPoolExecutor(0, VerifyHelper.verifyInt(Integer.parseInt(System.getProperty("launcher.downloadThreads", "3")), VerifyHelper.POSITIVE, "Thread max count must be positive."), 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), FACTORY);
+	}
+	
     @FunctionalInterface
     public interface DownloadCallback {
         void stateChanged(String filename, long downloadedSize, long size);
@@ -47,8 +56,8 @@ public class ListDownloader {
         try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
-
-            HttpGet get = null;
+        	applies.sort((a,b) -> Long.compare(a.size, b.size));
+        	List<Callable<Void>> toExec = new ArrayList<>();
             URI baseUri = new URI(base);
             String scheme = baseUri.getScheme();
             String host = baseUri.getHost();
@@ -56,19 +65,34 @@ public class ListDownloader {
             if (port != -1)
                 host = host + ":" + port;
             String path = baseUri.getPath();
+            List<IOException> excs = new CopyOnWriteArrayList<>();
             for (DownloadTask apply : applies) {
                 URI u = new URI(scheme, host, path + apply.apply, "", "");
                 callback.stateChanged(apply.apply, 0L, apply.size);
                 Path targetPath = dstDirFile.resolve(apply.apply);
-                if (LogHelper.isDebugEnabled()) {
-                    LogHelper.debug("Download URL: %s to file %s dir: %s", u.toString(), targetPath.toAbsolutePath().toString(), dstDirFile.toAbsolutePath().toString());
-                }
-                if (get == null) get = new HttpGet(u);
-                else {
-                    get.reset();
-                    get.setURI(u);
-                }
-                httpclient.execute(get, new FileDownloadResponseHandler(targetPath, apply, callback, totalCallback, false));
+                toExec.add(() -> {
+                	if (LogHelper.isDebugEnabled())
+                        LogHelper.debug("Download URL: %s to file %s dir: %s", u.toString(), targetPath.toAbsolutePath().toString(), dstDirFile.toAbsolutePath().toString());
+                	try {
+						httpclient.execute(new HttpGet(u), new FileDownloadResponseHandler(targetPath, apply, callback, totalCallback, false));
+					} catch (IOException e) {
+						excs.add(e);
+					}
+                	return null;
+                });
+            }
+            try {
+                ExecutorService e = newExecutor();
+                e.invokeAll(toExec);
+                e.shutdown();
+				e.awaitTermination(4, TimeUnit.HOURS);
+			} catch (InterruptedException t) {
+				LogHelper.error(t);
+			}
+            if (!excs.isEmpty()) {
+            	IOException toThrow = excs.remove(0);
+            	excs.forEach(toThrow::addSuppressed);
+            	throw toThrow;
             }
         }
     }

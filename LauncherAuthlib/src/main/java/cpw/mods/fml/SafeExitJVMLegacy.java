@@ -6,6 +6,6 @@ import pro.gravit.utils.helper.JVMHelper;
 // Не входящих в пакеты самого Forge
 public class SafeExitJVMLegacy {
     public static void exit(int code) {
-        JVMHelper.RUNTIME.halt(code);
+    	JVMHelper.RUNTIME.halt(code);
     }
 }

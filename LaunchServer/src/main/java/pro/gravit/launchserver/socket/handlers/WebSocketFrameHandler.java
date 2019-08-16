@@ -62,9 +62,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
             //return;
         } else if ((frame instanceof PongWebSocketFrame)) {
-           if (LogHelper.isDevEnabled()) {
-               LogHelper.dev("WebSocket Client received pong");
-           }
+            LogHelper.dev("WebSocket Client received pong");
         } else if ((frame instanceof CloseWebSocketFrame)) {
             ctx.channel().close();
         } else {

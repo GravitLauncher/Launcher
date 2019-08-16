@@ -26,9 +26,7 @@ public final class RequestTextureProvider extends TextureProvider {
         try {
             return new Texture(url, cloak);
         } catch (FileNotFoundException ignored) {
-            if (LogHelper.isDebugEnabled()) {
-                LogHelper.subDebug("Texture not found :(");
-            }
+            LogHelper.subDebug("Texture not found :(");
             return null; // Simply not found
         }
     }
