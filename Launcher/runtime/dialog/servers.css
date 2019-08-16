@@ -1,6 +1,6 @@
 /*-- DrLeonardo Design --*/
-
 /* Server buttons */
+
 .server-button {
     -fx-font-weight: bold;
     -fx-font-size: 16pt;
@@ -16,14 +16,14 @@
 }
 
 .server-button:selected {
-    -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15,0,0,3);
+    -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15, 0, 0, 3);
 }
+
 
 /** server-button-<your profile name> **/
 
 .server-button-Example {
     -fx-background-image: url('images/servers/example.png');
 }
-
 
 /*-- DrLeonardo Design --*/
