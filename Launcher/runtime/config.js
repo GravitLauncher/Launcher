@@ -26,14 +26,3 @@ var config = {
 
     settingsMagic: 0xC0DE5, // Магия вне хогвартса
 };
-
-DirBridge.dir = DirBridge.getLauncherDir(config.dir);
-DirBridge.dirStore = DirBridge.getStoreDir(config.dir);
-DirBridge.dirProjectStore = DirBridge.getProjectStoreDir(config.dir);
-if (!IOHelper.isDir(DirBridge.dir)) {
-    java.nio.file.Files.createDirectory(DirBridge.dir);
-}
-DirBridge.defaultUpdatesDir = DirBridge.dir.resolve("updates");
-if (!IOHelper.isDir(DirBridge.defaultUpdatesDir)) {
-    java.nio.file.Files.createDirectory(DirBridge.defaultUpdatesDir);
-}

@@ -171,8 +171,8 @@ public class JSRuntimeProvider implements RuntimeProvider {
     @Override
     public void preLoad() throws IOException, ScriptException {
         if (!isPreLoaded) {
-            loadScript(Launcher.API_SCRIPT_FILE);
             loadScript(Launcher.CONFIG_SCRIPT_FILE);
+            loadScript(Launcher.API_SCRIPT_FILE);
             isPreLoaded = true;
         }
     }
