@@ -4,11 +4,11 @@ var config = {
     title: "GravitLauncher",  // Заголовок окна
 
     //*** Меню авторизации ***/
-    linkText: "GravitLauncher",                              // Текст ссылки
-    linkURL: new java.net.URL("https://gravitlauncher.ml"),  // Ссылка на страницу в браузере
+    linkText: "GravitLauncher",                                 // Текст ссылки
+    linkURL: new java.net.URL("https://gravit.pro"),            // Ссылка
 
     //*** Меню выбора серверов ***/
-    discord: new java.net.URL("https://discord.gg/aJK6nMN"),
+    discord: new java.net.URL("https://discord.gg/aJK6nMN"),    // Ссылка
 
     //*** Стандартные настройки клиента ***//
     autoEnterDefault: false,    // Автоматический вход на выбранный сервер
