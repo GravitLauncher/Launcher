@@ -62,7 +62,7 @@ import pro.gravit.utils.helper.VerifyHelper;
 
 public class JSRuntimeProvider implements RuntimeProvider {
 
-    private final ScriptEngine engine = CommonHelper.newScriptEngine();
+	public final ScriptEngine engine = CommonHelper.newScriptEngine();
     private boolean isPreLoaded = false;
 
     @LauncherAPI
@@ -98,12 +98,6 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("ProfileByUUIDRequestClass", ProfileByUUIDRequest.class);
         bindings.put("BatchProfileByUsernameRequestClass", BatchProfileByUsernameRequest.class);
         bindings.put("GetAvailabilityAuthRequestClass", GetAvailabilityAuthRequest.class);
-
-        // Set hasher class bindings
-        bindings.put("FileNameMatcherClass", FileNameMatcher.class);
-        bindings.put("HashedDirClass", HashedDir.class);
-        bindings.put("HashedFileClass", HashedFile.class);
-        bindings.put("HashedEntryTypeClass", HashedEntry.Type.class);
 
         // Set serialization class bindings
         bindings.put("HInputClass", HInput.class);
