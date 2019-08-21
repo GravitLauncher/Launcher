@@ -16,14 +16,15 @@ var LauncherApp = Java.extend(JSApplication, {
         stage.setResizable(false);
         stage.setTitle(config.title);
 
-        stage.getIcons().add(
-            new javafx.scene.image.Image(Launcher.getResourceURL("favicon.png").toString())
-        );
-
         consoleStage = new javafx.stage.Stage();
         consoleStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
         consoleStage.setResizable(false);
         consoleStage.setTitle(config.title);
+
+        config.icons.forEach(function(icon) {
+            var iconURL = Launcher.getResourceURL(icon).toString();
+            stage.getIcons().add(new javafx.scene.image.Image(iconURL));
+        });
 
         loginPane = loadFXML("dialog/scenes/login/login.fxml");
         menuPane = loadFXML("dialog/scenes/mainmenu/mainmenu.fxml");

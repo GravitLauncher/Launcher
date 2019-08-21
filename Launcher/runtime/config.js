@@ -1,13 +1,14 @@
 var config = {
-    //*** Настройки лаунчера ***/
+    //*** Настройки лаунчера ***//
     dir: "GravitLauncher",    // Название папки лаунчера
     title: "GravitLauncher",  // Заголовок окна
+    icons: ["favicon.png"],   // Путь/Пути до иконки окна
 
-    //*** Меню авторизации ***/
+    //*** Меню авторизации ***//
     linkText: "GravitLauncher",                                 // Текст ссылки
     linkURL: new java.net.URL("https://gravit.pro"),            // Ссылка
 
-    //*** Меню выбора серверов ***/
+    //*** Меню выбора серверов ***//
     discord: new java.net.URL("https://discord.gg/aJK6nMN"),    // Ссылка
 
     //*** Стандартные настройки клиента ***//
