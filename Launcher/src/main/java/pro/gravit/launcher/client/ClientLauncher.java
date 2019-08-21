@@ -306,6 +306,7 @@ public final class ClientLauncher {
 	private static Process process = null;
     private static boolean clientStarted = false;
     private static Thread writeParamsThread;
+	public static PlayerProfile playerProfile;
 
     @LauncherAPI
     public static Process launch(
@@ -461,6 +462,7 @@ public final class ClientLauncher {
             return;
         }
         Launcher.profile = profile;
+        playerProfile = params.pp;
         Request.setSession(params.session);
         checkJVMBitsAndVersion();
         Launcher.modulesManager.initModules();

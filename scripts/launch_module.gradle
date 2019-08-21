@@ -1,8 +1,0 @@
-dependencies {
-    compileOnly project(':Launcher')
-}
-
-jar {
-    from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
-}
-

@@ -62,7 +62,7 @@ import pro.gravit.utils.helper.VerifyHelper;
 
 public class JSRuntimeProvider implements RuntimeProvider {
 
-    private final ScriptEngine engine = CommonHelper.newScriptEngine();
+    public final ScriptEngine engine = CommonHelper.newScriptEngine();
     private boolean isPreLoaded = false;
 
     @LauncherAPI
