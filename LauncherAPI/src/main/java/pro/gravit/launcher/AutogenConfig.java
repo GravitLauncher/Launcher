@@ -4,8 +4,6 @@ public class AutogenConfig {
     public String projectname;
     public String address;
     public int clientPort;
-    @SuppressWarnings("unused")
-    private boolean isInitModules;
     public String guardType;
     public String secretKeyClient;
     public String oemUnlockKey;
@@ -23,5 +21,6 @@ public class AutogenConfig {
     }
 
     public void initModules() {
+    	
     }
 }
