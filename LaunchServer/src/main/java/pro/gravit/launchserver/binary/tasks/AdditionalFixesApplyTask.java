@@ -19,6 +19,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.SafeClassWriter;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public class AdditionalFixesApplyTask implements LauncherBuildTask {
     private final LaunchServer server;
@@ -73,7 +74,12 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                             IOHelper.transfer(input, outputStream);
                             bytes = outputStream.toByteArray();
                         }
-                        output.write(classFix(bytes, reader, srv.config.stripLineNumbers));
+                        try {
+                        	bytes = classFix(bytes, reader, srv.config.launcher.stripLineNumbers);
+                        } catch (Throwable t) {
+                        	LogHelper.subWarning("Error on fixing class: " +  t);
+                        }
+                        output.write(bytes);
                     } else
                         IOHelper.transfer(input, output);
                     e = input.getNextEntry();
@@ -86,7 +92,6 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
         ClassReader cr = new ClassReader(bytes);
         ClassNode cn = new ClassNode();
         cr.accept(cn, stripNumbers ? (ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES) : ClassReader.SKIP_FRAMES);
-
         ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         cn.accept(cw);
         return cw.toByteArray();

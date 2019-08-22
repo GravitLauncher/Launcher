@@ -624,7 +624,11 @@ public final class IOHelper {
 
         // Set socket options
         socket.setSoTimeout(SOCKET_TIMEOUT);
-        socket.setTrafficClass(0b11100);
+        try {
+            socket.setTrafficClass(0b11100);
+        } catch (SocketException ignored) {
+            // Windows XP has no support for that
+        }
         socket.setPerformancePreferences(1, 0, 2);
     }
 

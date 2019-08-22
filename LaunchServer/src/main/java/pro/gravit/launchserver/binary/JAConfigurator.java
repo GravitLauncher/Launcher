@@ -1,109 +1,100 @@
 package pro.gravit.launchserver.binary;
 
-import java.io.IOException;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtMethod;
-import javassist.NotFoundException;
+import org.objectweb.asm.Type;
+
+import pro.gravit.launcher.AutogenConfig;
 import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launchserver.binary.tasks.MainBuildTask;
+import pro.gravit.launcher.modules.Module;
+import pro.gravit.launcher.modules.ModulesManager;
+import pro.gravit.launchserver.asm.ClassMetadataReader;
+import pro.gravit.launchserver.asm.SafeClassWriter;
 
-public class JAConfigurator implements AutoCloseable {
-    public ClassPool pool;
-    public CtClass ctClass;
-    public CtConstructor ctConstructor;
-    public CtMethod initModuleMethod;
-    String classname;
-    StringBuilder body;
-    StringBuilder moduleBody;
-    int autoincrement;
+public class JAConfigurator {
+	private static final String modulesManagerName = Type.getInternalName(ModulesManager.class);
+	private static final String registerModDesc = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(Module.class));
+	private static final String autoGenConfigName = Type.getInternalName(AutogenConfig.class);
+	private static final String stringName = Type.getInternalName(String.class);
+	private final ClassNode configclass;
+	private final MethodNode constructor;
+	private final MethodNode initModuleMethod;
 
-    public JAConfigurator(String configclass, MainBuildTask jarLauncherBinary) throws NotFoundException {
-        pool = new ClassPool(false);
-        pool.appendSystemPath();
-        classname = configclass;
-        ctClass = pool.get(classname);
-        ctConstructor = ctClass.getDeclaredConstructor(null);
-        initModuleMethod = ctClass.getDeclaredMethod("initModules");
-        body = new StringBuilder("{ isInitModules = false; ");
-        moduleBody = new StringBuilder("{ isInitModules = true; ");
-        autoincrement = 0;
+    public JAConfigurator(ClassNode configclass) {
+    	this.configclass = configclass;
+    	constructor = configclass.methods.stream().filter(e -> "<init>".equals(e.name)).findFirst().get();
+    	constructor.instructions = new InsnList();
+        initModuleMethod = configclass.methods.stream().filter(e -> "initModules".equals(e.name)).findFirst().get();
+        initModuleMethod.instructions = new InsnList();
     }
 
     public void addModuleClass(String fullName) {
-        moduleBody.append("pro.gravit.launcher.modules.Module mod");
-        moduleBody.append(autoincrement);
-        moduleBody.append(" = new ");
-        moduleBody.append(fullName);
-        moduleBody.append("();");
-        moduleBody.append("pro.gravit.launcher.Launcher.modulesManager.registerModule( mod");
-        moduleBody.append(autoincrement);
-        moduleBody.append(");");
-        autoincrement++;
+    	initModuleMethod.instructions.insert(new MethodInsnNode(Opcodes.INVOKEINTERFACE, modulesManagerName, "registerModule", registerModDesc));
+    	initModuleMethod.instructions.insert(new MethodInsnNode(Opcodes.INVOKESPECIAL, fullName.replace('.', '/'), "<init>", "()V"));
+    	initModuleMethod.instructions.insert(new TypeInsnNode(Opcodes.NEW, fullName.replace('.', '/')));
     }
 
-    @Override
-    public void close() {
-        ctClass.defrost();
-    }
-
-    public CtClass getCtClass() {
-        return ctClass;
-    }
-
-    public byte[] getBytecode() throws IOException, CannotCompileException {
-        return ctClass.toBytecode();
-    }
-
-    public void compile() throws CannotCompileException {
-        body.append("}");
-        moduleBody.append("}");
-        ctConstructor.setBody(body.toString());
-        initModuleMethod.insertAfter(moduleBody.toString());
-        if (ctClass.isFrozen()) ctClass.defrost();
+    public byte[] getBytecode(ClassMetadataReader reader) {
+        ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES);
+        configclass.accept(cw);
+    	return cw.toByteArray();
     }
 
     public String getZipEntryPath() {
-        return classname.replace('.', '/').concat(".class");
+        return configclass.name.concat(".class");
     }
 
     public void setAddress(String address) {
-        body.append("this.address = \"");
-        body.append(address);
-        body.append("\";");
+    	constructor.instructions.add(new LdcInsnNode(address));
+    	constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "address", stringName));
     }
 
     public void setProjectName(String name) {
-        body.append("this.projectname = \"");
-        body.append(name);
-        body.append("\";");
+    	constructor.instructions.add(new LdcInsnNode(name));
+    	constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "projectname", stringName));
     }
 
     public void setSecretKey(String key) {
-        body.append("this.secretKeyClient = \"");
-        body.append(key);
-        body.append("\";");
+    	constructor.instructions.add(new LdcInsnNode(key));
+    	constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "secretKeyClient", stringName));
     }
 
     public void setOemUnlockKey(String key) {
-        body.append("this.oemUnlockKey = \"");
-        body.append(key);
-        body.append("\";");
+        constructor.instructions.add(new LdcInsnNode(key));
+    	constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "oemUnlockKey", stringName));
+        
     }
 
     public void setGuardType(String key) {
-        body.append("this.guardType = \"");
-        body.append(key);
-        body.append("\";");
+        constructor.instructions.add(new LdcInsnNode(key));
+    	constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardType", stringName));
     }
 
+	public void push(final int value) {
+		if (value >= -1 && value <= 5)
+			constructor.instructions.add(new InsnNode(Opcodes.ICONST_0 + value));
+		else if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE)
+			constructor.instructions.add(new IntInsnNode(Opcodes.BIPUSH, value));
+		else if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE)
+			constructor.instructions.add(new IntInsnNode(Opcodes.SIPUSH, value));
+		else
+			constructor.instructions.add(new LdcInsnNode(value));
+	}
+    
     public void setEnv(LauncherConfig.LauncherEnvironment env) {
         int i = 2;
+        
         switch (env) {
-
             case DEV:
                 i = 0;
                 break;
@@ -117,36 +108,35 @@ public class JAConfigurator implements AutoCloseable {
                 i = 3;
                 break;
         }
-        body.append("this.env = ");
-        body.append(i);
-        body.append(";");
+        push(i);
+        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "env", Type.INT_TYPE.getInternalName()));
     }
 
     public void setClientPort(int port) {
-        body.append("this.clientPort = ");
-        body.append(port);
-        body.append(";");
+        push(port);
+        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "clientPort", Type.INT_TYPE.getInternalName()));
     }
 
     public void setWarningMissArchJava(boolean b) {
-        body.append("this.isWarningMissArchJava = ");
-        body.append(b ? "true" : "false");
-        body.append(";");
+        constructor.instructions.add(new InsnNode(b ? Opcodes.ICONST_1 : Opcodes.ICONST_0));
+        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "isWarningMissArchJava", Type.BOOLEAN_TYPE.getInternalName()));
     }
 
     public void setGuardLicense(String name, String key, String encryptKey) {
-        body.append("this.guardLicenseName = \"");
-        body.append(name);
-        body.append("\";");
-        body.append("this.guardLicenseKey = \"");
-        body.append(key);
-        body.append("\";");
-        body.append("this.guardLicenseEncryptKey = \"");
-        body.append(encryptKey);
-        body.append("\";");
+        constructor.instructions.add(new LdcInsnNode(name));
+    	constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseName", stringName));
+    	constructor.instructions.add(new LdcInsnNode(key));
+     	constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseKey", stringName));
+     	constructor.instructions.add(new LdcInsnNode(encryptKey));
+     	constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseEncryptKey", stringName));
     }
-
-    public ClassPool getPool() {
-        return pool;
+    
+    public void nullGuardLicense() {
+        constructor.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
+    	constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseName", stringName));
+        constructor.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
+     	constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseKey", stringName));
+        constructor.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
+     	constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseEncryptKey", stringName));
     }
 }

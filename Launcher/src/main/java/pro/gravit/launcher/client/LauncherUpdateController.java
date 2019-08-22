@@ -72,7 +72,9 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                     //if(file.isSame(ret, true))
                     {
                         Path source = request.getDir().resolve(path);
-                        LogHelper.debug("Copy file %s to %s", ret.toAbsolutePath().toString(), source.toAbsolutePath().toString());
+                        if (LogHelper.isDebugEnabled()) {
+                            LogHelper.debug("Copy file %s to %s", ret.toAbsolutePath().toString(), source.toAbsolutePath().toString());
+                        }
                         //Let's go!
                         Files.copy(ret, source);
                         try (InputStream input = IOHelper.newInput(ret)) {
@@ -93,11 +95,15 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
             if (entry.getType() == HashedEntry.Type.DIR) return HashedDir.WalkAction.CONTINUE;
             HashedFile tfile = (HashedFile) entry;
             if (tfile.isSame(file)) {
-                LogHelper.dev("[DIR:%s] Found file %s in %s", en.name, name, path);
+                if (LogHelper.isDevEnabled()) {
+                    LogHelper.dev("[DIR:%s] Found file %s in %s", en.name, name, path);
+                }
                 Path tdir = Paths.get(en.fullPath).resolve(path);
                 try {
                     if (tfile.isSame(tdir, true)) {
-                        LogHelper.dev("[DIR:%s] Confirmed file %s in %s", en.name, name, path);
+                        if (LogHelper.isDevEnabled()) {
+                            LogHelper.dev("[DIR:%s] Confirmed file %s in %s", en.name, name, path);
+                        }
                         ret.set(tdir);
                         return HashedDir.WalkAction.STOP;
                     }

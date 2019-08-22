@@ -9,13 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.binary.tasks.AdditionalFixesApplyTask;
-import pro.gravit.launchserver.binary.tasks.AttachJarsTask;
-import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
-import pro.gravit.launchserver.binary.tasks.MainBuildTask;
-import pro.gravit.launchserver.binary.tasks.PrepareBuildTask;
-import pro.gravit.launchserver.binary.tasks.ProGuardBuildTask;
-import pro.gravit.launchserver.binary.tasks.RadonBuildTask;
+import pro.gravit.launchserver.binary.tasks.*;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -51,8 +45,8 @@ public final class JARLauncherBinary extends LauncherBinary {
         if (server.config.launcher.attachLibraryBeforeProGuard) tasks.add(new AttachJarsTask(server));
         tasks.add(new ProGuardBuildTask(server));
         tasks.add(new AdditionalFixesApplyTask(server));
-        tasks.add(new RadonBuildTask(server));
         if (!server.config.launcher.attachLibraryBeforeProGuard) tasks.add(new AttachJarsTask(server));
+        if(server.config.launcher.compress) tasks.add(new CompressBuildTask(server));
     }
 
     @Override
@@ -70,12 +64,12 @@ public final class JARLauncherBinary extends LauncherBinary {
             long time_task_end = System.currentTimeMillis();
             long time_task = time_task_end - time_this;
             time_this = time_task_end;
-            if (isNeedDelete && server.config.deleteTempFiles) Files.deleteIfExists(oldPath);
+            if (isNeedDelete && server.config.launcher.deleteTempFiles) Files.deleteIfExists(oldPath);
             isNeedDelete = task.allowDelete();
             LogHelper.subInfo("Task %s processed from %d millis", task.getName(), time_task);
         }
         long time_end = System.currentTimeMillis();
-        if (isNeedDelete && server.config.deleteTempFiles) IOHelper.move(thisPath, syncBinaryFile);
+        if (isNeedDelete && server.config.launcher.deleteTempFiles) IOHelper.move(thisPath, syncBinaryFile);
         else IOHelper.copy(thisPath, syncBinaryFile);
         LogHelper.info("Build successful from %d millis", time_end - time_start);
     }

@@ -13,11 +13,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +33,10 @@ import java.util.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
+import io.netty.channel.epoll.Epoll;
+import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.operator.OperatorCreationException;
+
 import io.netty.handler.logging.LogLevel;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
@@ -41,7 +46,6 @@ import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.handler.MemoryAuthHandler;
@@ -61,13 +65,19 @@ import pro.gravit.launchserver.binary.EXELauncherBinary;
 import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.LauncherBinary;
 import pro.gravit.launchserver.binary.ProguardConf;
+import pro.gravit.launchserver.binary.SimpleEXELauncherBinary;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.RegLimiterComponent;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
-import pro.gravit.launchserver.dao.UserService;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
-import pro.gravit.launchserver.manangers.*;
+import pro.gravit.launchserver.manangers.CertificateManager;
+import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
+import pro.gravit.launchserver.manangers.MirrorManager;
+import pro.gravit.launchserver.manangers.ModulesManager;
+import pro.gravit.launchserver.manangers.ReconfigurableManager;
+import pro.gravit.launchserver.manangers.ReloadManager;
+import pro.gravit.launchserver.manangers.SessionManager;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
 import pro.gravit.launchserver.socket.WebSocketService;
@@ -147,15 +157,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public GuardLicenseConf guardLicense;
 
         public String whitelistRejectString;
-
-        public boolean genMappings;
         public LauncherConf launcher;
-
-        public boolean isWarningMissArchJava;
-        public boolean enabledProGuard;
-        public boolean enabledRadon;
-        public boolean stripLineNumbers;
-        public boolean deleteTempFiles;
+        public CertificateConf certificate;
 
         public String startScript;
 
@@ -253,6 +256,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public static class ExeConf {
         public boolean enabled;
+        public String alternative;
         public boolean setMaxVersion;
         public String maxVersion;
         public String productName;
@@ -267,6 +271,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String txtProductVersion;
     }
 
+    public static class CertificateConf
+    {
+        public boolean enabled;
+    }
+
     public static class NettyUpdatesBind {
         public String url;
         public boolean zip;
@@ -275,6 +284,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public class LauncherConf {
         public String guardType;
         public boolean attachLibraryBeforeProGuard;
+        public boolean compress;
+        public boolean warningMissArchJava;
+        public boolean enabledProGuard;
+        public boolean stripLineNumbers;
+        public boolean deleteTempFiles;
+        public boolean proguardGenMappings;
     }
 
     public class NettyConfig {
@@ -289,22 +304,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public NettyPerformanceConfig performance;
         public NettyBindAddress[] binds;
         public LogLevel logLevel = LogLevel.DEBUG;
-        public NettyProxyConfig proxy = new NettyProxyConfig();
     }
 
     public class NettyPerformanceConfig {
         public boolean usingEpoll;
         public int bossThread;
         public int workerThread;
-    }
-
-    public class NettyProxyConfig {
-        public boolean enabled;
-        public String address = "ws://localhost:9275/api";
-        public String login = "login";
-        public String password = "password";
-        public String auth_id = "std";
-        public ArrayList<String> requests = new ArrayList<>();
     }
 
     public class NettyBindAddress {
@@ -355,7 +360,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         LogHelper.printLicense("LaunchServer");
         if (!StarterAgent.isAgentStarted()) {
             LogHelper.error("StarterAgent is not started!");
-            LogHelper.error("Your should add to JVM options this option: `-javaagent:LaunchServer.jar`");
+            LogHelper.error("You should add to JVM options this option: `-javaagent:LaunchServer.jar`");
         }
 
         // Start LaunchServer
@@ -393,6 +398,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     public final Path publicKeyFile;
 
     public final Path privateKeyFile;
+
+    public final Path caCertFile;
+
+    public final Path caKeyFile;
+
+    public final Path serverCertFile;
+
+    public final Path serverKeyFile;
 
     public final Path updatesDir;
 
@@ -448,7 +461,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     // Updates and profiles
     private volatile List<ClientProfile> profilesList;
-    public volatile Map<String, SignedObjectHolder<HashedDir>> updatesDirMap;
+    public volatile Map<String, HashedDir> updatesDirMap;
 
     public final Timer taskPool;
 
@@ -481,6 +494,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         privateKeyFile = dir.resolve("private.key");
         updatesDir = dir.resolve("updates");
         profilesDir = dir.resolve("profiles");
+
+        caCertFile = dir.resolve("ca.crt");
+        caKeyFile = dir.resolve("ca.key");
+
+        serverCertFile = dir.resolve("server.crt");
+        serverKeyFile = dir.resolve("server.key");
 
         //Registration handlers and providers
         AuthHandler.registerHandlers();
@@ -594,6 +613,43 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
         certificateManager = new CertificateManager();
+        //Generate or set new Certificate API
+        certificateManager.orgName = config.projectName;
+        if(config.certificate != null && config.certificate.enabled)
+        {
+            if(IOHelper.isFile(caCertFile) && IOHelper.isFile(caKeyFile))
+            {
+                certificateManager.ca = certificateManager.readCertificate(caCertFile);
+                certificateManager.caKey = certificateManager.readPrivateKey(caKeyFile);
+            }
+            else
+            {
+                try {
+                    certificateManager.generateCA();
+                    certificateManager.writeCertificate(caCertFile, certificateManager.ca);
+                    certificateManager.writePrivateKey(caKeyFile, certificateManager.caKey);
+                } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException | OperatorCreationException e) {
+                    LogHelper.error(e);
+                }
+            }
+            if(IOHelper.isFile(serverCertFile) && IOHelper.isFile(serverKeyFile))
+            {
+                certificateManager.server = certificateManager.readCertificate(serverCertFile);
+                certificateManager.serverKey = certificateManager.readPrivateKey(serverKeyFile);
+            }
+            else
+            {
+                try {
+                    KeyPair pair = certificateManager.generateKeyPair();
+                    certificateManager.server = certificateManager.generateCertificate(config.projectName.concat(" Server"), pair.getPublic());
+                    certificateManager.serverKey = PrivateKeyFactory.createKey(pair.getPrivate().getEncoded());
+                    certificateManager.writePrivateKey(serverKeyFile, pair.getPrivate());
+                    certificateManager.writeCertificate(serverCertFile, certificateManager.server);
+                } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | OperatorCreationException e) {
+                    LogHelper.error(e);
+                }
+            }
+        }
         GarbageManager.registerNeedGC(sessionManager);
         reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);
@@ -669,6 +725,19 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 LogHelper.error(e);
             }
         }
+        if(config.launch4j.alternative != null)
+        {
+            switch (config.launch4j.alternative) {
+                case "simple":
+                    return new SimpleEXELauncherBinary(this);
+                case "no":
+                    //None
+                    break;
+                default:
+                    LogHelper.warning("Alternative %s not found", config.launch4j.alternative);
+                    break;
+            }
+        }
         try {
             Class.forName("net.sf.launch4j.Builder");
             if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
@@ -714,6 +783,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.launch4j = new ExeConf();
         newConfig.launch4j.enabled = true;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
+        newConfig.launch4j.alternative = "no";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
         newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
         newConfig.launch4j.internalName = "Launcher";
@@ -741,19 +811,22 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.netty.fileServerEnabled = true;
         newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
         newConfig.netty.performance = new NettyPerformanceConfig();
-        newConfig.netty.performance.usingEpoll = JVMHelper.OS_TYPE == JVMHelper.OS.LINUX; //Only linux
+        newConfig.netty.performance.usingEpoll = Epoll.isAvailable();
         newConfig.netty.performance.bossThread = 2;
         newConfig.netty.performance.workerThread = 8;
 
         newConfig.launcher = new LauncherConf();
         newConfig.launcher.guardType = "no";
+        newConfig.launcher.compress = true;
+        newConfig.launcher.warningMissArchJava = true;
+        newConfig.launcher.attachLibraryBeforeProGuard = false;
+        newConfig.launcher.deleteTempFiles = true;
+        newConfig.launcher.enabledProGuard = true;
+        newConfig.launcher.stripLineNumbers = true;
+        newConfig.launcher.proguardGenMappings = true;
 
-        newConfig.enabledRadon = true;
-        newConfig.genMappings = true;
-        newConfig.enabledProGuard = true;
-        newConfig.stripLineNumbers = true;
-        newConfig.deleteTempFiles = true;
-        newConfig.isWarningMissArchJava = true;
+        newConfig.certificate = new CertificateConf();
+        newConfig.certificate.enabled = false;
 
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
@@ -808,12 +881,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         this.profilesList = Collections.unmodifiableList(profilesList);
     }
 
-    public SignedObjectHolder<HashedDir> getUpdateDir(String name) {
+    public HashedDir getUpdateDir(String name) {
         return updatesDirMap.get(name);
     }
 
 
-    public Set<Entry<String, SignedObjectHolder<HashedDir>>> getUpdateDirs() {
+    public Set<Entry<String, HashedDir>> getUpdateDirs() {
         return updatesDirMap.entrySet();
     }
 
@@ -866,7 +939,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
         LogHelper.info("Syncing updates dir");
-        Map<String, SignedObjectHolder<HashedDir>> newUpdatesDirMap = new HashMap<>(16);
+        Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(updatesDir)) {
             for (final Path updateDir : dirStream) {
                 if (Files.isHidden(updateDir))
@@ -882,7 +955,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
                 // Add from previous map (it's guaranteed to be non-null)
                 if (dirs != null && !dirs.contains(name)) {
-                    SignedObjectHolder<HashedDir> hdir = updatesDirMap.get(name);
+                    HashedDir hdir = updatesDirMap.get(name);
                     if (hdir != null) {
                         newUpdatesDirMap.put(name, hdir);
                         continue;
@@ -892,7 +965,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 // Sync and sign update dir
                 LogHelper.info("Syncing '%s' update dir", name);
                 HashedDir updateHDir = new HashedDir(updateDir, null, true, true);
-                newUpdatesDirMap.put(name, new SignedObjectHolder<>(updateHDir, privateKey));
+                newUpdatesDirMap.put(name, updateHDir);
             }
         }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);

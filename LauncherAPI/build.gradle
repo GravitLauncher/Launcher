@@ -6,3 +6,36 @@ dependencies {
     compileOnly 'org.apache.httpcomponents:httpclient:4.5.7'
     compileOnly 'io.netty:netty-codec-http:4.1.36.Final'
 }
+
+jar {
+    classifier = 'clean'
+}
+
+publishing {
+    publications {
+        launcherwsapi(MavenPublication) {
+            artifactId = 'launcher-ws-api'
+            artifact jar
+            pom {
+                name = 'GravitLauncher WebSocket API'
+                description = 'GravitLauncher WebSocket Module API'
+                url = 'https://launcher.gravit.pro'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/GravitLauncher/Launcher.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:GravitLauncher/Launcher.git'
+                    url = 'https://launcher.gravit.pro/'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.launcherwsapi
+}

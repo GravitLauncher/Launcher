@@ -1,8 +1,12 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '5.0.0' apply false
+    id 'maven-publish'
+    id 'signing'
 }
+group = 'pro.gravit.launcher'
+version = '5.0.6'
 
-configure(subprojects.findAll { it.name != 'modules' && it.name != 'Radon' }) {
+configure(subprojects.findAll { it.name != 'modules' }) {
     apply plugin: 'idea'
     apply plugin: 'eclipse'
     apply plugin: 'java'
@@ -29,12 +33,7 @@ configure(subprojects.findAll { it.name != 'modules' && it.name != 'Radon' }) {
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
         options.annotationProcessorPath = configurations.aptOnly
-    }
-}
-
-subprojects {
-    tasks.withType(JavaCompile) {
-        options.incremental = true // one flag, and things will get MUCH faster
+        options.incremental = true // one flag, and things will get MUCH faster    
     }
 }
 
@@ -43,3 +42,16 @@ wrapper {
 }
 
 defaultTasks 'build'
+if (hasProperty('mavenUsername') && hasProperty('mavenPassword') && hasProperty('mavenReleaseRepository') && hasProperty('mavenSnapshotRepository')) {
+    publishing {
+        repositories {
+            maven {
+                url = version.endsWith('SNAPSHOT') ? getProperty('mavenSnapshotRepository') : getProperty('mavenReleaseRepository')
+                credentials {
+                    username getProperty('mavenUsername')
+                    password getProperty('mavenPassword')
+                }
+            }
+        }
+    }
+}

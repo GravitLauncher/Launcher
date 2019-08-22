@@ -8,7 +8,8 @@ import pro.gravit.launcher.profiles.PlayerProfile;
 
 
 public class ProfileByUUIDRequestEvent extends RequestEvent {
-    private static final UUID uuid = UUID.fromString("b9014cf3-4b95-4d38-8c5f-867f190a18a0");
+    @SuppressWarnings("unused")
+	private static final UUID uuid = UUID.fromString("b9014cf3-4b95-4d38-8c5f-867f190a18a0");
     @LauncherNetworkAPI
     public String error;
     @LauncherNetworkAPI

@@ -7,7 +7,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.utils.helper.LogHelper;

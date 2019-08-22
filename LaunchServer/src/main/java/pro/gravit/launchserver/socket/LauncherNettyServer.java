@@ -7,6 +7,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
@@ -15,14 +16,11 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.handlers.NettyIpForwardHandler;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.handlers.fileserver.FileServerHandler;
-import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.BiHookSet;
 import pro.gravit.utils.helper.LogHelper;
 
 public class LauncherNettyServer implements AutoCloseable {
@@ -30,6 +28,7 @@ public class LauncherNettyServer implements AutoCloseable {
     public final EventLoopGroup bossGroup;
     public final EventLoopGroup workerGroup;
     public final WebSocketService service;
+    public final BiHookSet<NettyConnectContext,SocketChannel> pipelineHook = new BiHookSet<>();
     private static final String WEBSOCKET_PATH = "/api";
 
     public LauncherNettyServer(LaunchServer server) {
@@ -39,16 +38,16 @@ public class LauncherNettyServer implements AutoCloseable {
         {
             LogHelper.debug("Netty: Epoll enabled");
         }
-        if(config.performance.usingEpoll && JVMHelper.OS_TYPE != JVMHelper.OS.LINUX)
+        if(config.performance.usingEpoll && !Epoll.isAvailable())
         {
-            LogHelper.error("netty,perfomance.usingEpoll work only Linux systems");
+            LogHelper.error("Epoll is not available: (netty,perfomance.usingEpoll configured wrongly)", Epoll.unavailabilityCause());
         }
         bossGroup = NettyObjectFactory.newEventLoopGroup(config.performance.bossThread);
         workerGroup = NettyObjectFactory.newEventLoopGroup(config.performance.workerThread);
         serverBootstrap = new ServerBootstrap();
         service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), server);
         serverBootstrap.group(bossGroup, workerGroup)
-                .channel(NettyObjectFactory.getServerSocketChannelClass())
+                .channelFactory(NettyObjectFactory.getServerSocketChannelFactory())
                 .handler(new LoggingHandler(config.logLevel))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -65,19 +64,9 @@ public class LauncherNettyServer implements AutoCloseable {
                         if (server.config.netty.fileServerEnabled)
                             pipeline.addLast(new FileServerHandler(server.updatesDir, true));
                         pipeline.addLast(new WebSocketFrameHandler(context, server, service));
+                        pipelineHook.hook(context, ch);
                     }
                 });
-        if (config.proxy != null && config.proxy.enabled) {
-            LogHelper.info("Connect to main server %s");
-            Request.service = StandartClientWebSocketService.initWebSockets(config.proxy.address, false);
-            AuthRequest authRequest = new AuthRequest(config.proxy.login, config.proxy.password, config.proxy.auth_id, AuthRequest.ConnectTypes.PROXY);
-            authRequest.initProxy = true;
-            try {
-                authRequest.request();
-            } catch (Exception e) {
-                LogHelper.error(e);
-            }
-        }
     }
 
     public ChannelFuture bind(InetSocketAddress address) {

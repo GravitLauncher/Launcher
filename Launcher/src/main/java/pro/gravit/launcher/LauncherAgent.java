@@ -7,7 +7,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -22,6 +21,7 @@ import org.objectweb.asm.tree.MethodNode;
 import cpw.mods.fml.SafeExitJVMLegacy;
 import net.minecraftforge.fml.SafeExitJVM;
 import pro.gravit.launcher.utils.NativeJVMHalt;
+import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 @LauncherAPI
@@ -46,19 +46,20 @@ public final class LauncherAgent {
         NativeJVMHalt.class.getName();
         NativeJVMHalt.initFunc();
         isAgentStarted = true;
-        boolean pb = true;
-        boolean rt = true;
-        if (agentArgument != null) {
-            String trimmedArg = agentArgument.trim();
-            if (!trimmedArg.isEmpty()) {
-                if (trimmedArg.contains("p")) pb = false;
-                if (trimmedArg.contains("r")) rt = false;
-            }
-        }
         if (System.getProperty("java.vm.name").toUpperCase(Locale.US).contains("HOTSPOT"))
         	try {
-        		if (ManagementFactory.getOperatingSystemMXBean().getName().startsWith("Windows")) replaceClasses(pb, rt);
-        		else replaceClasses(false, false);
+        	    if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
+                    boolean pb = true;
+                    boolean rt = true;
+                    if (agentArgument != null) {
+                        String trimmedArg = agentArgument.trim();
+                        if (!trimmedArg.isEmpty()) {
+                            if (trimmedArg.contains("p")) pb = false;
+                            if (trimmedArg.contains("r")) rt = false;
+                        }
+                    }
+                    replaceClasses(pb, rt);
+                } else replaceClasses(false, false);
         	} catch (Error e) {
         		NativeJVMHalt.haltA(294);
         		throw e;

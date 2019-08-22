@@ -1,7 +1,11 @@
 package pro.gravit.launchserver.manangers;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.socket.Client;
@@ -10,53 +14,50 @@ public class SessionManager implements NeedGarbageCollection {
 
     public static final long SESSION_TIMEOUT = 3 * 60 * 60 * 1000; // 3 часа
     public static final boolean GARBAGE_SERVER = Boolean.parseBoolean(System.getProperty("launcher.garbageSessionsServer", "false"));
-    private HashSet<Client> clientSet = new HashSet<>(128);
+    private Map<Long, Client> clientSet = new HashMap<>(128);
 
 
     public boolean addClient(Client client) {
-        clientSet.add(client);
+        clientSet.put(client.session, client);
         return true;
     }
 
     @Override
     public void garbageCollection() {
         long time = System.currentTimeMillis();
-        clientSet.removeIf(c -> (c.timestamp + SESSION_TIMEOUT < time) && ((c.type == Client.Type.USER) || ((c.type == Client.Type.SERVER) && GARBAGE_SERVER)));
+        clientSet.entrySet().removeIf(entry -> {
+            Client c = entry.getValue();
+            return (c.timestamp + SESSION_TIMEOUT < time) && ((c.type == Client.Type.USER) || ((c.type == Client.Type.SERVER) && GARBAGE_SERVER));
+        });
     }
 
 
     public Client getClient(long session) {
-        for (Client c : clientSet)
-            if (c.session == session) return c;
-        return null;
+        return clientSet.get(session);
     }
 
 
     public Client getOrNewClient(long session) {
-        for (Client c : clientSet)
-            if (c.session == session) return c;
-        Client newClient = new Client(session);
-        clientSet.add(newClient);
-        return newClient;
+        return clientSet.computeIfAbsent(session, Client::new);
     }
 
 
     public void updateClient(long session) {
-        for (Client c : clientSet) {
-            if (c.session == session) {
-                c.up();
-                return;
-            }
+        Client c = clientSet.get(session);
+        if (c != null) {
+            c.up();
+            return;
         }
         Client newClient = new Client(session);
-        clientSet.add(newClient);
+        clientSet.put(session, newClient);
     }
 
     public Set<Client> getSessions() {
-        return clientSet;
+        // TODO: removeme
+        return new HashSet<>(clientSet.values());
     }
 
     public void loadSessions(Set<Client> set) {
-        clientSet.addAll(set);
+        clientSet.putAll(set.stream().collect(Collectors.toMap(c -> c.session, Function.identity())));
     }
 }

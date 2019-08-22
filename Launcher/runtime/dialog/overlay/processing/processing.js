@@ -1,6 +1,9 @@
 var processing = {
-    overlay: null, spinner: null, description: null,
-    processingImage: null, errorImage: null,
+    overlay: null,
+    spinner: null,
+    description: null,
+    processingImage: null,
+    errorImage: null,
 
     initOverlay: function() {
         processing.overlay = loadFXML("dialog/overlay/processing/processing.fxml");
@@ -69,6 +72,7 @@ function makeLauncherRequest(callback) {
     task.updateMessage("Обновление лаунчера");
     startTask(task);
 }
+
 function makeProfilesRequest(callback) {
     var task = newRequestTask(new ProfilesRequest());
 
@@ -83,6 +87,7 @@ function makeProfilesRequest(callback) {
     task.updateMessage("Обновление профилей");
     startTask(task);
 }
+
 function makeAuthAvailabilityRequest(callback) {
     var task = newRequestTask(new GetAvailabilityAuthRequest());
 
@@ -98,6 +103,7 @@ function makeAuthAvailabilityRequest(callback) {
     task.updateMessage("Обновление способов авторизации");
     startTask(task);
 }
+
 function makeSetProfileRequest(profile, callback) {
     var task = newRequestTask(new SetProfileRequest(profile));
 

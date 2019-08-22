@@ -44,7 +44,7 @@ public class ProguardConf {
     public String[] buildConfig(Path inputJar, Path outputJar) {
         List<String> confStrs = new ArrayList<>();
         prepare(false);
-        if (srv.config.genMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
+        if (srv.config.launcher.proguardGenMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add("-injar \'" + inputJar.toAbsolutePath() + "\'");
         confStrs.add("-outjar \'" + outputJar.toAbsolutePath() + "\'");

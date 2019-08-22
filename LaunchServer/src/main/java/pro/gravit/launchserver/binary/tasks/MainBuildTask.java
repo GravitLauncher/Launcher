@@ -16,8 +16,9 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
+
 import pro.gravit.launcher.AutogenConfig;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
@@ -115,27 +116,22 @@ public class MainBuildTask implements LauncherBuildTask {
     @Override
     public Path process(Path inputJar) throws IOException {
         Path outputJar = server.launcherBinary.nextPath("main");
-        try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar));
-             JAConfigurator jaConfigurator = new JAConfigurator(AutogenConfig.class.getName(), this)) {
-            jaConfigurator.pool.insertClassPath(inputJar.toFile().getAbsolutePath());
-            server.launcherBinary.coreLibs.stream().map(e -> e.toFile().getAbsolutePath())
-                    .forEach(t -> {
-                        try {
-                            jaConfigurator.pool.appendClassPath(t);
-                        } catch (NotFoundException e2) {
-                            LogHelper.error(e2);
-                        }
-                    });
+        try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
+        	ClassNode cn = new ClassNode();
+        	new ClassReader(IOHelper.getResourceBytes(AutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn, 0);
+        	JAConfigurator jaConfigurator = new JAConfigurator(cn);
             BuildContext context = new BuildContext(output, jaConfigurator, this);
             server.buildHookManager.hook(context);
             jaConfigurator.setAddress(server.config.netty.address);
             if (server.config.guardLicense != null)
                 jaConfigurator.setGuardLicense(server.config.guardLicense.name, server.config.guardLicense.key, server.config.guardLicense.encryptKey);
+            else
+            	jaConfigurator.nullGuardLicense();
             jaConfigurator.setProjectName(server.config.projectName);
             jaConfigurator.setSecretKey(SecurityHelper.randomStringAESKey());
             jaConfigurator.setClientPort(32148 + SecurityHelper.newRandom().nextInt(512));
             jaConfigurator.setGuardType(server.config.launcher.guardType);
-            jaConfigurator.setWarningMissArchJava(server.config.isWarningMissArchJava);
+            jaConfigurator.setWarningMissArchJava(server.config.launcher.warningMissArchJava);
             jaConfigurator.setEnv(server.config.env);
             if (server.runtime.oemUnlockKey == null) server.runtime.oemUnlockKey = SecurityHelper.randomStringToken();
             jaConfigurator.setOemUnlockKey(server.runtime.oemUnlockKey);
@@ -148,11 +144,12 @@ public class MainBuildTask implements LauncherBuildTask {
                     LogHelper.error(e1);
                 }
             });
+            String zPath = jaConfigurator.getZipEntryPath();
             try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputJar))) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
                     String filename = e.getName();
-                    if (server.buildHookManager.isContainsBlacklist(filename) || e.isDirectory()) {
+                    if (server.buildHookManager.isContainsBlacklist(filename) || e.isDirectory() || zPath.equals(filename)) {
                         e = input.getNextEntry();
                         continue;
                     }
@@ -204,12 +201,9 @@ public class MainBuildTask implements LauncherBuildTask {
             // Write launcher config file
             output.putNextEntry(newZipEntry(Launcher.CONFIG_FILE));
             output.write(launcherConfigBytes);
-            ZipEntry e = newZipEntry(jaConfigurator.getZipEntryPath());
+            ZipEntry e = newZipEntry(zPath);
             output.putNextEntry(e);
-            jaConfigurator.compile();
-            output.write(jaConfigurator.getBytecode());
-        } catch (CannotCompileException | NotFoundException e) {
-            throw new IOException(e);
+            output.write(jaConfigurator.getBytecode(reader));
         }
         reader.close();
         return outputJar;

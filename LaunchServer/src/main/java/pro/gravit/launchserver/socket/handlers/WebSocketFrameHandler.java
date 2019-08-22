@@ -2,22 +2,18 @@ package pro.gravit.launchserver.socket.handlers;
 
 import java.util.concurrent.TimeUnit;
 
-import com.google.gson.GsonBuilder;
-
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.launchserver.socket.WebSocketService;
-import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -45,11 +41,14 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        LogHelper.dev("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));
+        if (LogHelper.isDevEnabled()) {
+            LogHelper.dev("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));
+        }
         client = new Client(0);
-        service.registerClient(ctx.channel());
+        Channel ch = ctx.channel();
+        service.registerClient(ch);
         ctx.executor().schedule(() -> {
-            ctx.channel().writeAndFlush(new PingWebSocketFrame());
+            ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise());
         }, 30L, TimeUnit.SECONDS);
     }
 

@@ -24,6 +24,7 @@ public abstract class AuthHandler implements AutoCloseable {
             providers.register("json", JsonAuthHandler.class);
             providers.register("memory", MemoryAuthHandler.class);
             providers.register("mysql", MySQLAuthHandler.class);
+            providers.register("postgresql", PostgreSQLAuthHandler.class);
             providers.register("request", RequestAuthHandler.class);
             providers.register("hibernate", HibernateAuthHandler.class);
             registredHandl = true;

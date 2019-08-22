@@ -73,12 +73,14 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         if (frame instanceof TextWebSocketFrame) {
             final TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
             clientJSONPoint.onMessage(textFrame.text());
-            LogHelper.dev("Message: %s", textFrame.text());
+            if (LogHelper.isDevEnabled()) {
+                LogHelper.dev("Message: %s", textFrame.text());
+            }
             // uncomment to print request
             // logger.info(textFrame.text());
         } else if ((frame instanceof PingWebSocketFrame)) {
             frame.content().retain();
-            ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
+            ch.writeAndFlush(new PongWebSocketFrame(frame.content()), ch.voidPromise());
             //return;
         } else if (frame instanceof PongWebSocketFrame) {
         } else if (frame instanceof CloseWebSocketFrame)

@@ -20,7 +20,9 @@ public final class RequestTextureProvider extends TextureProvider {
     }
 
     private static Texture getTexture(String url, boolean cloak) throws IOException {
-        LogHelper.debug("Getting texture: '%s'", url);
+        if (LogHelper.isDebugEnabled()) {
+            LogHelper.debug("Getting texture: '%s'", url);
+        }
         try {
             return new Texture(url, cloak);
         } catch (FileNotFoundException ignored) {

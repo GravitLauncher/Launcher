@@ -45,12 +45,11 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public String auth_id;
-    public boolean initProxy;
     public ConnectTypes authType;
     public HWID hwid;
 
     public enum ConnectTypes {
-        SERVER, CLIENT, BOT
+        SERVER, CLIENT, API
     }
 
     @Override
@@ -111,11 +110,9 @@ public class AuthResponse extends SimpleResponse {
                 clientData.username = login;
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
-            if (authType == ConnectTypes.BOT && !clientData.permissions.canBot) {
-                AuthProvider.authError("authType: BOT not allowed for this account");
-            }
             if (authType == ConnectTypes.SERVER && !clientData.permissions.canServer) {
                 AuthProvider.authError("authType: SERVER not allowed for this account");
+                return;
             }
             if (getSession) {
                 if (clientData.session == 0) {
@@ -124,14 +121,12 @@ public class AuthResponse extends SimpleResponse {
                 }
                 result.session = clientData.session;
             }
-            if (initProxy) {
-                if (!clientData.permissions.canProxy) throw new AuthException("initProxy not allow");
-                clientData.proxy = true;
-            }
-            if (server.config.protectHandler.allowGetAccessToken(context)) {
+            if (authType != ConnectTypes.API && server.config.protectHandler.allowGetAccessToken(context)) {
                 UUID uuid = pair.handler.auth(aresult);
-                result.playerProfile = ProfileByUUIDResponse.getProfile(server, uuid, aresult.username, client, clientData.auth.textureProvider);
-                LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
+                result.playerProfile = ProfileByUUIDResponse.getProfile(uuid, aresult.username, client, clientData.auth.textureProvider);
+                if (LogHelper.isDebugEnabled()) {
+                    LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
+                }
             }
             sendResult(result);
         } catch (AuthException | HWIDException | HookException e) {
@@ -140,10 +135,10 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public static class AuthContext {
-        public AuthContext(long session, String login, int password_lenght, String customText, String client, String hwid, String ip, ConnectTypes authType) {
+        public AuthContext(long session, String login, int password_length, String customText, String client, String hwid, String ip, ConnectTypes authType) {
             this.session = session;
             this.login = login;
-            this.password_lenght = password_lenght;
+            this.password_length = password_length;
             this.customText = customText;
             this.client = client;
             this.hwid = hwid;
@@ -153,7 +148,7 @@ public class AuthResponse extends SimpleResponse {
 
         public long session;
         public String login;
-        public int password_lenght; //Use AuthProvider for get password
+        public int password_length; //Use AuthProvider for get password
         public String client;
         public String hwid;
         public String customText;

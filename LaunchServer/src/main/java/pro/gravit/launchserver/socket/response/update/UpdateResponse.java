@@ -5,7 +5,6 @@ import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -34,7 +33,7 @@ public class UpdateResponse extends SimpleResponse {
                 }
             }
         }
-        SignedObjectHolder<HashedDir> dir = server.updatesDirMap.get(dirName);
+        HashedDir dir = server.updatesDirMap.get(dirName);
         if (dir == null) {
             service.sendObject(ctx, new ErrorRequestEvent(String.format("Directory %s not found", dirName)));
             return;
@@ -46,6 +45,6 @@ public class UpdateResponse extends SimpleResponse {
             url = bind.url;
             zip = bind.zip;
         }
-        service.sendObject(ctx, new UpdateRequestEvent(dir.object, url, zip));
+        service.sendObject(ctx, new UpdateRequestEvent(dir, url, zip));
     }
 }

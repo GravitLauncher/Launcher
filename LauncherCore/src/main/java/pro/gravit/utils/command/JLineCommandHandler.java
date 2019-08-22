@@ -1,7 +1,6 @@
 package pro.gravit.utils.command;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.jline.reader.Candidate;

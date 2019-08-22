@@ -49,8 +49,6 @@ import pro.gravit.launcher.request.uuid.ProfileByUUIDRequest;
 import pro.gravit.launcher.request.uuid.ProfileByUsernameRequest;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.launcher.serialize.signed.SignedBytesHolder;
-import pro.gravit.launcher.serialize.signed.SignedObjectHolder;
 import pro.gravit.launcher.serialize.stream.EnumSerializer;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.utils.HTTPRequest;
@@ -64,7 +62,7 @@ import pro.gravit.utils.helper.VerifyHelper;
 
 public class JSRuntimeProvider implements RuntimeProvider {
 
-    private final ScriptEngine engine = CommonHelper.newScriptEngine();
+    public final ScriptEngine engine = CommonHelper.newScriptEngine();
     private boolean isPreLoaded = false;
 
     @LauncherAPI
@@ -112,8 +110,6 @@ public class JSRuntimeProvider implements RuntimeProvider {
         bindings.put("HOutputClass", HOutput.class);
         bindings.put("StreamObjectClass", StreamObject.class);
         bindings.put("StreamObjectAdapterClass", StreamObject.Adapter.class);
-        bindings.put("SignedBytesHolderClass", SignedBytesHolder.class);
-        bindings.put("SignedObjectHolderClass", SignedObjectHolder.class);
         bindings.put("EnumSerializerClass", EnumSerializer.class);
         bindings.put("OptionalFileClass", OptionalFile.class);
         bindings.put("UserSettingsClass", UserSettings.class);

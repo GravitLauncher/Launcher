@@ -40,10 +40,24 @@ jar {
     )
 }
 
+
+task cleanjar(type: Jar, dependsOn: jar) {
+    classifier = 'clean'
+    manifest.attributes("Main-Class": mainClassName,
+            "Premain-Class": mainAgentName,
+            "Can-Redefine-Classes": "true",
+            "Can-Retransform-Classes": "true",
+            "Can-Set-Native-Method-Prefix": "true"
+    )
+    from sourceSets.main.output
+}
+
+
 dependencies {
     pack project(':LauncherAPI')
-    bundle project(':Radon')
+    bundle 'org.ow2.asm:asm-commons:7.1'
     bundle 'mysql:mysql-connector-java:8.0.16'
+	bundle 'org.postgresql:postgresql:42.2.6'
     bundle 'org.jline:jline:3.11.0'
     bundle 'org.jline:jline-reader:3.11.0'
     bundle 'org.jline:jline-terminal:3.11.0'
@@ -53,7 +67,7 @@ dependencies {
     bundle 'commons-codec:commons-codec:1.12'
     bundle 'org.javassist:javassist:3.25.0-GA'
     bundle 'io.netty:netty-all:4.1.36.Final'
-    bundle 'org.hibernate:hibernate-core:5.4.3.Final'
+    bundle 'org.hibernate:hibernate-core:5.4.4.Final'
     bundle 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
     bundle 'org.slf4j:slf4j-simple:1.7.25'
@@ -146,4 +160,35 @@ task dumpClientLibs(type: Copy) {
     from parent.childProjects.Launcher.tasks.dumpLibs.destinationDir
 }
 
-build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle
+build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle, tasks.cleanjar
+
+
+publishing {
+    publications {
+        launchserverapi(MavenPublication) {
+            artifactId = 'launchserver-api'
+            artifact cleanjar
+            pom {
+                name = 'GravitLauncher LaunchServer API'
+                description = 'GravitLauncher LaunchServer Module API'
+                url = 'https://launcher.gravit.pro'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:https://github.com/GravitLauncher/Launcher.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:GravitLauncher/Launcher.git'
+                    url = 'https://launcher.gravit.pro/'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.launchserverapi
+}

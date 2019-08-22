@@ -29,7 +29,7 @@ public class LauncherResponse extends SimpleResponse {
             bytes = digest;
         if (launcher_type == 1) // JAR
         {
-            byte[] hash = server.launcherBinary.getBytes().getDigest();
+            byte[] hash = server.launcherBinary.getDigest();
             if (hash == null) service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, server.config.netty.launcherURL));
             if (Arrays.equals(bytes, hash)) {
                 client.checkSign = true;
@@ -39,7 +39,7 @@ public class LauncherResponse extends SimpleResponse {
             }
         } else if (launcher_type == 2) //EXE
         {
-            byte[] hash = server.launcherEXEBinary.getBytes().getDigest();
+            byte[] hash = server.launcherEXEBinary.getDigest();
             if (hash == null) sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL));
             if (Arrays.equals(bytes, hash)) {
                 client.checkSign = true;

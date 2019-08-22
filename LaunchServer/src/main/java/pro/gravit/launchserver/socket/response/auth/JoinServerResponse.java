@@ -27,7 +27,9 @@ public class JoinServerResponse extends SimpleResponse {
                 LogHelper.warning("Client auth is null. Using default.");
                 success = server.config.getAuthProviderPair().handler.joinServer(username, accessToken, serverID);
             } else success = client.auth.handler.joinServer(username, accessToken, serverID);
-            LogHelper.debug("joinServer: %s accessToken: %s serverID: %s", username, accessToken, serverID);
+            if (LogHelper.isDebugEnabled()) {
+                LogHelper.debug("joinServer: %s accessToken: %s serverID: %s", username, accessToken, serverID);
+            }
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());
             return;

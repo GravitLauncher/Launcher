@@ -1,7 +1,13 @@
 var settingsOverlay = {
-/* ===================== OVERLAY ===================== */
-    overlay: null, ramLabel: null, dirLabel: null, transferDialog: null,
-    deleteDirPressedAgain: false, count: 0,
+    /* ===================== OVERLAY ===================== */
+    overlay: null,
+    ramLabel: null,
+    dirLabel: null,
+    transferDialog: null,
+    deleteDirPressedAgain: false,
+    count: 0,
+    descLabel: null,
+    description: null,
 
     initOverlay: function() {
         settingsOverlay.overlay = loadFXML("dialog/overlay/settings/settings.fxml");
@@ -12,10 +18,12 @@ var settingsOverlay = {
         autoEnterBox.setSelected(settings.autoEnter);
         autoEnterBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) settings.autoEnter = nv);
+        autoEnterBox.setOnMouseEntered(function() {
+            settingsOverlay.updateDesc(autoEnterBox.getText(), "Включение авто-входа означает что вы сразу после загрузки клиента попадете на сервер");
+        });
 
         settingsOverlay.dirLabel = holder.lookup("#dirLabel");
-        settingsOverlay.dirLabel.setOnAction(function(event)
-            app.getHostServices().showDocument(settings.updatesDir.toUri()));
+        settingsOverlay.dirLabel.setOnAction(function(event) app.getHostServices().showDocument(settings.updatesDir.toUri()));
         settingsOverlay.updateDirLabel();
 
         settingsOverlay.transferDialog = holder.lookup("#transferDialog");
@@ -33,15 +41,24 @@ var settingsOverlay = {
             }
         });
 
+        this.descLabel = holder.lookup("#descLabel");
+        this.description = holder.lookup("#description");
+
         var featureStore = holder.lookup("#featureStore");
         featureStore.setSelected(settings.featureStore);
         featureStore.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) settings.featureStore = nv);
+        featureStore.setOnMouseEntered(function() {
+            settingsOverlay.updateDesc(featureStore.getText(), "Используется для экономии вашего трафика, аналогичные файлы будут скопированы с других игровых клиентов");
+        });
 
         var fullScreenBox = holder.lookup("#fullScreen");
         fullScreenBox.setSelected(settings.fullScreen);
         fullScreenBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) settings.fullScreen = nv);
+        fullScreenBox.setOnMouseEntered(function() {
+            settingsOverlay.updateDesc(fullScreenBox.getText(), "Включение данной функции позволяет запустить игру сразу в полноэкранном режиме");
+        });
 
         settingsOverlay.ramLabel = holder.lookup("#ramLabel");
         settingsOverlay.updateRAMLabel();
@@ -70,31 +87,42 @@ var settingsOverlay = {
 
             settingsOverlay.deleteUpdatesDir();
             settingsOverlay.deleteDirPressedAgain = false;
-            settingsOverlay.count = settingsOverlay.count+1;
-			if(settingsOverlay.count>9){
-				javafx.application.Platform.exit();
-			}
+            settingsOverlay.count = settingsOverlay.count + 1;
+            if (settingsOverlay.count > 9) {
+                javafx.application.Platform.exit();
+            }
             deleteDirButton.setText(
-				settingsOverlay.count>8?"Прощай :(":
-				(settingsOverlay.count>7?"Я умираю!":
-				(settingsOverlay.count>5?"DeathCry, спаси!":
-				(settingsOverlay.count>4?"Умоляю, перестань!":
-				(settingsOverlay.count>3?"Да хорош уже!":"Ещё раз")
-			))));
+                settingsOverlay.count > 8 ? "Прощай :(" :
+                (settingsOverlay.count > 7 ? "Я умираю!" :
+                    (settingsOverlay.count > 5 ? "DeathCry, спаси!" :
+                        (settingsOverlay.count > 4 ? "Умоляю, перестань!" :
+                            (settingsOverlay.count > 3 ? "Да хорош уже!" : "Ещё раз")
+                        ))));
         });
 
         var debugBox = settingsOverlay.overlay.lookup("#debug");
         debugBox.setSelected(settings.debug);
         debugBox.selectedProperty()["addListener(javafx.beans.value.ChangeListener)"](
             function(o, ov, nv) settings.debug = nv);
+        debugBox.setOnMouseEntered(function() {
+            settingsOverlay.updateDesc(debugBox.getText(), "Режим отладки позволяет просмотреть лог запуска и работы программы в реальном времени прямо из лаунчера, что упрощает поиск нужной информации");
+        });
 
         holder.lookup("#apply").setOnAction(function(event) overlay.hide(0, null));
     },
 
+    updateDesc: function(label, desc) {
+        //На случай если человек решил избавится от этой фишки
+        if (this.descLabel == null) return;
+        if (this.description == null) return;
+
+        this.descLabel.setText(label);
+        this.description.setText(desc);
+    },
+
     transferCatalogDialog: function(newDir) {
         settingsOverlay.transferDialog.setVisible(true);
-        settingsOverlay.transferDialog.lookup("#cancelTransfer").setOnAction(function(event)
-        {
+        settingsOverlay.transferDialog.lookup("#cancelTransfer").setOnAction(function(event) {
             settings.updatesDir = newDir;
             DirBridge.dirUpdates = settings.updatesDir;
             settingsOverlay.updateDirLabel();
@@ -133,11 +161,11 @@ var settingsOverlay = {
 
 
     setRAM: function(ram) {
-		if (ram>762&&ram<1024){
-        settings.ram = java.lang.Math["min(int,int)"](ram, FunctionalBridge.getJVMTotalMemory());
-		}else{
-        settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, FunctionalBridge.getJVMTotalMemory());
-		}
+        if (ram > 762 && ram < 1024) {
+            settings.ram = java.lang.Math["min(int,int)"](ram, FunctionalBridge.getJVMTotalMemory());
+        } else {
+            settings.ram = java.lang.Math["min(int,int)"](((ram / 256) | 0) * 256, FunctionalBridge.getJVMTotalMemory());
+        }
     },
 
     updateDirLabel: function() {
@@ -148,9 +176,16 @@ LogHelper.debug("Dir: %s", DirBridge.dir);
 
 /* ====================== CLI PARAMS ===================== */
 var cliParams = {
-    login: null, password: null, profile: -1, autoLogin: false,
-    updatesDir: null, autoEnter: null, fullScreen: null, ram: -1,
-    offline: false, featureStore: null,
+    login: null,
+    password: null,
+    profile: -1,
+    autoLogin: false,
+    updatesDir: null,
+    autoEnter: null,
+    fullScreen: null,
+    ram: -1,
+    offline: false,
+    featureStore: null,
 
     init: function(params) {
         var named = params.getNamed();
@@ -200,8 +235,7 @@ var cliParams = {
         if (cliParams.profile >= 0) {
             settings.profile = cliParams.profile;
         }
-        if (cliParams.updatesDir !== null) {
-        }
+        if (cliParams.updatesDir !== null) {}
         if (cliParams.autoEnter !== null) {
             settings.autoLogin = cliParams.autoEnter;
         }

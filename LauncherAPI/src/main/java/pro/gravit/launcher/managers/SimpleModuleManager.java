@@ -28,7 +28,13 @@ public class SimpleModuleManager implements ModulesManager {
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toFile().getName().endsWith(".jar"))
                 try (JarFile f = new JarFile(file.toFile())) {
-                    loadModule(file.toUri().toURL(), f.getManifest().getMainAttributes().getValue("Main-Class"));
+                    String mainclass = f.getManifest().getMainAttributes().getValue("Main-Class");
+                    if(mainclass == null)
+                    {
+                        LogHelper.error("In module %s Main-Class not found", file.toString());
+                        return super.visitFile(file, attrs);
+                    }
+                    loadModule(file.toUri().toURL(), mainclass);
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                     LogHelper.error(e);
                 }
@@ -44,7 +50,9 @@ public class SimpleModuleManager implements ModulesManager {
     public void autoload(Path dir) throws IOException {
         LogHelper.info("Load modules");
         if (Files.notExists(dir)) Files.createDirectory(dir);
-        IOHelper.walk(dir, new ModulesVisitor(), true);
+        else {
+            IOHelper.walk(dir, new ModulesVisitor(), true);
+        }
         sort();
         LogHelper.info("Loaded %d modules", modules.size());
     }

@@ -1,5 +1,8 @@
 var update = {
-    overlay: null, title: null, description: null, progress: null,
+    overlay: null,
+    title: null,
+    description: null,
+    progress: null,
 
     initOverlay: function() {
         update.overlay = loadFXML("dialog/overlay/update/update.fxml");
@@ -41,7 +44,7 @@ var update = {
             "Примерно осталось: %d:%02d:%02d%n",
 
             state.filePath,
-            state.getTotalDownloadedMiB() +  0.0, state.getTotalSizeMiB() + 0.0,
+            state.getTotalDownloadedMiB() + 0.0, state.getTotalSizeMiB() + 0.0,
             bps <= 0.0 ? 0.0 : bps / 1024.0,
             estimatedHH, estimatedMM, estimatedSS
         ));
@@ -83,10 +86,10 @@ function offlineUpdateRequest(dirName, dir, matcher, digest) {
 
 /* Export functions */
 function makeUpdateRequest(dirName, dir, matcher, digest, callback) {
-	var request = settings.offline ? { setStateCallback: function(stateCallback) {  } } :
-		new UpdateRequest(dirName, dir, matcher, digest);
-	var task = settings.offline ? newTask(offlineUpdateRequest(dirName, dir, matcher, digest)) :
-		newRequestTask(request);
+    var request = settings.offline ? { setStateCallback: function(stateCallback) {} } :
+        new UpdateRequest(dirName, dir, matcher, digest);
+    var task = settings.offline ? newTask(offlineUpdateRequest(dirName, dir, matcher, digest)) :
+        newRequestTask(request);
 
     update.setTaskProperties(task, request, callback);
     task.updateMessage("Состояние: Хеширование");

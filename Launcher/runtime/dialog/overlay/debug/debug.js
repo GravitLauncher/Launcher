@@ -1,8 +1,20 @@
 var debug = {
-    overlay: null, output: null, action: null, process: null,
+    overlay: null,
+    output: null,
+    action: null,
+    process: null,
 
     initOverlay: function() {
         debug.overlay = loadFXML("dialog/overlay/debug/debug.fxml");
+
+        debug.overlay.lookup("#version").setText(
+            java.lang.String.format(
+                "%s | Java %s x%s",
+                FunctionalBridge.getLauncherVersion(),
+                java.lang.System.getProperty("java.version"),
+                JVMHelper.JVM_BITS
+            )
+        );
 
         debug.output = debug.overlay.lookup("#output");
         debug.output.setEditable(false);
@@ -13,7 +25,7 @@ var debug = {
             content.putString(debug.output.getText());
 
             javafx.scene.input.Clipboard.getSystemClipboard().
-                setContent(content);
+            setContent(content);
         });
 
         debug.action = debug.overlay.lookup("#action");
@@ -38,8 +50,7 @@ var debug = {
 
     append: function(text) {
         //Experimental Feature
-        if(debug.output.getText().length() > 32000 /* Max length */)
-        {
+        if (debug.output.getText().length() > 32000 /* Max length */ ) {
             debug.output.deleteText(0, text.length());
         }
         debug.output.appendText(text);
@@ -70,7 +81,7 @@ function debugProcess(process) {
         var reader = IOHelper.newReader(process.getInputStream(),
             java.nio.charset.Charset.defaultCharset());
         var appendFunction = function(line)
-            javafx.application.Platform.runLater(function() debug.append(line));
+        javafx.application.Platform.runLater(function() debug.append(line));
         for (var length = reader.read(buffer); length >= 0; length = reader.read(buffer)) {
             appendFunction(new java.lang.String(buffer, 0, length));
         }

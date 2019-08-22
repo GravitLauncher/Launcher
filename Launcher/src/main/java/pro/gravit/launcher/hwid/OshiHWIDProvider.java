@@ -8,7 +8,6 @@ import oshi.hardware.ComputerSystem;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
-import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -67,15 +66,9 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
         }
     }
 
-    public String getSoundCardInfo() {
-        for (SoundCard soundcard : hardware.getSoundCards()) {
-            return soundcard.getName();
-        }
-        return "";
-    }
-
     public String getMacAddr() {
         for (NetworkIF networkIF : hardware.getNetworkIFs()) {
+            if (networkIF.getNetworkInterface().isVirtual()) continue;
             for (String ipv4 : networkIF.getIPv4addr()) {
                 if (ipv4.startsWith("127.")) continue;
                 if (ipv4.startsWith("10.")) continue;
@@ -118,9 +111,6 @@ public class OshiHWIDProvider implements LauncherHWIDInterface {
                     if (ipv4.startsWith("10.")) continue;
                     LogHelper.subDebug("IPv4: %s", ipv4);
                 }
-            }
-            for (SoundCard soundcard : hardware.getSoundCards()) {
-                LogHelper.debug("SoundCard %s", soundcard.getName());
             }
             CentralProcessor processor = hardware.getProcessor();
             LogHelper.debug("Processor Model: %s ID: %s", processor.getModel(), processor.getProcessorID());

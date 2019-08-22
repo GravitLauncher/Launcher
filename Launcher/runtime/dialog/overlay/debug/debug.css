@@ -4,55 +4,54 @@ Button {
 }
 
 /* Outputs */
-#overlay > #output,
-#background > #output {
+#overlay>#output,
+#background>#output {
     -fx-background-color: white;
     -fx-background-radius: 0;
     -fx-font-family: monospace;
     -fx-font-size: 8pt;
 }
 
-#overlay > #output .content,
-#background > #output .content {
+#overlay>#output .content,
+#background>#output .content {
     -fx-background-color: white;
     -fx-background-radius: 0;
 }
 
 /* Close button */
-#overlay > #copy,
-#overlay > #action.close {
+#overlay>#copy,
+#overlay>#action.close {
     -fx-background-radius: 0;
     -fx-text-fill: white;
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
     -fx-background-color: #2d83ce;
     -fx-pref-width: 150px;
     -fx-pref-height: 25px;
 }
 
-#overlay > #copy:hover,
-#overlay > #copy:focused,
-#overlay > #action.close:hover,
-#overlay > #action.close:focused,
-#overlay > #copy:pressed,
-#overlay > #action.close:pressed {
+#overlay>#copy:hover,
+#overlay>#copy:focused,
+#overlay>#action.close:hover,
+#overlay>#action.close:focused,
+#overlay>#copy:pressed,
+#overlay>#action.close:pressed {
     -fx-background-color: #1568ce;
 }
 
 /* Kill button */
-#overlay > #action.kill {
+#overlay>#action.kill {
     -fx-background-radius: 0;
     -fx-text-fill: white;
     -fx-background-position: center;
-    -jfx-button-type: FLAT;
     -fx-background-color: #CE5757;
     -fx-pref-width: 150px;
     -fx-pref-height: 25px;
 }
 
-#overlay > #action.kill:hover,
-#overlay > #action.kill:focused,
-#overlay > #action.kill:pressed {
+#overlay>#action.kill:hover,
+#overlay>#action.kill:focused,
+#overlay>#action.kill:pressed {
     -fx-background-color: #DB5252;
 }
+
 /*-- DrLeonardo Design --*/
