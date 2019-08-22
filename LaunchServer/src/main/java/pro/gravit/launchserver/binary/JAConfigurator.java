@@ -49,6 +49,8 @@ public class JAConfigurator {
     }
 
     public byte[] getBytecode(ClassMetadataReader reader) {
+        constructor.instructions.add(new InsnNode(Opcodes.RETURN));
+        initModuleMethod.instructions.add(new InsnNode(Opcodes.RETURN));
         ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES);
         configclass.accept(cw);
         return cw.toByteArray();
