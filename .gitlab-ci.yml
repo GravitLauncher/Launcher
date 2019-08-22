@@ -11,6 +11,7 @@ before_script:
   - apt-get update -qq && apt-get install -y -qq git git-core
 
 cache:
+  key: ${CI_COMMIT_REF_NAME}
   paths:
     - .gradle/wrapper
     - .gradle/caches
@@ -22,10 +23,14 @@ build:
     - git submodule sync
     - git submodule update --init --recursive
     - ./gradlew assemble
+    - mv LaunchServer/build/libs/*.jar LaunchServer
+    - mv ServerWrapper/build/libs/*.jar ServerWrapper
+    - mv modules/*_module/build/libs/*.jar modules
   artifacts:
     paths:
-      - LaunchServer/build/libs/*
-      - ServerWrapper/build/libs/*.jar
+      - LaunchServer/*.jar
+      - ServerWrapper/*.jar
+      - modules/*.jar
     expire_in: 1 week
 
 after_script:
