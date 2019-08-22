@@ -37,6 +37,8 @@ public class JAConfigurator {
         this.configclass = configclass;
         constructor = configclass.methods.stream().filter(e -> "<init>".equals(e.name)).findFirst().get();
         constructor.instructions = new InsnList();
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, Type.getInternalName(Object.class), "<init>", "()V"));
         initModuleMethod = configclass.methods.stream().filter(e -> "initModules".equals(e.name)).findFirst().get();
         initModuleMethod.instructions = new InsnList();
     }
@@ -91,7 +93,7 @@ public class JAConfigurator {
     }
 
     public void push(final int value) {
-         if (value >= -1 && value <= 5)
+        if (value >= -1 && value <= 5)
             constructor.instructions.add(new InsnNode(Opcodes.ICONST_0 + value));
         else if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE)
             constructor.instructions.add(new IntInsnNode(Opcodes.BIPUSH, value));
