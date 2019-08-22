@@ -15,6 +15,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.Type;
 
 import pro.gravit.launcher.AutogenConfig;
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.modules.Module;
 import pro.gravit.launcher.modules.ModulesManager;
@@ -23,6 +24,8 @@ import pro.gravit.launchserver.asm.SafeClassWriter;
 
 public class JAConfigurator {
     private static final String modulesManagerName = Type.getInternalName(ModulesManager.class);
+    private static final String launcherName = Type.getInternalName(Launcher.class);
+    private static final String modulesManagerDesc = Type.getDescriptor(ModulesManager.class);
     private static final String registerModDesc = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(Module.class));
     private static final String autoGenConfigName = Type.getInternalName(AutogenConfig.class);
     private static final String stringDesc = Type.getDescriptor(String.class);
@@ -39,12 +42,15 @@ public class JAConfigurator {
     }
 
     public void addModuleClass(String fullName) {
-        initModuleMethod.instructions.insert(new MethodInsnNode(Opcodes.INVOKEINTERFACE, modulesManagerName, "registerModule", registerModDesc));
-        initModuleMethod.instructions.insert(new MethodInsnNode(Opcodes.INVOKESPECIAL, fullName.replace('.', '/'), "<init>", "()V"));
-        initModuleMethod.instructions.insert(new TypeInsnNode(Opcodes.NEW, fullName.replace('.', '/')));
+        initModuleMethod.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, launcherName, "modulesManager", modulesManagerDesc));
+        initModuleMethod.instructions.add(new TypeInsnNode(Opcodes.NEW, fullName.replace('.', '/')));
+        initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, fullName.replace('.', '/'), "<init>", "()V"));
+        initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, modulesManagerName, "registerModule", registerModDesc));
     }
 
     public byte[] getBytecode(ClassMetadataReader reader) {
+        constructor.instructions.add(new InsnNode(Opcodes.RETURN));
+        initModuleMethod.instructions.add(new InsnNode(Opcodes.RETURN));
         ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES);
         configclass.accept(cw);
         return cw.toByteArray();
@@ -55,32 +61,37 @@ public class JAConfigurator {
     }
 
     public void setAddress(String address) {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new LdcInsnNode(address));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "address", stringDesc));
     }
 
     public void setProjectName(String name) {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new LdcInsnNode(name));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "projectname", stringDesc));
     }
 
     public void setSecretKey(String key) {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new LdcInsnNode(key));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "secretKeyClient", stringDesc));
     }
 
     public void setOemUnlockKey(String key) {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new LdcInsnNode(key));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "oemUnlockKey", stringDesc));
-        
     }
 
     public void setGuardType(String key) {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new LdcInsnNode(key));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardType", stringDesc));
     }
 
     public void push(final int value) {
+        if (value >= -1 && value <= 5)
          if (value >= -1 && value <= 5)
             constructor.instructions.add(new InsnNode(Opcodes.ICONST_0 + value));
         else if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE)
@@ -92,6 +103,7 @@ public class JAConfigurator {
     }
     
     public void setEnv(LauncherConfig.LauncherEnvironment env) {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         int i = 2;
         
         switch (env) {
@@ -113,29 +125,41 @@ public class JAConfigurator {
     }
 
     public void setClientPort(int port) {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         push(port);
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "clientPort", Type.INT_TYPE.getInternalName()));
     }
 
     public void setWarningMissArchJava(boolean b) {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new InsnNode(b ? Opcodes.ICONST_1 : Opcodes.ICONST_0));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "isWarningMissArchJava", Type.BOOLEAN_TYPE.getInternalName()));
     }
 
     public void setGuardLicense(String name, String key, String encryptKey) {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new LdcInsnNode(name));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseName", stringDesc));
+
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new LdcInsnNode(key));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseKey", stringDesc));
+
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new LdcInsnNode(encryptKey));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseEncryptKey", stringDesc));
     }
     
     public void nullGuardLicense() {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseName", stringDesc));
+
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseKey", stringDesc));
+
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseEncryptKey", stringDesc));
     }
