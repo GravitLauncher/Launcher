@@ -37,6 +37,7 @@ import pro.gravit.launchserver.socket.response.secure.VerifySecureTokenResponse;
 import pro.gravit.launchserver.socket.response.update.LauncherResponse;
 import pro.gravit.launchserver.socket.response.update.UpdateListResponse;
 import pro.gravit.launchserver.socket.response.update.UpdateResponse;
+import pro.gravit.utils.BiHookSet;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -45,6 +46,19 @@ import pro.gravit.utils.helper.LogHelper;
 public class WebSocketService {
     public final ChannelGroup channels;
     public static ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
+    public static class WebSocketRequestContext
+    {
+        public WebSocketServerResponse response;
+        public Client client;
+        public String ip;
+
+        public WebSocketRequestContext(WebSocketServerResponse response, Client client, String ip) {
+            this.response = response;
+            this.client = client;
+            this.ip = ip;
+        }
+    }
+    public final BiHookSet<WebSocketRequestContext, ChannelHandlerContext> hook = new BiHookSet<>();
 
     public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;
@@ -56,7 +70,6 @@ public class WebSocketService {
     }
 
     private final LaunchServer server;
-    private static final HashMap<String, Class> responses = new HashMap<>();
     private final Gson gson;
 
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
@@ -66,6 +79,11 @@ public class WebSocketService {
     }
 
     void process(ChannelHandlerContext ctx, WebSocketServerResponse response, Client client, String ip) {
+        WebSocketRequestContext context = new WebSocketRequestContext(response, client, ip);
+        if(hook.hook(context, ctx))
+        {
+            return;
+        }
         if (response instanceof SimpleResponse) {
             SimpleResponse simpleResponse = (SimpleResponse) response;
             simpleResponse.server = server;
@@ -89,10 +107,6 @@ public class WebSocketService {
             }
             sendObject(ctx, event);
         }
-    }
-
-    public Class getResponseClass(String type) {
-        return responses.get(type);
     }
 
     public void registerClient(Channel channel) {
