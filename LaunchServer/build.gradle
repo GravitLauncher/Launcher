@@ -167,7 +167,9 @@ publishing {
     publications {
         launchserverapi(MavenPublication) {
             artifactId = 'launchserver-api'
-            artifact cleanjar
+            artifact(cleanjar) {
+                classifier ""
+            }
             pom {
                 name = 'GravitLauncher LaunchServer API'
                 description = 'GravitLauncher LaunchServer Module API'
@@ -176,6 +178,18 @@ publishing {
                     license {
                         name = 'GNU General Public License, Version 3.0'
                         url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gravit'
+                        name = 'Gravit'
+                        email = 'gravit.min@ya.ru'
+                    }
+                    developer {
+                        id = 'zaxar163'
+                        name = 'Zaxar163'
+                        email = 'zahar.vcherachny@yandex.ru'
                     }
                 }
 
