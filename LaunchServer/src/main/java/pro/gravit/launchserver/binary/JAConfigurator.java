@@ -92,6 +92,7 @@ public class JAConfigurator {
 
     public void push(final int value) {
         if (value >= -1 && value <= 5)
+         if (value >= -1 && value <= 5)
             constructor.instructions.add(new InsnNode(Opcodes.ICONST_0 + value));
         else if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE)
             constructor.instructions.add(new IntInsnNode(Opcodes.BIPUSH, value));

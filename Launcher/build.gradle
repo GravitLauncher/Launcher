@@ -62,7 +62,9 @@ publishing {
     publications {
         launcherclientapi(MavenPublication) {
             artifactId = 'launcher-client-api'
-            artifact jar
+            artifact(jar) {
+                classifier ""
+            }
             pom {
                 name = 'GravitLauncher Client API'
                 description = 'GravitLauncher Client Module API'
@@ -71,6 +73,18 @@ publishing {
                     license {
                         name = 'GNU General Public License, Version 3.0'
                         url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gravit'
+                        name = 'Gravit'
+                        email = 'gravit.min@ya.ru'
+                    }
+                    developer {
+                        id = 'zaxar163'
+                        name = 'Zaxar163'
+                        email = 'zahar.vcherachny@yandex.ru'
                     }
                 }
                 scm {
