@@ -11,7 +11,7 @@ import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
-
+import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.Type;
 
 import pro.gravit.launcher.AutogenConfig;
