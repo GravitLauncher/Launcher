@@ -470,12 +470,12 @@ public final class ClientLauncher {
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
         for (Path classpathURL : classPath) {
-            LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
+            LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
         }
         profile.pushOptionalClassPath(cp -> {
             LinkedList<Path> optionalClassPath = resolveClassPathList(params.clientDir, cp);
             for (Path classpathURL : optionalClassPath) {
-                LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
+                LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
             }
         });
         URL[] classpathurls = resolveClassPath(params.clientDir, profile.getClassPath());
