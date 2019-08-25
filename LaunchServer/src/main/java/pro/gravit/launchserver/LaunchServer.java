@@ -91,16 +91,38 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurable {
 
-    public void reload() throws Exception {
-        config.close();
+    public enum ReloadType
+    {
+        NO_AUTH,
+        NO_COMPONENTS,
+        FULL
+    }
+
+    public void reload(ReloadType type) throws Exception {
+        config.close(type);
+        AuthProviderPair[] pairs = null;
+        if(type.equals(ReloadType.NO_AUTH))
+        {
+            pairs = config.auth;
+        }
         LogHelper.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = Launcher.gsonManager.gson.fromJson(reader, Config.class);
         }
         config.server = this;
+        if(type.equals(ReloadType.NO_AUTH))
+        {
+            config.auth = pairs;
+        }
         config.verify();
-        config.init();
-        if (config.components != null) {
+        config.init(type);
+        if (type.equals(ReloadType.FULL) && config.components != null) {
+            LogHelper.debug("PreInit components");
+            config.components.forEach((k, v) -> {
+                LogHelper.subDebug("PreInit component %s", k);
+                v.preInit(this);
+            });
+            LogHelper.debug("PreInit components successful");
             LogHelper.debug("Init components");
             config.components.forEach((k, v) -> {
                 LogHelper.subDebug("Init component %s", k);
@@ -124,7 +146,26 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         SubCommand reload = new SubCommand() {
             @Override
             public void invoke(String... args) throws Exception {
-                reload();
+                if(args.length == 0)
+                {
+                    reload(ReloadType.FULL);
+                    return;
+                }
+                switch (args[0])
+                {
+                    case "full":
+                        reload(ReloadType.FULL);
+                        break;
+                    case "no_auth":
+                        reload(ReloadType.NO_AUTH);
+                        break;
+                    case "no_components":
+                        reload(ReloadType.NO_COMPONENTS);
+                        break;
+                    default:
+                        reload(ReloadType.FULL);;
+                        break;
+                }
             }
         };
         commands.put("reload", reload);
@@ -229,7 +270,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             }
         }
 
-        public void init() {
+        public void init(ReloadType type) {
             Launcher.applyLauncherEnv(env);
             for (AuthProviderPair provider : auth) {
                 provider.init(server);
@@ -241,34 +282,53 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (protectHandler != null) {
                 protectHandler.checkLaunchServerLicense();
             }
-            if (components != null) {
-                LogHelper.debug("PreInit components");
-                components.forEach((k, v) -> {
-                    LogHelper.subDebug("PreInit component %s", k);
-                    v.preInit(server);
+            if(components != null)
+            {
+                components.forEach((k,v) -> {
+                    server.registerObject("component.".concat(k), v);
                 });
-                LogHelper.debug("PreInit components successful");
             }
             server.registerObject("permissionsHandler", permissionsHandler);
             server.registerObject("hwidHandler", hwidHandler);
-            for (int i = 0; i < auth.length; ++i) {
-                AuthProviderPair pair = auth[i];
-                server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
-                server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
-                server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+            if(!type.equals(ReloadType.NO_AUTH))
+            {
+                for (int i = 0; i < auth.length; ++i) {
+                    AuthProviderPair pair = auth[i];
+                    server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
+                    server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
+                    server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                }
             }
+
 
             Arrays.stream(mirrors).forEach(server.mirrorManager::addMirror);
         }
 
-        public void close() {
+        public void close(ReloadType type) {
             try {
                 server.unregisterObject("permissionsHandler", permissionsHandler);
                 server.unregisterObject("hwidHandler", hwidHandler);
-                for (AuthProviderPair pair : auth) {
-                    server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
-                    server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
-                    server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                if(!type.equals(ReloadType.NO_AUTH))
+                {
+                    for (AuthProviderPair pair : auth) {
+                        server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
+                        server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
+                        server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                    }
+                }
+                if(type.equals(ReloadType.FULL))
+                {
+                    components.forEach((k, component) -> {
+                        server.unregisterObject("component.".concat(k), component);
+                        if(component instanceof AutoCloseable)
+                        {
+                            try {
+                                ((AutoCloseable) component).close();
+                            } catch (Exception e) {
+                                LogHelper.error(e);
+                            }
+                        }
+                    });
                 }
             } catch (Exception e) {
                 LogHelper.error(e);
@@ -618,6 +678,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
         runtime.verify();
         config.verify();
+        if (config.components != null) {
+            LogHelper.debug("PreInit components");
+            config.components.forEach((k, v) -> {
+                LogHelper.subDebug("PreInit component %s", k);
+                v.preInit(this);
+            });
+            LogHelper.debug("PreInit components successful");
+        }
 
         // build hooks, anti-brutforce and other
         buildHookManager = new BuildHookManager();
@@ -665,7 +733,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 }
             }
         }
-        config.init();
+        config.init(ReloadType.FULL);
         registerObject("launchServer", this);
         GarbageManager.registerNeedGC(sessionManager);
 
@@ -763,7 +831,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public void close() {
 
         // Close handlers & providers
-        config.close();
+        config.close(ReloadType.FULL);
         modulesManager.close();
         LogHelper.info("Save LaunchServer runtime config");
         try (Writer writer = IOHelper.newWriter(runtimeConfigFile)) {
@@ -838,12 +906,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
         authLimiterComponent.rateLimit = 3;
-        authLimiterComponent.rateLimitMilis = 8000;
+        authLimiterComponent.rateLimitMillis = 8000;
         authLimiterComponent.message = "Превышен лимит авторизаций";
         newConfig.components.put("authLimiter", authLimiterComponent);
         RegLimiterComponent regLimiterComponent = new RegLimiterComponent();
         regLimiterComponent.rateLimit = 3;
-        regLimiterComponent.rateLimitMilis = 1000 * 60 * 60 * 10; //Блок на 10 часов
+        regLimiterComponent.rateLimitMillis = 1000 * 60 * 60 * 10; //Блок на 10 часов
         regLimiterComponent.message = "Превышен лимит регистраций";
         newConfig.components.put("regLimiter", regLimiterComponent);
 
