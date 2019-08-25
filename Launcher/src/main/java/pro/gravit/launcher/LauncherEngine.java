@@ -12,6 +12,7 @@ import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
+import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
@@ -74,8 +75,9 @@ public class LauncherEngine {
         LauncherConfig.getAutogenConfig().initModules();
         Launcher.modulesManager.preInitModules();
         if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
+        ClientHookManager.initGuiHook.hook(runtimeProvider);
         runtimeProvider.init(false);
-        runtimeProvider.preLoad();
+        //runtimeProvider.preLoad();
         if (Request.service == null) {
             String address = Launcher.getConfig().address;
             LogHelper.debug("Start async connection to %s", address);
@@ -99,7 +101,7 @@ public class LauncherEngine {
             };
         }
         LauncherGuardManager.initGuard(false);
-        UpdateRequest.setController(new LauncherUpdateController());
+        if(UpdateRequest.getController() == null) UpdateRequest.setController(new LauncherUpdateController());
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");

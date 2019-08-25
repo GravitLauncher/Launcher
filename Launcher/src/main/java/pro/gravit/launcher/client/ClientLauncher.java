@@ -38,6 +38,7 @@ import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
+import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.request.Request;
@@ -341,6 +342,7 @@ public final class ClientLauncher {
                         output.writeString(Launcher.gsonManager.gson.toJson(profile), 0);
                         assetHDir.write(output);
                         clientHDir.write(output);
+                        ClientHookManager.paramsOutputHook.hook(output);
                     }
                     clientStarted = true;
                 }
@@ -383,8 +385,10 @@ public final class ClientLauncher {
         profile.pushOptionalJvmArgs(context.args);
         Collections.addAll(context.args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
         Collections.addAll(context.args, "-javaagent:".concat(pathLauncher));
+        ClientHookManager.clientLaunchHook.hook(context);
         LauncherGuardManager.guard.addCustomParams(context);
         Collections.addAll(context.args, ClientLauncher.class.getName());
+        ClientHookManager.clientLaunchFinallyHook.hook(context);
 
         // Print commandline debug message
         LogHelper.debug("Commandline: " + context.args);
@@ -404,7 +408,9 @@ public final class ClientLauncher {
             builder.redirectOutput(Redirect.PIPE);
         }
         // Let's rock!
+        ClientHookManager.preStartHook.hook(context, builder);
         process = builder.start();
+        if(ClientHookManager.postStartHook.hook(context, builder)) return process;
         if (!pipeOutput) {
             for (int i = 0; i < 50; ++i) {
                 if (!process.isAlive()) {
@@ -454,6 +460,7 @@ public final class ClientLauncher {
                     profile = Launcher.gsonManager.gson.fromJson(input.readString(0), ClientProfile.class);
                     assetHDir = new HashedDir(input);
                     clientHDir = new HashedDir(input);
+                    ClientHookManager.paramsInputHook.hook(input);
                 }
             }
         } catch (IOException ex) {
