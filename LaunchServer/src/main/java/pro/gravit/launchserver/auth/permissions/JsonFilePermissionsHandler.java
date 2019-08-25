@@ -52,6 +52,19 @@ public class JsonFilePermissionsHandler extends PermissionsHandler implements Re
             }
         };
         commands.put("reload", reload);
+        commands.put("save", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                Path path = Paths.get(filename);
+                if (!IOHelper.exists(path)) {
+                    try (Writer writer = IOHelper.newWriter(path)) {
+                        Launcher.gsonManager.gson.toJson(map, writer);
+                    } catch (IOException e) {
+                        LogHelper.error(e);
+                    }
+                }
+            }
+        });
         return commands;
     }
 

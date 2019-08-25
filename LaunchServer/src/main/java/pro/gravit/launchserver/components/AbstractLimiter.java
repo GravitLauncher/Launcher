@@ -52,7 +52,6 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
         commands.put("clearExclude", new SubCommand() {
             @Override
             public void invoke(String... args) throws Exception {
-                verifyArgs(args, 1);
                 exclude.clear();
             }
         });
