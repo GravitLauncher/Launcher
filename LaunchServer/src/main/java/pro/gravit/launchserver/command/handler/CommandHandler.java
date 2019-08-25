@@ -2,10 +2,7 @@ package pro.gravit.launchserver.command.handler;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.auth.AuthCommand;
-import pro.gravit.launchserver.command.auth.BanCommand;
-import pro.gravit.launchserver.command.auth.GetHWIDCommand;
 import pro.gravit.launchserver.command.auth.UUIDToUsernameCommand;
-import pro.gravit.launchserver.command.auth.UnbanCommand;
 import pro.gravit.launchserver.command.auth.UsernameToUUIDCommand;
 import pro.gravit.launchserver.command.basic.BuildCommand;
 import pro.gravit.launchserver.command.basic.ProguardCleanCommand;
@@ -19,7 +16,6 @@ import pro.gravit.launchserver.command.dao.GetAllUsersCommand;
 import pro.gravit.launchserver.command.dao.GetUserCommand;
 import pro.gravit.launchserver.command.dao.RegisterCommand;
 import pro.gravit.launchserver.command.dao.SetUserPasswordCommand;
-import pro.gravit.launchserver.command.dump.DumpEntryCacheCommand;
 import pro.gravit.launchserver.command.dump.DumpSessionsCommand;
 import pro.gravit.launchserver.command.hash.DownloadAssetCommand;
 import pro.gravit.launchserver.command.hash.DownloadClientCommand;
@@ -86,16 +82,12 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         auth.registerCommand("auth", new AuthCommand(server));
         auth.registerCommand("usernameToUUID", new UsernameToUUIDCommand(server));
         auth.registerCommand("uuidToUsername", new UUIDToUsernameCommand(server));
-        auth.registerCommand("ban", new BanCommand(server));
-        auth.registerCommand("unban", new UnbanCommand(server));
-        auth.registerCommand("getHWID", new GetHWIDCommand(server));
         Category authCategory = new Category(auth, "auth", "User Management");
         handler.registerCategory(authCategory);
 
         //Register dump commands
         BaseCommandCategory dump = new BaseCommandCategory();
         dump.registerCommand("dumpSessions", new DumpSessionsCommand(server));
-        dump.registerCommand("dumpEntryCache", new DumpEntryCacheCommand(server));
         Category dumpCategory = new Category(dump, "dump", "Dump runtime data");
         handler.registerCategory(dumpCategory);
 

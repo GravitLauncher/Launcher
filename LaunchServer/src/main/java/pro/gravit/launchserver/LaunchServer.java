@@ -82,16 +82,14 @@ import pro.gravit.launchserver.manangers.hook.BuildHookManager;
 import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.utils.Version;
-import pro.gravit.utils.command.CommandHandler;
-import pro.gravit.utils.command.JLineCommandHandler;
-import pro.gravit.utils.command.StdCommandHandler;
+import pro.gravit.utils.command.*;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
-public final class LaunchServer implements Runnable, AutoCloseable {
+public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurable {
 
     public void reload() throws Exception {
         config.close();
@@ -102,6 +100,35 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         config.server = this;
         config.verify();
         config.init();
+        if (config.components != null) {
+            LogHelper.debug("Init components");
+            config.components.forEach((k, v) -> {
+                LogHelper.subDebug("Init component %s", k);
+                registerObject("component.".concat(k), v);
+                v.init(this);
+            });
+            LogHelper.debug("Init components successful");
+            LogHelper.debug("PostInit components");
+            config.components.forEach((k, v) -> {
+                LogHelper.subDebug("PostInit component %s", k);
+                v.postInit(this);
+            });
+            LogHelper.debug("PostInit components successful");
+        }
+
+    }
+
+    @Override
+    public Map<String, Command> getCommands() {
+        Map<String, Command> commands = new HashMap<>();
+        SubCommand reload = new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                reload();
+            }
+        };
+        commands.put("reload", reload);
+        return commands;
     }
 
     public static final class Config {
@@ -209,13 +236,23 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             }
             permissionsHandler.init(server);
             hwidHandler.init();
-            dao.init(server);
+            if(dao != null)
+                dao.init(server);
             if (protectHandler != null) {
                 protectHandler.checkLaunchServerLicense();
             }
+            if (components != null) {
+                LogHelper.debug("PreInit components");
+                components.forEach((k, v) -> {
+                    LogHelper.subDebug("PreInit component %s", k);
+                    v.preInit(server);
+                });
+                LogHelper.debug("PreInit components successful");
+            }
             server.registerObject("permissionsHandler", permissionsHandler);
-            server.registerObject("daoProvider", dao);
-            for (AuthProviderPair pair : auth) {
+            server.registerObject("hwidHandler", hwidHandler);
+            for (int i = 0; i < auth.length; ++i) {
+                AuthProviderPair pair = auth[i];
                 server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                 server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
@@ -227,6 +264,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         public void close() {
             try {
                 server.unregisterObject("permissionsHandler", permissionsHandler);
+                server.unregisterObject("hwidHandler", hwidHandler);
                 for (AuthProviderPair pair : auth) {
                     server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                     server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
@@ -580,25 +618,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         }
         runtime.verify();
         config.verify();
-        Launcher.applyLauncherEnv(config.env);
-        for (AuthProviderPair provider : config.auth) {
-            provider.init(this);
-        }
-        config.permissionsHandler.init(this);
-        config.hwidHandler.init();
-        if(config.dao != null)
-            config.dao.init(this);
-        if (config.protectHandler != null) {
-            config.protectHandler.checkLaunchServerLicense();
-        }
-        if (config.components != null) {
-            LogHelper.debug("PreInit components");
-            config.components.forEach((k, v) -> {
-                LogHelper.subDebug("PreInit component %s", k);
-                v.preInit(this);
-            });
-            LogHelper.debug("PreInit components successful");
-        }
 
         // build hooks, anti-brutforce and other
         buildHookManager = new BuildHookManager();
@@ -646,16 +665,9 @@ public final class LaunchServer implements Runnable, AutoCloseable {
                 }
             }
         }
+        config.init();
+        registerObject("launchServer", this);
         GarbageManager.registerNeedGC(sessionManager);
-        registerObject("permissionsHandler", config.permissionsHandler);
-        for (int i = 0; i < config.auth.length; ++i) {
-            AuthProviderPair pair = config.auth[i];
-            registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
-            registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
-            registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
-        }
-
-        Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
 
         pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(localCommandHandler, this);
 

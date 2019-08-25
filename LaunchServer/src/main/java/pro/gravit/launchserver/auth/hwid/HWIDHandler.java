@@ -1,11 +1,17 @@
 package pro.gravit.launchserver.auth.hwid;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import pro.gravit.launcher.hwid.HWID;
+import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.utils.ProviderMap;
+import pro.gravit.utils.command.Command;
+import pro.gravit.utils.command.SubCommand;
+import pro.gravit.utils.helper.LogHelper;
 
-public abstract class HWIDHandler implements AutoCloseable {
+public abstract class HWIDHandler implements AutoCloseable, Reconfigurable {
     public static ProviderMap<HWIDHandler> providers = new ProviderMap<>("HWIDHandler");
     private static boolean registredHandl = false;
 
@@ -19,6 +25,40 @@ public abstract class HWIDHandler implements AutoCloseable {
             providers.register("memory", MemoryHWIDHandler.class);
             registredHandl = true;
         }
+    }
+
+    @Override
+    public Map<String, Command> getCommands() {
+        Map<String, Command> commands = new HashMap<>();
+        commands.put("ban", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                List<HWID> target = getHwid(args[0]);
+                ban(target);
+            }
+        });
+        commands.put("unban", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                List<HWID> target = getHwid(args[0]);
+                unban(target);
+            }
+        });
+        commands.put("gethwid", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                List<HWID> target = getHwid(args[0]);
+                for(HWID hwid : target)
+                {
+                    if (hwid == null) {
+                        LogHelper.error("[%s] HWID: null", args[0]);
+                        continue;
+                    }
+                    LogHelper.info("[%s] HWID: %s", args[0], hwid.toString());
+                }
+            }
+        });
+        return commands;
     }
 
     public abstract void ban(List<HWID> hwid) throws HWIDException;

@@ -14,10 +14,13 @@ import com.google.gson.reflect.TypeToken;
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.Reconfigurable;
+import pro.gravit.utils.command.Command;
+import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-public class JsonFilePermissionsHandler extends PermissionsHandler {
+public class JsonFilePermissionsHandler extends PermissionsHandler implements Reconfigurable {
     public String filename = "permissions.json";
     public static Map<String, ClientPermissions> map;
 
@@ -37,6 +40,19 @@ public class JsonFilePermissionsHandler extends PermissionsHandler {
     @Override
     public void close() {
 
+    }
+
+    @Override
+    public Map<String, Command> getCommands() {
+        Map<String, Command> commands = new HashMap<>();
+        SubCommand reload = new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                reload();
+            }
+        };
+        commands.put("reload", reload);
+        return commands;
     }
 
     public static class Enity {
