@@ -69,6 +69,7 @@ import pro.gravit.launchserver.binary.SimpleEXELauncherBinary;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.RegLimiterComponent;
+import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
 import pro.gravit.launchserver.manangers.CertificateManager;
@@ -107,9 +108,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
         LogHelper.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = Launcher.gsonManager.gson.fromJson(reader, Config.class);
+            config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
         }
-        config.server = this;
+        config.setLaunchServer(this);
         if(type.equals(ReloadType.NO_AUTH))
         {
             config.auth = pairs;
@@ -172,258 +173,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         return commands;
     }
 
-    public static final class Config {
-    	private transient LaunchServer server = null;
-
-        public String projectName;
-
-        public String[] mirrors;
-
-        public String binaryName;
-
-        public boolean copyBinaries = true;
-
-        public LauncherConfig.LauncherEnvironment env;
-
-        // Handlers & Providers
-
-        public AuthProviderPair[] auth;
-
-        public DaoProvider dao;
-
-        private transient AuthProviderPair authDefault;
-
-        public AuthProviderPair getAuthProviderPair(String name) {
-            for (AuthProviderPair pair : auth) {
-                if (pair.name.equals(name)) return pair;
-            }
-            return null;
-        }
-
-        public ProtectHandler protectHandler;
-
-        public PermissionsHandler permissionsHandler;
-
-        public AuthProviderPair getAuthProviderPair() {
-            if (authDefault != null) return authDefault;
-            for (AuthProviderPair pair : auth) {
-                if (pair.isDefault) {
-                    authDefault = pair;
-                    return pair;
-                }
-            }
-            return null;
-        }
-
-        public HWIDHandler hwidHandler;
-
-        public Map<String, Component> components;
-
-        public ExeConf launch4j;
-        public NettyConfig netty;
-        public GuardLicenseConf guardLicense;
-
-        public String whitelistRejectString;
-        public LauncherConf launcher;
-        public CertificateConf certificate;
-
-        public String startScript;
-
-        public void setProjectName(String projectName) {
-            this.projectName = projectName;
-        }
-
-        public void setBinaryName(String binaryName) {
-            this.binaryName = binaryName;
-        }
-
-        public void setEnv(LauncherConfig.LauncherEnvironment env) {
-            this.env = env;
-        }
-
-
-        public void verify() {
-            if (auth == null || auth[0] == null) {
-                throw new NullPointerException("AuthHandler must not be null");
-            }
-            boolean isOneDefault = false;
-            for (AuthProviderPair pair : auth) {
-                if (pair.isDefault) {
-                    isOneDefault = true;
-                    break;
-                }
-            }
-            if (protectHandler == null) {
-                throw new NullPointerException("ProtectHandler must not be null");
-            }
-            if (!isOneDefault) {
-                throw new IllegalStateException("No auth pairs declared by default.");
-            }
-            if (permissionsHandler == null) {
-                throw new NullPointerException("PermissionsHandler must not be null");
-            }
-            if (env == null) {
-                throw new NullPointerException("Env must not be null");
-            }
-            if (netty == null) {
-                throw new NullPointerException("Netty must not be null");
-            }
-        }
-
-        public void init(ReloadType type) {
-            Launcher.applyLauncherEnv(env);
-            for (AuthProviderPair provider : auth) {
-                provider.init(server);
-            }
-            permissionsHandler.init(server);
-            hwidHandler.init();
-            if(dao != null)
-                dao.init(server);
-            if (protectHandler != null) {
-                protectHandler.checkLaunchServerLicense();
-            }
-            if(components != null)
-            {
-                components.forEach((k,v) -> {
-                    server.registerObject("component.".concat(k), v);
-                });
-            }
-            server.registerObject("permissionsHandler", permissionsHandler);
-            server.registerObject("hwidHandler", hwidHandler);
-            if(!type.equals(ReloadType.NO_AUTH))
-            {
-                for (int i = 0; i < auth.length; ++i) {
-                    AuthProviderPair pair = auth[i];
-                    server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
-                    server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
-                    server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
-                }
-            }
-
-
-            Arrays.stream(mirrors).forEach(server.mirrorManager::addMirror);
-        }
-
-        public void close(ReloadType type) {
-            try {
-                server.unregisterObject("permissionsHandler", permissionsHandler);
-                server.unregisterObject("hwidHandler", hwidHandler);
-                if(!type.equals(ReloadType.NO_AUTH))
-                {
-                    for (AuthProviderPair pair : auth) {
-                        server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
-                        server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
-                        server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
-                    }
-                }
-                if(type.equals(ReloadType.FULL))
-                {
-                    components.forEach((k, component) -> {
-                        server.unregisterObject("component.".concat(k), component);
-                        if(component instanceof AutoCloseable)
-                        {
-                            try {
-                                ((AutoCloseable) component).close();
-                            } catch (Exception e) {
-                                LogHelper.error(e);
-                            }
-                        }
-                    });
-                }
-            } catch (Exception e) {
-                LogHelper.error(e);
-            }
-            try {
-                for (AuthProviderPair p : auth) p.close();
-            } catch (IOException e) {
-                LogHelper.error(e);
-            }
-            try {
-                hwidHandler.close();
-            } catch (Exception e) {
-                LogHelper.error(e);
-            }
-            try {
-                permissionsHandler.close();
-            } catch (Exception e) {
-                LogHelper.error(e);
-            }
-        }
-    }
-
-    public static class ExeConf {
-        public boolean enabled;
-        public String alternative;
-        public boolean setMaxVersion;
-        public String maxVersion;
-        public String productName;
-        public String productVer;
-        public String fileDesc;
-        public String fileVer;
-        public String internalName;
-        public String copyright;
-        public String trademarks;
-
-        public String txtFileVersion;
-        public String txtProductVersion;
-    }
-
-    public static class CertificateConf
-    {
-        public boolean enabled;
-    }
-
-    public static class NettyUpdatesBind {
-        public String url;
-        public boolean zip;
-    }
-
-    public class LauncherConf {
-        public String guardType;
-        public boolean attachLibraryBeforeProGuard;
-        public boolean compress;
-        public boolean warningMissArchJava;
-        public boolean enabledProGuard;
-        public boolean stripLineNumbers;
-        public boolean deleteTempFiles;
-        public boolean proguardGenMappings;
-    }
-
-    public class NettyConfig {
-        public boolean fileServerEnabled;
-        public boolean sendExceptionEnabled;
-        public boolean ipForwarding;
-        public String launcherURL;
-        public String downloadURL;
-        public String launcherEXEURL;
-        public String address;
-        public Map<String, NettyUpdatesBind> bindings = new HashMap<>();
-        public NettyPerformanceConfig performance;
-        public NettyBindAddress[] binds;
-        public LogLevel logLevel = LogLevel.DEBUG;
-    }
-
-    public class NettyPerformanceConfig {
-        public boolean usingEpoll;
-        public int bossThread;
-        public int workerThread;
-    }
-
-    public class NettyBindAddress {
-        public String address;
-        public int port;
-
-        public NettyBindAddress(String address, int port) {
-            this.address = address;
-            this.port = port;
-        }
-    }
-
-    public class GuardLicenseConf {
-        public String name;
-        public String key;
-        public String encryptKey;
-    }
 
     private final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
         private final Collection<ClientProfile> result;
@@ -511,7 +260,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final Path profilesDir;
     // Server config
 
-    public Config config;
+    public LaunchServerConfig config;
     public LaunchServerRuntimeConfig runtime;
 
 
@@ -663,9 +412,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         generateConfigIfNotExists(testEnv);
         LogHelper.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = Launcher.gsonManager.gson.fromJson(reader, Config.class);
+            config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
         }
-        config.server = this;
+        config.setLaunchServer(this);
         if (!Files.exists(runtimeConfigFile)) {
             LogHelper.info("Reset LaunchServer runtime config file");
             runtime = new LaunchServerRuntimeConfig();
@@ -852,68 +601,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         // Create new config
         LogHelper.info("Creating LaunchServer config");
-        Config newConfig = new Config();
-        newConfig.mirrors = new String[]{"https://mirror.gravit.pro/"};
-        newConfig.launch4j = new ExeConf();
-        newConfig.launch4j.enabled = true;
-        newConfig.launch4j.copyright = "© GravitLauncher Team";
-        newConfig.launch4j.alternative = "no";
-        newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
-        newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
-        newConfig.launch4j.internalName = "Launcher";
-        newConfig.launch4j.trademarks = "This product is licensed under GPLv3";
-        newConfig.launch4j.txtFileVersion = "%s, build %d";
-        newConfig.launch4j.txtProductVersion = "%s, build %d";
-        newConfig.launch4j.productName = "GravitLauncher";
-        newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
-        newConfig.launch4j.maxVersion = "1.8.999";
-        newConfig.env = LauncherConfig.LauncherEnvironment.STD;
-        newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
-        newConfig.hwidHandler = new AcceptHWIDHandler();
-        newConfig.auth = new AuthProviderPair[]{new AuthProviderPair(new RejectAuthProvider("Настройте authProvider"),
-                new MemoryAuthHandler(),
-                new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
-                , "std")};
-        newConfig.auth[0].displayName = "Default";
-        newConfig.protectHandler = new StdProtectHandler();
-        if (testEnv) newConfig.permissionsHandler = new DefaultPermissionsHandler();
-        else newConfig.permissionsHandler = new JsonFilePermissionsHandler();
-        newConfig.binaryName = "Launcher";
-        newConfig.whitelistRejectString = "Вас нет в белом списке";
 
-        newConfig.netty = new NettyConfig();
-        newConfig.netty.fileServerEnabled = true;
-        newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
-        newConfig.netty.performance = new NettyPerformanceConfig();
-        newConfig.netty.performance.usingEpoll = Epoll.isAvailable();
-        newConfig.netty.performance.bossThread = 2;
-        newConfig.netty.performance.workerThread = 8;
 
-        newConfig.launcher = new LauncherConf();
-        newConfig.launcher.guardType = "no";
-        newConfig.launcher.compress = true;
-        newConfig.launcher.warningMissArchJava = true;
-        newConfig.launcher.attachLibraryBeforeProGuard = false;
-        newConfig.launcher.deleteTempFiles = true;
-        newConfig.launcher.enabledProGuard = true;
-        newConfig.launcher.stripLineNumbers = true;
-        newConfig.launcher.proguardGenMappings = true;
-
-        newConfig.certificate = new CertificateConf();
-        newConfig.certificate.enabled = false;
-
-        newConfig.components = new HashMap<>();
-        AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
-        authLimiterComponent.rateLimit = 3;
-        authLimiterComponent.rateLimitMillis = 8000;
-        authLimiterComponent.message = "Превышен лимит авторизаций";
-        newConfig.components.put("authLimiter", authLimiterComponent);
-        RegLimiterComponent regLimiterComponent = new RegLimiterComponent();
-        regLimiterComponent.rateLimit = 3;
-        regLimiterComponent.rateLimitMillis = 1000 * 60 * 60 * 10; //Блок на 10 часов
-        regLimiterComponent.message = "Превышен лимит регистраций";
-        newConfig.components.put("regLimiter", regLimiterComponent);
-
+        LaunchServerConfig newConfig = LaunchServerConfig.getDefault();
         // Set server address
         String address;
         if (testEnv) {
@@ -938,7 +628,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
         newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
         newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
-        newConfig.netty.sendExceptionEnabled = true;
 
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");

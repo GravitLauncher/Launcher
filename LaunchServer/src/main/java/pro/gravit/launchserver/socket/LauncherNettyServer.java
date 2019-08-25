@@ -17,6 +17,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketSe
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.handlers.NettyIpForwardHandler;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.handlers.fileserver.FileServerHandler;
@@ -32,7 +33,7 @@ public class LauncherNettyServer implements AutoCloseable {
     private static final String WEBSOCKET_PATH = "/api";
 
     public LauncherNettyServer(LaunchServer server) {
-        LaunchServer.NettyConfig config = server.config.netty;
+        LaunchServerConfig.NettyConfig config = server.config.netty;
         NettyObjectFactory.setUsingEpoll(config.performance.usingEpoll);
         if(config.performance.usingEpoll)
         {
