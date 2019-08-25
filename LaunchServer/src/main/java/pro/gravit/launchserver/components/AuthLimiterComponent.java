@@ -9,7 +9,7 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.HookException;
 
-public class AuthLimiterComponent extends AbstractLimiter<String> implements NeedGarbageCollection, AutoCloseable {
+public class AuthLimiterComponent extends IPLimiter implements NeedGarbageCollection, AutoCloseable {
 	private transient LaunchServer srv;
     @Override
     public void preInit(LaunchServer launchServer) {

@@ -8,7 +8,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.utils.HookException;
 
-public class RegLimiterComponent extends AbstractLimiter<String> implements NeedGarbageCollection, AutoCloseable {
+public class RegLimiterComponent extends IPLimiter implements NeedGarbageCollection, AutoCloseable {
 
     public transient LaunchServer launchServer;
     public String message;

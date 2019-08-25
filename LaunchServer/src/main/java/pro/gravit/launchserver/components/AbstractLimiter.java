@@ -6,11 +6,61 @@ import java.util.List;
 import java.util.Map;
 
 import pro.gravit.launcher.NeedGarbageCollection;
+import pro.gravit.launchserver.Reconfigurable;
+import pro.gravit.utils.command.Command;
+import pro.gravit.utils.command.SubCommand;
+import pro.gravit.utils.helper.LogHelper;
 
-public abstract class AbstractLimiter<T> extends Component implements NeedGarbageCollection {
+public abstract class AbstractLimiter<T> extends Component implements NeedGarbageCollection, Reconfigurable {
     public int rateLimit;
     public int rateLimitMillis;
     public List<T> exclude = new ArrayList<>();
+
+    @Override
+    public Map<String, Command> getCommands() {
+        Map<String, Command> commands = new HashMap<>();
+        commands.put("gc", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                long size = map.size();
+                garbageCollection();
+                LogHelper.info("Cleared %d entity", size);
+            }
+        });
+        commands.put("clear", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                long size = map.size();
+                map.clear();
+                LogHelper.info("Cleared %d entity", size);
+            }
+        });
+        commands.put("addExclude", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                verifyArgs(args, 1);
+                exclude.add(getFromString(args[0]));
+            }
+        });
+        commands.put("rmExclude", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                verifyArgs(args, 1);
+                exclude.remove(getFromString(args[0]));
+            }
+        });
+        commands.put("clearExclude", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                verifyArgs(args, 1);
+                exclude.clear();
+            }
+        });
+
+        return commands;
+    }
+
+    protected abstract T getFromString(String str);
 
     @Override
     public void garbageCollection() {
