@@ -14,15 +14,14 @@ import com.google.gson.reflect.TypeToken;
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.Reloadable;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-public class JsonFilePermissionsHandler extends PermissionsHandler implements Reloadable {
+public class JsonFilePermissionsHandler extends PermissionsHandler {
     public String filename = "permissions.json";
     public static Map<String, ClientPermissions> map;
 
-    @Override
+
     public void reload() {
         map.clear();
         Path path = Paths.get(filename);

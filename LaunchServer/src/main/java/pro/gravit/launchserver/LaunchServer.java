@@ -76,7 +76,6 @@ import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.manangers.MirrorManager;
 import pro.gravit.launchserver.manangers.ModulesManager;
 import pro.gravit.launchserver.manangers.ReconfigurableManager;
-import pro.gravit.launchserver.manangers.ReloadManager;
 import pro.gravit.launchserver.manangers.SessionManager;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
@@ -92,8 +91,8 @@ import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
-public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
-    @Override
+public final class LaunchServer implements Runnable, AutoCloseable {
+
     public void reload() throws Exception {
         config.close();
         LogHelper.info("Reading LaunchServer config file");
@@ -439,8 +438,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final MirrorManager mirrorManager;
 
-    public final ReloadManager reloadManager;
-
     public final ReconfigurableManager reconfigurableManager;
 
     public final ConfigManager configManager;
@@ -608,7 +605,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         proguardConf = new ProguardConf(this);
         sessionManager = new SessionManager();
         mirrorManager = new MirrorManager();
-        reloadManager = new ReloadManager();
         reconfigurableManager = new ReconfigurableManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
@@ -651,7 +647,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             }
         }
         GarbageManager.registerNeedGC(sessionManager);
-        reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);
         for (int i = 0; i < config.auth.length; ++i) {
             AuthProviderPair pair = config.auth[i];
@@ -987,9 +982,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     public void registerObject(String name, Object object) {
-        if (object instanceof Reloadable) {
-            reloadManager.registerReloadable(name, (Reloadable) object);
-        }
         if (object instanceof Reconfigurable) {
             reconfigurableManager.registerReconfigurable(name, (Reconfigurable) object);
         }
@@ -999,9 +991,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     public void unregisterObject(String name, Object object) {
-        if (object instanceof Reloadable) {
-            reloadManager.unregisterReloadable(name);
-        }
         if (object instanceof Reconfigurable) {
             reconfigurableManager.unregisterReconfigurable(name);
         }
