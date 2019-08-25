@@ -1,4 +1,4 @@
-def mainClassName = "pro.gravit.launchserver.LaunchServer"
+def mainClassName = "pro.gravit.launchserver.LaunchServerStarter"
 def mainAgentName = "pro.gravit.launchserver.StarterAgent"
 
 evaluationDependsOn(':Launcher')

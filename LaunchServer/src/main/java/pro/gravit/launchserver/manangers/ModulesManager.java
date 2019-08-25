@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.manangers;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import pro.gravit.launcher.managers.SimpleModuleManager;
@@ -13,12 +14,16 @@ import pro.gravit.utils.PublicURLClassLoader;
 public class ModulesManager extends SimpleModuleManager {
     public SimpleModulesConfigManager configManager;
 
-    public ModulesManager(LaunchServer lsrv) {
+    public ModulesManager(Path configDir) {
         modules = new ArrayList<>(1);
-        configManager = new SimpleModulesConfigManager(lsrv.dir.resolve("config"));
+        configManager = new SimpleModulesConfigManager(configDir);
         classloader = new PublicURLClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
-        context = new LaunchServerModuleContext(lsrv, classloader, configManager);
         registerCoreModule();
+    }
+
+    public void initContext(LaunchServer server)
+    {
+        context = new LaunchServerModuleContext(server, classloader, configManager);
     }
 
     private void registerCoreModule() {

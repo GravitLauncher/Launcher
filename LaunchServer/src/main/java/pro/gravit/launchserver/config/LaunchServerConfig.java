@@ -285,7 +285,7 @@ public final class LaunchServerConfig {
         public String key;
         public String encryptKey;
     }
-    public static LaunchServerConfig getDefault()
+    public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env)
     {
         LaunchServerConfig newConfig = new LaunchServerConfig();
         newConfig.mirrors = new String[]{"https://mirror.gravit.pro/"};
