@@ -7,6 +7,8 @@ import pro.gravit.launcher.client.ClientModuleManager;
 import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.launcher.client.FunctionalBridge;
 import pro.gravit.launcher.client.LauncherUpdateController;
+import pro.gravit.launcher.client.events.ClientEngineInitPhase;
+import pro.gravit.launcher.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
@@ -14,6 +16,9 @@ import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.managers.ConsoleManager;
+import pro.gravit.launcher.modules.LauncherModulesManager;
+import pro.gravit.launcher.modules.events.PreConfigPhase;
+import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.RestoreSessionRequest;
@@ -33,10 +38,15 @@ public class LauncherEngine {
         //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
+
+        LauncherEngine.modulesManager = new ClientModuleManager();
+        LauncherConfig.getAutogenConfig().initModules();
+        LauncherEngine.modulesManager.initModules(null);
         // Start Launcher
-        initGson();
+        initGson(LauncherEngine.modulesManager);
         ConsoleManager.initConsole();
         HWIDProvider.registerHWIDs();
+        LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         LauncherConfig config = Launcher.getConfig();
         if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {
             if (!LauncherAgent.isStarted()) throw new SecurityException("LauncherAgent must started");
@@ -55,14 +65,16 @@ public class LauncherEngine {
         System.exit(0);
     }
 
-    public static void initGson() {
-        Launcher.gsonManager = new ClientGsonManager();
+    public static void initGson(ClientModuleManager modulesManager) {
+        Launcher.gsonManager = new ClientGsonManager(modulesManager);
         Launcher.gsonManager.initGson();
     }
 
     // Instance
     private final AtomicBoolean started = new AtomicBoolean(false);
     public RuntimeProvider runtimeProvider;
+
+    public static ClientModuleManager modulesManager;
 
     private LauncherEngine() {
 
@@ -71,9 +83,10 @@ public class LauncherEngine {
 
     @LauncherAPI
     public void start(String... args) throws Throwable {
-        Launcher.modulesManager = new ClientModuleManager(this);
-        LauncherConfig.getAutogenConfig().initModules();
-        Launcher.modulesManager.preInitModules();
+        //Launcher.modulesManager = new ClientModuleManager(this);
+        ClientPreGuiPhase event = new ClientPreGuiPhase(null);
+        LauncherEngine.modulesManager.invokeEvent(event);
+        runtimeProvider = event.runtimeProvider;
         if (runtimeProvider == null) runtimeProvider = new JSRuntimeProvider();
         ClientHookManager.initGuiHook.hook(runtimeProvider);
         runtimeProvider.init(false);
@@ -105,7 +118,7 @@ public class LauncherEngine {
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");
-        Launcher.modulesManager.initModules();
+        LauncherEngine.modulesManager.invokeEvent(new ClientEngineInitPhase(this));
         runtimeProvider.preLoad();
         FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread", true, FunctionalBridge::getHWID);
         FunctionalBridge.getHWID.start();

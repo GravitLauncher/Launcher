@@ -1,25 +1,28 @@
 package pro.gravit.launcher.client;
 
-import java.net.URL;
-import java.util.ArrayList;
+import pro.gravit.launcher.modules.LauncherModule;
+import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 
-import pro.gravit.launcher.LauncherEngine;
-import pro.gravit.launcher.managers.SimpleModuleManager;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public class ClientModuleManager extends SimpleModuleManager {
-
-	public ClientModuleManager(LauncherEngine engine) {
-        context = new ClientModuleContext(engine);
-        modules = new ArrayList<>();
+    public ClientModuleManager() {
+        super(null, null);
     }
 
     @Override
-    public void loadModule(URL jarpath, String classname) {
-        throw new SecurityException("Custom JAR's load not allowed here");
+    public void autoload() throws IOException {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public void loadModuleFull(URL jarpath) {
-        throw new SecurityException("Custom JAR's load not allowed here");
+    public void autoload(Path dir) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LauncherModule loadModule(Path file) throws IOException {
+        throw new UnsupportedOperationException();
     }
 }

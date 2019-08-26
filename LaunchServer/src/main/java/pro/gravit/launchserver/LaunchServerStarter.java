@@ -100,6 +100,12 @@ public class LaunchServerStarter {
             IOHelper.write(publicKeyFile, publicKey.getEncoded());
             IOHelper.write(privateKeyFile, privateKey.getEncoded());
         }
+        modulesManager.invokeEvent(new PreConfigPhase());
+        generateConfigIfNotExists(configFile, localCommandHandler, env);
+        LogHelper.info("Reading LaunchServer config file");
+        try (BufferedReader reader = IOHelper.newReader(configFile)) {
+            config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
+        }
         if (!Files.exists(runtimeConfigFile)) {
             LogHelper.info("Reset LaunchServer runtime config file");
             runtimeConfig = new LaunchServerRuntimeConfig();
@@ -109,12 +115,6 @@ public class LaunchServerStarter {
             try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
                 runtimeConfig = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
             }
-        }
-        modulesManager.invokeEvent(new PreConfigPhase());
-        generateConfigIfNotExists(configFile, localCommandHandler, env);
-        LogHelper.info("Reading LaunchServer config file");
-        try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
         }
 
         LaunchServer.LaunchServerConfigManager launchServerConfigManager = new LaunchServer.LaunchServerConfigManager() {

@@ -32,6 +32,7 @@ import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherAgent;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.client.events.ClientLauncherInitPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.hasher.FileNameMatcher;
@@ -39,6 +40,8 @@ import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
+import pro.gravit.launcher.modules.events.PostInitPhase;
+import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.request.Request;
@@ -435,10 +438,12 @@ public final class ClientLauncher {
     @LauncherAPI
     public static void main(String... args) throws Throwable {
         LauncherEngine engine = LauncherEngine.clientInstance();
-        Launcher.modulesManager = new ClientModuleManager(engine);
+        //Launcher.modulesManager = new ClientModuleManager(engine);
+        LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.getAutogenConfig().initModules(); //INIT
-        initGson();
-        Launcher.modulesManager.preInitModules();
+        initGson(LauncherEngine.modulesManager);
+        //Launcher.modulesManager.preInitModules();
+        LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncher.class);
@@ -472,7 +477,7 @@ public final class ClientLauncher {
         playerProfile = params.pp;
         Request.setSession(params.session);
         checkJVMBitsAndVersion();
-        Launcher.modulesManager.initModules();
+        LauncherEngine.modulesManager.invokeEvent(new ClientLauncherInitPhase());
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
@@ -524,7 +529,7 @@ public final class ClientLauncher {
             //    else hdir.removeR(s.file);
             //}
             Launcher.profile.pushOptionalFile(clientHDir, false);
-            Launcher.modulesManager.postInitModules();
+            LauncherEngine.modulesManager.invokeEvent(new PostInitPhase());
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
@@ -555,8 +560,8 @@ public final class ClientLauncher {
         return builder.build();
     }
 
-    private static void initGson() {
-        Launcher.gsonManager = new ClientGsonManager();
+    private static void initGson(ClientModuleManager moduleManager) {
+        Launcher.gsonManager = new ClientGsonManager(moduleManager);
         Launcher.gsonManager.initGson();
     }
 

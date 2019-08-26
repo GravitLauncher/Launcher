@@ -20,6 +20,7 @@ public class ServerWrapperSetup {
 
     public void run() throws IOException {
         ServerWrapper wrapper = ServerWrapper.wrapper;
+        ServerWrapper.modulesManager.invokeEvent(new ServerWrapperPreSetupEvent(this));
         System.out.println("Print jar filename:");
         String jarName = commands.commandHandler.readLine();
         Path jarPath = Paths.get(jarName);
@@ -86,6 +87,7 @@ public class ServerWrapperSetup {
             Path startScriptBak = Paths.get("start.bak");
             IOHelper.move(startScript, startScriptBak);
         }
+        ServerWrapper.modulesManager.invokeEvent(new ServerWrapperSetupEvent(this));
         try (Writer writer = IOHelper.newWriter(startScript)) {
             if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
                 writer.append("#!/bin/sh\n\n");
@@ -108,7 +110,7 @@ public class ServerWrapperSetup {
             writer.append(ServerWrapper.class.getName());
             writer.append("\n");
         }
-
+        ServerWrapper.modulesManager.invokeEvent(new ServerWrapperPostSetupEvent(this));
     }
 
     public ServerWrapperSetup() throws IOException {

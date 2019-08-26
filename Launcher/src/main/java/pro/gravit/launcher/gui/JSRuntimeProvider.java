@@ -11,16 +11,13 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import pro.gravit.launcher.JSApplication;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.NewLauncherSettings;
+import pro.gravit.launcher.*;
 import pro.gravit.launcher.client.ClientLauncher;
 import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.launcher.client.FunctionalBridge;
 import pro.gravit.launcher.client.ServerPinger;
 import pro.gravit.launcher.client.UserSettings;
+import pro.gravit.launcher.client.events.ClientGuiPhase;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
@@ -28,6 +25,7 @@ import pro.gravit.launcher.hasher.HashedFile;
 import pro.gravit.launcher.hwid.NoHWID;
 import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launcher.managers.SettingsManager;
+import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.Texture;
@@ -163,9 +161,9 @@ public class JSRuntimeProvider implements RuntimeProvider {
         preLoad();
         loadScript(Launcher.INIT_SCRIPT_FILE);
         LogHelper.info("Invoking start() function");
-        Launcher.modulesManager.postInitModules();
+        LauncherEngine.modulesManager.invokeEvent(new ClientGuiPhase(this));
         ((Invocable) engine).invokeFunction("start", (Object) args);
-        Launcher.modulesManager.finishModules();
+        LauncherEngine.modulesManager.invokeEvent(new ClosePhase());
     }
 
     @Override

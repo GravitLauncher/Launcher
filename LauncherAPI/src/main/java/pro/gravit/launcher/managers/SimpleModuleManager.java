@@ -18,7 +18,7 @@ import pro.gravit.launcher.modules.ModulesManager;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
-
+@Deprecated
 public class SimpleModuleManager implements ModulesManager {
     protected final class ModulesVisitor extends SimpleFileVisitor<Path> {
         private ModulesVisitor() {
