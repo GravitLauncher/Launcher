@@ -25,7 +25,7 @@ import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.SafeClassWriter;
 
 public class JAConfigurator {
-    private static final String modulesManagerName = "pro/gravit/launcher/client/ClientModulesManager";
+    private static final String modulesManagerName = "pro/gravit/launcher/modules/LauncherModulesManager";
     private static final String launcherName = "pro/gravit/launcher/LauncherEngine";
     private static final String modulesManagerDesc = "Lpro/gravit/launcher/client/ClientModulesManager;";
     private static final String registerModDesc = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(LauncherModule.class));
