@@ -8,27 +8,37 @@ public abstract class LauncherModule {
 
     private Map<Class<? extends Event>, EventHandler> eventMap = new HashMap<>();
     protected LauncherModulesManager modulesManager;
+    protected final LauncherModuleInfo moduleInfo;
     protected ModulesConfigManager modulesConfigManager;
     InitPhase initPhase = InitPhase.CREATED;
+
+    protected LauncherModule() {
+        moduleInfo = new LauncherModuleInfo("UnknownModule");
+    }
+
     public enum InitPhase
     {
         CREATED,
         INIT,
         FINISH
     }
-    public enum EventAction
-    {
-        CONTINUE,
-        INTERRUPT
-    }
     @FunctionalInterface
     public interface EventHandler<T extends Event>
     {
-        EventAction event(T e) throws Exception;
+        void event(T e) throws Exception;
     }
-    public interface Event
+    public static class Event
     {
+        public boolean isCancel() {
+            return cancel;
+        }
 
+        public Event cancel() {
+            this.cancel = true;
+            return this;
+        }
+
+        protected boolean cancel;
     }
 
     public InitPhase getInitPhase() {
@@ -43,7 +53,8 @@ public abstract class LauncherModule {
         this.modulesConfigManager = context.getModulesConfigManager();
         return eventMap;
     }
-    public abstract LauncherModuleInfo init();
+
+    public abstract void init();
 
     <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass)
     {
@@ -51,7 +62,8 @@ public abstract class LauncherModule {
         return true;
     }
 
-    <T extends Event> EventAction callEvent(T event) throws Exception
+    @SuppressWarnings("unchecked")
+    <T extends Event> void callEvent(T event) throws Exception
     {
         Class<? extends Event> tClass = event.getClass();
         for(Map.Entry<Class<? extends Event>, EventHandler> e : eventMap.entrySet())
@@ -59,11 +71,9 @@ public abstract class LauncherModule {
 
             if(e.getKey().isAssignableFrom(tClass))
             {
-                @SuppressWarnings("unchecked")
-                EventAction action = e.getValue().event(event);
-                if(action.equals(EventAction.INTERRUPT)) return action;
+                e.getValue().event(event);
+                if(event.isCancel()) return;
             }
         }
-        return EventAction.CONTINUE;
     }
 }
