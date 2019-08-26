@@ -66,7 +66,7 @@ public abstract class LauncherModule {
         //NOP
     }
 
-    public abstract void init();
+    public abstract void init(LauncherInitContext initContext);
 
 
     protected <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass)

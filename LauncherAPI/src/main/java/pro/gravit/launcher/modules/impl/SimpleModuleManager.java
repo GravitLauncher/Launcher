@@ -1,10 +1,7 @@
 package pro.gravit.launcher.modules.impl;
 
 import pro.gravit.launcher.managers.SimpleModulesConfigManager;
-import pro.gravit.launcher.modules.LauncherModule;
-import pro.gravit.launcher.modules.LauncherModuleInfo;
-import pro.gravit.launcher.modules.LauncherModulesManager;
-import pro.gravit.launcher.modules.ModulesConfigManager;
+import pro.gravit.launcher.modules.*;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.IOHelper;
@@ -29,6 +26,8 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected final List<String> moduleNames = new ArrayList<>();
     protected final SimpleModuleContext context;
     protected final ModulesConfigManager modulesConfigManager;
+    protected final Path modulesDir;
+    protected LauncherInitContext initContext;
 
     protected PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{});
 
@@ -43,6 +42,10 @@ public class SimpleModuleManager implements LauncherModulesManager {
         }
     }
 
+    public void autoload() throws IOException {
+        autoload(modulesDir);
+    }
+
     public void autoload(Path dir) throws IOException {
         if (Files.notExists(dir)) Files.createDirectory(dir);
         else {
@@ -50,7 +53,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
         }
     }
 
-    public void initModules() {
+    public void initModules(LauncherInitContext initContext) {
         List<LauncherModule> startedModules = Collections.unmodifiableList(new ArrayList<>(modules));
         for(LauncherModule module : startedModules)
         {
@@ -69,14 +72,13 @@ public class SimpleModuleManager implements LauncherModulesManager {
                 {
                     isAnyModuleLoad = true;
                     module.setInitPhase(LauncherModule.InitPhase.INIT);
-                    module.init();
+                    module.init(initContext);
                     module.setInitPhase(LauncherModule.InitPhase.FINISH);
                     loaded++;
                 }
             }
+            if(modules_size >= loaded) return;
         }
-        if(modules_size == loaded) return;
-        if(loaded > modules_size) throw new IllegalStateException(String.format("Module loading error. %d > %d", loaded, modules_size)); //WTF?
         for(LauncherModule module : modules)
         {
             if(module.getInitPhase().equals(LauncherModule.InitPhase.CREATED))
@@ -84,7 +86,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
                 LauncherModuleInfo info = module.getModuleInfo();
                 LogHelper.warning("Module %s required %s. Cyclic dependencies?", info.name, Arrays.toString(info.dependencies));
                 module.setInitPhase(LauncherModule.InitPhase.INIT);
-                module.init();
+                module.init(initContext);
                 module.setInitPhase(LauncherModule.InitPhase.FINISH);
             }
         }
@@ -105,14 +107,21 @@ public class SimpleModuleManager implements LauncherModulesManager {
     public SimpleModuleManager(Path modulesDir, Path configDir) {
         modulesConfigManager = new SimpleModulesConfigManager(configDir);
         context = new SimpleModuleContext(this, modulesConfigManager);
+        this.modulesDir = modulesDir;
     }
 
     @Override
     public LauncherModule loadModule(LauncherModule module) {
+        if(modules.contains(module)) return module;
         modules.add(module);
         LauncherModuleInfo info = module.getModuleInfo();
         moduleNames.add(info.name);
         module.setContext(context);
+        if(initContext != null)
+        {
+            module.preInit();
+            module.init(initContext);
+        }
         return module;
     }
 
