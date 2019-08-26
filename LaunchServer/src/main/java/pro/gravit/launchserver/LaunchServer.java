@@ -38,6 +38,8 @@ import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.managers.GarbageManager;
+import pro.gravit.launcher.modules.LauncherModulesManager;
+import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
@@ -51,6 +53,11 @@ import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
+import pro.gravit.launchserver.modules.events.LaunchServerFullInitEvent;
+import pro.gravit.launchserver.modules.events.LaunchServerInitPhase;
+import pro.gravit.launchserver.modules.events.LaunchServerPostInitPhase;
+import pro.gravit.launchserver.modules.events.NewLaunchServerInstanceEvent;
+import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.utils.command.*;
 import pro.gravit.utils.helper.CommonHelper;
@@ -226,7 +233,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final AuthHookManager authHookManager;
     // Server
 
-    public final ModulesManager modulesManager;
+    public final LaunchServerModulesManager modulesManager;
 
     public final MirrorManager mirrorManager;
 
@@ -268,7 +275,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
     }
 
-    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, ModulesManager modulesManager, RSAPublicKey publicKey, RSAPrivateKey privateKey, CommandHandler commandHandler) throws IOException, InvalidKeySpecException {
+    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, RSAPublicKey publicKey, RSAPrivateKey privateKey, CommandHandler commandHandler) throws IOException, InvalidKeySpecException {
         this.dir = directories.dir;
         this.env = env;
         this.config = config;
@@ -292,7 +299,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         serverCertFile = dir.resolve("server.crt");
         serverKeyFile = dir.resolve("server.key");
 
-        modulesManager.initContext(this);
+        modulesManager.invokeEvent(new NewLaunchServerInstanceEvent(this));
 
         // Print keypair fingerprints
         CRC32 crc = new CRC32();
@@ -301,11 +308,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         // Load class bindings.
         launcherEXEBinaryClass = defaultLauncherEXEBinaryClass;
-
-        // pre init modules
-        //modulesManager = new ModulesManager(this);
-        //modulesManager.autoload(dir.resolve("modules"));
-        modulesManager.preInitModules();
 
         runtime.verify();
         config.verify();
@@ -371,7 +373,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(commandHandler, this);
 
         // init modules
-        modulesManager.initModules();
+        modulesManager.invokeEvent(new LaunchServerInitPhase(this));
         if (config.components != null) {
             LogHelper.debug("Init components");
             config.components.forEach((k, v) -> {
@@ -400,7 +402,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         syncProfilesDir();
 
         // post init modules
-        modulesManager.postInitModules();
+        modulesManager.invokeEvent(new LaunchServerPostInitPhase(this));
         if (config.components != null) {
             LogHelper.debug("PostInit components");
             config.components.forEach((k, v) -> {
@@ -457,7 +459,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         // Close handlers & providers
         config.close(ReloadType.FULL);
-        modulesManager.close();
+        modulesManager.invokeEvent(new ClosePhase());
         LogHelper.info("Save LaunchServer runtime config");
         launchServerConfigManager.writeRuntimeConfig(runtime);
         // Print last message before death :(
@@ -504,7 +506,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
         if (config.netty != null)
             rebindNettyServerSocket();
-        modulesManager.finishModules();
+        modulesManager.fullInitializedLaunchServer(this);
+        modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
     }
 
 

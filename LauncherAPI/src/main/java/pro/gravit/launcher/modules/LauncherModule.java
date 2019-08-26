@@ -16,6 +16,10 @@ public abstract class LauncherModule {
         moduleInfo = new LauncherModuleInfo("UnknownModule");
     }
 
+    protected LauncherModule(LauncherModuleInfo info) {
+        moduleInfo = info;
+    }
+
     public LauncherModuleInfo getModuleInfo() {
         return moduleInfo;
     }
@@ -29,7 +33,7 @@ public abstract class LauncherModule {
     @FunctionalInterface
     public interface EventHandler<T extends Event>
     {
-        void event(T e) throws Exception;
+        void event(T e);
     }
     public static class Event
     {
@@ -76,7 +80,7 @@ public abstract class LauncherModule {
     }
 
     @SuppressWarnings("unchecked")
-    public final <T extends Event> void callEvent(T event) throws Exception
+    public final <T extends Event> void callEvent(T event)
     {
         Class<? extends Event> tClass = event.getClass();
         for(Map.Entry<Class<? extends Event>, EventHandler> e : eventMap.entrySet())

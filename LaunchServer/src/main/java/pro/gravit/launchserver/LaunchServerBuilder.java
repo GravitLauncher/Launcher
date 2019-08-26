@@ -3,6 +3,7 @@ package pro.gravit.launchserver;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.manangers.ModulesManager;
+import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.utils.command.CommandHandler;
 
 import java.nio.file.Path;
@@ -14,7 +15,7 @@ public class LaunchServerBuilder {
     private LaunchServerRuntimeConfig runtimeConfig;
     private CommandHandler commandHandler;
     private LaunchServer.LaunchServerEnv env;
-    private ModulesManager modulesManager;
+    private LaunchServerModulesManager modulesManager;
     private LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
     private RSAPublicKey publicKey;
     private RSAPrivateKey privateKey;
@@ -30,7 +31,7 @@ public class LaunchServerBuilder {
         return this;
     }
 
-    public LaunchServerBuilder setModulesManager(ModulesManager modulesManager) {
+    public LaunchServerBuilder setModulesManager(LaunchServerModulesManager modulesManager) {
         this.modulesManager = modulesManager;
         return this;
     }

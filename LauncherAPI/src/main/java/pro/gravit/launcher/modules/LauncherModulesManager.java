@@ -23,5 +23,5 @@ public interface LauncherModulesManager {
     ClassLoader getModuleClassLoader();
     <T extends LauncherModule> T getModule(Class<? extends T> clazz);
     <T extends LauncherModule> T findModule(Class<? extends T> clazz, Predicate<Version> versionPredicate);
-    <T extends LauncherModule.Event> void invokeEvent(T event) throws Exception;
+    <T extends LauncherModule.Event> void invokeEvent(T event);
 }

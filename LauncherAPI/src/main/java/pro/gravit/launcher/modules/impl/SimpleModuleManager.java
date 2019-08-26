@@ -188,7 +188,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
     }
 
     @Override
-    public <T extends LauncherModule.Event> void invokeEvent(T event) throws Exception {
+    public <T extends LauncherModule.Event> void invokeEvent(T event) {
         for(LauncherModule module : modules)
         {
             module.callEvent(event);

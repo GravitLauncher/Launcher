@@ -25,7 +25,7 @@ public class LaunchServerModuleContext implements ModuleContext {
 
     @Override
     public ModulesManager getModulesManager() {
-        return launchServer.modulesManager;
+        return null;
     }
 
     @Override

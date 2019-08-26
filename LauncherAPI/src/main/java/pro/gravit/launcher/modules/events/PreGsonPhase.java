@@ -5,10 +5,8 @@ import pro.gravit.launcher.modules.LauncherModule;
 
 public class PreGsonPhase extends LauncherModule.Event {
     public GsonBuilder gsonBuilder;
-    public GsonBuilder gsonConfigBuilder;
 
-    public PreGsonPhase(GsonBuilder gsonBuilder, GsonBuilder gsonConfigBuilder) {
+    public PreGsonPhase(GsonBuilder gsonBuilder) {
         this.gsonBuilder = gsonBuilder;
-        this.gsonConfigBuilder = gsonConfigBuilder;
     }
 }
