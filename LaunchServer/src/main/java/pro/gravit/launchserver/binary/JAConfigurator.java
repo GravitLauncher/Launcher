@@ -17,16 +17,18 @@ import org.objectweb.asm.Type;
 import pro.gravit.launcher.AutogenConfig;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.modules.LauncherModule;
+import pro.gravit.launcher.modules.LauncherModulesManager;
 import pro.gravit.launcher.modules.Module;
 import pro.gravit.launcher.modules.ModulesManager;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.SafeClassWriter;
 
 public class JAConfigurator {
-    private static final String modulesManagerName = Type.getInternalName(ModulesManager.class);
-    private static final String launcherName = Type.getInternalName(Launcher.class);
-    private static final String modulesManagerDesc = Type.getDescriptor(ModulesManager.class);
-    private static final String registerModDesc = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(Module.class));
+    private static final String modulesManagerName = "pro/gravit/launcher/client/ClientModulesManager";
+    private static final String launcherName = "pro/gravit/launcher/LauncherEngine";
+    private static final String modulesManagerDesc = "Lpro/gravit/launcher/client/ClientModulesManager;";
+    private static final String registerModDesc = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(LauncherModule.class));
     private static final String autoGenConfigName = Type.getInternalName(AutogenConfig.class);
     private static final String stringDesc = Type.getDescriptor(String.class);
     private final ClassNode configclass;
@@ -47,7 +49,7 @@ public class JAConfigurator {
         initModuleMethod.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, launcherName, "modulesManager", modulesManagerDesc));
         initModuleMethod.instructions.add(new TypeInsnNode(Opcodes.NEW, fullName.replace('.', '/')));
         initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, fullName.replace('.', '/'), "<init>", "()V"));
-        initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, modulesManagerName, "registerModule", registerModDesc));
+        initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, modulesManagerName, "loadModule", registerModDesc));
     }
 
     public byte[] getBytecode(ClassMetadataReader reader) {

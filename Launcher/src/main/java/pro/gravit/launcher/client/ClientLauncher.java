@@ -441,6 +441,7 @@ public final class ClientLauncher {
         //Launcher.modulesManager = new ClientModuleManager(engine);
         LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.getAutogenConfig().initModules(); //INIT
+        LauncherEngine.modulesManager.initModules(null);
         initGson(LauncherEngine.modulesManager);
         //Launcher.modulesManager.preInitModules();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
