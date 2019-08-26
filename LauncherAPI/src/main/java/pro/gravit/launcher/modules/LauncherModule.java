@@ -10,10 +10,14 @@ public abstract class LauncherModule {
     protected LauncherModulesManager modulesManager;
     protected final LauncherModuleInfo moduleInfo;
     protected ModulesConfigManager modulesConfigManager;
-    InitPhase initPhase = InitPhase.CREATED;
+    protected InitPhase initPhase = InitPhase.CREATED;
 
     protected LauncherModule() {
         moduleInfo = new LauncherModuleInfo("UnknownModule");
+    }
+
+    public LauncherModuleInfo getModuleInfo() {
+        return moduleInfo;
     }
 
     public enum InitPhase
@@ -38,32 +42,41 @@ public abstract class LauncherModule {
             return this;
         }
 
-        protected boolean cancel;
+        protected boolean cancel = false;
     }
 
     public InitPhase getInitPhase() {
         return initPhase;
     }
 
-    Map<Class<? extends Event>, EventHandler> setContext(LauncherModulesContext context)
+    public LauncherModule setInitPhase(InitPhase initPhase) {
+        this.initPhase = initPhase;
+        return this;
+    }
+
+    public void setContext(LauncherModulesContext context)
     {
         if(this.context != null) throw new IllegalStateException("Module already set context");
         this.context = context;
         this.modulesManager = context.getModulesManager();
         this.modulesConfigManager = context.getModulesConfigManager();
-        return eventMap;
+    }
+
+    public void preInit() {
+        //NOP
     }
 
     public abstract void init();
 
-    <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass)
+
+    protected <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass)
     {
         eventMap.put(tClass, handle);
         return true;
     }
 
     @SuppressWarnings("unchecked")
-    <T extends Event> void callEvent(T event) throws Exception
+    public final <T extends Event> void callEvent(T event) throws Exception
     {
         Class<? extends Event> tClass = event.getClass();
         for(Map.Entry<Class<? extends Event>, EventHandler> e : eventMap.entrySet())

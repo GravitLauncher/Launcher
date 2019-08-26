@@ -2,11 +2,15 @@ package pro.gravit.launcher.modules;
 
 import pro.gravit.utils.Version;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.function.Predicate;
 
 public interface LauncherModulesManager {
     LauncherModule loadModule(LauncherModule module);
+    LauncherModule loadModule(Path file) throws IOException;
     LauncherModule getModule(String name);
+    LauncherModule getCoreModule();
     default boolean containsModule(String name)
     {
         return getModule(name) != null;

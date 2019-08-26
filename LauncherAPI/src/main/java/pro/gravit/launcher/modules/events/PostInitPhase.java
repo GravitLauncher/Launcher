@@ -2,5 +2,5 @@ package pro.gravit.launcher.modules.events;
 
 import pro.gravit.launcher.modules.LauncherModule;
 
-public interface WrapperEvent extends LauncherModule.Event {
+public class PostInitPhase extends LauncherModule.Event {
 }
