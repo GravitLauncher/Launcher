@@ -10,7 +10,7 @@ public abstract class LauncherModule {
     protected LauncherModulesManager modulesManager;
     protected final LauncherModuleInfo moduleInfo;
     protected ModulesConfigManager modulesConfigManager;
-    protected InitPhase initPhase = InitPhase.CREATED;
+    protected InitStatus initStatus = InitStatus.CREATED;
 
     protected LauncherModule() {
         moduleInfo = new LauncherModuleInfo("UnknownModule");
@@ -24,7 +24,7 @@ public abstract class LauncherModule {
         return moduleInfo;
     }
 
-    public enum InitPhase
+    public enum InitStatus
     {
         CREATED,
         INIT,
@@ -49,12 +49,12 @@ public abstract class LauncherModule {
         protected boolean cancel = false;
     }
 
-    public InitPhase getInitPhase() {
-        return initPhase;
+    public InitStatus getInitStatus() {
+        return initStatus;
     }
 
-    public LauncherModule setInitPhase(InitPhase initPhase) {
-        this.initPhase = initPhase;
+    public LauncherModule setInitStatus(InitStatus initStatus) {
+        this.initStatus = initStatus;
         return this;
     }
 

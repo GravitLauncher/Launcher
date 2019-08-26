@@ -67,13 +67,13 @@ public class SimpleModuleManager implements LauncherModulesManager {
             isAnyModuleLoad = false;
             for(LauncherModule module : modules)
             {
-                if(!module.getInitPhase().equals(LauncherModule.InitPhase.CREATED)) continue;
+                if(!module.getInitStatus().equals(LauncherModule.InitStatus.CREATED)) continue;
                 if(checkDepend(module))
                 {
                     isAnyModuleLoad = true;
-                    module.setInitPhase(LauncherModule.InitPhase.INIT);
+                    module.setInitStatus(LauncherModule.InitStatus.INIT);
                     module.init(initContext);
-                    module.setInitPhase(LauncherModule.InitPhase.FINISH);
+                    module.setInitStatus(LauncherModule.InitStatus.FINISH);
                     loaded++;
                 }
             }
@@ -81,13 +81,13 @@ public class SimpleModuleManager implements LauncherModulesManager {
         }
         for(LauncherModule module : modules)
         {
-            if(module.getInitPhase().equals(LauncherModule.InitPhase.CREATED))
+            if(module.getInitStatus().equals(LauncherModule.InitStatus.CREATED))
             {
                 LauncherModuleInfo info = module.getModuleInfo();
                 LogHelper.warning("Module %s required %s. Cyclic dependencies?", info.name, Arrays.toString(info.dependencies));
-                module.setInitPhase(LauncherModule.InitPhase.INIT);
+                module.setInitStatus(LauncherModule.InitStatus.INIT);
                 module.init(initContext);
-                module.setInitPhase(LauncherModule.InitPhase.FINISH);
+                module.setInitStatus(LauncherModule.InitStatus.FINISH);
             }
         }
     }
@@ -99,7 +99,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
         {
             LauncherModule depModule = getModule(dep);
             if(depModule == null) throw new RuntimeException(String.format("Module %s required %s. %s not found", info.name, dep, dep));
-            if(depModule.getInitPhase().equals(LauncherModule.InitPhase.CREATED)) return false;
+            if(depModule.getInitStatus().equals(LauncherModule.InitStatus.CREATED)) return false;
         }
         return true;
     }
