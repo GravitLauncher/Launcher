@@ -23,5 +23,12 @@ public interface LauncherModulesManager {
     ClassLoader getModuleClassLoader();
     <T extends LauncherModule> T getModule(Class<? extends T> clazz);
     <T extends LauncherModule> T findModule(Class<? extends T> clazz, Predicate<Version> versionPredicate);
+
+    /**
+     * Invoke event processing for all modules.
+     * Event processing is carried out in the order of the modules in the list (sorted by priority)
+     * @param event event handled
+     * @param <T> event type
+     */
     <T extends LauncherModule.Event> void invokeEvent(T event);
 }

@@ -24,6 +24,13 @@ public abstract class LauncherModule {
         return moduleInfo;
     }
 
+
+    /**
+     * Module initialization status at the current time
+     * CREATED - Module status immediately after loading
+     * INIT - The state of the module during the execution of the method init()
+     * FINISH - Status of the module after initialization
+     */
     public enum InitStatus
     {
         CREATED,
@@ -58,6 +65,11 @@ public abstract class LauncherModule {
         return this;
     }
 
+    /**
+     * The internal method used by the ModuleManager
+     * DO NOT TOUCH
+     * @param context Private context
+     */
     public void setContext(LauncherModulesContext context)
     {
         if(this.context != null) throw new IllegalStateException("Module already set context");
@@ -66,19 +78,56 @@ public abstract class LauncherModule {
         this.modulesConfigManager = context.getModulesConfigManager();
     }
 
+    /**
+     * This method is called before initializing all modules and resolving dependencies.
+     * <b>You can</b>:
+     * Use to Module Manager
+     * Add custom modules not described in the manifest
+     * Change information about your module or modules you control
+     * <b>You can not</b>:
+     * Use your dependencies
+     * Use API Launcher, LaunchServer, ServerWrapper
+     * Change the names of any modules
+     */
     public void preInit() {
         //NOP
     }
 
+    /**
+     * Basic module initialization method
+     * <b>You can</b>:
+     * Subscribe to events
+     * Use your dependencies
+     * Use provided initContext
+     * Receive modules and access the module’s internal methods
+     * <b>You can not</b>:
+     * Modify module description, dependencies
+     * Add modules
+     * Read configuration
+     * @param initContext <tr>null</tr> on module initialization during boot or startup
+     * Not <tr>null</tr> during module initialization while running
+     */
     public abstract void init(LauncherInitContext initContext);
 
 
+    /**
+     * Registers an event handler for the current module
+     * @param handle your event handler
+     * @param tClass event class
+     * @param <T> event type
+     * @return true if adding a handler was successful
+     */
     protected <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass)
     {
         eventMap.put(tClass, handle);
         return true;
     }
 
+    /**
+     * Call the handler of the current module
+     * @param event event handled
+     * @param <T> event type
+     */
     @SuppressWarnings("unchecked")
     public final <T extends Event> void callEvent(T event)
     {
