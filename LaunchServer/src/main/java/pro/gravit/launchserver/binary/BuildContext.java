@@ -13,12 +13,12 @@ import pro.gravit.utils.helper.IOHelper;
 
 public class BuildContext {
     public final ZipOutputStream output;
-    public final JAConfigurator config;
+    public final LauncherConfigurator config;
     public final MainBuildTask data;
     public final HashSet<String> fileList;
 
 
-    public BuildContext(ZipOutputStream output, JAConfigurator config, MainBuildTask data) {
+    public BuildContext(ZipOutputStream output, LauncherConfigurator config, MainBuildTask data) {
         this.output = output;
         this.config = config;
         this.data = data;

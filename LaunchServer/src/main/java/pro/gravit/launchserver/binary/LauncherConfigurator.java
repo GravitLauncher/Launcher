@@ -24,7 +24,7 @@ import pro.gravit.launcher.modules.ModulesManager;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.SafeClassWriter;
 
-public class JAConfigurator {
+public class LauncherConfigurator {
     private static final String modulesManagerName = "pro/gravit/launcher/modules/LauncherModulesManager";
     private static final String launcherName = "pro/gravit/launcher/LauncherEngine";
     private static final String modulesManagerDesc = "Lpro/gravit/launcher/client/ClientModulesManager;";
@@ -35,7 +35,7 @@ public class JAConfigurator {
     private final MethodNode constructor;
     private final MethodNode initModuleMethod;
 
-    public JAConfigurator(ClassNode configclass) {
+    public LauncherConfigurator(ClassNode configclass) {
         this.configclass = configclass;
         constructor = configclass.methods.stream().filter(e -> "<init>".equals(e.name)).findFirst().get();
         constructor.instructions = new InsnList();
