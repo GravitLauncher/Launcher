@@ -7,6 +7,14 @@ dependencies {
     compileOnly 'org.jline:jline-reader:3.11.0'
     compileOnly 'org.jline:jline-terminal:3.11.0'
     compile 'com.google.code.gson:gson:2.8.5'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.4.1'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 jar {

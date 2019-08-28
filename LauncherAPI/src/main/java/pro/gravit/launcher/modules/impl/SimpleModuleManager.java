@@ -82,7 +82,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
                     loaded++;
                 }
             }
-            if(modules_size >= loaded) return;
+            //if(loaded >= modules_size) return;
         }
         for(LauncherModule module : modules)
         {

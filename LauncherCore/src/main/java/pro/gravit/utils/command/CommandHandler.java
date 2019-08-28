@@ -36,38 +36,32 @@ public abstract class CommandHandler implements Runnable {
         // Parse line to tokens
         String[] args;
         try {
-            args = CommonHelper.parseCommand(line);
-            if (args.length > 0) args[0] = args[0].toLowerCase();
+            evalNative(line, bell);
         } catch (Exception e) {
             LogHelper.error(e);
-            return;
         }
+    }
 
-        // Evaluate command
+    public void evalNative(String line, boolean bell) throws Exception {
+        String[] args;
+        args = CommonHelper.parseCommand(line);
+        if (args.length > 0) args[0] = args[0].toLowerCase();
         eval(args, bell);
     }
 
 
-    public void eval(String[] args, boolean bell) {
+    public void eval(String[] args, boolean bell) throws Exception {
         if (args.length == 0)
             return;
 
         // Measure start time and invoke command
         long startTime = System.currentTimeMillis();
-        try {
-            lookup(args[0]).invoke(Arrays.copyOfRange(args, 1, args.length));
-        } catch (Exception e) {
-            LogHelper.error(e);
-        }
+        lookup(args[0]).invoke(Arrays.copyOfRange(args, 1, args.length));
 
         // Bell if invocation took > 1s
         long endTime = System.currentTimeMillis();
         if (bell && endTime - startTime >= 5000)
-            try {
-                bell();
-            } catch (IOException e) {
-                LogHelper.error(e);
-            }
+            bell();
     }
 
 
