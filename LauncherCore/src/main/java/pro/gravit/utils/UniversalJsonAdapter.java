@@ -13,6 +13,11 @@ import com.google.gson.JsonSerializer;
 
 import pro.gravit.utils.helper.LogHelper;
 
+/**
+ * An adapter that uses {@link ProviderMap} to serialize and deserialize a group of similar objects
+ * @param <R> Class or interface type
+ * @see ProviderMap
+ */
 public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeserializer<R> {
     public final ProviderMap<R> providerMap;
     public final String name;
