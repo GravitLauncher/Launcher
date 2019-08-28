@@ -2,6 +2,7 @@ package pro.gravit.launchserver;
 
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.hwid.HWIDProvider;
+import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.hwid.HWIDHandler;
 import pro.gravit.launchserver.auth.permissions.PermissionsHandler;
@@ -13,7 +14,7 @@ import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
-import pro.gravit.launchserver.manangers.ModulesManager;
+import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
@@ -55,10 +56,11 @@ public class LaunchServerStarter {
         LaunchServerRuntimeConfig runtimeConfig;
         LaunchServerConfig config;
         LaunchServer.LaunchServerEnv env = LaunchServer.LaunchServerEnv.PRODUCTION;
-        ModulesManager modulesManager = new ModulesManager(dir.resolve("config"));
-        modulesManager.autoload(dir.resolve("modules"));
+        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(dir.resolve("modules"), dir.resolve("config"));
+        modulesManager.autoload();
+        modulesManager.initModules(null);
         registerAll();
-        initGson();
+        initGson(modulesManager);
         if (IOHelper.exists(dir.resolve("LaunchServer.conf"))) {
             configFile = dir.resolve("LaunchServer.conf");
         } else {
@@ -97,6 +99,12 @@ public class LaunchServerStarter {
             IOHelper.write(publicKeyFile, publicKey.getEncoded());
             IOHelper.write(privateKeyFile, privateKey.getEncoded());
         }
+        modulesManager.invokeEvent(new PreConfigPhase());
+        generateConfigIfNotExists(configFile, localCommandHandler, env);
+        LogHelper.info("Reading LaunchServer config file");
+        try (BufferedReader reader = IOHelper.newReader(configFile)) {
+            config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
+        }
         if (!Files.exists(runtimeConfigFile)) {
             LogHelper.info("Reset LaunchServer runtime config file");
             runtimeConfig = new LaunchServerRuntimeConfig();
@@ -106,11 +114,6 @@ public class LaunchServerStarter {
             try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
                 runtimeConfig = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
             }
-        }
-        generateConfigIfNotExists(configFile, localCommandHandler, env);
-        LogHelper.info("Reading LaunchServer config file");
-        try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
         }
 
         LaunchServer.LaunchServerConfigManager launchServerConfigManager = new LaunchServer.LaunchServerConfigManager() {
@@ -169,8 +172,8 @@ public class LaunchServerStarter {
         server.run();
     }
 
-    public static void initGson() {
-        Launcher.gsonManager = new LaunchServerGsonManager();
+    public static void initGson(LaunchServerModulesManager modulesManager) {
+        Launcher.gsonManager = new LaunchServerGsonManager(modulesManager);
         Launcher.gsonManager.initGson();
     }
 

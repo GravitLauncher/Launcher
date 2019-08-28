@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.command.modules;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import pro.gravit.launchserver.LaunchServer;
@@ -24,7 +25,7 @@ public class LoadModuleCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
-        URI uri = Paths.get(args[0]).toUri();
-        server.modulesManager.loadModule(uri.toURL());
+        Path file = Paths.get(args[0]);
+        server.modulesManager.loadModule(file);
     }
 }

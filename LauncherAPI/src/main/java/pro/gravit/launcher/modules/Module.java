@@ -1,7 +1,7 @@
 package pro.gravit.launcher.modules;
 
 import pro.gravit.utils.Version;
-
+@Deprecated
 public interface Module extends AutoCloseable {
 
     String getName();

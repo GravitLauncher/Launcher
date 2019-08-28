@@ -16,14 +16,12 @@ public class SimpleModulesConfigManager implements ModulesConfigManager {
     }
 
     public Path getModuleConfig(String moduleName) {
-        if (!IOHelper.isDir(configDir)) {
-            try {
-                Files.createDirectories(configDir);
-            } catch (IOException e) {
-                LogHelper.error(e);
-            }
-        }
-        return configDir.resolve(moduleName.concat("Config.json"));
+        return getModuleConfig(moduleName, "Config");
+    }
+
+    @Override
+    public Path getModuleConfig(String moduleName, String configName) {
+        return getModuleConfigDir(moduleName).resolve(moduleName.concat(configName.concat(".json")));
     }
 
     public Path getModuleConfigDir(String moduleName) {

@@ -17,6 +17,8 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.config.JsonConfigurable;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
+import pro.gravit.launcher.modules.events.PostInitPhase;
+import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
@@ -30,7 +32,7 @@ import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
-    public ModulesManager modulesManager;
+    public static ServerWrapperModulesManager modulesManager;
     public Config config;
     public PublicURLClassLoader ucp;
     public ClassLoader loader;
@@ -38,6 +40,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static ServerWrapper wrapper;
 
     public static Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
+    public static Path modulesConfigDir = Paths.get(System.getProperty("serverwrapper.modulesConfigDir", "modules-config"));
     public static Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
     public static Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile", "public.key"));
     public static boolean disableSetup = Boolean.valueOf(System.getProperty("serverwrapper.disableSetup", "false"));
@@ -93,13 +96,13 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         return false;
     }
 
-    public static void initGson() {
-        Launcher.gsonManager = new ServerWrapperGsonManager();
+    public static void initGson(ServerWrapperModulesManager modulesManager) {
+        Launcher.gsonManager = new ServerWrapperGsonManager(modulesManager);
         Launcher.gsonManager.initGson();
     }
 
     public void run(String... args) throws Throwable {
-        initGson();
+        initGson(modulesManager);
         if (args.length > 0 && args[0].equals("setup") && !disableSetup) {
             LogHelper.debug("Read ServerWrapperConfig.json");
             loadConfig();
@@ -107,10 +110,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             setup.run();
             System.exit(0);
         }
-        modulesManager = new ModulesManager(wrapper);
-        modulesManager.autoload(modulesDir);
-        Launcher.modulesManager = modulesManager;
-        modulesManager.preInitModules();
+        modulesManager.invokeEvent(new PreConfigPhase());
         LogHelper.debug("Read ServerWrapperConfig.json");
         loadConfig();
         updateLauncherConfig();
@@ -120,7 +120,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         if (config.syncAuth) auth();
         else
             CommonHelper.newThread("Server Auth Thread", true, () -> loopAuth(config.reconnectCount, config.reconnectSleep));
-        modulesManager.initModules();
+        modulesManager.invokeEvent(new ServerWrapperInitPhase(this));
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
         if (classname.length() == 0) {
             LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.cfg or first commandline argument");
@@ -156,7 +156,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         if (loader != null) mainClass = Class.forName(classname, true, loader);
         else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
-        modulesManager.postInitModules();
+        modulesManager.invokeEvent(new PostInitPhase());
         Request.service.reconnectCallback = () ->
         {
             LogHelper.debug("WebSocket connect closed. Try reconnect");
@@ -202,6 +202,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static void main(String... args) throws Throwable {
         LogHelper.printVersion("ServerWrapper");
         LogHelper.printLicense("ServerWrapper");
+        modulesManager = new ServerWrapperModulesManager(modulesDir, modulesConfigDir);
+        modulesManager.autoload();
+        modulesManager.initModules(null);
         ServerWrapper.wrapper = new ServerWrapper(ServerWrapper.Config.class, configFile);
         ServerWrapper.wrapper.run(args);
     }
