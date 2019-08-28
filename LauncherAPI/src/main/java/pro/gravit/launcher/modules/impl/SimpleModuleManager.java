@@ -60,6 +60,11 @@ public class SimpleModuleManager implements LauncherModulesManager {
             module.preInit();
         }
         boolean isAnyModuleLoad = true;
+        modules.sort((m1, m2) -> {
+            int priority1 = m1.getModuleInfo().priority;
+            int priority2 = m2.getModuleInfo().priority;
+            return Integer.compare(priority1, priority2);
+        });
         int modules_size = modules.size();
         int loaded = 0;
         while(isAnyModuleLoad)
