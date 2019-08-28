@@ -29,6 +29,16 @@ public abstract class AuthProvider implements AutoCloseable {
     }
 
 
+    /**
+     * Verifies the username and password
+     * @param login user login
+     * @param password user password
+     * @param ip user ip
+     * @return player privileges, effective username and authorization token
+     * @throws Exception
+     * Throws an exception {@link AuthException} {@link pro.gravit.utils.HookException} if the verification script returned a meaningful error
+     * In other cases, throwing an exception indicates a serious error
+     */
     public abstract AuthProviderResult auth(String login, String password, String ip) throws Exception;
 
     public void preAuth(String login, String password, String customText, String ip) {
