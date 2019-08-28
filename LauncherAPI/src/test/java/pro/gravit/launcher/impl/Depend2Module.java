@@ -1,6 +1,5 @@
 package pro.gravit.launcher.impl;
 
-import pro.gravit.launcher.ModulesTest;
 import pro.gravit.launcher.modules.LauncherInitContext;
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.LauncherModuleInfo;
@@ -11,8 +10,7 @@ public class Depend2Module extends LauncherModule {
     }
 
     @Override
-    public void preInit() {
-        super.preInit();
+    public void preInitAction() {
         modulesManager.loadModule(new InternalModule());
     }
 

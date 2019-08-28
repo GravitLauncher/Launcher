@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.function.Predicate;
 
 public interface LauncherModulesManager {
+
     LauncherModule loadModule(LauncherModule module);
     LauncherModule loadModule(Path file) throws IOException;
     LauncherModule getModule(String name);

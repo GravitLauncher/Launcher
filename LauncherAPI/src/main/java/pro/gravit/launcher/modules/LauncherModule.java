@@ -33,9 +33,22 @@ public abstract class LauncherModule {
      */
     public enum InitStatus
     {
-        CREATED,
-        INIT,
-        FINISH
+        CREATED(false),
+        PRE_INIT_WAIT(true),
+        PRE_INIT(false),
+        INIT_WAIT(true),
+        INIT(false),
+        FINISH(true);
+
+        InitStatus(boolean b) {
+            isAvailable = b;
+        }
+
+        public boolean isAvailable() {
+            return isAvailable;
+        }
+
+        private final boolean isAvailable;
     }
     @FunctionalInterface
     public interface EventHandler<T extends Event>
@@ -76,6 +89,7 @@ public abstract class LauncherModule {
         this.context = context;
         this.modulesManager = context.getModulesManager();
         this.modulesConfigManager = context.getModulesConfigManager();
+        this.setInitStatus(InitStatus.PRE_INIT_WAIT);
     }
 
     /**
@@ -89,8 +103,16 @@ public abstract class LauncherModule {
      * Use API Launcher, LaunchServer, ServerWrapper
      * Change the names of any modules
      */
-    public void preInit() {
+    public void preInitAction() {
         //NOP
+    }
+    public LauncherModule preInit()
+    {
+        if(!initStatus.equals(InitStatus.PRE_INIT_WAIT)) throw new IllegalStateException("PreInit not allowed in current state");
+        initStatus = InitStatus.PRE_INIT;
+        preInitAction();
+        initStatus = InitStatus.INIT_WAIT;
+        return this;
     }
 
     /**

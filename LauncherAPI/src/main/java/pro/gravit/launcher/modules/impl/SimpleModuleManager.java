@@ -16,7 +16,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
@@ -54,45 +53,41 @@ public class SimpleModuleManager implements LauncherModulesManager {
     }
 
     public void initModules(LauncherInitContext initContext) {
-        List<LauncherModule> startedModules = Collections.unmodifiableList(new ArrayList<>(modules));
-        for(LauncherModule module : startedModules)
-        {
-            module.preInit();
-        }
         boolean isAnyModuleLoad = true;
         modules.sort((m1, m2) -> {
             int priority1 = m1.getModuleInfo().priority;
             int priority2 = m2.getModuleInfo().priority;
             return Integer.compare(priority1, priority2);
         });
-        int modules_size = modules.size();
-        int loaded = 0;
         while(isAnyModuleLoad)
         {
             isAnyModuleLoad = false;
             for(LauncherModule module : modules)
             {
-                if(!module.getInitStatus().equals(LauncherModule.InitStatus.CREATED)) continue;
+                if(!module.getInitStatus().equals(LauncherModule.InitStatus.INIT_WAIT)) continue;
                 if(checkDepend(module))
                 {
                     isAnyModuleLoad = true;
                     module.setInitStatus(LauncherModule.InitStatus.INIT);
                     module.init(initContext);
                     module.setInitStatus(LauncherModule.InitStatus.FINISH);
-                    loaded++;
                 }
             }
-            //if(loaded >= modules_size) return;
         }
         for(LauncherModule module : modules)
         {
-            if(module.getInitStatus().equals(LauncherModule.InitStatus.CREATED))
+            if(module.getInitStatus().equals(LauncherModule.InitStatus.INIT_WAIT))
             {
                 LauncherModuleInfo info = module.getModuleInfo();
                 LogHelper.warning("Module %s required %s. Cyclic dependencies?", info.name, Arrays.toString(info.dependencies));
                 module.setInitStatus(LauncherModule.InitStatus.INIT);
                 module.init(initContext);
                 module.setInitStatus(LauncherModule.InitStatus.FINISH);
+            }
+            else if(module.getInitStatus().equals(LauncherModule.InitStatus.PRE_INIT_WAIT))
+            {
+                LauncherModuleInfo info = module.getModuleInfo();
+                LogHelper.error("Module %s skip pre-init phase. This module NOT finish loading", info.name, Arrays.toString(info.dependencies));
             }
         }
     }
@@ -104,7 +99,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
         {
             LauncherModule depModule = getModule(dep);
             if(depModule == null) throw new RuntimeException(String.format("Module %s required %s. %s not found", info.name, dep, dep));
-            if(depModule.getInitStatus().equals(LauncherModule.InitStatus.CREATED)) return false;
+            if(!depModule.getInitStatus().equals(LauncherModule.InitStatus.FINISH)) return false;
         }
         return true;
     }
@@ -122,10 +117,12 @@ public class SimpleModuleManager implements LauncherModulesManager {
         LauncherModuleInfo info = module.getModuleInfo();
         moduleNames.add(info.name);
         module.setContext(context);
+        module.preInit();
         if(initContext != null)
         {
-            module.preInit();
+            module.setInitStatus(LauncherModule.InitStatus.INIT);
             module.init(initContext);
+            module.setInitStatus(LauncherModule.InitStatus.FINISH);
         }
         return module;
     }
