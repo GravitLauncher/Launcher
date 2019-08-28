@@ -13,6 +13,16 @@ jar {
     classifier = 'clean'
 }
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
 publishing {
     publications {
         launchercore(MavenPublication) {
@@ -20,6 +30,8 @@ publishing {
             artifact(jar) {
                 classifier ""
             }
+            artifact sourcesJar
+            artifact javadocJar
             pom {
                 name = 'GravitLauncher Core Utils'
                 description = 'GravitLauncher Core Utils'

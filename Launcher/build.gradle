@@ -28,6 +28,16 @@ jar {
             "Multi-Release-Jar": "true")
 }
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
 shadowJar {
     classifier = null
     relocate 'org.objectweb.asm', 'pro.gravit.repackage.org.objectweb.asm'
@@ -65,6 +75,8 @@ publishing {
             artifact(jar) {
                 classifier ""
             }
+            artifact sourcesJar
+            artifact javadocJar
             pom {
                 name = 'GravitLauncher Client API'
                 description = 'GravitLauncher Client Module API'

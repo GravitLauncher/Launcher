@@ -40,6 +40,15 @@ jar {
     )
 }
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
 
 task cleanjar(type: Jar, dependsOn: jar) {
     classifier = 'clean'
@@ -170,6 +179,8 @@ publishing {
             artifact(cleanjar) {
                 classifier ""
             }
+            artifact sourcesJar
+            artifact javadocJar
             pom {
                 name = 'GravitLauncher LaunchServer API'
                 description = 'GravitLauncher LaunchServer Module API'

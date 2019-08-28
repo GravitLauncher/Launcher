@@ -26,6 +26,16 @@ jar {
             "Can-Set-Native-Method-Prefix": "true")
 }
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
 dependencies {
     pack project(':LauncherAuthlib')
     pack 'org.apache.httpcomponents:httpclient:4.5.7'
@@ -39,6 +49,51 @@ shadowJar {
     exclude 'module-info.class'
 }
 
+publishing {
+    publications {
+        serverwrapperapi(MavenPublication) {
+            artifactId = 'serverwrapper-api'
+            artifact(jar) {
+                classifier ""
+            }
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'GravitLauncher ServerWrapper API'
+                description = 'GravitLauncher ServerWrapper Module API'
+                url = 'https://launcher.gravit.pro'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gravit'
+                        name = 'Gravit'
+                        email = 'gravit.min@ya.ru'
+                    }
+                    developer {
+                        id = 'zaxar163'
+                        name = 'Zaxar163'
+                        email = 'zahar.vcherachny@yandex.ru'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:https://github.com/GravitLauncher/Launcher.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:GravitLauncher/Launcher.git'
+                    url = 'https://launcher.gravit.pro/'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.serverwrapperapi
+}
 
 build.dependsOn tasks.shadowJar
  
