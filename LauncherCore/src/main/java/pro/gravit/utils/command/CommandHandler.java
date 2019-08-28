@@ -90,6 +90,12 @@ public abstract class CommandHandler implements Runnable {
     }
 
 
+    /**
+     * Reads a line from the console
+     * @return command line
+     * @throws IOException
+     * Internal Error
+     */
     public abstract String readLine() throws IOException;
 
     private void readLoop() throws IOException {
@@ -133,6 +139,12 @@ public abstract class CommandHandler implements Runnable {
         void walk(Category category, String name, Command command);
     }
 
+    /**
+     * Walk all categories
+     * Categories are sorted in the order they are added.
+     * The base category is walked last
+     * @param callback your callback
+     */
     public void walk(CommandWalk callback) {
         for (CommandHandler.Category category : getCategories()) {
             for (Map.Entry<String, Command> entry : category.category.commandsMap().entrySet())
@@ -150,8 +162,18 @@ public abstract class CommandHandler implements Runnable {
         return categories;
     }
 
+    /**
+     * If supported, sends a bell signal to the console
+     * @throws IOException
+     * Internal Error
+     */
     public abstract void bell() throws IOException;
 
 
+    /**
+     * Cleans the console
+     * @throws IOException
+     * Internal Error
+     */
     public abstract void clear() throws IOException;
 }
