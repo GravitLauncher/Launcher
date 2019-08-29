@@ -40,6 +40,13 @@ jar {
     )
 }
 
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
     archiveClassifier = 'sources'
@@ -107,6 +114,7 @@ dependencies {
     compileOnlyA 'com.google.guava:guava:26.0-jre'
     compileOnlyA 'log4j:log4j:1.2.17' // Do not update (laggy dep).
     compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.4.1'
 }
 
 task hikari(type: Copy) {

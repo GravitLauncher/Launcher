@@ -312,7 +312,10 @@ public final class LaunchServerConfig {
                 , "std")};
         newConfig.auth[0].displayName = "Default";
         newConfig.protectHandler = new StdProtectHandler();
-        newConfig.permissionsHandler = new JsonFilePermissionsHandler();
+        if(env.equals(LaunchServer.LaunchServerEnv.TEST))
+            newConfig.permissionsHandler = new DefaultPermissionsHandler();
+        else
+            newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
