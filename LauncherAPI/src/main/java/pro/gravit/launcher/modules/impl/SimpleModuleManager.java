@@ -36,7 +36,8 @@ public class SimpleModuleManager implements LauncherModulesManager {
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            loadModule(file);
+            if (file.toFile().getName().endsWith(".jar"))
+                loadModule(file);
             return super.visitFile(file, attrs);
         }
     }
