@@ -63,7 +63,7 @@ public class LauncherNettyServer implements AutoCloseable {
                         pipeline.addLast(new WebSocketServerCompressionHandler());
                         pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
                         if (server.config.netty.fileServerEnabled)
-                            pipeline.addLast(new FileServerHandler(server.updatesDir, true));
+                            pipeline.addLast(new FileServerHandler(server.updatesDir, true, config.showHiddenFiles));
                         pipeline.addLast(new WebSocketFrameHandler(context, server, service));
                         pipelineHook.hook(context, ch);
                     }
