@@ -53,6 +53,7 @@ public class ModulesTest {
         Assertions.assertEquals(moduleManager.getModule("depend2").getInitStatus(), LauncherModule.InitStatus.FINISH);
         Assertions.assertEquals(moduleManager.getModule("depend3").getInitStatus(), LauncherModule.InitStatus.FINISH);
         Assertions.assertEquals(moduleManager.getModule("internal").getInitStatus(), LauncherModule.InitStatus.FINISH);
+        Assertions.assertEquals(moduleManager.getModule("virtual").getInitStatus(), LauncherModule.InitStatus.FINISH);
         Assertions.assertEquals(moduleManager.getModule("main").getInitStatus(), LauncherModule.InitStatus.FINISH);
     }
     @Test

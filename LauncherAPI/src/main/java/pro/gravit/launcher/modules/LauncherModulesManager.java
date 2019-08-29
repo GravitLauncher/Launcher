@@ -4,6 +4,7 @@ import pro.gravit.utils.Version;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.function.Predicate;
 
 public interface LauncherModulesManager {
@@ -23,6 +24,8 @@ public interface LauncherModulesManager {
     }
     ClassLoader getModuleClassLoader();
     <T extends LauncherModule> T getModule(Class<? extends T> clazz);
+    <T> T getModuleByInterface(Class<T> clazz);
+    <T> List<T> getModulesByInterface(Class<T> clazz);
     <T extends LauncherModule> T findModule(Class<? extends T> clazz, Predicate<Version> versionPredicate);
 
     /**

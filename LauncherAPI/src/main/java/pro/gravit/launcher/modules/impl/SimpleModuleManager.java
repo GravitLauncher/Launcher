@@ -153,7 +153,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
         for(LauncherModule module : modules)
         {
             LauncherModuleInfo info = module.getModuleInfo();
-            if(info.name.equals(name)) return module;
+            if(info.name.equals(name) || ( info.providers.length > 0 && Arrays.asList(info.providers).contains(name))) return module;
         }
         return null;
     }
@@ -176,6 +176,27 @@ public class SimpleModuleManager implements LauncherModulesManager {
             if(clazz.isAssignableFrom(module.getClass())) return (T) module;
         }
         return null;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T getModuleByInterface(Class<T> clazz) {
+        for(LauncherModule module : modules)
+        {
+            if(clazz.isAssignableFrom(module.getClass())) return (T) module;
+        }
+        return null;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getModulesByInterface(Class<T> clazz) {
+        List<T> list = new ArrayList<>();
+        for(LauncherModule module : modules)
+        {
+            if(clazz.isAssignableFrom(module.getClass())) list.add((T) module);
+        }
+        return list;
     }
 
     @Override

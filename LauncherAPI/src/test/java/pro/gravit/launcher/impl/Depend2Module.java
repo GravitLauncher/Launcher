@@ -12,6 +12,7 @@ public class Depend2Module extends LauncherModule {
     @Override
     public void preInitAction() {
         modulesManager.loadModule(new InternalModule());
+        modulesManager.loadModule(new ProvidedModule());
     }
 
     @Override

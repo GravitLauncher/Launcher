@@ -10,7 +10,7 @@ public class Depend1Module extends LauncherModule {
     public Depend1Module() {
         super(new LauncherModuleInfo("depend1", new Version(1,0,0),
                 0,
-                new String[]{"depend3", "internal"}));
+                new String[]{"depend3", "internal", "virtual"}));
     }
 
     @Override
@@ -19,5 +19,7 @@ public class Depend1Module extends LauncherModule {
         Assertions.assertEquals(module.getInitStatus(), InitStatus.FINISH);
         Depend3Module module1 = modulesManager.getModule(Depend3Module.class);
         Assertions.assertEquals(module1.getInitStatus(), InitStatus.FINISH);
+        VirtualInterface virtualInterface = modulesManager.getModuleByInterface(VirtualInterface.class);
+        Assertions.assertEquals(((LauncherModule) virtualInterface).getInitStatus(), InitStatus.FINISH);
     }
 }
