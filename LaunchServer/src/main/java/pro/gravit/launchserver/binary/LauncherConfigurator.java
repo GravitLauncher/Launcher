@@ -28,7 +28,7 @@ public class LauncherConfigurator {
     private static final String modulesManagerName = "pro/gravit/launcher/modules/LauncherModulesManager";
     private static final String launcherName = "pro/gravit/launcher/LauncherEngine";
     private static final String modulesManagerDesc = "Lpro/gravit/launcher/client/ClientModuleManager;";
-    private static final String registerModDesc = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(LauncherModule.class));
+    private static final String registerModDesc = Type.getMethodDescriptor(Type.getType(LauncherModule.class), Type.getType(LauncherModule.class));
     private static final String autoGenConfigName = Type.getInternalName(AutogenConfig.class);
     private static final String stringDesc = Type.getDescriptor(String.class);
     private final ClassNode configclass;
