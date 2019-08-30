@@ -37,7 +37,6 @@ function initLoginScene() {
     bar = pane;
     loginPane.lookup("#close").setOnAction(function(event) { javafx.application.Platform.exit() });
     loginPane.lookup("#hide").setOnAction(function(event) { stage.setIconified(true) });
-    loginPane.lookup("#discord").setOnAction(function() { openURL(config.discord); });
 
     var pane = loginPane.lookup("#authPane");
     authPane = pane;
@@ -63,13 +62,23 @@ function initLoginScene() {
     savePasswordBox = pane.lookup("#rememberchb");
     savePasswordBox.setSelected(settings.login === null || settings.rsaPassword !== null);
 
-    var link = pane.lookup("#link");
-    link.setText(config.linkText);
-    link.setOnAction(function(event) app.getHostServices().showDocument(config.linkURL.toURI()));
-
     authOptions = pane.lookup("#authOptions");
 
     pane.lookup("#goAuth").setOnAction(goAuth);
+
+    var pane = loginPane;
+    config.links.forEach(function(link) {
+        var el = pane.lookup("#" + link.id);
+        if (el === null) return;
+
+        el.setOnAction(function() {
+            openURL(new java.net.URL(link.url));
+        });
+
+        if (link.text === "") return;
+
+        el.setText(link.text);
+    });
 }
 
 /* ======== init Menu window======== */
@@ -88,7 +97,6 @@ function initMenuScene() {
     bar = pane;
     pane.lookup("#close").setOnAction(function(event) { javafx.application.Platform.exit() });
     pane.lookup("#hide").setOnAction(function(event) { stage.setIconified(true) });
-    pane.lookup("#discord").setOnAction(function() { openURL(config.discord); });
     pane.lookup("#settings").setOnAction(goSettings);
     pane.lookup("#goConsole").setOnAction(goConsole);
 
@@ -112,6 +120,19 @@ function initMenuScene() {
         setCurrentScene(loginScene);
     });
 
+    var pane = menuPane;
+    config.links.forEach(function(link) {
+        var el = pane.lookup("#" + link.id);
+        if (el === null) return;
+
+        el.setOnAction(function() {
+            openURL(new java.net.URL(link.url));
+        });
+
+        if (link.text === "") return;
+
+        el.setText(link.text);
+    });
 }
 
 /* ======== init Console window======== */
