@@ -25,6 +25,12 @@ var config = {
         jvmMustdie64Dir: "jre-8u211-win64",  // Название папки JVM для Windows x64
     },
 
+    allowedOS: {
+        windows: true,
+        linux: true,
+        mac: true
+    },
+
     settingsMagic: 0xC0DE5, // Магия вне хогвартса
 };
 

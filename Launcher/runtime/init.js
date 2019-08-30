@@ -80,6 +80,24 @@ function setRootParent(parent) {
 }
 
 function start(args) {
+    if (!config.allowedOS.windows) {
+        if (JVMHelper.OS_TYPE == JVMHelperOS.MUSTDIE) {
+            LogHelper.info("This OS is not allowed!");
+            return;
+        }
+    }
+    if (!config.allowedOS.linux) {
+        if (JVMHelper.OS_TYPE == JVMHelperOS.LINUX) {
+            LogHelper.info("This OS is not allowed!");
+            return;
+        }
+    }
+    if (!config.allowedOS.mac) {
+        if (JVMHelper.OS_TYPE == JVMHelperOS.MACOSX) {
+            LogHelper.info("This OS is not allowed!");
+            return;
+        }
+    }
 
     if (config.jvm.enable) {
         switch (JVMHelper.OS_TYPE) {
