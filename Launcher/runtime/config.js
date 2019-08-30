@@ -28,7 +28,7 @@ var config = {
     allowedOS: {
         windows: true,
         linux: true,
-        mac: true
+        macosx: true
     },
 
     settingsMagic: 0xC0DE5, // Магия вне хогвартса
