@@ -32,9 +32,6 @@ public abstract class CommandHandler implements Runnable {
 
     public void eval(String line, boolean bell) {
         LogHelper.info("Command '%s'", line);
-
-        // Parse line to tokens
-        String[] args;
         try {
             evalNative(line, bell);
         } catch (Exception e) {

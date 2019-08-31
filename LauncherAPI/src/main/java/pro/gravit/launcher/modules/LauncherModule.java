@@ -6,7 +6,8 @@ import java.util.Map;
 public abstract class LauncherModule {
     private LauncherModulesContext context;
 
-    private Map<Class<? extends Event>, EventHandler> eventMap = new HashMap<>();
+    @SuppressWarnings("rawtypes")
+	private Map<Class<? extends Event>, EventHandler> eventMap = new HashMap<>();
     protected LauncherModulesManager modulesManager;
     protected final LauncherModuleInfo moduleInfo;
     protected ModulesConfigManager modulesConfigManager;
@@ -154,7 +155,7 @@ public abstract class LauncherModule {
     public final <T extends Event> void callEvent(T event)
     {
         Class<? extends Event> tClass = event.getClass();
-        for(Map.Entry<Class<? extends Event>, EventHandler> e : eventMap.entrySet())
+        for(@SuppressWarnings("rawtypes") Map.Entry<Class<? extends Event>, EventHandler> e : eventMap.entrySet())
         {
 
             if(e.getKey().isAssignableFrom(tClass))

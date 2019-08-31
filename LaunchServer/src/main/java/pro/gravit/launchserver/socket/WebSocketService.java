@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.socket;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 
 import com.google.gson.Gson;
 
@@ -42,7 +41,6 @@ import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-@SuppressWarnings("rawtypes")
 public class WebSocketService {
     public final ChannelGroup channels;
     public static ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();

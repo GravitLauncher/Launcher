@@ -1,15 +1,15 @@
 package pro.gravit.launchserver.socket.response.auth;
 
-import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launchserver.dao.User;
-import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.socket.response.SimpleResponse;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.UUID;
+
+import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launchserver.dao.User;
+import pro.gravit.launchserver.socket.Client;
+import pro.gravit.launchserver.socket.response.SimpleResponse;
 
 public class RegisterResponse extends SimpleResponse {
     public String login;

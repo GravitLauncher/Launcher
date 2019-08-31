@@ -11,7 +11,12 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import pro.gravit.launcher.*;
+import pro.gravit.launcher.JSApplication;
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.NewLauncherSettings;
 import pro.gravit.launcher.client.ClientLauncher;
 import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.launcher.client.FunctionalBridge;

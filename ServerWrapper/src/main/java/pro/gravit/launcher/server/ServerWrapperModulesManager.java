@@ -1,8 +1,8 @@
 package pro.gravit.launcher.server;
 
-import pro.gravit.launcher.modules.impl.SimpleModuleManager;
-
 import java.nio.file.Path;
+
+import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 
 public class ServerWrapperModulesManager extends SimpleModuleManager {
     public ServerWrapperModulesManager(Path modulesDir, Path configDir) {

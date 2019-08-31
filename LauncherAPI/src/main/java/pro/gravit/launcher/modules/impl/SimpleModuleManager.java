@@ -1,12 +1,5 @@
 package pro.gravit.launcher.modules.impl;
 
-import pro.gravit.launcher.managers.SimpleModulesConfigManager;
-import pro.gravit.launcher.modules.*;
-import pro.gravit.utils.PublicURLClassLoader;
-import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
@@ -19,6 +12,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
+
+import pro.gravit.launcher.managers.SimpleModulesConfigManager;
+import pro.gravit.launcher.modules.LauncherInitContext;
+import pro.gravit.launcher.modules.LauncherModule;
+import pro.gravit.launcher.modules.LauncherModuleInfo;
+import pro.gravit.launcher.modules.LauncherModulesManager;
+import pro.gravit.launcher.modules.ModulesConfigManager;
+import pro.gravit.utils.PublicURLClassLoader;
+import pro.gravit.utils.Version;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public class SimpleModuleManager implements LauncherModulesManager {
     protected final List<LauncherModule> modules = new ArrayList<>();
@@ -219,4 +223,9 @@ public class SimpleModuleManager implements LauncherModulesManager {
             if(event.isCancel()) return;
         }
     }
+
+	@Override
+	public ModulesConfigManager getConfigManager() {
+		return modulesConfigManager;
+	}
 }

@@ -5,7 +5,6 @@ import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.LauncherModuleInfo;
 import pro.gravit.launcher.modules.events.InitPhase;
 import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.LogHelper;
 
 public class LaunchServerCoreModule extends LauncherModule {
     public LaunchServerCoreModule() {

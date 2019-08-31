@@ -1,10 +1,10 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.modules.LauncherModule;
-import pro.gravit.launcher.modules.impl.SimpleModuleManager;
-
 import java.io.IOException;
 import java.nio.file.Path;
+
+import pro.gravit.launcher.modules.LauncherModule;
+import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 
 public class ClientModuleManager extends SimpleModuleManager {
     public ClientModuleManager() {

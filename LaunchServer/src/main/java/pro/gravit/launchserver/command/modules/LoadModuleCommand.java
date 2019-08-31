@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.command.modules;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 

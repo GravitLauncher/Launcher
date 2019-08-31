@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import pro.gravit.launcher.managers.GsonManager;
-import pro.gravit.launcher.modules.ModulesManager;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.utils.helper.IOHelper;

@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.modules.events;
 
-import pro.gravit.launcher.modules.events.InitPhase;
 import pro.gravit.launcher.modules.events.PostInitPhase;
 import pro.gravit.launchserver.LaunchServer;
 

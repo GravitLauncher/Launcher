@@ -6,19 +6,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.OshiHWIDProvider;
 import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.managers.HasherManager;
 import pro.gravit.launcher.managers.HasherStore;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.Version;
+import pro.gravit.utils.helper.LogHelper;
 
 public class FunctionalBridge {
     @LauncherAPI

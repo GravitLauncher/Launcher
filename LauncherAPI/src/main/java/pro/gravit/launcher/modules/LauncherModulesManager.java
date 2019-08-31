@@ -1,11 +1,11 @@
 package pro.gravit.launcher.modules;
 
-import pro.gravit.utils.Version;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Predicate;
+
+import pro.gravit.utils.Version;
 
 public interface LauncherModulesManager {
 
@@ -23,6 +23,7 @@ public interface LauncherModulesManager {
         return getModule(clazz) != null;
     }
     ClassLoader getModuleClassLoader();
+    ModulesConfigManager getConfigManager();
     <T extends LauncherModule> T getModule(Class<? extends T> clazz);
     <T> T getModuleByInterface(Class<T> clazz);
     <T> List<T> getModulesByInterface(Class<T> clazz);

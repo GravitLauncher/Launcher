@@ -1,7 +1,7 @@
 package pro.gravit.launcher.impl;
 
 import org.junit.jupiter.api.Assertions;
-import pro.gravit.launcher.ModulesTest;
+
 import pro.gravit.launcher.modules.LauncherInitContext;
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.LauncherModuleInfo;

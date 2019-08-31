@@ -13,7 +13,7 @@ public class LauncherModuleInfo {
         this.name = name;
         this.version = version;
         this.priority = 0;
-        this.dependencies = new String[]{};
+        this.dependencies = new String[0];
         providers = new String[0];
     }
 
@@ -21,7 +21,7 @@ public class LauncherModuleInfo {
         this.name = name;
         this.version = new Version(1,0,0);
         this.priority = 0;
-        this.dependencies = new String[]{};
+        this.dependencies = new String[0];
         providers = new String[0];
     }
 
