@@ -32,12 +32,16 @@ import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherAgent;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.client.events.ClientLauncherInitPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
+import pro.gravit.launcher.managers.ClientHookManager;
+import pro.gravit.launcher.modules.events.PostInitPhase;
+import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.request.Request;
@@ -341,6 +345,7 @@ public final class ClientLauncher {
                         output.writeString(Launcher.gsonManager.gson.toJson(profile), 0);
                         assetHDir.write(output);
                         clientHDir.write(output);
+                        ClientHookManager.paramsOutputHook.hook(output);
                     }
                     clientStarted = true;
                 }
@@ -383,8 +388,10 @@ public final class ClientLauncher {
         profile.pushOptionalJvmArgs(context.args);
         Collections.addAll(context.args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
         Collections.addAll(context.args, "-javaagent:".concat(pathLauncher));
+        ClientHookManager.clientLaunchHook.hook(context);
         LauncherGuardManager.guard.addCustomParams(context);
         Collections.addAll(context.args, ClientLauncher.class.getName());
+        ClientHookManager.clientLaunchFinallyHook.hook(context);
 
         // Print commandline debug message
         LogHelper.debug("Commandline: " + context.args);
@@ -404,7 +411,9 @@ public final class ClientLauncher {
             builder.redirectOutput(Redirect.PIPE);
         }
         // Let's rock!
+        ClientHookManager.preStartHook.hook(context, builder);
         process = builder.start();
+        if(ClientHookManager.postStartHook.hook(context, builder)) return process;
         if (!pipeOutput) {
             for (int i = 0; i < 50; ++i) {
                 if (!process.isAlive()) {
@@ -429,10 +438,13 @@ public final class ClientLauncher {
     @LauncherAPI
     public static void main(String... args) throws Throwable {
         LauncherEngine engine = LauncherEngine.clientInstance();
-        Launcher.modulesManager = new ClientModuleManager(engine);
+        //Launcher.modulesManager = new ClientModuleManager(engine);
+        LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.getAutogenConfig().initModules(); //INIT
-        initGson();
-        Launcher.modulesManager.preInitModules();
+        LauncherEngine.modulesManager.initModules(null);
+        initGson(LauncherEngine.modulesManager);
+        //Launcher.modulesManager.preInitModules();
+        LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncher.class);
@@ -454,6 +466,7 @@ public final class ClientLauncher {
                     profile = Launcher.gsonManager.gson.fromJson(input.readString(0), ClientProfile.class);
                     assetHDir = new HashedDir(input);
                     clientHDir = new HashedDir(input);
+                    ClientHookManager.paramsInputHook.hook(input);
                 }
             }
         } catch (IOException ex) {
@@ -465,17 +478,17 @@ public final class ClientLauncher {
         playerProfile = params.pp;
         Request.setSession(params.session);
         checkJVMBitsAndVersion();
-        Launcher.modulesManager.initModules();
+        LauncherEngine.modulesManager.invokeEvent(new ClientLauncherInitPhase());
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
         for (Path classpathURL : classPath) {
-            LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
+            LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
         }
         profile.pushOptionalClassPath(cp -> {
             LinkedList<Path> optionalClassPath = resolveClassPathList(params.clientDir, cp);
             for (Path classpathURL : optionalClassPath) {
-                LauncherAgent.addJVMClassPath(classpathURL.toAbsolutePath().toString());
+                LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
             }
         });
         URL[] classpathurls = resolveClassPath(params.clientDir, profile.getClassPath());
@@ -517,7 +530,7 @@ public final class ClientLauncher {
             //    else hdir.removeR(s.file);
             //}
             Launcher.profile.pushOptionalFile(clientHDir, false);
-            Launcher.modulesManager.postInitModules();
+            LauncherEngine.modulesManager.invokeEvent(new PostInitPhase());
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
@@ -548,8 +561,8 @@ public final class ClientLauncher {
         return builder.build();
     }
 
-    private static void initGson() {
-        Launcher.gsonManager = new ClientGsonManager();
+    private static void initGson(ClientModuleManager moduleManager) {
+        Launcher.gsonManager = new ClientGsonManager(moduleManager);
         Launcher.gsonManager.initGson();
     }
 

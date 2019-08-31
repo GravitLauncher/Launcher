@@ -5,17 +5,39 @@ dependencies {
     compile project(':LauncherCore')
     compileOnly 'org.apache.httpcomponents:httpclient:4.5.7'
     compileOnly 'io.netty:netty-codec-http:4.1.36.Final'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.4.1'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 jar {
     classifier = 'clean'
 }
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
 publishing {
     publications {
         launcherwsapi(MavenPublication) {
             artifactId = 'launcher-ws-api'
-            artifact jar
+            artifact(jar) {
+                classifier ""
+            }
+            artifact sourcesJar
+            artifact javadocJar
             pom {
                 name = 'GravitLauncher WebSocket API'
                 description = 'GravitLauncher WebSocket Module API'
@@ -24,6 +46,18 @@ publishing {
                     license {
                         name = 'GNU General Public License, Version 3.0'
                         url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gravit'
+                        name = 'Gravit'
+                        email = 'gravit.min@ya.ru'
+                    }
+                    developer {
+                        id = 'zaxar163'
+                        name = 'Zaxar163'
+                        email = 'zahar.vcherachny@yandex.ru'
                     }
                 }
                 scm {

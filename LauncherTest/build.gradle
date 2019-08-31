@@ -1,6 +1,0 @@
-apply from: 'test_support.gradle'
-
-dependencies {
-    compile project(':LaunchServer')
-}
-

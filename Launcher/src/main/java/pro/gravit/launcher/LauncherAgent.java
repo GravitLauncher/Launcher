@@ -4,9 +4,11 @@ import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ARETURN;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -31,7 +33,12 @@ public final class LauncherAgent {
 
     public static void addJVMClassPath(String path) throws IOException {
         LogHelper.debug("Launcher Agent addJVMClassPath");
-        inst.appendToSystemClassLoaderSearch(new JarFile(path));
+        inst.appendToSystemClassLoaderSearch(new JarFile(new File(path)));
+    }
+    
+    public static void addJVMClassPath(Path path) throws IOException {
+        LogHelper.debug("Launcher Agent addJVMClassPath");
+        inst.appendToSystemClassLoaderSearch(new JarFile(path.toFile()));
     }
 
     public boolean isAgentStarted() {

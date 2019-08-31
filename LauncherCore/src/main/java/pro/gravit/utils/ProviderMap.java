@@ -6,6 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import pro.gravit.utils.helper.VerifyHelper;
 
+/**
+ * The relationship between classes of an interface or abstract class and names when they are serialized
+ * @param <R> Class or interface type
+ */
 public class ProviderMap<R> {
     protected final Map<String, Class<? extends R>> PROVIDERS = new ConcurrentHashMap<>(4);
     protected final String name;

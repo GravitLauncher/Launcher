@@ -33,14 +33,38 @@ public abstract class AuthHandler implements AutoCloseable {
 
 	protected transient LaunchServer srv;
 
+    /**
+     * Returns the UUID associated with the account
+     * @param authResult {@link pro.gravit.launchserver.auth.provider.AuthProvider} result
+     * @return User UUID
+     * @throws IOException
+     * Internal Script Error
+     */
     public abstract UUID auth(AuthProviderResult authResult) throws IOException;
 
+    /**
+     * Validates serverID
+     * @param username user name
+     * @param serverID serverID to check
+     * @return user UUID
+     * @throws IOException
+     * Internal Script Error
+     */
     public abstract UUID checkServer(String username, String serverID) throws IOException;
 
     @Override
     public abstract void close() throws IOException;
 
 
+    /**
+     * Checks assessToken for validity and saves serverID if successful
+     * @param username user name
+     * @param accessToken assessToken to check
+     * @param serverID serverID to save
+     * @return true - allow, false - deny
+     * @throws IOException
+     * Internal Script Error
+     */
     public abstract boolean joinServer(String username, String accessToken, String serverID) throws IOException;
 
 

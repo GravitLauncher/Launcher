@@ -5,7 +5,7 @@ import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.helper.IOHelper;
@@ -41,7 +41,7 @@ public class UpdateResponse extends SimpleResponse {
         String url = server.config.netty.downloadURL.replace("%dirname%", IOHelper.urlEncode(dirName));
         boolean zip = false;
         if (server.config.netty.bindings.get(dirName) != null) {
-            LaunchServer.NettyUpdatesBind bind = server.config.netty.bindings.get(dirName);
+            LaunchServerConfig.NettyUpdatesBind bind = server.config.netty.bindings.get(dirName);
             url = bind.url;
             zip = bind.zip;
         }

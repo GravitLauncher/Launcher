@@ -34,11 +34,11 @@ public class ReconfigurableManager {
 
     public void registerReconfigurable(String name, Reconfigurable reconfigurable) {
         VerifyHelper.putIfAbsent(RECONFIGURABLE, name.toLowerCase(), new ReconfigurableVirtualCommand(reconfigurable.getCommands()),
-                String.format("Reloadable has been already registered: '%s'", name));
+                String.format("Reconfigurable has been already registered: '%s'", name));
     }
 
     public void unregisterReconfigurable(String name) {
-        RECONFIGURABLE.remove(name);
+        RECONFIGURABLE.remove(name.toLowerCase());
     }
 
     public void call(String name, String action, String[] args) throws Exception

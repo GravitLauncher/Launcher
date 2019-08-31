@@ -58,10 +58,12 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 	private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
     private final Path base;
     private final boolean fullOut;
+    private final boolean showHiddenFiles;
 
-    public FileServerHandler(Path base, boolean fullOut) {
+    public FileServerHandler(Path base, boolean fullOut, boolean showHiddenFiles) {
         this.base = base;
         this.fullOut = fullOut;
+        this.showHiddenFiles = showHiddenFiles;
     }
 
     @Override
@@ -92,7 +94,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         }
 
         File file = base.resolve(path).toFile();
-        if (file.isHidden() || !file.exists()) {
+        if ((file.isHidden() && !showHiddenFiles) || !file.exists()) {
             sendError(ctx, NOT_FOUND);
             return;
         }
@@ -100,7 +102,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         if (file.isDirectory()) {
             if (fullOut) {
                 if (uri.endsWith("/")) {
-                    sendListing(ctx, file, uri);
+                    sendListing(ctx, file, uri, showHiddenFiles);
                 } else {
                     sendRedirect(ctx, uri + '/');
                 }
@@ -182,7 +184,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 
     private static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[^-\\._]?[^<>&\\\"]*");
 
-    private static void sendListing(ChannelHandlerContext ctx, File dir, String dirPath) {
+    private static void sendListing(ChannelHandlerContext ctx, File dir, String dirPath, boolean showHidden) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
 
@@ -201,7 +203,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
                 .append("<li><a href=\"../\">..</a></li>\r\n");
 
         for (File f : dir.listFiles()) {
-            if (f.isHidden() || !f.canRead()) {
+            if (( f.isHidden() && !showHidden) || !f.canRead()) {
                 continue;
             }
 

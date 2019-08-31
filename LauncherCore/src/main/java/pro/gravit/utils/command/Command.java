@@ -6,6 +6,9 @@ import org.jline.reader.Candidate;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public abstract class Command {
+    /**
+     * List of available subcommands
+     */
     public Map<String, Command> childCommands;
 
     public Command() {
@@ -38,11 +41,24 @@ public abstract class Command {
 
     public abstract String getUsageDescription();
 
+    /**
+     * Creates a JLine candidate that appears in the list of available options when you press TAB
+     * @param category this command category
+     * @param commandName this command name
+     * @return JLine Candidate
+     */
     public Candidate buildCandidate(CommandHandler.Category category, String commandName)
     {
         return new Candidate(commandName);
     }
 
+    /**
+     * Returns a list of available options for the next word for the current command.
+     * @param words list all user words
+     * @param wordIndex current word index
+     * @param word current word
+     * @return list of available Candidate
+     */
     public List<Candidate> complete(List<String> words, int wordIndex, String word)
     {
         if(wordIndex == 0)
@@ -64,6 +80,12 @@ public abstract class Command {
         }
     }
 
+    /**
+     * Transfer control to subcommands
+     * @param args command arguments(includes subcommand name)
+     * @throws Exception
+     * Error executing command
+     */
     public void invokeSubcommands(String... args) throws Exception
     {
         verifyArgs(args, 1);
@@ -73,6 +95,12 @@ public abstract class Command {
     }
 
 
+    /**
+     * Run current command
+     * @param args command arguments
+     * @throws Exception
+     * Error executing command
+     */
     public abstract void invoke(String... args) throws Exception;
 
 

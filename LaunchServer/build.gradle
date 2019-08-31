@@ -1,4 +1,4 @@
-def mainClassName = "pro.gravit.launchserver.LaunchServer"
+def mainClassName = "pro.gravit.launchserver.LaunchServerStarter"
 def mainAgentName = "pro.gravit.launchserver.StarterAgent"
 
 evaluationDependsOn(':Launcher')
@@ -40,6 +40,22 @@ jar {
     )
 }
 
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
 
 task cleanjar(type: Jar, dependsOn: jar) {
     classifier = 'clean'
@@ -98,6 +114,7 @@ dependencies {
     compileOnlyA 'com.google.guava:guava:26.0-jre'
     compileOnlyA 'log4j:log4j:1.2.17' // Do not update (laggy dep).
     compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.4.1'
 }
 
 task hikari(type: Copy) {
@@ -167,7 +184,11 @@ publishing {
     publications {
         launchserverapi(MavenPublication) {
             artifactId = 'launchserver-api'
-            artifact cleanjar
+            artifact(cleanjar) {
+                classifier ""
+            }
+            artifact sourcesJar
+            artifact javadocJar
             pom {
                 name = 'GravitLauncher LaunchServer API'
                 description = 'GravitLauncher LaunchServer Module API'
@@ -176,6 +197,18 @@ publishing {
                     license {
                         name = 'GNU General Public License, Version 3.0'
                         url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gravit'
+                        name = 'Gravit'
+                        email = 'gravit.min@ya.ru'
+                    }
+                    developer {
+                        id = 'zaxar163'
+                        name = 'Zaxar163'
+                        email = 'zahar.vcherachny@yandex.ru'
                     }
                 }
 

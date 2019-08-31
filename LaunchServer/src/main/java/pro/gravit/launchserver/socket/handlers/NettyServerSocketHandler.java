@@ -20,6 +20,7 @@ import javax.net.ssl.TrustManager;
 import pro.gravit.launcher.ssl.LauncherKeyStore;
 import pro.gravit.launcher.ssl.LauncherTrustManager;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.LauncherNettyServer;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -90,7 +91,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
         //SSLEngine engine = sc.createSSLEngine();
         //engine.setUseClientMode(false);
         nettyServer = new LauncherNettyServer(server);
-        for (LaunchServer.NettyBindAddress address : server.config.netty.binds) {
+        for (LaunchServerConfig.NettyBindAddress address : server.config.netty.binds) {
             nettyServer.bind(new InetSocketAddress(address.address, address.port));
         }
         /*

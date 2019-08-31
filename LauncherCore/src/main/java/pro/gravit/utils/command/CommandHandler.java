@@ -36,38 +36,32 @@ public abstract class CommandHandler implements Runnable {
         // Parse line to tokens
         String[] args;
         try {
-            args = CommonHelper.parseCommand(line);
-            if (args.length > 0) args[0] = args[0].toLowerCase();
+            evalNative(line, bell);
         } catch (Exception e) {
             LogHelper.error(e);
-            return;
         }
+    }
 
-        // Evaluate command
+    public void evalNative(String line, boolean bell) throws Exception {
+        String[] args;
+        args = CommonHelper.parseCommand(line);
+        if (args.length > 0) args[0] = args[0].toLowerCase();
         eval(args, bell);
     }
 
 
-    public void eval(String[] args, boolean bell) {
+    public void eval(String[] args, boolean bell) throws Exception {
         if (args.length == 0)
             return;
 
         // Measure start time and invoke command
         long startTime = System.currentTimeMillis();
-        try {
-            lookup(args[0]).invoke(Arrays.copyOfRange(args, 1, args.length));
-        } catch (Exception e) {
-            LogHelper.error(e);
-        }
+        lookup(args[0]).invoke(Arrays.copyOfRange(args, 1, args.length));
 
         // Bell if invocation took > 1s
         long endTime = System.currentTimeMillis();
         if (bell && endTime - startTime >= 5000)
-            try {
-                bell();
-            } catch (IOException e) {
-                LogHelper.error(e);
-            }
+            bell();
     }
 
 
@@ -90,6 +84,12 @@ public abstract class CommandHandler implements Runnable {
     }
 
 
+    /**
+     * Reads a line from the console
+     * @return command line
+     * @throws IOException
+     * Internal Error
+     */
     public abstract String readLine() throws IOException;
 
     private void readLoop() throws IOException {
@@ -133,6 +133,12 @@ public abstract class CommandHandler implements Runnable {
         void walk(Category category, String name, Command command);
     }
 
+    /**
+     * Walk all categories
+     * Categories are sorted in the order they are added.
+     * The base category is walked last
+     * @param callback your callback
+     */
     public void walk(CommandWalk callback) {
         for (CommandHandler.Category category : getCategories()) {
             for (Map.Entry<String, Command> entry : category.category.commandsMap().entrySet())
@@ -150,8 +156,18 @@ public abstract class CommandHandler implements Runnable {
         return categories;
     }
 
+    /**
+     * If supported, sends a bell signal to the console
+     * @throws IOException
+     * Internal Error
+     */
     public abstract void bell() throws IOException;
 
 
+    /**
+     * Cleans the console
+     * @throws IOException
+     * Internal Error
+     */
     public abstract void clear() throws IOException;
 }

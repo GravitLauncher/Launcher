@@ -2,6 +2,7 @@ image: frekele/java
 
 stages:
   - build
+  - test
   - deploy
 
 before_script:
@@ -11,6 +12,7 @@ before_script:
   - apt-get update -qq && apt-get install -y -qq git git-core
 
 cache:
+  key: ${CI_COMMIT_REF_NAME}
   paths:
     - .gradle/wrapper
     - .gradle/caches
@@ -22,11 +24,19 @@ build:
     - git submodule sync
     - git submodule update --init --recursive
     - ./gradlew assemble
+    - mv LaunchServer/build/libs/*.jar LaunchServer
+    - mv ServerWrapper/build/libs/*.jar ServerWrapper
+    - mv modules/*_module/build/libs/*.jar modules
   artifacts:
     paths:
-      - LaunchServer/build/libs/*
-      - ServerWrapper/build/libs/*.jar
+      - LaunchServer/*.jar
+      - ServerWrapper/*.jar
+      - modules/*.jar
     expire_in: 1 week
+test:
+  stage: test
+  script:
+    - ./gradlew check
 
 after_script:
   - echo "End CI"

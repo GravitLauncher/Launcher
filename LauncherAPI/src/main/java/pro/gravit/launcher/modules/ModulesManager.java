@@ -1,7 +1,7 @@
 package pro.gravit.launcher.modules;
 
 import java.net.URL;
-
+@Deprecated
 public interface ModulesManager extends AutoCloseable {
     void initModules();
 

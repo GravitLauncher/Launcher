@@ -1,18 +1,23 @@
 package pro.gravit.launchserver.auth.handler;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
+import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.provider.AuthProviderResult;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.VerifyHelper;
+import pro.gravit.utils.command.Command;
+import pro.gravit.utils.command.SubCommand;
+import pro.gravit.utils.helper.*;
 
-public abstract class CachedAuthHandler extends AuthHandler implements NeedGarbageCollection {
+public abstract class CachedAuthHandler extends AuthHandler implements NeedGarbageCollection, Reconfigurable {
     public static final class Entry {
 
         public final UUID uuid;
@@ -27,6 +32,63 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
             this.accessToken = accessToken == null ? null : SecurityHelper.verifyToken(accessToken);
             this.serverID = serverID == null ? null : VerifyHelper.verifyServerID(serverID);
         }
+    }
+
+    protected class EntryAndUsername {
+        public Map<UUID, CachedAuthHandler.Entry> entryCache;
+        public Map<String, UUID> usernameCache;
+    }
+
+    @Override
+    public Map<String, Command> getCommands() {
+        Map<String, Command> commands = new HashMap<>();
+        commands.put("clear", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                long entryCacheSize = entryCache.size();
+                long usernamesCacheSize = usernamesCache.size();
+                entryCache.clear();
+                usernamesCache.clear();
+                LogHelper.info("Cleared cache: %d Entry %d Usernames", entryCacheSize, usernamesCacheSize);
+            }
+        });
+        commands.put("load", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                verifyArgs(args, 2);
+
+                LogHelper.info("CachedAuthHandler read from %s", args[0]);
+                int size_entry;
+                int size_username;
+                try (Reader reader = IOHelper.newReader(Paths.get(args[1]))) {
+                    EntryAndUsername entryAndUsername = Launcher.gsonManager.configGson.fromJson(reader, EntryAndUsername.class);
+                    size_entry = entryAndUsername.entryCache.size();
+                    size_username = entryAndUsername.usernameCache.size();
+                    loadEntryCache(entryAndUsername.entryCache);
+                    loadUsernameCache(entryAndUsername.usernameCache);
+
+                }
+                LogHelper.subInfo("Readed %d entryCache %d usernameCache", size_entry, size_username);
+            }
+        });
+        commands.put("unload", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                verifyArgs(args, 2);
+
+                LogHelper.info("CachedAuthHandler write to %s", args[1]);
+                Map<UUID, CachedAuthHandler.Entry> entryCache = getEntryCache();
+                Map<String, UUID> usernamesCache = getUsernamesCache();
+                EntryAndUsername serializable = new EntryAndUsername();
+                serializable.entryCache = entryCache;
+                serializable.usernameCache = usernamesCache;
+                try (Writer writer = IOHelper.newWriter(Paths.get(args[1]))) {
+                    Launcher.gsonManager.configGson.toJson(serializable, writer);
+                }
+                LogHelper.subInfo("Write %d entryCache, %d usernameCache", entryCache.size(), usernamesCache.size());
+            }
+        });
+        return commands;
     }
 
     private transient final Map<UUID, Entry> entryCache = new HashMap<>(1024);

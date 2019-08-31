@@ -8,19 +8,15 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.utils.HookException;
 
-public class RegLimiterComponent extends Component implements NeedGarbageCollection, AutoCloseable {
+public class RegLimiterComponent extends IPLimiter implements NeedGarbageCollection, AutoCloseable {
 
-    private transient AbstractLimiter<String> limiter;
     public transient LaunchServer launchServer;
-    public int rateLimit;
-    public int rateLimitMilis;
     public String message;
 
     public List<String> excludeIps = new ArrayList<>();
 
     @Override
     public void preInit(LaunchServer launchServer) {
-        limiter = new AbstractLimiter<>(rateLimit, rateLimitMilis);
         this.launchServer = launchServer;
     }
 
@@ -36,17 +32,12 @@ public class RegLimiterComponent extends Component implements NeedGarbageCollect
 
     public boolean registerHook(AuthHookManager.RegContext context)
     {
-        if (!limiter.check(context.ip)) {
+        if (!check(context.ip)) {
             throw new HookException(message);
         }
         return false;
     }
 
-    @Override
-    public void garbageCollection() {
-        if(limiter != null)
-            limiter.garbageCollection();
-    }
     @Override
     public void close() throws Exception {
         launchServer.authHookManager.registraion.unregisterHook(this::registerHook);

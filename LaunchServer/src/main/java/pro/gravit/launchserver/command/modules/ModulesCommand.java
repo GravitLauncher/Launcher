@@ -20,6 +20,6 @@ public class ModulesCommand extends Command {
 
     @Override
     public void invoke(String... args) {
-        server.modulesManager.printModules();
+        server.modulesManager.printModulesInfo();
     }
 }

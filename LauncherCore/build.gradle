@@ -7,17 +7,39 @@ dependencies {
     compileOnly 'org.jline:jline-reader:3.11.0'
     compileOnly 'org.jline:jline-terminal:3.11.0'
     compile 'com.google.code.gson:gson:2.8.5'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.4.1'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 jar {
     classifier = 'clean'
 }
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
 publishing {
     publications {
         launchercore(MavenPublication) {
             artifactId = 'launcher-core'
-            artifact jar
+            artifact(jar) {
+                classifier ""
+            }
+            artifact sourcesJar
+            artifact javadocJar
             pom {
                 name = 'GravitLauncher Core Utils'
                 description = 'GravitLauncher Core Utils'
@@ -26,6 +48,18 @@ publishing {
                     license {
                         name = 'GNU General Public License, Version 3.0'
                         url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gravit'
+                        name = 'Gravit'
+                        email = 'gravit.min@ya.ru'
+                    }
+                    developer {
+                        id = 'zaxar163'
+                        name = 'Zaxar163'
+                        email = 'zahar.vcherachny@yandex.ru'
                     }
                 }
                 scm {

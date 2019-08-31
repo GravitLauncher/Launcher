@@ -10,12 +10,12 @@ import java.util.zip.ZipInputStream;
 public class JarHelper {
     @FunctionalInterface
     public interface ZipWalkCallback {
-        void process(ZipInputStream input, ZipEntry e);
+        void process(ZipInputStream input, ZipEntry e) throws IOException;
     }
 
     @FunctionalInterface
     public interface JarWalkCallback {
-        void process(ZipInputStream input, ZipEntry e, String fullClassName, String clazz);
+        void process(ZipInputStream input, ZipEntry e, String fullClassName, String clazz) throws IOException;
     }
 
     public static void zipWalk(ZipInputStream input, ZipWalkCallback callback) throws IOException {

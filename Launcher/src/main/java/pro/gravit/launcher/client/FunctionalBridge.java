@@ -24,7 +24,7 @@ public class FunctionalBridge {
     @LauncherAPI
     public static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(0);
     @LauncherAPI
-    public static OshiHWIDProvider hwidProvider = new OshiHWIDProvider();
+    public static OshiHWIDProvider hwidProvider;
     @LauncherAPI
     public static AtomicReference<HWID> hwid = new AtomicReference<>();
     @LauncherAPI
@@ -51,14 +51,18 @@ public class FunctionalBridge {
     @LauncherAPI
     public static HWID getHWID() {
         HWID hhwid = hwid.get();
-        if (hhwid == null) hwid.set(hwidProvider.getHWID());
+        if (hhwid == null) {
+            if(hwidProvider == null) hwidProvider = new OshiHWIDProvider();
+            hwid.set(hwidProvider.getHWID());
+        }
         return hhwid;
     }
 
     @LauncherAPI
-    public static int getTotalMemory() {
-        if (cachedMemorySize > 0) return (int) cachedMemorySize;
-        return (int) (cachedMemorySize = hwidProvider.getTotalMemory() >> 20);
+    public static long getTotalMemory() {
+        if (cachedMemorySize > 0) return cachedMemorySize;
+        if(hwidProvider == null) hwidProvider = new OshiHWIDProvider();
+        return (cachedMemorySize = hwidProvider.getTotalMemory() >> 20);
     }
 
     @LauncherAPI
@@ -67,7 +71,7 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public static int getJVMTotalMemory() {
+    public static long getJVMTotalMemory() {
         if (getClientJVMBits() == 32) {
             return Math.min(getTotalMemory(), 1536);
         } else {

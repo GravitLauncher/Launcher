@@ -34,8 +34,6 @@ public final class Launcher {
 
     private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
     @LauncherAPI
-    public static ModulesManager modulesManager = null;
-    @LauncherAPI
     public static final int PROTOCOL_MAGIC_LEGACY = 0x724724_00 + 24;
     @LauncherAPI
     public static final int PROTOCOL_MAGIC = 0xA205B064; // e = 2.718281828

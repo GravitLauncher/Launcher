@@ -8,6 +8,14 @@ public class HookSet<R> {
 
     @FunctionalInterface
     public interface Hook<R> {
+        /**
+         * @param context custom param
+         * @return
+         * True if you need to interrupt hook processing
+         * False to continue processing hook
+         * @throws HookException
+         * The hook may return the error text throwing this exception
+         */
         boolean hook(R context) throws HookException;
     }
 
@@ -19,6 +27,14 @@ public class HookSet<R> {
         return list.remove(hook);
     }
 
+    /**
+     * @param context custom param
+     * @return
+     * True if hook to interrupt processing
+     * False to continue
+     * @throws HookException
+     * The hook may return the error text throwing this exception
+     */
     public boolean hook(R context) throws HookException {
         for (Hook<R> hook : list) {
             if (hook.hook(context)) return true;

@@ -14,16 +14,18 @@ import com.google.gson.reflect.TypeToken;
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.Reloadable;
+import pro.gravit.launchserver.Reconfigurable;
+import pro.gravit.utils.command.Command;
+import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-public class JsonLongFilePermissionsHandler extends PermissionsHandler implements Reloadable {
+public class JsonLongFilePermissionsHandler extends PermissionsHandler implements Reconfigurable {
     public String filename = "permissions.json";
     public long defaultPerms = 0L;
     public static Map<String, Long> map;
 
-    @Override
+
     public void reload() {
         map.clear();
         Path path = Paths.get(filename);
@@ -39,6 +41,32 @@ public class JsonLongFilePermissionsHandler extends PermissionsHandler implement
     @Override
     public void close() {
 
+    }
+
+    @Override
+    public Map<String, Command> getCommands() {
+        Map<String, Command> commands = new HashMap<>();
+        SubCommand reload = new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                reload();
+            }
+        };
+        commands.put("reload", reload);
+        commands.put("save", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                Path path = Paths.get(filename);
+                if (!IOHelper.exists(path)) {
+                    try (Writer writer = IOHelper.newWriter(path)) {
+                        Launcher.gsonManager.gson.toJson(map, writer);
+                    } catch (IOException e) {
+                        LogHelper.error(e);
+                    }
+                }
+            }
+        });
+        return commands;
     }
 
     public static class Enity {

@@ -26,7 +26,7 @@ import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.binary.BuildContext;
-import pro.gravit.launchserver.binary.JAConfigurator;
+import pro.gravit.launchserver.binary.LauncherConfigurator;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -119,23 +119,23 @@ public class MainBuildTask implements LauncherBuildTask {
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
         	ClassNode cn = new ClassNode();
         	new ClassReader(IOHelper.getResourceBytes(AutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn, 0);
-        	JAConfigurator jaConfigurator = new JAConfigurator(cn);
-            BuildContext context = new BuildContext(output, jaConfigurator, this);
+        	LauncherConfigurator launcherConfigurator = new LauncherConfigurator(cn);
+            BuildContext context = new BuildContext(output, launcherConfigurator, this);
             server.buildHookManager.hook(context);
-            jaConfigurator.setAddress(server.config.netty.address);
+            launcherConfigurator.setAddress(server.config.netty.address);
             if (server.config.guardLicense != null)
-                jaConfigurator.setGuardLicense(server.config.guardLicense.name, server.config.guardLicense.key, server.config.guardLicense.encryptKey);
+                launcherConfigurator.setGuardLicense(server.config.guardLicense.name, server.config.guardLicense.key, server.config.guardLicense.encryptKey);
             else
-            	jaConfigurator.nullGuardLicense();
-            jaConfigurator.setProjectName(server.config.projectName);
-            jaConfigurator.setSecretKey(SecurityHelper.randomStringAESKey());
-            jaConfigurator.setClientPort(32148 + SecurityHelper.newRandom().nextInt(512));
-            jaConfigurator.setGuardType(server.config.launcher.guardType);
-            jaConfigurator.setWarningMissArchJava(server.config.launcher.warningMissArchJava);
-            jaConfigurator.setEnv(server.config.env);
+            	launcherConfigurator.nullGuardLicense();
+            launcherConfigurator.setProjectName(server.config.projectName);
+            launcherConfigurator.setSecretKey(SecurityHelper.randomStringAESKey());
+            launcherConfigurator.setClientPort(32148 + SecurityHelper.newRandom().nextInt(512));
+            launcherConfigurator.setGuardType(server.config.launcher.guardType);
+            launcherConfigurator.setWarningMissArchJava(server.config.launcher.warningMissArchJava);
+            launcherConfigurator.setEnv(server.config.env);
             if (server.runtime.oemUnlockKey == null) server.runtime.oemUnlockKey = SecurityHelper.randomStringToken();
-            jaConfigurator.setOemUnlockKey(server.runtime.oemUnlockKey);
-            server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
+            launcherConfigurator.setOemUnlockKey(server.runtime.oemUnlockKey);
+            server.buildHookManager.registerAllClientModuleClass(launcherConfigurator);
             reader.getCp().add(new JarFile(inputJar.toFile()));
             server.launcherBinary.coreLibs.forEach(e -> {
                 try {
@@ -144,7 +144,7 @@ public class MainBuildTask implements LauncherBuildTask {
                     LogHelper.error(e1);
                 }
             });
-            String zPath = jaConfigurator.getZipEntryPath();
+            String zPath = launcherConfigurator.getZipEntryPath();
             try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputJar))) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
@@ -203,7 +203,7 @@ public class MainBuildTask implements LauncherBuildTask {
             output.write(launcherConfigBytes);
             ZipEntry e = newZipEntry(zPath);
             output.putNextEntry(e);
-            output.write(jaConfigurator.getBytecode(reader));
+            output.write(launcherConfigurator.getBytecode(reader));
         }
         reader.close();
         return outputJar;

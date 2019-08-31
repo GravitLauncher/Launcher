@@ -46,6 +46,10 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     public static void setController(UpdateController controller) {
         UpdateRequest.controller = controller;
     }
+    public static UpdateController getController()
+    {
+        return controller;
+    }
 
     @Override
     public String getType() {

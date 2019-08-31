@@ -7,7 +7,7 @@ import java.util.Set;
 
 import pro.gravit.launcher.AutogenConfig;
 import pro.gravit.launchserver.binary.BuildContext;
-import pro.gravit.launchserver.binary.JAConfigurator;
+import pro.gravit.launchserver.binary.LauncherConfigurator;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 
 public class BuildHookManager {
@@ -75,7 +75,7 @@ public class BuildHookManager {
         for (BuildHook hook : HOOKS) hook.build(context);
     }
 
-    public void registerAllClientModuleClass(JAConfigurator cfg) {
+    public void registerAllClientModuleClass(LauncherConfigurator cfg) {
         for (String clazz : MODULE_CLASS) cfg.addModuleClass(clazz);
     }
 
