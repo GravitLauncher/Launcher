@@ -16,6 +16,7 @@ public class HibernateDaoProvider extends DaoProvider {
     public String url;
     public String username;
     public String password;
+	public String dialect;
     public String pool_size;
     public String hibernateConfig;
     public boolean parallelHibernateInit;
@@ -30,7 +31,8 @@ public class HibernateDaoProvider extends DaoProvider {
                     .setProperty("hibernate.connection.url", url)
                     .setProperty("hibernate.connection.username", username)
                     .setProperty("hibernate.connection.password", password)
-                    .setProperty("hibernate.connection.pool_size", pool_size);
+                    .setProperty("hibernate.connection.pool_size", pool_size)
+					.setProperty("hibernate.dialect", dialect);
             if(hibernateConfig != null)
                 cfg.configure(Paths.get(hibernateConfig).toFile());
             userDAO = new HibernateUserDAOImpl(cfg.buildSessionFactory());
