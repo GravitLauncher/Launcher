@@ -14,6 +14,7 @@ import java.util.UUID;
 public class RegisterResponse extends SimpleResponse {
     public String login;
     public String password;
+    public String email;
     public byte[] verifyHash;
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception
@@ -32,6 +33,7 @@ public class RegisterResponse extends SimpleResponse {
         }
         User user = new User();
         user.username = login;
+        user.email = email;
         user.setPassword(password);
         user.uuid = UUID.randomUUID();
         server.config.dao.userService.saveUser(user);

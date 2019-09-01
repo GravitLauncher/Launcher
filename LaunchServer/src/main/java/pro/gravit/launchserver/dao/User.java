@@ -36,6 +36,7 @@ public class User {
     private byte[] password;
     private String accessToken;
     public String serverID;
+    public String email;
     private String password_salt;
     public long permissions;
     //TODO: заменить EAGER на LASY и придумать способ сохранить сессию
