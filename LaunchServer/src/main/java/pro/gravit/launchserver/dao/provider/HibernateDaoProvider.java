@@ -16,7 +16,7 @@ public class HibernateDaoProvider extends DaoProvider {
     public String url;
     public String username;
     public String password;
-	public String dialect;
+    public String dialect;
     public String pool_size;
     public String hibernateConfig;
     public boolean parallelHibernateInit;
