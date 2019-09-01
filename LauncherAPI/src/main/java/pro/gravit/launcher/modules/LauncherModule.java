@@ -127,8 +127,8 @@ public abstract class LauncherModule {
      * Modify module description, dependencies
      * Add modules
      * Read configuration
-     * @param initContext <tr>null</tr> on module initialization during boot or startup
-     * Not <tr>null</tr> during module initialization while running
+     * @param initContext <b>null</b> on module initialization during boot or startup
+     * Not <b>null</b> during module initialization while running
      */
     public abstract void init(LauncherInitContext initContext);
 

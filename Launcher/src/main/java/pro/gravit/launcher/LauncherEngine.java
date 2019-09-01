@@ -111,13 +111,13 @@ public class LauncherEngine {
                 }
             };
         }
-        LauncherGuardManager.initGuard(false);
         if(UpdateRequest.getController() == null) UpdateRequest.setController(new LauncherUpdateController());
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");
         LauncherEngine.modulesManager.invokeEvent(new ClientEngineInitPhase(this));
         runtimeProvider.preLoad();
+        LauncherGuardManager.initGuard(false);
         FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread", true, FunctionalBridge::getHWID);
         FunctionalBridge.getHWID.start();
         LogHelper.debug("Dir: %s", DirBridge.dir);

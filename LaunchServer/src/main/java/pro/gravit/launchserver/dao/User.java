@@ -30,6 +30,7 @@ public class User {
     private long id;
     @Column(unique = true)
     public String username;
+    public String email;
     @Column(unique = true)
     public UUID uuid;
     @Column(name = "password")
