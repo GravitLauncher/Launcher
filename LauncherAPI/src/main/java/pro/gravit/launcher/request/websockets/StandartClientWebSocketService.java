@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLException;
 
+import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
@@ -67,6 +68,10 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
                 ErrorRequestEvent errorRequestEvent = (ErrorRequestEvent) event.result;
                 throw new ExecutionException(new RequestException(errorRequestEvent.error));
             }
+            if (event.result.getType().equals("exception")) {
+                ExceptionEvent error = (ExceptionEvent) event.result;
+                throw new ExecutionException(new RequestException(String.format("LaunchServer fatal error: %s: %s", error.clazz, error.message)));
+            }
             return result;
         }
 
@@ -80,9 +85,13 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
             }
             WebSocketEvent result = event.result;
             waitEventHandler.requests.remove(event);
-            if (event.result.getType().equals("error") || event.result.getType().equals("exception")) {
+            if (event.result.getType().equals("error")) {
                 ErrorRequestEvent errorRequestEvent = (ErrorRequestEvent) event.result;
                 throw new ExecutionException(new RequestException(errorRequestEvent.error));
+            }
+            if (event.result.getType().equals("exception")) {
+                ExceptionEvent error = (ExceptionEvent) event.result;
+                throw new ExecutionException(new RequestException(String.format("LaunchServer fatal error: %s: %s", error.clazz, error.message)));
             }
             return result;
         }
