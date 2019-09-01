@@ -68,7 +68,7 @@ function initLoginScene() {
 
     var pane = loginPane;
     config.links.forEach(function(link) {
-        var el = pane.lookup("#" + link.id);
+        var el = pane.lookup("#link_" + link.id);
         if (el === null) return;
 
         el.setOnAction(function() {
@@ -122,7 +122,7 @@ function initMenuScene() {
 
     var pane = menuPane;
     config.links.forEach(function(link) {
-        var el = pane.lookup("#" + link.id);
+        var el = pane.lookup("#link_" + link.id);
         if (el === null) return;
 
         el.setOnAction(function() {
