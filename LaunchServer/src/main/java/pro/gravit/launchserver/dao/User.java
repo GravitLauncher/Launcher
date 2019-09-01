@@ -30,13 +30,13 @@ public class User {
     private long id;
     @Column(unique = true)
     public String username;
+    public String email;
     @Column(unique = true)
     public UUID uuid;
     @Column(name = "password")
     private byte[] password;
     private String accessToken;
     public String serverID;
-    public String email;
     private String password_salt;
     public long permissions;
     //TODO: заменить EAGER на LASY и придумать способ сохранить сессию

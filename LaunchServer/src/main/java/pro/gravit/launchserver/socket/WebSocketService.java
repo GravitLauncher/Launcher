@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.socket;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 
 import com.google.gson.Gson;
 
@@ -21,14 +20,7 @@ import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.launchserver.socket.response.admin.AddLogListenerResponse;
 import pro.gravit.launchserver.socket.response.admin.ExecCommandResponse;
-import pro.gravit.launchserver.socket.response.auth.AuthResponse;
-import pro.gravit.launchserver.socket.response.auth.CheckServerResponse;
-import pro.gravit.launchserver.socket.response.auth.GetAvailabilityAuthResponse;
-import pro.gravit.launchserver.socket.response.auth.JoinServerResponse;
-import pro.gravit.launchserver.socket.response.auth.ProfilesResponse;
-import pro.gravit.launchserver.socket.response.auth.RegisterResponse;
-import pro.gravit.launchserver.socket.response.auth.RestoreSessionResponse;
-import pro.gravit.launchserver.socket.response.auth.SetProfileResponse;
+import pro.gravit.launchserver.socket.response.auth.*;
 import pro.gravit.launchserver.socket.response.profile.BatchProfileByUsername;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUsername;
@@ -132,6 +124,7 @@ public class WebSocketService {
         providers.register("verifySecureToken", VerifySecureTokenResponse.class);
         providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
         providers.register("register", RegisterResponse.class);
+        providers.register("setPassword", SetPasswordResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {
