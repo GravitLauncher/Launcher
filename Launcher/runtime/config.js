@@ -4,12 +4,20 @@ var config = {
     title: "GravitLauncher",  // Заголовок окна
     icons: ["favicon.png"],   // Путь/Пути до иконки окна
 
-    //*** Меню авторизации ***//
-    linkText: "GravitLauncher",                                 // Текст ссылки
-    linkURL: new java.net.URL("https://gravit.pro"),            // Ссылка
-
-    //*** Меню выбора серверов ***//
-    discord: new java.net.URL("https://discord.gg/aJK6nMN"),    // Ссылка
+    links: [
+        //*** Ссылки ***//
+        {
+            id: "link",
+            text: "GravitLauncher",
+            url: "https://gravit.pro",
+        },
+    
+        {
+            id: "discord",
+            text: "",
+            url: "https://discord.gg/aJK6nMN",
+        }
+    ],
 
     //*** Стандартные настройки клиента ***//
     autoEnterDefault: false,    // Автоматический вход на выбранный сервер
