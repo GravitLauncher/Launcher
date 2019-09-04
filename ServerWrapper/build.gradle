@@ -95,5 +95,4 @@ signing {
     sign publishing.publications.serverwrapperapi
 }
 
-build.dependsOn tasks.shadowJar
- 
+assemble.dependsOn tasks.shadowJar
