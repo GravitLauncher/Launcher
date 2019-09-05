@@ -28,16 +28,28 @@ public abstract class LauncherModule {
 
     /**
      * Module initialization status at the current time
-     * CREATED - Module status immediately after loading
-     * INIT - The state of the module during the execution of the method init()
-     * FINISH - Status of the module after initialization
      */
     public enum InitStatus
     {
+        /**
+         * When creating an object
+         */
         CREATED(false),
+        /**
+         * After setting the context
+         */
         PRE_INIT_WAIT(true),
+        /**
+         * During the pre-initialization phase
+         */
         PRE_INIT(false),
+        /**
+         * Awaiting initialization phase
+         */
         INIT_WAIT(true),
+        /**
+         * During the initialization phase
+         */
         INIT(false),
         FINISH(true);
 
@@ -96,13 +108,13 @@ public abstract class LauncherModule {
     /**
      * This method is called before initializing all modules and resolving dependencies.
      * <b>You can</b>:
-     * Use to Module Manager
-     * Add custom modules not described in the manifest
-     * Change information about your module or modules you control
+     * - Use to Module Manager
+     * - Add custom modules not described in the manifest
+     * - Change information about your module or modules you control
      * <b>You can not</b>:
-     * Use your dependencies
-     * Use API Launcher, LaunchServer, ServerWrapper
-     * Change the names of any modules
+     * - Use your dependencies
+     * - Use Launcher, LaunchServer, ServerWrapper API
+     * - Change the names of any modules
      */
     public void preInitAction() {
         //NOP
@@ -119,14 +131,14 @@ public abstract class LauncherModule {
     /**
      * Basic module initialization method
      * <b>You can</b>:
-     * Subscribe to events
-     * Use your dependencies
-     * Use provided initContext
-     * Receive modules and access the module’s internal methods
+     * - Subscribe to events
+     * - Use your dependencies
+     * - Use provided initContext
+     * - Receive modules and access the module’s internal methods
      * <b>You can not</b>:
-     * Modify module description, dependencies
-     * Add modules
-     * Read configuration
+     * - Modify module description, dependencies
+     * - Add modules
+     * - Read configuration
      * @param initContext <b>null</b> on module initialization during boot or startup
      * Not <b>null</b> during module initialization while running
      */

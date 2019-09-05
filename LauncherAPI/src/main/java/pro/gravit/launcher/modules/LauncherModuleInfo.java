@@ -7,6 +7,9 @@ public class LauncherModuleInfo {
     public final Version version;
     public final int priority;
     public final String[] dependencies;
+    /**
+     * Alternative module names
+     */
     public final String[] providers;
 
     public LauncherModuleInfo(String name, Version version) {
