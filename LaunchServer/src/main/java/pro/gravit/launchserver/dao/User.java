@@ -67,8 +67,6 @@ public class User {
             return false;
         }
         byte[] enpassword = digest.digest(password.concat(password_salt).getBytes(StandardCharsets.UTF_8));
-        LogHelper.info(Arrays.toString(enpassword));
-        LogHelper.info(Arrays.toString(this.password));
         return Arrays.equals(enpassword, this.password);
     }
     public ClientPermissions getPermissions()
