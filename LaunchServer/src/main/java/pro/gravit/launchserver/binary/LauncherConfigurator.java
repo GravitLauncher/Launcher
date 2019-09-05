@@ -62,36 +62,33 @@ public class LauncherConfigurator {
     }
 
     public void setAddress(String address) {
-        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        constructor.instructions.add(new LdcInsnNode(address));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "address", stringDesc));
+        setStringField("address", address);
     }
 
     public void setProjectName(String name) {
-        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        constructor.instructions.add(new LdcInsnNode(name));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "projectname", stringDesc));
+        setStringField("projectname", name);
     }
 
     public void setSecretKey(String key) {
-        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        constructor.instructions.add(new LdcInsnNode(key));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "secretKeyClient", stringDesc));
+        setStringField("secretKeyClient", key);
     }
 
     public void setOemUnlockKey(String key) {
+        setStringField("oemUnlockKey", key);
+    }
+
+    private void setStringField(String name, String value)
+    {
         constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        constructor.instructions.add(new LdcInsnNode(key));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "oemUnlockKey", stringDesc));
+        constructor.instructions.add(new LdcInsnNode(value));
+        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, name, stringDesc));
     }
 
     public void setGuardType(String key) {
-        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        constructor.instructions.add(new LdcInsnNode(key));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardType", stringDesc));
+        setStringField("guardType", key);
     }
 
-    public void push(final int value) {
+    private void push(final int value) {
         if (value >= -1 && value <= 5)
             constructor.instructions.add(new InsnNode(Opcodes.ICONST_0 + value));
         else if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE)
@@ -125,15 +122,25 @@ public class LauncherConfigurator {
     }
 
     public void setClientPort(int port) {
+        setIntegerField("clientPort", port);
+    }
+
+    public void setIntegerField(String name, int value)
+    {
         constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        push(port);
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "clientPort", Type.INT_TYPE.getInternalName()));
+        push(value);
+        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, name, Type.INT_TYPE.getInternalName()));
     }
 
     public void setWarningMissArchJava(boolean b) {
+        setBooleanField("isWarningMissArchJava", b);
+    }
+
+    private void setBooleanField(String name, boolean b)
+    {
         constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new InsnNode(b ? Opcodes.ICONST_1 : Opcodes.ICONST_0));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "isWarningMissArchJava", Type.BOOLEAN_TYPE.getInternalName()));
+        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, name, Type.BOOLEAN_TYPE.getInternalName()));
     }
 
     public void setGuardLicense(String name, String key, String encryptKey) {
