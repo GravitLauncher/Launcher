@@ -177,7 +177,7 @@ task dumpClientLibs(type: Copy) {
     from parent.childProjects.Launcher.tasks.dumpLibs.destinationDir
 }
 
-build.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle, tasks.cleanjar
+assemble.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle, tasks.cleanjar
 
 
 publishing {

@@ -1,8 +1,8 @@
 package pro.gravit.launchserver;
 
-import pro.gravit.utils.command.Command;
-
 import java.util.Map;
+
+import pro.gravit.utils.command.Command;
 
 /**
  * Allows calling commands using the config command

@@ -1,5 +1,11 @@
 package pro.gravit.launchserver.config;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
 import pro.gravit.launcher.Launcher;
@@ -23,12 +29,6 @@ import pro.gravit.launchserver.dao.provider.DaoProvider;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public final class LaunchServerConfig {
     private transient LaunchServer server = null;

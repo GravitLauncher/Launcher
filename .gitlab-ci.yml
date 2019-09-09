@@ -32,7 +32,6 @@ build:
       - LaunchServer/*.jar
       - ServerWrapper/*.jar
       - modules/*.jar
-    expire_in: 1 week
 test:
   stage: test
   script:

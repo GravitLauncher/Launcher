@@ -1,22 +1,22 @@
 package pro.gravit.launchserver;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.security.KeyPair;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.managers.SimpleModulesConfigManager;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.utils.command.StdCommandHandler;
 import pro.gravit.utils.helper.SecurityHelper;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.security.KeyPair;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 
 public class StartLaunchServerTest {
     @TempDir
@@ -30,7 +30,6 @@ public class StartLaunchServerTest {
     public static void prepare() throws Exception
     {
         LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(modulesDir, configDir);
-        SimpleModulesConfigManager configManager = new SimpleModulesConfigManager(configDir);
         LaunchServerConfig config = LaunchServerConfig.getDefault(LaunchServer.LaunchServerEnv.TEST);
         Launcher.gsonManager = new LaunchServerGsonManager(modulesManager);
         Launcher.gsonManager.initGson();

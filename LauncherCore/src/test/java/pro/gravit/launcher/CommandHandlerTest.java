@@ -3,9 +3,14 @@ package pro.gravit.launcher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import pro.gravit.launcher.impl.Test2Command;
 import pro.gravit.launcher.impl.TestCommand;
-import pro.gravit.utils.command.*;
+import pro.gravit.utils.command.BaseCommandCategory;
+import pro.gravit.utils.command.Command;
+import pro.gravit.utils.command.CommandException;
+import pro.gravit.utils.command.CommandHandler;
+import pro.gravit.utils.command.StdCommandHandler;
 
 
 public class CommandHandlerTest {

@@ -1,16 +1,23 @@
 package pro.gravit.launcher;
 
+import java.nio.file.Path;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import pro.gravit.launcher.impl.*;
+
+import pro.gravit.launcher.impl.Cyclic2DependModule;
+import pro.gravit.launcher.impl.CyclicDependModule;
+import pro.gravit.launcher.impl.Depend1Module;
+import pro.gravit.launcher.impl.Depend2Module;
+import pro.gravit.launcher.impl.Depend3Module;
+import pro.gravit.launcher.impl.MainModule;
+import pro.gravit.launcher.impl.TestModule;
 import pro.gravit.launcher.impl.event.CancelEvent;
 import pro.gravit.launcher.impl.event.NormalEvent;
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.impl.SimpleModuleManager;
-
-import java.nio.file.Path;
 
 public class ModulesTest {
     @TempDir

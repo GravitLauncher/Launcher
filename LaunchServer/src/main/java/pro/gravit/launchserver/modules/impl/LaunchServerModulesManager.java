@@ -1,13 +1,13 @@
 package pro.gravit.launchserver.modules.impl;
 
+import java.nio.file.Path;
+import java.util.Arrays;
+
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.LauncherModuleInfo;
 import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.LogHelper;
-
-import java.nio.file.Path;
-import java.util.Arrays;
 
 public class LaunchServerModulesManager extends SimpleModuleManager {
     public LaunchServerCoreModule coreModule;

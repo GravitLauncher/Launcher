@@ -16,9 +16,7 @@ import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.managers.ConsoleManager;
-import pro.gravit.launcher.modules.LauncherModulesManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
-import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.RestoreSessionRequest;
@@ -113,13 +111,13 @@ public class LauncherEngine {
                 }
             };
         }
-        LauncherGuardManager.initGuard(false);
         if(UpdateRequest.getController() == null) UpdateRequest.setController(new LauncherUpdateController());
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");
         LauncherEngine.modulesManager.invokeEvent(new ClientEngineInitPhase(this));
         runtimeProvider.preLoad();
+        LauncherGuardManager.initGuard(false);
         FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread", true, FunctionalBridge::getHWID);
         FunctionalBridge.getHWID.start();
         LogHelper.debug("Dir: %s", DirBridge.dir);

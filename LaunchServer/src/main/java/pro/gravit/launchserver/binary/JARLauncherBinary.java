@@ -9,7 +9,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.binary.tasks.*;
+import pro.gravit.launchserver.binary.tasks.AdditionalFixesApplyTask;
+import pro.gravit.launchserver.binary.tasks.AttachJarsTask;
+import pro.gravit.launchserver.binary.tasks.CompressBuildTask;
+import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
+import pro.gravit.launchserver.binary.tasks.MainBuildTask;
+import pro.gravit.launchserver.binary.tasks.PrepareBuildTask;
+import pro.gravit.launchserver.binary.tasks.ProGuardBuildTask;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;

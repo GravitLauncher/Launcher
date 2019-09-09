@@ -1,14 +1,14 @@
 package pro.gravit.launchserver.binary.tasks;
 
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.utils.helper.IOHelper;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.utils.helper.IOHelper;
 
 public class CompressBuildTask implements LauncherBuildTask {
     public transient final LaunchServer server;

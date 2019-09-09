@@ -30,6 +30,7 @@ public class User {
     private long id;
     @Column(unique = true)
     public String username;
+    public String email;
     @Column(unique = true)
     public UUID uuid;
     @Column(name = "password")
@@ -66,8 +67,6 @@ public class User {
             return false;
         }
         byte[] enpassword = digest.digest(password.concat(password_salt).getBytes(StandardCharsets.UTF_8));
-        LogHelper.info(Arrays.toString(enpassword));
-        LogHelper.info(Arrays.toString(this.password));
         return Arrays.equals(enpassword, this.password);
     }
     public ClientPermissions getPermissions()

@@ -1,12 +1,12 @@
 package pro.gravit.launchserver.binary;
 
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
+
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public class SimpleEXELauncherBinary extends LauncherBinary {
     public Path exeTemplate;
