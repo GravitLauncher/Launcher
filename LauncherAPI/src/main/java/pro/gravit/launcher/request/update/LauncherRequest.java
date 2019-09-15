@@ -1,6 +1,8 @@
 package pro.gravit.launcher.request.update;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,9 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     public int launcher_type = EXE_BINARY ? 2 : 1;
     @LauncherAPI
     public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
+    
+    @LauncherAPI
+    public static final Path C_BINARY_PATH = BINARY_PATH.getParent().resolve(IOHelper.getFileName(BINARY_PATH) + ".tmp");
 
     @LauncherAPI
     public static final boolean EXE_BINARY = IOHelper.hasExtension(BINARY_PATH, "exe");
@@ -52,7 +57,11 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
             }*/
             try {
                 ListDownloader downloader = new ListDownloader();
-                downloader.downloadOne(result.url, BINARY_PATH);
+                downloader.downloadOne(result.url, C_BINARY_PATH);
+                try (InputStream in = IOHelper.newInput(C_BINARY_PATH)) {
+                	IOHelper.transfer(in, BINARY_PATH);
+                }
+                Files.deleteIfExists(C_BINARY_PATH);
             } catch (Throwable e) {
                 LogHelper.error(e);
             }
