@@ -57,6 +57,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
             }*/
             try {
                 ListDownloader downloader = new ListDownloader();
+                Files.deleteIfExists(C_BINARY_PATH);
                 downloader.downloadOne(result.url, C_BINARY_PATH);
                 try (InputStream in = IOHelper.newInput(C_BINARY_PATH)) {
                 	IOHelper.transfer(in, BINARY_PATH);
