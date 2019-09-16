@@ -29,10 +29,6 @@ public class LauncherGravitGuard implements LauncherGuardInterface {
     @Override
     public Path getJavaBinPath() {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
-            String projectName = Launcher.getConfig().projectname;
-            String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
-            return DirBridge.getGuardDir().resolve(wrapperUnpackName);
-        } else if (ClientLauncher.getJavaBinPath() != null) {
             javaBinPath = ClientLauncher.getJavaBinPath();
             String projectName = Launcher.getConfig().projectname;
             String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
@@ -58,7 +54,7 @@ public class LauncherGravitGuard implements LauncherGuardInterface {
         } catch (IOException e) {
             throw new SecurityException(e);
         }
-        if (clientInstance) GravitGuardBridge.callGuard();
+        if (clientInstance && JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) GravitGuardBridge.callGuard();
     }
 
     @Override
