@@ -55,6 +55,15 @@ public class ClassMetadataReader implements Closeable {
     public void acceptVisitor(String className, ClassVisitor visitor) throws IOException {
         acceptVisitor(getClassData(className), visitor);
     }
+    
+    public void acceptVisitor(byte[] classData, ClassVisitor visitor, int flags) {
+        new ClassReader(classData).accept(visitor, flags);
+    }
+
+    public void acceptVisitor(String className, ClassVisitor visitor, int flags) throws IOException {
+        acceptVisitor(getClassData(className), visitor, flags);
+    }
+
 
     public byte[] getClassData(String className) throws IOException {
         for (JarFile f : cp) {
