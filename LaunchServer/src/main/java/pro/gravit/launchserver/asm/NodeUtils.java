@@ -3,6 +3,7 @@ package pro.gravit.launchserver.asm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.objectweb.asm.ClassReader;
@@ -42,16 +43,21 @@ public final class NodeUtils {
 	}
 
 	public static List<AnnotationNode> annots(String clazz, String method, ClassMetadataReader r) {
-		List<AnnotationNode> ret = new ArrayList<>();
-		ClassNode n = forClass(clazz, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG, r);
-		if (n.visibleAnnotations != null) ret.addAll(n.visibleAnnotations);
-		if (n.invisibleAnnotations != null) ret.addAll(n.invisibleAnnotations);
-		for (MethodNode m : n.methods)
-			if (method.equals(m.name)) {
-				if (m.visibleAnnotations != null) ret.addAll(m.visibleAnnotations);
-				if (m.invisibleAnnotations != null) ret.addAll(m.invisibleAnnotations);
-			}
-		return ret;
+		if (clazz.startsWith("L")) clazz = Type.getType(clazz).getInternalName();
+		try {
+			List<AnnotationNode> ret = new ArrayList<>();
+			ClassNode n = forClass(clazz, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG, r);
+			if (n.visibleAnnotations != null) ret.addAll(n.visibleAnnotations);
+			if (n.invisibleAnnotations != null) ret.addAll(n.invisibleAnnotations);
+			for (MethodNode m : n.methods)
+				if (method.equals(m.name)) {
+					if (m.visibleAnnotations != null) ret.addAll(m.visibleAnnotations);
+					if (m.invisibleAnnotations != null) ret.addAll(m.invisibleAnnotations);
+				}
+			return ret;
+		} catch (Throwable e) {
+			return Collections.emptyList();
+		}
 	}
 
     private static int doMethodEmulation(String desc) {
