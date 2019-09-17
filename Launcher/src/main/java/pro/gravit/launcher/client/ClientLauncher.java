@@ -32,6 +32,8 @@ import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherAgent;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.api.AuthService;
+import pro.gravit.launcher.api.ClientService;
 import pro.gravit.launcher.client.events.ClientLauncherInitPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.JSRuntimeProvider;
@@ -518,6 +520,11 @@ public final class ClientLauncher {
                 LogHelper.error(e);
             }
         };
+        AuthService.username = params.pp.username;
+        AuthService.uuid = params.pp.uuid;
+        ClientService.instrumentation = LauncherAgent.inst;
+        ClientService.classLoader = classLoader;
+        ClientService.baseURLs = classpathurls;
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
