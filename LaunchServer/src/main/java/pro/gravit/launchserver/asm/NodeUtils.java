@@ -44,12 +44,12 @@ public final class NodeUtils {
 	public static List<AnnotationNode> annots(String clazz, String method, ClassMetadataReader r) {
 		List<AnnotationNode> ret = new ArrayList<>();
 		ClassNode n = forClass(clazz, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG, r);
-		ret.addAll(n.visibleAnnotations);
-		ret.addAll(n.invisibleAnnotations);
+		if (n.visibleAnnotations != null) ret.addAll(n.visibleAnnotations);
+		if (n.invisibleAnnotations != null) ret.addAll(n.invisibleAnnotations);
 		for (MethodNode m : n.methods)
 			if (method.equals(m.name)) {
-				ret.addAll(n.visibleAnnotations);
-				ret.addAll(n.invisibleAnnotations);
+				if (m.visibleAnnotations != null) ret.addAll(m.visibleAnnotations);
+				if (m.invisibleAnnotations != null) ret.addAll(m.invisibleAnnotations);
 			}
 		return ret;
 	}
