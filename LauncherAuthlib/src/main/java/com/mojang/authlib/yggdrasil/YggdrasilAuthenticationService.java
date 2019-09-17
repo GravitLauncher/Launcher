@@ -10,7 +10,7 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 
 import pro.gravit.utils.helper.LogHelper;
 
-public final class YggdrasilAuthenticationService implements AuthenticationService {
+public class YggdrasilAuthenticationService implements AuthenticationService {
     public YggdrasilAuthenticationService(Proxy proxy, String clientToken) {
         LogHelper.debug("Patched AuthenticationService created: '%s'", clientToken);
     }

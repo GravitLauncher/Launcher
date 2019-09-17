@@ -9,7 +9,7 @@ import pro.gravit.utils.helper.LogHelper;
 
 // Used by 1.6.4 and below versions
 @LauncherAPI
-public final class LegacyBridge {
+public class LegacyBridge {
     public static boolean checkServer(String username, String serverID) throws Exception {
         LogHelper.debug("LegacyBridge.checkServer, Username: '%s', Server ID: %s", username, serverID);
         return new CheckServerRequest(username, serverID).request() != null;

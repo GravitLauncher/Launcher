@@ -14,7 +14,7 @@ import pro.gravit.utils.helper.LogHelper;
 
 // Used to bypass Launcher's class name obfuscation and access API
 @LauncherAPI
-public final class CompatBridge {
+public class CompatBridge {
     public static final int PROFILES_MAX_BATCH_SIZE = SerializeLimits.MAX_BATCH_SIZE;
 
     public static CompatProfile checkServer(String username, String serverID) throws Exception {

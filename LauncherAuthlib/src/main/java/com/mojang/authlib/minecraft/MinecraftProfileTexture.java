@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
-public final class MinecraftProfileTexture {
+public class MinecraftProfileTexture {
     public enum Type {
         SKIN,
         CAPE,
