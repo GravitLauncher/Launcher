@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import pro.gravit.launcher.client.ClientLauncher;
+import pro.gravit.launcher.client.ClientModuleManager;
 import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.utils.helper.EnvHelper;
 import pro.gravit.utils.helper.IOHelper;
@@ -26,6 +27,9 @@ public class ClientLauncherWrapper {
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
         LauncherConfig config = Launcher.getConfig();
+        LauncherEngine.modulesManager = new ClientModuleManager();
+        LauncherConfig.getAutogenConfig().initModules();
+
         LogHelper.info("Launcher for project %s", config.projectname);
         if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {
             if (System.getProperty(LogHelper.DEBUG_PROPERTY) != null) {
@@ -59,6 +63,7 @@ public class ClientLauncherWrapper {
         Collections.addAll(args, "-cp");
         Collections.addAll(args, pathLauncher);
         Collections.addAll(args, LauncherEngine.class.getName());
+        LauncherEngine.modulesManager.callWrapper(processBuilder, args);
         EnvHelper.addEnv(processBuilder);
         LogHelper.debug("Commandline: " + args);
         processBuilder.command(args);
