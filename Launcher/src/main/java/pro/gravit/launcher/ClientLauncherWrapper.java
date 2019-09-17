@@ -1,5 +1,6 @@
 package pro.gravit.launcher;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,6 +65,21 @@ public class ClientLauncherWrapper {
             LogHelper.debug("Found Java 9+ ( %s )", System.getProperty("java.version"));
             Collections.addAll(args, "--add-modules");
             Collections.addAll(args, "javafx.base,javafx.fxml,javafx.controls,jdk.unsupported");
+            Path jvmDir = Paths.get(System.getProperty("java.home"));
+            String pathToFx = System.getenv("PATH_TO_FX");
+            Path fxPath = pathToFx == null ? null : Paths.get(pathToFx);
+            StringBuilder builder = new StringBuilder();
+            Path[] findPath = new Path[]{jvmDir, fxPath};
+            tryAddModule(findPath, "javafx.base", builder);
+            tryAddModule(findPath, "javafx.graphics", builder);
+            tryAddModule(findPath, "javafx.fxml", builder);
+            tryAddModule(findPath, "javafx.controls", builder);
+            String modulePath = builder.toString();
+            if(!modulePath.isEmpty())
+            {
+                Collections.addAll(args, "--module-path");
+                Collections.addAll(args, modulePath);
+            }
         }
         Collections.addAll(args, MAGIC_ARG);
         Collections.addAll(args, "-XX:+DisableAttachMechanism");
@@ -90,5 +106,31 @@ public class ClientLauncherWrapper {
         } else {
             process.waitFor();
         }
+    }
+    public static Path tryFindModule(Path path, String moduleName)
+    {
+        Path result = path.resolve(moduleName.concat(".jar"));
+        LogHelper.dev("Try resolve %s", result.toString());
+        if(!IOHelper.isFile(result))
+            result = path.resolve("lib").resolve(moduleName.concat(".jar"));
+        else return result;
+        if(!IOHelper.isFile(result))
+            return null;
+        else return result;
+    }
+    public static boolean tryAddModule(Path[] paths, String moduleName, StringBuilder args)
+    {
+        for(Path path : paths)
+        {
+            if(path == null) continue;
+            Path result = tryFindModule(path, moduleName);
+            if(result != null)
+            {
+                if(args.length() != 0) args.append(File.pathSeparatorChar);
+                args.append(result.toAbsolutePath().toString());
+                return true;
+            }
+        }
+        return false;
     }
 }
