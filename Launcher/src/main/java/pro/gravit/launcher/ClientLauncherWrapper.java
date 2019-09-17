@@ -18,7 +18,9 @@ import pro.gravit.utils.helper.LogHelper;
 public class ClientLauncherWrapper {
     public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";
     public static final String WAIT_PROCESS_PROPERTY = "launcher.waitProcess";
+    public static final String NO_JAVA9_CHECK_PROPERTY = "launcher.noJava9Check";
     public static boolean waitProcess = Boolean.getBoolean(WAIT_PROCESS_PROPERTY);
+    public static boolean noJava9check = Boolean.getBoolean(NO_JAVA9_CHECK_PROPERTY);
 
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
@@ -57,6 +59,12 @@ public class ClientLauncherWrapper {
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_OPTDIR_PROPERTY);
+        if (!noJava9check && !System.getProperty("java.version").startsWith("1.8"))
+        {
+            LogHelper.debug("Found Java 9+ ( %s )", System.getProperty("java.version"));
+            Collections.addAll(args, "--add-modules");
+            Collections.addAll(args, "javafx.base,javafx.fxml,javafx.controls,jdk.unsupported");
+        }
         Collections.addAll(args, MAGIC_ARG);
         Collections.addAll(args, "-XX:+DisableAttachMechanism");
         Collections.addAll(args, "-javaagent:".concat(pathLauncher).concat("=pr"));
