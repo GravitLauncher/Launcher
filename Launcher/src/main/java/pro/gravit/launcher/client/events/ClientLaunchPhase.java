@@ -4,9 +4,9 @@ import pro.gravit.launcher.client.ClientLauncher;
 import pro.gravit.launcher.modules.LauncherModule;
 
 public class ClientLaunchPhase extends LauncherModule.Event {
-    public final ClientLauncher.Params params;
+    public final ClientLauncher.ClientLaunchContext context;
 
-    public ClientLaunchPhase(ClientLauncher.Params params) {
-        this.params = params;
+    public ClientLaunchPhase(ClientLauncher.ClientLaunchContext context) {
+        this.context = context;
     }
 }

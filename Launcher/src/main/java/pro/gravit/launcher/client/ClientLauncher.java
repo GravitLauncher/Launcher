@@ -36,6 +36,7 @@ import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
 import pro.gravit.launcher.client.events.ClientLaunchPhase;
 import pro.gravit.launcher.client.events.ClientLauncherInitPhase;
+import pro.gravit.launcher.client.events.ClientLauncherPostInitPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.hasher.FileNameMatcher;
@@ -437,6 +438,21 @@ public final class ClientLauncher {
         clientStarted = false;
         return process;
     }
+    public static class ClientLaunchContext
+    {
+        public final Params params;
+        public final ClientProfile profile;
+        public final HashedDir assetHDir, clientHDir;
+        public DirWatcher assetWatcher, clientWatcher;
+
+
+        public ClientLaunchContext(Params params, ClientProfile profile, HashedDir assetHDir, HashedDir clientHDir) {
+            this.params = params;
+            this.profile = profile;
+            this.assetHDir = assetHDir;
+            this.clientHDir = clientHDir;
+        }
+    }
 
     @LauncherAPI
     public static void main(String... args) throws Throwable {
@@ -477,11 +493,12 @@ public final class ClientLauncher {
             System.exit(-98);
             return;
         }
+        ClientLaunchContext context = new ClientLaunchContext(params, profile, assetHDir, clientHDir);
         Launcher.profile = profile;
         playerProfile = params.pp;
         Request.setSession(params.session);
         checkJVMBitsAndVersion();
-        LauncherEngine.modulesManager.invokeEvent(new ClientLauncherInitPhase());
+        LauncherEngine.modulesManager.invokeEvent(new ClientLauncherInitPhase(context));
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
@@ -537,14 +554,16 @@ public final class ClientLauncher {
             //    if (params.updateOptional.contains(s)) s.mark = true;
             //    else hdir.removeR(s.file);
             //}
+            context.assetWatcher = assetWatcher;
+            context.clientWatcher = clientWatcher;
             Launcher.profile.pushOptionalFile(clientHDir, false);
-            LauncherEngine.modulesManager.invokeEvent(new PostInitPhase());
+            LauncherEngine.modulesManager.invokeEvent(new ClientLauncherPostInitPhase(context));
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
             verifyHDir(params.assetDir, assetHDir, assetMatcher, digest);
             verifyHDir(params.clientDir, clientHDir, clientMatcher, digest);
-            LauncherEngine.modulesManager.invokeEvent(new ClientLaunchPhase(params));
+            LauncherEngine.modulesManager.invokeEvent(new ClientLaunchPhase(context));
             launch(profile, params);
         }
     }
