@@ -31,9 +31,9 @@ public class GetUserCommand extends Command {
             return;
         }
         LogHelper.info("[%s] UUID: %s", user.username, user.uuid.toString());
-        for(UserHWID hwid : user.hwids)
-        {
-            LogHelper.info("[%s] HWID: memory: %d | serial %s | hwdiskserial: %s | processorID %s | macAddr %s", user.username, hwid.totalMemory, hwid.serialNumber, hwid.HWDiskSerial, hwid.processorID, hwid.macAddr);
-        }
+        //for(UserHWID hwid : user.hwids)
+        //{
+        //    LogHelper.info("[%s] HWID: memory: %d | serial %s | hwdiskserial: %s | processorID %s | macAddr %s", user.username, hwid.totalMemory, hwid.serialNumber, hwid.HWDiskSerial, hwid.processorID, hwid.macAddr);
+        //}
     }
 }
