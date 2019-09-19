@@ -34,6 +34,7 @@ import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
+import pro.gravit.launcher.client.events.ClientLaunchPhase;
 import pro.gravit.launcher.client.events.ClientLauncherInitPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.JSRuntimeProvider;
@@ -543,6 +544,7 @@ public final class ClientLauncher {
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
             verifyHDir(params.assetDir, assetHDir, assetMatcher, digest);
             verifyHDir(params.clientDir, clientHDir, clientMatcher, digest);
+            LauncherEngine.modulesManager.invokeEvent(new ClientLaunchPhase(params));
             launch(profile, params);
         }
     }

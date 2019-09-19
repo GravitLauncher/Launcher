@@ -39,12 +39,6 @@ public class User {
     public String serverID;
     private String password_salt;
     public long permissions;
-    //TODO: заменить EAGER на LASY и придумать способ сохранить сессию
-    // [ERROR] org.hibernate.LazyInitializationException:
-    // failed to lazily initialize a collection of role: pro.gravit.launchserver.dao.User.hwids, could not initialize proxy - no Session
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    public Collection<UserHWID> hwids;
     public void setPassword(String password)
     {
         password_salt = SecurityHelper.randomStringAESKey();
