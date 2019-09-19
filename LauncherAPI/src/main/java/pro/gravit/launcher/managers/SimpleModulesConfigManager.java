@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import pro.gravit.launcher.config.SimpleConfigurable;
 import pro.gravit.launcher.modules.ModulesConfigManager;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -33,5 +34,10 @@ public class SimpleModulesConfigManager implements ModulesConfigManager {
             }
         }
         return configDir.resolve(moduleName);
+    }
+
+    @Override
+    public <T> SimpleConfigurable<T> getConfigurable(Class<T> tClass, Path configPath) {
+        return new SimpleConfigurable<>(tClass, configPath);
     }
 }

@@ -102,9 +102,4 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
     public void saveHDirStore() throws IOException {
         saveHDirStore(DirBridge.dirProjectStore);
     }
-
-    @Override
-    public void setType(Type type) {
-        super.setType(type);
-    }
 }
