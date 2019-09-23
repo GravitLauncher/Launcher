@@ -1,12 +1,12 @@
 package pro.gravit.launcher.client.events;
 
 import pro.gravit.launcher.client.ClientLauncher;
-import pro.gravit.launcher.modules.events.InitPhase;
+import pro.gravit.launcher.modules.LauncherModule;
 
-public class ClientLauncherInitPhase extends InitPhase {
+public class ClientLaunchPhase extends LauncherModule.Event {
     public final ClientLauncher.ClientLaunchContext context;
 
-    public ClientLauncherInitPhase(ClientLauncher.ClientLaunchContext context) {
+    public ClientLaunchPhase(ClientLauncher.ClientLaunchContext context) {
         this.context = context;
     }
 }
