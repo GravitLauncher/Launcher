@@ -414,9 +414,16 @@ public final class ClientLauncher {
             builder.redirectErrorStream(true);
             builder.redirectOutput(Redirect.PIPE);
         }
+        List<String> command = builder.command();
         // Let's rock!
         ClientHookManager.preStartHook.hook(context, builder);
         process = builder.start();
+        if (builder.command() != command) {
+        	LogHelper.error("Something strange cheating...");
+            System.exit(100);
+        	clientStarted = false;
+            return null;
+        }
         if(ClientHookManager.postStartHook.hook(context, builder)) return process;
         if (!pipeOutput) {
             for (int i = 0; i < 50; ++i) {
