@@ -9,7 +9,6 @@ import java.util.jar.JarFile;
 import cpw.mods.fml.SafeExitJVMLegacy;
 import net.minecraftforge.fml.SafeExitJVM;
 import pro.gravit.launcher.utils.NativeJVMHalt;
-import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 @LauncherAPI
@@ -38,7 +37,6 @@ public final class LauncherAgent {
         SafeExitJVM.class.getName();
         NativeJVMHalt.class.getName();
         NativeJVMHalt.initFunc();
-        JVMHelper.checkStackTrace(LauncherAgent.class);
         boolean bad = false;
         try {
         	for (StackTraceElement e : new Throwable().getStackTrace())
