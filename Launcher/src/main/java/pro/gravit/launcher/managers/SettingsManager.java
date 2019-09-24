@@ -1,7 +1,6 @@
 package pro.gravit.launcher.managers;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
