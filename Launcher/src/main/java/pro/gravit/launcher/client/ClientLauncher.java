@@ -44,7 +44,6 @@ import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
-import pro.gravit.launcher.modules.events.PostInitPhase;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
@@ -55,6 +54,7 @@ import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.launcher.utils.DirWatcher;
+import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.CommonHelper;
@@ -463,6 +463,10 @@ public final class ClientLauncher {
         LauncherEngine.modulesManager.initModules(null);
         initGson(LauncherEngine.modulesManager);
         //Launcher.modulesManager.preInitModules();
+        if (!LauncherAgent.isStarted()) {
+        	NativeJVMHalt.haltA(100);
+        	return;
+        }
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();
