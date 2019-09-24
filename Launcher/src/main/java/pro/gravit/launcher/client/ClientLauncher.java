@@ -304,11 +304,11 @@ public final class ClientLauncher {
         LogHelper.debug("Args: " + copy);
         // Resolve main class and method
         Class<?> mainClass = classLoader.loadClass(profile.getMainClass());
-        MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
+        MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
         // Invoke main method
-        mainMethod.invoke((Object) args.toArray(new String[0]));
+        mainMethod.invokeWithArguments((Object)args.toArray(new String[0]));
     }
 
 	private static Process process = null;
