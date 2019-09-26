@@ -23,19 +23,15 @@ public class LauncherGravitGuard implements LauncherGuardInterface {
 
     @Override
     public String getName() {
-        return "wrapper";
+        return "gravitguard";
     }
 
     @Override
     public Path getJavaBinPath() {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
-            String projectName = Launcher.getConfig().projectname;
-            String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
-            return DirBridge.getGuardDir().resolve(wrapperUnpackName);
-        } else if (ClientLauncher.getJavaBinPath() != null) {
             javaBinPath = ClientLauncher.getJavaBinPath();
             String projectName = Launcher.getConfig().projectname;
-            String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
+            String wrapperUnpackName = ( javaBinPath == null ? JVMHelper.JVM_BITS : JVMHelper.OS_BITS ) == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
             return DirBridge.getGuardDir().resolve(wrapperUnpackName);
         } else
             return IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
@@ -43,22 +39,26 @@ public class LauncherGravitGuard implements LauncherGuardInterface {
 
     @Override
     public int getClientJVMBits() {
-        return JVMHelper.JVM_BITS;
+        //При использовании GravitGuard без своей джавы
+        //Если при запуске лаунчера используется 32 бит джава, а ОС 64бит
+        //То в окне настроек будет отображаться >1.5Гб доступной памяти
+        //Однако при выставлении >1.5Гб JVM x32 работать откажеться
+        return JVMHelper.OS_BITS;
     }
 
     @Override
     public void init(boolean clientInstance) {
         try {
-            String wrapperName = JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe";
             String projectName = Launcher.getConfig().projectname;
-            String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
-            String antiInjectName = JVMHelper.JVM_BITS == 64 ? "AntiInject64.dll" : "AntiInject32.dll";
-            UnpackHelper.unpack(Launcher.getResourceURL(wrapperName, "guard"), DirBridge.getGuardDir().resolve(wrapperUnpackName));
-            UnpackHelper.unpack(Launcher.getResourceURL(antiInjectName, "guard"), DirBridge.getGuardDir().resolve(antiInjectName));
+            UnpackHelper.unpack(Launcher.getResourceURL("wrapper32.exe", "guard"), DirBridge.getGuardDir().resolve(projectName.concat("64.exe")));
+            UnpackHelper.unpack(Launcher.getResourceURL("AntiInject64.dll", "guard"), DirBridge.getGuardDir().resolve("AntiInject64.dll"));
+
+            UnpackHelper.unpack(Launcher.getResourceURL("wrapper32.exe", "guard"), DirBridge.getGuardDir().resolve(projectName.concat("32.exe")));
+            UnpackHelper.unpack(Launcher.getResourceURL("AntiInject32.dll", "guard"), DirBridge.getGuardDir().resolve("AntiInject32.dll"));
         } catch (IOException e) {
             throw new SecurityException(e);
         }
-        if (clientInstance) GravitGuardBridge.callGuard();
+        if (clientInstance && JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) GravitGuardBridge.callGuard();
     }
 
     @Override

@@ -76,6 +76,7 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
                             LogHelper.debug("Copy file %s to %s", ret.toAbsolutePath().toString(), source.toAbsolutePath().toString());
                         }
                         //Let's go!
+                        Files.deleteIfExists(source);
                         Files.copy(ret, source);
                         try (InputStream input = IOHelper.newInput(ret)) {
                             IOHelper.transfer(input, source);

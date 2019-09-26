@@ -14,7 +14,7 @@ import pro.gravit.launcher.serialize.SerializeLimits;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
-public final class YggdrasilGameProfileRepository implements GameProfileRepository {
+public class YggdrasilGameProfileRepository implements GameProfileRepository {
     private static final long BUSY_WAIT_MS = VerifyHelper.verifyLong(
             Long.parseLong(System.getProperty("launcher.com.mojang.authlib.busyWait", Long.toString(100L))),
             VerifyHelper.L_NOT_NEGATIVE, "launcher.com.mojang.authlib.busyWait can't be < 0");

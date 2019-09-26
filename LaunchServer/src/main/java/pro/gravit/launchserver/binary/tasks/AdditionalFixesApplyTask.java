@@ -77,7 +77,7 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                         try {
                         	bytes = classFix(bytes, reader, srv.config.launcher.stripLineNumbers);
                         } catch (Throwable t) {
-                        	LogHelper.subWarning("Error on fixing class: " +  t);
+                        	LogHelper.error(t);
                         }
                         output.write(bytes);
                     } else

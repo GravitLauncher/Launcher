@@ -4,7 +4,7 @@ plugins {
     id 'signing'
 }
 group = 'pro.gravit.launcher'
-version = '5.0.8'
+version = '5.0.9'
 
 configure(subprojects.findAll { it.name != 'modules' }) {
     apply plugin: 'idea'

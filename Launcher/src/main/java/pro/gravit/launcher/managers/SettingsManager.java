@@ -1,7 +1,6 @@
 package pro.gravit.launcher.managers;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -101,10 +100,5 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
     @LauncherAPI
     public void saveHDirStore() throws IOException {
         saveHDirStore(DirBridge.dirProjectStore);
-    }
-
-    @Override
-    public void setType(Type type) {
-        super.setType(type);
     }
 }

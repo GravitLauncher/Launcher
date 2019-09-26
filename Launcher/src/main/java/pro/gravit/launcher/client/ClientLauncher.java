@@ -32,7 +32,11 @@ import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherAgent;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.api.AuthService;
+import pro.gravit.launcher.api.ClientService;
+import pro.gravit.launcher.client.events.ClientLaunchPhase;
 import pro.gravit.launcher.client.events.ClientLauncherInitPhase;
+import pro.gravit.launcher.client.events.ClientLauncherPostInitPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.hasher.FileNameMatcher;
@@ -40,7 +44,6 @@ import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
-import pro.gravit.launcher.modules.events.PostInitPhase;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
@@ -51,6 +54,7 @@ import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.launcher.utils.DirWatcher;
+import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.CommonHelper;
@@ -300,11 +304,11 @@ public final class ClientLauncher {
         LogHelper.debug("Args: " + copy);
         // Resolve main class and method
         Class<?> mainClass = classLoader.loadClass(profile.getMainClass());
-        MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
+        MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
         // Invoke main method
-        mainMethod.invoke((Object) args.toArray(new String[0]));
+        mainMethod.invokeWithArguments((Object)args.toArray(new String[0]));
     }
 
 	private static Process process = null;
@@ -410,9 +414,16 @@ public final class ClientLauncher {
             builder.redirectErrorStream(true);
             builder.redirectOutput(Redirect.PIPE);
         }
+        List<String> command = builder.command();
         // Let's rock!
         ClientHookManager.preStartHook.hook(context, builder);
         process = builder.start();
+        if (builder.command() != command) {
+        	LogHelper.error("Something strange cheating...");
+            System.exit(100);
+        	clientStarted = false;
+            return null;
+        }
         if(ClientHookManager.postStartHook.hook(context, builder)) return process;
         if (!pipeOutput) {
             for (int i = 0; i < 50; ++i) {
@@ -434,6 +445,21 @@ public final class ClientLauncher {
         clientStarted = false;
         return process;
     }
+    public static class ClientLaunchContext
+    {
+        public final Params params;
+        public final ClientProfile profile;
+        public final HashedDir assetHDir, clientHDir;
+        public DirWatcher assetWatcher, clientWatcher;
+
+
+        public ClientLaunchContext(Params params, ClientProfile profile, HashedDir assetHDir, HashedDir clientHDir) {
+            this.params = params;
+            this.profile = profile;
+            this.assetHDir = assetHDir;
+            this.clientHDir = clientHDir;
+        }
+    }
 
     @LauncherAPI
     public static void main(String... args) throws Throwable {
@@ -444,6 +470,10 @@ public final class ClientLauncher {
         LauncherEngine.modulesManager.initModules(null);
         initGson(LauncherEngine.modulesManager);
         //Launcher.modulesManager.preInitModules();
+        if (!LauncherAgent.isStarted()) {
+        	NativeJVMHalt.haltA(100);
+        	return;
+        }
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();
@@ -474,11 +504,12 @@ public final class ClientLauncher {
             System.exit(-98);
             return;
         }
+        ClientLaunchContext context = new ClientLaunchContext(params, profile, assetHDir, clientHDir);
         Launcher.profile = profile;
         playerProfile = params.pp;
         Request.setSession(params.session);
         checkJVMBitsAndVersion();
-        LauncherEngine.modulesManager.invokeEvent(new ClientLauncherInitPhase());
+        LauncherEngine.modulesManager.invokeEvent(new ClientLauncherInitPhase(context));
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
@@ -518,6 +549,11 @@ public final class ClientLauncher {
                 LogHelper.error(e);
             }
         };
+        AuthService.username = params.pp.username;
+        AuthService.uuid = params.pp.uuid;
+        ClientService.instrumentation = LauncherAgent.inst;
+        ClientService.classLoader = classLoader;
+        ClientService.baseURLs = classpathurls;
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
@@ -529,13 +565,16 @@ public final class ClientLauncher {
             //    if (params.updateOptional.contains(s)) s.mark = true;
             //    else hdir.removeR(s.file);
             //}
+            context.assetWatcher = assetWatcher;
+            context.clientWatcher = clientWatcher;
             Launcher.profile.pushOptionalFile(clientHDir, false);
-            LauncherEngine.modulesManager.invokeEvent(new PostInitPhase());
+            LauncherEngine.modulesManager.invokeEvent(new ClientLauncherPostInitPhase(context));
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
             verifyHDir(params.assetDir, assetHDir, assetMatcher, digest);
             verifyHDir(params.clientDir, clientHDir, clientMatcher, digest);
+            LauncherEngine.modulesManager.invokeEvent(new ClientLaunchPhase(context));
             launch(profile, params);
         }
     }

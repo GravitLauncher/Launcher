@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.FileNameMatcher;
@@ -100,6 +101,12 @@ public class FunctionalBridge {
             Request.setSession(event.session);
         }
         LauncherGuardManager.guard.setProtectToken(event.protectToken);
+        AuthService.permissions = event.permissions;
+        if(event.playerProfile != null)
+        {
+            AuthService.username = event.playerProfile.username;
+            AuthService.uuid = event.playerProfile.uuid;
+        }
     }
 
     @FunctionalInterface

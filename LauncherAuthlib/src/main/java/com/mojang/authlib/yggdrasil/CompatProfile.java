@@ -8,7 +8,7 @@ import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.utils.helper.SecurityHelper;
 
 @LauncherAPI
-public final class CompatProfile {
+public class CompatProfile {
     public static final String SKIN_URL_PROPERTY = Launcher.SKIN_URL_PROPERTY;
     public static final String SKIN_DIGEST_PROPERTY = Launcher.SKIN_DIGEST_PROPERTY;
     public static final String CLOAK_URL_PROPERTY = Launcher.CLOAK_URL_PROPERTY;
