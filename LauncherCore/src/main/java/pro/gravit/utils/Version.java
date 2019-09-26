@@ -24,7 +24,7 @@ public final class Version {
     public static final int MINOR = 0;
     public static final int PATCH = 9;
     public static final int BUILD = 1;
-    public static final Version.Type RELEASE = Type.DEV;
+    public static final Version.Type RELEASE = Type.STABLE;
 
     @LauncherAPI
     public Version(int major, int minor, int patch) {
