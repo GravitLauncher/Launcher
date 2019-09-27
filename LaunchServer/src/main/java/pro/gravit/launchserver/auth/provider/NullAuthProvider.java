@@ -3,13 +3,16 @@ package pro.gravit.launchserver.auth.provider;
 import java.io.IOException;
 import java.util.Objects;
 
+import pro.gravit.launcher.request.auth.AuthRequest;
+import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
+import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public final class NullAuthProvider extends AuthProvider {
     private volatile AuthProvider provider;
 
     @Override
-    public AuthProviderResult auth(String login, String password, String ip) throws Exception {
+    public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws Exception {
         return getProvider().auth(login, password, ip);
     }
 

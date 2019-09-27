@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import pro.gravit.launcher.ClientPermissions;
+import pro.gravit.launcher.request.auth.AuthRequest;
+import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.PostgreSQLSourceConfig;
 import pro.gravit.utils.helper.CommonHelper;
@@ -20,9 +22,10 @@ public final class PostgreSQLAuthProvider extends AuthProvider {
     private boolean usePermission;
 
     @Override
-    public AuthProviderResult auth(String login, String password, String ip) throws SQLException, AuthException {
+    public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws SQLException, AuthException {
+        if(!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
         try (Connection c = postgreSQLHolder.getConnection(); PreparedStatement s = c.prepareStatement(query)) {
-            String[] replaceParams = {"login", login, "password", password, "ip", ip};
+            String[] replaceParams = {"login", login, "password", ((AuthPlainPassword) password).password, "ip", ip};
             for (int i = 0; i < queryParams.length; i++) {
                 s.setString(i + 1, CommonHelper.replace(queryParams[i], replaceParams));
             }

@@ -2,6 +2,7 @@ package pro.gravit.launchserver.auth.provider;
 
 import java.io.IOException;
 
+import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.utils.ProviderMap;
@@ -39,9 +40,9 @@ public abstract class AuthProvider implements AutoCloseable {
      * Throws an exception {@link AuthException} {@link pro.gravit.utils.HookException} if the verification script returned a meaningful error
      * In other cases, throwing an exception indicates a serious error
      */
-    public abstract AuthProviderResult auth(String login, String password, String ip) throws Exception;
+    public abstract AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws Exception;
 
-    public void preAuth(String login, String password, String customText, String ip) {
+    public void preAuth(String login, AuthRequest.AuthPasswordInterface password, String customText, String ip) {
     }
 
     @Override

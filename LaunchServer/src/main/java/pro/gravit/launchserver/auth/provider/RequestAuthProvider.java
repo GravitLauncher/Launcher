@@ -6,7 +6,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import pro.gravit.launcher.ClientPermissions;
+import pro.gravit.launcher.request.auth.AuthRequest;
+import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -27,8 +30,9 @@ public final class RequestAuthProvider extends AuthProvider {
     }
 
     @Override
-    public AuthProviderResult auth(String login, String password, String ip) throws IOException {
-        String currentResponse = IOHelper.request(new URL(getFormattedURL(login, password, ip)));
+    public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws IOException {
+        if(!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
+        String currentResponse = IOHelper.request(new URL(getFormattedURL(login, ((AuthPlainPassword) password).password, ip)));
 
         // Match username
         Matcher matcher = pattern.matcher(currentResponse);

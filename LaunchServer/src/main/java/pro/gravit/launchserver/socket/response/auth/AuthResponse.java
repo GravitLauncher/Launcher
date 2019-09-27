@@ -13,6 +13,9 @@ import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.request.auth.AuthRequest;
+import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
+import pro.gravit.launcher.request.auth.password.AuthRSAPassword;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.hwid.HWIDException;
@@ -34,15 +37,7 @@ public class AuthResponse extends SimpleResponse {
     public String customText;
     public boolean getSession;
 
-    public String password;
-    public byte[] encryptedPassword;
-
-    public AuthResponse(String login, String password, String auth_id, OshiHWID hwid) {
-        this.login = login;
-        this.password = password;
-        this.auth_id = auth_id;
-        this.hwid = hwid;
-    }
+    public AuthRequest.AuthPasswordInterface password;
 
     public String auth_id;
     public ConnectTypes authType;
@@ -65,10 +60,11 @@ public class AuthResponse extends SimpleResponse {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
             }
-            if (password == null) {
+            if(password instanceof AuthRSAPassword)
+            {
                 try {
-                    password = IOHelper.decode(SecurityHelper.newRSADecryptCipher(server.privateKey).
-                            doFinal(encryptedPassword));
+                password = new AuthPlainPassword(IOHelper.decode(SecurityHelper.newRSADecryptCipher(server.privateKey).
+                        doFinal(((AuthRSAPassword) password).password)));
                 } catch (IllegalBlockSizeException | BadPaddingException ignored) {
                     throw new AuthException("Password decryption error");
                 }
@@ -76,7 +72,7 @@ public class AuthResponse extends SimpleResponse {
             AuthProviderPair pair;
             if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
             else pair = server.config.getAuthProviderPair(auth_id);
-            AuthContext context = new AuthContext(0, login, password.length(), customText, client, null, ip, authType);
+            AuthContext context = new AuthContext(0, login, customText, client, null, ip, authType);
             AuthProvider provider = pair.provider;
             server.authHookManager.preHook.hook(context, clientData);
             provider.preAuth(login, password, customText, ip);
@@ -135,10 +131,9 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public static class AuthContext {
-        public AuthContext(long session, String login, int password_length, String customText, String client, String hwid, String ip, ConnectTypes authType) {
+        public AuthContext(long session, String login, String customText, String client, String hwid, String ip, ConnectTypes authType) {
             this.session = session;
             this.login = login;
-            this.password_length = password_length;
             this.customText = customText;
             this.client = client;
             this.hwid = hwid;
@@ -148,6 +143,7 @@ public class AuthResponse extends SimpleResponse {
 
         public long session;
         public String login;
+        @Deprecated
         public int password_length; //Use AuthProvider for get password
         public String client;
         public String hwid;
