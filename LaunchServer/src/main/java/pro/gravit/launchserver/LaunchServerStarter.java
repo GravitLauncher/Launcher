@@ -13,6 +13,7 @@ import java.security.interfaces.RSAPublicKey;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
+import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.hwid.HWIDHandler;
 import pro.gravit.launchserver.auth.permissions.PermissionsHandler;
@@ -190,6 +191,7 @@ public class LaunchServerStarter {
         WebSocketService.registerResponses();
         HWIDProvider.registerHWIDs();
         DaoProvider.registerProviders();
+        AuthRequest.registerProviders();
     }
 
     public static void generateConfigIfNotExists(Path configFile, CommandHandler commandHandler, LaunchServer.LaunchServerEnv env) throws IOException {
