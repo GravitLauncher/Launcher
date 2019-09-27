@@ -323,41 +323,7 @@ public final class ClientLauncher {
         LogHelper.debug("Writing ClientLauncher params");
         ClientLauncherContext context = new ClientLauncherContext();
         clientStarted = false;
-        if (writeParamsThread != null && writeParamsThread.isAlive()) {
-            writeParamsThread.interrupt();
-        }
-        writeParamsThread = CommonHelper.newThread("Client params writter", true, () ->
-        {
-            try {
-                try (ServerSocket socket = new ServerSocket()) {
-
-                    socket.setReuseAddress(true);
-                    socket.setSoTimeout(30000);
-                    socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
-                    Socket client = socket.accept();
-                    if (process == null) {
-                        LogHelper.error("Process is null");
-                        return;
-                    }
-                    if (!process.isAlive()) {
-                        LogHelper.error("Process is not alive");
-                        JOptionPane.showMessageDialog(null, "Client Process crashed", "Launcher", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    try (HOutput output = new HOutput(client.getOutputStream())) {
-                        params.write(output);
-                        output.writeString(Launcher.gsonManager.gson.toJson(profile), 0);
-                        assetHDir.write(output);
-                        clientHDir.write(output);
-                        ClientHookManager.paramsOutputHook.hook(output);
-                    }
-                    clientStarted = true;
-                }
-            } catch (IOException e) {
-                LogHelper.error(e);
-            }
-        });
-        writeParamsThread.start();
+        container.write(new ParamContainer(params, profile, assetHDir, clientHDir));
         checkJVMBitsAndVersion();
         LogHelper.debug("Resolving JVM binary");
         Path javaBin = LauncherGuardManager.getGuardJavaBinPath();
@@ -485,25 +451,10 @@ public final class ClientLauncher {
         HWIDProvider.registerHWIDs();
         LauncherGuardManager.initGuard(true);
         LogHelper.debug("Reading ClientLauncher params");
-        Params params;
-        ClientProfile profile;
-        HashedDir assetHDir, clientHDir;
-        try {
-            try (Socket socket = IOHelper.newSocket()) {
-                socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
-                try (HInput input = new HInput(socket.getInputStream())) {
-                    params = new Params(input);
-                    profile = Launcher.gsonManager.gson.fromJson(input.readString(0), ClientProfile.class);
-                    assetHDir = new HashedDir(input);
-                    clientHDir = new HashedDir(input);
-                    ClientHookManager.paramsInputHook.hook(input);
-                }
-            }
-        } catch (IOException ex) {
-            LogHelper.error(ex);
-            System.exit(-98);
-            return;
-        }
+        ParamContainer p = container.read();
+        Params params = p.params;
+        ClientProfile profile = p.profile;
+        HashedDir assetHDir = p.assetHDir, clientHDir = p.clientHDir;
         ClientLaunchContext context = new ClientLaunchContext(params, profile, assetHDir, clientHDir);
         Launcher.profile = profile;
         playerProfile = params.pp;
@@ -634,5 +585,99 @@ public final class ClientLauncher {
     }
 
     private ClientLauncher() {
+    }
+
+    public static interface ParamsAPI {
+    	ParamContainer read() throws Exception;
+    	void write(ParamContainer p) throws Exception;
+    }
+    
+    public static ParamsAPI container = new ParamsAPI() {
+		@Override
+		public ParamContainer read() throws Exception {
+			ParamContainer p = new ParamContainer();
+            try (Socket socket = IOHelper.newSocket()) {
+                socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
+                try (HInput input = new HInput(socket.getInputStream())) {
+                    p.params = new Params(input);
+                    p.profile = Launcher.gsonManager.gson.fromJson(input.readString(0), ClientProfile.class);
+                    p.assetHDir = new HashedDir(input);
+                    p.clientHDir = new HashedDir(input);
+                    ClientHookManager.paramsInputHook.hook(input);
+                }
+            }
+            return p;
+		}
+		@Override
+		public void write(ParamContainer p) throws Exception {
+	        if (writeParamsThread != null && writeParamsThread.isAlive())
+	            writeParamsThread.interrupt();
+	        writeParamsThread = CommonHelper.newThread("Client params writter", true, () ->
+	        {
+	            try {
+	                try (ServerSocket socket = new ServerSocket()) {
+	                    socket.setReuseAddress(true);
+	                    socket.setSoTimeout(30000);
+	                    socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
+	                    Socket client = socket.accept();
+	                    if (process == null) {
+	                        LogHelper.error("Process is null");
+	                        return;
+	                    }
+	                    if (!process.isAlive()) {
+	                        LogHelper.error("Process is not alive");
+	                        JOptionPane.showMessageDialog(null, "Client Process crashed", "Launcher", JOptionPane.ERROR_MESSAGE);
+	                        return;
+	                    }
+	                    try (HOutput output = new HOutput(client.getOutputStream())) {
+	                        p.params.write(output);
+	                        output.writeString(Launcher.gsonManager.gson.toJson(p.profile), 0);
+	                        p.assetHDir.write(output);
+	                        p.clientHDir.write(output);
+	                        ClientHookManager.paramsOutputHook.hook(output);
+	                    }
+	                    clientStarted = true;
+	                }
+	            } catch (IOException e) {
+	                LogHelper.error(e);
+	            }
+	        });
+	        writeParamsThread.start();
+		}
+    	
+    };
+
+    public static class ParamContainer extends StreamObject {
+
+        public ParamContainer(HInput input) throws Exception {
+            params = new Params(input);
+            profile = Launcher.gsonManager.gson.fromJson(input.readString(0), ClientProfile.class);
+            assetHDir = new HashedDir(input);
+            clientHDir = new HashedDir(input);
+            ClientHookManager.paramsInputHook.hook(input);
+        }
+
+        public ParamContainer() {
+        }
+
+        public ParamContainer(Params params, ClientProfile profile,  HashedDir assetHDir, HashedDir clientHDir) {
+        	this.params = params;
+        	this.profile = profile;
+        	this.assetHDir = assetHDir;
+        	this.clientHDir = clientHDir;
+        }
+
+        public Params params;
+        public ClientProfile profile;
+        public HashedDir assetHDir, clientHDir;
+
+		@Override
+		public void write(HOutput output) throws IOException {
+            params.write(output);
+            output.writeString(Launcher.gsonManager.gson.toJson(profile), 0);
+            assetHDir.write(output);
+            clientHDir.write(output);
+            ClientHookManager.paramsOutputHook.hook(output);
+		}
     }
 }
