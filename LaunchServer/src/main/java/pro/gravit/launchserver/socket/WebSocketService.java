@@ -37,7 +37,6 @@ import pro.gravit.utils.helper.LogHelper;
 public class WebSocketService {
     public final ChannelGroup channels;
     public static ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
-    public final BiHookSet<TextWebSocketFrame, ChannelHandlerContext> packetHook = new BiHookSet<>();
     public static class WebSocketRequestContext
     {
         public WebSocketServerResponse response;
@@ -65,7 +64,6 @@ public class WebSocketService {
     private final Gson gson;
 
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
-        if (packetHook.hook(frame, ctx)) return;
         String request = frame.text();
         WebSocketServerResponse response = gson.fromJson(request, WebSocketServerResponse.class);
         process(ctx, response, client, ip);
