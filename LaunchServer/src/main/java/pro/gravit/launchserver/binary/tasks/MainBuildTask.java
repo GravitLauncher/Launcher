@@ -8,6 +8,8 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -133,6 +135,11 @@ public class MainBuildTask implements LauncherBuildTask {
             launcherConfigurator.setGuardType(server.config.launcher.guardType);
             launcherConfigurator.setWarningMissArchJava(server.config.launcher.warningMissArchJava);
             launcherConfigurator.setEnv(server.config.env);
+            String launcherSalt = SecurityHelper.randomStringToken();
+            byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
+                    server.runtime.clientCheckSecret.concat(".").concat(launcherSalt));
+            launcherConfigurator.setSecureCheck(Base64.getEncoder().encodeToString(launcherSecureHash), launcherSalt);
+            //LogHelper.debug("[checkSecure] %s: %s", launcherSalt, Arrays.toString(launcherSecureHash));
             if (server.runtime.oemUnlockKey == null) server.runtime.oemUnlockKey = SecurityHelper.randomStringToken();
             launcherConfigurator.setOemUnlockKey(server.runtime.oemUnlockKey);
             server.buildHookManager.registerAllClientModuleClass(launcherConfigurator);

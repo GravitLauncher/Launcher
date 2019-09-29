@@ -10,6 +10,8 @@ public class AutogenConfig {
     public String guardLicenseName;
     public String guardLicenseKey;
     public String guardLicenseEncryptKey;
+    public String secureCheckHash;
+    public String secureCheckSalt;
     public int env;
     public boolean isWarningMissArchJava;
     // 0 - Dev (дебаг включен по умолчанию, все сообщения)
