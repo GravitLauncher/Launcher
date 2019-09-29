@@ -56,15 +56,15 @@ public class LauncherNettyServer implements AutoCloseable {
                         ChannelPipeline pipeline = ch.pipeline();
                         NettyConnectContext context = new NettyConnectContext();
                         //p.addLast(new LoggingHandler(LogLevel.INFO));
-                        pipeline.addLast("httpc", new HttpServerCodec());
-                        pipeline.addLast("httpca",new HttpObjectAggregator(65536));
+                        pipeline.addLast("http-codec", new HttpServerCodec());
+                        pipeline.addLast("http-codec-compressor",new HttpObjectAggregator(65536));
                         if (server.config.netty.ipForwarding)
-                            pipeline.addLast("forward", new NettyIpForwardHandler(context));
-                        pipeline.addLast("decomp", new WebSocketServerCompressionHandler());
-                        pipeline.addLast("decoder", new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
+                            pipeline.addLast("forward-http", new NettyIpForwardHandler(context));
+                        pipeline.addLast("websock-comp", new WebSocketServerCompressionHandler());
+                        pipeline.addLast("websock-codec", new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
                         if (server.config.netty.fileServerEnabled)
-                            pipeline.addLast(new FileServerHandler(server.updatesDir, true, config.showHiddenFiles));
-                        pipeline.addLast("final", new WebSocketFrameHandler(context, server, service));
+                            pipeline.addLast("fileserver", new FileServerHandler(server.updatesDir, true, config.showHiddenFiles));
+                        pipeline.addLast("launchserver", new WebSocketFrameHandler(context, server, service));
                         pipelineHook.hook(context, ch);
                     }
                 });
