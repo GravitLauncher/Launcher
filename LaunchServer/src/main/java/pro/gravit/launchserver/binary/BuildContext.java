@@ -49,7 +49,7 @@ public class BuildContext {
     public void pushJarFile(ZipInputStream input, Set<String> blacklist) throws IOException {
         ZipEntry e = input.getNextEntry();
         while (e != null) {
-            if (blacklist.contains(e.getName())) {
+            if (fileList.contains(e.getName()) || blacklist.contains(e.getName())) {
                 e = input.getNextEntry();
                 continue;
             }
