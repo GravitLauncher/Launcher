@@ -6,9 +6,6 @@ import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
 import java.util.jar.JarFile;
 
-import cpw.mods.fml.SafeExitJVMLegacy;
-import net.minecraftforge.fml.SafeExitJVM;
-import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.helper.LogHelper;
 
 @LauncherAPI

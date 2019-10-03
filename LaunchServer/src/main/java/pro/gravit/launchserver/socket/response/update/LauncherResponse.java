@@ -8,7 +8,6 @@ import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 public class LauncherResponse extends SimpleResponse {
