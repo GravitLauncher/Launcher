@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.Objects;
 
 import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
-import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public final class NullAuthProvider extends AuthProvider {
