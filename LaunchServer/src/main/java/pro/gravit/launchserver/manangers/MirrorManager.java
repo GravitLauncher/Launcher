@@ -1,33 +1,36 @@
 package pro.gravit.launchserver.manangers;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import com.google.gson.JsonElement;
+import pro.gravit.utils.HTTPRequest;
+import pro.gravit.utils.HttpDownloader;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public class MirrorManager {
-    public class Mirror {
-        URL url;
-        String assetsURLMask;
-        String clientsURLMask;
+    public static class Mirror {
+        String baseUrl;
         boolean enabled;
 
         Mirror(String url) {
-            assetsURLMask = url.concat("assets/%s.zip");
-            clientsURLMask = url.concat("clients/%s.zip");
+            //assetsURLMask = url.concat("assets/%s.zip");
+            //clientsURLMask = url.concat("clients/%s.zip");
+            baseUrl = url;
         }
 
-        private URL formatArg(String mask, String arg) throws MalformedURLException {
-            return new URL(String.format(mask, IOHelper.urlEncode(arg)));
+        private URL formatArgs(String mask, Object... args) throws MalformedURLException {
+            Object[] data = Arrays.stream(args).map(e -> IOHelper.urlEncode(e.toString())).toArray();
+            return new URL(baseUrl.concat(String.format(mask, data)));
         }
 
-        public URL getAssetsURL(String assets) throws MalformedURLException {
-            return formatArg(assetsURLMask, assets);
-        }
-
-        public URL getClientsURL(String client) throws MalformedURLException {
-            return formatArg(clientsURLMask, client);
+        public URL getURL(String mask, Object... args) throws MalformedURLException {
+            return formatArgs(mask, args);
         }
     }
 
@@ -38,13 +41,14 @@ public class MirrorManager {
         Mirror m = new Mirror(mirror);
         m.enabled = true;
         if (defaultMirror == null) defaultMirror = m;
+        list.add(m);
     }
 
     public void addMirror(String mirror, boolean enabled) throws MalformedURLException {
         Mirror m = new Mirror(mirror);
-        m.url = new URL(mirror);
         m.enabled = enabled;
         if (defaultMirror == null && enabled) defaultMirror = m;
+        list.add(m);
     }
 
     public Mirror getDefaultMirror() {
@@ -65,5 +69,62 @@ public class MirrorManager {
 
     public int size() {
         return list.size();
+    }
+
+    public boolean downloadZip(Mirror mirror, Path path, String mask, Object... args) throws IOException
+    {
+        if(!mirror.enabled) return false;
+        URL url = mirror.getURL(mask, args);
+        LogHelper.debug("Try download %s", url.toString());
+        try {
+            HttpDownloader.downloadZip(url, path);
+        } catch (IOException e)
+        {
+            LogHelper.error("Download %s failed(%s: %s)", url.toString(), e.getClass().getName(), e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    public void downloadZip(Path path, String mask, Object... args) throws IOException
+    {
+        if(downloadZip(defaultMirror, path, mask, args))
+        {
+            return;
+        }
+        for(Mirror mirror : list)
+        {
+            if(mirror != defaultMirror)
+            {
+                if(downloadZip(mirror, path, mask, args)) return;
+            }
+        }
+        throw new IOException(String.format("Error download %s. All mirrors return error", path.toString()));
+    }
+    public JsonElement jsonRequest(Mirror mirror, JsonElement request, String method, String mask, Object... args) throws IOException
+    {
+        if(!mirror.enabled) return null;
+        URL url = mirror.getURL(mask, args);
+        try {
+            return HTTPRequest.jsonRequest(request, method, url);
+        } catch (IOException e)
+        {
+            LogHelper.error("JsonRequest %s failed(%s: %s)", url.toString(), e.getClass().getName(), e.getMessage());
+            return null;
+        }
+    }
+    public JsonElement jsonRequest(JsonElement request, String method, String mask, Object... args) throws IOException
+    {
+        JsonElement result = jsonRequest(defaultMirror, request, method, mask, args);
+        if(result != null) return result;
+        for(Mirror mirror : list)
+        {
+            if(mirror != defaultMirror)
+            {
+                result = jsonRequest(mirror, request, method, mask, args);
+                if(result != null) return result;
+            }
+        }
+        throw new IOException("Error jsonRequest. All mirrors return error");
     }
 }

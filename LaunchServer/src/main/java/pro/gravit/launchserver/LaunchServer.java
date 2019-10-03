@@ -405,6 +405,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             Files.createDirectory(profilesDir);
         syncProfilesDir();
 
+        if (config.netty != null)
+            nettyServerSocketHandler = new NettyServerSocketHandler(this);
+        else
+            nettyServerSocketHandler = null;
         // post init modules
         modulesManager.invokeEvent(new LaunchServerPostInitPhase(this));
         if (config.components != null) {
@@ -415,11 +419,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             });
             LogHelper.debug("PostInit components successful");
         }
-        // start updater
-        if (config.netty != null)
-            nettyServerSocketHandler = new NettyServerSocketHandler(this);
-        else
-            nettyServerSocketHandler = null;
     }
 
     private LauncherBinary binary() {

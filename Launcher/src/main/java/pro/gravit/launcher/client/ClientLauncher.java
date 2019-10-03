@@ -595,15 +595,11 @@ public final class ClientLauncher {
     public static ParamsAPI container = new ParamsAPI() {
 		@Override
 		public ParamContainer read() throws Exception {
-			ParamContainer p = new ParamContainer();
+			ParamContainer p;
             try (Socket socket = IOHelper.newSocket()) {
                 socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                 try (HInput input = new HInput(socket.getInputStream())) {
-                    p.params = new Params(input);
-                    p.profile = Launcher.gsonManager.gson.fromJson(input.readString(0), ClientProfile.class);
-                    p.assetHDir = new HashedDir(input);
-                    p.clientHDir = new HashedDir(input);
-                    ClientHookManager.paramsInputHook.hook(input);
+                	p = new ParamContainer(input);
                 }
             }
             return p;
@@ -630,11 +626,7 @@ public final class ClientLauncher {
 	                        return;
 	                    }
 	                    try (HOutput output = new HOutput(client.getOutputStream())) {
-	                        p.params.write(output);
-	                        output.writeString(Launcher.gsonManager.gson.toJson(p.profile), 0);
-	                        p.assetHDir.write(output);
-	                        p.clientHDir.write(output);
-	                        ClientHookManager.paramsOutputHook.hook(output);
+	                        p.write(output);
 	                    }
 	                    clientStarted = true;
 	                }

@@ -24,6 +24,10 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     @LauncherNetworkAPI
     public byte[] digest;
     @LauncherNetworkAPI
+    public String secureHash;
+    @LauncherNetworkAPI
+    public String secureSalt;
+    @LauncherNetworkAPI
     public int launcher_type = EXE_BINARY ? 2 : 1;
     @LauncherAPI
     public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
@@ -89,6 +93,8 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
         } catch (IOException e) {
             LogHelper.error(e);
         }
+        secureHash = Launcher.getConfig().secureCheckHash;
+        secureSalt = Launcher.getConfig().secureCheckSalt;
     }
 
     @Override

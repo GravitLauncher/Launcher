@@ -71,7 +71,7 @@ public class AuthResponse extends SimpleResponse {
             AuthProviderPair pair;
             if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
             else pair = server.config.getAuthProviderPair(auth_id);
-            AuthContext context = new AuthContext(0, login, customText, client, null, ip, authType);
+            AuthContext context = new AuthContext(clientData, login, customText, client, hwid, ip, authType);
             AuthProvider provider = pair.provider;
             server.authHookManager.preHook.hook(context, clientData);
             provider.preAuth(login, password, customText, ip);
@@ -130,24 +130,23 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public static class AuthContext {
-        public AuthContext(long session, String login, String customText, String client, String hwid, String ip, ConnectTypes authType) {
-            this.session = session;
+        public AuthContext(Client client, String login, String customText, String profileName, HWID hwid, String ip, ConnectTypes authType) {
+            this.client = client;
             this.login = login;
             this.customText = customText;
-            this.client = client;
+            this.profileName = profileName;
             this.hwid = hwid;
             this.ip = ip;
             this.authType = authType;
         }
-
-        public long session;
         public String login;
         @Deprecated
         public int password_length; //Use AuthProvider for get password
-        public String client;
-        public String hwid;
+        public String profileName;
+        public HWID hwid;
         public String customText;
         public String ip;
         public ConnectTypes authType;
+        public Client client;
     }
 }
