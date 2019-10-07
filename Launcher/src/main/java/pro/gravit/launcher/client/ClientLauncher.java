@@ -311,9 +311,9 @@ public final class ClientLauncher {
         mainMethod.invokeWithArguments((Object)args.toArray(new String[0]));
     }
 
-	private static Process process = null;
-    private static boolean clientStarted = false;
-    private static Thread writeParamsThread;
+    public static Process process = null;
+    public static boolean clientStarted = false;
+    public static Thread writeParamsThread;
 	public static PlayerProfile playerProfile;
 
     @LauncherAPI
