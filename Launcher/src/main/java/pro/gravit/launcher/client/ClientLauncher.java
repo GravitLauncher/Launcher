@@ -311,9 +311,25 @@ public final class ClientLauncher {
         mainMethod.invokeWithArguments((Object)args.toArray(new String[0]));
     }
 
-    public static Process process = null;
-    public static boolean clientStarted = false;
-    public static Thread writeParamsThread;
+    private static Process process = null;
+    private static boolean clientStarted = false;
+    private static Thread writeParamsThread;
+
+	public static void setWriteParamsThread(Thread writeParamsThread) {
+        if (ClientLauncher.writeParamsThread != null && ClientLauncher.writeParamsThread.isAlive())
+        	ClientLauncher.writeParamsThread.interrupt();
+		ClientLauncher.writeParamsThread = writeParamsThread;
+		ClientLauncher.writeParamsThread.start();
+	}
+
+	public static Process getProcess() {
+		return process;
+	}
+
+	public static void setClientStarted() {
+		clientStarted = true;
+	}
+
 	public static PlayerProfile playerProfile;
 
     @LauncherAPI
@@ -606,9 +622,7 @@ public final class ClientLauncher {
 		}
 		@Override
 		public void write(ParamContainer p) throws Exception {
-	        if (writeParamsThread != null && writeParamsThread.isAlive())
-	            writeParamsThread.interrupt();
-	        writeParamsThread = CommonHelper.newThread("Client params writter", true, () ->
+	        setWriteParamsThread(CommonHelper.newThread("Client params writter", true, () ->
 	        {
 	            try {
 	                try (ServerSocket socket = new ServerSocket()) {
@@ -633,8 +647,7 @@ public final class ClientLauncher {
 	            } catch (IOException e) {
 	                LogHelper.error(e);
 	            }
-	        });
-	        writeParamsThread.start();
+	        }));
 		}
     	
     };
