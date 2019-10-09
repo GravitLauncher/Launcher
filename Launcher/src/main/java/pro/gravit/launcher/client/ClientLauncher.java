@@ -316,8 +316,6 @@ public final class ClientLauncher {
     private static Thread writeParamsThread;
 
 	public static void setWriteParamsThread(Thread writeParamsThread) {
-        if (ClientLauncher.writeParamsThread != null && ClientLauncher.writeParamsThread.isAlive())
-        	ClientLauncher.writeParamsThread.interrupt();
 		ClientLauncher.writeParamsThread = writeParamsThread;
 		ClientLauncher.writeParamsThread.start();
 	}
