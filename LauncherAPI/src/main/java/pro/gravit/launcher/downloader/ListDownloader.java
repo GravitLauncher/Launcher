@@ -62,7 +62,7 @@ public class ListDownloader {
     }
 
     public void download(String base, List<DownloadTask> applies, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException, URISyntaxException {
-        try (CloseableHttpClient httpclient = HttpClients.custom()
+        try (CloseableHttpClient httpclient = HttpClients.custom().setUserAgent(IOHelper.USER_AGENT)
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
         	applies.sort((a,b) -> Long.compare(a.size, b.size));

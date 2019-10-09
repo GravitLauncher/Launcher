@@ -168,6 +168,7 @@ public final class IOHelper {
     private static final Pattern CROSS_SEPARATOR_PATTERN = Pattern.compile(CROSS_SEPARATOR, Pattern.LITERAL);
 
     private static final Pattern PLATFORM_SEPARATOR_PATTERN = Pattern.compile(PLATFORM_SEPARATOR, Pattern.LITERAL);
+	public static final String USER_AGENT = System.getProperty("launcher.userAgentDefault", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
 
     @LauncherAPI
     public static void close(AutoCloseable closeable) {
@@ -346,7 +347,7 @@ public final class IOHelper {
         if (connection instanceof HttpURLConnection) {
             connection.setReadTimeout(HTTP_TIMEOUT);
             connection.setConnectTimeout(HTTP_TIMEOUT);
-            connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)"); // Fix for stupid servers
+            connection.addRequestProperty("User-Agent", USER_AGENT); // Fix for stupid servers
         } else
             connection.setUseCaches(false);
         connection.setDoInput(true);
