@@ -122,6 +122,7 @@ public class ListDownloader {
                     continue; // Skip directories
                 // Unpack entry
                 String name = entry.getName();
+                callback.stateChanged(name, 0L, entry.getSize());
                 LogHelper.subInfo("Downloading file: '%s'", name);
                 if(fullDownload || applies.stream().anyMatch((t) -> t.apply.equals(name)))
                 {
