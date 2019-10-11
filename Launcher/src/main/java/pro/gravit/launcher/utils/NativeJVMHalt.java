@@ -1,7 +1,5 @@
 package pro.gravit.launcher.utils;
 
-import cpw.mods.fml.SafeExitJVMLegacy;
-import net.minecraftforge.fml.SafeExitJVM;
 import pro.gravit.utils.helper.JVMHelper;
 
 public final class NativeJVMHalt {
