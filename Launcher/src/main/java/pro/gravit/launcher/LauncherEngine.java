@@ -28,6 +28,7 @@ import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public class LauncherEngine {
+	public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
 
     public static void main(String... args) throws Throwable {
         JVMHelper.checkStackTrace(LauncherEngine.class);

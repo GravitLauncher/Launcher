@@ -443,13 +443,12 @@ public final class ClientLauncher {
 
     @LauncherAPI
     public static void main(String... args) throws Throwable {
+    	LauncherEngine.IS_CLIENT.set(true);
         LauncherEngine engine = LauncherEngine.clientInstance();
-        //Launcher.modulesManager = new ClientModuleManager(engine);
         LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         LauncherEngine.modulesManager.initModules(null);
         initGson(LauncherEngine.modulesManager);
-        //Launcher.modulesManager.preInitModules();
         if (!LauncherAgent.isStarted()) {
         	NativeJVMHalt.haltA(100);
         	return;
