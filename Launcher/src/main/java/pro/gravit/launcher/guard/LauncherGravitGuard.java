@@ -50,7 +50,7 @@ public class LauncherGravitGuard implements LauncherGuardInterface {
     public void init(boolean clientInstance) {
         try {
             String projectName = Launcher.getConfig().projectname;
-            UnpackHelper.unpack(Launcher.getResourceURL("wrapper32.exe", "guard"), DirBridge.getGuardDir().resolve(projectName.concat("64.exe")));
+            UnpackHelper.unpack(Launcher.getResourceURL("wrapper64.exe", "guard"), DirBridge.getGuardDir().resolve(projectName.concat("64.exe")));
             UnpackHelper.unpack(Launcher.getResourceURL("AntiInject64.dll", "guard"), DirBridge.getGuardDir().resolve("AntiInject64.dll"));
 
             UnpackHelper.unpack(Launcher.getResourceURL("wrapper32.exe", "guard"), DirBridge.getGuardDir().resolve(projectName.concat("32.exe")));
