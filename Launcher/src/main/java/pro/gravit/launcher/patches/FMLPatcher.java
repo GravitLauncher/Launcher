@@ -25,10 +25,9 @@ public class FMLPatcher implements ClassFileTransformer {
 				cr.accept(cn, ClassReader.EXPAND_FRAMES);
 				for (MethodNode m : cn.methods)
 					if (m.name.equals("checkPermission") && m.desc.equals("(Ljava/lang/String;)V")) {
-						m.instructions.clear();
 						m.instructions.insert(new InsnNode(Opcodes.RETURN));
 					}
-				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+				ClassWriter cw = new ClassWriter(0);
 				cn.accept(cw);
 				return cw.toByteArray();
 			}
