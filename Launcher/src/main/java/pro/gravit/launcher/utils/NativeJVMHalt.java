@@ -2,6 +2,7 @@ package pro.gravit.launcher.utils;
 
 import cpw.mods.fml.SafeExitJVMLegacy;
 import net.minecraftforge.fml.SafeExitJVM;
+import pro.gravit.utils.helper.JVMHelper;
 
 public final class NativeJVMHalt {
     public NativeJVMHalt(int haltCode) {
@@ -21,11 +22,7 @@ public final class NativeJVMHalt {
     public static void haltA(int code) {
         NativeJVMHalt halt = new NativeJVMHalt(code);
         try {
-            SafeExitJVMLegacy.exit(code);
-        } catch (Throwable ignored) {
-        }
-        try {
-            SafeExitJVM.exit(code);
+        	JVMHelper.RUNTIME.exit(code);
         } catch (Throwable ignored) {
         }
         halt.aaabbb38C_D();
