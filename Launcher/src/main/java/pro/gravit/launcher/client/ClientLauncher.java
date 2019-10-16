@@ -458,9 +458,6 @@ public final class ClientLauncher {
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncher.class);
         LogHelper.printVersion("Client Launcher");
-        if (engine.runtimeProvider == null) engine.runtimeProvider = new JSRuntimeProvider();
-        engine.runtimeProvider.init(true);
-        engine.runtimeProvider.preLoad();
         engine.readKeys();
         HWIDProvider.registerHWIDs();
         LauncherGuardManager.initGuard(true);
