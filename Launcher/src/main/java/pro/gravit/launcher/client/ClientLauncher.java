@@ -461,6 +461,7 @@ public final class ClientLauncher {
         if (engine.runtimeProvider == null) engine.runtimeProvider = new JSRuntimeProvider();
         engine.runtimeProvider.init(true);
         engine.runtimeProvider.preLoad();
+        engine.readKeys();
         HWIDProvider.registerHWIDs();
         LauncherGuardManager.initGuard(true);
         LogHelper.debug("Reading ClientLauncher params");
