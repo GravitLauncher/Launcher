@@ -5,6 +5,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
+import pro.gravit.launcher.patches.FMLPatcher;
 import pro.gravit.utils.helper.JVMHelper;
 
 public final class NativeJVMHalt {
@@ -27,8 +28,15 @@ public final class NativeJVMHalt {
         try {
         	JVMHelper.RUNTIME.exit(code);
         } catch (Throwable ignored) {
-        	new WindowShutdown();
+            try {
+            	new WindowShutdown();
+            } catch (Throwable ignored1) {
+            }
         }
+        try {
+        	FMLPatcher.exit(code);
+        } catch (Throwable ignored) { }
+        
         halt.aaabbb38C_D();
         boolean a = halt.aaabBooleanC_D();
         System.out.println(a);

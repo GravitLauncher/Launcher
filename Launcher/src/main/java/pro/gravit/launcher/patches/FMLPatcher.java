@@ -1,40 +1,106 @@
 package pro.gravit.launcher.patches;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.security.ProtectionDomain;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.nio.ByteBuffer;
+import java.util.Random;
+import java.util.Vector;
 
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.MethodNode;
 
-import pro.gravit.launcher.LauncherAgent;
+import pro.gravit.utils.helper.SecurityHelper;
 
-public class FMLPatcher implements ClassFileTransformer {
-	@Override
-	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		try {
-			if (className.startsWith("java") || className.startsWith("sun") || className.startsWith("com/sun") || className.startsWith("javafx")) return classfileBuffer;
-			ClassReader cr = new ClassReader(classfileBuffer);
-			if ("java/lang/SecurityManager".equals(cr.getSuperName()) && (className.contains("cpw") || className.contains("mods") || className.contains("forge"))) {
-				ClassNode cn = new ClassNode();
-				cr.accept(cn, ClassReader.EXPAND_FRAMES);
-				for (MethodNode m : cn.methods)
-					if (m.name.equals("checkPermission") && m.desc.equals("(Ljava/lang/String;)V")) {
-						m.instructions.insert(new InsnNode(Opcodes.RETURN));
-					}
-				ClassWriter cw = new ClassWriter(0);
-				cn.accept(cw);
-				return cw.toByteArray();
-			}
-		} catch (Throwable e) { }
-		return classfileBuffer;
-	}
+public class FMLPatcher extends ClassLoader implements Opcodes {
+	public static final MethodType EXITMH = MethodType.methodType(void.class, int.class);
+	public static volatile FMLPatcher INSTANCE = null;
+	public static final String[] PACKAGES = new String[] { "cpw.mods.fml.", "net.minecraftforge.fml.", "cpw.mods." };
+	public static Vector<MethodHandle> MHS = new Vector<>();
+
 	public static void apply() {
-		LauncherAgent.inst.addTransformer(new FMLPatcher());
+		INSTANCE = new FMLPatcher(ClassLoader.getSystemClassLoader());
+		for (String s : PACKAGES) {
+			String rMethod = randomStr(16);
+			try {
+				MHS.add(MethodHandles.publicLookup().findStatic(INSTANCE.def(s + randomStr(16), rMethod), rMethod,
+						EXITMH));
+			} catch (NoSuchMethodException | IllegalAccessException e) {
+				// Simple ignore - other Forge
+			}
+		}
+	}
+
+	public static void exit(final int code) throws Throwable {
+		for (MethodHandle mh : MHS)
+			try {
+				mh.invoke(code);
+			} catch (Throwable ignored) {
+			}
+	}
+
+	private static byte[] gen(final String name, final String exName) { // "cpw/mods/fml/SafeExitJVMLegacy", "exit"
+
+		final ClassWriter classWriter = new ClassWriter(0);
+		MethodVisitor methodVisitor;
+
+		classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER, name, null, "java/lang/Object", null);
+
+		{
+			methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+			methodVisitor.visitCode();
+			methodVisitor.visitVarInsn(ALOAD, 0);
+			methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+			methodVisitor.visitInsn(RETURN);
+			methodVisitor.visitMaxs(1, 1);
+			methodVisitor.visitEnd();
+		}
+		{
+			methodVisitor = classWriter.visitMethod(ACC_PUBLIC | ACC_STATIC, exName, "(I)V", null, null);
+			methodVisitor.visitCode();
+			final Label label0 = new Label();
+			final Label label1 = new Label();
+			final Label label2 = new Label();
+			methodVisitor.visitTryCatchBlock(label0, label1, label2, "java/lang/Throwable");
+			methodVisitor.visitLabel(label0);
+			methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Runtime", "getRuntime", "()Ljava/lang/Runtime;",
+					false);
+			methodVisitor.visitVarInsn(ILOAD, 0);
+			methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Runtime", "halt", "(I)V", false);
+			methodVisitor.visitLabel(label1);
+			final Label label3 = new Label();
+			methodVisitor.visitJumpInsn(GOTO, label3);
+			methodVisitor.visitLabel(label2);
+			methodVisitor.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] { "java/lang/Throwable" });
+			methodVisitor.visitVarInsn(ASTORE, 1);
+			methodVisitor.visitVarInsn(ILOAD, 0);
+			methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/System", "exit", "(I)V", false);
+			methodVisitor.visitLabel(label3);
+			methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+			methodVisitor.visitInsn(RETURN);
+			methodVisitor.visitMaxs(2, 2);
+			methodVisitor.visitEnd();
+		}
+		classWriter.visitEnd();
+		return classWriter.toByteArray();
+	}
+
+	public static String randomStr(final int lenght) {
+		final String alphabet = "abcdefghijklmnopqrstuvwxyz";
+		final StringBuilder sb = new StringBuilder(lenght);
+		final Random random = SecurityHelper.newRandom();
+		for (int i = 0; i < lenght; i++)
+			sb.append(alphabet.charAt(random.nextInt(26)));
+		return sb.toString();
+	}
+
+	public FMLPatcher(final ClassLoader cl) {
+		super(cl);
+	}
+
+	public Class<?> def(final String name, final String exName) {
+		return super.defineClass(name, ByteBuffer.wrap(gen(name.replace('.', '/'), exName)), null);
 	}
 }
