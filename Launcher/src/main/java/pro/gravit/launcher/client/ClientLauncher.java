@@ -114,7 +114,7 @@ public final class ClientLauncher {
             this.clientDir = clientDir;
             // Client params
             this.pp = pp;
-            this.accessToken = SecurityHelper.verifyToken(accessToken);
+            this.accessToken = accessToken;
             this.autoEnter = autoEnter;
             this.fullScreen = fullScreen;
             this.ram = ram;
@@ -132,8 +132,7 @@ public final class ClientLauncher {
             // Client params
             pp = new PlayerProfile(input);
             byte[] encryptedAccessToken = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
-            String accessTokenD = new String(SecurityHelper.decrypt(Launcher.getConfig().secretKeyClient.getBytes(), encryptedAccessToken));
-            accessToken = SecurityHelper.verifyToken(accessTokenD);
+            accessToken = new String(SecurityHelper.decrypt(Launcher.getConfig().secretKeyClient.getBytes(), encryptedAccessToken));
             autoEnter = input.readBoolean();
             fullScreen = input.readBoolean();
             ram = input.readVarInt();
@@ -458,9 +457,7 @@ public final class ClientLauncher {
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncher.class);
         LogHelper.printVersion("Client Launcher");
-        if (engine.runtimeProvider == null) engine.runtimeProvider = new JSRuntimeProvider();
-        engine.runtimeProvider.init(true);
-        engine.runtimeProvider.preLoad();
+        engine.readKeys();
         HWIDProvider.registerHWIDs();
         LauncherGuardManager.initGuard(true);
         LogHelper.debug("Reading ClientLauncher params");

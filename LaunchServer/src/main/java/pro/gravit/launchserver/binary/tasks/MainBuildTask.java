@@ -124,16 +124,13 @@ public class MainBuildTask implements LauncherBuildTask {
             BuildContext context = new BuildContext(output, launcherConfigurator, this);
             server.buildHookManager.hook(context);
             launcherConfigurator.setAddress(server.config.netty.address);
-            if (server.config.guardLicense != null)
-                launcherConfigurator.setGuardLicense(server.config.guardLicense.name, server.config.guardLicense.key, server.config.guardLicense.encryptKey);
-            else
-            	launcherConfigurator.nullGuardLicense();
             launcherConfigurator.setProjectName(server.config.projectName);
             launcherConfigurator.setSecretKey(SecurityHelper.randomStringAESKey());
             launcherConfigurator.setClientPort(32148 + SecurityHelper.newRandom().nextInt(512));
             launcherConfigurator.setGuardType(server.config.launcher.guardType);
             launcherConfigurator.setWarningMissArchJava(server.config.launcher.warningMissArchJava);
             launcherConfigurator.setEnv(server.config.env);
+            launcherConfigurator.setPasswordEncryptKey(server.runtime.passwordEncryptKey);
             String launcherSalt = SecurityHelper.randomStringToken();
             byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
                     server.runtime.clientCheckSecret.concat(".").concat(launcherSalt));

@@ -14,7 +14,7 @@ import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
-import pro.gravit.launcher.request.auth.password.AuthRSAPassword;
+import pro.gravit.launcher.request.auth.password.AuthECPassword;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.hwid.HWIDException;
@@ -59,11 +59,11 @@ public class AuthResponse extends SimpleResponse {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
             }
-            if(password instanceof AuthRSAPassword)
+            if(password instanceof AuthECPassword)
             {
                 try {
-                password = new AuthPlainPassword(IOHelper.decode(SecurityHelper.newRSADecryptCipher(server.privateKey).
-                        doFinal(((AuthRSAPassword) password).password)));
+                password = new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
+                , ((AuthECPassword) password).password)));
                 } catch (IllegalBlockSizeException | BadPaddingException ignored) {
                     throw new AuthException("Password decryption error");
                 }

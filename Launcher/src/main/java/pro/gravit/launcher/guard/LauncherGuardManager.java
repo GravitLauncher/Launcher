@@ -12,7 +12,7 @@ public class LauncherGuardManager {
         LauncherConfig config = Launcher.getConfig();
         switch (config.guardType) {
             case "gravitguard": {
-                guard = new LauncherGravitGuard();
+                guard = new LauncherStdGuard();
                 break;
             }
             case "wrapper": {

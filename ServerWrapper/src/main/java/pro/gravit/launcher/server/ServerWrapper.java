@@ -52,7 +52,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public boolean auth() {
         try {
             LauncherConfig cfg = Launcher.getConfig();
-            AuthRequest request = new AuthRequest(config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, AuthRequest.ConnectTypes.SERVER);
+            AuthRequest request = new AuthRequest(config.login, SecurityHelper.newECEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, AuthRequest.ConnectTypes.SERVER);
             permissions = request.request().permissions;
             ProfilesRequestEvent result = new ProfilesRequest().request();
             for (ClientProfile p : result.profiles) {
@@ -190,7 +190,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
         LauncherConfig cfg = null;
         try {
-            cfg = new LauncherConfig(config.address, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
+            cfg = new LauncherConfig(config.address, SecurityHelper.toPublicECKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
             cfg.isNettyEnabled = true;
             cfg.address = config.address;
         } catch (InvalidKeySpecException | IOException e) {

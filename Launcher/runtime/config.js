@@ -1,6 +1,6 @@
 var config = {
     //*** Настройки лаунчера ***//
-    dir: "GravitLauncher",    // Название папки лаунчера
+    // Название папки лаунчера настраивается в LaunchServer.conf(строка projectName)
     title: "GravitLauncher",  // Заголовок окна
     icons: ["favicon.png"],   // Путь/Пути до иконки окна
 
@@ -36,12 +36,6 @@ var config = {
     settingsMagic: 0xC0DE5, // Магия вне хогвартса
 };
 
-DirBridge.dir = DirBridge.getLauncherDir(config.dir);
-DirBridge.dirStore = DirBridge.getStoreDir(config.dir);
-DirBridge.dirProjectStore = DirBridge.getProjectStoreDir(config.dir);
-if (!IOHelper.isDir(DirBridge.dir)) {
-    java.nio.file.Files.createDirectory(DirBridge.dir);
-}
 DirBridge.defaultUpdatesDir = DirBridge.dir.resolve("updates");
 if (!IOHelper.isDir(DirBridge.defaultUpdatesDir)) {
     java.nio.file.Files.createDirectory(DirBridge.defaultUpdatesDir);

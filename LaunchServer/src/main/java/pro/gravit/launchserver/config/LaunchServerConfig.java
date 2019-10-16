@@ -84,7 +84,6 @@ public final class LaunchServerConfig {
 
     public ExeConf launch4j;
     public NettyConfig netty;
-    public GuardLicenseConf guardLicense;
 
     public String whitelistRejectString;
     public LauncherConf launcher;
@@ -279,12 +278,6 @@ public final class LaunchServerConfig {
             this.address = address;
             this.port = port;
         }
-    }
-
-    public static class GuardLicenseConf {
-        public String name;
-        public String key;
-        public String encryptKey;
     }
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env)
     {

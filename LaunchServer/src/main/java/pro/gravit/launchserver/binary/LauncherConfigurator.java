@@ -65,6 +65,10 @@ public class LauncherConfigurator {
         setStringField("address", address);
     }
 
+    public void setPasswordEncryptKey(String pass) {
+        setStringField("passwordEncryptKey", pass);
+    }
+
     public void setProjectName(String name) {
         setStringField("projectname", name);
     }
@@ -145,33 +149,5 @@ public class LauncherConfigurator {
         constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new InsnNode(b ? Opcodes.ICONST_1 : Opcodes.ICONST_0));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, name, Type.BOOLEAN_TYPE.getInternalName()));
-    }
-
-    public void setGuardLicense(String name, String key, String encryptKey) {
-        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        constructor.instructions.add(new LdcInsnNode(name));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseName", stringDesc));
-
-        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        constructor.instructions.add(new LdcInsnNode(key));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseKey", stringDesc));
-
-        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        constructor.instructions.add(new LdcInsnNode(encryptKey));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseEncryptKey", stringDesc));
-    }
-    
-    public void nullGuardLicense() {
-        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        constructor.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseName", stringDesc));
-
-        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        constructor.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseKey", stringDesc));
-
-        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        constructor.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
-        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, autoGenConfigName, "guardLicenseEncryptKey", stringDesc));
     }
 }

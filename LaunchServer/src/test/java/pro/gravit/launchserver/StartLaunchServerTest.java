@@ -3,6 +3,9 @@ package pro.gravit.launchserver;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.KeyPair;
+import java.security.SecureRandom;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
@@ -35,9 +38,9 @@ public class StartLaunchServerTest {
         Launcher.gsonManager.initGson();
         LaunchServerRuntimeConfig runtimeConfig = new LaunchServerRuntimeConfig();
         LaunchServerBuilder builder = new LaunchServerBuilder();
-        KeyPair pair = SecurityHelper.genRSAKeyPair();
-        RSAPublicKey publicKey = (RSAPublicKey) pair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) pair.getPrivate();
+        KeyPair pair = SecurityHelper.genECKeyPair(new SecureRandom());
+        ECPublicKey publicKey = (ECPublicKey) pair.getPublic();
+        ECPrivateKey privateKey = (ECPrivateKey) pair.getPrivate();
         builder.setDir(dir)
                 .setEnv(LaunchServer.LaunchServerEnv.TEST)
                 .setConfig(config)

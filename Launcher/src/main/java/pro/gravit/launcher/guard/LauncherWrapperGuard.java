@@ -63,7 +63,6 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
         env.put("JAVA_HOME", System.getProperty("java.home"));
         LauncherConfig config = Launcher.getConfig();
         env.put("GUARD_USERNAME", context.playerProfile.username);
-        env.put("GUARD_PUBLICKEY", config.publicKey.getModulus().toString(16));
         env.put("GUARD_PROJECTNAME", config.projectname);
         if (protectToken != null)
             env.put("GUARD_TOKEN", protectToken);
