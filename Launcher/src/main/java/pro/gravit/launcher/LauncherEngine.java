@@ -34,7 +34,12 @@ public class LauncherEngine {
         //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
-        Security.addProvider(new BouncyCastleProvider());
+        try {
+            Security.addProvider(new BouncyCastleProvider());
+        } catch (Exception ignored)
+        {
+            LogHelper.warning("BouncyCastle not found");
+        }
 
         LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.getAutogenConfig().initModules();
