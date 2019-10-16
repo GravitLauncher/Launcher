@@ -27,7 +27,7 @@ public class OshiHWID implements HWID {
         if (totalMemory != 0) result += 32;
         if (serialNumber != null) result += isRealSerialNumber() ? 20 : 3;
         if (HWDiskSerial != null && !HWDiskSerial.isEmpty()) result += 38;
-        if (processorID != null && !processorID.isEmpty()) result += 20;
+        if (processorID != null && !processorID.isEmpty()) result += 15;
         if (macAddr != null  && !macAddr.isEmpty()) result += 25;
         return result;
     }
@@ -43,10 +43,10 @@ public class OshiHWID implements HWID {
             int rate = 0;
             OshiHWID oshi = (OshiHWID) hwid;
             if (Math.abs(oshi.totalMemory - totalMemory) < 1024 * 1024) rate += 5;
-            if (oshi.totalMemory == totalMemory) rate += 15;
-            if (oshi.HWDiskSerial.equals(HWDiskSerial)) rate += 45;
-            if (oshi.processorID.equals(processorID)) rate += 18;
-            if (oshi.serialNumber.equals(serialNumber)) rate += 15;
+            if (oshi.totalMemory == totalMemory) rate += 32;
+            if (oshi.HWDiskSerial.equals(HWDiskSerial) && !HWDiskSerial.isEmpty()) rate += 38;
+            if (oshi.processorID.equals(processorID) && !processorID.isEmpty()) rate += 15;
+            if (oshi.serialNumber.equals(serialNumber)) rate += isRealSerialNumber() ? 20 : 3;
             if (!oshi.macAddr.isEmpty() && oshi.macAddr.equals(macAddr)) rate += 19;
             return rate;
         }
