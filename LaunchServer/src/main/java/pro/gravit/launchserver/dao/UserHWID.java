@@ -42,11 +42,6 @@ public class UserHWID implements HWID {
     }
 
     @Override
-    public String getSerializeString() {
-        return toHWID().getSerializeString();
-    }
-
-    @Override
     public int getLevel() {
         return toHWID().getLevel();
     }
@@ -59,5 +54,10 @@ public class UserHWID implements HWID {
     @Override
     public boolean isNull() {
         return toHWID().isNull();
+    }
+
+    @Override
+    public void normalize() {
+
     }
 }
