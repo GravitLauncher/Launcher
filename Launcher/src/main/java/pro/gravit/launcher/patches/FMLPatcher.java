@@ -18,7 +18,7 @@ public class FMLPatcher extends ClassLoader implements Opcodes {
 	public static final MethodType EXITMH = MethodType.methodType(void.class, int.class);
 	public static volatile FMLPatcher INSTANCE = null;
 	public static final String[] PACKAGES = new String[] { "cpw.mods.fml.", "net.minecraftforge.fml.", "cpw.mods." };
-	public static Vector<MethodHandle> MHS = new Vector<>();
+	public static final Vector<MethodHandle> MHS = new Vector<>();
 
 	public static void apply() {
 		INSTANCE = new FMLPatcher(ClassLoader.getSystemClassLoader());
