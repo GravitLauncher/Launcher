@@ -1,11 +1,13 @@
 package pro.gravit.launcher.client;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
@@ -19,7 +21,9 @@ import pro.gravit.launcher.managers.HasherManager;
 import pro.gravit.launcher.managers.HasherStore;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.utils.Version;
+import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 public class FunctionalBridge {
     @LauncherAPI
@@ -132,5 +136,10 @@ public class FunctionalBridge {
             Version.PATCH,
             Version.BUILD
         );
+    }
+    @LauncherAPI
+    public static byte[] encryptPassword(String string) throws Exception {
+        byte[] encode = IOHelper.encode(string);
+        return SecurityHelper.encrypt(Launcher.getConfig().passwordEncryptKey, encode);
     }
 }

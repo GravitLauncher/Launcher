@@ -12,6 +12,7 @@ public class AutogenConfig {
     public String guardLicenseEncryptKey;
     public String secureCheckHash;
     public String secureCheckSalt;
+    public String passwordEncryptKey;
     public int env;
     public boolean isWarningMissArchJava;
     // 0 - Dev (дебаг включен по умолчанию, все сообщения)

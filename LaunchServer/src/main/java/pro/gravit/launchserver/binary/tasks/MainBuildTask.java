@@ -134,6 +134,7 @@ public class MainBuildTask implements LauncherBuildTask {
             launcherConfigurator.setGuardType(server.config.launcher.guardType);
             launcherConfigurator.setWarningMissArchJava(server.config.launcher.warningMissArchJava);
             launcherConfigurator.setEnv(server.config.env);
+            launcherConfigurator.setPasswordEncryptKey(server.runtime.passwordEncryptKey);
             String launcherSalt = SecurityHelper.randomStringToken();
             byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
                     server.runtime.clientCheckSecret.concat(".").concat(launcherSalt));

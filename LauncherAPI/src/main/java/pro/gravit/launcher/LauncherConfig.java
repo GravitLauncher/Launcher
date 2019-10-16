@@ -1,6 +1,8 @@
 package pro.gravit.launcher;
 
 import java.io.IOException;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Collections;
@@ -31,7 +33,7 @@ public final class LauncherConfig extends StreamObject {
     public String secretKeyClient;
     public String oemUnlockKey;
     @LauncherAPI
-    public final RSAPublicKey publicKey;
+    public final ECPublicKey publicKey;
 
     @LauncherAPI
     public final Map<String, byte[]> runtime;
@@ -46,12 +48,14 @@ public final class LauncherConfig extends StreamObject {
     
     public final String secureCheckHash;
     public final String secureCheckSalt;
+    public final String passwordEncryptKey;
 
     @LauncherAPI
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
-        publicKey = SecurityHelper.toPublicRSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
+        publicKey = SecurityHelper.toPublicECKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
         secureCheckHash = config.secureCheckHash;
         secureCheckSalt = config.secureCheckSalt;
+        passwordEncryptKey = config.passwordEncryptKey;
         projectname = config.projectname;
         clientPort = config.clientPort;
         secretKeyClient = config.secretKeyClient;
@@ -84,7 +88,7 @@ public final class LauncherConfig extends StreamObject {
     }
 
     @LauncherAPI
-    public LauncherConfig(String address, RSAPublicKey publicKey, Map<String, byte[]> runtime, String projectname) {
+    public LauncherConfig(String address, ECPublicKey publicKey, Map<String, byte[]> runtime, String projectname) {
         this.address = address;
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
@@ -99,10 +103,11 @@ public final class LauncherConfig extends StreamObject {
         environment = LauncherEnvironment.STD;
         secureCheckSalt = null;
         secureCheckHash = null;
+        passwordEncryptKey = null;
     }
 
     @LauncherAPI
-    public LauncherConfig(String address, RSAPublicKey publicKey, Map<String, byte[]> runtime) {
+    public LauncherConfig(String address, ECPublicKey publicKey, Map<String, byte[]> runtime) {
         this.address = address;
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
@@ -117,6 +122,7 @@ public final class LauncherConfig extends StreamObject {
         environment = LauncherEnvironment.STD;
         secureCheckSalt = null;
         secureCheckHash = null;
+        passwordEncryptKey = null;
     }
 
     @Override

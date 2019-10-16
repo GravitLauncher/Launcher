@@ -7,9 +7,12 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
@@ -35,8 +38,11 @@ import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import javax.crypto.Cipher;
+
 public class LaunchServerStarter {
     public static void main(String[] args) throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
         JVMHelper.checkStackTrace(LaunchServerStarter.class);
         JVMHelper.verifySystemProperties(LaunchServer.class, true);
         LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
@@ -51,8 +57,8 @@ public class LaunchServerStarter {
         Path configFile, runtimeConfigFile;
         Path publicKeyFile =dir.resolve("public.key");
         Path privateKeyFile = dir.resolve("private.key");
-        RSAPublicKey publicKey;
-        RSAPrivateKey privateKey;
+        ECPublicKey publicKey;
+        ECPrivateKey privateKey;
 
         LaunchServerRuntimeConfig runtimeConfig;
         LaunchServerConfig config;
@@ -84,19 +90,17 @@ public class LaunchServerStarter {
             LogHelper.warning("JLine2 isn't in classpath, using std");
         }
         if (IOHelper.isFile(publicKeyFile) && IOHelper.isFile(privateKeyFile)) {
-            LogHelper.info("Reading RSA keypair");
-            publicKey = SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile));
-            privateKey = SecurityHelper.toPrivateRSAKey(IOHelper.read(privateKeyFile));
-            if (!publicKey.getModulus().equals(privateKey.getModulus()))
-                throw new IOException("Private and public key modulus mismatch");
+            LogHelper.info("Reading EC keypair");
+            publicKey = SecurityHelper.toPublicECKey(IOHelper.read(publicKeyFile));
+            privateKey = SecurityHelper.toPrivateECKey(IOHelper.read(privateKeyFile));
         } else {
-            LogHelper.info("Generating RSA keypair");
-            KeyPair pair = SecurityHelper.genRSAKeyPair();
-            publicKey = (RSAPublicKey) pair.getPublic();
-            privateKey = (RSAPrivateKey) pair.getPrivate();
+            LogHelper.info("Generating EC keypair");
+            KeyPair pair = SecurityHelper.genECKeyPair(new SecureRandom());
+            publicKey = (ECPublicKey) pair.getPublic();
+            privateKey = (ECPrivateKey) pair.getPrivate();
 
             // Write key pair list
-            LogHelper.info("Writing RSA keypair list");
+            LogHelper.info("Writing EC keypair list");
             IOHelper.write(publicKeyFile, publicKey.getEncoded());
             IOHelper.write(privateKeyFile, privateKey.getEncoded());
         }

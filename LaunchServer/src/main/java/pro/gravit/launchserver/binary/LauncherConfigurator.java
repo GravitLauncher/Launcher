@@ -65,6 +65,10 @@ public class LauncherConfigurator {
         setStringField("address", address);
     }
 
+    public void setPasswordEncryptKey(String pass) {
+        setStringField("passwordEncryptKey", pass);
+    }
+
     public void setProjectName(String name) {
         setStringField("projectname", name);
     }

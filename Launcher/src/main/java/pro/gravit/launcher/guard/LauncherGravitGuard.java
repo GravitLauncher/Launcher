@@ -76,7 +76,7 @@ public class LauncherGravitGuard implements LauncherGuardInterface {
         LauncherConfig config = Launcher.getConfig();
         env.put("GUARD_BRIDGE", GravitGuardBridge.class.getName());
         env.put("GUARD_USERNAME", context.playerProfile.username);
-        env.put("GUARD_PUBLICKEY", config.publicKey.getModulus().toString(16));
+        //env.put("GUARD_PUBLICKEY", config.publicKey.getModulus().toString(16));
         env.put("GUARD_PROJECTNAME", config.projectname);
         if (protectToken != null)
             env.put("GUARD_TOKEN", protectToken);

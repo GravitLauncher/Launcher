@@ -13,6 +13,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -220,9 +222,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public LaunchServerRuntimeConfig runtime;
 
 
-    public final RSAPublicKey publicKey;
+    public final ECPublicKey publicKey;
 
-    public final RSAPrivateKey privateKey;
+    public final ECPrivateKey privateKey;
     // Launcher binary
 
     public final JARLauncherBinary launcherBinary;
@@ -279,7 +281,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
     }
 
-    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, RSAPublicKey publicKey, RSAPrivateKey privateKey, CommandHandler commandHandler) throws IOException, InvalidKeySpecException {
+    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, ECPublicKey publicKey, ECPrivateKey privateKey, CommandHandler commandHandler) throws IOException, InvalidKeySpecException {
         this.dir = directories.dir;
         this.env = env;
         this.config = config;
@@ -306,9 +308,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         modulesManager.invokeEvent(new NewLaunchServerInstanceEvent(this));
 
         // Print keypair fingerprints
-        CRC32 crc = new CRC32();
-        crc.update(publicKey.getModulus().toByteArray()); // IDEA говорит, что это Java 9 API. WTF?
-        LogHelper.subInfo("Modulus CRC32: 0x%08x", crc.getValue());
 
         // Load class bindings.
         launcherEXEBinaryClass = defaultLauncherEXEBinaryClass;

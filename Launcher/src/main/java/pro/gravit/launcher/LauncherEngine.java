@@ -1,12 +1,11 @@
 package pro.gravit.launcher;
 
+import java.security.*;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import pro.gravit.launcher.client.ClientModuleManager;
-import pro.gravit.launcher.client.DirBridge;
-import pro.gravit.launcher.client.FunctionalBridge;
-import pro.gravit.launcher.client.LauncherUpdateController;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import pro.gravit.launcher.client.*;
 import pro.gravit.launcher.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
@@ -22,10 +21,9 @@ import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.RestoreSessionRequest;
 import pro.gravit.launcher.request.update.UpdateRequest;
 import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.EnvHelper;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.*;
+
+import javax.crypto.Cipher;
 
 public class LauncherEngine {
 
@@ -36,6 +34,7 @@ public class LauncherEngine {
         //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
+        Security.addProvider(new BouncyCastleProvider());
 
         LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.getAutogenConfig().initModules();

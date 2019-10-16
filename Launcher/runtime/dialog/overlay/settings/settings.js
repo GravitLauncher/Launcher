@@ -155,7 +155,7 @@ var settingsOverlay = {
     },
 
     setPassword: function(password) {
-        var encrypted = SecurityHelper.newRSAEncryptCipher(Launcher.getConfig().publicKey).doFinal(IOHelper.encode(password));
+        var encrypted = FunctionalBridge.encryptPassword(password);
         return encrypted;
     },
 

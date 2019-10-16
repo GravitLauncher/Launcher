@@ -1,6 +1,8 @@
 package pro.gravit.launchserver;
 
 import java.nio.file.Path;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
@@ -16,8 +18,8 @@ public class LaunchServerBuilder {
     private LaunchServer.LaunchServerEnv env;
     private LaunchServerModulesManager modulesManager;
     private LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
-    private RSAPublicKey publicKey;
-    private RSAPrivateKey privateKey;
+    private ECPublicKey publicKey;
+    private ECPrivateKey privateKey;
     private LaunchServer.LaunchServerConfigManager launchServerConfigManager;
 
     public LaunchServerBuilder setConfig(LaunchServerConfig config) {
@@ -55,12 +57,12 @@ public class LaunchServerBuilder {
         return this;
     }
 
-    public LaunchServerBuilder setPublicKey(RSAPublicKey publicKey) {
+    public LaunchServerBuilder setPublicKey(ECPublicKey publicKey) {
         this.publicKey = publicKey;
         return this;
     }
 
-    public LaunchServerBuilder setPrivateKey(RSAPrivateKey privateKey) {
+    public LaunchServerBuilder setPrivateKey(ECPrivateKey privateKey) {
         this.privateKey = privateKey;
         return this;
     }
