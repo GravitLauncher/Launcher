@@ -154,7 +154,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
                     db_hwid.totalMemory = Long.valueOf(set.getString(hwidFieldTotalMemory));
                     db_hwid.macAddr = set.getString(hwidFieldMAC);
                     if (LogHelper.isDevEnabled()) {
-                        LogHelper.dev("Compare HWID: %s vs %s", hwid.getSerializeString(), db_hwid.getSerializeString());
+                        LogHelper.dev("Compare HWID: %s vs %s", hwid.toString(), db_hwid.toString());
                     }
                     int compare_point = hwid.compare(db_hwid);
                     if (compare_point < compare) continue;

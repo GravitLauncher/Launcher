@@ -47,6 +47,11 @@ public class UserHWID implements HWID {
     }
 
     @Override
+    public int getAntiLevel() {
+        return 0;
+    }
+
+    @Override
     public int compare(HWID hwid) {
         return toHWID().compare(hwid);
     }
