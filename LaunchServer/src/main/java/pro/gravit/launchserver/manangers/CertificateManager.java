@@ -8,12 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -48,6 +43,8 @@ import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
 
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.verify.LauncherTrustManager;
 
@@ -206,5 +203,26 @@ public class CertificateManager {
             }
         }, false);
         trustManager = new LauncherTrustManager(certificates.toArray(new X509Certificate[0]));
+    }
+
+    public void checkClass(Class<?> clazz, LauncherTrustManager.CheckMode mode) throws SecurityException
+    {
+        if(trustManager == null) return;
+        X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
+        if(certificates == null)
+        {
+            if(mode == LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED)
+                throw new SecurityException(String.format("Class %s not signed", clazz.getName()));
+            else if(mode == LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED)
+                LogHelper.warning("Class %s not signed", clazz.getName());
+            return;
+        }
+        try {
+            trustManager.checkCertificate(certificates, (c,s) -> {
+
+            });
+        } catch (CertificateException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            throw new SecurityException(e);
+        }
     }
 }

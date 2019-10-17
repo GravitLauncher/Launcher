@@ -40,6 +40,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected final Path modulesDir;
     protected final LauncherTrustManager trustManager;
     protected LauncherInitContext initContext;
+    protected LauncherTrustManager.CheckMode checkMode = LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED;
 
     protected PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{});
 
@@ -160,7 +161,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
             classLoader.addURL(file.toUri().toURL());
             @SuppressWarnings("unchecked cast")
             Class<? extends LauncherModule> clazz = (Class<? extends LauncherModule>) Class.forName(moduleClass, false, classLoader);
-            checkModuleClass(clazz);
+            checkModuleClass(clazz, checkMode);
             LauncherModule module = clazz.newInstance();
             loadModule(module);
             return module;
@@ -171,13 +172,19 @@ public class SimpleModuleManager implements LauncherModulesManager {
         }
     }
 
-    protected void checkModuleClass(Class<? extends LauncherModule> clazz) throws SecurityException
+
+
+    public void checkModuleClass(Class<? extends LauncherModule> clazz, LauncherTrustManager.CheckMode mode) throws SecurityException
     {
         if(trustManager == null) return;
         X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
         if(certificates == null)
         {
-            LogHelper.warning("Module class %s not signed", clazz.getName());
+            if(mode == LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED)
+                throw new SecurityException(String.format("Class %s not signed", clazz.getName()));
+            else if(mode == LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED)
+                LogHelper.warning("Class %s not signed", clazz.getName());
+            return;
         }
         try {
             trustManager.checkCertificate(certificates, (c,s) -> {

@@ -37,6 +37,12 @@ public class LauncherTrustManager {
             }
         }).toArray(X509Certificate[]::new);
     }
+
+    public enum CheckMode
+    {
+        EXCEPTION_IN_NOT_SIGNED, WARN_IN_NOT_SIGNED, NONE_IN_NOT_SIGNED
+    }
+
     public interface CertificateChecker
     {
         void check(X509Certificate cert, X509Certificate signer) throws CertificateException, SecurityException;

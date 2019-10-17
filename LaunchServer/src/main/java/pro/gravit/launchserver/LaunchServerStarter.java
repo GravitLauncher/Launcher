@@ -32,6 +32,7 @@ import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.WebSocketService;
+import pro.gravit.utils.Version;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
@@ -41,9 +42,8 @@ import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.verify.LauncherTrustManager;
 
-import javax.crypto.Cipher;
-
 public class LaunchServerStarter {
+    public static boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
     public static void main(String[] args) throws Exception {
         JVMHelper.checkStackTrace(LaunchServerStarter.class);
         JVMHelper.verifySystemProperties(LaunchServer.class, true);
@@ -66,6 +66,12 @@ public class LaunchServerStarter {
             certificateManager.readTrustStore(dir.resolve("truststore"));
         } catch (CertificateException e) {
             throw new IOException(e);
+        }
+        {
+            LauncherTrustManager.CheckMode mode = (Version.RELEASE == Version.Type.LTS || Version.RELEASE == Version.Type.STABLE) ?
+                    (allowUnsigned ? LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED : LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED) :
+                    (allowUnsigned ? LauncherTrustManager.CheckMode.NONE_IN_NOT_SIGNED : LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED);
+            certificateManager.checkClass(LaunchServer.class, mode);
         }
 
         LaunchServerRuntimeConfig runtimeConfig;
