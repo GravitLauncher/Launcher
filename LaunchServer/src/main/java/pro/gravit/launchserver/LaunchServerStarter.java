@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.cert.CertificateException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 
@@ -27,6 +28,7 @@ import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
+import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.WebSocketService;
@@ -37,12 +39,12 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.utils.verify.LauncherTrustManager;
 
 import javax.crypto.Cipher;
 
 public class LaunchServerStarter {
     public static void main(String[] args) throws Exception {
-        Security.addProvider(new BouncyCastleProvider());
         JVMHelper.checkStackTrace(LaunchServerStarter.class);
         JVMHelper.verifySystemProperties(LaunchServer.class, true);
         LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
@@ -52,18 +54,24 @@ public class LaunchServerStarter {
             LogHelper.error("StarterAgent is not started!");
             LogHelper.error("You should add to JVM options this option: `-javaagent:LaunchServer.jar`");
         }
-
         Path dir = IOHelper.WORKING_DIR;
         Path configFile, runtimeConfigFile;
         Path publicKeyFile =dir.resolve("public.key");
         Path privateKeyFile = dir.resolve("private.key");
         ECPublicKey publicKey;
         ECPrivateKey privateKey;
+        Security.addProvider(new BouncyCastleProvider());
+        CertificateManager certificateManager = new CertificateManager();
+        try {
+            certificateManager.readTrustStore(dir.resolve("truststore"));
+        } catch (CertificateException e) {
+            throw new IOException(e);
+        }
 
         LaunchServerRuntimeConfig runtimeConfig;
         LaunchServerConfig config;
         LaunchServer.LaunchServerEnv env = LaunchServer.LaunchServerEnv.PRODUCTION;
-        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(dir.resolve("modules"), dir.resolve("config"));
+        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(dir.resolve("modules"), dir.resolve("config"), certificateManager.trustManager);
         modulesManager.autoload();
         modulesManager.initModules(null);
         registerAll();
@@ -173,6 +181,7 @@ public class LaunchServerStarter {
                 .setConfig(config)
                 .setModulesManager(modulesManager)
                 .setLaunchServerConfigManager(launchServerConfigManager)
+                .setCertificateManager(certificateManager)
                 .build();
         server.run();
     }

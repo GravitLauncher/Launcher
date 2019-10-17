@@ -16,6 +16,7 @@ import org.junit.jupiter.api.io.TempDir;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
+import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.utils.command.StdCommandHandler;
@@ -32,7 +33,7 @@ public class StartLaunchServerTest {
     @BeforeAll
     public static void prepare() throws Exception
     {
-        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(modulesDir, configDir);
+        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(modulesDir, configDir, null);
         LaunchServerConfig config = LaunchServerConfig.getDefault(LaunchServer.LaunchServerEnv.TEST);
         Launcher.gsonManager = new LaunchServerGsonManager(modulesManager);
         Launcher.gsonManager.initGson();
@@ -47,6 +48,7 @@ public class StartLaunchServerTest {
                 .setRuntimeConfig(runtimeConfig)
                 .setPublicKey(publicKey)
                 .setPrivateKey(privateKey)
+                .setCertificateManager(new CertificateManager())
                 .setLaunchServerConfigManager(new LaunchServer.LaunchServerConfigManager() {
                     @Override
                     public LaunchServerConfig readConfig() throws IOException {

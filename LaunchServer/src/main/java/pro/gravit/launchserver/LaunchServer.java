@@ -13,6 +13,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
@@ -274,14 +275,16 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         public Path updatesDir;
         public Path profilesDir;
         public Path dir;
+        public Path trustStore;
         public void collect()
         {
             if(updatesDir == null) updatesDir = dir.resolve("updates");
             if(profilesDir == null) profilesDir = dir.resolve("profiles");
+            if(trustStore == null) trustStore = dir.resolve("truststore");
         }
     }
 
-    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, ECPublicKey publicKey, ECPrivateKey privateKey, CommandHandler commandHandler) throws IOException, InvalidKeySpecException {
+    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, ECPublicKey publicKey, ECPrivateKey privateKey, CommandHandler commandHandler, CertificateManager certificateManager) throws IOException {
         this.dir = directories.dir;
         this.env = env;
         this.config = config;
@@ -293,6 +296,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.privateKey = privateKey;
         this.commandHandler = commandHandler;
         this.runtime = runtimeConfig;
+        this.certificateManager = certificateManager;
         taskPool = new Timer("Timered task worker thread", true);
         launcherLibraries = dir.resolve("launcher-libraries");
         launcherLibrariesCompile = dir.resolve("launcher-libraries-compile");
@@ -331,7 +335,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         reconfigurableManager = new ReconfigurableManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
-        certificateManager = new CertificateManager();
         //Generate or set new Certificate API
         certificateManager.orgName = config.projectName;
         if(config.certificate != null && config.certificate.enabled)

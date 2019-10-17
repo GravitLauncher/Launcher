@@ -114,7 +114,7 @@ public final class JVMHelper {
     public static X509Certificate[] getCertificates(Class<?> clazz)
     {
         Object[] signers = clazz.getSigners();
-        if(signers == null) return new X509Certificate[] {};
+        if(signers == null) return null;
         return Arrays.stream(signers).filter((c) -> c instanceof X509Certificate).map((c) -> (X509Certificate) c).toArray(X509Certificate[]::new);
     }
 

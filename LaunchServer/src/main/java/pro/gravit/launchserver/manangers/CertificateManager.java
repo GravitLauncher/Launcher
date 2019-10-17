@@ -1,25 +1,31 @@
 package pro.gravit.launchserver.manangers;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.math.BigInteger;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.security.spec.ECGenParameterSpec;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -43,6 +49,7 @@ import org.bouncycastle.util.io.pem.PemWriter;
 
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.utils.verify.LauncherTrustManager;
 
 public class CertificateManager {
     public X509CertificateHolder ca;
@@ -51,9 +58,7 @@ public class CertificateManager {
     public X509CertificateHolder server;
     public AsymmetricKeyParameter serverKey;
 
-
-    //public X509CertificateHolder server;
-    //public AsymmetricKeyParameter serverKey;
+    public LauncherTrustManager trustManager;
 
     public int validDays = 60;
     public int minusHours = 6;
@@ -171,5 +176,35 @@ public class CertificateManager {
             ret = new X509CertificateHolder(bytes);
         }
         return ret;
+    }
+
+    public void readTrustStore(Path dir) throws IOException, CertificateException {
+        if(!IOHelper.isDir(dir))
+        {
+            Files.createDirectories(dir);
+            try(OutputStream outputStream = IOHelper.newOutput(dir.resolve("GravitCentralRootCA.crt"));
+                InputStream inputStream = IOHelper.newInput(IOHelper.getResourceURL("pro/gravit/launchserver/defaults/GravitCentralRootCA.crt")))
+            {
+                IOHelper.transfer(inputStream, outputStream);
+            }
+        }
+        List<X509Certificate> certificates = new ArrayList<>();
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        IOHelper.walk(dir, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                if(file.toFile().getName().endsWith(".crt"))
+                {
+                    try(InputStream inputStream = IOHelper.newInput(file))
+                    {
+                        certificates.add((X509Certificate) certFactory.generateCertificate(inputStream));
+                    } catch (CertificateException e) {
+                        throw new IOException(e);
+                    }
+                }
+                return super.visitFile(file, attrs);
+            }
+        }, false);
+        trustManager = new LauncherTrustManager(certificates.toArray(new X509Certificate[0]));
     }
 }

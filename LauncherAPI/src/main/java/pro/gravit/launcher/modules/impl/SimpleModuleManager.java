@@ -7,6 +7,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +28,9 @@ import pro.gravit.launcher.modules.ModulesConfigManager;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.verify.LauncherTrustManager;
 
 public class SimpleModuleManager implements LauncherModulesManager {
     protected final List<LauncherModule> modules = new ArrayList<>();
@@ -30,6 +38,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected final SimpleModuleContext context;
     protected final ModulesConfigManager modulesConfigManager;
     protected final Path modulesDir;
+    protected final LauncherTrustManager trustManager;
     protected LauncherInitContext initContext;
 
     protected PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{});
@@ -113,6 +122,13 @@ public class SimpleModuleManager implements LauncherModulesManager {
         modulesConfigManager = new SimpleModulesConfigManager(configDir);
         context = new SimpleModuleContext(this, modulesConfigManager);
         this.modulesDir = modulesDir;
+        this.trustManager = null;
+    }
+    public SimpleModuleManager(Path modulesDir, Path configDir, LauncherTrustManager trustManager) {
+        modulesConfigManager = new SimpleModulesConfigManager(configDir);
+        context = new SimpleModuleContext(this, modulesConfigManager);
+        this.modulesDir = modulesDir;
+        this.trustManager = trustManager;
     }
 
     @Override
@@ -142,13 +158,33 @@ public class SimpleModuleManager implements LauncherModulesManager {
                 return null;
             }
             classLoader.addURL(file.toUri().toURL());
-            LauncherModule module = (LauncherModule) Class.forName(moduleClass, true, classLoader).newInstance();
+            @SuppressWarnings("unchecked cast")
+            Class<? extends LauncherModule> clazz = (Class<? extends LauncherModule>) Class.forName(moduleClass, false, classLoader);
+            checkModuleClass(clazz);
+            LauncherModule module = clazz.newInstance();
             loadModule(module);
             return module;
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             LogHelper.error(e);
             LogHelper.error("In module %s Module-Main-Class incorrect", file.toString());
             return null;
+        }
+    }
+
+    protected void checkModuleClass(Class<? extends LauncherModule> clazz) throws SecurityException
+    {
+        if(trustManager == null) return;
+        X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
+        if(certificates == null)
+        {
+            LogHelper.warning("Module class %s not signed", clazz.getName());
+        }
+        try {
+            trustManager.checkCertificate(certificates, (c,s) -> {
+
+            });
+        } catch (CertificateException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            throw new SecurityException(e);
         }
     }
 

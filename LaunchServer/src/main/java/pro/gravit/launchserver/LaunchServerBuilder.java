@@ -8,6 +8,7 @@ import java.security.interfaces.RSAPublicKey;
 
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
+import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.utils.command.CommandHandler;
 
@@ -20,6 +21,7 @@ public class LaunchServerBuilder {
     private LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
     private ECPublicKey publicKey;
     private ECPrivateKey privateKey;
+    private CertificateManager certificateManager;
     private LaunchServer.LaunchServerConfigManager launchServerConfigManager;
 
     public LaunchServerBuilder setConfig(LaunchServerConfig config) {
@@ -101,6 +103,11 @@ public class LaunchServerBuilder {
                 }
             };
         }
-        return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, modulesManager, publicKey, privateKey, commandHandler);
+        return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, modulesManager, publicKey, privateKey, commandHandler, certificateManager);
+    }
+
+    public LaunchServerBuilder setCertificateManager(CertificateManager certificateManager) {
+        this.certificateManager = certificateManager;
+        return this;
     }
 }
