@@ -6,6 +6,8 @@ import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
 import java.util.jar.JarFile;
 
+import pro.gravit.launcher.patches.FMLPatcher;
+import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.helper.LogHelper;
 
 @LauncherAPI
@@ -31,10 +33,8 @@ public final class LauncherAgent {
         System.out.println("Launcher Agent");
         checkAgentStacktrace();
         inst = instrumentation;
-        //SafeExitJVMLegacy.class.getName();
-        //SafeExitJVM.class.getName();
-        //NativeJVMHalt.class.getName();
-        //NativeJVMHalt.initFunc();
+        NativeJVMHalt.initFunc();
+        FMLPatcher.apply();
         isAgentStarted = true;
     }
     public static void checkAgentStacktrace()

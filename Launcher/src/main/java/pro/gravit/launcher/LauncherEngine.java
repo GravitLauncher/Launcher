@@ -31,6 +31,7 @@ import pro.gravit.utils.helper.*;
 import javax.crypto.Cipher;
 
 public class LauncherEngine {
+	public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
 
     public static void main(String... args) throws Throwable {
         JVMHelper.checkStackTrace(LauncherEngine.class);
