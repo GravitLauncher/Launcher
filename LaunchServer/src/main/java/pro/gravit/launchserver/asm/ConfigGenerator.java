@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.asm;
 
+import java.util.Base64;
+
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -14,6 +16,8 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 public class ConfigGenerator {
 	protected static final String stringDesc = Type.getDescriptor(String.class);
+	protected static final String byteArrDesc = Type.getDescriptor(byte[].class);
+	protected static final String base64DecDesc = "(" + stringDesc + ")" + byteArrDesc;
     protected final ClassNode configclass;
     protected final MethodNode constructor;
 	
@@ -40,6 +44,15 @@ public class ConfigGenerator {
     {
         constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(NodeUtils.getSafeStringInsnList(value));
+        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, configclass.name, name, stringDesc));
+    }
+
+    public void setByteArrayField(String name, byte[] value)
+    {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/util/Base64", "getDecoder", "()Ljava/util/Base64$Decoder;", false));
+        constructor.instructions.add(NodeUtils.getSafeStringInsnList(Base64.getEncoder().encodeToString(value)));
+        constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/util/Base64$Decoder", "decode", base64DecDesc, false));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, configclass.name, name, stringDesc));
     }
 
