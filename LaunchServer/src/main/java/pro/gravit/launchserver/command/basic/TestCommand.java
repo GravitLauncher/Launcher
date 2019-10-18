@@ -5,10 +5,12 @@ import java.security.KeyPair;
 
 import org.bouncycastle.cert.X509CertificateHolder;
 
+import pro.gravit.launcher.hwid.HWIDCheckHelper;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 public class TestCommand extends Command {
     public TestCommand(LaunchServer server) {
@@ -54,6 +56,10 @@ public class TestCommand extends Command {
             X509CertificateHolder cert = server.certificateManager.generateCertificate(name, pair.getPublic());
             server.certificateManager.writePrivateKey(Paths.get(name.concat(".key")), pair.getPrivate());
             server.certificateManager.writeCertificate(Paths.get(name.concat(".crt")), cert);
+        }
+        if(args[0].equals("hwidcheck"))
+        {
+            LogHelper.info("HWID String %s bad rating %d", args[1], HWIDCheckHelper.checkString(args[1]));
         }
     }
 }
