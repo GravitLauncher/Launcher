@@ -2,9 +2,7 @@ package pro.gravit.launcher;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Collections;
 import java.util.HashMap;

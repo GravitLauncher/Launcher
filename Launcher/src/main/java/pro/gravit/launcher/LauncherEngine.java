@@ -9,7 +9,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import pro.gravit.launcher.client.*;
 import pro.gravit.launcher.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientPreGuiPhase;
@@ -27,8 +26,6 @@ import pro.gravit.launcher.request.auth.RestoreSessionRequest;
 import pro.gravit.launcher.request.update.UpdateRequest;
 import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import pro.gravit.utils.helper.*;
-
-import javax.crypto.Cipher;
 
 public class LauncherEngine {
 	public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);

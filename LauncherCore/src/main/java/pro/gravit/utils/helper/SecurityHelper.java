@@ -169,7 +169,7 @@ public final class SecurityHelper {
         return token.length() == TOKEN_STRING_LENGTH && token.chars().allMatch(ch -> HEX.indexOf(ch) >= 0);
     }
 
-    private static Cipher newCipher(String algo) {
+    public static Cipher newCipher(String algo) {
         try {
             return Cipher.getInstance(algo);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {

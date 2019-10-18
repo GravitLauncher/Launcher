@@ -7,7 +7,6 @@ import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.LauncherModuleInfo;
 import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.verify.LauncherTrustManager;
 

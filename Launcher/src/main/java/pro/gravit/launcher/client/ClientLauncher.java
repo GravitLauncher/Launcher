@@ -38,7 +38,6 @@ import pro.gravit.launcher.client.events.ClientLaunchPhase;
 import pro.gravit.launcher.client.events.ClientLauncherInitPhase;
 import pro.gravit.launcher.client.events.ClientLauncherPostInitPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
-import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hwid.HWIDProvider;

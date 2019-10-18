@@ -159,8 +159,8 @@ public class SimpleModuleManager implements LauncherModulesManager {
                 return null;
             }
             classLoader.addURL(file.toUri().toURL());
-            @SuppressWarnings("unchecked cast")
-            Class<? extends LauncherModule> clazz = (Class<? extends LauncherModule>) Class.forName(moduleClass, false, classLoader);
+            @SuppressWarnings("unchecked")
+			Class<? extends LauncherModule> clazz = (Class<? extends LauncherModule>) Class.forName(moduleClass, false, classLoader);
             checkModuleClass(clazz, checkMode);
             LauncherModule module = clazz.newInstance();
             loadModule(module);

@@ -6,8 +6,6 @@ import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
