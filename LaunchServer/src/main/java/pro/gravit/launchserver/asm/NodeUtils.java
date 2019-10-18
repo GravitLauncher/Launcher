@@ -2,7 +2,6 @@ package pro.gravit.launchserver.asm;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -163,7 +162,7 @@ public final class NodeUtils {
 
     public static InsnList getSafeStringInsnList(String string) {
         InsnList insnList = new InsnList();
-        if (string.length() * 2 < MAX_SAFE_BYTE_COUNT) {
+        if ((string.length() * 3) < MAX_SAFE_BYTE_COUNT) { // faster check
             insnList.add(new LdcInsnNode(string));
             return insnList;
         }
@@ -218,5 +217,18 @@ public final class NodeUtils {
             return 2;
         }
         return 3;
+    }
+
+    public static InsnList push(final int value) {
+    	InsnList ret = new InsnList();
+        if (value >= -1 && value <= 5)
+            ret.add(new InsnNode(Opcodes.ICONST_0 + value));
+        else if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE)
+        	ret.add(new IntInsnNode(Opcodes.BIPUSH, value));
+        else if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE)
+        	ret.add(new IntInsnNode(Opcodes.SIPUSH, value));
+        else
+        	ret.add(new LdcInsnNode(value));
+        return ret;
     }
 }
