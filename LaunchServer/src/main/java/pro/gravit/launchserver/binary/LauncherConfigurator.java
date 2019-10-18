@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.modules.LauncherModule;
+import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.ConfigGenerator;
 
 public class LauncherConfigurator extends ConfigGenerator {
@@ -33,6 +34,12 @@ public class LauncherConfigurator extends ConfigGenerator {
         initModuleMethod.instructions.add(new InsnNode(Opcodes.DUP));
         initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, fullName.replace('.', '/'), "<init>", "()V"));
         initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, modulesManagerName, "loadModule", registerModDesc));
+    }
+
+    @Override
+    public byte[] getBytecode(ClassMetadataReader reader) {
+    	initModuleMethod.instructions.add(new InsnNode(Opcodes.RETURN));
+        return super.getBytecode(reader);
     }
 
     public void setEnv(LauncherConfig.LauncherEnvironment env) {
