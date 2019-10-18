@@ -123,21 +123,22 @@ public class MainBuildTask implements LauncherBuildTask {
         	LauncherConfigurator launcherConfigurator = new LauncherConfigurator(cn);
             BuildContext context = new BuildContext(output, launcherConfigurator, this);
             server.buildHookManager.hook(context);
-            launcherConfigurator.setAddress(server.config.netty.address);
-            launcherConfigurator.setProjectName(server.config.projectName);
-            launcherConfigurator.setSecretKey(SecurityHelper.randomStringAESKey());
-            launcherConfigurator.setClientPort(32148 + SecurityHelper.newRandom().nextInt(512));
-            launcherConfigurator.setGuardType(server.config.launcher.guardType);
-            launcherConfigurator.setWarningMissArchJava(server.config.launcher.warningMissArchJava);
+            launcherConfigurator.setStringField("address", server.config.netty.address);
+            launcherConfigurator.setStringField("projectname", server.config.projectName);
+            launcherConfigurator.setStringField("secretKeyClient", SecurityHelper.randomStringAESKey());
+            launcherConfigurator.setIntegerField("clientPort", 32148 + SecurityHelper.newRandom().nextInt(512));
+            launcherConfigurator.setStringField("guardType", server.config.launcher.guardType);
+            launcherConfigurator.setBooleanField("isWarningMissArchJava", server.config.launcher.warningMissArchJava);
             launcherConfigurator.setEnv(server.config.env);
-            launcherConfigurator.setPasswordEncryptKey(server.runtime.passwordEncryptKey);
+            launcherConfigurator.setStringField("passwordEncryptKey", server.runtime.passwordEncryptKey);
             String launcherSalt = SecurityHelper.randomStringToken();
             byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
                     server.runtime.clientCheckSecret.concat(".").concat(launcherSalt));
-            launcherConfigurator.setSecureCheck(Base64.getEncoder().encodeToString(launcherSecureHash), launcherSalt);
+            launcherConfigurator.setStringField("secureCheckHash", Base64.getEncoder().encodeToString(launcherSecureHash));
+            launcherConfigurator.setStringField("secureCheckSalt", launcherSalt);
             //LogHelper.debug("[checkSecure] %s: %s", launcherSalt, Arrays.toString(launcherSecureHash));
             if (server.runtime.oemUnlockKey == null) server.runtime.oemUnlockKey = SecurityHelper.randomStringToken();
-            launcherConfigurator.setOemUnlockKey(server.runtime.oemUnlockKey);
+            launcherConfigurator.setStringField("oemUnlockKey", server.runtime.oemUnlockKey);
             server.buildHookManager.registerAllClientModuleClass(launcherConfigurator);
             reader.getCp().add(new JarFile(inputJar.toFile()));
             server.launcherBinary.coreLibs.forEach(e -> {

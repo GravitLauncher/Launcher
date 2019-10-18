@@ -35,35 +35,6 @@ public class LauncherConfigurator extends ConfigGenerator {
         initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, modulesManagerName, "loadModule", registerModDesc));
     }
 
-    public void setAddress(String address) {
-        setStringField("address", address);
-    }
-
-    public void setPasswordEncryptKey(String pass) {
-        setStringField("passwordEncryptKey", pass);
-    }
-
-    public void setProjectName(String name) {
-        setStringField("projectname", name);
-    }
-
-    public void setSecretKey(String key) {
-        setStringField("secretKeyClient", key);
-    }
-
-    public void setOemUnlockKey(String key) {
-        setStringField("oemUnlockKey", key);
-    }
-
-    public void setGuardType(String key) {
-        setStringField("guardType", key);
-    }
-
-    public void setSecureCheck(String hash, String salt) {
-        setStringField("secureCheckHash", hash);
-        setStringField("secureCheckSalt", salt);
-    }
-  
     public void setEnv(LauncherConfig.LauncherEnvironment env) {
         int i = 2;
         switch (env) {
@@ -81,13 +52,5 @@ public class LauncherConfigurator extends ConfigGenerator {
                 break;
         }
         setIntegerField("env", i);
-    }
-
-    public void setClientPort(int port) {
-        setIntegerField("clientPort", port);
-    }
-
-    public void setWarningMissArchJava(boolean b) {
-        setBooleanField("isWarningMissArchJava", b);
     }
 }
