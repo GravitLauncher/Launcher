@@ -19,9 +19,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.provider.JCEIESCipher;
 import pro.gravit.launcher.LauncherAPI;
 
 public final class SecurityHelper {
@@ -187,8 +184,8 @@ public final class SecurityHelper {
      */
     private static Cipher newBCCipher(String algo) {
         try {
-            return Cipher.getInstance(algo, new BouncyCastleProvider());
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            return Cipher.getInstance(algo, "BC");
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | NoSuchProviderException e) {
             throw new InternalError(e);
         }
     }

@@ -1,5 +1,7 @@
 package pro.gravit.launcher.hwid;
 
+import pro.gravit.utils.helper.LogHelper;
+
 public class HWIDCheckHelper {
     public static int checkString(String str)
     {
@@ -18,16 +20,15 @@ public class HWIDCheckHelper {
             if(c == lastChar || Math.abs(c - lastChar) == 1 ||
                     ( ( lastChar == '0' || lastChar == '9' ) && ( c == 'A' || c == 'a' ))) //Переход с 0 или 9 на A или a
             {
-                lastChar = c;
                 combo++;
             }
             else
             {
-                if(maxCombo < combo)
-                    maxCombo = combo;
-                lastChar = c;
                 combo = 1;
             }
+            lastChar = c;
+            if(maxCombo < combo)
+                maxCombo = combo;
             int charType = getCharType(c);
             if(lastCharType == charType) {
                 lastCharTypeCombo++;
@@ -56,6 +57,8 @@ public class HWIDCheckHelper {
             }
         }
         //Считаем результат
+        LogHelper.debug("HWID Checker maxCombo %d", maxCombo);
+        LogHelper.debug("HWID Checker wtfCharTypeCombo %d", wtfCharTypeCombo);
         if(maxCombo > 3) result+= maxCombo * 3;
         if(wtfCharTypeCombo > 1) result+= wtfCharTypeCombo * 2;
         return result;

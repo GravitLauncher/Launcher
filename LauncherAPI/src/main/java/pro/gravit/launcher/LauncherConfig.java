@@ -1,6 +1,7 @@
 package pro.gravit.launcher;
 
 import java.io.IOException;
+import java.security.cert.CertificateException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
@@ -16,9 +17,11 @@ import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
+import pro.gravit.utils.verify.LauncherTrustManager;
 
 public final class LauncherConfig extends StreamObject {
     private static final AutogenConfig config = new AutogenConfig();
+    private static final SecureAutogenConfig secureConfig = new SecureAutogenConfig();
 
 
     public static AutogenConfig getAutogenConfig() {
@@ -32,6 +35,7 @@ public final class LauncherConfig extends StreamObject {
     public final int clientPort;
     public String secretKeyClient;
     public String oemUnlockKey;
+    public final LauncherTrustManager trustManager;
     @LauncherAPI
     public final ECPublicKey publicKey;
 
@@ -60,6 +64,11 @@ public final class LauncherConfig extends StreamObject {
         clientPort = config.clientPort;
         secretKeyClient = config.secretKeyClient;
         oemUnlockKey = config.oemUnlockKey;
+        try {
+            trustManager = new LauncherTrustManager(secureConfig.certificates);
+        } catch (CertificateException e) {
+            throw new IOException(e);
+        }
 
         isWarningMissArchJava = config.isWarningMissArchJava;
         guardLicenseEncryptKey = config.guardLicenseEncryptKey;
@@ -104,6 +113,7 @@ public final class LauncherConfig extends StreamObject {
         secureCheckSalt = null;
         secureCheckHash = null;
         passwordEncryptKey = null;
+        trustManager = null;
     }
 
     @LauncherAPI
@@ -123,6 +133,7 @@ public final class LauncherConfig extends StreamObject {
         secureCheckSalt = null;
         secureCheckHash = null;
         passwordEncryptKey = null;
+        trustManager = null;
     }
 
     @Override
