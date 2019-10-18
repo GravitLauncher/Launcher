@@ -2,19 +2,13 @@ package pro.gravit.launchserver.asm;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InvokeDynamicInsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.*;
+import org.objectweb.asm.tree.*;
 
 import pro.gravit.utils.helper.IOHelper;
 
@@ -165,5 +159,64 @@ public final class NodeUtils {
             break;
     }
     	return stackSize;
+    }
+
+    public static InsnList getSafeStringInsnList(String string) {
+        InsnList insnList = new InsnList();
+        if (string.length() * 2 < MAX_SAFE_BYTE_COUNT) {
+            insnList.add(new LdcInsnNode(string));
+            return insnList;
+        }
+
+        insnList.add(new TypeInsnNode(NEW, "java/lang/StringBuilder"));
+        insnList.add(new InsnNode(DUP));
+        insnList.add(new MethodInsnNode(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false));
+
+        String[] chunks = splitUtf8ToChunks(string, MAX_SAFE_BYTE_COUNT);
+        for (String chunk : chunks) {
+            insnList.add(new LdcInsnNode(chunk));
+            insnList.add(new MethodInsnNode(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false));
+        }
+        insnList.add(new MethodInsnNode(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false));
+
+        return insnList;
+    }
+
+    public static final int MAX_SAFE_BYTE_COUNT = 65535-Byte.MAX_VALUE;
+
+    public static String[] splitUtf8ToChunks(String text, int maxBytes) {
+        List<String> parts = new ArrayList<>();
+
+        char[] chars = text.toCharArray();
+
+        int lastCharIndex = 0;
+        int currentChunkSize = 0;
+
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            int charSize = getUtf8CharSize(c);
+            if (currentChunkSize + charSize < maxBytes) {
+                currentChunkSize += charSize;
+            } else {
+                parts.add(text.substring(lastCharIndex, i));
+                currentChunkSize = 0;
+                lastCharIndex = i;
+            }
+        }
+
+        if (currentChunkSize != 0) {
+            parts.add(text.substring(lastCharIndex));
+        }
+
+        return parts.toArray(new String[0]);
+    }
+
+    public static int getUtf8CharSize(char c) {
+        if (c >= 0x0001 && c <= 0x007F) {
+            return 1;
+        } else if (c <= 0x07FF) {
+            return 2;
+        }
+        return 3;
     }
 }

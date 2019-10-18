@@ -21,7 +21,7 @@ public class FMLPatcher extends ClassLoader implements Opcodes {
 	public static final Vector<MethodHandle> MHS = new Vector<>();
 
 	public static void apply() {
-		INSTANCE = new FMLPatcher(ClassLoader.getSystemClassLoader());
+		INSTANCE = new FMLPatcher(null); // Never cause ClassFormatError (fuck forge 1.14!!!)
 		for (String s : PACKAGES) {
 			String rMethod = randomStr(16);
 			try {
