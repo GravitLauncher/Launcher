@@ -11,7 +11,7 @@ public class SecureAutogenConfig {
 
     public SecureAutogenConfig() {
         //Пока не реализован SecureLauncherConfigurator
-        certificates = null/*Arrays.asList(
+        certificates = null;/*Arrays.asList(
                 ("-----BEGIN CERTIFICATE-----\n" +
                         "MIIFyjCCA7KgAwIBAgIRALnsjNjfvOTXfla3fX1fNEUwDQYJKoZIhvcNAQELBQAw\n" +
                         "WTELMAkGA1UEBhMCUlUxFzAVBgNVBAoTDkdyYXZpdFRydXN0IENBMRAwDgYDVQQL\n" +

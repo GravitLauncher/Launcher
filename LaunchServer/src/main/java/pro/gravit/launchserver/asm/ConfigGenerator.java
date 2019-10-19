@@ -44,7 +44,7 @@ public class ConfigGenerator {
         constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/util/Base64", "getDecoder", "()Ljava/util/Base64$Decoder;", false));
         constructor.instructions.add(NodeUtils.getSafeStringInsnList(Base64.getEncoder().encodeToString(value)));
-        constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/util/Base64$Decoder", "decode", base64DecDesc, false));
+        constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/Base64$Decoder", "decode", base64DecDesc, false));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, configclass.name, name, stringDesc));
     }
 
@@ -57,7 +57,7 @@ public class ConfigGenerator {
             constructor.instructions.add(new InsnNode(Opcodes.DUP));
             constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/util/Base64", "getDecoder", "()Ljava/util/Base64$Decoder;", false));
             constructor.instructions.add(NodeUtils.getSafeStringInsnList(Base64.getEncoder().encodeToString(value)));
-            constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/util/Base64$Decoder", "decode", base64DecDesc, false));
+            constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/Base64$Decoder", "decode", base64DecDesc, false));
             constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", false));
             constructor.instructions.add(new InsnNode(Opcodes.POP));
         }
