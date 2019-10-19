@@ -21,17 +21,17 @@ import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 
 public final class IndexAssetCommand extends Command {
-    private static Gson gson = new Gson();
+    private static final Gson gson = new Gson();
 
     public static class IndexObject {
-        long size;
+        final long size;
 
         public IndexObject(long size, String hash) {
             this.size = size;
             this.hash = hash;
         }
 
-        String hash;
+        final String hash;
     }
 
     private static final class IndexAssetVisitor extends SimpleFileVisitor<Path> {

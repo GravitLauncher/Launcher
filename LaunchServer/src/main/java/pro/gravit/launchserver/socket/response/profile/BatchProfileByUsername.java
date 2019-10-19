@@ -10,7 +10,7 @@ import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.helper.LogHelper;
 
 public class BatchProfileByUsername extends SimpleResponse {
-    class Entry {
+    static class Entry {
         String username;
         String client;
     }

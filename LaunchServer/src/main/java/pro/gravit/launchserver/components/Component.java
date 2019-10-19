@@ -4,7 +4,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.ProviderMap;
 
 public abstract class Component {
-    public static ProviderMap<Component> providers = new ProviderMap<>();
+    public static final ProviderMap<Component> providers = new ProviderMap<>();
     private static boolean registredComp = false;
 
     public static void registerComponents() {

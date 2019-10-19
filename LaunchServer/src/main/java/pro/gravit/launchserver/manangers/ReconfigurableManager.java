@@ -10,7 +10,7 @@ import pro.gravit.utils.command.basic.HelpCommand;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public class ReconfigurableManager {
-    private class ReconfigurableVirtualCommand extends Command {
+    private static class ReconfigurableVirtualCommand extends Command {
         public ReconfigurableVirtualCommand(Map<String, Command> childs) {
             super(childs);
         }

@@ -12,7 +12,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public final class BatchProfileByUsernameRequest extends Request<BatchProfileByUsernameRequestEvent> implements WebSocketRequest {
-    class Entry {
+    static class Entry {
         @LauncherNetworkAPI
         String username;
         @LauncherNetworkAPI

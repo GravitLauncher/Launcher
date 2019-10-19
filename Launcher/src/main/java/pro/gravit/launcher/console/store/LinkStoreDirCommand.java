@@ -25,7 +25,7 @@ public class LinkStoreDirCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
         int ind = 1;
-        int index = Integer.valueOf(args[0]);
+        int index = Integer.parseInt(args[0]);
         for (NewLauncherSettings.HashedStoreEntry e : SettingsManager.settings.lastHDirs) {
             if (ind == index) {
                 LogHelper.info("Copy [%d] FullPath: %s name: %s", ind, e.fullPath, e.name);

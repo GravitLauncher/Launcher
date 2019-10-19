@@ -21,7 +21,7 @@ public class ClientLauncherWrapper {
     public static final String WAIT_PROCESS_PROPERTY = "launcher.waitProcess";
     public static final String NO_JAVA9_CHECK_PROPERTY = "launcher.noJava9Check";
     public static boolean waitProcess = Boolean.getBoolean(WAIT_PROCESS_PROPERTY);
-    public static boolean noJava9check = Boolean.getBoolean(NO_JAVA9_CHECK_PROPERTY);
+    public static final boolean noJava9check = Boolean.getBoolean(NO_JAVA9_CHECK_PROPERTY);
 
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");

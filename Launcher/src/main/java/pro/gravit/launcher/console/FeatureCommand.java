@@ -18,7 +18,7 @@ public class FeatureCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
-        boolean enabled = Boolean.valueOf(args[1]);
+        boolean enabled = Boolean.parseBoolean(args[1]);
         switch (args[0]) {
             case "store": {
                 SettingsManager.settings.featureStore = enabled;

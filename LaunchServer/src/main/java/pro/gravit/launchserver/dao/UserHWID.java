@@ -14,7 +14,7 @@ import pro.gravit.launcher.hwid.OshiHWID;
 @Entity
 @Table(name = "users_hwids")
 public class UserHWID implements HWID {
-    private transient Supplier<OshiHWID> oshiSupp = () -> {
+    private final transient Supplier<OshiHWID> oshiSupp = () -> {
         OshiHWID hwid = new OshiHWID();
         hwid.HWDiskSerial = this.HWDiskSerial;
         hwid.macAddr = this.macAddr;
@@ -28,7 +28,7 @@ public class UserHWID implements HWID {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    public long totalMemory = 0;
+    public final long totalMemory = 0;
     public String serialNumber;
     public String HWDiskSerial;
     public String processorID;

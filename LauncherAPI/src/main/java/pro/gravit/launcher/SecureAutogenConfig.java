@@ -3,7 +3,7 @@ package pro.gravit.launcher;
 import java.nio.charset.StandardCharsets;
 
 public class SecureAutogenConfig {
-    public byte[][] certificates;
+    public final byte[][] certificates;
 
     public SecureAutogenConfig() {
         //Пока не реализован SecureLauncherConfigurator

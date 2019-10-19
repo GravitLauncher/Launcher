@@ -33,7 +33,7 @@ public class FMLPatcher extends ClassLoader implements Opcodes {
 		}
 	}
 
-	public static void exit(final int code) throws Throwable {
+	public static void exit(final int code) {
 		for (MethodHandle mh : MHS)
 			try {
 				mh.invoke(code);

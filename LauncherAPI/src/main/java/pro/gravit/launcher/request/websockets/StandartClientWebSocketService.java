@@ -17,7 +17,7 @@ import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public class StandartClientWebSocketService extends ClientWebSocketService {
-    public WaitEventHandler waitEventHandler = new WaitEventHandler();
+    public final WaitEventHandler waitEventHandler = new WaitEventHandler();
 
     public StandartClientWebSocketService(String address) throws SSLException {
         super(address);

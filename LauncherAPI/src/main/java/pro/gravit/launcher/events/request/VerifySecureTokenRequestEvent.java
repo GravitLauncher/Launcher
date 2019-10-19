@@ -5,7 +5,7 @@ import pro.gravit.launcher.events.RequestEvent;
 
 public class VerifySecureTokenRequestEvent extends RequestEvent {
     @LauncherAPI
-    public boolean success;
+    public final boolean success;
 
     @Override
     public String getType() {

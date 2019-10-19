@@ -43,8 +43,8 @@ public final class LogHelper {
     private static final AtomicBoolean DEV_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEV_PROPERTY));
 
     public static class OutputEnity {
-        public Output output;
-        public OutputTypes type;
+        public final Output output;
+        public final OutputTypes type;
 
         public OutputEnity(Output output, OutputTypes type) {
             this.output = output;

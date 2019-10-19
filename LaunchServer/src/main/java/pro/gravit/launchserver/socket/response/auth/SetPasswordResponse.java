@@ -16,7 +16,7 @@ public class SetPasswordResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if(( oldPassword == null && username == null ) || newPassword == null)
         {
             sendError("Request invalid");

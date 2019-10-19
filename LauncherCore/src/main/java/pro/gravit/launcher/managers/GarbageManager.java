@@ -9,8 +9,8 @@ import pro.gravit.launcher.NeedGarbageCollection;
 
 public class GarbageManager {
     static class Entry {
-        NeedGarbageCollection invoke;
-        long timer;
+        final NeedGarbageCollection invoke;
+        final long timer;
 
         public Entry(NeedGarbageCollection invoke, long timer) {
             this.invoke = invoke;

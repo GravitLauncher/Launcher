@@ -12,7 +12,7 @@ import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements WebSocketRequest {
-    public static ProviderMap<AuthPasswordInterface> providers = new ProviderMap<>();
+    public static final ProviderMap<AuthPasswordInterface> providers = new ProviderMap<>();
     public interface AuthPasswordInterface
     {
         boolean check();

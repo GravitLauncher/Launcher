@@ -19,7 +19,7 @@ import pro.gravit.utils.helper.IOHelper;
  * чего угодно. Работает через поиск class-файлов в classpath.
  */
 public class ClassMetadataReader implements Closeable {
-    private class CheckSuperClassVisitor extends ClassVisitor {
+    private static class CheckSuperClassVisitor extends ClassVisitor {
 
         String superClassName;
 
@@ -108,7 +108,7 @@ public class ClassMetadataReader implements Closeable {
 
     @Override
     public void close() {
-        cp.stream().forEach(IOHelper::close);
+        cp.forEach(IOHelper::close);
         cp.clear();
     }
 

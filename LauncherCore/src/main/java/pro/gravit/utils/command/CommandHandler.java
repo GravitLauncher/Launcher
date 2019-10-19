@@ -14,8 +14,8 @@ public abstract class CommandHandler implements Runnable {
     private final CommandCategory baseCategory = new BaseCommandCategory();
 
     public static class Category {
-        public CommandCategory category;
-        public String name;
+        public final CommandCategory category;
+        public final String name;
         public String description;
 
         public Category(CommandCategory category, String name) {
@@ -155,10 +155,8 @@ public abstract class CommandHandler implements Runnable {
 
     /**
      * If supported, sends a bell signal to the console
-     * @throws IOException
-     * Internal Error
      */
-    public abstract void bell() throws IOException;
+    public abstract void bell();
 
 
     /**

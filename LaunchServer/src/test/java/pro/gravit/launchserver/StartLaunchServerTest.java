@@ -49,22 +49,22 @@ public class StartLaunchServerTest {
                 .setCertificateManager(new CertificateManager())
                 .setLaunchServerConfigManager(new LaunchServer.LaunchServerConfigManager() {
                     @Override
-                    public LaunchServerConfig readConfig() throws IOException {
+                    public LaunchServerConfig readConfig() {
                         return null;
                     }
 
                     @Override
-                    public LaunchServerRuntimeConfig readRuntimeConfig() throws IOException {
+                    public LaunchServerRuntimeConfig readRuntimeConfig() {
                         return null;
                     }
 
                     @Override
-                    public void writeConfig(LaunchServerConfig config) throws IOException {
+                    public void writeConfig(LaunchServerConfig config) {
 
                     }
 
                     @Override
-                    public void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException {
+                    public void writeRuntimeConfig(LaunchServerRuntimeConfig config) {
 
                     }
                 })
@@ -73,8 +73,7 @@ public class StartLaunchServerTest {
         launchServer = builder.build();
     }
     @Test
-    public void start() throws Exception
-    {
+    public void start() {
         launchServer.run();
     }
 }

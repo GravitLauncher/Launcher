@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BiHookSet<V, R> {
-    public Set<Hook<V, R>> list = new HashSet<>();
+    public final Set<Hook<V, R>> list = new HashSet<>();
 
     @FunctionalInterface
     public interface Hook<V, R> {

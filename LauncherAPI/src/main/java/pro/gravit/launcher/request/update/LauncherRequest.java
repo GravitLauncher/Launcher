@@ -24,9 +24,9 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     @LauncherNetworkAPI
     public byte[] digest;
     @LauncherNetworkAPI
-    public String secureHash;
+    public final String secureHash;
     @LauncherNetworkAPI
-    public String secureSalt;
+    public final String secureSalt;
     @LauncherNetworkAPI
     public int launcher_type = EXE_BINARY ? 2 : 1;
     @LauncherAPI

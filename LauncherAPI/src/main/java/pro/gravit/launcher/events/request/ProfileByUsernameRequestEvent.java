@@ -13,7 +13,7 @@ public class ProfileByUsernameRequestEvent extends RequestEvent {
     @LauncherNetworkAPI
     public String error;
     @LauncherNetworkAPI
-    public PlayerProfile playerProfile;
+    public final PlayerProfile playerProfile;
 
     public ProfileByUsernameRequestEvent(PlayerProfile playerProfile) {
         this.playerProfile = playerProfile;

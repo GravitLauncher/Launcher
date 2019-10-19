@@ -45,7 +45,7 @@ public class LauncherTrustManager {
 
     public interface CertificateChecker
     {
-        void check(X509Certificate cert, X509Certificate signer) throws CertificateException, SecurityException;
+        void check(X509Certificate cert, X509Certificate signer) throws SecurityException;
     }
 
     public void checkCertificate(X509Certificate[] certs, CertificateChecker checker) throws CertificateException, NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
@@ -56,8 +56,7 @@ public class LauncherTrustManager {
             if(trustCache.contains(cert))
             {
                 //Добавляем в кеш все проверенные сертификаты
-                for(int j=0;j < i;++j)
-                    trustCache.add(certs[j]);
+                trustCache.addAll(Arrays.asList(certs).subList(0, i));
                 return;
             }
             X509Certificate signer = (i+1 < certs.length) ? certs[i+1] : null;

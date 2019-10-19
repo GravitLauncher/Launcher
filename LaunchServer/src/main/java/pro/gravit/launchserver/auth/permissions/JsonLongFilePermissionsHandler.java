@@ -21,8 +21,8 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public class JsonLongFilePermissionsHandler extends PermissionsHandler implements Reconfigurable {
-    public String filename = "permissions.json";
-    public long defaultPerms = 0L;
+    public final String filename = "permissions.json";
+    public final long defaultPerms = 0L;
     public static Map<String, Long> map;
 
 
@@ -48,14 +48,14 @@ public class JsonLongFilePermissionsHandler extends PermissionsHandler implement
         Map<String, Command> commands = new HashMap<>();
         SubCommand reload = new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 reload();
             }
         };
         commands.put("reload", reload);
         commands.put("save", new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 Path path = Paths.get(filename);
                 if (!IOHelper.exists(path)) {
                     try (Writer writer = IOHelper.newWriter(path)) {

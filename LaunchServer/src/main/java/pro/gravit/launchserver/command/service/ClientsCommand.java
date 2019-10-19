@@ -24,7 +24,7 @@ public class ClientsCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         WebSocketService service = server.nettyServerSocketHandler.nettyServer.service;
         service.channels.forEach((channel -> {
             WebSocketFrameHandler frameHandler = channel.pipeline().get(WebSocketFrameHandler.class);

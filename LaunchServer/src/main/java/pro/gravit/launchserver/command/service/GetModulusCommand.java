@@ -19,7 +19,7 @@ public class GetModulusCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         //LogHelper.info("You publickey modulus: %s", server.publicKey.getModulus().toString(16));
     }
 }

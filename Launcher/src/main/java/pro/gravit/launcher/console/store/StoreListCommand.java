@@ -17,7 +17,7 @@ public class StoreListCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         int ind = 1;
         for (NewLauncherSettings.HashedStoreEntry e : SettingsManager.settings.lastHDirs) {
             LogHelper.info("[%d] FullPath: %s name: %s", ind, e.fullPath, e.name);

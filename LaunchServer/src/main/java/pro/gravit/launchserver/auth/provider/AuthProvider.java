@@ -8,7 +8,7 @@ import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.utils.ProviderMap;
 
 public abstract class AuthProvider implements AutoCloseable {
-    public static ProviderMap<AuthProvider> providers = new ProviderMap<>("AuthProvider");
+    public static final ProviderMap<AuthProvider> providers = new ProviderMap<>("AuthProvider");
     private static boolean registredProv = false;
     protected transient LaunchServer srv = null;
     public static AuthProviderResult authError(String message) throws AuthException {

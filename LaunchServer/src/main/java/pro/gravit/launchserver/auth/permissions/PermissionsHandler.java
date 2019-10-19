@@ -5,7 +5,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.ProviderMap;
 
 public abstract class PermissionsHandler implements AutoCloseable {
-    public static ProviderMap<PermissionsHandler> providers = new ProviderMap<>("PermissionsHandler");
+    public static final ProviderMap<PermissionsHandler> providers = new ProviderMap<>("PermissionsHandler");
     protected transient LaunchServer srv;
     private static boolean registredHandl = false;
 

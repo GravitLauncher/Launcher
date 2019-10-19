@@ -74,18 +74,18 @@ public class JLineCommandHandler extends CommandHandler {
     }
 
     @Override
-    public void bell() throws IOException {
+    public void bell() {
         terminal.puts(InfoCmp.Capability.bell);
         //reader.beep();
     }
 
     @Override
-    public void clear() throws IOException {
+    public void clear() {
         terminal.puts(InfoCmp.Capability.clear_screen);
     }
 
     @Override
-    public String readLine() throws IOException {
+    public String readLine() {
         try {
             return reader.readLine();
         } catch (UserInterruptException e) {

@@ -32,7 +32,7 @@ public class AuthLimiterComponent extends IPLimiter implements NeedGarbageCollec
     public String message;
 
 	@Override
-	public void close() throws Exception {
+	public void close() {
         srv.authHookManager.preHook.unregisterHook(this::preAuthHook);
 	}
 }

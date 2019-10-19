@@ -19,7 +19,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
-    public class StoreFileVisitor extends SimpleFileVisitor<Path> {
+    public static class StoreFileVisitor extends SimpleFileVisitor<Path> {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                 throws IOException {

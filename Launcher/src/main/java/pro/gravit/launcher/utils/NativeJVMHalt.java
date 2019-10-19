@@ -14,7 +14,7 @@ public final class NativeJVMHalt {
         System.out.println("JVM exit code " + haltCode);
     }
 
-    public int haltCode;
+    public final int haltCode;
 
     public native void aaabbb38C_D();
 

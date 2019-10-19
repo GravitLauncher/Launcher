@@ -451,8 +451,7 @@ public final class SecurityHelper {
     //AES
     public static byte[] encrypt(String seed, byte[] cleartext) throws Exception {
         byte[] rawKey = getRawKey(seed.getBytes());
-        byte[] result = encrypt(rawKey, cleartext);
-        return result;
+        return encrypt(rawKey, cleartext);
     }
 
     public static byte[] encrypt(String seed, String cleartext) throws Exception {

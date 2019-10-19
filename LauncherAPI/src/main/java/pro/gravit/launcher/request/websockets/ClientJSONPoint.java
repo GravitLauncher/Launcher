@@ -31,7 +31,7 @@ public abstract class ClientJSONPoint {
     protected Channel ch;
     private static final EventLoopGroup group = new NioEventLoopGroup();
     protected WebSocketClientHandler webSocketClientHandler;
-    protected Bootstrap bootstrap = new Bootstrap();
+    protected final Bootstrap bootstrap = new Bootstrap();
     protected boolean ssl = false;
     protected int port;
     public boolean isClosed;
@@ -61,7 +61,7 @@ public abstract class ClientJSONPoint {
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    public void initChannel(SocketChannel ch) throws Exception {
+                    public void initChannel(SocketChannel ch) {
                         ChannelPipeline pipeline = ch.pipeline();
                         if (sslCtx != null) {
                             pipeline.addLast(sslCtx.newHandler(ch.alloc(), uri.getHost(), port));
@@ -88,11 +88,11 @@ public abstract class ClientJSONPoint {
         return ch.writeAndFlush(new TextWebSocketFrame(text), ch.voidPromise());
     }
 
-    abstract void onMessage(String message) throws Exception;
+    abstract void onMessage(String message);
 
-    abstract void onDisconnect() throws Exception;
+    abstract void onDisconnect();
 
-    abstract void onOpen() throws Exception;
+    abstract void onOpen();
 
     public void close() throws InterruptedException {
         //System.out.println("WebSocket Client sending close");
@@ -105,7 +105,7 @@ public abstract class ClientJSONPoint {
         //group.shutdownGracefully();
     }
 
-    public void eval(final String text) throws IOException {
+    public void eval(final String text) {
         ch.writeAndFlush(new TextWebSocketFrame(text), ch.voidPromise());
     }
 

@@ -45,7 +45,7 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
         Map<String, Command> commands = new HashMap<>();
         commands.put("message", new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 message = args[0];
                 LogHelper.info("New reject message: %s", message);
             }

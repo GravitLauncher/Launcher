@@ -15,7 +15,7 @@ public abstract class Command {
     /**
      * List of available subcommands
      */
-    public Map<String, Command> childCommands;
+    public final Map<String, Command> childCommands;
 
     public Command() {
         childCommands = new HashMap<>();

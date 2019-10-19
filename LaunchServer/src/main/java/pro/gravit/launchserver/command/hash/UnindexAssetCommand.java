@@ -17,7 +17,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public final class UnindexAssetCommand extends Command {
-    private static JsonParser parser = new JsonParser();
+    private static final JsonParser parser = new JsonParser();
 
     public UnindexAssetCommand(LaunchServer server) {
         super(server);

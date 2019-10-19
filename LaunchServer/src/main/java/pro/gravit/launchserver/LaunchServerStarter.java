@@ -43,7 +43,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.verify.LauncherTrustManager;
 
 public class LaunchServerStarter {
-    public static boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
+    public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
     public static void main(String[] args) throws Exception {
         JVMHelper.checkStackTrace(LaunchServerStarter.class);
         JVMHelper.verifySystemProperties(LaunchServer.class, true);

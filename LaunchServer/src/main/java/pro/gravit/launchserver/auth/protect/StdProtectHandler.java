@@ -4,7 +4,7 @@ import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.SecurityHelper;
 
 public class StdProtectHandler extends ProtectHandler {
-    public boolean checkSecure = true;
+    public final boolean checkSecure = true;
     @Override
     public String generateSecureToken(AuthResponse.AuthContext context) {
         return SecurityHelper.randomStringToken();

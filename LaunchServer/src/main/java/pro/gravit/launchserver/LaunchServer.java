@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -153,7 +154,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                         reload(ReloadType.NO_COMPONENTS);
                         break;
                     default:
-                        reload(ReloadType.FULL);;
+                        reload(ReloadType.FULL);
                         break;
                 }
             }
@@ -163,7 +164,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
 
-    private final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
+    private static final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
         private final Collection<ClientProfile> result;
 
         private ProfilesFileVisitor(Collection<ClientProfile> result) {
@@ -215,7 +216,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     // Server config
 
     public LaunchServerConfig config;
-    public LaunchServerRuntimeConfig runtime;
+    public final LaunchServerRuntimeConfig runtime;
 
 
     public final ECPublicKey publicKey;
@@ -225,7 +226,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     public final JARLauncherBinary launcherBinary;
 
-    public Class<? extends LauncherBinary> launcherEXEBinaryClass;
+    public final Class<? extends LauncherBinary> launcherEXEBinaryClass;
 
     public final LauncherBinary launcherEXEBinary;
     // HWID ban + anti-brutforce
@@ -263,7 +264,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     public final Timer taskPool;
 
-    public static Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
+    public static final Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
 
     public static class LaunchServerDirectories
     {
@@ -402,10 +403,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             Files.createDirectory(profilesDir);
         syncProfilesDir();
 
-        if (config.netty != null)
-            nettyServerSocketHandler = new NettyServerSocketHandler(this);
-        else
-            nettyServerSocketHandler = null;
+        nettyServerSocketHandler = new NettyServerSocketHandler(this);
         // post init modules
         modulesManager.invokeEvent(new LaunchServerPostInitPhase(this));
         if (config.components != null) {
@@ -548,7 +546,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 // Resolve name and verify is dir
                 String name = IOHelper.getFileName(updateDir);
                 if (!IOHelper.isDir(updateDir)) {
-                    if (!IOHelper.isFile(updateDir) && Arrays.asList(".jar", ".exe", ".hash").stream().noneMatch(e -> updateDir.toString().endsWith(e)))
+                    if (!IOHelper.isFile(updateDir) && Stream.of(".jar", ".exe", ".hash").noneMatch(e -> updateDir.toString().endsWith(e)))
                         LogHelper.warning("Not update dir: '%s'", name);
                     continue;
                 }

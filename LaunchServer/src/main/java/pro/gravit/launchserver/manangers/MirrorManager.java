@@ -15,7 +15,7 @@ import pro.gravit.utils.helper.LogHelper;
 
 public class MirrorManager {
     public static class Mirror {
-        String baseUrl;
+        final String baseUrl;
         boolean enabled;
 
         Mirror(String url) {
@@ -34,7 +34,7 @@ public class MirrorManager {
         }
     }
 
-    protected ArrayList<Mirror> list = new ArrayList<>();
+    protected final ArrayList<Mirror> list = new ArrayList<>();
     private Mirror defaultMirror;
 
     public void addMirror(String mirror) {
@@ -44,7 +44,7 @@ public class MirrorManager {
         list.add(m);
     }
 
-    public void addMirror(String mirror, boolean enabled) throws MalformedURLException {
+    public void addMirror(String mirror, boolean enabled) {
         Mirror m = new Mirror(mirror);
         m.enabled = enabled;
         if (defaultMirror == null && enabled) defaultMirror = m;

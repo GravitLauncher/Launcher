@@ -31,7 +31,7 @@ public class CommandHandlerTest {
         try {
             cmd.invoke("test1");
             Assertions.fail("CommandException not throw");
-        } catch (CommandException e)
+        } catch (CommandException ignored)
         {
 
         }
@@ -48,7 +48,7 @@ public class CommandHandlerTest {
         try {
             commandHandler.evalNative("test2", false);
             Assertions.fail("CommandException not throw");
-        } catch (CommandException e)
+        } catch (CommandException ignored)
         {
 
         }

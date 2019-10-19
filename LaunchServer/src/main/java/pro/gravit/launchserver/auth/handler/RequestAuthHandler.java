@@ -16,8 +16,8 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     private String updateAuth;
     private String updateServerID;
 
-    private String splitSymbol = ":";
-    private String goodResponse = "OK";
+    private final String splitSymbol = ":";
+    private final String goodResponse = "OK";
 
     @Override
     public void init(LaunchServer srv) {

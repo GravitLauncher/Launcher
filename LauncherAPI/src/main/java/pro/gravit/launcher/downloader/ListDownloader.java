@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -52,8 +53,8 @@ public class ListDownloader {
     }
 
     public static class DownloadTask {
-        public String apply;
-        public long size;
+        public final String apply;
+        public final long size;
 
         public DownloadTask(String apply, long size) {
             this.apply = apply;
@@ -65,7 +66,7 @@ public class ListDownloader {
         try (CloseableHttpClient httpclient = HttpClients.custom().setUserAgent(IOHelper.USER_AGENT)
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
-        	applies.sort((a,b) -> Long.compare(a.size, b.size));
+        	applies.sort(Comparator.comparingLong(a -> a.size));
         	List<Callable<Void>> toExec = new ArrayList<>();
             URI baseUri = new URI(base);
             String scheme = baseUri.getScheme();
@@ -106,7 +107,7 @@ public class ListDownloader {
         }
     }
 
-    public void downloadZip(String base, List<DownloadTask> applies, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean fullDownload) throws IOException, URISyntaxException {
+    public void downloadZip(String base, List<DownloadTask> applies, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback, boolean fullDownload) throws IOException {
         /*try (CloseableHttpClient httpclient = HttpClients.custom()
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {

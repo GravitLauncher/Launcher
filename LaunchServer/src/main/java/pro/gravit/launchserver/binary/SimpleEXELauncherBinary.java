@@ -9,7 +9,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public class SimpleEXELauncherBinary extends LauncherBinary {
-    public Path exeTemplate;
+    public final Path exeTemplate;
     public SimpleEXELauncherBinary(LaunchServer server) {
         super(server, LauncherBinary.resolve(server, ".exe"));
         exeTemplate = server.dir.resolve("SimpleTemplate.exe");

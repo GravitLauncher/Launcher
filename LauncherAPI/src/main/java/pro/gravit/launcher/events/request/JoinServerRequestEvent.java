@@ -15,7 +15,7 @@ public class JoinServerRequestEvent extends RequestEvent {
     }
 
     @LauncherNetworkAPI
-    public boolean allow;
+    public final boolean allow;
 
     @Override
     public String getType() {

@@ -14,7 +14,7 @@ public abstract class StreamObject {
     @FunctionalInterface
     public interface Adapter<O extends StreamObject> {
         @LauncherAPI
-        O convert(HInput input) throws IOException;
+        O convert(HInput input);
     }
 
     @LauncherAPI

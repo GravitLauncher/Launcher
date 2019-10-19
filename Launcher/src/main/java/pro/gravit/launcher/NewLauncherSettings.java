@@ -48,11 +48,11 @@ public class NewLauncherSettings {
 
     public static class HashedStoreEntry {
         @LauncherAPI
-        public HashedDir hdir;
+        public final HashedDir hdir;
         @LauncherAPI
-        public String name;
+        public final String name;
         @LauncherAPI
-        public String fullPath;
+        public final String fullPath;
         @LauncherAPI
         public transient boolean needSave = false;
 
@@ -64,7 +64,7 @@ public class NewLauncherSettings {
     }
 
     @LauncherAPI
-    public transient List<HashedStoreEntry> lastHDirs = new ArrayList<>(16);
+    public final transient List<HashedStoreEntry> lastHDirs = new ArrayList<>(16);
 
     @LauncherAPI
     public void putHDir(String name, Path path, HashedDir dir) {

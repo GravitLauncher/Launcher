@@ -10,7 +10,7 @@ import pro.gravit.utils.ProviderMap;
 
 
 public abstract class AuthHandler implements AutoCloseable {
-    public static ProviderMap<AuthHandler> providers = new ProviderMap<>("AuthHandler");
+    public static final ProviderMap<AuthHandler> providers = new ProviderMap<>("AuthHandler");
     private static boolean registredHandl = false;
 
 

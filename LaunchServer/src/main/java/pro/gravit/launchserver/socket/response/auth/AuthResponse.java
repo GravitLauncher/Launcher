@@ -30,7 +30,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public class AuthResponse extends SimpleResponse {
-    public transient static Random random = new SecureRandom();
+    public final transient static Random random = new SecureRandom();
     public String login;
     public String client;
     public String customText;
@@ -139,14 +139,14 @@ public class AuthResponse extends SimpleResponse {
             this.ip = ip;
             this.authType = authType;
         }
-        public String login;
+        public final String login;
         @Deprecated
         public int password_length; //Use AuthProvider for get password
-        public String profileName;
-        public HWID hwid;
-        public String customText;
-        public String ip;
-        public ConnectTypes authType;
-        public Client client;
+        public final String profileName;
+        public final HWID hwid;
+        public final String customText;
+        public final String ip;
+        public final ConnectTypes authType;
+        public final Client client;
     }
 }

@@ -11,7 +11,7 @@ import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.verify.LauncherTrustManager;
 
 public class LaunchServerModulesManager extends SimpleModuleManager {
-    public LaunchServerCoreModule coreModule;
+    public final LaunchServerCoreModule coreModule;
     public LaunchServerModulesManager(Path modulesDir, Path configDir, LauncherTrustManager trustManager) {
         super(modulesDir, configDir, trustManager);
         coreModule = new LaunchServerCoreModule();

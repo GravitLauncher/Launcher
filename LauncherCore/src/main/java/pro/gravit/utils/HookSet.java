@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class HookSet<R> {
-    public Set<Hook<R>> list = new HashSet<>();
+    public final Set<Hook<R>> list = new HashSet<>();
 
     @FunctionalInterface
     public interface Hook<R> {

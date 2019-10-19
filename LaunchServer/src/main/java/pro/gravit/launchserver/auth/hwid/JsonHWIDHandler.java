@@ -23,12 +23,12 @@ public final class JsonHWIDHandler extends HWIDHandler {
     private URL urlGet;
     private String apiKey;
 
-    public class banRequest {
+    public static class banRequest {
         public banRequest(OshiHWID hwid) {
             this.hwid = hwid;
         }
 
-        OshiHWID hwid;
+        final OshiHWID hwid;
         String apiKey;
 
         public banRequest(OshiHWID hwid, String apiKey) {
@@ -37,14 +37,14 @@ public final class JsonHWIDHandler extends HWIDHandler {
         }
     }
 
-    public class checkRequest {
+    public static class checkRequest {
         public checkRequest(String username, OshiHWID hwid) {
             this.username = username;
             this.hwid = hwid;
         }
 
-        String username;
-        OshiHWID hwid;
+        final String username;
+        final OshiHWID hwid;
         String apiKey;
 
         public checkRequest(String username, OshiHWID hwid, String apiKey) {
@@ -54,21 +54,21 @@ public final class JsonHWIDHandler extends HWIDHandler {
         }
     }
 
-    public class Result {
+    public static class Result {
         String error;
     }
 
-    public class BannedResult {
+    public static class BannedResult {
         boolean isBanned;
         String error;
     }
 
-    public class HWIDRequest {
+    public static class HWIDRequest {
         public HWIDRequest(String username) {
             this.username = username;
         }
 
-        String username;
+        final String username;
         String apiKey;
 
         public HWIDRequest(String username, String apiKey) {

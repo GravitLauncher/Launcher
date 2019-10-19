@@ -8,9 +8,9 @@ import pro.gravit.launcher.events.RequestEvent;
 public class GetAvailabilityAuthRequestEvent extends RequestEvent {
     public static class AuthAvailability {
         @LauncherNetworkAPI
-        public String name;
+        public final String name;
         @LauncherNetworkAPI
-        public String displayName;
+        public final String displayName;
 
         public AuthAvailability(String name, String displayName) {
             this.name = name;
@@ -19,7 +19,7 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
     }
 
     @LauncherNetworkAPI
-    public List<AuthAvailability> list;
+    public final List<AuthAvailability> list;
 
     public GetAvailabilityAuthRequestEvent(List<AuthAvailability> list) {
         this.list = list;

@@ -14,14 +14,14 @@ import pro.gravit.utils.helper.LogHelper;
 public abstract class AbstractLimiter<T> extends Component implements NeedGarbageCollection, Reconfigurable {
     public int rateLimit;
     public int rateLimitMillis;
-    public List<T> exclude = new ArrayList<>();
+    public final List<T> exclude = new ArrayList<>();
 
     @Override
     public Map<String, Command> getCommands() {
         Map<String, Command> commands = new HashMap<>();
         commands.put("gc", new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 long size = map.size();
                 garbageCollection();
                 LogHelper.info("Cleared %d entity", size);
@@ -29,7 +29,7 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
         });
         commands.put("clear", new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 long size = map.size();
                 map.clear();
                 LogHelper.info("Cleared %d entity", size);
@@ -51,7 +51,7 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
         });
         commands.put("clearExclude", new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 exclude.clear();
             }
         });
@@ -67,7 +67,7 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
         map.entrySet().removeIf((e) -> e.getValue().time + rateLimitMillis < time);
     }
 
-    class LimitEntry
+    static class LimitEntry
     {
         long time;
         int trys;
@@ -82,7 +82,7 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
             trys = 0;
         }
     }
-    protected transient Map<T, LimitEntry> map = new HashMap<>();
+    protected final transient Map<T, LimitEntry> map = new HashMap<>();
     public boolean check(T address)
     {
         if(exclude.contains(address)) return true;

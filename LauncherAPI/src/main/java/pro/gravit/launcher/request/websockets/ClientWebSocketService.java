@@ -3,6 +3,7 @@ package pro.gravit.launcher.request.websockets;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 
 import javax.net.ssl.SSLException;
@@ -26,8 +27,8 @@ public class ClientWebSocketService extends ClientJSONPoint {
     public OnCloseCallback onCloseCallback;
     public final Boolean onConnect;
     public ReconnectCallback reconnectCallback;
-    public static ProviderMap<WebSocketEvent> results = new ProviderMap<>();
-    public static ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
+    public static final ProviderMap<WebSocketEvent> results = new ProviderMap<>();
+    public static final ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
     private HashSet<EventHandler> handlers;
 
     public ClientWebSocketService(String address) throws SSLException {
@@ -47,11 +48,9 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     private static URI createURL(String address) {
         try {
-            URI u = new URI(address);
-            return u;
-        } catch (Throwable e) {
-            LogHelper.error(e);
-            return null;
+            return new URI(address);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -70,7 +69,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
     }
 
     @Override
-    void onOpen() throws Exception {
+    void onOpen() {
         synchronized (onConnect) {
             onConnect.notifyAll();
         }

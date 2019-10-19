@@ -9,7 +9,7 @@ import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.utils.helper.LogHelper;
 
 public class WaitEventHandler implements ClientWebSocketService.EventHandler {
-    public Set<ResultEvent> requests = ConcurrentHashMap.newKeySet();
+    public final Set<ResultEvent> requests = ConcurrentHashMap.newKeySet();
 
     @Override
     public void process(WebSocketEvent result) {

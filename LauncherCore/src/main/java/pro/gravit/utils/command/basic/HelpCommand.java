@@ -12,7 +12,7 @@ import pro.gravit.utils.helper.FormatHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public final class HelpCommand extends Command {
-    private CommandHandler handler;
+    private final CommandHandler handler;
 
     public static void printCommand(String name, Command command) {
         String args = command.getArgsDescription();
@@ -34,9 +34,7 @@ public final class HelpCommand extends Command {
 
     public static void printSubCommandsHelp(String base, Command command)
     {
-        command.childCommands.forEach((k, v) -> {
-            printCommand(base.concat(" ").concat(k), v);
-        });
+        command.childCommands.forEach((k, v) -> printCommand(base.concat(" ").concat(k), v));
     }
 
     public static void printSubCommandsHelp(String name, String[] args, Command command) throws CommandException

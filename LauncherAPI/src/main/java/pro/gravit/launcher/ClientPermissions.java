@@ -13,11 +13,11 @@ public class ClientPermissions {
     @LauncherAPI
     public boolean canServer;
     @LauncherAPI
-    public boolean canUSR1;
+    public final boolean canUSR1;
     @LauncherAPI
-    public boolean canUSR2;
+    public final boolean canUSR2;
     @LauncherAPI
-    public boolean canUSR3;
+    public final boolean canUSR3;
     @LauncherAPI
     public boolean canBot;
 

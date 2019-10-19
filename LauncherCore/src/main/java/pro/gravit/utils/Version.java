@@ -106,7 +106,7 @@ public final class Version {
         public static final Map<String, Type> unModTypes = Collections.unmodifiableMap(types);
 
         static {
-            Arrays.asList(values()).stream().forEach(type -> types.put(type.name().substring(0, type.name().length() < 3 ? type.name().length() : 3).toLowerCase(Locale.ENGLISH), type));
+            Arrays.asList(values()).forEach(type -> types.put(type.name().substring(0, type.name().length() < 3 ? type.name().length() : 3).toLowerCase(Locale.ENGLISH), type));
         }
     }
 }

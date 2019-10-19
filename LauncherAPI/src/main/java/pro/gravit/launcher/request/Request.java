@@ -13,7 +13,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 public abstract class Request<R extends WebSocketEvent> implements WebSocketRequest {
     private static long session = SecurityHelper.secureRandom.nextLong();
     @LauncherNetworkAPI
-    public UUID requestUUID = UUID.randomUUID();
+    public final UUID requestUUID = UUID.randomUUID();
     public static StandartClientWebSocketService service;
 
     public static void setSession(long session) {

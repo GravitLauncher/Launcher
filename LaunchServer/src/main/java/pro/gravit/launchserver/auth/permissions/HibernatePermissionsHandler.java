@@ -21,7 +21,7 @@ public class HibernatePermissionsHandler extends PermissionsHandler {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
 
     }
 }

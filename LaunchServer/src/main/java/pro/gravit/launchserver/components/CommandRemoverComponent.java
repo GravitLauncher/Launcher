@@ -7,8 +7,8 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.command.Command;
 
 public class CommandRemoverComponent extends Component implements AutoCloseable {
-    public String[] removeList = new String[]{};
-    public transient Map<String, Command> commandsList = new HashMap<>();
+    public final String[] removeList = new String[]{};
+    public final transient Map<String, Command> commandsList = new HashMap<>();
     private transient LaunchServer server = null;
 
     @Override

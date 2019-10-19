@@ -18,7 +18,7 @@ import pro.gravit.utils.helper.LogHelper;
 public class HasherStore {
     public Map<String, HasherStoreEnity> store;
 
-    public class HasherStoreEnity {
+    public static class HasherStoreEnity {
         @LauncherAPI
         public HashedDir hdir;
         @LauncherAPI

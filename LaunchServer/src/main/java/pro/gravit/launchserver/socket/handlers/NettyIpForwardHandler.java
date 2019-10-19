@@ -11,7 +11,7 @@ import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.utils.helper.LogHelper;
 
 public class NettyIpForwardHandler extends MessageToMessageDecoder<HttpRequest> {
-    private NettyConnectContext context;
+    private final NettyConnectContext context;
 
     public NettyIpForwardHandler(NettyConnectContext context) {
         super();
@@ -19,7 +19,7 @@ public class NettyIpForwardHandler extends MessageToMessageDecoder<HttpRequest> 
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, HttpRequest msg, List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, HttpRequest msg, List<Object> out) {
         if (msg instanceof ReferenceCounted) {
             ((ReferenceCounted) msg).retain();
         }

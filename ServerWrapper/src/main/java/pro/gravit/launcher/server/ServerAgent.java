@@ -45,8 +45,8 @@ public class ServerAgent {
         return inst.getObjectSize(obj);
     }
 
-    public static Boolean isAutoloadLibraries = Boolean.getBoolean(System.getProperty("serverwrapper,agentlibrariesload", "false"));
-    public static Boolean isAgentProxy = Boolean.getBoolean(System.getProperty("serverwrapper,agentproxy", "false"));
+    public static final Boolean isAutoloadLibraries = Boolean.getBoolean(System.getProperty("serverwrapper,agentlibrariesload", "false"));
+    public static final Boolean isAgentProxy = Boolean.getBoolean(System.getProperty("serverwrapper,agentproxy", "false"));
 
     public static void premain(String agentArgument, Instrumentation instrumentation) {
         LogHelper.debug("Server Agent");

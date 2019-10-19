@@ -22,7 +22,7 @@ import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public final class ServerPinger {
-    private JsonParser parser = new JsonParser();
+    private final JsonParser parser = new JsonParser();
 
     public static final class Result {
         @LauncherAPI

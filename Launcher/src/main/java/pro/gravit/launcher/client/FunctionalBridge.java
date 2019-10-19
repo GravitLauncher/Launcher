@@ -26,11 +26,11 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 public class FunctionalBridge {
     @LauncherAPI
-    public static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(0);
+    public static final ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(0);
     @LauncherAPI
     public static OshiHWIDProvider hwidProvider;
     @LauncherAPI
-    public static AtomicReference<HWID> hwid = new AtomicReference<>();
+    public static final AtomicReference<HWID> hwid = new AtomicReference<>();
     @LauncherAPI
     public static Thread getHWID = null;
 

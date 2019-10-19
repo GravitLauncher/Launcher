@@ -16,17 +16,17 @@ public class ClientModuleManager extends SimpleModuleManager {
     }
 
     @Override
-    public void autoload() throws IOException {
+    public void autoload() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void autoload(Path dir) throws IOException {
+    public void autoload(Path dir) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public LauncherModule loadModule(Path file) throws IOException {
+    public LauncherModule loadModule(Path file) {
         throw new UnsupportedOperationException();
     }
 

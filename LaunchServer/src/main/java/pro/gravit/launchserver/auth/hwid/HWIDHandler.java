@@ -12,7 +12,7 @@ import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.LogHelper;
 
 public abstract class HWIDHandler implements AutoCloseable, Reconfigurable {
-    public static ProviderMap<HWIDHandler> providers = new ProviderMap<>("HWIDHandler");
+    public static final ProviderMap<HWIDHandler> providers = new ProviderMap<>("HWIDHandler");
     private static boolean registredHandl = false;
 
 

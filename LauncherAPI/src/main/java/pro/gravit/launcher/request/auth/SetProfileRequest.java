@@ -8,7 +8,7 @@ import pro.gravit.launcher.request.websockets.WebSocketRequest;
 
 public class SetProfileRequest extends Request<SetProfileRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
-    public String client;
+    public final String client;
 
     public SetProfileRequest(ClientProfile profile) {
         this.client = profile.getTitle();

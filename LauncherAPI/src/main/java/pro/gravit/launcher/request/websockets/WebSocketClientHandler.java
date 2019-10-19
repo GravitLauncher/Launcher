@@ -34,7 +34,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     @Override
-    public void handlerAdded(final ChannelHandlerContext ctx) throws Exception {
+    public void handlerAdded(final ChannelHandlerContext ctx) {
         handshakeFuture = ctx.newPromise();
     }
 
@@ -42,9 +42,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         handshaker.handshake(ctx.channel());
         clientJSONPoint.onOpen();
-        ctx.executor().scheduleWithFixedDelay(() -> {
-            ctx.channel().writeAndFlush(new PingWebSocketFrame());
-        }, 20L, 20L, TimeUnit.SECONDS);
+        ctx.executor().scheduleWithFixedDelay(() -> ctx.channel().writeAndFlush(new PingWebSocketFrame()), 20L, 20L, TimeUnit.SECONDS);
     }
 
     @Override
@@ -93,7 +91,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     @Override
-    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         LogHelper.error(cause);
 
         if (!handshakeFuture.isDone()) {

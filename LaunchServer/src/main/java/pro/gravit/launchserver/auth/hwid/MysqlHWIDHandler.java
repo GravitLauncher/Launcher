@@ -37,10 +37,10 @@ public class MysqlHWIDHandler extends HWIDHandler {
 
     private String banMessage;
 
-    private boolean compareMode = false;
+    private final boolean compareMode = false;
     //Using queryHWID "queryHwids": "SELECT * FROM `users_hwids` WHERE `totalMemory` = ? or `serialNumber` = ? or `HWDiskSerial` = ? or `processorID` = ? or `MACAddr` = ?"
-    private int compare = 50; //При наборе схожести в 50 очков
-    private boolean oneCompareMode = false;
+    private final int compare = 50; //При наборе схожести в 50 очков
+    private final boolean oneCompareMode = false;
 
     /*
         //Добавить поля hwid в базу с пользователями
@@ -151,7 +151,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
                     db_hwid.serialNumber = set.getString(hwidFieldSerialNumber);
                     db_hwid.processorID = set.getString(hwidFieldProcessorID);
                     db_hwid.HWDiskSerial = set.getString(hwidFieldHWDiskSerial);
-                    db_hwid.totalMemory = Long.valueOf(set.getString(hwidFieldTotalMemory));
+                    db_hwid.totalMemory = Long.parseLong(set.getString(hwidFieldTotalMemory));
                     db_hwid.macAddr = set.getString(hwidFieldMAC);
                     if (LogHelper.isDevEnabled()) {
                         LogHelper.dev("Compare HWID: %s vs %s", hwid.toString(), db_hwid.toString());
@@ -238,7 +238,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
                         ResultSet rs = s.executeQuery();
                         if (rs.next()) {
                             OshiHWID oshiHWID = new OshiHWID();
-                            oshiHWID.totalMemory = Long.valueOf(rs.getString(hwidFieldTotalMemory));
+                            oshiHWID.totalMemory = Long.parseLong(rs.getString(hwidFieldTotalMemory));
                             oshiHWID.serialNumber = rs.getString(hwidFieldSerialNumber);
                             oshiHWID.HWDiskSerial = rs.getString(hwidFieldHWDiskSerial);
                             oshiHWID.processorID = rs.getString(hwidFieldProcessorID);

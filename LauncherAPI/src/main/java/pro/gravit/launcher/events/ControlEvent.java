@@ -15,5 +15,5 @@ public class ControlEvent {
         this.signal = signal;
     }
 
-    public ControlCommand signal;
+    public final ControlCommand signal;
 }

@@ -42,7 +42,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected LauncherInitContext initContext;
     protected LauncherTrustManager.CheckMode checkMode = LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED;
 
-    protected PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{});
+    protected final PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{});
 
     protected final class ModulesVisitor extends SimpleFileVisitor<Path> {
         private ModulesVisitor() {

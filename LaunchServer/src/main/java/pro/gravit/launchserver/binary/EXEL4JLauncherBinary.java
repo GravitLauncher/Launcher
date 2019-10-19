@@ -114,8 +114,8 @@ public final class EXEL4JLauncherBinary extends LauncherBinary {
         ConfigPersister.getInstance().setAntConfig(config, null);
     }
 
-    private static String VERSION = Version.getVersion().getVersionString();
-    private static int BUILD = Version.getVersion().build;
+    private static final String VERSION = Version.getVersion().getVersionString();
+    private static final int BUILD = Version.getVersion().build;
 
     public static String formatVars(String mask) {
         return String.format(mask, VERSION, BUILD);

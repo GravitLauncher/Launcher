@@ -20,7 +20,7 @@ public class SerializeTest {
     }
     public static class MyTestClass implements TestInterface
     {
-        public String a;
+        public final String a;
 
         public MyTestClass(String a) {
             this.a = a;
@@ -33,7 +33,7 @@ public class SerializeTest {
     }
     public static class MyTestClass2 implements TestInterface
     {
-        public String b;
+        public final String b;
 
         public MyTestClass2(String a) {
             this.b = a;

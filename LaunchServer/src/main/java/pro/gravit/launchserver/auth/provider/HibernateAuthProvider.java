@@ -36,7 +36,7 @@ public class HibernateAuthProvider extends AuthProvider {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
     }
 }

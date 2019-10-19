@@ -28,17 +28,17 @@ import pro.gravit.utils.helper.LogHelper;
 
 public final class UpdateRequest extends Request<UpdateRequestEvent> implements WebSocketRequest {
     public interface UpdateController {
-        void preUpdate(UpdateRequest request, UpdateRequestEvent e) throws IOException;
+        void preUpdate(UpdateRequest request, UpdateRequestEvent e);
 
-        void preDiff(UpdateRequest request, UpdateRequestEvent e) throws IOException;
+        void preDiff(UpdateRequest request, UpdateRequestEvent e);
 
         void postDiff(UpdateRequest request, UpdateRequestEvent e, HashedDir.Diff diff) throws IOException;
 
-        void preDownload(UpdateRequest request, UpdateRequestEvent e, List<ListDownloader.DownloadTask> adds) throws IOException;
+        void preDownload(UpdateRequest request, UpdateRequestEvent e, List<ListDownloader.DownloadTask> adds);
 
-        void postDownload(UpdateRequest request, UpdateRequestEvent e) throws IOException;
+        void postDownload(UpdateRequest request, UpdateRequestEvent e);
 
-        void postUpdate(UpdateRequest request, UpdateRequestEvent e) throws IOException;
+        void postUpdate(UpdateRequest request, UpdateRequestEvent e);
     }
 
     private static UpdateController controller;

@@ -7,7 +7,7 @@ public abstract class LauncherModule {
     private LauncherModulesContext context;
 
     @SuppressWarnings("rawtypes")
-	private Map<Class<? extends Event>, EventHandler> eventMap = new HashMap<>();
+	private final Map<Class<? extends Event>, EventHandler> eventMap = new HashMap<>();
     protected LauncherModulesManager modulesManager;
     protected final LauncherModuleInfo moduleInfo;
     protected ModulesConfigManager modulesConfigManager;

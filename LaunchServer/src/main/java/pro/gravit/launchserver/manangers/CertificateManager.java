@@ -57,8 +57,8 @@ public class CertificateManager {
 
     public LauncherTrustManager trustManager;
 
-    public int validDays = 60;
-    public int minusHours = 6;
+    public final int validDays = 60;
+    public final int minusHours = 6;
 
     public String orgName;
 

@@ -38,7 +38,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
         }
     }
 
-    protected class EntryAndUsername {
+    protected static class EntryAndUsername {
         public Map<UUID, CachedAuthHandler.Entry> entryCache;
         public Map<String, UUID> usernameCache;
     }
@@ -48,7 +48,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
         Map<String, Command> commands = new HashMap<>();
         commands.put("clear", new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 long entryCacheSize = entryCache.size();
                 long usernamesCacheSize = usernamesCache.size();
                 entryCache.clear();

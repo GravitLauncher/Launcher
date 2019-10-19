@@ -39,7 +39,7 @@ public class RegLimiterComponent extends IPLimiter implements NeedGarbageCollect
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         launchServer.authHookManager.registraion.unregisterHook(this::registerHook);
     }
 }

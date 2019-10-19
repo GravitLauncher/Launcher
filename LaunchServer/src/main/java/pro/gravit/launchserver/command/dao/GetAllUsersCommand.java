@@ -21,7 +21,7 @@ public class GetAllUsersCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         int count = 0;
         for(User user : server.config.dao.userService.findAllUsers())
         {

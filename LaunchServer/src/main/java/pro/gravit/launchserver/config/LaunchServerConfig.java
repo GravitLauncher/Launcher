@@ -44,7 +44,7 @@ public final class LaunchServerConfig {
 
     public String binaryName;
 
-    public boolean copyBinaries = true;
+    public final boolean copyBinaries = true;
 
     public LauncherConfig.LauncherEnvironment env;
 
@@ -75,7 +75,7 @@ public final class LaunchServerConfig {
                 return pair;
             }
         }
-        return null;
+        throw new IllegalStateException("Default AuthProviderPair not found");
     }
 
     public HWIDHandler hwidHandler;
@@ -146,16 +146,13 @@ public final class LaunchServerConfig {
         }
         if(components != null)
         {
-            components.forEach((k,v) -> {
-                server.registerObject("component.".concat(k), v);
-            });
+            components.forEach((k,v) -> server.registerObject("component.".concat(k), v));
         }
         server.registerObject("permissionsHandler", permissionsHandler);
         server.registerObject("hwidHandler", hwidHandler);
         if(!type.equals(LaunchServer.ReloadType.NO_AUTH))
         {
-            for (int i = 0; i < auth.length; ++i) {
-                AuthProviderPair pair = auth[i];
+            for (AuthProviderPair pair : auth) {
                 server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                 server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
@@ -258,10 +255,10 @@ public final class LaunchServerConfig {
         public String downloadURL;
         public String launcherEXEURL;
         public String address;
-        public Map<String, LaunchServerConfig.NettyUpdatesBind> bindings = new HashMap<>();
+        public final Map<String, LaunchServerConfig.NettyUpdatesBind> bindings = new HashMap<>();
         public NettyPerformanceConfig performance;
         public NettyBindAddress[] binds;
-        public LogLevel logLevel = LogLevel.DEBUG;
+        public final LogLevel logLevel = LogLevel.DEBUG;
     }
 
     public static class NettyPerformanceConfig {
@@ -271,8 +268,8 @@ public final class LaunchServerConfig {
     }
 
     public static class NettyBindAddress {
-        public String address;
-        public int port;
+        public final String address;
+        public final int port;
 
         public NettyBindAddress(String address, int port) {
             this.address = address;

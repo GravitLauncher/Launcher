@@ -596,12 +596,12 @@ public final class ClientLauncher {
     private ClientLauncher() {
     }
 
-    public static interface ParamsAPI {
+    public interface ParamsAPI {
     	ParamContainer read() throws Exception;
-    	void write(ParamContainer p) throws Exception;
+    	void write(ParamContainer p);
     }
     
-    public static ParamsAPI container = new ParamsAPI() {
+    public static final ParamsAPI container = new ParamsAPI() {
 		@Override
 		public ParamContainer read() throws Exception {
 			ParamContainer p;
@@ -614,7 +614,7 @@ public final class ClientLauncher {
             return p;
 		}
 		@Override
-		public void write(ParamContainer p) throws Exception {
+		public void write(ParamContainer p) {
 	        setWriteParamsThread(CommonHelper.newThread("Client params writter", true, () ->
 	        {
 	            try {

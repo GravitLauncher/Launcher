@@ -14,7 +14,7 @@ public class SessionManager implements NeedGarbageCollection {
 
     public static final long SESSION_TIMEOUT = 3 * 60 * 60 * 1000; // 3 часа
     public static final boolean GARBAGE_SERVER = Boolean.parseBoolean(System.getProperty("launcher.garbageSessionsServer", "false"));
-    private Map<Long, Client> clientSet = new HashMap<>(128);
+    private final Map<Long, Client> clientSet = new HashMap<>(128);
 
 
     public boolean addClient(Client client) {

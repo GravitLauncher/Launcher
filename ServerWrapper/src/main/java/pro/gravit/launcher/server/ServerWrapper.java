@@ -39,11 +39,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public ClientPermissions permissions;
     public static ServerWrapper wrapper;
 
-    public static Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
-    public static Path modulesConfigDir = Paths.get(System.getProperty("serverwrapper.modulesConfigDir", "modules-config"));
-    public static Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
-    public static Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile", "public.key"));
-    public static boolean disableSetup = Boolean.valueOf(System.getProperty("serverwrapper.disableSetup", "false"));
+    public static final Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
+    public static final Path modulesConfigDir = Paths.get(System.getProperty("serverwrapper.modulesConfigDir", "modules-config"));
+    public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
+    public static final Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile", "public.key"));
+    public static final boolean disableSetup = Boolean.parseBoolean(System.getProperty("serverwrapper.disableSetup", "false"));
 
     public ServerWrapper(Type type, Path configPath) {
         super(type, configPath);
@@ -255,7 +255,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String login;
         public String[] args;
         public String password;
-        public String auth_id = "";
+        public final String auth_id = "";
         public LauncherConfig.LauncherEnvironment env;
     }
 

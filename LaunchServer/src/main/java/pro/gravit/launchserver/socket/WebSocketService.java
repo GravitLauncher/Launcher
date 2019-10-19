@@ -36,12 +36,12 @@ import pro.gravit.utils.helper.LogHelper;
 
 public class WebSocketService {
     public final ChannelGroup channels;
-    public static ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
+    public static final ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
     public static class WebSocketRequestContext
     {
-        public WebSocketServerResponse response;
-        public Client client;
-        public String ip;
+        public final WebSocketServerResponse response;
+        public final Client client;
+        public final String ip;
 
         public WebSocketRequestContext(WebSocketServerResponse response, Client client, String ip) {
             this.response = response;

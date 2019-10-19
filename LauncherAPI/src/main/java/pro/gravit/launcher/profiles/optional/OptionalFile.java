@@ -17,7 +17,7 @@ public class OptionalFile {
     @LauncherAPI
     public boolean mark;
     @LauncherAPI
-    public boolean visible = true;
+    public final boolean visible = true;
     @LauncherAPI
     public String name;
     @LauncherAPI
@@ -35,7 +35,7 @@ public class OptionalFile {
     @LauncherAPI
     public boolean isPreset;
     @LauncherAPI
-    public long permissions = 0L;
+    public final long permissions = 0L;
     @LauncherAPI
     public transient Set<OptionalFile> dependenciesCount;
 

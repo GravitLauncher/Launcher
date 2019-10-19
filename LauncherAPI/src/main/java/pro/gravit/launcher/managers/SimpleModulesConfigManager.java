@@ -10,7 +10,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public class SimpleModulesConfigManager implements ModulesConfigManager {
-    public Path configDir;
+    public final Path configDir;
 
     public SimpleModulesConfigManager(Path configDir) {
         this.configDir = configDir;
