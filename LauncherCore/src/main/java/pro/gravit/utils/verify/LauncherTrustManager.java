@@ -26,9 +26,9 @@ public class LauncherTrustManager {
         this.trustSigners = trustSigners;
     }
 
-    public LauncherTrustManager(byte[][] encodedCertificate) throws CertificateException {
+    public LauncherTrustManager(List<byte[]> encodedCertificate) throws CertificateException {
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-        trustSigners = Arrays.stream(encodedCertificate).map((cert) -> {
+        trustSigners = encodedCertificate.stream().map((cert) -> {
             try (InputStream input = new ByteArrayInputStream(cert)) {
                 return (X509Certificate) certFactory.generateCertificate(input);
             } catch (IOException | CertificateException e) {
@@ -81,5 +81,10 @@ public class LauncherTrustManager {
             }
         }
         return false;
+    }
+
+
+    public X509Certificate[] getTrusted() {
+        return Arrays.copyOf(trustSigners, trustSigners.length); // AntiModify orig array!!!
     }
 }

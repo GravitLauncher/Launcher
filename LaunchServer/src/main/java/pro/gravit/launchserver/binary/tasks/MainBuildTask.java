@@ -5,9 +5,11 @@ import org.objectweb.asm.tree.ClassNode;
 import pro.gravit.launcher.AutogenConfig;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.SecureAutogenConfig;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
+import pro.gravit.launchserver.asm.ConfigGenerator;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.LauncherConfigurator;
 import pro.gravit.utils.helper.IOHelper;
@@ -20,10 +22,13 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.cert.CertificateEncodingException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -120,6 +125,9 @@ public class MainBuildTask implements LauncherBuildTask {
             ClassNode cn = new ClassNode();
             new ClassReader(IOHelper.getResourceBytes(AutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn, 0);
             LauncherConfigurator launcherConfigurator = new LauncherConfigurator(cn);
+            ClassNode cn1 = new ClassNode();
+            new ClassReader(IOHelper.getResourceBytes(SecureAutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn, 0);
+            ConfigGenerator secureConfigurator = new ConfigGenerator(cn1);
             BuildContext context = new BuildContext(output, launcherConfigurator, this);
             server.buildHookManager.hook(context);
             launcherConfigurator.setStringField("address", server.config.netty.address);
@@ -130,6 +138,14 @@ public class MainBuildTask implements LauncherBuildTask {
             launcherConfigurator.setBooleanField("isWarningMissArchJava", server.config.launcher.warningMissArchJava);
             launcherConfigurator.setEnv(server.config.env);
             launcherConfigurator.setStringField("passwordEncryptKey", server.runtime.passwordEncryptKey);
+            secureConfigurator.setByteArrayListField("certificates", Arrays.stream(server.certificateManager.trustManager.getTrusted()).map(e -> {
+				try {
+					return e.getEncoded();
+				} catch (CertificateEncodingException e2) {
+					LogHelper.error(e2);
+					return new byte[0];
+				}
+			}).collect(Collectors.toList()));
             String launcherSalt = SecurityHelper.randomStringToken();
             byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
                     server.runtime.clientCheckSecret.concat(".").concat(launcherSalt));
@@ -148,11 +164,12 @@ public class MainBuildTask implements LauncherBuildTask {
                 }
             });
             String zPath = launcherConfigurator.getZipEntryPath();
+            String sPath = secureConfigurator.getZipEntryPath();
             try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputJar))) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
                     String filename = e.getName();
-                    if (server.buildHookManager.isContainsBlacklist(filename) || e.isDirectory() || zPath.equals(filename)) {
+                    if (server.buildHookManager.isContainsBlacklist(filename) || e.isDirectory() || zPath.equals(filename) || sPath.equals(filename)) {
                         e = input.getNextEntry();
                         continue;
                     }
