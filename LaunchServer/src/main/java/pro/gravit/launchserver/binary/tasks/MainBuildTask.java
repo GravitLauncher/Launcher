@@ -126,7 +126,7 @@ public class MainBuildTask implements LauncherBuildTask {
             new ClassReader(IOHelper.getResourceBytes(AutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn, 0);
             LauncherConfigurator launcherConfigurator = new LauncherConfigurator(cn);
             ClassNode cn1 = new ClassNode();
-            new ClassReader(IOHelper.getResourceBytes(SecureAutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn, 0);
+            new ClassReader(IOHelper.getResourceBytes(SecureAutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn1, 0);
             ConfigGenerator secureConfigurator = new ConfigGenerator(cn1);
             BuildContext context = new BuildContext(output, launcherConfigurator, this);
             server.buildHookManager.hook(context);
