@@ -33,7 +33,7 @@ public class ClientLauncherWrapper {
         LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.getAutogenConfig().initModules();
 
-        LogHelper.info("Launcher for project %s", config.projectname);
+        LogHelper.info("Launcher for project %s", config.projectName);
         if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {
             if (System.getProperty(LogHelper.DEBUG_PROPERTY) != null) {
                 LogHelper.warning("Found -Dlauncher.debug=true");

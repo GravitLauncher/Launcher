@@ -7,9 +7,6 @@ public class AutogenConfig {
     public String guardType;
     public String secretKeyClient;
     public String oemUnlockKey;
-    public String guardLicenseName;
-    public String guardLicenseKey;
-    public String guardLicenseEncryptKey;
     public String secureCheckHash;
     public String secureCheckSalt;
     public String passwordEncryptKey;

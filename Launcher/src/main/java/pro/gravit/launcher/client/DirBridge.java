@@ -102,7 +102,7 @@ public class DirBridge {
     }
 
     static {
-        String projectName = Launcher.getConfig().projectname;
+        String projectName = Launcher.getConfig().projectName;
         try {
             DirBridge.dir = getLauncherDir(projectName);
             if (!IOHelper.exists(DirBridge.dir)) Files.createDirectories(DirBridge.dir);

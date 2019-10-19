@@ -25,7 +25,7 @@ public final class LauncherConfig extends StreamObject {
     // Instance
     public String address;
     @LauncherAPI
-    public final String projectname;
+    public final String projectName;
     public final int clientPort;
     public String secretKeyClient;
     public String oemUnlockKey;
@@ -39,9 +39,6 @@ public final class LauncherConfig extends StreamObject {
     public boolean isNettyEnabled;
     public LauncherEnvironment environment;
 
-    public final String guardLicenseName;
-    public final String guardLicenseKey;
-    public final String guardLicenseEncryptKey;
     public final String guardType;
 
     public final String secureCheckHash;
@@ -54,7 +51,7 @@ public final class LauncherConfig extends StreamObject {
         secureCheckHash = config.secureCheckHash;
         secureCheckSalt = config.secureCheckSalt;
         passwordEncryptKey = config.passwordEncryptKey;
-        projectname = config.projectname;
+        projectName = config.projectname;
         clientPort = config.clientPort;
         secretKeyClient = config.secretKeyClient;
         oemUnlockKey = config.oemUnlockKey;
@@ -65,10 +62,7 @@ public final class LauncherConfig extends StreamObject {
         }
 
         isWarningMissArchJava = config.isWarningMissArchJava;
-        guardLicenseEncryptKey = config.guardLicenseEncryptKey;
-        guardLicenseKey = config.guardLicenseKey;
         guardType = config.guardType;
-        guardLicenseName = config.guardLicenseName;
         address = config.address;
         LauncherEnvironment env;
         if (config.env == 0) env = LauncherEnvironment.DEV;
@@ -91,34 +85,11 @@ public final class LauncherConfig extends StreamObject {
     }
 
     @LauncherAPI
-    public LauncherConfig(String address, ECPublicKey publicKey, Map<String, byte[]> runtime, String projectname) {
+    public LauncherConfig(String address, ECPublicKey publicKey, Map<String, byte[]> runtime, String projectName) {
         this.address = address;
         this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
-        this.projectname = projectname;
-        this.clientPort = 32148;
-        this.guardLicenseName = "FREE";
-        this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
-        this.guardLicenseEncryptKey = "12345";
-        guardType = "no";
-        isWarningMissArchJava = true;
-        isNettyEnabled = false;
-        environment = LauncherEnvironment.STD;
-        secureCheckSalt = null;
-        secureCheckHash = null;
-        passwordEncryptKey = null;
-        trustManager = null;
-    }
-
-    @LauncherAPI
-    public LauncherConfig(String address, ECPublicKey publicKey, Map<String, byte[]> runtime) {
-        this.address = address;
-        this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
-        this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
-        this.projectname = "Minecraft";
-        this.guardLicenseName = "FREE";
-        this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
-        this.guardLicenseEncryptKey = "12345";
+        this.projectName = projectName;
         this.clientPort = 32148;
         guardType = "no";
         isWarningMissArchJava = true;

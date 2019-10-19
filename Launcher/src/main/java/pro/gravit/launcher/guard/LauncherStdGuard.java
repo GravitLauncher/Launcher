@@ -29,7 +29,7 @@ public class LauncherStdGuard implements LauncherGuardInterface {
     public Path getJavaBinPath() {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
             javaBinPath = ClientLauncher.getJavaBinPath();
-            String projectName = Launcher.getConfig().projectname;
+            String projectName = Launcher.getConfig().projectName;
             String wrapperUnpackName = (javaBinPath == null ? JVMHelper.JVM_BITS : JVMHelper.OS_BITS) == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
             return DirBridge.getGuardDir().resolve(wrapperUnpackName);
         } else
@@ -48,7 +48,7 @@ public class LauncherStdGuard implements LauncherGuardInterface {
     @Override
     public void init(boolean clientInstance) {
         try {
-            String projectName = Launcher.getConfig().projectname;
+            String projectName = Launcher.getConfig().projectName;
             UnpackHelper.unpack(Launcher.getResourceURL("wrapper64.exe", "guard"), DirBridge.getGuardDir().resolve(projectName.concat("64.exe")));
             UnpackHelper.unpack(Launcher.getResourceURL("AntiInject64.dll", "guard"), DirBridge.getGuardDir().resolve("AntiInject64.dll"));
 
@@ -73,14 +73,9 @@ public class LauncherStdGuard implements LauncherGuardInterface {
             env.put("JAVA_HOME", javaBinPath.toAbsolutePath().toString());
         LauncherConfig config = Launcher.getConfig();
         env.put("GUARD_USERNAME", context.playerProfile.username);
-        env.put("GUARD_PROJECTNAME", config.projectname);
+        env.put("GUARD_PROJECTNAME", config.projectName);
         if (protectToken != null)
             env.put("GUARD_TOKEN", protectToken);
-        if (config.guardLicenseName != null)
-            env.put("GUARD_LICENSE_NAME", config.guardLicenseName);
-        if (config.guardLicenseKey != null) {
-            env.put("GUARD_LICENSE_KEY", config.guardLicenseKey);
-        }
     }
 
     @Override
