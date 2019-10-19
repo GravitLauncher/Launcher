@@ -1,5 +1,7 @@
 package pro.gravit.launcher;
 
+import java.nio.charset.StandardCharsets;
+
 public class SecureAutogenConfig {
     public byte[][] certificates;
 
@@ -38,7 +40,8 @@ public class SecureAutogenConfig {
                         "OATWgSKH0qTkleE/v7k+USs0a+KV8wmC5wwliqH+uLO++yIP/9bjDctyLulQX5Ee\n" +
                         "+EhD7tb1R/yyWY4uhkzlsr3N2Kl34aQAEBMn8Z1mHsyyu1FcbEaNLU8jcS3pHPVM\n" +
                         "gQRn3m1iDnQlFciAMxW0pW6mW/4xKYzhXk5BTSolnqMVylxHgWXuBwdDDQQVnQ==\n" +
-                        "-----END CERTIFICATE-----").getBytes()
+                        "-----END CERTIFICATE-----").getBytes(StandardCharsets.US_ASCII)
+                // ? Какая из них, но выбрать надо однозачно
         };
     }
 }

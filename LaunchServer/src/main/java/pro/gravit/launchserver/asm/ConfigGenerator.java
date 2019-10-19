@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.asm;
 
 import java.util.Base64;
+import java.util.List;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -12,6 +13,7 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 public class ConfigGenerator {
@@ -54,6 +56,23 @@ public class ConfigGenerator {
         constructor.instructions.add(NodeUtils.getSafeStringInsnList(Base64.getEncoder().encodeToString(value)));
         constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/util/Base64$Decoder", "decode", base64DecDesc, false));
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, configclass.name, name, stringDesc));
+    }
+    
+    public void setByteArrayListField(String name, List<byte[]> b)
+    {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        constructor.instructions.add(new TypeInsnNode(Opcodes.NEW, "java/util/ArrayList"));
+        constructor.instructions.add(new InsnNode(Opcodes.DUP));
+        constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V"));
+        for (byte[] value : b) {
+            constructor.instructions.add(new InsnNode(Opcodes.DUP));
+        	constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/util/Base64", "getDecoder", "()Ljava/util/Base64$Decoder;", false));
+        	constructor.instructions.add(NodeUtils.getSafeStringInsnList(Base64.getEncoder().encodeToString(value)));
+        	constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/util/Base64$Decoder", "decode", base64DecDesc, false));
+        	constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", false));
+        	constructor.instructions.add(new InsnNode(Opcodes.POP));
+        }
+        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, configclass.name, name, "Ljava/util/List;"));
     }
 
     public void setIntegerField(String name, int value)
