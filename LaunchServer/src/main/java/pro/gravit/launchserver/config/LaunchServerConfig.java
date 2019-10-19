@@ -1,11 +1,5 @@
 package pro.gravit.launchserver.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
 import pro.gravit.launcher.Launcher;
@@ -29,6 +23,12 @@ import pro.gravit.launchserver.dao.provider.DaoProvider;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class LaunchServerConfig {
     private transient LaunchServer server = null;
@@ -139,19 +139,17 @@ public final class LaunchServerConfig {
         }
         permissionsHandler.init(server);
         hwidHandler.init();
-        if(dao != null)
+        if (dao != null)
             dao.init(server);
         if (protectHandler != null) {
             protectHandler.checkLaunchServerLicense();
         }
-        if(components != null)
-        {
-            components.forEach((k,v) -> server.registerObject("component.".concat(k), v));
+        if (components != null) {
+            components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
         }
         server.registerObject("permissionsHandler", permissionsHandler);
         server.registerObject("hwidHandler", hwidHandler);
-        if(!type.equals(LaunchServer.ReloadType.NO_AUTH))
-        {
+        if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
             for (AuthProviderPair pair : auth) {
                 server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
@@ -167,20 +165,17 @@ public final class LaunchServerConfig {
         try {
             server.unregisterObject("permissionsHandler", permissionsHandler);
             server.unregisterObject("hwidHandler", hwidHandler);
-            if(!type.equals(LaunchServer.ReloadType.NO_AUTH))
-            {
+            if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
                 for (AuthProviderPair pair : auth) {
                     server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                     server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                     server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
                 }
             }
-            if(type.equals(LaunchServer.ReloadType.FULL))
-            {
+            if (type.equals(LaunchServer.ReloadType.FULL)) {
                 components.forEach((k, component) -> {
                     server.unregisterObject("component.".concat(k), component);
-                    if(component instanceof AutoCloseable)
-                    {
+                    if (component instanceof AutoCloseable) {
                         try {
                             ((AutoCloseable) component).close();
                         } catch (Exception e) {
@@ -226,8 +221,7 @@ public final class LaunchServerConfig {
         public String txtProductVersion;
     }
 
-    public static class CertificateConf
-    {
+    public static class CertificateConf {
         public boolean enabled;
     }
 
@@ -235,6 +229,7 @@ public final class LaunchServerConfig {
         public String url;
         public boolean zip;
     }
+
     public static class LauncherConf {
         public String guardType;
         public boolean attachLibraryBeforeProGuard;
@@ -276,8 +271,8 @@ public final class LaunchServerConfig {
             this.port = port;
         }
     }
-    public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env)
-    {
+
+    public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
         newConfig.mirrors = new String[]{"https://mirror.gravit.pro/"};
         newConfig.launch4j = new LaunchServerConfig.ExeConf();
@@ -302,7 +297,7 @@ public final class LaunchServerConfig {
                 , "std")};
         newConfig.auth[0].displayName = "Default";
         newConfig.protectHandler = new StdProtectHandler();
-        if(env.equals(LaunchServer.LaunchServerEnv.TEST))
+        if (env.equals(LaunchServer.LaunchServerEnv.TEST))
             newConfig.permissionsHandler = new DefaultPermissionsHandler();
         else
             newConfig.permissionsHandler = new JsonFilePermissionsHandler();

@@ -1,5 +1,14 @@
 package pro.gravit.launchserver.binary.tasks;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.ClassNode;
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.asm.ClassMetadataReader;
+import pro.gravit.launchserver.asm.SafeClassWriter;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -10,16 +19,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.tree.ClassNode;
-
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.asm.ClassMetadataReader;
-import pro.gravit.launchserver.asm.SafeClassWriter;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 public class AdditionalFixesApplyTask implements LauncherBuildTask {
     private final LaunchServer server;
@@ -75,9 +74,9 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                             bytes = outputStream.toByteArray();
                         }
                         try {
-                        	bytes = classFix(bytes, reader, srv.config.launcher.stripLineNumbers);
+                            bytes = classFix(bytes, reader, srv.config.launcher.stripLineNumbers);
                         } catch (Throwable t) {
-                        	LogHelper.error(t);
+                            LogHelper.error(t);
                         }
                         output.write(bytes);
                     } else

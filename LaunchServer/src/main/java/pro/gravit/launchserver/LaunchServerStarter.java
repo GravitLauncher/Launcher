@@ -1,18 +1,5 @@
 package pro.gravit.launchserver;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.KeyPair;
-import java.security.SecureRandom;
-import java.security.Security;
-import java.security.cert.CertificateException;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
-
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.hwid.HWIDProvider;
@@ -42,8 +29,22 @@ import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.verify.LauncherTrustManager;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.KeyPair;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+
 public class LaunchServerStarter {
     public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
+
     public static void main(String[] args) throws Exception {
         JVMHelper.checkStackTrace(LaunchServerStarter.class);
         JVMHelper.verifySystemProperties(LaunchServer.class, true);
@@ -56,7 +57,7 @@ public class LaunchServerStarter {
         }
         Path dir = IOHelper.WORKING_DIR;
         Path configFile, runtimeConfigFile;
-        Path publicKeyFile =dir.resolve("public.key");
+        Path publicKeyFile = dir.resolve("public.key");
         Path privateKeyFile = dir.resolve("private.key");
         ECPublicKey publicKey;
         ECPrivateKey privateKey;
@@ -197,8 +198,7 @@ public class LaunchServerStarter {
         Launcher.gsonManager.initGson();
     }
 
-    public static void registerAll()
-    {
+    public static void registerAll() {
 
         AuthHandler.registerHandlers();
         AuthProvider.registerProviders();

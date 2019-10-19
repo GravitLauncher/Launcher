@@ -1,17 +1,19 @@
 package pro.gravit.launchserver.dao.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;
 import pro.gravit.launchserver.dao.UserHWID;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 public class DefaultUserDAOImpl implements UserDAO {
-	public DefaultUserDAOImpl(LaunchServer srv) { }
+    public DefaultUserDAOImpl(LaunchServer srv) {
+    }
+
     @Override
     public User findById(int id) {
         return null;

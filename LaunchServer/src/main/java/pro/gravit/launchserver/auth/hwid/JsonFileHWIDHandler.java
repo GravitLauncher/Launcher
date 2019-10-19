@@ -1,5 +1,11 @@
 package pro.gravit.launchserver.auth.hwid;
 
+import com.google.gson.reflect.TypeToken;
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.hwid.HWID;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -9,13 +15,6 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-
-import com.google.gson.reflect.TypeToken;
-
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.hwid.HWID;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 public class JsonFileHWIDHandler extends HWIDHandler {
     public static class Entry {

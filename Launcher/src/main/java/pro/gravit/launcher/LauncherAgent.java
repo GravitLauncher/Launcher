@@ -1,14 +1,14 @@
 package pro.gravit.launcher;
 
+import pro.gravit.launcher.patches.FMLPatcher;
+import pro.gravit.launcher.utils.NativeJVMHalt;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
 import java.util.jar.JarFile;
-
-import pro.gravit.launcher.patches.FMLPatcher;
-import pro.gravit.launcher.utils.NativeJVMHalt;
-import pro.gravit.utils.helper.LogHelper;
 
 @LauncherAPI
 public final class LauncherAgent {
@@ -19,7 +19,7 @@ public final class LauncherAgent {
         LogHelper.debug("Launcher Agent addJVMClassPath");
         inst.appendToSystemClassLoaderSearch(new JarFile(new File(path)));
     }
-    
+
     public static void addJVMClassPath(Path path) throws IOException {
         LogHelper.debug("Launcher Agent addJVMClassPath");
         inst.appendToSystemClassLoaderSearch(new JarFile(path.toFile()));
@@ -37,25 +37,22 @@ public final class LauncherAgent {
         FMLPatcher.apply();
         isAgentStarted = true;
     }
-    public static void checkAgentStacktrace()
-    {
+
+    public static void checkAgentStacktrace() {
         RuntimeException ex = new SecurityException("Error check agent stacktrace");
         boolean isFoundNative = false;
         boolean foundPreMain = false;
-        for(StackTraceElement e : ex.getStackTrace())
-        {
-            if(e.isNativeMethod())
-            {
-                if(!isFoundNative) isFoundNative = true;
+        for (StackTraceElement e : ex.getStackTrace()) {
+            if (e.isNativeMethod()) {
+                if (!isFoundNative) isFoundNative = true;
                 else throw ex;
             }
-            if(e.getMethodName().equals("premain"))
-            {
-                if(!foundPreMain) foundPreMain = true;
+            if (e.getMethodName().equals("premain")) {
+                if (!foundPreMain) foundPreMain = true;
                 else throw ex;
             }
         }
-        if(!isFoundNative || !foundPreMain) throw ex;
+        if (!isFoundNative || !foundPreMain) throw ex;
     }
 
     public static boolean isStarted() {

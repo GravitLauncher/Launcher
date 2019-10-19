@@ -2,14 +2,7 @@ package pro.gravit.launchserver.binary;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TypeInsnNode;
-
+import org.objectweb.asm.tree.*;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
@@ -23,7 +16,7 @@ public class LauncherConfigurator extends ConfigGenerator {
     private final MethodNode initModuleMethod;
 
     public LauncherConfigurator(ClassNode configclass) {
-    	super(configclass);
+        super(configclass);
         initModuleMethod = configclass.methods.stream().filter(e -> "initModules".equals(e.name)).findFirst().get();
         initModuleMethod.instructions = new InsnList();
     }
@@ -38,7 +31,7 @@ public class LauncherConfigurator extends ConfigGenerator {
 
     @Override
     public byte[] getBytecode(ClassMetadataReader reader) {
-    	initModuleMethod.instructions.add(new InsnNode(Opcodes.RETURN));
+        initModuleMethod.instructions.add(new InsnNode(Opcodes.RETURN));
         return super.getBytecode(reader);
     }
 

@@ -1,9 +1,9 @@
 package pro.gravit.launcher.events.request;
 
-import java.util.UUID;
-
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.RequestEvent;
+
+import java.util.UUID;
 
 
 public class ErrorRequestEvent extends RequestEvent {

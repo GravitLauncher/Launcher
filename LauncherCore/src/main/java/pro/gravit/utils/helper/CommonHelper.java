@@ -1,5 +1,12 @@
 package pro.gravit.utils.helper;
 
+import com.google.gson.*;
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.utils.command.CommandException;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptEngineManager;
 import java.lang.reflect.Type;
 import java.util.Base64;
 import java.util.Collection;
@@ -7,23 +14,6 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
-
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.utils.command.CommandException;
 
 public final class CommonHelper {
     @LauncherAPI
@@ -136,23 +126,24 @@ public final class CommonHelper {
 
     @LauncherAPI
     public static GsonBuilder newBuilder() {
-    	return new GsonBuilder().registerTypeHierarchyAdapter(byte[].class,
+        return new GsonBuilder().registerTypeHierarchyAdapter(byte[].class,
                 ByteArrayToBase64TypeAdapter.INSTANCE);
     }
 
     private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
-    	private static final ByteArrayToBase64TypeAdapter INSTANCE = new ByteArrayToBase64TypeAdapter();
-    	private final Base64.Decoder decoder = Base64.getUrlDecoder();
-    	private final Base64.Encoder encoder = Base64.getUrlEncoder();
-    	public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-    		if (json.isJsonArray()) {
-    			JsonArray byteArr = json.getAsJsonArray();
-    			byte[] arr = new byte[byteArr.size()];
-    			for (int i = 0; i < arr.length; i++) {
-    				arr[i] = byteArr.get(i).getAsByte();
-    			}
-    			return arr;
-    		}
+        private static final ByteArrayToBase64TypeAdapter INSTANCE = new ByteArrayToBase64TypeAdapter();
+        private final Base64.Decoder decoder = Base64.getUrlDecoder();
+        private final Base64.Encoder encoder = Base64.getUrlEncoder();
+
+        public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            if (json.isJsonArray()) {
+                JsonArray byteArr = json.getAsJsonArray();
+                byte[] arr = new byte[byteArr.size()];
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i] = byteArr.get(i).getAsByte();
+                }
+                return arr;
+            }
             return decoder.decode(json.getAsString());
         }
 

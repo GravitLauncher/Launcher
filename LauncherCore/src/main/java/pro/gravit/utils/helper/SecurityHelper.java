@@ -1,11 +1,20 @@
 package pro.gravit.utils.helper;
 
+import pro.gravit.launcher.LauncherAPI;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.security.*;
-import java.security.interfaces.*;
+import java.security.interfaces.ECKey;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -13,13 +22,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import pro.gravit.launcher.LauncherAPI;
 
 public final class SecurityHelper {
 
@@ -426,21 +428,18 @@ public final class SecurityHelper {
         return VerifyHelper.verify(token, SecurityHelper::isValidToken, String.format("Invalid token: '%s'", token));
     }
 
-    public static Cipher newECDecryptCipher(ECPrivateKey privateKey)
-    {
+    public static Cipher newECDecryptCipher(ECPrivateKey privateKey) {
         try {
             return newECCipher(Cipher.DECRYPT_MODE, privateKey);
-        } catch (SecurityException e)
-        {
+        } catch (SecurityException e) {
             throw new InternalError(e);
         }
     }
-    public static Cipher newECEncryptCipher(ECPublicKey publicKey)
-    {
+
+    public static Cipher newECEncryptCipher(ECPublicKey publicKey) {
         try {
             return newECCipher(Cipher.ENCRYPT_MODE, publicKey);
-        } catch (SecurityException e)
-        {
+        } catch (SecurityException e) {
             throw new InternalError(e);
         }
     }
@@ -481,8 +480,9 @@ public final class SecurityHelper {
         cipher.init(Cipher.DECRYPT_MODE, sKeySpec);
         return cipher.doFinal(encrypted);
     }
+
     public static byte[] decrypt(String seed, byte[] encrypted) throws Exception {
-        return decrypt( getRawKey(seed.getBytes()), encrypted);
+        return decrypt(getRawKey(seed.getBytes()), encrypted);
     }
 
     public static byte[] HexToByte(String hexString) {

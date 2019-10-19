@@ -1,13 +1,14 @@
 package pro.gravit.launchserver.socket.handlers;
 
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.Set;
-import javax.net.ssl.SSLServerSocketFactory;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.LauncherNettyServer;
 import pro.gravit.utils.helper.LogHelper;
+
+import javax.net.ssl.SSLServerSocketFactory;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
@@ -20,7 +21,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     // API
     private Set<Socket> sockets;
 
-	private transient final LaunchServer server;
+    private transient final LaunchServer server;
 
     public NettyServerSocketHandler(LaunchServer server) {
         this.server = server;

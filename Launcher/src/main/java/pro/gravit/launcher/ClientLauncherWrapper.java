@@ -1,13 +1,5 @@
 package pro.gravit.launcher;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import pro.gravit.launcher.client.ClientLauncher;
 import pro.gravit.launcher.client.ClientModuleManager;
 import pro.gravit.launcher.client.DirBridge;
@@ -15,6 +7,14 @@ import pro.gravit.utils.helper.EnvHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ClientLauncherWrapper {
     public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";
@@ -60,8 +60,7 @@ public class ClientLauncherWrapper {
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_OPTDIR_PROPERTY);
-        if (!noJava9check && !System.getProperty("java.version").startsWith("1.8"))
-        {
+        if (!noJava9check && !System.getProperty("java.version").startsWith("1.8")) {
             LogHelper.debug("Found Java 9+ ( %s )", System.getProperty("java.version"));
             Collections.addAll(args, "--add-modules");
             Collections.addAll(args, "javafx.base,javafx.fxml,javafx.controls,jdk.unsupported");
@@ -75,8 +74,7 @@ public class ClientLauncherWrapper {
             tryAddModule(findPath, "javafx.fxml", builder);
             tryAddModule(findPath, "javafx.controls", builder);
             String modulePath = builder.toString();
-            if(!modulePath.isEmpty())
-            {
+            if (!modulePath.isEmpty()) {
                 Collections.addAll(args, "--module-path");
                 Collections.addAll(args, modulePath);
             }
@@ -107,26 +105,24 @@ public class ClientLauncherWrapper {
             process.waitFor();
         }
     }
-    public static Path tryFindModule(Path path, String moduleName)
-    {
+
+    public static Path tryFindModule(Path path, String moduleName) {
         Path result = path.resolve(moduleName.concat(".jar"));
         LogHelper.dev("Try resolve %s", result.toString());
-        if(!IOHelper.isFile(result))
+        if (!IOHelper.isFile(result))
             result = path.resolve("lib").resolve(moduleName.concat(".jar"));
         else return result;
-        if(!IOHelper.isFile(result))
+        if (!IOHelper.isFile(result))
             return null;
         else return result;
     }
-    public static boolean tryAddModule(Path[] paths, String moduleName, StringBuilder args)
-    {
-        for(Path path : paths)
-        {
-            if(path == null) continue;
+
+    public static boolean tryAddModule(Path[] paths, String moduleName, StringBuilder args) {
+        for (Path path : paths) {
+            if (path == null) continue;
             Path result = tryFindModule(path, moduleName);
-            if(result != null)
-            {
-                if(args.length() != 0) args.append(File.pathSeparatorChar);
+            if (result != null) {
+                if (args.length() != 0) args.append(File.pathSeparatorChar);
                 args.append(result.toAbsolutePath().toString());
                 return true;
             }

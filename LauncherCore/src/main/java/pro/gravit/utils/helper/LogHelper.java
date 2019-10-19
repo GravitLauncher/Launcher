@@ -1,10 +1,12 @@
 package pro.gravit.utils.helper;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.AnsiConsole;
+import org.fusesource.jansi.AnsiOutputStream;
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherNetworkAPI;
+
+import java.io.*;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,13 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.AnsiConsole;
-import org.fusesource.jansi.AnsiOutputStream;
-
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.launcher.LauncherNetworkAPI;
 
 public final class LogHelper {
     @LauncherAPI

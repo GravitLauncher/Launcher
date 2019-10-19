@@ -1,11 +1,5 @@
 package pro.gravit.launcher.guard;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.Map;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.client.ClientLauncherContext;
@@ -13,6 +7,12 @@ import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.UnpackHelper;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Map;
 
 public class LauncherWrapperGuard implements LauncherGuardInterface {
 

@@ -1,13 +1,13 @@
 package pro.gravit.launcher.managers;
 
+import pro.gravit.launcher.config.JsonConfigurable;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.VerifyHelper;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Objects;
-
-import pro.gravit.launcher.config.JsonConfigurable;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.VerifyHelper;
 
 @SuppressWarnings("rawtypes")
 public class ConfigManager {

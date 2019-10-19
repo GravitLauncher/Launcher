@@ -1,10 +1,10 @@
 package pro.gravit.launchserver.components;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.command.Command;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommandRemoverComponent extends Component implements AutoCloseable {
     public final String[] removeList = new String[]{};
@@ -13,7 +13,7 @@ public class CommandRemoverComponent extends Component implements AutoCloseable 
 
     @Override
     public void preInit(LaunchServer launchServer) {
-    	server = launchServer;
+        server = launchServer;
     }
 
     @Override

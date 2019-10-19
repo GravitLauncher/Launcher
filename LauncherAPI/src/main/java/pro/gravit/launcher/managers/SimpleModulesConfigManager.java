@@ -1,13 +1,13 @@
 package pro.gravit.launcher.managers;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import pro.gravit.launcher.config.SimpleConfigurable;
 import pro.gravit.launcher.modules.ModulesConfigManager;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class SimpleModulesConfigManager implements ModulesConfigManager {
     public final Path configDir;

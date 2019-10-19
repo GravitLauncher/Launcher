@@ -14,12 +14,13 @@ public class AuthHookManager {
     public final BiHookSet<CheckServerResponse, Client> checkServerHook = new BiHookSet<>();
     public final BiHookSet<JoinServerResponse, Client> joinServerHook = new BiHookSet<>();
     public final BiHookSet<SetProfileResponse, Client> setProfileHook = new BiHookSet<>();
-    public static class RegContext
-    {
+
+    public static class RegContext {
         public final String login;
         public final String password;
         public final String ip;
         public final boolean trustContext;
+
         public RegContext(String login, String password, String ip, boolean trustContext) {
             this.login = login;
             this.password = password;
@@ -27,5 +28,6 @@ public class AuthHookManager {
             this.trustContext = trustContext;
         }
     }
+
     public final HookSet<RegContext> registraion = new HookSet<>();
 }

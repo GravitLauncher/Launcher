@@ -1,20 +1,12 @@
 package pro.gravit.launchserver.socket.response.auth;
 
-import java.security.SecureRandom;
-import java.util.Collection;
-import java.util.Random;
-import java.util.UUID;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launcher.request.auth.password.AuthECPassword;
+import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.hwid.HWIDException;
@@ -28,6 +20,13 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import java.security.SecureRandom;
+import java.util.Collection;
+import java.util.Random;
+import java.util.UUID;
 
 public class AuthResponse extends SimpleResponse {
     public final transient static Random random = new SecureRandom();
@@ -59,11 +58,10 @@ public class AuthResponse extends SimpleResponse {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
             }
-            if(password instanceof AuthECPassword)
-            {
+            if (password instanceof AuthECPassword) {
                 try {
-                password = new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
-                , ((AuthECPassword) password).password)));
+                    password = new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
+                            , ((AuthECPassword) password).password)));
                 } catch (IllegalBlockSizeException | BadPaddingException ignored) {
                     throw new AuthException("Password decryption error");
                 }
@@ -99,7 +97,7 @@ public class AuthResponse extends SimpleResponse {
             clientData.permissions = aresult.permissions;
             clientData.auth_id = auth_id;
             clientData.updateAuth(server);
-            if(result.playerProfile != null)
+            if (result.playerProfile != null)
                 clientData.username = result.playerProfile.username;
             else
                 clientData.username = login;
@@ -139,6 +137,7 @@ public class AuthResponse extends SimpleResponse {
             this.ip = ip;
             this.authType = authType;
         }
+
         public final String login;
         @Deprecated
         public int password_length; //Use AuthProvider for get password

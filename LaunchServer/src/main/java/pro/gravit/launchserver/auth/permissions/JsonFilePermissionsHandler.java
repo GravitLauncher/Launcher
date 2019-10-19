@@ -1,16 +1,6 @@
 package pro.gravit.launchserver.auth.permissions;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.lang.reflect.Type;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gson.reflect.TypeToken;
-
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.LaunchServer;
@@ -19,6 +9,15 @@ import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.lang.reflect.Type;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JsonFilePermissionsHandler extends PermissionsHandler implements Reconfigurable {
     public final String filename = "permissions.json";

@@ -1,21 +1,17 @@
 package pro.gravit.launcher;
 
-import java.io.IOException;
-import java.security.cert.CertificateException;
-import java.security.interfaces.ECPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 import pro.gravit.utils.verify.LauncherTrustManager;
+
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.util.*;
 
 public final class LauncherConfig extends StreamObject {
     private static final AutogenConfig config = new AutogenConfig();
@@ -47,7 +43,7 @@ public final class LauncherConfig extends StreamObject {
     public final String guardLicenseKey;
     public final String guardLicenseEncryptKey;
     public final String guardType;
-    
+
     public final String secureCheckHash;
     public final String secureCheckSalt;
     public final String passwordEncryptKey;

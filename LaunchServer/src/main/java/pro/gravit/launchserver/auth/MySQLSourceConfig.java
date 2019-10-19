@@ -1,16 +1,14 @@
 package pro.gravit.launchserver.auth;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public final class MySQLSourceConfig implements AutoCloseable {
 

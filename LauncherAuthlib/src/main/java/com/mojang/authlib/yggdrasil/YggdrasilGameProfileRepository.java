@@ -1,18 +1,17 @@
 package com.mojang.authlib.yggdrasil;
 
-import java.util.Arrays;
-import java.util.UUID;
-
 import com.mojang.authlib.Agent;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.ProfileLookupCallback;
-
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.request.uuid.BatchProfileByUsernameRequest;
 import pro.gravit.launcher.serialize.SerializeLimits;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
+
+import java.util.Arrays;
+import java.util.UUID;
 
 public class YggdrasilGameProfileRepository implements GameProfileRepository {
     private static final long BUSY_WAIT_MS = VerifyHelper.verifyLong(

@@ -1,8 +1,5 @@
 package pro.gravit.launchserver.socket.response.profile;
 
-import java.io.IOException;
-import java.util.UUID;
-
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;
@@ -12,6 +9,9 @@ import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.IOException;
+import java.util.UUID;
 
 public class ProfileByUUIDResponse extends SimpleResponse {
     public UUID uuid;
@@ -55,8 +55,7 @@ public class ProfileByUUIDResponse extends SimpleResponse {
         } else {
             pair = client.auth;
         }
-        if(pair == null)
-        {
+        if (pair == null) {
             sendError("ProfileByUUIDResponse: AuthProviderPair is null");
             return;
         }

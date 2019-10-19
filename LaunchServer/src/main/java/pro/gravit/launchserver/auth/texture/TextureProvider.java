@@ -1,10 +1,10 @@
 package pro.gravit.launchserver.auth.texture;
 
-import java.io.IOException;
-import java.util.UUID;
-
 import pro.gravit.launcher.profiles.Texture;
 import pro.gravit.utils.ProviderMap;
+
+import java.io.IOException;
+import java.util.UUID;
 
 public abstract class TextureProvider implements AutoCloseable {
     public static final ProviderMap<TextureProvider> providers = new ProviderMap<>("TextureProvider");

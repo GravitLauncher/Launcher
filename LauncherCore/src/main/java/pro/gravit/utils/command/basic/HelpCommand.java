@@ -1,15 +1,14 @@
 package pro.gravit.utils.command.basic;
 
-import java.util.Arrays;
-import java.util.Map.Entry;
-
 import org.fusesource.jansi.Ansi;
-
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.helper.FormatHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.util.Arrays;
+import java.util.Map.Entry;
 
 public final class HelpCommand extends Command {
     private final CommandHandler handler;
@@ -32,22 +31,17 @@ public final class HelpCommand extends Command {
         }, () -> LogHelper.htmlFormatLog(LogHelper.Level.INFO, LogHelper.getDataTime(), String.format("<font color=\"green\">%s</font> <font color=\"cyan\">%s</font> - <font color=\"yellow\">%s</font>", name, args == null ? "[nothing]" : args, command.getUsageDescription()), true));
     }
 
-    public static void printSubCommandsHelp(String base, Command command)
-    {
+    public static void printSubCommandsHelp(String base, Command command) {
         command.childCommands.forEach((k, v) -> printCommand(base.concat(" ").concat(k), v));
     }
 
-    public static void printSubCommandsHelp(String name, String[] args, Command command) throws CommandException
-    {
-        if(args.length == 0)
-        {
+    public static void printSubCommandsHelp(String name, String[] args, Command command) throws CommandException {
+        if (args.length == 0) {
             printSubCommandsHelp(name, command);
-        }
-        else
-        {
+        } else {
             Command child = command.childCommands.get(args[0]);
-            if(child == null) throw new CommandException(String.format("Unknown sub command: '%s'", args[0]));
-            printSubCommandsHelp(name.concat(" ").concat(args[0]), Arrays.copyOfRange(args,1 , args.length), child);
+            if (child == null) throw new CommandException(String.format("Unknown sub command: '%s'", args[0]));
+            printSubCommandsHelp(name.concat(" ").concat(args[0]), Arrays.copyOfRange(args, 1, args.length), child);
         }
     }
 
@@ -78,9 +72,9 @@ public final class HelpCommand extends Command {
         }
 
         // Print command help
-        if(args.length == 1)
+        if (args.length == 1)
             printCommand(args[0]);
-        printSubCommandsHelp(args[0], Arrays.copyOfRange(args, 1 , args.length), handler.lookup(args[0]));
+        printSubCommandsHelp(args[0], Arrays.copyOfRange(args, 1, args.length), handler.lookup(args[0]));
     }
 
     private void printCommand(String name) throws CommandException {

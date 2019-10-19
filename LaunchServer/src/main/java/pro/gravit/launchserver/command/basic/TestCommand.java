@@ -1,16 +1,15 @@
 package pro.gravit.launchserver.command.basic;
 
-import java.nio.file.Paths;
-import java.security.KeyPair;
-
 import org.bouncycastle.cert.X509CertificateHolder;
-
 import pro.gravit.launcher.hwid.HWIDCheckHelper;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.nio.file.Paths;
+import java.security.KeyPair;
 
 public class TestCommand extends Command {
     public TestCommand(LaunchServer server) {
@@ -40,16 +39,16 @@ public class TestCommand extends Command {
         if (args[0].equals("stop")) {
             handler.close();
         }
-        if(args[0].equals("genCA")) {
+        if (args[0].equals("genCA")) {
             server.certificateManager.generateCA();
             server.certificateManager.writePrivateKey(Paths.get("ca.key"), server.certificateManager.caKey);
             server.certificateManager.writeCertificate(Paths.get("ca.crt"), server.certificateManager.ca);
         }
-        if(args[0].equals("readCA")) {
+        if (args[0].equals("readCA")) {
             server.certificateManager.ca = server.certificateManager.readCertificate(Paths.get("ca.crt"));
             server.certificateManager.caKey = server.certificateManager.readPrivateKey(Paths.get("ca.key"));
         }
-        if(args[0].equals("genCert")) {
+        if (args[0].equals("genCert")) {
             verifyArgs(args, 2);
             String name = args[1];
             KeyPair pair = server.certificateManager.generateKeyPair();
@@ -57,8 +56,7 @@ public class TestCommand extends Command {
             server.certificateManager.writePrivateKey(Paths.get(name.concat(".key")), pair.getPrivate());
             server.certificateManager.writeCertificate(Paths.get(name.concat(".crt")), cert);
         }
-        if(args[0].equals("hwidcheck"))
-        {
+        if (args[0].equals("hwidcheck")) {
             LogHelper.info("HWID String %s bad rating %d", args[1], HWIDCheckHelper.checkString(args[1]));
         }
     }

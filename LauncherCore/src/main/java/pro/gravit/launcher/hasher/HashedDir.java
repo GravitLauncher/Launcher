@@ -1,19 +1,5 @@
 package pro.gravit.launcher.hasher;
 
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.StringTokenizer;
-
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.serialize.HInput;
@@ -22,6 +8,14 @@ import pro.gravit.launcher.serialize.stream.EnumSerializer;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
+import java.util.Map.Entry;
 
 public final class HashedDir extends HashedEntry {
     public static final class Diff {

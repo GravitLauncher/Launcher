@@ -1,5 +1,9 @@
 package pro.gravit.launchserver.binary.tasks;
 
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -7,10 +11,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 public class AttachJarsTask implements LauncherBuildTask {
     private final LaunchServer srv;

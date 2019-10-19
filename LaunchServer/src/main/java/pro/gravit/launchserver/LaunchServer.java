@@ -1,37 +1,7 @@
 package pro.gravit.launchserver;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.lang.ProcessBuilder.Redirect;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.Timer;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.operator.OperatorCreationException;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launcher.hasher.HashedDir;
@@ -40,12 +10,7 @@ import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
-import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
-import pro.gravit.launchserver.binary.EXELauncherBinary;
-import pro.gravit.launchserver.binary.JARLauncherBinary;
-import pro.gravit.launchserver.binary.LauncherBinary;
-import pro.gravit.launchserver.binary.ProguardConf;
-import pro.gravit.launchserver.binary.SimpleEXELauncherBinary;
+import pro.gravit.launchserver.binary.*;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.manangers.CertificateManager;
@@ -68,41 +33,57 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
+
 public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurable {
 
-    public enum ReloadType
-    {
+    public enum ReloadType {
         NO_AUTH,
         NO_COMPONENTS,
         FULL
     }
-    public enum LaunchServerEnv
-    {
+
+    public enum LaunchServerEnv {
         TEST,
         DEV,
         DEBUG,
         PRODUCTION
     }
-    public interface LaunchServerConfigManager
-    {
+
+    public interface LaunchServerConfigManager {
         LaunchServerConfig readConfig() throws IOException;
+
         LaunchServerRuntimeConfig readRuntimeConfig() throws IOException;
+
         void writeConfig(LaunchServerConfig config) throws IOException;
+
         void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException;
     }
 
     public void reload(ReloadType type) throws Exception {
         config.close(type);
         AuthProviderPair[] pairs = null;
-        if(type.equals(ReloadType.NO_AUTH))
-        {
+        if (type.equals(ReloadType.NO_AUTH)) {
             pairs = config.auth;
         }
         LogHelper.info("Reading LaunchServer config file");
         config = launchServerConfigManager.readConfig();
         config.setLaunchServer(this);
-        if(type.equals(ReloadType.NO_AUTH))
-        {
+        if (type.equals(ReloadType.NO_AUTH)) {
             config.auth = pairs;
         }
         config.verify();
@@ -137,13 +118,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         SubCommand reload = new SubCommand() {
             @Override
             public void invoke(String... args) throws Exception {
-                if(args.length == 0)
-                {
+                if (args.length == 0) {
                     reload(ReloadType.FULL);
                     return;
                 }
-                switch (args[0])
-                {
+                switch (args[0]) {
                     case "full":
                         reload(ReloadType.FULL);
                         break;
@@ -266,17 +245,16 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     public static final Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
 
-    public static class LaunchServerDirectories
-    {
+    public static class LaunchServerDirectories {
         public Path updatesDir;
         public Path profilesDir;
         public Path dir;
         public Path trustStore;
-        public void collect()
-        {
-            if(updatesDir == null) updatesDir = dir.resolve("updates");
-            if(profilesDir == null) profilesDir = dir.resolve("profiles");
-            if(trustStore == null) trustStore = dir.resolve("truststore");
+
+        public void collect() {
+            if (updatesDir == null) updatesDir = dir.resolve("updates");
+            if (profilesDir == null) profilesDir = dir.resolve("profiles");
+            if (trustStore == null) trustStore = dir.resolve("truststore");
         }
     }
 
@@ -333,15 +311,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         configManager = new ConfigManager();
         //Generate or set new Certificate API
         certificateManager.orgName = config.projectName;
-        if(config.certificate != null && config.certificate.enabled)
-        {
-            if(IOHelper.isFile(caCertFile) && IOHelper.isFile(caKeyFile))
-            {
+        if (config.certificate != null && config.certificate.enabled) {
+            if (IOHelper.isFile(caCertFile) && IOHelper.isFile(caKeyFile)) {
                 certificateManager.ca = certificateManager.readCertificate(caCertFile);
                 certificateManager.caKey = certificateManager.readPrivateKey(caKeyFile);
-            }
-            else
-            {
+            } else {
                 try {
                     certificateManager.generateCA();
                     certificateManager.writeCertificate(caCertFile, certificateManager.ca);
@@ -350,13 +324,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                     LogHelper.error(e);
                 }
             }
-            if(IOHelper.isFile(serverCertFile) && IOHelper.isFile(serverKeyFile))
-            {
+            if (IOHelper.isFile(serverCertFile) && IOHelper.isFile(serverKeyFile)) {
                 certificateManager.server = certificateManager.readCertificate(serverCertFile);
                 certificateManager.serverKey = certificateManager.readPrivateKey(serverKeyFile);
-            }
-            else
-            {
+            } else {
                 try {
                     KeyPair pair = certificateManager.generateKeyPair();
                     certificateManager.server = certificateManager.generateCertificate(config.projectName.concat(" Server"), pair.getPublic());
@@ -425,8 +396,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 LogHelper.error(e);
             }
         }
-        if(config.launch4j.alternative != null)
-        {
+        if (config.launch4j.alternative != null) {
             switch (config.launch4j.alternative) {
                 case "simple":
                     return new SimpleEXELauncherBinary(this);

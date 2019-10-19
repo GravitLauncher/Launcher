@@ -1,17 +1,17 @@
 package pro.gravit.launchserver.manangers;
 
+import com.google.gson.JsonElement;
+import pro.gravit.utils.HTTPRequest;
+import pro.gravit.utils.HttpDownloader;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import com.google.gson.JsonElement;
-import pro.gravit.utils.HTTPRequest;
-import pro.gravit.utils.HttpDownloader;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 public class MirrorManager {
     public static class Mirror {
@@ -71,58 +71,49 @@ public class MirrorManager {
         return list.size();
     }
 
-    public boolean downloadZip(Mirror mirror, Path path, String mask, Object... args) throws IOException
-    {
-        if(!mirror.enabled) return false;
+    public boolean downloadZip(Mirror mirror, Path path, String mask, Object... args) throws IOException {
+        if (!mirror.enabled) return false;
         URL url = mirror.getURL(mask, args);
         LogHelper.debug("Try download %s", url.toString());
         try {
             HttpDownloader.downloadZip(url, path);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             LogHelper.error("Download %s failed(%s: %s)", url.toString(), e.getClass().getName(), e.getMessage());
             return false;
         }
         return true;
     }
 
-    public void downloadZip(Path path, String mask, Object... args) throws IOException
-    {
-        if(downloadZip(defaultMirror, path, mask, args))
-        {
+    public void downloadZip(Path path, String mask, Object... args) throws IOException {
+        if (downloadZip(defaultMirror, path, mask, args)) {
             return;
         }
-        for(Mirror mirror : list)
-        {
-            if(mirror != defaultMirror)
-            {
-                if(downloadZip(mirror, path, mask, args)) return;
+        for (Mirror mirror : list) {
+            if (mirror != defaultMirror) {
+                if (downloadZip(mirror, path, mask, args)) return;
             }
         }
         throw new IOException(String.format("Error download %s. All mirrors return error", path.toString()));
     }
-    public JsonElement jsonRequest(Mirror mirror, JsonElement request, String method, String mask, Object... args) throws IOException
-    {
-        if(!mirror.enabled) return null;
+
+    public JsonElement jsonRequest(Mirror mirror, JsonElement request, String method, String mask, Object... args) throws IOException {
+        if (!mirror.enabled) return null;
         URL url = mirror.getURL(mask, args);
         try {
             return HTTPRequest.jsonRequest(request, method, url);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             LogHelper.error("JsonRequest %s failed(%s: %s)", url.toString(), e.getClass().getName(), e.getMessage());
             return null;
         }
     }
-    public JsonElement jsonRequest(JsonElement request, String method, String mask, Object... args) throws IOException
-    {
+
+    public JsonElement jsonRequest(JsonElement request, String method, String mask, Object... args) throws IOException {
         JsonElement result = jsonRequest(defaultMirror, request, method, mask, args);
-        if(result != null) return result;
-        for(Mirror mirror : list)
-        {
-            if(mirror != defaultMirror)
-            {
+        if (result != null) return result;
+        for (Mirror mirror : list) {
+            if (mirror != defaultMirror) {
                 result = jsonRequest(mirror, request, method, mask, args);
-                if(result != null) return result;
+                if (result != null) return result;
             }
         }
         throw new IOException("Error jsonRequest. All mirrors return error");

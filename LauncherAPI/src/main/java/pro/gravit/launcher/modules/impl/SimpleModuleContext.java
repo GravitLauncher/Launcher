@@ -7,6 +7,7 @@ import pro.gravit.launcher.modules.ModulesConfigManager;
 public class SimpleModuleContext implements LauncherModulesContext {
     public final LauncherModulesManager modulesManager;
     public final ModulesConfigManager configManager;
+
     @Override
     public LauncherModulesManager getModulesManager() {
         return modulesManager;

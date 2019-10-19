@@ -7,7 +7,7 @@ public class SecureAutogenConfig {
 
     public SecureAutogenConfig() {
         //Пока не реализован SecureLauncherConfigurator
-        certificates = new byte[][] {
+        certificates = new byte[][]{
                 ("-----BEGIN CERTIFICATE-----\n" +
                         "MIIFyjCCA7KgAwIBAgIRALnsjNjfvOTXfla3fX1fNEUwDQYJKoZIhvcNAQELBQAw\n" +
                         "WTELMAkGA1UEBhMCUlUxFzAVBgNVBAoTDkdyYXZpdFRydXN0IENBMRAwDgYDVQQL\n" +

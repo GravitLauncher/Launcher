@@ -1,13 +1,13 @@
 package pro.gravit.launchserver.command.hash;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
-
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
 
 public final class DownloadAssetCommand extends Command {
 
@@ -40,7 +40,7 @@ public final class DownloadAssetCommand extends Command {
         // Download required asset
         LogHelper.subInfo("Downloading asset, it may take some time");
         //HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getAssetsURL(version.name), assetDir);
-        server.mirrorManager.downloadZip(assetDir,"assets/%s.zip", versionName);
+        server.mirrorManager.downloadZip(assetDir, "assets/%s.zip", versionName);
 
         // Finished
         server.syncUpdatesDir(Collections.singleton(dirName));

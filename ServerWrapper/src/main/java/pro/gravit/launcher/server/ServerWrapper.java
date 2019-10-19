@@ -1,17 +1,5 @@
 package pro.gravit.launcher.server;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Type;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
-import java.util.HashMap;
-
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
@@ -30,6 +18,18 @@ import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
+
+import java.io.IOException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Type;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static ServerWrapperModulesManager modulesManager;

@@ -1,11 +1,11 @@
 package pro.gravit.launchserver.auth;
 
-import java.io.IOException;
-
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
+
+import java.io.IOException;
 
 public class AuthProviderPair {
     public final AuthProvider provider;

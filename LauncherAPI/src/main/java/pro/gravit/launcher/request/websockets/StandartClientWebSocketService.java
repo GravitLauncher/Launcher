@@ -1,12 +1,5 @@
 package pro.gravit.launcher.request.websockets;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.SSLException;
-
 import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.request.Request;
@@ -15,6 +8,12 @@ import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import javax.net.ssl.SSLException;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class StandartClientWebSocketService extends ClientWebSocketService {
     public final WaitEventHandler waitEventHandler = new WaitEventHandler();

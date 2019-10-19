@@ -1,21 +1,15 @@
 package pro.gravit.launchserver.dao;
 
+import pro.gravit.launcher.ClientPermissions;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
+
+import javax.persistence.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.UUID;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
 
 @Entity
 @Table(name = "users")
@@ -34,8 +28,8 @@ public class User {
     public String serverID;
     private String password_salt;
     public long permissions;
-    public void setPassword(String password)
-    {
+
+    public void setPassword(String password) {
         password_salt = SecurityHelper.randomStringAESKey();
         MessageDigest digest;
         try {
@@ -46,8 +40,8 @@ public class User {
         }
         this.password = digest.digest(password.concat(password_salt).getBytes(StandardCharsets.UTF_8));
     }
-    public boolean verifyPassword(String password)
-    {
+
+    public boolean verifyPassword(String password) {
         MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
@@ -58,12 +52,12 @@ public class User {
         byte[] enpassword = digest.digest(password.concat(password_salt).getBytes(StandardCharsets.UTF_8));
         return Arrays.equals(enpassword, this.password);
     }
-    public ClientPermissions getPermissions()
-    {
+
+    public ClientPermissions getPermissions() {
         return new ClientPermissions(permissions);
     }
-    public void setPermissions(ClientPermissions permissions)
-    {
+
+    public void setPermissions(ClientPermissions permissions) {
         this.permissions = permissions.toLong();
     }
 

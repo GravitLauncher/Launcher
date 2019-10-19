@@ -1,12 +1,10 @@
 package pro.gravit.launcher;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.UniversalJsonAdapter;
 
@@ -14,12 +12,12 @@ public class SerializeTest {
     public static GsonBuilder builder;
     public static Gson gson;
     public static ProviderMap<TestInterface> map;
-    public interface TestInterface
-    {
+
+    public interface TestInterface {
         String get();
     }
-    public static class MyTestClass implements TestInterface
-    {
+
+    public static class MyTestClass implements TestInterface {
         public final String a;
 
         public MyTestClass(String a) {
@@ -31,8 +29,8 @@ public class SerializeTest {
             return a;
         }
     }
-    public static class MyTestClass2 implements TestInterface
-    {
+
+    public static class MyTestClass2 implements TestInterface {
         public final String b;
 
         public MyTestClass2(String a) {
@@ -44,9 +42,9 @@ public class SerializeTest {
             return b;
         }
     }
+
     @BeforeAll
-    public static void prepare()
-    {
+    public static void prepare() {
         builder = new GsonBuilder();
         map = new ProviderMap<>();
         map.register("test", MyTestClass.class);
@@ -54,9 +52,9 @@ public class SerializeTest {
         builder.registerTypeAdapter(TestInterface.class, new UniversalJsonAdapter<>(map));
         gson = builder.create();
     }
+
     @Test
-    public void main()
-    {
+    public void main() {
         Assertions.assertNotNull(gson);
         String json = gson.toJson(new MyTestClass("AAAA"), TestInterface.class);
         String json2 = gson.toJson(new MyTestClass2("BBBB"), TestInterface.class);

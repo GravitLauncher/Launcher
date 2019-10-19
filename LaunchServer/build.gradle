@@ -73,7 +73,7 @@ dependencies {
     pack project(':LauncherAPI')
     bundle 'org.ow2.asm:asm-commons:7.1'
     bundle 'mysql:mysql-connector-java:8.0.16'
-	bundle 'org.postgresql:postgresql:42.2.6'
+    bundle 'org.postgresql:postgresql:42.2.6'
     bundle 'org.jline:jline:3.11.0'
     bundle 'org.jline:jline-reader:3.11.0'
     bundle 'org.jline:jline-terminal:3.11.0'

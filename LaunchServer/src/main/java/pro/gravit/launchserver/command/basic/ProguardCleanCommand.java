@@ -1,10 +1,10 @@
 package pro.gravit.launchserver.command.basic;
 
-import java.io.IOException;
-import java.nio.file.Files;
-
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
+
+import java.io.IOException;
+import java.nio.file.Files;
 
 public class ProguardCleanCommand extends Command {
     public ProguardCleanCommand(LaunchServer server) {

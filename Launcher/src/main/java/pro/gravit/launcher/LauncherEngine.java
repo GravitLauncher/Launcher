@@ -1,15 +1,9 @@
 package pro.gravit.launcher;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.security.*;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import pro.gravit.launcher.client.*;
+import pro.gravit.launcher.client.ClientModuleManager;
+import pro.gravit.launcher.client.DirBridge;
+import pro.gravit.launcher.client.FunctionalBridge;
+import pro.gravit.launcher.client.LauncherUpdateController;
 import pro.gravit.launcher.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
@@ -27,8 +21,18 @@ import pro.gravit.launcher.request.update.UpdateRequest;
 import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import pro.gravit.utils.helper.*;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.security.KeyPair;
+import java.security.SecureRandom;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class LauncherEngine {
-	public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
+    public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
 
     public static void main(String... args) throws Throwable {
         JVMHelper.checkStackTrace(LauncherEngine.class);
@@ -70,9 +74,9 @@ public class LauncherEngine {
     }
 
     public void readKeys() throws IOException, InvalidKeySpecException {
-        if(privateKey != null || publicKey != null) return;
+        if (privateKey != null || publicKey != null) return;
         Path dir = DirBridge.dir;
-        Path publicKeyFile =dir.resolve("public.key");
+        Path publicKeyFile = dir.resolve("public.key");
         Path privateKeyFile = dir.resolve("private.key");
         if (IOHelper.isFile(publicKeyFile) && IOHelper.isFile(privateKeyFile)) {
             LogHelper.info("Reading EC keypair");
@@ -136,7 +140,7 @@ public class LauncherEngine {
                 }
             };
         }
-        if(UpdateRequest.getController() == null) UpdateRequest.setController(new LauncherUpdateController());
+        if (UpdateRequest.getController() == null) UpdateRequest.setController(new LauncherUpdateController());
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");

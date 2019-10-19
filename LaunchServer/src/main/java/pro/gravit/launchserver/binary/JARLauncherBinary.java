@@ -1,24 +1,18 @@
 package pro.gravit.launchserver.binary;
 
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.binary.tasks.*;
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.binary.tasks.AdditionalFixesApplyTask;
-import pro.gravit.launchserver.binary.tasks.AttachJarsTask;
-import pro.gravit.launchserver.binary.tasks.CompressBuildTask;
-import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
-import pro.gravit.launchserver.binary.tasks.MainBuildTask;
-import pro.gravit.launchserver.binary.tasks.PrepareBuildTask;
-import pro.gravit.launchserver.binary.tasks.ProGuardBuildTask;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 public final class JARLauncherBinary extends LauncherBinary {
     public final AtomicLong count;
@@ -52,7 +46,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         tasks.add(new ProGuardBuildTask(server));
         tasks.add(new AdditionalFixesApplyTask(server));
         if (!server.config.launcher.attachLibraryBeforeProGuard) tasks.add(new AttachJarsTask(server));
-        if(server.config.launcher.compress) tasks.add(new CompressBuildTask(server));
+        if (server.config.launcher.compress) tasks.add(new CompressBuildTask(server));
     }
 
     @Override

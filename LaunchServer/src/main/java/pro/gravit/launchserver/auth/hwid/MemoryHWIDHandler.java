@@ -1,10 +1,10 @@
 package pro.gravit.launchserver.auth.hwid;
 
+import pro.gravit.launcher.hwid.HWID;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-
-import pro.gravit.launcher.hwid.HWID;
 
 public class MemoryHWIDHandler extends HWIDHandler {
     public static class Entry {

@@ -1,13 +1,8 @@
 package pro.gravit.utils;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-
 import pro.gravit.launcher.LauncherAPI;
+
+import java.util.*;
 
 public final class Version {
     @LauncherAPI

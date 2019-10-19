@@ -1,27 +1,7 @@
 package pro.gravit.launcher.gui;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Map;
-
-import javax.script.Bindings;
-import javax.script.Invocable;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
-
-import pro.gravit.launcher.JSApplication;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.LauncherEngine;
-import pro.gravit.launcher.NewLauncherSettings;
-import pro.gravit.launcher.client.ClientLauncher;
-import pro.gravit.launcher.client.DirBridge;
-import pro.gravit.launcher.client.FunctionalBridge;
-import pro.gravit.launcher.client.ServerPinger;
-import pro.gravit.launcher.client.UserSettings;
+import pro.gravit.launcher.*;
+import pro.gravit.launcher.client.*;
 import pro.gravit.launcher.client.events.ClientGuiPhase;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
@@ -39,11 +19,7 @@ import pro.gravit.launcher.request.PingRequest;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.RequestType;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.CheckServerRequest;
-import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
-import pro.gravit.launcher.request.auth.JoinServerRequest;
-import pro.gravit.launcher.request.auth.SetProfileRequest;
+import pro.gravit.launcher.request.auth.*;
 import pro.gravit.launcher.request.update.LauncherRequest;
 import pro.gravit.launcher.request.update.ProfilesRequest;
 import pro.gravit.launcher.request.update.UpdateRequest;
@@ -55,13 +31,13 @@ import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.EnumSerializer;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.utils.HTTPRequest;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.EnvHelper;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.VerifyHelper;
+import pro.gravit.utils.helper.*;
+
+import javax.script.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Map;
 
 public class JSRuntimeProvider implements RuntimeProvider {
 

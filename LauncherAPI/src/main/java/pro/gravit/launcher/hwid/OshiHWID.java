@@ -1,11 +1,10 @@
 package pro.gravit.launcher.hwid;
 
+import com.google.gson.Gson;
+import pro.gravit.launcher.LauncherAPI;
+
 import java.util.Objects;
 import java.util.StringJoiner;
-
-import com.google.gson.Gson;
-
-import pro.gravit.launcher.LauncherAPI;
 
 public class OshiHWID implements HWID {
     public static Gson gson = new Gson();
@@ -28,7 +27,7 @@ public class OshiHWID implements HWID {
         if (serialNumber != null) result += isRealSerialNumber() ? 20 : 3;
         if (HWDiskSerial != null && !HWDiskSerial.isEmpty()) result += 38;
         if (processorID != null && !processorID.isEmpty()) result += 15;
-        if (macAddr != null  && !macAddr.isEmpty()) result += 25;
+        if (macAddr != null && !macAddr.isEmpty()) result += 25;
         return result;
     }
 
@@ -65,14 +64,14 @@ public class OshiHWID implements HWID {
         processorID = processorID.trim();
         macAddr = macAddr.trim();
     }
-    public boolean isRealSerialNumber()
-    {
-        if(serialNumber.isEmpty()) return false;
-        if(serialNumber.equals("System Serial Number")) return false;
-        if(serialNumber.equals("To be filled by O.E.M.")) return false;
-        if(serialNumber.equals("unknown")) return false;
-        if(serialNumber.equals("None")) return false;
-        if(serialNumber.equals("Default string")) return false;
+
+    public boolean isRealSerialNumber() {
+        if (serialNumber.isEmpty()) return false;
+        if (serialNumber.equals("System Serial Number")) return false;
+        if (serialNumber.equals("To be filled by O.E.M.")) return false;
+        if (serialNumber.equals("unknown")) return false;
+        if (serialNumber.equals("None")) return false;
+        if (serialNumber.equals("Default string")) return false;
         return true;
     }
 

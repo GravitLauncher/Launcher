@@ -1,15 +1,5 @@
 package pro.gravit.launcher.request.update;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Objects;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
@@ -25,6 +15,16 @@ import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Objects;
 
 public final class UpdateRequest extends Request<UpdateRequestEvent> implements WebSocketRequest {
     public interface UpdateController {
@@ -46,8 +46,8 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     public static void setController(UpdateController controller) {
         UpdateRequest.controller = controller;
     }
-    public static UpdateController getController()
-    {
+
+    public static UpdateController getController() {
         return controller;
     }
 

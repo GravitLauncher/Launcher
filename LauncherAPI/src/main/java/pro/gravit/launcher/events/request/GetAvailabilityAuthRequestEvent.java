@@ -1,9 +1,9 @@
 package pro.gravit.launcher.events.request;
 
-import java.util.List;
-
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.RequestEvent;
+
+import java.util.List;
 
 public class GetAvailabilityAuthRequestEvent extends RequestEvent {
     public static class AuthAvailability {

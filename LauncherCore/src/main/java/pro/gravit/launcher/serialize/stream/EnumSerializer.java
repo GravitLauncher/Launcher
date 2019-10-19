@@ -1,14 +1,14 @@
 package pro.gravit.launcher.serialize.stream;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.EnumSerializer.Itf;
 import pro.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class EnumSerializer<E extends Enum<?> & Itf> {
     @FunctionalInterface

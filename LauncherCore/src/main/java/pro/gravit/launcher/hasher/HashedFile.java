@@ -1,9 +1,5 @@
 package pro.gravit.launcher.hasher;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Arrays;
-
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.serialize.HInput;
@@ -12,6 +8,10 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 import pro.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Arrays;
 
 public final class HashedFile extends HashedEntry {
     public static final DigestAlgorithm DIGEST_ALGO = DigestAlgorithm.MD5;

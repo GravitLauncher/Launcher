@@ -7,7 +7,7 @@ import pro.gravit.utils.Version;
 
 public class ProvidedModule extends LauncherModule implements VirtualInterface {
     public ProvidedModule() {
-        super(new LauncherModuleInfo("provided", new Version(1,0,0),
+        super(new LauncherModuleInfo("provided", new Version(1, 0, 0),
                 0, new String[]{}, new String[]{"virtual"}));
     }
 

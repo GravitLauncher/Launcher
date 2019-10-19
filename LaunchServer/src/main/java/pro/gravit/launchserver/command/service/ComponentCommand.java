@@ -1,8 +1,5 @@
 package pro.gravit.launchserver.command.service;
 
-import java.io.Reader;
-import java.nio.file.Paths;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
@@ -10,6 +7,9 @@ import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.Reader;
+import java.nio.file.Paths;
 
 public class ComponentCommand extends Command {
     public ComponentCommand(LaunchServer server) {

@@ -1,5 +1,15 @@
 package pro.gravit.launcher.client;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.serialize.HInput;
+import pro.gravit.launcher.serialize.HOutput;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.VerifyHelper;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -9,17 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.regex.Pattern;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.serialize.HInput;
-import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.VerifyHelper;
 
 public final class ServerPinger {
     private final JsonParser parser = new JsonParser();

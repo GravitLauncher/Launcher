@@ -18,12 +18,12 @@ public class UserService {
     public User findUserByUsername(String username) {
         return usersDao.findByUsername(username);
     }
+
     public User findUserByUUID(UUID uuid) {
         return usersDao.findByUUID(uuid);
     }
 
-    public User registerNewUser(String username, String password)
-    {
+    public User registerNewUser(String username, String password) {
         User user = new User();
         user.username = username;
         user.setPassword(password);

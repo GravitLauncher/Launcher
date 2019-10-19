@@ -1,16 +1,7 @@
 package pro.gravit.launcher.request.websockets;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashSet;
-
-import javax.net.ssl.SSLException;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.request.*;
@@ -21,6 +12,13 @@ import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.UniversalJsonAdapter;
 import pro.gravit.utils.helper.LogHelper;
+
+import javax.net.ssl.SSLException;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
 
 public class ClientWebSocketService extends ClientJSONPoint {
     public final Gson gson;
@@ -38,8 +36,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
         this.onConnect = true;
     }
 
-    public static void appendTypeAdapters(GsonBuilder builder)
-    {
+    public static void appendTypeAdapters(GsonBuilder builder) {
         builder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         builder.registerTypeAdapter(WebSocketEvent.class, new UniversalJsonAdapter<>(ClientWebSocketService.results));
         builder.registerTypeAdapter(WebSocketRequest.class, new UniversalJsonAdapter<>(ClientWebSocketService.requests));

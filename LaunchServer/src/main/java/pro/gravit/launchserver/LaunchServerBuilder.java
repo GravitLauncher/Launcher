@@ -1,14 +1,14 @@
 package pro.gravit.launchserver;
 
-import java.nio.file.Path;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
-
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.utils.command.CommandHandler;
+
+import java.nio.file.Path;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 
 public class LaunchServerBuilder {
     private LaunchServerConfig config;
@@ -72,13 +72,11 @@ public class LaunchServerBuilder {
         return this;
     }
 
-    public LaunchServer build() throws Exception
-    {
+    public LaunchServer build() throws Exception {
         //if(updatesDir == null) updatesDir = dir.resolve("updates");
         //if(profilesDir == null) profilesDir = dir.resolve("profiles");
         directories.collect();
-        if(launchServerConfigManager == null)
-        {
+        if (launchServerConfigManager == null) {
             launchServerConfigManager = new LaunchServer.LaunchServerConfigManager() {
                 @Override
                 public LaunchServerConfig readConfig() {

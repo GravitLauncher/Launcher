@@ -11,7 +11,10 @@ public class LaunchServerRuntimeConfig {
 
     public void verify() {
         if (passwordEncryptKey == null) LogHelper.error("[RuntimeConfig] passwordEncryptKey must not be null");
-        if (clientCheckSecret == null) { LogHelper.warning("[RuntimeConfig] clientCheckSecret must not be null"); clientCheckSecret = SecurityHelper.randomStringToken(); }
+        if (clientCheckSecret == null) {
+            LogHelper.warning("[RuntimeConfig] clientCheckSecret must not be null");
+            clientCheckSecret = SecurityHelper.randomStringToken();
+        }
     }
 
     public void reset() {

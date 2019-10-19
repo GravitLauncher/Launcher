@@ -1,16 +1,5 @@
 package pro.gravit.launcher.profiles;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
@@ -20,10 +9,14 @@ import pro.gravit.launcher.profiles.optional.OptionalType;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.*;
+
 public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     public enum Version {
-    	MC125("1.2.5", 29),
+        MC125("1.2.5", 29),
         MC147("1.4.7", 51),
         MC152("1.5.2", 61),
         MC164("1.6.4", 78),
@@ -434,13 +427,16 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             if (f.name == null) throw new IllegalArgumentException("Optional: name must not be null");
             if (f.list == null) throw new IllegalArgumentException("Optional: list must not be null");
             for (String s : f.list) {
-                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.list", f.name));
+                if (s == null)
+                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.list", f.name));
             }
-            if(f.conflictFile != null) for (OptionalDepend s : f.conflictFile) {
-                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.conflictFile", f.name));
+            if (f.conflictFile != null) for (OptionalDepend s : f.conflictFile) {
+                if (s == null)
+                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.conflictFile", f.name));
             }
-            if(f.dependenciesFile != null)  for (OptionalDepend s : f.dependenciesFile) {
-                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.dependenciesFile", f.name));
+            if (f.dependenciesFile != null) for (OptionalDepend s : f.dependenciesFile) {
+                if (s == null)
+                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.dependenciesFile", f.name));
             }
         }
     }

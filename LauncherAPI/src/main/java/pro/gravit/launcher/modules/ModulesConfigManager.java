@@ -13,13 +13,11 @@ public interface ModulesConfigManager {
 
     <T> SimpleConfigurable<T> getConfigurable(Class<T> tClass, Path configPath);
 
-    default <T> SimpleConfigurable<T> getConfigurable(Class<T> tClass, String moduleName)
-    {
+    default <T> SimpleConfigurable<T> getConfigurable(Class<T> tClass, String moduleName) {
         return getConfigurable(tClass, getModuleConfig(moduleName));
     }
 
-    default <T> SimpleConfigurable<T> getConfigurable(Class<T> tClass, String moduleName, String configName)
-    {
+    default <T> SimpleConfigurable<T> getConfigurable(Class<T> tClass, String moduleName, String configName) {
         return getConfigurable(tClass, getModuleConfig(moduleName, configName));
     }
 }

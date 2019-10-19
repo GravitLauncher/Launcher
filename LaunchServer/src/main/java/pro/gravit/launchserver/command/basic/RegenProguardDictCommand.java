@@ -1,9 +1,9 @@
 package pro.gravit.launchserver.command.basic;
 
-import java.io.IOException;
-
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
+
+import java.io.IOException;
 
 public class RegenProguardDictCommand extends Command {
 

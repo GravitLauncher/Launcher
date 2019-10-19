@@ -1,15 +1,15 @@
 package pro.gravit.launchserver.auth.hwid;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class HWIDHandler implements AutoCloseable, Reconfigurable {
     public static final ProviderMap<HWIDHandler> providers = new ProviderMap<>("HWIDHandler");
@@ -48,8 +48,7 @@ public abstract class HWIDHandler implements AutoCloseable, Reconfigurable {
             @Override
             public void invoke(String... args) throws Exception {
                 List<HWID> target = getHwid(args[0]);
-                for(HWID hwid : target)
-                {
+                for (HWID hwid : target) {
                     if (hwid == null) {
                         LogHelper.error("[%s] HWID: null", args[0]);
                         continue;

@@ -1,11 +1,5 @@
 package pro.gravit.launcher.guard;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.Map;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.client.ClientLauncher;
@@ -14,6 +8,12 @@ import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.UnpackHelper;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Map;
 
 //Стандартный интерфейс для всех AntiInject
 public class LauncherStdGuard implements LauncherGuardInterface {
@@ -30,7 +30,7 @@ public class LauncherStdGuard implements LauncherGuardInterface {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
             javaBinPath = ClientLauncher.getJavaBinPath();
             String projectName = Launcher.getConfig().projectname;
-            String wrapperUnpackName = ( javaBinPath == null ? JVMHelper.JVM_BITS : JVMHelper.OS_BITS ) == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
+            String wrapperUnpackName = (javaBinPath == null ? JVMHelper.JVM_BITS : JVMHelper.OS_BITS) == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
             return DirBridge.getGuardDir().resolve(wrapperUnpackName);
         } else
             return IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));

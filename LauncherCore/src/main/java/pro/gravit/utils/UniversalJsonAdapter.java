@@ -1,20 +1,13 @@
 package pro.gravit.utils;
 
-import java.lang.reflect.Type;
-
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-
+import com.google.gson.*;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.lang.reflect.Type;
 
 /**
  * An adapter that uses {@link ProviderMap} to serialize and deserialize a group of similar objects
+ *
  * @param <R> Class or interface type
  * @see ProviderMap
  */

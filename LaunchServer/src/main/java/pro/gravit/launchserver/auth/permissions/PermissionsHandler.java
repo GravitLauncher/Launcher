@@ -20,8 +20,7 @@ public abstract class PermissionsHandler implements AutoCloseable {
         }
     }
 
-    public void init(LaunchServer server)
-    {
+    public void init(LaunchServer server) {
         this.srv = server;
     }
 

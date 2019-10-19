@@ -1,6 +1,18 @@
 package pro.gravit.launchserver.binary.tasks;
 
-import static pro.gravit.utils.helper.IOHelper.newZipEntry;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
+import pro.gravit.launcher.AutogenConfig;
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.serialize.HOutput;
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.asm.ClassMetadataReader;
+import pro.gravit.launchserver.binary.BuildContext;
+import pro.gravit.launchserver.binary.LauncherConfigurator;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,20 +29,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.tree.ClassNode;
-
-import pro.gravit.launcher.AutogenConfig;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.asm.ClassMetadataReader;
-import pro.gravit.launchserver.binary.BuildContext;
-import pro.gravit.launchserver.binary.LauncherConfigurator;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
+import static pro.gravit.utils.helper.IOHelper.newZipEntry;
 
 public class MainBuildTask implements LauncherBuildTask {
     private final LaunchServer server;
@@ -118,9 +117,9 @@ public class MainBuildTask implements LauncherBuildTask {
     public Path process(Path inputJar) throws IOException {
         Path outputJar = server.launcherBinary.nextPath("main");
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
-        	ClassNode cn = new ClassNode();
-        	new ClassReader(IOHelper.getResourceBytes(AutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn, 0);
-        	LauncherConfigurator launcherConfigurator = new LauncherConfigurator(cn);
+            ClassNode cn = new ClassNode();
+            new ClassReader(IOHelper.getResourceBytes(AutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn, 0);
+            LauncherConfigurator launcherConfigurator = new LauncherConfigurator(cn);
             BuildContext context = new BuildContext(output, launcherConfigurator, this);
             server.buildHookManager.hook(context);
             launcherConfigurator.setStringField("address", server.config.netty.address);

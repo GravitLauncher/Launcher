@@ -1,11 +1,11 @@
 package com.mojang.authlib.yggdrasil;
 
-import java.util.UUID;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.utils.helper.SecurityHelper;
+
+import java.util.UUID;
 
 @LauncherAPI
 public class CompatProfile {

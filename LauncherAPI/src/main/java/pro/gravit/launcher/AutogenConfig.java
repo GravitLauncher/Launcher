@@ -24,6 +24,6 @@ public class AutogenConfig {
     }
 
     public void initModules() {
-    	
+
     }
 }

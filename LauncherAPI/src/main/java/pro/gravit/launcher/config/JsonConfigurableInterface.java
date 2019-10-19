@@ -17,45 +17,52 @@ public interface JsonConfigurableInterface<T> {
     default void saveConfig() throws IOException {
         saveConfig(getPath());
     }
+
     @LauncherAPI
     default void loadConfig() throws IOException {
         loadConfig(getPath());
     }
+
     @LauncherAPI
     default void saveConfig(Gson gson, Path configPath) throws IOException {
         try (BufferedWriter writer = IOHelper.newWriter(configPath)) {
             gson.toJson(getConfig(), getType(), writer);
         }
     }
+
     @LauncherAPI
     default void loadConfig(Gson gson, Path configPath) throws IOException {
         if (generateConfigIfNotExists(configPath)) return;
         try (BufferedReader reader = IOHelper.newReader(configPath)) {
             setConfig(gson.fromJson(reader, getType()));
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             LogHelper.error(e);
             resetConfig(configPath);
         }
     }
+
     @LauncherAPI
     default void saveConfig(Path configPath) throws IOException {
         saveConfig(Launcher.gsonManager.configGson, configPath);
     }
+
     @LauncherAPI
     default void loadConfig(Path configPath) throws IOException {
         loadConfig(Launcher.gsonManager.configGson, configPath);
     }
+
     @LauncherAPI
     default void resetConfig() throws IOException {
         setConfig(getDefaultConfig());
         saveConfig();
     }
+
     @LauncherAPI
     default void resetConfig(Path newPath) throws IOException {
         setConfig(getDefaultConfig());
         saveConfig(newPath);
     }
+
     @LauncherAPI
     default boolean generateConfigIfNotExists(Path path) throws IOException {
         if (IOHelper.isFile(path))
@@ -63,6 +70,7 @@ public interface JsonConfigurableInterface<T> {
         resetConfig(path);
         return true;
     }
+
     @LauncherAPI
     default boolean generateConfigIfNotExists() throws IOException {
         if (IOHelper.isFile(getPath()))
@@ -70,12 +78,16 @@ public interface JsonConfigurableInterface<T> {
         resetConfig();
         return true;
     }
+
     @LauncherAPI
     T getConfig();
+
     @LauncherAPI
     T getDefaultConfig();
+
     @LauncherAPI
     void setConfig(T config);
+
     @LauncherAPI
     Path getPath();
 

@@ -16,8 +16,7 @@ public class LaunchServerCoreModule extends LauncherModule {
         registerEvent(this::testEvent, InitPhase.class);
     }
 
-    public void testEvent(InitPhase event)
-    {
+    public void testEvent(InitPhase event) {
         //LogHelper.debug("[LaunchServerCore] Event LaunchServerInitPhase passed");
     }
 }

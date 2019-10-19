@@ -1,9 +1,9 @@
 package pro.gravit.launcher.guard;
 
-import java.nio.file.Path;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
+
+import java.nio.file.Path;
 
 public class LauncherGuardManager {
     public static LauncherGuardInterface guard;

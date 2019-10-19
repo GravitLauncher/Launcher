@@ -1,11 +1,11 @@
 package pro.gravit.launcher.managers;
 
+import pro.gravit.launcher.NeedGarbageCollection;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import pro.gravit.launcher.NeedGarbageCollection;
 
 public class GarbageManager {
     static class Entry {

@@ -1,13 +1,13 @@
 package pro.gravit.launcher.console.store;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import pro.gravit.launcher.NewLauncherSettings;
 import pro.gravit.launcher.managers.SettingsManager;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class CopyStoreDirCommand extends Command {
     @Override

@@ -1,15 +1,11 @@
 package pro.gravit.launcher;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import pro.gravit.launcher.client.UserSettings;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
+
+import java.nio.file.Path;
+import java.util.*;
 
 public class NewLauncherSettings {
     @LauncherAPI

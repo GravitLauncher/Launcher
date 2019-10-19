@@ -1,5 +1,16 @@
 package pro.gravit.launcher.downloader;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.LaxRedirectStrategy;
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.VerifyHelper;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,37 +22,19 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.LaxRedirectStrategy;
-
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.VerifyHelper;
-
 public class ListDownloader {
     private static final AtomicInteger COUNTER_THR = new AtomicInteger(0);
-	private static final ThreadFactory FACTORY = r -> CommonHelper.newThread("Downloader Thread #" + COUNTER_THR.incrementAndGet(), true, r);
+    private static final ThreadFactory FACTORY = r -> CommonHelper.newThread("Downloader Thread #" + COUNTER_THR.incrementAndGet(), true, r);
 
-	private static ExecutorService newExecutor() {
-		return new ThreadPoolExecutor(0, VerifyHelper.verifyInt(Integer.parseInt(System.getProperty("launcher.downloadThreads", "3")), VerifyHelper.POSITIVE, "Thread max count must be positive."), 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), FACTORY);
-	}
-	
+    private static ExecutorService newExecutor() {
+        return new ThreadPoolExecutor(0, VerifyHelper.verifyInt(Integer.parseInt(System.getProperty("launcher.downloadThreads", "3")), VerifyHelper.POSITIVE, "Thread max count must be positive."), 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), FACTORY);
+    }
+
     @FunctionalInterface
     public interface DownloadCallback {
         void stateChanged(String filename, long downloadedSize, long size);
@@ -66,8 +59,8 @@ public class ListDownloader {
         try (CloseableHttpClient httpclient = HttpClients.custom().setUserAgent(IOHelper.USER_AGENT)
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
-        	applies.sort(Comparator.comparingLong(a -> a.size));
-        	List<Callable<Void>> toExec = new ArrayList<>();
+            applies.sort(Comparator.comparingLong(a -> a.size));
+            List<Callable<Void>> toExec = new ArrayList<>();
             URI baseUri = new URI(base);
             String scheme = baseUri.getScheme();
             String host = baseUri.getHost();
@@ -81,28 +74,28 @@ public class ListDownloader {
                 callback.stateChanged(apply.apply, 0L, apply.size);
                 Path targetPath = dstDirFile.resolve(apply.apply);
                 toExec.add(() -> {
-                	if (LogHelper.isDebugEnabled())
+                    if (LogHelper.isDebugEnabled())
                         LogHelper.debug("Download URL: %s to file %s dir: %s", u.toString(), targetPath.toAbsolutePath().toString(), dstDirFile.toAbsolutePath().toString());
-                	try {
-						httpclient.execute(new HttpGet(u), new FileDownloadResponseHandler(targetPath, apply, callback, totalCallback, false));
-					} catch (IOException e) {
-						excs.add(e);
-					}
-                	return null;
+                    try {
+                        httpclient.execute(new HttpGet(u), new FileDownloadResponseHandler(targetPath, apply, callback, totalCallback, false));
+                    } catch (IOException e) {
+                        excs.add(e);
+                    }
+                    return null;
                 });
             }
             try {
                 ExecutorService e = newExecutor();
                 e.invokeAll(toExec);
                 e.shutdown();
-				e.awaitTermination(4, TimeUnit.HOURS);
-			} catch (InterruptedException t) {
-				LogHelper.error(t);
-			}
+                e.awaitTermination(4, TimeUnit.HOURS);
+            } catch (InterruptedException t) {
+                LogHelper.error(t);
+            }
             if (!excs.isEmpty()) {
-            	IOException toThrow = excs.remove(0);
-            	excs.forEach(toThrow::addSuppressed);
-            	throw toThrow;
+                IOException toThrow = excs.remove(0);
+                excs.forEach(toThrow::addSuppressed);
+                throw toThrow;
             }
         }
     }
@@ -125,8 +118,7 @@ public class ListDownloader {
                 String name = entry.getName();
                 callback.stateChanged(name, 0L, entry.getSize());
                 LogHelper.subInfo("Downloading file: '%s'", name);
-                if(fullDownload || applies.stream().anyMatch((t) -> t.apply.equals(name)))
-                {
+                if (fullDownload || applies.stream().anyMatch((t) -> t.apply.equals(name))) {
                     Path fileName = IOHelper.toPath(name);
                     transfer(input, dstDirFile.resolve(fileName), fileName.toString(), entry.getSize(), callback, totalCallback);
                 }
@@ -184,13 +176,11 @@ public class ListDownloader {
         public Path handleResponse(HttpResponse response) throws IOException {
             InputStream source = response.getEntity().getContent();
             int returnCode = response.getStatusLine().getStatusCode();
-            if(returnCode != 200)
-            {
+            if (returnCode != 200) {
                 throw new IllegalStateException(String.format("Request download file %s return code %d", target.toString(), returnCode));
             }
             long contentLength = response.getEntity().getContentLength();
-            if (task != null && contentLength != task.size)
-            {
+            if (task != null && contentLength != task.size) {
                 LogHelper.warning("Missing content length: expected %d | found %d", task.size, contentLength);
             }
             if (zip) {

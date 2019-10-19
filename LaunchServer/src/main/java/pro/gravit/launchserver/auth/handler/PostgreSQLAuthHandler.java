@@ -1,15 +1,14 @@
 package pro.gravit.launchserver.auth.handler;
 
+import org.postgresql.util.PGobject;
+import pro.gravit.launchserver.auth.PostgreSQLSourceConfig;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
-
-import org.postgresql.util.PGobject;
-
-import pro.gravit.launchserver.auth.PostgreSQLSourceConfig;
 
 public final class PostgreSQLAuthHandler extends CachedAuthHandler {
     private PostgreSQLSourceConfig postgreSQLHolder;

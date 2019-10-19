@@ -1,47 +1,47 @@
 image: docker:latest
 services:
-- docker:dind
+  - docker:dind
 
 variables:
   DOCKER_DRIVER: overlay2
   CI_VERSION: '6.6.$CI_PIPELINE_IID'
 
 stages:
-- build
-- test
+  - build
+  - test
 
 build:
   image: frekele/java
   stage: build
   before_script:
-  - apt-get -y update
-  - apt-get -y install zip git
-  - export GRADLE_USER_HOME=`pwd`/.gradle
-  - chmod +x gradlew
-  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-  - git submodule sync
-  - git submodule update --init --recursive
+    - apt-get -y update
+    - apt-get -y install zip git
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - chmod +x gradlew
+    - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+    - git submodule sync
+    - git submodule update --init --recursive
   script:
-  - ./gradlew assemble
+    - ./gradlew assemble
   after_script:
-  - mkdir -p artifacts/modules
-  - cd LaunchServer/build/libs/
-  - zip -r -9 ../../../artifacts/libraries.zip * -x "LaunchServer.jar" -x "LaunchServer-clean.jar"
-  - mv LaunchServer.jar ../../../artifacts/LaunchServer.jar
-  - cd ../../../ServerWrapper/build/libs
-  - mv ServerWrapper.jar ../../../artifacts/ServerWrapper.jar
-  - cd ../../../
-  - mv modules/*_module/build/libs/*.jar artifacts/modules
-  - mv modules/*_swmodule/build/libs/*.jar artifacts/modules
-  - mv modules/*_lmodule/build/libs/*.jar artifacts/modules
+    - mkdir -p artifacts/modules
+    - cd LaunchServer/build/libs/
+    - zip -r -9 ../../../artifacts/libraries.zip * -x "LaunchServer.jar" -x "LaunchServer-clean.jar"
+    - mv LaunchServer.jar ../../../artifacts/LaunchServer.jar
+    - cd ../../../ServerWrapper/build/libs
+    - mv ServerWrapper.jar ../../../artifacts/ServerWrapper.jar
+    - cd ../../../
+    - mv modules/*_module/build/libs/*.jar artifacts/modules
+    - mv modules/*_swmodule/build/libs/*.jar artifacts/modules
+    - mv modules/*_lmodule/build/libs/*.jar artifacts/modules
   cache:
     paths:
-    - .gradle
+      - .gradle
   artifacts:
     expire_in: 6 week
     paths:
-    - artifacts
-    
+      - artifacts
+
 test:
   image: frekele/java
   stage: test

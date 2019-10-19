@@ -1,14 +1,14 @@
 package pro.gravit.launchserver.socket.response.update;
 
-import java.util.Arrays;
-import java.util.Base64;
-
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.SecurityHelper;
+
+import java.util.Arrays;
+import java.util.Base64;
 
 public class LauncherResponse extends SimpleResponse {
     public Version version;
@@ -34,7 +34,8 @@ public class LauncherResponse extends SimpleResponse {
         if (launcher_type == 1) // JAR
         {
             byte[] hash = server.launcherBinary.getDigest();
-            if (hash == null) service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, server.config.netty.launcherURL));
+            if (hash == null)
+                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, server.config.netty.launcherURL));
             if (Arrays.equals(bytes, hash)) {
                 client.checkSign = true;
                 client.isSecure = checkSecure(secureHash, secureSalt);
@@ -55,9 +56,9 @@ public class LauncherResponse extends SimpleResponse {
             }
         } else sendError("Request launcher type error");
     }
-    private boolean checkSecure(String hash, String salt)
-    {
-        if(hash == null || salt == null) return false;
+
+    private boolean checkSecure(String hash, String salt) {
+        if (hash == null || salt == null) return false;
         byte[] normal_hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
                 server.runtime.clientCheckSecret.concat(".").concat(salt));
         byte[] launcher_hash = Base64.getDecoder().decode(hash);

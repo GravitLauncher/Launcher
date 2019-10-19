@@ -1,13 +1,13 @@
 package pro.gravit.launcher.guard;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-
 import pro.gravit.launcher.client.ClientLauncherContext;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
 
 public class LauncherNoGuard implements LauncherGuardInterface {
     @Override

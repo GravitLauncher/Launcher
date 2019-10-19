@@ -1,37 +1,6 @@
 package pro.gravit.launcher.client;
 
-import java.io.IOException;
-import java.lang.ProcessBuilder.Redirect;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.URL;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.PosixFilePermission;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.swing.JOptionPane;
-
-import pro.gravit.launcher.ClientLauncherWrapper;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.launcher.LauncherAgent;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.*;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
 import pro.gravit.launcher.client.events.ClientLaunchPhase;
@@ -56,13 +25,27 @@ import pro.gravit.launcher.utils.DirWatcher;
 import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.EnvHelper;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.*;
 import pro.gravit.utils.helper.JVMHelper.OS;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
+
+import javax.swing.*;
+import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class ClientLauncher {
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
@@ -295,7 +278,7 @@ public final class ClientLauncher {
         List<String> copy = new ArrayList<>(args);
         for (int i = 0, l = copy.size(); i < l; i++) {
             String s = copy.get(i);
-            if ( i + 1 < l && ("--accessToken".equals(s) || "--session".equals(s))) {
+            if (i + 1 < l && ("--accessToken".equals(s) || "--session".equals(s))) {
                 copy.set(i + 1, "censored");
             }
         }
@@ -306,27 +289,27 @@ public final class ClientLauncher {
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
         // Invoke main method
-        mainMethod.invokeWithArguments((Object)args.toArray(new String[0]));
+        mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
     }
 
     private static Process process = null;
     private static boolean clientStarted = false;
     private static Thread writeParamsThread;
 
-	public static void setWriteParamsThread(Thread writeParamsThread) {
-		ClientLauncher.writeParamsThread = writeParamsThread;
-		ClientLauncher.writeParamsThread.start();
-	}
+    public static void setWriteParamsThread(Thread writeParamsThread) {
+        ClientLauncher.writeParamsThread = writeParamsThread;
+        ClientLauncher.writeParamsThread.start();
+    }
 
-	public static Process getProcess() {
-		return process;
-	}
+    public static Process getProcess() {
+        return process;
+    }
 
-	public static void setClientStarted() {
-		clientStarted = true;
-	}
+    public static void setClientStarted() {
+        clientStarted = true;
+    }
 
-	public static PlayerProfile playerProfile;
+    public static PlayerProfile playerProfile;
 
     @LauncherAPI
     public static Process launch(
@@ -397,12 +380,12 @@ public final class ClientLauncher {
         ClientHookManager.preStartHook.hook(context, builder);
         process = builder.start();
         if (builder.command() != command) {
-        	LogHelper.error("Something strange cheating...");
+            LogHelper.error("Something strange cheating...");
             System.exit(100);
-        	clientStarted = false;
+            clientStarted = false;
             return null;
         }
-        if(ClientHookManager.postStartHook.hook(context, builder)) return process;
+        if (ClientHookManager.postStartHook.hook(context, builder)) return process;
         if (!pipeOutput) {
             for (int i = 0; i < 50; ++i) {
                 if (!process.isAlive()) {
@@ -423,8 +406,8 @@ public final class ClientLauncher {
         clientStarted = false;
         return process;
     }
-    public static class ClientLaunchContext
-    {
+
+    public static class ClientLaunchContext {
         public final Params params;
         public final ClientProfile profile;
         public final HashedDir assetHDir, clientHDir;
@@ -441,15 +424,15 @@ public final class ClientLauncher {
 
     @LauncherAPI
     public static void main(String... args) throws Throwable {
-    	LauncherEngine.IS_CLIENT.set(true);
+        LauncherEngine.IS_CLIENT.set(true);
         LauncherEngine engine = LauncherEngine.clientInstance();
         LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         LauncherEngine.modulesManager.initModules(null);
         initGson(LauncherEngine.modulesManager);
         if (!LauncherAgent.isStarted()) {
-        	NativeJVMHalt.haltA(100);
-        	return;
+            NativeJVMHalt.haltA(100);
+            return;
         }
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
@@ -597,52 +580,54 @@ public final class ClientLauncher {
     }
 
     public interface ParamsAPI {
-    	ParamContainer read() throws Exception;
-    	void write(ParamContainer p);
+        ParamContainer read() throws Exception;
+
+        void write(ParamContainer p);
     }
-    
+
     public static final ParamsAPI container = new ParamsAPI() {
-		@Override
-		public ParamContainer read() throws Exception {
-			ParamContainer p;
+        @Override
+        public ParamContainer read() throws Exception {
+            ParamContainer p;
             try (Socket socket = IOHelper.newSocket()) {
                 socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                 try (HInput input = new HInput(socket.getInputStream())) {
-                	p = new ParamContainer(input);
+                    p = new ParamContainer(input);
                 }
             }
             return p;
-		}
-		@Override
-		public void write(ParamContainer p) {
-	        setWriteParamsThread(CommonHelper.newThread("Client params writter", true, () ->
-	        {
-	            try {
-	                try (ServerSocket socket = new ServerSocket()) {
-	                    socket.setReuseAddress(true);
-	                    socket.setSoTimeout(30000);
-	                    socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
-	                    Socket client = socket.accept();
-	                    if (process == null) {
-	                        LogHelper.error("Process is null");
-	                        return;
-	                    }
-	                    if (!process.isAlive()) {
-	                        LogHelper.error("Process is not alive");
-	                        JOptionPane.showMessageDialog(null, "Client Process crashed", "Launcher", JOptionPane.ERROR_MESSAGE);
-	                        return;
-	                    }
-	                    try (HOutput output = new HOutput(client.getOutputStream())) {
-	                        p.write(output);
-	                    }
-	                    clientStarted = true;
-	                }
-	            } catch (IOException e) {
-	                LogHelper.error(e);
-	            }
-	        }));
-		}
-    	
+        }
+
+        @Override
+        public void write(ParamContainer p) {
+            setWriteParamsThread(CommonHelper.newThread("Client params writter", true, () ->
+            {
+                try {
+                    try (ServerSocket socket = new ServerSocket()) {
+                        socket.setReuseAddress(true);
+                        socket.setSoTimeout(30000);
+                        socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
+                        Socket client = socket.accept();
+                        if (process == null) {
+                            LogHelper.error("Process is null");
+                            return;
+                        }
+                        if (!process.isAlive()) {
+                            LogHelper.error("Process is not alive");
+                            JOptionPane.showMessageDialog(null, "Client Process crashed", "Launcher", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        try (HOutput output = new HOutput(client.getOutputStream())) {
+                            p.write(output);
+                        }
+                        clientStarted = true;
+                    }
+                } catch (IOException e) {
+                    LogHelper.error(e);
+                }
+            }));
+        }
+
     };
 
     public static class ParamContainer extends StreamObject {
@@ -658,24 +643,24 @@ public final class ClientLauncher {
         public ParamContainer() {
         }
 
-        public ParamContainer(Params params, ClientProfile profile,  HashedDir assetHDir, HashedDir clientHDir) {
-        	this.params = params;
-        	this.profile = profile;
-        	this.assetHDir = assetHDir;
-        	this.clientHDir = clientHDir;
+        public ParamContainer(Params params, ClientProfile profile, HashedDir assetHDir, HashedDir clientHDir) {
+            this.params = params;
+            this.profile = profile;
+            this.assetHDir = assetHDir;
+            this.clientHDir = clientHDir;
         }
 
         public Params params;
         public ClientProfile profile;
         public HashedDir assetHDir, clientHDir;
 
-		@Override
-		public void write(HOutput output) throws IOException {
+        @Override
+        public void write(HOutput output) throws IOException {
             params.write(output);
             output.writeString(Launcher.gsonManager.gson.toJson(profile), 0);
             assetHDir.write(output);
             clientHDir.write(output);
             ClientHookManager.paramsOutputHook.hook(output);
-		}
+        }
     }
 }

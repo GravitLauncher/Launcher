@@ -1,13 +1,14 @@
 package pro.gravit.utils;
 
+import pro.gravit.utils.helper.VerifyHelper;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import pro.gravit.utils.helper.VerifyHelper;
-
 /**
  * The relationship between classes of an interface or abstract class and names when they are serialized
+ *
  * @param <R> Class or interface type
  */
 public class ProviderMap<R> {

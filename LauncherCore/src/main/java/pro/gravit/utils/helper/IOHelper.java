@@ -1,51 +1,16 @@
 package pro.gravit.utils.helper;
 
+import pro.gravit.launcher.LauncherAPI;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.io.*;
+import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.CopyOption;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.LinkOption;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Set;
@@ -56,13 +21,9 @@ import java.util.zip.Inflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-
-import pro.gravit.launcher.LauncherAPI;
-
 public final class IOHelper {
-	public static final long MB32 = 1 << 25;
+    public static final long MB32 = 1 << 25;
+
     private static final class DeleteDirVisitor extends SimpleFileVisitor<Path> {
         private final Path dir;
         private final boolean self;
@@ -168,7 +129,7 @@ public final class IOHelper {
     private static final Pattern CROSS_SEPARATOR_PATTERN = Pattern.compile(CROSS_SEPARATOR, Pattern.LITERAL);
 
     private static final Pattern PLATFORM_SEPARATOR_PATTERN = Pattern.compile(PLATFORM_SEPARATOR, Pattern.LITERAL);
-	public static final String USER_AGENT = System.getProperty("launcher.userAgentDefault", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+    public static final String USER_AGENT = System.getProperty("launcher.userAgentDefault", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
 
     @LauncherAPI
     public static void close(AutoCloseable closeable) {

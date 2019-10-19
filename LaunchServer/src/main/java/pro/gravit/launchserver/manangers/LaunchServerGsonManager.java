@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.manangers;
 
 import com.google.gson.GsonBuilder;
-
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.GsonManager;

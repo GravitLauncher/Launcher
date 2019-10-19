@@ -5,18 +5,19 @@ import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launcher.request.auth.password.AuthECPassword;
+import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements WebSocketRequest {
     public static final ProviderMap<AuthPasswordInterface> providers = new ProviderMap<>();
-    public interface AuthPasswordInterface
-    {
+
+    public interface AuthPasswordInterface {
         boolean check();
     }
+
     @LauncherNetworkAPI
     private final String login;
     @LauncherNetworkAPI
@@ -102,9 +103,11 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
     public String getType() {
         return "auth";
     }
+
     private static boolean registerProviders = false;
+
     public static void registerProviders() {
-        if(!registerProviders) {
+        if (!registerProviders) {
             providers.register("plain", AuthPlainPassword.class);
             providers.register("rsa", AuthECPassword.class);
             registerProviders = true;

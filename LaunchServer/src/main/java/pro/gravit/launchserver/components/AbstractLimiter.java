@@ -1,15 +1,15 @@
 package pro.gravit.launchserver.components;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractLimiter<T> extends Component implements NeedGarbageCollection, Reconfigurable {
     public int rateLimit;
@@ -67,8 +67,7 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
         map.entrySet().removeIf((e) -> e.getValue().time + rateLimitMillis < time);
     }
 
-    static class LimitEntry
-    {
+    static class LimitEntry {
         long time;
         int trys;
 
@@ -82,27 +81,23 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
             trys = 0;
         }
     }
+
     protected final transient Map<T, LimitEntry> map = new HashMap<>();
-    public boolean check(T address)
-    {
-        if(exclude.contains(address)) return true;
+
+    public boolean check(T address) {
+        if (exclude.contains(address)) return true;
         LimitEntry entry = map.get(address);
-        if(entry == null)
-        {
+        if (entry == null) {
             map.put(address, new LimitEntry());
             return true;
-        }
-        else
-        {
+        } else {
             long time = System.currentTimeMillis();
-            if(entry.trys < rateLimit)
-            {
+            if (entry.trys < rateLimit) {
                 entry.trys++;
                 entry.time = time;
                 return true;
             }
-            if(entry.time + rateLimitMillis < time)
-            {
+            if (entry.time + rateLimitMillis < time) {
                 entry.trys = 1;
                 entry.time = time;
                 return true;

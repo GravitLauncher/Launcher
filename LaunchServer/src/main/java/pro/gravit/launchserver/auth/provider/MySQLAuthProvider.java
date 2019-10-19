@@ -1,10 +1,5 @@
 package pro.gravit.launchserver.auth.provider;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
@@ -15,6 +10,11 @@ import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public final class MySQLAuthProvider extends AuthProvider {
     private MySQLSourceConfig mySQLHolder;
     private String query;
@@ -24,7 +24,7 @@ public final class MySQLAuthProvider extends AuthProvider {
 
     @Override
     public void init(LaunchServer srv) {
-    	super.init(srv);
+        super.init(srv);
         if (query == null) LogHelper.error("[Verify][AuthProvider] query cannot be null");
         if (message == null) LogHelper.error("[Verify][AuthProvider] message cannot be null");
         if (mySQLHolder == null) LogHelper.error("[Verify][AuthProvider] mySQLHolder cannot be null");
@@ -32,7 +32,7 @@ public final class MySQLAuthProvider extends AuthProvider {
 
     @Override
     public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws SQLException, AuthException {
-        if(!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
+        if (!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
         try (Connection c = mySQLHolder.getConnection()) {
             PreparedStatement s = c.prepareStatement(query);
             String[] replaceParams = {"login", login, "password", ((AuthPlainPassword) password).password, "ip", ip};

@@ -11,6 +11,7 @@ public abstract class SimpleConfig<T> implements JsonConfigurableInterface<T> {
         this.type = type;
         this.configPath = configPath;
     }
+
     @SuppressWarnings("unchecked")
     @Override
     public T getConfig() {

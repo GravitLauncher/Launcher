@@ -1,13 +1,13 @@
 package pro.gravit.launchserver.socket.response.profile;
 
-import java.util.UUID;
-
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.BatchProfileByUsernameRequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.util.UUID;
 
 public class BatchProfileByUsername extends SimpleResponse {
     static class Entry {

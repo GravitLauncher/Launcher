@@ -1,15 +1,10 @@
 package pro.gravit.launchserver.dao;
 
-import java.util.function.Supplier;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.OshiHWID;
+
+import javax.persistence.*;
+import java.util.function.Supplier;
 
 @Entity
 @Table(name = "users_hwids")
@@ -35,9 +30,9 @@ public class UserHWID implements HWID {
     public String macAddr;
 
     public boolean banned;
-    public OshiHWID toHWID()
-    {
-        if(oshi == null) oshi = oshiSupp.get();
+
+    public OshiHWID toHWID() {
+        if (oshi == null) oshi = oshiSupp.get();
         return oshi;
     }
 

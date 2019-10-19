@@ -18,13 +18,11 @@ public class TestModule extends LauncherModule {
         registerEvent(this::testevent2, CancelEvent.class);
     }
 
-    public void testevent(NormalEvent event)
-    {
+    public void testevent(NormalEvent event) {
         event.passed = true;
     }
 
-    public void testevent2(CancelEvent cancelEvent)
-    {
+    public void testevent2(CancelEvent cancelEvent) {
         cancelEvent.cancel();
     }
 }
