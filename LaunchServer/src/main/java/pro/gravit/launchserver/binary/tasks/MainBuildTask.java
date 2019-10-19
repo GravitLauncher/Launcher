@@ -224,6 +224,10 @@ public class MainBuildTask implements LauncherBuildTask {
             ZipEntry e = newZipEntry(zPath);
             output.putNextEntry(e);
             output.write(launcherConfigurator.getBytecode(reader));
+
+            e = newZipEntry(sPath);
+            output.putNextEntry(e);
+            output.write(secureConfigurator.getBytecode(reader));
         }
         reader.close();
         return outputJar;
