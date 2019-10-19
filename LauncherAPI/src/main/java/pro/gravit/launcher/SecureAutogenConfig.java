@@ -11,7 +11,7 @@ public class SecureAutogenConfig {
 
     public SecureAutogenConfig() {
         //Пока не реализован SecureLauncherConfigurator
-        certificates = Arrays.asList(
+        certificates = null/*Arrays.asList(
                 ("-----BEGIN CERTIFICATE-----\n" +
                         "MIIFyjCCA7KgAwIBAgIRALnsjNjfvOTXfla3fX1fNEUwDQYJKoZIhvcNAQELBQAw\n" +
                         "WTELMAkGA1UEBhMCUlUxFzAVBgNVBAoTDkdyYXZpdFRydXN0IENBMRAwDgYDVQQL\n" +
@@ -44,6 +44,6 @@ public class SecureAutogenConfig {
                         "OATWgSKH0qTkleE/v7k+USs0a+KV8wmC5wwliqH+uLO++yIP/9bjDctyLulQX5Ee\n" +
                         "+EhD7tb1R/yyWY4uhkzlsr3N2Kl34aQAEBMn8Z1mHsyyu1FcbEaNLU8jcS3pHPVM\n" +
                         "gQRn3m1iDnQlFciAMxW0pW6mW/4xKYzhXk5BTSolnqMVylxHgWXuBwdDDQQVnQ==\n" +
-                        "-----END CERTIFICATE-----").getBytes(KEY_CHARSET));
+                        "-----END CERTIFICATE-----").getBytes(KEY_CHARSET));*/
     }
 }
