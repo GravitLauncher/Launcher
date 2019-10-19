@@ -1,9 +1,6 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.client.ClientModuleManager;
-import pro.gravit.launcher.client.DirBridge;
-import pro.gravit.launcher.client.FunctionalBridge;
-import pro.gravit.launcher.client.LauncherUpdateController;
+import pro.gravit.launcher.client.*;
 import pro.gravit.launcher.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
@@ -13,6 +10,7 @@ import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.managers.ConsoleManager;
+import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
@@ -20,11 +18,13 @@ import pro.gravit.launcher.request.auth.RestoreSessionRequest;
 import pro.gravit.launcher.request.update.UpdateRequest;
 import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import pro.gravit.utils.helper.*;
+import pro.gravit.utils.verify.LauncherTrustManager;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.security.KeyPair;
-import java.security.SecureRandom;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -34,6 +34,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class LauncherEngine {
     public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
 
+    public static void checkClass(Class<?> clazz) throws SecurityException {
+        LauncherTrustManager trustManager = Launcher.getConfig().trustManager;
+        if (trustManager == null) return;
+        X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
+        if (certificates == null) {
+            throw new SecurityException(String.format("Class %s not signed", clazz.getName()));
+        }
+        try {
+            trustManager.checkCertificate(certificates, (c, s) -> {
+
+            });
+        } catch (CertificateException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            throw new SecurityException(e);
+        }
+    }
+
     public static void main(String... args) throws Throwable {
         JVMHelper.checkStackTrace(LauncherEngine.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
@@ -41,7 +57,9 @@ public class LauncherEngine {
         //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
-
+        LauncherEngine.checkClass(LauncherEngine.class);
+        LauncherEngine.checkClass(LauncherAgent.class);
+        LauncherEngine.checkClass(ClientLauncher.class);
         LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.getAutogenConfig().initModules();
         LauncherEngine.modulesManager.initModules(null);

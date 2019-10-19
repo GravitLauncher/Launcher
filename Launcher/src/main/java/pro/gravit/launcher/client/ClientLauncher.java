@@ -426,6 +426,9 @@ public final class ClientLauncher {
     public static void main(String... args) throws Throwable {
         LauncherEngine.IS_CLIENT.set(true);
         LauncherEngine engine = LauncherEngine.clientInstance();
+        LauncherEngine.checkClass(LauncherEngine.class);
+        LauncherEngine.checkClass(LauncherAgent.class);
+        LauncherEngine.checkClass(ClientLauncher.class);
         LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         LauncherEngine.modulesManager.initModules(null);
