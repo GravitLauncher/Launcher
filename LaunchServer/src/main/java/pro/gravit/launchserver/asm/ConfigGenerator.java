@@ -51,7 +51,7 @@ public class ConfigGenerator {
     public void setByteArrayListField(String name, List<byte[]> b) {
         constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         constructor.instructions.add(new TypeInsnNode(Opcodes.NEW, "java/util/ArrayList"));
-        constructor.instructions.add(new InsnNode(Opcodes.DUP));
+        constructor.instructions.add(new InsnNode(Opcodes.DUP)); // +1
         constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V"));
         for (byte[] value : b) {
             constructor.instructions.add(new InsnNode(Opcodes.DUP)); // +1-1
@@ -61,7 +61,6 @@ public class ConfigGenerator {
             constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", true));
             constructor.instructions.add(new InsnNode(Opcodes.POP));
         }
-        constructor.instructions.add(new InsnNode(Opcodes.POP)); // needs -1
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, configclass.name, name, "Ljava/util/List;"));
     }
 
