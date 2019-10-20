@@ -36,12 +36,12 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
     public Path process(Path inputFile) throws IOException {
         Path out = server.launcherBinary.nextPath("post-fixed");
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
-            apply(inputFile, inputFile, output, server, (e) -> false);
+            apply(inputFile, inputFile, output, server, (e) -> false, true);
         }
         return out;
     }
 
-    public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServer srv, Predicate<ZipEntry> excluder) throws IOException {
+    public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServer srv, Predicate<ZipEntry> excluder, boolean needFixes) throws IOException {
         try (ClassMetadataReader reader = new ClassMetadataReader()) {
             reader.getCp().add(new JarFile(inputFile.toFile()));
             List<JarFile> libs = srv.launcherBinary.coreLibs.stream().map(e -> {
@@ -74,7 +74,7 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                             bytes = outputStream.toByteArray();
                         }
                         try {
-                            bytes = classFix(bytes, reader, srv.config.launcher.stripLineNumbers);
+                            if(needFixes) bytes = classFix(bytes, reader, srv.config.launcher.stripLineNumbers);
                         } catch (Throwable t) {
                             LogHelper.error(t);
                         }

@@ -43,7 +43,7 @@ public class SignJarTask implements LauncherBuildTask {
         Path toRet = srv.launcherBinary.nextPath("signed");
         KeyStore c = SignHelper.getStore(new File(config.keyStore).toPath(), config.keyStorePass, config.keyStoreType);
         try (SignerJar output = new SignerJar(new ZipOutputStream(IOHelper.newOutput(toRet)), () -> this.gen(c),
-                config.manifestFileSfName, config.manifestFileSfName);
+                config.manifestFileSfName, config.manifestFileName);
              ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputFile))) {
             //input.getManifest().getMainAttributes().forEach((a, b) -> output.addManifestAttribute(a.toString(), b.toString())); // may not work such as after Radon.
             ZipEntry e = input.getNextEntry();
@@ -69,7 +69,7 @@ public class SignJarTask implements LauncherBuildTask {
     public CMSSignedDataGenerator gen(KeyStore c) {
     	try {
 			return SignHelper.createSignedDataGenerator(c,
-			        config.keyAlias, config.signAlgo, config.keyStorePass);
+			        config.keyAlias, config.signAlgo, config.keyPass);
 		} catch (CertificateEncodingException | UnrecoverableKeyException | KeyStoreException
 				| OperatorCreationException | NoSuchAlgorithmException | CMSException e) {
 			LogHelper.error(e);
