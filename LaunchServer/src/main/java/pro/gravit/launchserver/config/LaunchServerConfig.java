@@ -233,8 +233,8 @@ public final class LaunchServerConfig {
         public String keyStorePass = "mypass";
         public String keyAlias = "myname";
         public String keyPass = "mypass";
-        public String manifestFileName = "SIGNUMO.RSA";
-        public String manifestFileSfName = "SIGNUMO.SF";
+        public String metaInfKeyName = "SIGNUMO.RSA";
+        public String metaInfSfName = "SIGNUMO.SF";
         public String signAlgo = "SHA256WITHRSA";
     }
 
