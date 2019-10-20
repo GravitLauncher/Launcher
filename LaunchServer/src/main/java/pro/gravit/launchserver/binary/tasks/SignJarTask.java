@@ -42,7 +42,8 @@ public class SignJarTask implements LauncherBuildTask {
     public Path process(Path inputFile) throws IOException {
         Path toRet = srv.launcherBinary.nextPath("signed");
         KeyStore c = SignHelper.getStore(new File(config.keyStore).toPath(), config.keyStorePass, config.keyStoreType);
-        try (SignerJar output = new SignerJar(new ZipOutputStream(IOHelper.newOutput(toRet)), () -> this.gen(c));
+        try (SignerJar output = new SignerJar(new ZipOutputStream(IOHelper.newOutput(toRet)), () -> this.gen(c),
+                config.manifestFileSfName, config.manifestFileSfName);
              ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputFile))) {
             //input.getManifest().getMainAttributes().forEach((a, b) -> output.addManifestAttribute(a.toString(), b.toString())); // may not work such as after Radon.
             ZipEntry e = input.getNextEntry();

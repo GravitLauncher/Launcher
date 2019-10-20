@@ -41,8 +41,8 @@ import java.util.zip.ZipOutputStream;
 public class SignerJar implements AutoCloseable {
 
 	private static final String MANIFEST_FN = "META-INF/MANIFEST.MF";
-    private static final String SIG_FN = "META-INF/SIGNUMO.SF";
-    private static final String SIG_RSA_FN = "META-INF/SIGNUMO.RSA";
+    private final String SIG_FN;
+    private final String SIG_KEY_FN;
 	private static final String DIGEST_HASH = SignHelper.hashFunctionName + "-Digest";
 
     private final ZipOutputStream zos;
@@ -56,12 +56,14 @@ public class SignerJar implements AutoCloseable {
     private final Map<String, String> sectionDigests;
 	private final Supplier<CMSSignedDataGenerator> gen;
 
-    public SignerJar(ZipOutputStream out, Supplier<CMSSignedDataGenerator> gen) {
+    public SignerJar(ZipOutputStream out, Supplier<CMSSignedDataGenerator> gen, String sig_fn, String sig_key_fn) {
         zos = out;
         this.gen = gen;
         manifestAttributes = new LinkedHashMap<>();
         fileDigests = new LinkedHashMap<>();
         sectionDigests = new LinkedHashMap<>();
+        SIG_FN = "META-INF/".concat(sig_fn);
+        SIG_KEY_FN = "META-INF/".concat(sig_key_fn);
     }
 
     /**
@@ -273,7 +275,7 @@ public class SignerJar implements AutoCloseable {
      * @throws RuntimeException    if the signing failed
      */
     private void writeSignature(byte[] sigFile) throws IOException {
-        zos.putNextEntry(IOHelper.newZipEntry(SIG_RSA_FN));
+        zos.putNextEntry(IOHelper.newZipEntry(SIG_KEY_FN));
         try {
             byte[] signature = signSigFile(sigFile);
             zos.write(signature);
