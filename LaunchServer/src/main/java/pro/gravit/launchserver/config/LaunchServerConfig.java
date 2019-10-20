@@ -88,6 +88,7 @@ public final class LaunchServerConfig {
     public String whitelistRejectString;
     public LauncherConf launcher;
     public CertificateConf certificate;
+    public JarSignerConf sign;
 
     public String startScript;
 
@@ -225,6 +226,16 @@ public final class LaunchServerConfig {
         public boolean enabled;
     }
 
+    public static class JarSignerConf {
+        public boolean enabled = true;
+        public String keyStore = "pathToKey";
+        public String keyStoreType = "JKS";
+        public String keyStorePass = "mypass";
+        public String keyAlias = "myname";
+        public String keyPass = "mypass";
+        public String signAlgo = "SHA256WITHRSA";
+    }
+
     public static class NettyUpdatesBind {
         public String url;
         public boolean zip;
@@ -324,6 +335,7 @@ public final class LaunchServerConfig {
 
         newConfig.certificate = new LaunchServerConfig.CertificateConf();
         newConfig.certificate.enabled = false;
+        newConfig.sign = new JarSignerConf();
 
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
