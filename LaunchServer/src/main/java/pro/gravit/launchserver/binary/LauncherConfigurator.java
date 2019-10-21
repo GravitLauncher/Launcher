@@ -87,6 +87,10 @@ public class LauncherConfigurator {
     public void setGuardType(String key) {
         setStringField("guardType", key);
     }
+    public void setSecureCheck(String hash, String salt) {
+        setStringField("secureCheckHash", hash);
+        setStringField("secureCheckSalt", salt);
+    }
 
     private void push(final int value) {
         if (value >= -1 && value <= 5)

@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import com.google.gson.JsonElement;
@@ -39,19 +38,22 @@ public final class HTTPRequest {
     }
 
     public static JsonElement jsonRequest(JsonElement request, URL url) throws IOException {
+        return jsonRequest(request, "POST", url);
+    }
+
+    public static JsonElement jsonRequest(JsonElement request, String method, URL url) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoInput(true);
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        if(request != null) connection.setDoOutput(true);
+        connection.setRequestMethod(method);
+        if(request != null) connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setRequestProperty("Accept", "application/json");
         if (TIMEOUT > 0)
             connection.setConnectTimeout(TIMEOUT);
-
-        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), Charset.forName("UTF-8"));
-        writer.write(request.toString());
-        writer.flush();
-        writer.close();
+        if(request != null) try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8)) {
+            writer.write(request.toString());
+            writer.flush();
+        }
 
         InputStreamReader reader;
         int statusCode = connection.getResponseCode();

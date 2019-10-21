@@ -1,11 +1,12 @@
 package pro.gravit.launchserver.auth.provider;
 
+import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.utils.helper.SecurityHelper;
 
 public final class AcceptAuthProvider extends AuthProvider {
 
     @Override
-    public AuthProviderResult auth(String login, String password, String ip) {
+    public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) {
         return new AuthProviderResult(login, SecurityHelper.randomStringToken(), srv); // Same as login
     }
 

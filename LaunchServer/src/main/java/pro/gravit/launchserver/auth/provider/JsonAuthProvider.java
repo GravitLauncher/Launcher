@@ -7,6 +7,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
 import pro.gravit.launcher.ClientPermissions;
+import pro.gravit.launcher.request.auth.AuthRequest;
+import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
+import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.utils.HTTPRequest;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -42,8 +45,9 @@ public final class JsonAuthProvider extends AuthProvider {
     }
 
     @Override
-    public AuthProviderResult auth(String login, String password, String ip) throws IOException {
-        authRequest authRequest = new authRequest(login, password, ip, apiKey);
+    public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws IOException {
+        if(!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
+        authRequest authRequest = new authRequest(login, ((AuthPlainPassword) password).password, ip, apiKey);
         JsonElement request = gson.toJsonTree(authRequest);
         JsonElement content = HTTPRequest.jsonRequest(request, url);
         if (!content.isJsonObject())

@@ -1,59 +1,59 @@
 package pro.gravit.utils;
 
 import java.io.BufferedInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.Observable;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-public final class HttpDownloader extends Observable {
-    public static final int BUFER_SIZE = 8192;
-    public static final int INTERVAL = 300;
-    public AtomicInteger writed = new AtomicInteger(0);
-    private String filename;
-    public Thread thread;
+public final class HttpDownloader {
+    public static final int INTERVAL = 500;
+    public final AtomicInteger writed;
+    private volatile String filename;
+    public final Thread thread;
 
-    public HttpDownloader(URL url, String file) {
-        Runnable run = () -> {
+    public HttpDownloader(URL url, Path file) {
+    	writed = new AtomicInteger(0);
+        filename = null;
+        thread = new Thread(() -> {
             try {
-                filename = file;
-                downloadFile(url, file);
+                filename = IOHelper.getFileName(file);
+                downloadFile(url, file, writed::set);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        };
-        Thread downloader = new Thread(run);
-        thread = downloader;
-        downloader.start();
+        });
+        thread.setDaemon(true);
+        thread.start();
     }
 
-    public synchronized String getFilename() {
+    public String getFilename() {
         return filename;
     }
 
-    public void downloadFile(URL url, String file) throws IOException {
-        try (BufferedInputStream in = new BufferedInputStream(url.openStream()); FileOutputStream fout = new FileOutputStream(file)) {
+    public static void downloadFile(URL url, Path file, Consumer<Integer> chanheTrack) throws IOException {
+        try (BufferedInputStream in = new BufferedInputStream(url.openStream()); OutputStream fout = IOHelper.newOutput(file, false)) {
 
-            final byte[] data = new byte[BUFER_SIZE];
+            final byte[] data = new byte[IOHelper.BUFFER_SIZE];
             int count;
             long timestamp = System.currentTimeMillis();
             int writed_local = 0;
-            while ((count = in.read(data, 0, BUFER_SIZE)) != -1) {
+            while ((count = in.read(data, 0, IOHelper.BUFFER_SIZE)) != -1) {
                 fout.write(data, 0, count);
                 writed_local += count;
                 if (System.currentTimeMillis() - timestamp > INTERVAL) {
-                    writed.set(writed_local);
+                	chanheTrack.accept(writed_local);
                     LogHelper.debug("Downloaded %d", writed_local);
                 }
             }
-            writed.set(writed_local);
+            chanheTrack.accept(writed_local);
         }
     }
 

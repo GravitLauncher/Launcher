@@ -4,10 +4,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import pro.gravit.launcher.profiles.ClientProfile.Version;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.utils.HttpDownloader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -30,7 +28,8 @@ public final class DownloadAssetCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
-        Version version = Version.byName(args[0]);
+        //Version version = Version.byName(args[0]);
+        String versionName = args[0];
         String dirName = IOHelper.verifyFileName(args[1]);
         Path assetDir = server.updatesDir.resolve(dirName);
 
@@ -40,7 +39,8 @@ public final class DownloadAssetCommand extends Command {
 
         // Download required asset
         LogHelper.subInfo("Downloading asset, it may take some time");
-        HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getAssetsURL(version.name), assetDir);
+        //HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getAssetsURL(version.name), assetDir);
+        server.mirrorManager.downloadZip(assetDir,"assets/%s.zip", versionName);
 
         // Finished
         server.syncUpdatesDir(Collections.singleton(dirName));

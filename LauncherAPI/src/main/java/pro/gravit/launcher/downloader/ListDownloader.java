@@ -62,7 +62,7 @@ public class ListDownloader {
     }
 
     public void download(String base, List<DownloadTask> applies, Path dstDirFile, DownloadCallback callback, DownloadTotalCallback totalCallback) throws IOException, URISyntaxException {
-        try (CloseableHttpClient httpclient = HttpClients.custom()
+        try (CloseableHttpClient httpclient = HttpClients.custom().setUserAgent(IOHelper.USER_AGENT)
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build()) {
         	applies.sort((a,b) -> Long.compare(a.size, b.size));
@@ -122,6 +122,7 @@ public class ListDownloader {
                     continue; // Skip directories
                 // Unpack entry
                 String name = entry.getName();
+                callback.stateChanged(name, 0L, entry.getSize());
                 LogHelper.subInfo("Downloading file: '%s'", name);
                 if(fullDownload || applies.stream().anyMatch((t) -> t.apply.equals(name)))
                 {

@@ -12,6 +12,7 @@ import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.WebSocketEvent;
+import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -20,6 +21,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
 
     public StandartClientWebSocketService(String address) throws SSLException {
         super(address);
+        AuthRequest.registerProviders();
     }
 
     public class RequestFuture implements Future<WebSocketEvent> {

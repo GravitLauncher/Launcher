@@ -43,10 +43,15 @@ public final class LauncherConfig extends StreamObject {
     public final String guardLicenseKey;
     public final String guardLicenseEncryptKey;
     public final String guardType;
+    
+    public final String secureCheckHash;
+    public final String secureCheckSalt;
 
     @LauncherAPI
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
         publicKey = SecurityHelper.toPublicRSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
+        secureCheckHash = config.secureCheckHash;
+        secureCheckSalt = config.secureCheckSalt;
         projectname = config.projectname;
         clientPort = config.clientPort;
         secretKeyClient = config.secretKeyClient;
@@ -92,6 +97,8 @@ public final class LauncherConfig extends StreamObject {
         isWarningMissArchJava = true;
         isNettyEnabled = false;
         environment = LauncherEnvironment.STD;
+        secureCheckSalt = null;
+        secureCheckHash = null;
     }
 
     @LauncherAPI
@@ -108,6 +115,8 @@ public final class LauncherConfig extends StreamObject {
         isWarningMissArchJava = true;
         isNettyEnabled = false;
         environment = LauncherEnvironment.STD;
+        secureCheckSalt = null;
+        secureCheckHash = null;
     }
 
     @Override

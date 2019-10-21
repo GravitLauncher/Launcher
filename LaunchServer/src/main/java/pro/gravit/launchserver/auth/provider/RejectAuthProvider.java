@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.utils.command.Command;
@@ -23,7 +24,7 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
     private ArrayList<String> whitelist;
 
     @Override
-    public AuthProviderResult auth(String login, String password, String ip) throws AuthException {
+    public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws AuthException {
         if (whitelist != null) {
             for (String username : whitelist) {
                 if (login.equals(username)) {

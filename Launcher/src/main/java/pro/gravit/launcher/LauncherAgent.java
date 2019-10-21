@@ -6,9 +6,6 @@ import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
 import java.util.jar.JarFile;
 
-import cpw.mods.fml.SafeExitJVMLegacy;
-import net.minecraftforge.fml.SafeExitJVM;
-import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.helper.LogHelper;
 
 @LauncherAPI
@@ -32,18 +29,33 @@ public final class LauncherAgent {
 
     public static void premain(String agentArgument, Instrumentation instrumentation) {
         System.out.println("Launcher Agent");
+        checkAgentStacktrace();
         inst = instrumentation;
-        SafeExitJVMLegacy.class.getName();
-        SafeExitJVM.class.getName();
-        NativeJVMHalt.class.getName();
-        NativeJVMHalt.initFunc();
-        boolean bad = false;
-        try {
-        	for (StackTraceElement e : new Throwable().getStackTrace())
-        		if (Class.forName(e.getClassName()).getClassLoader() != Runtime.class.getClassLoader() && Class.forName(e.getClassName()) != LauncherAgent.class) bad = true;
-        } catch(Throwable e) { bad = true; }
-        if (bad) NativeJVMHalt.haltA(-17);
-        else isAgentStarted = true;
+        //SafeExitJVMLegacy.class.getName();
+        //SafeExitJVM.class.getName();
+        //NativeJVMHalt.class.getName();
+        //NativeJVMHalt.initFunc();
+        isAgentStarted = true;
+    }
+    public static void checkAgentStacktrace()
+    {
+        RuntimeException ex = new SecurityException("Error check agent stacktrace");
+        boolean isFoundNative = false;
+        boolean foundPreMain = false;
+        for(StackTraceElement e : ex.getStackTrace())
+        {
+            if(e.isNativeMethod())
+            {
+                if(!isFoundNative) isFoundNative = true;
+                else throw ex;
+            }
+            if(e.getMethodName().equals("premain"))
+            {
+                if(!foundPreMain) foundPreMain = true;
+                else throw ex;
+            }
+        }
+        if(!isFoundNative || !foundPreMain) throw ex;
     }
 
     public static boolean isStarted() {

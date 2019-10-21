@@ -7,12 +7,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
+import com.google.gson.JsonElement;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.ClientProfile.Version;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.utils.HttpDownloader;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -36,7 +35,8 @@ public final class DownloadClientCommand extends Command {
     @Override
     public void invoke(String... args) throws IOException, CommandException {
         verifyArgs(args, 2);
-        Version version = Version.byName(args[0]);
+        //Version version = Version.byName(args[0]);
+        String versionName = args[0];
         String dirName = IOHelper.verifyFileName(args[1]);
         Path clientDir = server.updatesDir.resolve(args[1]);
 
@@ -46,14 +46,19 @@ public final class DownloadClientCommand extends Command {
 
         // Download required client
         LogHelper.subInfo("Downloading client, it may take some time");
-        HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getClientsURL(version.name), clientDir);
+        //HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getClientsURL(version.name), clientDir);
+        server.mirrorManager.downloadZip(clientDir,"clients/%s.zip", versionName);
 
         // Create profile file
         LogHelper.subInfo("Creaing profile file: '%s'", dirName);
         ClientProfile client;
-        String profilePath = String.format("pro/gravit/launchserver/defaults/profile%s.cfg", version.name);
+        String profilePath = String.format("pro/gravit/launchserver/defaults/profile%s.cfg", versionName);
         try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL(profilePath))) {
             client = Launcher.gsonManager.configGson.fromJson(reader, ClientProfile.class);
+        } catch (IOException e)
+        {
+            JsonElement clientJson = server.mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
+            client = Launcher.gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
         }
         client.setTitle(dirName);
         client.setDir(dirName);

@@ -2,6 +2,7 @@ package pro.gravit.launchserver.command.auth;
 
 import java.util.UUID;
 
+import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
@@ -37,7 +38,7 @@ public final class AuthCommand extends Command {
 
         // Authenticate
         AuthProvider provider = pair.provider;
-        AuthProviderResult result = provider.auth(login, password, "127.0.0.1");
+        AuthProviderResult result = provider.auth(login, new AuthPlainPassword(password), "127.0.0.1");
         UUID uuid = pair.handler.auth(result);
 
         // Print auth successful message
