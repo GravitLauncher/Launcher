@@ -21,7 +21,7 @@ public final class JoinServerRequest extends Request<JoinServerRequestEvent> imp
     @LauncherAPI
     public JoinServerRequest(String username, String accessToken, String serverID) {
         this.username = VerifyHelper.verifyUsername(username);
-        this.accessToken = SecurityHelper.verifyToken(accessToken);
+        this.accessToken = accessToken;
         this.serverID = VerifyHelper.verifyServerID(serverID);
     }
 

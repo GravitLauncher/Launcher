@@ -208,6 +208,7 @@ public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionServic
         try {
             success = new JoinServerRequest(username, accessToken, serverID).request().allow;
         } catch (Exception e) {
+            LogHelper.error(e);
             throw new AuthenticationUnavailableException(e);
         }
 
