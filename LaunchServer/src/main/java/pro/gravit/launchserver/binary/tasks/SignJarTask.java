@@ -41,24 +41,28 @@ public class SignJarTask implements LauncherBuildTask {
     @Override
     public Path process(Path inputFile) throws IOException {
         Path toRet = srv.launcherBinary.nextPath("signed");
+        sign(config, inputFile, toRet);
+        return toRet;
+    }
+
+    public static void sign(LaunchServerConfig.JarSignerConf config, Path inputFile, Path signedFile) throws IOException {
         KeyStore c = SignHelper.getStore(new File(config.keyStore).toPath(), config.keyStorePass, config.keyStoreType);
-        try (SignerJar output = new SignerJar(new ZipOutputStream(IOHelper.newOutput(toRet)), () -> this.gen(c),
+        try (SignerJar output = new SignerJar(new ZipOutputStream(IOHelper.newOutput(signedFile)), () -> SignJarTask.gen(config, c),
                 config.metaInfSfName, config.metaInfKeyName);
              ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputFile))) {
             //input.getManifest().getMainAttributes().forEach((a, b) -> output.addManifestAttribute(a.toString(), b.toString())); // may not work such as after Radon.
             ZipEntry e = input.getNextEntry();
             while (e != null) {
-               if ("META-INF/MANIFEST.MF".equals(e.getName()) || "/META-INF/MANIFEST.MF".equals(e.getName())) {
-               	 Manifest m = new Manifest(input);
-               	 m.getMainAttributes().forEach((a, b) -> output.addManifestAttribute(a.toString(), b.toString()));
-               	 e = input.getNextEntry();
-               	 continue;
-               }
+                if ("META-INF/MANIFEST.MF".equals(e.getName()) || "/META-INF/MANIFEST.MF".equals(e.getName())) {
+                    Manifest m = new Manifest(input);
+                    m.getMainAttributes().forEach((a, b) -> output.addManifestAttribute(a.toString(), b.toString()));
+                    e = input.getNextEntry();
+                    continue;
+                }
                 output.addFileContents(IOHelper.newZipEntry(e), input);
                 e = input.getNextEntry();
             }
         }
-        return toRet;
     }
 
     @Override
@@ -66,7 +70,7 @@ public class SignJarTask implements LauncherBuildTask {
         return true;
     }
     
-    public CMSSignedDataGenerator gen(KeyStore c) {
+    public static CMSSignedDataGenerator gen(LaunchServerConfig.JarSignerConf config, KeyStore c) {
     	try {
 			return SignHelper.createSignedDataGenerator(c,
 			        config.keyAlias, config.signAlgo, config.keyPass);

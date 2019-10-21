@@ -89,6 +89,8 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         service.registerCommand("givePermission", new GivePermissionsCommand(server));
         service.registerCommand("getPermissions", new GetPermissionsCommand(server));
         service.registerCommand("clients", new ClientsCommand(server));
+        service.registerCommand("signJar", new SignJarCommand(server));
+        service.registerCommand("signDir", new SignDirCommand(server));
         Category serviceCategory = new Category(service, "service", "Managing LaunchServer Components");
         handler.registerCategory(serviceCategory);
     }
