@@ -22,7 +22,7 @@ public final class JoinServerResponse extends Response {
     @Override
     public void reply() throws IOException {
         String username = VerifyHelper.verifyUsername(input.readString(SerializeLimits.MAX_LOGIN));
-        String accessToken = SecurityHelper.verifyToken(input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH));
+        String accessToken = input.readASCII(-SecurityHelper.TOKEN_STRING_LENGTH);
         String serverID = VerifyHelper.verifyServerID(input.readASCII(SerializeLimits.MAX_SERVERID)); // With minus sign
         if (!clientData.isAuth || clientData.type != Client.Type.USER) {
             requestError("Access denied");

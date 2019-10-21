@@ -24,7 +24,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
         public Entry(UUID uuid, String username, String accessToken, String serverID) {
             this.uuid = Objects.requireNonNull(uuid, "uuid");
             this.username = Objects.requireNonNull(username, "username");
-            this.accessToken = accessToken == null ? null : SecurityHelper.verifyToken(accessToken);
+            this.accessToken = accessToken == null ? null : accessToken;
             this.serverID = serverID == null ? null : VerifyHelper.verifyServerID(serverID);
         }
     }

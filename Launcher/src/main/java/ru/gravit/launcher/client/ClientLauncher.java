@@ -90,7 +90,7 @@ public final class ClientLauncher {
             this.clientDir = clientDir;
             // Client params
             this.pp = pp;
-            this.accessToken = SecurityHelper.verifyToken(accessToken);
+            this.accessToken = accessToken;
             this.autoEnter = autoEnter;
             this.fullScreen = fullScreen;
             this.ram = ram;
@@ -110,7 +110,7 @@ public final class ClientLauncher {
             pp = new PlayerProfile(input);
             byte[] encryptedAccessToken = input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH);
             String accessTokenD = new String(SecurityHelper.decrypt(Launcher.getConfig().secretKeyClient.getBytes(), encryptedAccessToken));
-            accessToken = SecurityHelper.verifyToken(accessTokenD);
+            accessToken = accessTokenD;
             autoEnter = input.readBoolean();
             fullScreen = input.readBoolean();
             ram = input.readVarInt();
