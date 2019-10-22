@@ -11,6 +11,7 @@ import pro.gravit.utils.helper.LogHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Predicate;
@@ -69,16 +70,12 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                     output.putNextEntry(IOHelper.newZipEntry(e));
                     if (filename.endsWith(".class")) {
                         byte[] bytes;
-                        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(2048)) {
-                            IOHelper.transfer(input, outputStream);
-                            bytes = outputStream.toByteArray();
+                        if(needFixes) {
+                            bytes = classFix(input, reader, srv.config.launcher.stripLineNumbers);
+                            output.write(bytes);
                         }
-                        try {
-                            if(needFixes) bytes = classFix(bytes, reader, srv.config.launcher.stripLineNumbers);
-                        } catch (Throwable t) {
-                            LogHelper.error(t);
-                        }
-                        output.write(bytes);
+                        else
+                            IOHelper.transfer(input, output);
                     } else
                         IOHelper.transfer(input, output);
                     e = input.getNextEntry();
@@ -87,8 +84,8 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
         }
     }
 
-    private static byte[] classFix(byte[] bytes, ClassMetadataReader reader, boolean stripNumbers) {
-        ClassReader cr = new ClassReader(bytes);
+    private static byte[] classFix(InputStream input, ClassMetadataReader reader, boolean stripNumbers) throws IOException {
+        ClassReader cr = new ClassReader(input);
         ClassNode cn = new ClassNode();
         cr.accept(cn, stripNumbers ? (ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES) : ClassReader.SKIP_FRAMES);
         ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);

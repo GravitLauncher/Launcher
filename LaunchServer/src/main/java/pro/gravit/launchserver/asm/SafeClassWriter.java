@@ -18,6 +18,7 @@ public class SafeClassWriter extends ClassWriter {
         this.classMetadataReader = classMetadataReader;
     }
 
+
     public SafeClassWriter(ClassReader classReader, ClassMetadataReader classMetadataReader, int flags) {
         super(classReader, flags);
         this.classMetadataReader = classMetadataReader;

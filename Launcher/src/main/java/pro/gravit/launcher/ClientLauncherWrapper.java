@@ -81,6 +81,7 @@ public class ClientLauncherWrapper {
         }
         Collections.addAll(args, MAGIC_ARG);
         Collections.addAll(args, "-XX:+DisableAttachMechanism");
+        Collections.addAll(args, "-Xmx256M");
         Collections.addAll(args, "-javaagent:".concat(pathLauncher));
         Collections.addAll(args, "-cp");
         Collections.addAll(args, pathLauncher);
