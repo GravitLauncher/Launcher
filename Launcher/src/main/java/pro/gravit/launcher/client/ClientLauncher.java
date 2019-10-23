@@ -537,7 +537,7 @@ public final class ClientLauncher {
     private static Stream<Path> resolveClassPathStream(Path clientDir, String... classPath) throws IOException {
         Stream.Builder<Path> builder = Stream.builder();
         for (String classPathEntry : classPath) {
-            Path path = clientDir.resolve(IOHelper.toPath(classPathEntry));
+            Path path = clientDir.resolve(IOHelper.toPath(classPathEntry.replace(IOHelper.CROSS_SEPARATOR, IOHelper.PLATFORM_SEPARATOR)));
             if (IOHelper.isDir(path)) { // Recursive walking and adding
                 IOHelper.walk(path, new ClassPathFileVisitor(builder), false);
                 continue;
