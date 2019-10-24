@@ -589,7 +589,7 @@ public final class ClientLauncher {
         void write(ParamContainer p);
     }
 
-    public static final ParamsAPI container = new ParamsAPI() {
+    public static ParamsAPI container = new ParamsAPI() {
         @Override
         public ParamContainer read() throws Exception {
             ParamContainer p;
