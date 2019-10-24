@@ -29,8 +29,8 @@ var config = {
     /* LaunchServer: guardtype = java */
     jvm: {
         enable: false,                       // Включение загрузки своей JVM
-        jvmMustdie32Dir: "jre-8u211-win32",  // Название папки JVM для Windows x32
-        jvmMustdie64Dir: "jre-8u211-win64",  // Название папки JVM для Windows x64
+        jvmMustdie32Dir: "jre-8u231-win32",  // Название папки JVM для Windows x32
+        jvmMustdie64Dir: "jre-8u231-win64",  // Название папки JVM для Windows x64
     },
 
     settingsMagic: 0xC0DE5, // Магия вне хогвартса
