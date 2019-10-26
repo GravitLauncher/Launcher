@@ -1,5 +1,6 @@
 package pro.gravit.utils.helper;
 
+import java.io.OutputStream;
 import java.util.Objects;
 import java.util.function.LongSupplier;
 
@@ -24,12 +25,26 @@ public final class CryptoHelper {
 		return res;
 	}
 
+	public static void encodeOrig(byte[] txt, String pKey) {
+		Objects.requireNonNull(txt);
+		Objects.requireNonNull(pKey);
+        byte[] key = SecurityHelper.fromHex(pKey);
+        for (int i = 0; i < txt.length; i++)
+            txt[i] = (byte) (txt[i] ^ key[i % key.length]);
+    }
+
+	public static void decodeOrig(byte[] pText, String pKey) {
+		Objects.requireNonNull(pText);
+		Objects.requireNonNull(pKey);
+		byte[] key = SecurityHelper.fromHex(pKey);
+		for (int i = 0; i < pText.length; i++)
+			pText[i] = (byte) (pText[i] ^ key[i % key.length]);
+	}
+
+	
 	public static String randomToken(int depth) {
 		VerifyHelper.verifyInt(depth, VerifyHelper.POSITIVE, "Depth must be positive");
-		StringBuilder sb = new StringBuilder(SecurityHelper.TOKEN_STRING_LENGTH*depth);
-		for (int i = 0; i < depth; i++)
-			sb.append(SecurityHelper.randomStringToken());
-		return sb.toString();
+		return SecurityHelper.toHex(SecurityHelper.randomBytes(SecurityHelper.TOKEN_LENGTH*depth));
 	}
 
 	private CryptoHelper() {
@@ -50,5 +65,4 @@ public final class CryptoHelper {
 			return this.rnd;
 		}
 	}
-
 }
