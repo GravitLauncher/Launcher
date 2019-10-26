@@ -24,6 +24,6 @@ public class ClientSecurityManager extends SecurityManager {
     }
 
     public static class ExitTrappedException extends SecurityException {
-
+		private static final long serialVersionUID = 6929785890434102330L;
     }
 }

@@ -3,7 +3,6 @@ package pro.gravit.launchserver.command.service;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.SignJarTask;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.nio.file.Files;
