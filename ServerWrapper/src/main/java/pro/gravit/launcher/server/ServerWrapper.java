@@ -52,7 +52,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public boolean auth() {
         try {
             LauncherConfig cfg = Launcher.getConfig();
-            AuthRequest request = new AuthRequest(config.login, SecurityHelper.newECEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, AuthRequest.ConnectTypes.SERVER);
+            AuthRequest request = new AuthRequest(config.login, config.password, config.auth_id, AuthRequest.ConnectTypes.SERVER);
             permissions = request.request().permissions;
             ProfilesRequestEvent result = new ProfilesRequest().request();
             for (ClientProfile p : result.profiles) {
