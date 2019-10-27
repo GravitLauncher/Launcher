@@ -207,7 +207,6 @@ public final class LaunchServerConfig {
 
     public static class ExeConf {
         public boolean enabled;
-        public String alternative;
         public boolean setMaxVersion;
         public String maxVersion;
         public String productName;
@@ -291,7 +290,6 @@ public final class LaunchServerConfig {
         newConfig.launch4j = new LaunchServerConfig.ExeConf();
         newConfig.launch4j.enabled = true;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
-        newConfig.launch4j.alternative = "no";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
         newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
         newConfig.launch4j.internalName = "Launcher";

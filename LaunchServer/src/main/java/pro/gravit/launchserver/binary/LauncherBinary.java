@@ -7,18 +7,22 @@ import pro.gravit.utils.helper.SecurityHelper;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public abstract class LauncherBinary {
+public abstract class LauncherBinary extends BinaryPipeline {
     public final LaunchServer server;
     public final Path syncBinaryFile;
     private volatile byte[] digest;
     private volatile byte[] sign;
 
-    protected LauncherBinary(LaunchServer server, Path binaryFile) {
+    protected LauncherBinary(LaunchServer server, Path binaryFile, String nameFormat) {
+        super(server.dir.resolve("build"), nameFormat);
         this.server = server;
         syncBinaryFile = binaryFile;
     }
 
-    public abstract void build() throws IOException;
+    public void build() throws IOException
+    {
+        build(syncBinaryFile, server.config.launcher.deleteTempFiles);
+    }
 
 
     public final boolean exists() {

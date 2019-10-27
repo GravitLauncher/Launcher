@@ -10,7 +10,7 @@ import java.nio.file.Files;
 public class EXELauncherBinary extends LauncherBinary {
 
     public EXELauncherBinary(LaunchServer server) {
-        super(server, LauncherBinary.resolve(server, ".exe"));
+        super(server, LauncherBinary.resolve(server, ".exe"), "Launcher-%s-%d.exe");
     }
 
     @Override

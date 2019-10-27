@@ -396,18 +396,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 LogHelper.error(e);
             }
         }
-        if (config.launch4j.alternative != null) {
-            switch (config.launch4j.alternative) {
-                case "simple":
-                    return new SimpleEXELauncherBinary(this);
-                case "no":
-                    //None
-                    break;
-                default:
-                    LogHelper.warning("Alternative %s not found", config.launch4j.alternative);
-                    break;
-            }
-        }
         try {
             Class.forName("net.sf.launch4j.Builder");
             if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
