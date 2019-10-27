@@ -2,6 +2,7 @@ package pro.gravit.launchserver.command.service;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.SignJarTask;
+import pro.gravit.launchserver.binary.tasks.TaskUtil;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -34,7 +35,8 @@ public class SignJarCommand extends Command {
         else
             tmpSign = server.dir.resolve("build").resolve(target.toFile().getName());
         LogHelper.info("Signing jar %s to %s", target.toString(), tmpSign.toString());
-        SignJarTask.sign(server.config.sign, target, tmpSign);
+        SignJarTask task = (SignJarTask) TaskUtil.getTaskByClass(server.launcherBinary.tasks, SignJarTask.class);
+        task.sign(server.config.sign, target, tmpSign);
         if(args.length <= 1)
         {
             LogHelper.info("Move temp jar %s to %s", tmpSign.toString(), target.toString());

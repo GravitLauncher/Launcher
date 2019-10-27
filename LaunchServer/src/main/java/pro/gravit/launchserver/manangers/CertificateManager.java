@@ -81,7 +81,7 @@ public class CertificateManager {
     }
 
     public void generateCA() throws NoSuchAlgorithmException, IOException, OperatorCreationException, InvalidAlgorithmParameterException {
-        ECGenParameterSpec ecGenSpec = new ECGenParameterSpec("secp384r1");
+        ECGenParameterSpec ecGenSpec = new ECGenParameterSpec("secp384k1");
         KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
         generator.initialize(ecGenSpec, SecurityHelper.newRandom());
         KeyPair pair = generator.generateKeyPair();
@@ -105,7 +105,7 @@ public class CertificateManager {
     }
 
     public KeyPair generateKeyPair() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
-        ECGenParameterSpec ecGenSpec = new ECGenParameterSpec("secp384r1");
+        ECGenParameterSpec ecGenSpec = new ECGenParameterSpec("secp384k1");
         KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
         generator.initialize(ecGenSpec, SecurityHelper.newRandom());
         return generator.generateKeyPair();

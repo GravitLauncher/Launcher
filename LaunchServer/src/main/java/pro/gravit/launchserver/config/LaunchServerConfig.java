@@ -227,7 +227,7 @@ public final class LaunchServerConfig {
     }
 
     public static class JarSignerConf {
-        public boolean enabled = true;
+        public boolean enabled = false;
         public String keyStore = "pathToKey";
         public String keyStoreType = "JKS";
         public String keyStorePass = "mypass";

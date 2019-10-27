@@ -144,6 +144,17 @@ public class SignHelper {
         generator.addCertificates(certStore);
         return generator;
     }
+    public static CMSSignedDataGenerator createSignedDataGenerator(PrivateKey privateKey, Certificate cert, List<Certificate> certChain, String signAlgo) throws OperatorCreationException, CertificateEncodingException, CMSException {
+        @SuppressWarnings("rawtypes")
+        Store certStore = new JcaCertStore(certChain);
+        ContentSigner signer = new JcaContentSignerBuilder(signAlgo).setProvider("BC").build(privateKey);
+        CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
+        DigestCalculatorProvider dcp = new JcaDigestCalculatorProviderBuilder().setProvider("BC").build();
+        SignerInfoGenerator sig = new JcaSignerInfoGeneratorBuilder(dcp).build(signer, (X509Certificate) cert);
+        generator.addSignerInfoGenerator(sig);
+        generator.addCertificates(certStore);
+        return generator;
+    }
 
     public static final String hashFunctionName = "SHA-256";
     

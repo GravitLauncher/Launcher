@@ -2,6 +2,7 @@ package pro.gravit.launchserver.command.service;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.SignJarTask;
+import pro.gravit.launchserver.binary.tasks.TaskUtil;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -13,13 +14,18 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class SignDirCommand extends Command {
     private class SignJarVisitor extends SimpleFileVisitor<Path>
     {
+        private SignJarTask task;
+        public SignJarVisitor(SignJarTask task) {
+            this.task = task;
+        }
+
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toFile().getName().endsWith(".jar"))
             {
                 Path tmpSign = server.dir.resolve("build").resolve(file.toFile().getName());
                 LogHelper.info("Signing jar %s", file.toString());
-                SignJarTask.sign(server.config.sign, file, tmpSign);
+                task.sign(server.config.sign, file, tmpSign);
                 Files.deleteIfExists(file);
                 Files.move(tmpSign, file);
             }
@@ -46,7 +52,8 @@ public class SignDirCommand extends Command {
         Path targetDir = Paths.get(args[0]);
         if(!IOHelper.isDir(targetDir))
             throw new IllegalArgumentException(String.format("%s not directory", targetDir.toString()));
-        IOHelper.walk(targetDir, new SignJarVisitor(), true);
+        SignJarTask task = (SignJarTask) TaskUtil.getTaskByClass(server.launcherBinary.tasks, SignJarTask.class);
+        IOHelper.walk(targetDir, new SignJarVisitor(task), true);
         LogHelper.info("Success signed");
     }
 }
