@@ -16,10 +16,10 @@ public final class Version {
     @LauncherAPI
     public final Type release;
     public static final int MAJOR = 5;
-    public static final int MINOR = 0;
-    public static final int PATCH = 10;
+    public static final int MINOR = 1;
+    public static final int PATCH = 0;
     public static final int BUILD = 1;
-    public static final Version.Type RELEASE = Type.STABLE;
+    public static final Version.Type RELEASE = Type.DEV;
 
     @LauncherAPI
     public Version(int major, int minor, int patch) {
