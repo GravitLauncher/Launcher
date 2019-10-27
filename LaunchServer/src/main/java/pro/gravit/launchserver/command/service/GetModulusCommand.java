@@ -2,7 +2,6 @@ package pro.gravit.launchserver.command.service;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.utils.helper.LogHelper;
 
 public class GetModulusCommand extends Command {
     public GetModulusCommand(LaunchServer server) {
@@ -20,7 +19,7 @@ public class GetModulusCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
-        LogHelper.info("You publickey modulus: %s", server.publicKey.getModulus().toString(16));
+    public void invoke(String... args) {
+        //LogHelper.info("You publickey modulus: %s", server.publicKey.getModulus().toString(16));
     }
 }

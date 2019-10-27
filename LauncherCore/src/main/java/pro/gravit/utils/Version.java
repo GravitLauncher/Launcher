@@ -1,13 +1,8 @@
 package pro.gravit.utils;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-
 import pro.gravit.launcher.LauncherAPI;
+
+import java.util.*;
 
 public final class Version {
     @LauncherAPI
@@ -106,7 +101,7 @@ public final class Version {
         public static final Map<String, Type> unModTypes = Collections.unmodifiableMap(types);
 
         static {
-            Arrays.asList(values()).stream().forEach(type -> types.put(type.name().substring(0, type.name().length() < 3 ? type.name().length() : 3).toLowerCase(Locale.ENGLISH), type));
+            Arrays.asList(values()).forEach(type -> types.put(type.name().substring(0, type.name().length() < 3 ? type.name().length() : 3).toLowerCase(Locale.ENGLISH), type));
         }
     }
 }

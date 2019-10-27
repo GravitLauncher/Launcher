@@ -1,22 +1,21 @@
 package pro.gravit.launcher;
 
-import java.io.IOException;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
+import pro.gravit.utils.verify.LauncherTrustManager;
+
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.util.*;
 
 public final class LauncherConfig extends StreamObject {
     private static final AutogenConfig config = new AutogenConfig();
+    private static final SecureAutogenConfig secureConfig = new SecureAutogenConfig();
 
 
     public static AutogenConfig getAutogenConfig() {
@@ -26,12 +25,13 @@ public final class LauncherConfig extends StreamObject {
     // Instance
     public String address;
     @LauncherAPI
-    public final String projectname;
+    public final String projectName;
     public final int clientPort;
     public String secretKeyClient;
     public String oemUnlockKey;
+    public final LauncherTrustManager trustManager;
     @LauncherAPI
-    public final RSAPublicKey publicKey;
+    public final ECPublicKey publicKey;
 
     @LauncherAPI
     public final Map<String, byte[]> runtime;
@@ -39,29 +39,30 @@ public final class LauncherConfig extends StreamObject {
     public boolean isNettyEnabled;
     public LauncherEnvironment environment;
 
-    public final String guardLicenseName;
-    public final String guardLicenseKey;
-    public final String guardLicenseEncryptKey;
     public final String guardType;
-    
+
     public final String secureCheckHash;
     public final String secureCheckSalt;
+    public final String passwordEncryptKey;
 
     @LauncherAPI
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
-        publicKey = SecurityHelper.toPublicRSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
+        publicKey = SecurityHelper.toPublicECKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
         secureCheckHash = config.secureCheckHash;
         secureCheckSalt = config.secureCheckSalt;
-        projectname = config.projectname;
+        passwordEncryptKey = config.passwordEncryptKey;
+        projectName = config.projectname;
         clientPort = config.clientPort;
         secretKeyClient = config.secretKeyClient;
         oemUnlockKey = config.oemUnlockKey;
+        try {
+            trustManager = new LauncherTrustManager(secureConfig.certificates);
+        } catch (CertificateException e) {
+            throw new IOException(e);
+        }
 
         isWarningMissArchJava = config.isWarningMissArchJava;
-        guardLicenseEncryptKey = config.guardLicenseEncryptKey;
-        guardLicenseKey = config.guardLicenseKey;
         guardType = config.guardType;
-        guardLicenseName = config.guardLicenseName;
         address = config.address;
         LauncherEnvironment env;
         if (config.env == 0) env = LauncherEnvironment.DEV;
@@ -84,32 +85,11 @@ public final class LauncherConfig extends StreamObject {
     }
 
     @LauncherAPI
-    public LauncherConfig(String address, RSAPublicKey publicKey, Map<String, byte[]> runtime, String projectname) {
+    public LauncherConfig(String address, ECPublicKey publicKey, Map<String, byte[]> runtime, String projectName) {
         this.address = address;
-        this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
+        this.publicKey = publicKey;
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
-        this.projectname = projectname;
-        this.clientPort = 32148;
-        this.guardLicenseName = "FREE";
-        this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
-        this.guardLicenseEncryptKey = "12345";
-        guardType = "no";
-        isWarningMissArchJava = true;
-        isNettyEnabled = false;
-        environment = LauncherEnvironment.STD;
-        secureCheckSalt = null;
-        secureCheckHash = null;
-    }
-
-    @LauncherAPI
-    public LauncherConfig(String address, RSAPublicKey publicKey, Map<String, byte[]> runtime) {
-        this.address = address;
-        this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
-        this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
-        this.projectname = "Minecraft";
-        this.guardLicenseName = "FREE";
-        this.guardLicenseKey = "AAAA-BBBB-CCCC-DDDD";
-        this.guardLicenseEncryptKey = "12345";
+        this.projectName = projectName;
         this.clientPort = 32148;
         guardType = "no";
         isWarningMissArchJava = true;
@@ -117,6 +97,8 @@ public final class LauncherConfig extends StreamObject {
         environment = LauncherEnvironment.STD;
         secureCheckSalt = null;
         secureCheckHash = null;
+        passwordEncryptKey = null;
+        trustManager = null;
     }
 
     @Override

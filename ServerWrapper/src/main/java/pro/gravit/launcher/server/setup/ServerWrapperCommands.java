@@ -1,11 +1,11 @@
 package pro.gravit.launcher.server.setup;
 
-import java.io.IOException;
-
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.IOException;
 
 public class ServerWrapperCommands {
     public final CommandHandler commandHandler;

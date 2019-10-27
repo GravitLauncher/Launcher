@@ -10,7 +10,7 @@ public class LogEvent implements WebSocketEvent {
     }
 
     @LauncherNetworkAPI
-    public String string;
+    public final String string;
 
     public LogEvent(String string) {
         this.string = string;

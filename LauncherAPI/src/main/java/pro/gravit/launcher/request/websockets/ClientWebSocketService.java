@@ -1,15 +1,7 @@
 package pro.gravit.launcher.request.websockets;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.util.HashSet;
-
-import javax.net.ssl.SSLException;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.request.*;
@@ -21,13 +13,20 @@ import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.UniversalJsonAdapter;
 import pro.gravit.utils.helper.LogHelper;
 
+import javax.net.ssl.SSLException;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+
 public class ClientWebSocketService extends ClientJSONPoint {
     public final Gson gson;
     public OnCloseCallback onCloseCallback;
     public final Boolean onConnect;
     public ReconnectCallback reconnectCallback;
-    public static ProviderMap<WebSocketEvent> results = new ProviderMap<>();
-    public static ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
+    public static final ProviderMap<WebSocketEvent> results = new ProviderMap<>();
+    public static final ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
     private HashSet<EventHandler> handlers;
 
     public ClientWebSocketService(String address) throws SSLException {
@@ -37,8 +36,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
         this.onConnect = true;
     }
 
-    public static void appendTypeAdapters(GsonBuilder builder)
-    {
+    public static void appendTypeAdapters(GsonBuilder builder) {
         builder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         builder.registerTypeAdapter(WebSocketEvent.class, new UniversalJsonAdapter<>(ClientWebSocketService.results));
         builder.registerTypeAdapter(WebSocketRequest.class, new UniversalJsonAdapter<>(ClientWebSocketService.requests));
@@ -47,11 +45,9 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     private static URI createURL(String address) {
         try {
-            URI u = new URI(address);
-            return u;
-        } catch (Throwable e) {
-            LogHelper.error(e);
-            return null;
+            return new URI(address);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -70,7 +66,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
     }
 
     @Override
-    void onOpen() throws Exception {
+    void onOpen() {
         synchronized (onConnect) {
             onConnect.notifyAll();
         }

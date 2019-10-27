@@ -1,11 +1,11 @@
 package pro.gravit.launchserver.command.dao;
 
-import java.util.UUID;
-
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.util.UUID;
 
 public class RegisterCommand extends Command {
     public RegisterCommand(LaunchServer server) {

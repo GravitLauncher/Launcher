@@ -1,5 +1,13 @@
 package pro.gravit.launchserver.auth.handler;
 
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.NeedGarbageCollection;
+import pro.gravit.launchserver.Reconfigurable;
+import pro.gravit.launchserver.auth.provider.AuthProviderResult;
+import pro.gravit.utils.command.Command;
+import pro.gravit.utils.command.SubCommand;
+import pro.gravit.utils.helper.*;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -8,18 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.NeedGarbageCollection;
-import pro.gravit.launchserver.Reconfigurable;
-import pro.gravit.launchserver.auth.provider.AuthProviderResult;
-import pro.gravit.utils.command.Command;
-import pro.gravit.utils.command.SubCommand;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.VerifyHelper;
 
 public abstract class CachedAuthHandler extends AuthHandler implements NeedGarbageCollection, Reconfigurable {
     public static final class Entry {
@@ -38,7 +34,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
         }
     }
 
-    protected class EntryAndUsername {
+    protected static class EntryAndUsername {
         public Map<UUID, CachedAuthHandler.Entry> entryCache;
         public Map<String, UUID> usernameCache;
     }
@@ -48,7 +44,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
         Map<String, Command> commands = new HashMap<>();
         commands.put("clear", new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 long entryCacheSize = entryCache.size();
                 long usernamesCacheSize = usernamesCache.size();
                 entryCache.clear();

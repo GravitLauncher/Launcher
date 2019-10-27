@@ -1,14 +1,14 @@
 package pro.gravit.launchserver.manangers.hook;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import pro.gravit.launcher.AutogenConfig;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.LauncherConfigurator;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class BuildHookManager {
 

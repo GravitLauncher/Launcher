@@ -1,11 +1,10 @@
 package pro.gravit.launcher.hwid;
 
+import com.google.gson.Gson;
+import pro.gravit.launcher.LauncherAPI;
+
 import java.util.Objects;
 import java.util.StringJoiner;
-
-import com.google.gson.Gson;
-
-import pro.gravit.launcher.LauncherAPI;
 
 public class OshiHWID implements HWID {
     public static Gson gson = new Gson();
@@ -21,20 +20,20 @@ public class OshiHWID implements HWID {
     public String macAddr;
 
     @Override
-    public String getSerializeString() {
-        return gson.toJson(this);
-    }
-
-    @Override
     public int getLevel() //Уровень доверия, насколько уникальные значения
     {
         int result = 0;
-        if (totalMemory != 0) result += 8;
-        if (serialNumber != null && !serialNumber.equals("unknown")) result += 12;
-        if (HWDiskSerial != null && !HWDiskSerial.equals("unknown")) result += 30;
-        if (processorID != null && !processorID.equals("unknown")) result += 10;
-        if (macAddr != null && !macAddr.equals("00:00:00:00:00:00")) result += 15;
+        if (totalMemory != 0) result += 32;
+        if (serialNumber != null) result += isRealSerialNumber() ? 20 : 3;
+        if (HWDiskSerial != null && !HWDiskSerial.isEmpty()) result += 38;
+        if (processorID != null && !processorID.isEmpty()) result += 15;
+        if (macAddr != null && !macAddr.isEmpty()) result += 25;
         return result;
+    }
+
+    @Override
+    public int getAntiLevel() {
+        return HWIDCheckHelper.checkString(serialNumber) + HWIDCheckHelper.checkString(HWDiskSerial);
     }
 
     @Override
@@ -43,10 +42,10 @@ public class OshiHWID implements HWID {
             int rate = 0;
             OshiHWID oshi = (OshiHWID) hwid;
             if (Math.abs(oshi.totalMemory - totalMemory) < 1024 * 1024) rate += 5;
-            if (oshi.totalMemory == totalMemory) rate += 15;
-            if (oshi.HWDiskSerial.equals(HWDiskSerial)) rate += 45;
-            if (oshi.processorID.equals(processorID)) rate += 18;
-            if (oshi.serialNumber.equals(serialNumber)) rate += 15;
+            if (oshi.totalMemory == totalMemory) rate += 32;
+            if (oshi.HWDiskSerial.equals(HWDiskSerial) && !HWDiskSerial.isEmpty()) rate += 38;
+            if (oshi.processorID.equals(processorID) && !processorID.isEmpty()) rate += 15;
+            if (oshi.serialNumber.equals(serialNumber)) rate += isRealSerialNumber() ? 20 : 3;
             if (!oshi.macAddr.isEmpty() && oshi.macAddr.equals(macAddr)) rate += 19;
             return rate;
         }
@@ -56,6 +55,24 @@ public class OshiHWID implements HWID {
     @Override
     public boolean isNull() {
         return getLevel() < 15;
+    }
+
+    @Override
+    public void normalize() {
+        HWDiskSerial = HWDiskSerial.trim();
+        serialNumber = serialNumber.trim();
+        processorID = processorID.trim();
+        macAddr = macAddr.trim();
+    }
+
+    public boolean isRealSerialNumber() {
+        if (serialNumber.isEmpty()) return false;
+        if (serialNumber.equals("System Serial Number")) return false;
+        if (serialNumber.equals("To be filled by O.E.M.")) return false;
+        if (serialNumber.equals("unknown")) return false;
+        if (serialNumber.equals("None")) return false;
+        if (serialNumber.equals("Default string")) return false;
+        return true;
     }
 
     @Override

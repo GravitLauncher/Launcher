@@ -1,32 +1,30 @@
 package pro.gravit.launchserver.dao.impl;
 
-import java.util.List;
-import java.util.UUID;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-
 import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;
 import pro.gravit.launchserver.dao.UserHWID;
 
-public class HibernateUserDAOImpl implements UserDAO {
-	private final SessionFactory factory;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.util.List;
+import java.util.UUID;
 
-	public HibernateUserDAOImpl(SessionFactory factory) {
-		this.factory = factory;
-	}
+public class HibernateUserDAOImpl implements UserDAO {
+    private final SessionFactory factory;
+
+    public HibernateUserDAOImpl(SessionFactory factory) {
+        this.factory = factory;
+    }
 
     public User findById(int id) {
-        try (Session s =  factory.openSession()) {
-        	return s.get(User.class, id);
+        try (Session s = factory.openSession()) {
+            return s.get(User.class, id);
         }
     }
 
@@ -77,32 +75,32 @@ public class HibernateUserDAOImpl implements UserDAO {
 
     public void save(User user) {
         try (Session session = factory.openSession()) {
-        	Transaction tx1 = session.beginTransaction();
-        	session.save(user);
-        	tx1.commit();
-    	}
+            Transaction tx1 = session.beginTransaction();
+            session.save(user);
+            tx1.commit();
+        }
     }
 
     public void update(User user) {
         try (Session session = factory.openSession()) {
-        	Transaction tx1 = session.beginTransaction();
-        	session.update(user);
-        	tx1.commit();
-    	}
+            Transaction tx1 = session.beginTransaction();
+            session.update(user);
+            tx1.commit();
+        }
     }
 
     public void delete(User user) {
         try (Session session = factory.openSession()) {
-        	Transaction tx1 = session.beginTransaction();
-        	session.delete(user);
-        	tx1.commit();
+            Transaction tx1 = session.beginTransaction();
+            session.delete(user);
+            tx1.commit();
         }
     }
 
     @SuppressWarnings("unchecked")
-	public List<User> findAll() {
-    	try (Session s = factory.openSession()) {
-    		return (List<User>) s.createQuery("From User").list();
-    	}
+    public List<User> findAll() {
+        try (Session s = factory.openSession()) {
+            return (List<User>) s.createQuery("From User").list();
+        }
     }
 }

@@ -1,21 +1,17 @@
 package pro.gravit.launchserver.socket.handlers;
 
-import java.util.concurrent.TimeUnit;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.codec.http.websocketx.*;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.util.concurrent.TimeUnit;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
     public final LaunchServer srv;
@@ -37,7 +33,9 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         this.client = client;
     }
 
-    public Client getClient() { return client; }
+    public Client getClient() {
+        return client;
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {

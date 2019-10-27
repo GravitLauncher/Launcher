@@ -1,5 +1,11 @@
 package pro.gravit.launchserver.binary;
 
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.utils.helper.UnpackHelper;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -8,12 +14,6 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.UnpackHelper;
 
 public class ProguardConf {
     private static final String chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ";
@@ -45,7 +45,8 @@ public class ProguardConf {
     public String[] buildConfig(Path inputJar, Path outputJar) {
         List<String> confStrs = new ArrayList<>();
         prepare(false);
-        if (srv.config.launcher.proguardGenMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
+        if (srv.config.launcher.proguardGenMappings)
+            confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add("-injar \'" + inputJar.toAbsolutePath() + "\'");
         confStrs.add("-outjar \'" + outputJar.toAbsolutePath() + "\'");

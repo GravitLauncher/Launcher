@@ -1,11 +1,6 @@
 package pro.gravit.launcher.client;
 
-import java.nio.file.Path;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
@@ -19,15 +14,23 @@ import pro.gravit.launcher.managers.HasherManager;
 import pro.gravit.launcher.managers.HasherStore;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.utils.Version;
+import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
+
+import java.nio.file.Path;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FunctionalBridge {
     @LauncherAPI
-    public static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(0);
+    public static final ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(0);
     @LauncherAPI
     public static OshiHWIDProvider hwidProvider;
     @LauncherAPI
-    public static AtomicReference<HWID> hwid = new AtomicReference<>();
+    public static final AtomicReference<HWID> hwid = new AtomicReference<>();
     @LauncherAPI
     public static Thread getHWID = null;
 
@@ -53,7 +56,7 @@ public class FunctionalBridge {
     public static HWID getHWID() {
         HWID hhwid = hwid.get();
         if (hhwid == null) {
-            if(hwidProvider == null) hwidProvider = new OshiHWIDProvider();
+            if (hwidProvider == null) hwidProvider = new OshiHWIDProvider();
             hwid.set(hwidProvider.getHWID());
         }
         return hhwid;
@@ -62,7 +65,7 @@ public class FunctionalBridge {
     @LauncherAPI
     public static long getTotalMemory() {
         if (cachedMemorySize > 0) return cachedMemorySize;
-        if(hwidProvider == null) hwidProvider = new OshiHWIDProvider();
+        if (hwidProvider == null) hwidProvider = new OshiHWIDProvider();
         return (cachedMemorySize = hwidProvider.getTotalMemory() >> 20);
     }
 
@@ -102,8 +105,7 @@ public class FunctionalBridge {
         }
         LauncherGuardManager.guard.setProtectToken(event.protectToken);
         AuthService.permissions = event.permissions;
-        if(event.playerProfile != null)
-        {
+        if (event.playerProfile != null) {
             AuthService.username = event.playerProfile.username;
             AuthService.uuid = event.playerProfile.uuid;
         }
@@ -123,14 +125,20 @@ public class FunctionalBridge {
     public static void addPlainOutput(LogHelper.Output output) {
         LogHelper.addOutput(output, LogHelper.OutputTypes.PLAIN);
     }
-    
+
     @LauncherAPI
     public static String getLauncherVersion() {
         return String.format("GravitLauncher v%d.%d.%d build %d",
-            Version.MAJOR,
-            Version.MINOR,
-            Version.PATCH,
-            Version.BUILD
+                Version.MAJOR,
+                Version.MINOR,
+                Version.PATCH,
+                Version.BUILD
         );
+    }
+
+    @LauncherAPI
+    public static byte[] encryptPassword(String string) throws Exception {
+        byte[] encode = IOHelper.encode(string);
+        return SecurityHelper.encrypt(Launcher.getConfig().passwordEncryptKey, encode);
     }
 }

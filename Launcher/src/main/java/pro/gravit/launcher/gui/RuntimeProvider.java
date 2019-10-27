@@ -5,5 +5,5 @@ public interface RuntimeProvider {
 
     void preLoad() throws Exception;
 
-    void init(boolean clientInstance) throws Exception;
+    void init(boolean clientInstance);
 }

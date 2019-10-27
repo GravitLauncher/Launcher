@@ -1,13 +1,13 @@
 package pro.gravit.launcher.console.store;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import pro.gravit.launcher.NewLauncherSettings;
 import pro.gravit.launcher.managers.SettingsManager;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class LinkStoreDirCommand extends Command {
 
@@ -25,7 +25,7 @@ public class LinkStoreDirCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
         int ind = 1;
-        int index = Integer.valueOf(args[0]);
+        int index = Integer.parseInt(args[0]);
         for (NewLauncherSettings.HashedStoreEntry e : SettingsManager.settings.lastHDirs) {
             if (ind == index) {
                 LogHelper.info("Copy [%d] FullPath: %s name: %s", ind, e.fullPath, e.name);

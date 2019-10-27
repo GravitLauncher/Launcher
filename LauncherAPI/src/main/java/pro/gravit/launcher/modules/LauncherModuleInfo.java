@@ -22,7 +22,7 @@ public class LauncherModuleInfo {
 
     public LauncherModuleInfo(String name) {
         this.name = name;
-        this.version = new Version(1,0,0);
+        this.version = new Version(1, 0, 0);
         this.priority = 0;
         this.dependencies = new String[0];
         providers = new String[0];

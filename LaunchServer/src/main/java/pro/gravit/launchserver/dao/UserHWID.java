@@ -1,20 +1,15 @@
 package pro.gravit.launchserver.dao;
 
-import java.util.function.Supplier;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.OshiHWID;
+
+import javax.persistence.*;
+import java.util.function.Supplier;
 
 @Entity
 @Table(name = "users_hwids")
 public class UserHWID implements HWID {
-    private transient Supplier<OshiHWID> oshiSupp = () -> {
+    private final transient Supplier<OshiHWID> oshiSupp = () -> {
         OshiHWID hwid = new OshiHWID();
         hwid.HWDiskSerial = this.HWDiskSerial;
         hwid.macAddr = this.macAddr;
@@ -28,27 +23,27 @@ public class UserHWID implements HWID {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    public long totalMemory = 0;
+    public final long totalMemory = 0;
     public String serialNumber;
     public String HWDiskSerial;
     public String processorID;
     public String macAddr;
 
     public boolean banned;
-    public OshiHWID toHWID()
-    {
-        if(oshi == null) oshi = oshiSupp.get();
-        return oshi;
-    }
 
-    @Override
-    public String getSerializeString() {
-        return toHWID().getSerializeString();
+    public OshiHWID toHWID() {
+        if (oshi == null) oshi = oshiSupp.get();
+        return oshi;
     }
 
     @Override
     public int getLevel() {
         return toHWID().getLevel();
+    }
+
+    @Override
+    public int getAntiLevel() {
+        return 0;
     }
 
     @Override
@@ -59,5 +54,10 @@ public class UserHWID implements HWID {
     @Override
     public boolean isNull() {
         return toHWID().isNull();
+    }
+
+    @Override
+    public void normalize() {
+
     }
 }

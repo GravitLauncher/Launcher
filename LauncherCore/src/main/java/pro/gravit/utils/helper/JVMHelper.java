@@ -1,5 +1,7 @@
 package pro.gravit.utils.helper;
 
+import pro.gravit.launcher.LauncherAPI;
+
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
@@ -7,12 +9,11 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
-
-import pro.gravit.launcher.LauncherAPI;
 
 public final class JVMHelper {
     @LauncherAPI
@@ -108,6 +109,12 @@ public final class JVMHelper {
             list[i] = url;
         }
         return list;
+    }
+
+    public static X509Certificate[] getCertificates(Class<?> clazz) {
+        Object[] signers = clazz.getSigners();
+        if (signers == null) return null;
+        return Arrays.stream(signers).filter((c) -> c instanceof X509Certificate).map((c) -> (X509Certificate) c).toArray(X509Certificate[]::new);
     }
 
     public static void checkStackTrace(Class<?> mainClass) {

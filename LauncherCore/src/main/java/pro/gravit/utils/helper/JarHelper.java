@@ -15,7 +15,7 @@ public class JarHelper {
 
     @FunctionalInterface
     public interface JarWalkCallback {
-        void process(ZipInputStream input, ZipEntry e, String fullClassName, String clazz) throws IOException;
+        void process(ZipInputStream input, ZipEntry e, String fullClassName, String clazz);
     }
 
     public static void zipWalk(ZipInputStream input, ZipWalkCallback callback) throws IOException {

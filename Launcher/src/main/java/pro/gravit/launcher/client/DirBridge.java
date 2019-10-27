@@ -1,13 +1,15 @@
 package pro.gravit.launcher.client;
 
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
 
 public class DirBridge {
 
@@ -97,5 +99,19 @@ public class DirBridge {
     @LauncherAPI
     public static void setUseLegacyDir(boolean b) {
         useLegacyDir = b;
+    }
+
+    static {
+        String projectName = Launcher.getConfig().projectName;
+        try {
+            DirBridge.dir = getLauncherDir(projectName);
+            if (!IOHelper.exists(DirBridge.dir)) Files.createDirectories(DirBridge.dir);
+            DirBridge.dirStore = getStoreDir(projectName);
+            if (!IOHelper.exists(DirBridge.dirStore)) Files.createDirectories(DirBridge.dirStore);
+            DirBridge.dirProjectStore = getProjectStoreDir(projectName);
+            if (!IOHelper.exists(DirBridge.dirProjectStore)) Files.createDirectories(DirBridge.dirProjectStore);
+        } catch (IOException e) {
+            LogHelper.error(e);
+        }
     }
 }

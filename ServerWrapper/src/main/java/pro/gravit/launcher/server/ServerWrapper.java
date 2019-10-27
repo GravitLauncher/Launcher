@@ -1,17 +1,5 @@
 package pro.gravit.launcher.server;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Type;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
-import java.util.HashMap;
-
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
@@ -31,6 +19,19 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Type;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
+import java.util.HashMap;
+
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static ServerWrapperModulesManager modulesManager;
     public Config config;
@@ -39,11 +40,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public ClientPermissions permissions;
     public static ServerWrapper wrapper;
 
-    public static Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
-    public static Path modulesConfigDir = Paths.get(System.getProperty("serverwrapper.modulesConfigDir", "modules-config"));
-    public static Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
-    public static Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile", "public.key"));
-    public static boolean disableSetup = Boolean.valueOf(System.getProperty("serverwrapper.disableSetup", "false"));
+    public static final Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
+    public static final Path modulesConfigDir = Paths.get(System.getProperty("serverwrapper.modulesConfigDir", "modules-config"));
+    public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
+    public static final Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile", "public.key"));
+    public static final boolean disableSetup = Boolean.parseBoolean(System.getProperty("serverwrapper.disableSetup", "false"));
 
     public ServerWrapper(Type type, Path configPath) {
         super(type, configPath);
@@ -52,7 +53,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public boolean auth() {
         try {
             LauncherConfig cfg = Launcher.getConfig();
-            AuthRequest request = new AuthRequest(config.login, SecurityHelper.newRSAEncryptCipher(cfg.publicKey).doFinal(IOHelper.encode(config.password)), config.auth_id, AuthRequest.ConnectTypes.SERVER);
+            AuthRequest request = new AuthRequest(config.login, config.password, config.auth_id, AuthRequest.ConnectTypes.SERVER);
             permissions = request.request().permissions;
             ProfilesRequestEvent result = new ProfilesRequest().request();
             for (ClientProfile p : result.profiles) {
@@ -190,7 +191,10 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
         LauncherConfig cfg = null;
         try {
-            cfg = new LauncherConfig(config.address, SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
+            ECPublicKey publicKey = null;
+            if(IOHelper.isFile(publicKeyFile))
+                publicKey = SecurityHelper.toPublicECKey(IOHelper.read(publicKeyFile));
+            cfg = new LauncherConfig(config.address, publicKey, new HashMap<>(), config.projectname);
             cfg.isNettyEnabled = true;
             cfg.address = config.address;
         } catch (InvalidKeySpecException | IOException e) {
@@ -255,7 +259,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String login;
         public String[] args;
         public String password;
-        public String auth_id = "";
+        public final String auth_id = "";
         public LauncherConfig.LauncherEnvironment env;
     }
 

@@ -1,15 +1,11 @@
 package pro.gravit.launcher;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import pro.gravit.launcher.client.UserSettings;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
+
+import java.nio.file.Path;
+import java.util.*;
 
 public class NewLauncherSettings {
     @LauncherAPI
@@ -48,11 +44,11 @@ public class NewLauncherSettings {
 
     public static class HashedStoreEntry {
         @LauncherAPI
-        public HashedDir hdir;
+        public final HashedDir hdir;
         @LauncherAPI
-        public String name;
+        public final String name;
         @LauncherAPI
-        public String fullPath;
+        public final String fullPath;
         @LauncherAPI
         public transient boolean needSave = false;
 
@@ -64,7 +60,7 @@ public class NewLauncherSettings {
     }
 
     @LauncherAPI
-    public transient List<HashedStoreEntry> lastHDirs = new ArrayList<>(16);
+    public final transient List<HashedStoreEntry> lastHDirs = new ArrayList<>(16);
 
     @LauncherAPI
     public void putHDir(String name, Path path, HashedDir dir) {

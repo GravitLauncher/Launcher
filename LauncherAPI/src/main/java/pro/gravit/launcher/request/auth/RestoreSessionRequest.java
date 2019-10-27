@@ -7,7 +7,7 @@ import pro.gravit.launcher.request.websockets.WebSocketRequest;
 
 public class RestoreSessionRequest extends Request<RestoreSessionRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
-    public long session;
+    public final long session;
 
     public RestoreSessionRequest(long session) {
         this.session = session;

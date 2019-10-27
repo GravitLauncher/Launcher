@@ -1,19 +1,19 @@
 package pro.gravit.launchserver.auth;
 
-import java.io.IOException;
-
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 
+import java.io.IOException;
+
 public class AuthProviderPair {
-    public AuthProvider provider;
-    public AuthHandler handler;
-    public TextureProvider textureProvider;
-    public String name;
+    public final AuthProvider provider;
+    public final AuthHandler handler;
+    public final TextureProvider textureProvider;
+    public final String name;
     public String displayName;
-    public boolean isDefault = true;
+    public final boolean isDefault = true;
 
     public AuthProviderPair(AuthProvider provider, AuthHandler handler, TextureProvider textureProvider, String name) {
         this.provider = provider;

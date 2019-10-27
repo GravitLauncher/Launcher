@@ -26,7 +26,7 @@ public class GivePermissionsCommand extends Command {
         String username = args[0];
         ClientPermissions permissions = server.config.permissionsHandler.getPermissions(username);
         String permission = args[1];
-        boolean isEnabled = Boolean.valueOf(args[2]);
+        boolean isEnabled = Boolean.parseBoolean(args[2]);
         switch (permission) {
             case "admin": {
                 permissions.canAdmin = isEnabled;

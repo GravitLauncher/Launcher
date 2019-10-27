@@ -1,15 +1,15 @@
 package pro.gravit.launcher.profiles;
 
-import java.io.IOException;
-import java.util.Objects;
-import java.util.UUID;
-
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.util.Objects;
+import java.util.UUID;
 
 public final class PlayerProfile extends StreamObject {
     @LauncherAPI

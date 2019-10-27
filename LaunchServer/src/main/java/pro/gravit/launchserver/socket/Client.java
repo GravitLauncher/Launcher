@@ -10,7 +10,7 @@ public class Client {
     public long session;
     public String auth_id;
     public long timestamp;
-    public Type type;
+    public final Type type;
     public ClientProfile profile;
     public boolean isAuth;
     public boolean checkSign;

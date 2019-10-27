@@ -1,13 +1,14 @@
 package pro.gravit.launchserver;
 
-import java.nio.file.Path;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
+import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.utils.command.CommandHandler;
+
+import java.nio.file.Path;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 
 public class LaunchServerBuilder {
     private LaunchServerConfig config;
@@ -16,8 +17,9 @@ public class LaunchServerBuilder {
     private LaunchServer.LaunchServerEnv env;
     private LaunchServerModulesManager modulesManager;
     private LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
-    private RSAPublicKey publicKey;
-    private RSAPrivateKey privateKey;
+    private ECPublicKey publicKey;
+    private ECPrivateKey privateKey;
+    private CertificateManager certificateManager;
     private LaunchServer.LaunchServerConfigManager launchServerConfigManager;
 
     public LaunchServerBuilder setConfig(LaunchServerConfig config) {
@@ -55,12 +57,12 @@ public class LaunchServerBuilder {
         return this;
     }
 
-    public LaunchServerBuilder setPublicKey(RSAPublicKey publicKey) {
+    public LaunchServerBuilder setPublicKey(ECPublicKey publicKey) {
         this.publicKey = publicKey;
         return this;
     }
 
-    public LaunchServerBuilder setPrivateKey(RSAPrivateKey privateKey) {
+    public LaunchServerBuilder setPrivateKey(ECPrivateKey privateKey) {
         this.privateKey = privateKey;
         return this;
     }
@@ -70,13 +72,11 @@ public class LaunchServerBuilder {
         return this;
     }
 
-    public LaunchServer build() throws Exception
-    {
+    public LaunchServer build() throws Exception {
         //if(updatesDir == null) updatesDir = dir.resolve("updates");
         //if(profilesDir == null) profilesDir = dir.resolve("profiles");
         directories.collect();
-        if(launchServerConfigManager == null)
-        {
+        if (launchServerConfigManager == null) {
             launchServerConfigManager = new LaunchServer.LaunchServerConfigManager() {
                 @Override
                 public LaunchServerConfig readConfig() {
@@ -99,6 +99,11 @@ public class LaunchServerBuilder {
                 }
             };
         }
-        return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, modulesManager, publicKey, privateKey, commandHandler);
+        return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, modulesManager, publicKey, privateKey, commandHandler, certificateManager);
+    }
+
+    public LaunchServerBuilder setCertificateManager(CertificateManager certificateManager) {
+        this.certificateManager = certificateManager;
+        return this;
     }
 }

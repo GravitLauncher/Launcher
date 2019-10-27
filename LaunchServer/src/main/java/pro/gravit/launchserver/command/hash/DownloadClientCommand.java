@@ -1,12 +1,5 @@
 package pro.gravit.launchserver.command.hash;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
-
 import com.google.gson.JsonElement;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.profiles.ClientProfile;
@@ -15,6 +8,13 @@ import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
 
 public final class DownloadClientCommand extends Command {
 
@@ -47,7 +47,7 @@ public final class DownloadClientCommand extends Command {
         // Download required client
         LogHelper.subInfo("Downloading client, it may take some time");
         //HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getClientsURL(version.name), clientDir);
-        server.mirrorManager.downloadZip(clientDir,"clients/%s.zip", versionName);
+        server.mirrorManager.downloadZip(clientDir, "clients/%s.zip", versionName);
 
         // Create profile file
         LogHelper.subInfo("Creaing profile file: '%s'", dirName);
@@ -55,8 +55,7 @@ public final class DownloadClientCommand extends Command {
         String profilePath = String.format("pro/gravit/launchserver/defaults/profile%s.cfg", versionName);
         try (BufferedReader reader = IOHelper.newReader(IOHelper.getResourceURL(profilePath))) {
             client = Launcher.gsonManager.configGson.fromJson(reader, ClientProfile.class);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             JsonElement clientJson = server.mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
             client = Launcher.gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
         }

@@ -10,44 +10,36 @@ public class SetPasswordResponse extends SimpleResponse {
     public String oldPassword;
     public String newPassword;
     public String username;
+
     @Override
     public String getType() {
         return "setPassword";
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        if(( oldPassword == null && username == null ) || newPassword == null)
-        {
+    public void execute(ChannelHandlerContext ctx, Client client) {
+        if ((oldPassword == null && username == null) || newPassword == null) {
             sendError("Request invalid");
             return;
         }
-        if(!client.isAuth)
-        {
+        if (!client.isAuth) {
             sendError("You not authorized");
             return;
         }
-        if(username != null && !client.permissions.canAdmin)
-        {
+        if (username != null && !client.permissions.canAdmin) {
             sendError("You not admin");
             return;
         }
-        if(username != null)
-        {
+        if (username != null) {
             User user = server.config.dao.userService.findUserByUsername(username);
             user.setPassword(newPassword);
             sendResult(new SetPasswordRequestEvent());
-        }
-        else
-        {
+        } else {
             User user = server.config.dao.userService.findUserByUsername(client.username);
-            if(user.verifyPassword(oldPassword))
-            {
+            if (user.verifyPassword(oldPassword)) {
                 user.setPassword(newPassword);
                 sendResult(new SetPasswordRequestEvent());
-            }
-            else
-            {
+            } else {
                 sendError("Old password incorrect");
             }
         }

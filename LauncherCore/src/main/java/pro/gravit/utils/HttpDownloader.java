@@ -1,5 +1,8 @@
 package pro.gravit.utils;
 
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,9 +13,6 @@ import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 public final class HttpDownloader {
     public static final int INTERVAL = 500;
     public final AtomicInteger writed;
@@ -20,7 +20,7 @@ public final class HttpDownloader {
     public final Thread thread;
 
     public HttpDownloader(URL url, Path file) {
-    	writed = new AtomicInteger(0);
+        writed = new AtomicInteger(0);
         filename = null;
         thread = new Thread(() -> {
             try {
@@ -49,7 +49,7 @@ public final class HttpDownloader {
                 fout.write(data, 0, count);
                 writed_local += count;
                 if (System.currentTimeMillis() - timestamp > INTERVAL) {
-                	chanheTrack.accept(writed_local);
+                    chanheTrack.accept(writed_local);
                     LogHelper.debug("Downloaded %d", writed_local);
                 }
             }

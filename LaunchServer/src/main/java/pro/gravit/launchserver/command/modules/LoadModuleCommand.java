@@ -1,10 +1,10 @@
 package pro.gravit.launchserver.command.modules;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class LoadModuleCommand extends Command {
     public LoadModuleCommand(LaunchServer server) {

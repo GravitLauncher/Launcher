@@ -1,11 +1,7 @@
 package pro.gravit.launchserver.auth.provider;
 
-import java.io.IOException;
-import java.net.URL;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
@@ -13,18 +9,21 @@ import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.utils.HTTPRequest;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import java.io.IOException;
+import java.net.URL;
+
 public final class JsonAuthProvider extends AuthProvider {
-    private static Gson gson = new Gson();
+    private static final Gson gson = new Gson();
     private URL url;
     private String apiKey;
 
-    public class authResult {
+    public static class authResult {
         String username;
         String error;
         long permissions;
     }
 
-    public class authRequest {
+    public static class authRequest {
         public authRequest(String username, String password, String ip) {
             this.username = username;
             this.password = password;
@@ -38,15 +37,15 @@ public final class JsonAuthProvider extends AuthProvider {
             this.apiKey = apiKey;
         }
 
-        String username;
-        String password;
-        String ip;
+        final String username;
+        final String password;
+        final String ip;
         String apiKey;
     }
 
     @Override
     public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws IOException {
-        if(!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
+        if (!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
         authRequest authRequest = new authRequest(login, ((AuthPlainPassword) password).password, ip, apiKey);
         JsonElement request = gson.toJsonTree(authRequest);
         JsonElement content = HTTPRequest.jsonRequest(request, url);

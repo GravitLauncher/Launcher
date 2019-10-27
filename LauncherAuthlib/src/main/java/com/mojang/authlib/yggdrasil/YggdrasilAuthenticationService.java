@@ -1,14 +1,13 @@
 package com.mojang.authlib.yggdrasil;
 
-import java.net.Proxy;
-
 import com.mojang.authlib.Agent;
 import com.mojang.authlib.AuthenticationService;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.UserAuthentication;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-
 import pro.gravit.utils.helper.LogHelper;
+
+import java.net.Proxy;
 
 public class YggdrasilAuthenticationService implements AuthenticationService {
     public YggdrasilAuthenticationService(Proxy proxy, String clientToken) {

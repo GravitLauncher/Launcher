@@ -7,7 +7,7 @@ public abstract class LauncherModule {
     private LauncherModulesContext context;
 
     @SuppressWarnings("rawtypes")
-	private Map<Class<? extends Event>, EventHandler> eventMap = new HashMap<>();
+    private final Map<Class<? extends Event>, EventHandler> eventMap = new HashMap<>();
     protected LauncherModulesManager modulesManager;
     protected final LauncherModuleInfo moduleInfo;
     protected ModulesConfigManager modulesConfigManager;
@@ -29,8 +29,7 @@ public abstract class LauncherModule {
     /**
      * Module initialization status at the current time
      */
-    public enum InitStatus
-    {
+    public enum InitStatus {
         /**
          * When creating an object
          */
@@ -63,13 +62,13 @@ public abstract class LauncherModule {
 
         private final boolean isAvailable;
     }
+
     @FunctionalInterface
-    public interface EventHandler<T extends Event>
-    {
+    public interface EventHandler<T extends Event> {
         void event(T e);
     }
-    public static class Event
-    {
+
+    public static class Event {
         public boolean isCancel() {
             return cancel;
         }
@@ -94,11 +93,11 @@ public abstract class LauncherModule {
     /**
      * The internal method used by the ModuleManager
      * DO NOT TOUCH
+     *
      * @param context Private context
      */
-    public void setContext(LauncherModulesContext context)
-    {
-        if(this.context != null) throw new IllegalStateException("Module already set context");
+    public void setContext(LauncherModulesContext context) {
+        if (this.context != null) throw new IllegalStateException("Module already set context");
         this.context = context;
         this.modulesManager = context.getModulesManager();
         this.modulesConfigManager = context.getModulesConfigManager();
@@ -119,9 +118,10 @@ public abstract class LauncherModule {
     public void preInitAction() {
         //NOP
     }
-    public LauncherModule preInit()
-    {
-        if(!initStatus.equals(InitStatus.PRE_INIT_WAIT)) throw new IllegalStateException("PreInit not allowed in current state");
+
+    public LauncherModule preInit() {
+        if (!initStatus.equals(InitStatus.PRE_INIT_WAIT))
+            throw new IllegalStateException("PreInit not allowed in current state");
         initStatus = InitStatus.PRE_INIT;
         preInitAction();
         initStatus = InitStatus.INIT_WAIT;
@@ -139,41 +139,40 @@ public abstract class LauncherModule {
      * - Modify module description, dependencies
      * - Add modules
      * - Read configuration
+     *
      * @param initContext <b>null</b> on module initialization during boot or startup
-     * Not <b>null</b> during module initialization while running
+     *                    Not <b>null</b> during module initialization while running
      */
     public abstract void init(LauncherInitContext initContext);
 
 
     /**
      * Registers an event handler for the current module
+     *
      * @param handle your event handler
      * @param tClass event class
-     * @param <T> event type
+     * @param <T>    event type
      * @return true if adding a handler was successful
      */
-    protected <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass)
-    {
+    protected <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass) {
         eventMap.put(tClass, handle);
         return true;
     }
 
     /**
      * Call the handler of the current module
+     *
      * @param event event handled
-     * @param <T> event type
+     * @param <T>   event type
      */
     @SuppressWarnings("unchecked")
-    public final <T extends Event> void callEvent(T event)
-    {
+    public final <T extends Event> void callEvent(T event) {
         Class<? extends Event> tClass = event.getClass();
-        for(@SuppressWarnings("rawtypes") Map.Entry<Class<? extends Event>, EventHandler> e : eventMap.entrySet())
-        {
+        for (@SuppressWarnings("rawtypes") Map.Entry<Class<? extends Event>, EventHandler> e : eventMap.entrySet()) {
 
-            if(e.getKey().isAssignableFrom(tClass))
-            {
+            if (e.getKey().isAssignableFrom(tClass)) {
                 e.getValue().event(event);
-                if(event.isCancel()) return;
+                if (event.isCancel()) return;
             }
         }
     }

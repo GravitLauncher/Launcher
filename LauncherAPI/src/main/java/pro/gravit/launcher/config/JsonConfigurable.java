@@ -1,9 +1,9 @@
 package pro.gravit.launcher.config;
 
+import pro.gravit.launcher.LauncherAPI;
+
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-
-import pro.gravit.launcher.LauncherAPI;
 
 public abstract class JsonConfigurable<T> implements JsonConfigurableInterface<T> {
     private transient final Type type;

@@ -1,7 +1,5 @@
 package pro.gravit.launcher.managers;
 
-import java.io.IOException;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.console.FeatureCommand;
 import pro.gravit.launcher.console.UnlockCommand;
@@ -20,6 +18,8 @@ import pro.gravit.utils.command.basic.GCCommand;
 import pro.gravit.utils.command.basic.HelpCommand;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.IOException;
 
 public class ConsoleManager {
     public static CommandHandler handler;

@@ -1,8 +1,8 @@
 package pro.gravit.launcher.guard;
 
-import java.nio.file.Path;
-
 import pro.gravit.launcher.client.ClientLauncherContext;
+
+import java.nio.file.Path;
 
 public interface LauncherGuardInterface {
     String getName();

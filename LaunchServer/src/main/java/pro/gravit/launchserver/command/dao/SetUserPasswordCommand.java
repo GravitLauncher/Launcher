@@ -25,8 +25,7 @@ public class SetUserPasswordCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
         User user = server.config.dao.userService.findUserByUsername(args[0]);
-        if(user == null)
-        {
+        if (user == null) {
             LogHelper.error("User %s not found", args[1]);
             return;
         }

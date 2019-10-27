@@ -10,20 +10,20 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 public class NettyObjectFactory {
     private static boolean epoll = false;
-    public static void setUsingEpoll(boolean value)
-    {
+
+    public static void setUsingEpoll(boolean value) {
         epoll = value;
     }
-    public static EventLoopGroup newEventLoopGroup(int threads)
-    {
-        if(epoll)
+
+    public static EventLoopGroup newEventLoopGroup(int threads) {
+        if (epoll)
             return new EpollEventLoopGroup(threads);
         else
             return new NioEventLoopGroup(threads);
     }
-    public static ChannelFactory<? extends ServerChannel> getServerSocketChannelFactory()
-    {
-        if(epoll)
+
+    public static ChannelFactory<? extends ServerChannel> getServerSocketChannelFactory() {
+        if (epoll)
             return EpollServerSocketChannel::new;
         else
             return NioServerSocketChannel::new;

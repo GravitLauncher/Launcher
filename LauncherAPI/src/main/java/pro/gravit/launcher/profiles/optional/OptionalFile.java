@@ -1,13 +1,13 @@
 package pro.gravit.launcher.profiles.optional;
 
-import java.io.IOException;
-import java.util.Objects;
-import java.util.Set;
-
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.IOException;
+import java.util.Objects;
+import java.util.Set;
 
 public class OptionalFile {
     @LauncherAPI
@@ -17,7 +17,7 @@ public class OptionalFile {
     @LauncherAPI
     public boolean mark;
     @LauncherAPI
-    public boolean visible = true;
+    public final boolean visible = true;
     @LauncherAPI
     public String name;
     @LauncherAPI
@@ -35,7 +35,7 @@ public class OptionalFile {
     @LauncherAPI
     public boolean isPreset;
     @LauncherAPI
-    public long permissions = 0L;
+    public final long permissions = 0L;
     @LauncherAPI
     public transient Set<OptionalFile> dependenciesCount;
 

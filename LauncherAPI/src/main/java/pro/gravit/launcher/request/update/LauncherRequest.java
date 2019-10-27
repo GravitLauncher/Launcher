@@ -1,12 +1,5 @@
 package pro.gravit.launcher.request.update;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
@@ -20,18 +13,25 @@ import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
 public final class LauncherRequest extends Request<LauncherRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
     public byte[] digest;
     @LauncherNetworkAPI
-    public String secureHash;
+    public final String secureHash;
     @LauncherNetworkAPI
-    public String secureSalt;
+    public final String secureSalt;
     @LauncherNetworkAPI
     public int launcher_type = EXE_BINARY ? 2 : 1;
     @LauncherAPI
     public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
-    
+
     @LauncherAPI
     public static final Path C_BINARY_PATH = BINARY_PATH.getParent().resolve(IOHelper.getFileName(BINARY_PATH) + ".tmp");
 
@@ -64,7 +64,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
                 Files.deleteIfExists(C_BINARY_PATH);
                 downloader.downloadOne(result.url, C_BINARY_PATH);
                 try (InputStream in = IOHelper.newInput(C_BINARY_PATH)) {
-                	IOHelper.transfer(in, BINARY_PATH);
+                    IOHelper.transfer(in, BINARY_PATH);
                 }
                 Files.deleteIfExists(C_BINARY_PATH);
             } catch (Throwable e) {

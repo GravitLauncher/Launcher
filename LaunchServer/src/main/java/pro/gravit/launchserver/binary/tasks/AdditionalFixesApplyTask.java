@@ -1,7 +1,15 @@
 package pro.gravit.launchserver.binary.tasks;
 
-import java.io.ByteArrayOutputStream;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.ClassNode;
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.asm.ClassMetadataReader;
+import pro.gravit.launchserver.asm.SafeClassWriter;
+import pro.gravit.utils.helper.IOHelper;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Predicate;
@@ -10,16 +18,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.tree.ClassNode;
-
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.asm.ClassMetadataReader;
-import pro.gravit.launchserver.asm.SafeClassWriter;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 public class AdditionalFixesApplyTask implements LauncherBuildTask {
     private final LaunchServer server;
@@ -37,12 +35,12 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
     public Path process(Path inputFile) throws IOException {
         Path out = server.launcherBinary.nextPath("post-fixed");
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
-            apply(inputFile, inputFile, output, server, (e) -> false);
+            apply(inputFile, inputFile, output, server, (e) -> false, true);
         }
         return out;
     }
 
-    public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServer srv, Predicate<ZipEntry> excluder) throws IOException {
+    public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServer srv, Predicate<ZipEntry> excluder, boolean needFixes) throws IOException {
         try (ClassMetadataReader reader = new ClassMetadataReader()) {
             reader.getCp().add(new JarFile(inputFile.toFile()));
             List<JarFile> libs = srv.launcherBinary.coreLibs.stream().map(e -> {
@@ -70,16 +68,12 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                     output.putNextEntry(IOHelper.newZipEntry(e));
                     if (filename.endsWith(".class")) {
                         byte[] bytes;
-                        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(2048)) {
-                            IOHelper.transfer(input, outputStream);
-                            bytes = outputStream.toByteArray();
+                        if(needFixes) {
+                            bytes = classFix(input, reader, srv.config.launcher.stripLineNumbers);
+                            output.write(bytes);
                         }
-                        try {
-                        	bytes = classFix(bytes, reader, srv.config.launcher.stripLineNumbers);
-                        } catch (Throwable t) {
-                        	LogHelper.error(t);
-                        }
-                        output.write(bytes);
+                        else
+                            IOHelper.transfer(input, output);
                     } else
                         IOHelper.transfer(input, output);
                     e = input.getNextEntry();
@@ -88,8 +82,8 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
         }
     }
 
-    private static byte[] classFix(byte[] bytes, ClassMetadataReader reader, boolean stripNumbers) {
-        ClassReader cr = new ClassReader(bytes);
+    private static byte[] classFix(InputStream input, ClassMetadataReader reader, boolean stripNumbers) throws IOException {
+        ClassReader cr = new ClassReader(input);
         ClassNode cn = new ClassNode();
         cr.accept(cn, stripNumbers ? (ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES) : ClassReader.SKIP_FRAMES);
         ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);

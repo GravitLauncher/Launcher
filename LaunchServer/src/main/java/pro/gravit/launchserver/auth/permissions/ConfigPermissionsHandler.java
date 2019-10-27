@@ -3,8 +3,8 @@ package pro.gravit.launchserver.auth.permissions;
 import pro.gravit.launcher.ClientPermissions;
 
 public class ConfigPermissionsHandler extends PermissionsHandler {
-    public boolean isAdmin = false;
-    public boolean isServer = false;
+    public final boolean isAdmin = false;
+    public final boolean isServer = false;
 
     @Override
     public ClientPermissions getPermissions(String username) {

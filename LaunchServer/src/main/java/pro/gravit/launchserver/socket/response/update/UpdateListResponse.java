@@ -1,13 +1,13 @@
 package pro.gravit.launchserver.socket.response.update;
 
-import java.util.HashSet;
-import java.util.Map;
-
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.UpdateListRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
+
+import java.util.HashSet;
+import java.util.Map;
 
 public class UpdateListResponse extends SimpleResponse {
 

@@ -7,11 +7,9 @@ public class AutogenConfig {
     public String guardType;
     public String secretKeyClient;
     public String oemUnlockKey;
-    public String guardLicenseName;
-    public String guardLicenseKey;
-    public String guardLicenseEncryptKey;
     public String secureCheckHash;
     public String secureCheckSalt;
+    public String passwordEncryptKey;
     public int env;
     public boolean isWarningMissArchJava;
     // 0 - Dev (дебаг включен по умолчанию, все сообщения)
@@ -23,6 +21,6 @@ public class AutogenConfig {
     }
 
     public void initModules() {
-    	
+
     }
 }

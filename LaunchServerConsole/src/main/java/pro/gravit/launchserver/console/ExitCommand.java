@@ -17,7 +17,7 @@ public class ExitCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         System.exit(0);
     }
 }

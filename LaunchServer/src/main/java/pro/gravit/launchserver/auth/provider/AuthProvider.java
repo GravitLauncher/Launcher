@@ -1,16 +1,17 @@
 package pro.gravit.launchserver.auth.provider;
 
-import java.io.IOException;
-
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.utils.ProviderMap;
 
+import java.io.IOException;
+
 public abstract class AuthProvider implements AutoCloseable {
-    public static ProviderMap<AuthProvider> providers = new ProviderMap<>("AuthProvider");
+    public static final ProviderMap<AuthProvider> providers = new ProviderMap<>("AuthProvider");
     private static boolean registredProv = false;
     protected transient LaunchServer srv = null;
+
     public static AuthProviderResult authError(String message) throws AuthException {
         throw new AuthException(message);
     }
@@ -32,13 +33,13 @@ public abstract class AuthProvider implements AutoCloseable {
 
     /**
      * Verifies the username and password
-     * @param login user login
+     *
+     * @param login    user login
      * @param password user password
-     * @param ip user ip
+     * @param ip       user ip
      * @return player privileges, effective username and authorization token
-     * @throws Exception
-     * Throws an exception {@link AuthException} {@link pro.gravit.utils.HookException} if the verification script returned a meaningful error
-     * In other cases, throwing an exception indicates a serious error
+     * @throws Exception Throws an exception {@link AuthException} {@link pro.gravit.utils.HookException} if the verification script returned a meaningful error
+     *                   In other cases, throwing an exception indicates a serious error
      */
     public abstract AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws Exception;
 
@@ -49,6 +50,6 @@ public abstract class AuthProvider implements AutoCloseable {
     public abstract void close() throws IOException;
 
     public void init(LaunchServer srv) {
-    	this.srv = srv;
+        this.srv = srv;
     }
 }

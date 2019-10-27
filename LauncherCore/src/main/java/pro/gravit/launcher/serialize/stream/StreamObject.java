@@ -1,12 +1,12 @@
 package pro.gravit.launcher.serialize.stream;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.helper.IOHelper;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public abstract class StreamObject {
     /* public StreamObject(HInput input) */
@@ -14,7 +14,7 @@ public abstract class StreamObject {
     @FunctionalInterface
     public interface Adapter<O extends StreamObject> {
         @LauncherAPI
-        O convert(HInput input) throws IOException;
+        O convert(HInput input);
     }
 
     @LauncherAPI

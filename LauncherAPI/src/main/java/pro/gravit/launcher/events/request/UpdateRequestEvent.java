@@ -6,11 +6,11 @@ import pro.gravit.launcher.hasher.HashedDir;
 
 public class UpdateRequestEvent extends RequestEvent {
     @LauncherNetworkAPI
-    public HashedDir hdir;
+    public final HashedDir hdir;
     @LauncherNetworkAPI
     public String url;
     @LauncherNetworkAPI
-    public boolean zip;
+    public final boolean zip;
     @LauncherNetworkAPI
     public boolean fullDownload;
 

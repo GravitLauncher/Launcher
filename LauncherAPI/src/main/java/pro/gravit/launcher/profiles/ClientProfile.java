@@ -1,16 +1,5 @@
 package pro.gravit.launcher.profiles;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
@@ -20,10 +9,14 @@ import pro.gravit.launcher.profiles.optional.OptionalType;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.*;
+
 public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     public enum Version {
-    	MC125("1.2.5", 29),
+        MC125("1.2.5", 29),
         MC147("1.4.7", 51),
         MC152("1.5.2", 61),
         MC164("1.6.4", 78),
@@ -434,144 +427,19 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             if (f.name == null) throw new IllegalArgumentException("Optional: name must not be null");
             if (f.list == null) throw new IllegalArgumentException("Optional: list must not be null");
             for (String s : f.list) {
-                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.list", f.name));
+                if (s == null)
+                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.list", f.name));
             }
-            if(f.conflictFile != null) for (OptionalDepend s : f.conflictFile) {
-                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.conflictFile", f.name));
+            if (f.conflictFile != null) for (OptionalDepend s : f.conflictFile) {
+                if (s == null)
+                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.conflictFile", f.name));
             }
-            if(f.dependenciesFile != null)  for (OptionalDepend s : f.dependenciesFile) {
-                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.dependenciesFile", f.name));
+            if (f.dependenciesFile != null) for (OptionalDepend s : f.dependenciesFile) {
+                if (s == null)
+                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.dependenciesFile", f.name));
             }
         }
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((assetDir == null) ? 0 : assetDir.hashCode());
-        result = prime * result + ((assetIndex == null) ? 0 : assetIndex.hashCode());
-        result = prime * result + ((classPath == null) ? 0 : classPath.hashCode());
-        result = prime * result + ((clientArgs == null) ? 0 : clientArgs.hashCode());
-        result = prime * result + ((dir == null) ? 0 : dir.hashCode());
-        result = prime * result + ((jvmArgs == null) ? 0 : jvmArgs.hashCode());
-        result = prime * result + ((mainClass == null) ? 0 : mainClass.hashCode());
-        result = prime * result + ((serverAddress == null) ? 0 : serverAddress.hashCode());
-        result = prime * result + serverPort;
-        result = prime * result + sortIndex;
-        result = prime * result + ((title == null) ? 0 : title.hashCode());
-        result = prime * result + ((info == null) ? 0 : info.hashCode());
-        result = prime * result + ((update == null) ? 0 : update.hashCode());
-        result = prime * result + ((updateExclusions == null) ? 0 : updateExclusions.hashCode());
-        result = prime * result + (updateFastCheck ? 1231 : 1237);
-        result = prime * result + ((updateOptional == null) ? 0 : updateOptional.hashCode());
-        result = prime * result + ((updateShared == null) ? 0 : updateShared.hashCode());
-        result = prime * result + ((updateVerify == null) ? 0 : updateVerify.hashCode());
-        result = prime * result + (useWhitelist ? 1231 : 1237);
-        result = prime * result + ((version == null) ? 0 : version.hashCode());
-        result = prime * result + ((whitelist == null) ? 0 : whitelist.hashCode());
-        return result;
-    }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ClientProfile other = (ClientProfile) obj;
-        if (assetDir == null) {
-            if (other.assetDir != null)
-                return false;
-        } else if (!assetDir.equals(other.assetDir))
-            return false;
-        if (assetIndex == null) {
-            if (other.assetIndex != null)
-                return false;
-        } else if (!assetIndex.equals(other.assetIndex))
-            return false;
-        if (classPath == null) {
-            if (other.classPath != null)
-                return false;
-        } else if (!classPath.equals(other.classPath))
-            return false;
-        if (clientArgs == null) {
-            if (other.clientArgs != null)
-                return false;
-        } else if (!clientArgs.equals(other.clientArgs))
-            return false;
-        if (dir == null) {
-            if (other.dir != null)
-                return false;
-        } else if (!dir.equals(other.dir))
-            return false;
-        if (jvmArgs == null) {
-            if (other.jvmArgs != null)
-                return false;
-        } else if (!jvmArgs.equals(other.jvmArgs))
-            return false;
-        if (mainClass == null) {
-            if (other.mainClass != null)
-                return false;
-        } else if (!mainClass.equals(other.mainClass))
-            return false;
-        if (serverAddress == null) {
-            if (other.serverAddress != null)
-                return false;
-        } else if (!serverAddress.equals(other.serverAddress))
-            return false;
-        if (serverPort != other.serverPort)
-            return false;
-        if (sortIndex != other.sortIndex)
-            return false;
-        if (title == null) {
-            if (other.title != null)
-                return false;
-        } else if (!title.equals(other.title))
-            return false;
-        if (info == null) {
-            if (other.info != null)
-                return false;
-        } else if (!info.equals(other.info))
-            return false;
-        if (update == null) {
-            if (other.update != null)
-                return false;
-        } else if (!update.equals(other.update))
-            return false;
-        if (updateExclusions == null) {
-            if (other.updateExclusions != null)
-                return false;
-        } else if (!updateExclusions.equals(other.updateExclusions))
-            return false;
-        if (updateFastCheck != other.updateFastCheck)
-            return false;
-        if (updateOptional == null) {
-            if (other.updateOptional != null)
-                return false;
-        } else if (!updateOptional.equals(other.updateOptional))
-            return false;
-        if (updateShared == null) {
-            if (other.updateShared != null)
-                return false;
-        } else if (!updateShared.equals(other.updateShared))
-            return false;
-        if (updateVerify == null) {
-            if (other.updateVerify != null)
-                return false;
-        } else if (!updateVerify.equals(other.updateVerify))
-            return false;
-        if (useWhitelist != other.useWhitelist)
-            return false;
-        if (version == null) {
-            if (other.version != null)
-                return false;
-        } else if (!version.equals(other.version))
-            return false;
-        if (whitelist == null) {
-            return other.whitelist == null;
-        } else return whitelist.equals(other.whitelist);
-    }
 }

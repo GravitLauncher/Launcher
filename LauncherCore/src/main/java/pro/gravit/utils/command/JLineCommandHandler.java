@@ -1,17 +1,12 @@
 package pro.gravit.utils.command;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.jline.reader.Candidate;
-import org.jline.reader.Completer;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.ParsedLine;
-import org.jline.reader.UserInterruptException;
+import org.jline.reader.*;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
+
+import java.io.IOException;
+import java.util.List;
 
 public class JLineCommandHandler extends CommandHandler {
     /*private final class JLineOutput implements Output {
@@ -36,16 +31,13 @@ public class JLineCommandHandler extends CommandHandler {
         @Override
         public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
             String completeWord = line.word();
-            if (line.wordIndex() == 0)
-            {
+            if (line.wordIndex() == 0) {
                 walk((category, name, command) -> {
                     if (name.startsWith(completeWord)) {
                         candidates.add(command.buildCandidate(category, name));
                     }
                 });
-            }
-            else
-            {
+            } else {
                 Command target = findCommand(line.words().get(0));
                 List<String> words = line.words();
                 List<Candidate> candidates1 = target.complete(words.subList(1, words.size()), line.wordIndex() - 1, completeWord);
@@ -74,18 +66,18 @@ public class JLineCommandHandler extends CommandHandler {
     }
 
     @Override
-    public void bell() throws IOException {
+    public void bell() {
         terminal.puts(InfoCmp.Capability.bell);
         //reader.beep();
     }
 
     @Override
-    public void clear() throws IOException {
+    public void clear() {
         terminal.puts(InfoCmp.Capability.clear_screen);
     }
 
     @Override
-    public String readLine() throws IOException {
+    public String readLine() {
         try {
             return reader.readLine();
         } catch (UserInterruptException e) {

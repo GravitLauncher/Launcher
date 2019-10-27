@@ -1,37 +1,37 @@
 package pro.gravit.launchserver.auth.handler;
 
+import pro.gravit.launcher.Launcher;
+import pro.gravit.utils.HTTPRequest;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.UUID;
-
-import pro.gravit.launcher.Launcher;
-import pro.gravit.utils.HTTPRequest;
 
 public class JsonAuthHandler extends CachedAuthHandler {
     public URL getUrl;
     public URL updateAuthUrl;
     public URL updateServerIdUrl;
 
-    public class EntryRequestByUsername {
-        public String username;
+    public static class EntryRequestByUsername {
+        public final String username;
 
         public EntryRequestByUsername(String username) {
             this.username = username;
         }
     }
 
-    public class EntryRequestByUUID {
-        public UUID uuid;
+    public static class EntryRequestByUUID {
+        public final UUID uuid;
 
         public EntryRequestByUUID(UUID uuid) {
             this.uuid = uuid;
         }
     }
 
-    public class UpdateAuthRequest {
-        public UUID uuid;
-        public String username;
-        public String accessToken;
+    public static class UpdateAuthRequest {
+        public final UUID uuid;
+        public final String username;
+        public final String accessToken;
 
         public UpdateAuthRequest(UUID uuid, String username, String accessToken) {
             this.uuid = uuid;
@@ -40,9 +40,9 @@ public class JsonAuthHandler extends CachedAuthHandler {
         }
     }
 
-    public class UpdateServerIDRequest {
-        public UUID uuid;
-        public String serverID;
+    public static class UpdateServerIDRequest {
+        public final UUID uuid;
+        public final String serverID;
 
         public UpdateServerIDRequest(UUID uuid, String serverID) {
             this.uuid = uuid;
@@ -50,7 +50,7 @@ public class JsonAuthHandler extends CachedAuthHandler {
         }
     }
 
-    public class SuccessResponse {
+    public static class SuccessResponse {
         public boolean success;
     }
 

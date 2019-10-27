@@ -1,11 +1,11 @@
 package pro.gravit.launchserver.auth.texture;
 
+import pro.gravit.launcher.profiles.Texture;
+import pro.gravit.utils.helper.VerifyHelper;
+
 import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
-
-import pro.gravit.launcher.profiles.Texture;
-import pro.gravit.utils.helper.VerifyHelper;
 
 public final class NullTextureProvider extends TextureProvider {
     private volatile TextureProvider provider;

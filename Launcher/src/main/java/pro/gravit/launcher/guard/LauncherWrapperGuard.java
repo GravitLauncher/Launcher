@@ -1,11 +1,5 @@
 package pro.gravit.launcher.guard;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.Map;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.client.ClientLauncherContext;
@@ -13,6 +7,12 @@ import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.UnpackHelper;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Map;
 
 public class LauncherWrapperGuard implements LauncherGuardInterface {
 
@@ -26,7 +26,7 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
     @Override
     public Path getJavaBinPath() {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
-            String projectName = Launcher.getConfig().projectname;
+            String projectName = Launcher.getConfig().projectName;
             String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
             return DirBridge.getGuardDir().resolve(wrapperUnpackName);
         } else
@@ -42,7 +42,7 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
     public void init(boolean clientInstance) {
         try {
             String wrapperName = JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe";
-            String projectName = Launcher.getConfig().projectname;
+            String projectName = Launcher.getConfig().projectName;
             String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
             String antiInjectName = JVMHelper.JVM_BITS == 64 ? "AntiInject64.dll" : "AntiInject32.dll";
             UnpackHelper.unpack(Launcher.getResourceURL(wrapperName, "guard"), DirBridge.getGuardDir().resolve(wrapperUnpackName));
@@ -63,15 +63,9 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
         env.put("JAVA_HOME", System.getProperty("java.home"));
         LauncherConfig config = Launcher.getConfig();
         env.put("GUARD_USERNAME", context.playerProfile.username);
-        env.put("GUARD_PUBLICKEY", config.publicKey.getModulus().toString(16));
-        env.put("GUARD_PROJECTNAME", config.projectname);
+        env.put("GUARD_PROJECTNAME", config.projectName);
         if (protectToken != null)
             env.put("GUARD_TOKEN", protectToken);
-        if (config.guardLicenseName != null)
-            env.put("GUARD_LICENSE_NAME", config.guardLicenseName);
-        if (config.guardLicenseKey != null) {
-            env.put("GUARD_LICENSE_KEY", config.guardLicenseKey);
-        }
     }
 
     @Override

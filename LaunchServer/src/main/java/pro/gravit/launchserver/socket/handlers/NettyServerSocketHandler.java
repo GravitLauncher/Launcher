@@ -1,28 +1,14 @@
 package pro.gravit.launchserver.socket.handlers;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Set;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.TrustManager;
-
-import pro.gravit.launcher.ssl.LauncherKeyStore;
-import pro.gravit.launcher.ssl.LauncherTrustManager;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.LauncherNettyServer;
 import pro.gravit.utils.helper.LogHelper;
+
+import javax.net.ssl.SSLServerSocketFactory;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
@@ -35,7 +21,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     // API
     private Set<Socket> sockets;
 
-	private transient final LaunchServer server;
+    private transient final LaunchServer server;
 
     public NettyServerSocketHandler(LaunchServer server) {
         this.server = server;
@@ -44,20 +30,6 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     @Override
     public void close() {
         //TODO: Close Impl
-    }
-
-    public SSLContext SSLContextInit() throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException, IOException, CertificateException {
-        TrustManager[] trustAllCerts = new TrustManager[]{
-                new LauncherTrustManager()
-        };
-        KeyStore ks = LauncherKeyStore.getKeyStore("keystore", "PSP1000");
-
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory
-                .getDefaultAlgorithm());
-        kmf.init(ks, "PSP1000".toCharArray());
-        SSLContext sc = SSLContext.getInstance("TLSv1.2");
-        sc.init(kmf.getKeyManagers(), trustAllCerts, new SecureRandom());
-        return sc;
     }
 
     @Override

@@ -1,5 +1,10 @@
 package pro.gravit.launchserver.asm;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Opcodes;
+import pro.gravit.utils.helper.IOHelper;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,18 +13,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Opcodes;
-
-import pro.gravit.utils.helper.IOHelper;
-
 /**
  * Позволяет искать методы внутри незагруженных классов и общие суперклассы для
  * чего угодно. Работает через поиск class-файлов в classpath.
  */
 public class ClassMetadataReader implements Closeable {
-    private class CheckSuperClassVisitor extends ClassVisitor {
+    private static class CheckSuperClassVisitor extends ClassVisitor {
 
         String superClassName;
 
@@ -55,7 +54,7 @@ public class ClassMetadataReader implements Closeable {
     public void acceptVisitor(String className, ClassVisitor visitor) throws IOException {
         acceptVisitor(getClassData(className), visitor);
     }
-    
+
     public void acceptVisitor(byte[] classData, ClassVisitor visitor, int flags) {
         new ClassReader(classData).accept(visitor, flags);
     }
@@ -108,7 +107,7 @@ public class ClassMetadataReader implements Closeable {
 
     @Override
     public void close() {
-        cp.stream().forEach(IOHelper::close);
+        cp.forEach(IOHelper::close);
         cp.clear();
     }
 

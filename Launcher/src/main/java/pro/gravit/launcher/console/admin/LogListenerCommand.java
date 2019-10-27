@@ -8,9 +8,9 @@ import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 
 public class LogListenerCommand extends Command {
-    public class LogListenerRequest implements WebSocketRequest {
+    public static class LogListenerRequest implements WebSocketRequest {
         @LauncherNetworkAPI
-        public LogHelper.OutputTypes outputType;
+        public final LogHelper.OutputTypes outputType;
 
         public LogListenerRequest(LogHelper.OutputTypes outputType) {
             this.outputType = outputType;

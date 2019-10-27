@@ -1,5 +1,10 @@
 package pro.gravit.utils;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -7,12 +12,6 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 public final class HTTPRequest {
     private static final int TIMEOUT = 10000;
@@ -44,16 +43,17 @@ public final class HTTPRequest {
     public static JsonElement jsonRequest(JsonElement request, String method, URL url) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoInput(true);
-        if(request != null) connection.setDoOutput(true);
+        if (request != null) connection.setDoOutput(true);
         connection.setRequestMethod(method);
-        if(request != null) connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        if (request != null) connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.setRequestProperty("Accept", "application/json");
         if (TIMEOUT > 0)
             connection.setConnectTimeout(TIMEOUT);
-        if(request != null) try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8)) {
-            writer.write(request.toString());
-            writer.flush();
-        }
+        if (request != null)
+            try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8)) {
+                writer.write(request.toString());
+                writer.flush();
+            }
 
         InputStreamReader reader;
         int statusCode = connection.getResponseCode();

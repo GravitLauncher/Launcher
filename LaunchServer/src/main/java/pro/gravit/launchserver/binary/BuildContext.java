@@ -1,5 +1,8 @@
 package pro.gravit.launchserver.binary;
 
+import pro.gravit.launchserver.binary.tasks.MainBuildTask;
+import pro.gravit.utils.helper.IOHelper;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -7,9 +10,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import pro.gravit.launchserver.binary.tasks.MainBuildTask;
-import pro.gravit.utils.helper.IOHelper;
 
 public class BuildContext {
     public final ZipOutputStream output;

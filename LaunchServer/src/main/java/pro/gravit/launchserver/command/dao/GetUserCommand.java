@@ -24,8 +24,7 @@ public class GetUserCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
         User user = server.config.dao.userService.findUserByUsername(args[0]);
-        if(user == null)
-        {
+        if (user == null) {
             LogHelper.error("User %s not found", args[0]);
             return;
         }

@@ -1,12 +1,12 @@
 package pro.gravit.launchserver.socket.response;
 
-import java.util.UUID;
-
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.WebSocketService;
+
+import java.util.UUID;
 
 public abstract class SimpleResponse implements WebSocketServerResponse {
     public UUID requestUUID;

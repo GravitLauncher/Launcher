@@ -10,7 +10,7 @@ public class ExecCommandRequestEvent extends RequestEvent {
     }
 
     @LauncherNetworkAPI
-    public boolean success;
+    public final boolean success;
 
     public ExecCommandRequestEvent(boolean success) {
         this.success = success;

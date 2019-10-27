@@ -1,16 +1,13 @@
 package pro.gravit.launchserver.auth;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
-import org.postgresql.ds.PGSimpleDataSource;
-
 import com.zaxxer.hikari.HikariDataSource;
-
+import org.postgresql.ds.PGSimpleDataSource;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public final class PostgreSQLSourceConfig implements AutoCloseable {
     public static final int TIMEOUT = VerifyHelper.verifyInt(

@@ -1,13 +1,13 @@
 package pro.gravit.launchserver.socket.response.auth;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GetAvailabilityAuthResponse extends SimpleResponse {
     @Override

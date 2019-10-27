@@ -1,7 +1,6 @@
 package pro.gravit.launcher.managers;
 
 import com.google.gson.GsonBuilder;
-
 import pro.gravit.launcher.client.ClientModuleManager;
 import pro.gravit.launcher.client.UserSettings;
 import pro.gravit.launcher.hwid.HWID;

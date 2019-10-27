@@ -8,20 +8,20 @@ public class HibernatePermissionsHandler extends PermissionsHandler {
     @Override
     public ClientPermissions getPermissions(String username) {
         User user = srv.config.dao.userService.findUserByUsername(username);
-        if(user == null) return ClientPermissions.DEFAULT;
+        if (user == null) return ClientPermissions.DEFAULT;
         return user.getPermissions();
     }
 
     @Override
     public void setPermissions(String username, ClientPermissions permissions) {
         User user = srv.config.dao.userService.findUserByUsername(username);
-        if(user == null) return;
+        if (user == null) return;
         user.setPermissions(permissions);
         srv.config.dao.userService.updateUser(user);
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
 
     }
 }

@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.auth.texture;
 
-import java.util.UUID;
-
 import pro.gravit.launcher.profiles.Texture;
+
+import java.util.UUID;
 
 public final class VoidTextureProvider extends TextureProvider {
 

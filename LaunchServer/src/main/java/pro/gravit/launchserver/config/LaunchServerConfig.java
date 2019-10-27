@@ -1,11 +1,5 @@
 package pro.gravit.launchserver.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
 import pro.gravit.launcher.Launcher;
@@ -30,6 +24,12 @@ import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 public final class LaunchServerConfig {
     private transient LaunchServer server = null;
 
@@ -44,7 +44,7 @@ public final class LaunchServerConfig {
 
     public String binaryName;
 
-    public boolean copyBinaries = true;
+    public final boolean copyBinaries = true;
 
     public LauncherConfig.LauncherEnvironment env;
 
@@ -75,7 +75,7 @@ public final class LaunchServerConfig {
                 return pair;
             }
         }
-        return null;
+        throw new IllegalStateException("Default AuthProviderPair not found");
     }
 
     public HWIDHandler hwidHandler;
@@ -84,11 +84,11 @@ public final class LaunchServerConfig {
 
     public ExeConf launch4j;
     public NettyConfig netty;
-    public GuardLicenseConf guardLicense;
 
     public String whitelistRejectString;
     public LauncherConf launcher;
     public CertificateConf certificate;
+    public JarSignerConf sign;
 
     public String startScript;
 
@@ -140,23 +140,18 @@ public final class LaunchServerConfig {
         }
         permissionsHandler.init(server);
         hwidHandler.init();
-        if(dao != null)
+        if (dao != null)
             dao.init(server);
         if (protectHandler != null) {
             protectHandler.checkLaunchServerLicense();
         }
-        if(components != null)
-        {
-            components.forEach((k,v) -> {
-                server.registerObject("component.".concat(k), v);
-            });
+        if (components != null) {
+            components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
         }
         server.registerObject("permissionsHandler", permissionsHandler);
         server.registerObject("hwidHandler", hwidHandler);
-        if(!type.equals(LaunchServer.ReloadType.NO_AUTH))
-        {
-            for (int i = 0; i < auth.length; ++i) {
-                AuthProviderPair pair = auth[i];
+        if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
+            for (AuthProviderPair pair : auth) {
                 server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                 server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
@@ -171,20 +166,17 @@ public final class LaunchServerConfig {
         try {
             server.unregisterObject("permissionsHandler", permissionsHandler);
             server.unregisterObject("hwidHandler", hwidHandler);
-            if(!type.equals(LaunchServer.ReloadType.NO_AUTH))
-            {
+            if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
                 for (AuthProviderPair pair : auth) {
                     server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                     server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                     server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
                 }
             }
-            if(type.equals(LaunchServer.ReloadType.FULL))
-            {
+            if (type.equals(LaunchServer.ReloadType.FULL)) {
                 components.forEach((k, component) -> {
                     server.unregisterObject("component.".concat(k), component);
-                    if(component instanceof AutoCloseable)
-                    {
+                    if (component instanceof AutoCloseable) {
                         try {
                             ((AutoCloseable) component).close();
                         } catch (Exception e) {
@@ -215,7 +207,6 @@ public final class LaunchServerConfig {
 
     public static class ExeConf {
         public boolean enabled;
-        public String alternative;
         public boolean setMaxVersion;
         public String maxVersion;
         public String productName;
@@ -230,15 +221,27 @@ public final class LaunchServerConfig {
         public String txtProductVersion;
     }
 
-    public static class CertificateConf
-    {
+    public static class CertificateConf {
         public boolean enabled;
+    }
+
+    public static class JarSignerConf {
+        public boolean enabled = false;
+        public String keyStore = "pathToKey";
+        public String keyStoreType = "JKS";
+        public String keyStorePass = "mypass";
+        public String keyAlias = "myname";
+        public String keyPass = "mypass";
+        public String metaInfKeyName = "SIGNUMO.RSA";
+        public String metaInfSfName = "SIGNUMO.SF";
+        public String signAlgo = "SHA256WITHRSA";
     }
 
     public static class NettyUpdatesBind {
         public String url;
         public boolean zip;
     }
+
     public static class LauncherConf {
         public String guardType;
         public boolean attachLibraryBeforeProGuard;
@@ -259,10 +262,10 @@ public final class LaunchServerConfig {
         public String downloadURL;
         public String launcherEXEURL;
         public String address;
-        public Map<String, LaunchServerConfig.NettyUpdatesBind> bindings = new HashMap<>();
+        public final Map<String, LaunchServerConfig.NettyUpdatesBind> bindings = new HashMap<>();
         public NettyPerformanceConfig performance;
         public NettyBindAddress[] binds;
-        public LogLevel logLevel = LogLevel.DEBUG;
+        public final LogLevel logLevel = LogLevel.DEBUG;
     }
 
     public static class NettyPerformanceConfig {
@@ -272,8 +275,8 @@ public final class LaunchServerConfig {
     }
 
     public static class NettyBindAddress {
-        public String address;
-        public int port;
+        public final String address;
+        public final int port;
 
         public NettyBindAddress(String address, int port) {
             this.address = address;
@@ -281,19 +284,12 @@ public final class LaunchServerConfig {
         }
     }
 
-    public static class GuardLicenseConf {
-        public String name;
-        public String key;
-        public String encryptKey;
-    }
-    public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env)
-    {
+    public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
         newConfig.mirrors = new String[]{"https://mirror.gravit.pro/"};
         newConfig.launch4j = new LaunchServerConfig.ExeConf();
         newConfig.launch4j.enabled = true;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
-        newConfig.launch4j.alternative = "no";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
         newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
         newConfig.launch4j.internalName = "Launcher";
@@ -312,7 +308,7 @@ public final class LaunchServerConfig {
                 , "std")};
         newConfig.auth[0].displayName = "Default";
         newConfig.protectHandler = new StdProtectHandler();
-        if(env.equals(LaunchServer.LaunchServerEnv.TEST))
+        if (env.equals(LaunchServer.LaunchServerEnv.TEST))
             newConfig.permissionsHandler = new DefaultPermissionsHandler();
         else
             newConfig.permissionsHandler = new JsonFilePermissionsHandler();
@@ -339,6 +335,7 @@ public final class LaunchServerConfig {
 
         newConfig.certificate = new LaunchServerConfig.CertificateConf();
         newConfig.certificate.enabled = false;
+        newConfig.sign = new JarSignerConf();
 
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();

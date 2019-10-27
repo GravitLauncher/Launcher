@@ -5,7 +5,7 @@ import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 public final class PingRequest extends Request<WebSocketEvent> {
 
     @Override
-    protected WebSocketEvent requestDo(StandartClientWebSocketService service) throws Exception {
+    protected WebSocketEvent requestDo(StandartClientWebSocketService service) {
         return null;
     }
 
