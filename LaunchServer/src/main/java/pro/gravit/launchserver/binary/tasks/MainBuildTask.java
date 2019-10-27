@@ -23,10 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.cert.CertificateEncodingException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import java.security.cert.X509Certificate;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -138,14 +136,24 @@ public class MainBuildTask implements LauncherBuildTask {
             launcherConfigurator.setBooleanField("isWarningMissArchJava", server.config.launcher.warningMissArchJava);
             launcherConfigurator.setEnv(server.config.env);
             launcherConfigurator.setStringField("passwordEncryptKey", server.runtime.passwordEncryptKey);
-            secureConfigurator.setByteArrayListField("certificates", Arrays.stream(server.certificateManager.trustManager.getTrusted()).map(e -> {
-				try {
-					return e.getEncoded();
-				} catch (CertificateEncodingException e2) {
-					LogHelper.error(e2);
-					return new byte[0];
-				}
-			}).collect(Collectors.toList()));
+            List<byte[]> certificates = Arrays.stream(server.certificateManager.trustManager.getTrusted()).map(e -> {
+                try {
+                    return e.getEncoded();
+                } catch (CertificateEncodingException e2) {
+                    LogHelper.error(e2);
+                    return new byte[0];
+                }
+            }).collect(Collectors.toList());
+            if(!server.config.sign.enabled)
+            {
+                CertificateAutogenTask task = TaskUtil.getTaskByClass(server.launcherBinary.tasks, CertificateAutogenTask.class).get(0);
+                try {
+                    certificates.add(task.certificate.getEncoded());
+                } catch (CertificateEncodingException e) {
+                    throw new InternalError(e);
+                }
+            }
+            secureConfigurator.setByteArrayListField("certificates", certificates);
             String launcherSalt = SecurityHelper.randomStringToken();
             byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
                     server.runtime.clientCheckSecret.concat(".").concat(launcherSalt));
