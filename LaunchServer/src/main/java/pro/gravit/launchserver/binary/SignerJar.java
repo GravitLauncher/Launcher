@@ -200,7 +200,7 @@ public class SignerJar implements AutoCloseable {
     private byte[] signSigFile(byte[] sigContents) throws Exception {
         CMSSignedDataGenerator gen = this.gen.get();
         CMSTypedData cmsData = new CMSProcessableByteArray(sigContents);
-        CMSSignedData signedData = gen.generate(cmsData, true);
+        CMSSignedData signedData = gen.generate(cmsData, false);
         return signedData.getEncoded();
     }
 
