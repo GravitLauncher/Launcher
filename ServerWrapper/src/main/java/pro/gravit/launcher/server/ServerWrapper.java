@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -190,7 +191,10 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
         LauncherConfig cfg = null;
         try {
-            cfg = new LauncherConfig(config.address, SecurityHelper.toPublicECKey(IOHelper.read(publicKeyFile)), new HashMap<>(), config.projectname);
+            ECPublicKey publicKey = null;
+            if(IOHelper.isFile(publicKeyFile))
+                publicKey = SecurityHelper.toPublicECKey(IOHelper.read(publicKeyFile));
+            cfg = new LauncherConfig(config.address, publicKey, new HashMap<>(), config.projectname);
             cfg.isNettyEnabled = true;
             cfg.address = config.address;
         } catch (InvalidKeySpecException | IOException e) {

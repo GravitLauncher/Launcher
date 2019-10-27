@@ -87,7 +87,7 @@ public final class LauncherConfig extends StreamObject {
     @LauncherAPI
     public LauncherConfig(String address, ECPublicKey publicKey, Map<String, byte[]> runtime, String projectName) {
         this.address = address;
-        this.publicKey = Objects.requireNonNull(publicKey, "publicKey");
+        this.publicKey = publicKey;
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectName = projectName;
         this.clientPort = 32148;

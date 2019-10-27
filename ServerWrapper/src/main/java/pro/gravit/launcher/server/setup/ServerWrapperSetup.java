@@ -46,16 +46,6 @@ public class ServerWrapperSetup {
         String address = commands.commandHandler.readLine();
         wrapper.config.mainclass = mainClassName;
         wrapper.config.address = address;
-        if (!Files.exists(ServerWrapper.publicKeyFile)) {
-            LogHelper.error("public.key not found");
-            for (int i = 0; i < 10; ++i) {
-                System.out.println("Print F to continue:");
-                String printF = commands.commandHandler.readLine();
-                if (printF.equals("stop")) return;
-                if (Files.exists(ServerWrapper.publicKeyFile)) break;
-                else LogHelper.error("public.key not found");
-            }
-        }
         boolean stopOnError = wrapper.config.stopOnError;
         for (int i = 0; i < 10; ++i) {
             System.out.println("Print server account login:");
