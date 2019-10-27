@@ -146,7 +146,7 @@ public class MainBuildTask implements LauncherBuildTask {
             }).collect(Collectors.toList());
             if(!server.config.sign.enabled)
             {
-                CertificateAutogenTask task = TaskUtil.getTaskByClass(server.launcherBinary.tasks, CertificateAutogenTask.class).get(0);
+                CertificateAutogenTask task = server.launcherBinary.getTaskByClass(CertificateAutogenTask.class).get();
                 try {
                     certificates.add(task.certificate.getEncoded());
                 } catch (CertificateEncodingException e) {

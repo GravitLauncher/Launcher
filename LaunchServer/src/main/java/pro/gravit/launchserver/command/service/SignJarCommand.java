@@ -2,13 +2,13 @@ package pro.gravit.launchserver.command.service;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.SignJarTask;
-import pro.gravit.launchserver.binary.tasks.TaskUtil;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 public class SignJarCommand extends Command {
     public SignJarCommand(LaunchServer server) {
@@ -35,8 +35,9 @@ public class SignJarCommand extends Command {
         else
             tmpSign = server.dir.resolve("build").resolve(target.toFile().getName());
         LogHelper.info("Signing jar %s to %s", target.toString(), tmpSign.toString());
-        SignJarTask task = (SignJarTask) TaskUtil.getTaskByClass(server.launcherBinary.tasks, SignJarTask.class);
-        task.sign(server.config.sign, target, tmpSign);
+        Optional<SignJarTask> task = server.launcherBinary.getTaskByClass(SignJarTask.class);
+        if(!task.isPresent()) throw new IllegalStateException("SignJarTask not found");
+        task.get().sign(server.config.sign, target, tmpSign);
         if(args.length <= 1)
         {
             LogHelper.info("Move temp jar %s to %s", tmpSign.toString(), target.toString());

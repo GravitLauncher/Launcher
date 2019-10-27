@@ -91,7 +91,7 @@ public class SignJarTask implements LauncherBuildTask {
     }
     private void autoSign(Path inputFile, Path signedFile) throws IOException {
         try (SignerJar output = new SignerJar(new ZipOutputStream(IOHelper.newOutput(signedFile)), () -> {
-            CertificateAutogenTask task = TaskUtil.getTaskByClass(srv.launcherBinary.tasks, CertificateAutogenTask.class).get(0);
+            CertificateAutogenTask task = srv.launcherBinary.getTaskByClass(CertificateAutogenTask.class).get();
             return task.signedDataGenerator;
         },
                 "AUTOGEN.SF", "AUTOGEN.EC");
