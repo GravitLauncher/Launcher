@@ -4,9 +4,8 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import pro.gravit.launcher.AutogenConfig;
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.SecureAutogenConfig;
-import pro.gravit.launcher.serialize.HOutput;
+import pro.gravit.launcher.SimpleAutogenConfig;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.ConfigGenerator;
@@ -23,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -126,6 +124,9 @@ public class MainBuildTask implements LauncherBuildTask {
             ClassNode cn1 = new ClassNode();
             new ClassReader(IOHelper.getResourceBytes(SecureAutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn1, 0);
             ConfigGenerator secureConfigurator = new ConfigGenerator(cn1);
+            ClassNode cn2 = new ClassNode();
+            new ClassReader(IOHelper.getResourceBytes(SimpleAutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn2, 0);
+            ConfigGenerator runtimeConfigurator = new ConfigGenerator(cn2);
             BuildContext context = new BuildContext(output, launcherConfigurator, this);
             server.buildHookManager.hook(context);
             launcherConfigurator.setStringField("address", server.config.netty.address);
@@ -173,11 +174,12 @@ public class MainBuildTask implements LauncherBuildTask {
             });
             String zPath = launcherConfigurator.getZipEntryPath();
             String sPath = secureConfigurator.getZipEntryPath();
+            String rPath = runtimeConfigurator.getZipEntryPath();
             try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputJar))) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
                     String filename = e.getName();
-                    if (server.buildHookManager.isContainsBlacklist(filename) || e.isDirectory() || zPath.equals(filename) || sPath.equals(filename)) {
+                    if (server.buildHookManager.isContainsBlacklist(filename) || e.isDirectory() || zPath.equals(filename) || sPath.equals(filename) || rPath.equals(filename)) {
                         e = input.getNextEntry();
                         continue;
                     }
@@ -209,26 +211,17 @@ public class MainBuildTask implements LauncherBuildTask {
                 output.putNextEntry(newZipEntry(ent.getKey().replace('.', '/').concat(".class")));
                 output.write(server.buildHookManager.classTransform(ent.getValue(), ent.getKey(), this));
             }
-            // map for guard
+            // Create launcher config file
             Map<String, byte[]> runtime = new HashMap<>(256);
             if (server.buildHookManager.buildRuntime()) {
-                // Write launcher guard dir
                 IOHelper.walk(server.launcherBinary.runtimeDir, new RuntimeDirVisitor(output, runtime), false);
                 IOHelper.walk(server.launcherBinary.guardDir, new GuardDirVisitor(output, runtime), false);
             }
-            // Create launcher config file
-            byte[] launcherConfigBytes;
-            try (ByteArrayOutputStream configArray = IOHelper.newByteArrayOutput()) {
-                try (HOutput configOutput = new HOutput(configArray)) {
-                    new LauncherConfig(server.config.netty.address, server.publicKey, runtime, server.config.projectName)
-                            .write(configOutput);
-                }
-                launcherConfigBytes = configArray.toByteArray();
-            }
-
+            runtimeConfigurator.setStringByteArrMapField("entries", runtime);
+            runtimeConfigurator.setByteArrayField("key", server.publicKey.getEncoded());
             // Write launcher config file
-            output.putNextEntry(newZipEntry(Launcher.CONFIG_FILE));
-            output.write(launcherConfigBytes);
+            output.putNextEntry(newZipEntry(rPath));
+            output.write(runtimeConfigurator.getBytecode(reader));
             ZipEntry e = newZipEntry(zPath);
             output.putNextEntry(e);
             output.write(launcherConfigurator.getBytecode(reader));

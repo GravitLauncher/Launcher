@@ -7,6 +7,7 @@ import org.objectweb.asm.tree.*;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 public class ConfigGenerator {
     protected static final String stringDesc = Type.getDescriptor(String.class);
@@ -61,6 +62,23 @@ public class ConfigGenerator {
             constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", true));
             constructor.instructions.add(new InsnNode(Opcodes.POP));
         }
+        constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, configclass.name, name, "Ljava/util/List;"));
+    }
+
+    public void setStringByteArrMapField(String name, Map<String, byte[]> b) {
+        constructor.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        constructor.instructions.add(new TypeInsnNode(Opcodes.NEW, "java/util/HashMap"));
+        constructor.instructions.add(new InsnNode(Opcodes.DUP)); // +1
+        constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/util/HashMap", "<init>", "()V"));
+        for (Map.Entry<String, byte[]> value : b.entrySet()) {
+            constructor.instructions.add(new InsnNode(Opcodes.DUP)); // +1-1
+            constructor.instructions.add(NodeUtils.getSafeStringInsnList(value.getKey()));
+            constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/util/Base64", "getDecoder", "()Ljava/util/Base64$Decoder;", false));
+            constructor.instructions.add(NodeUtils.getSafeStringInsnList(Base64.getEncoder().encodeToString(value.getValue())));
+            constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/util/Base64$Decoder", "decode", base64DecDesc, false));
+            constructor.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/Map", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", true));
+            constructor.instructions.add(new InsnNode(Opcodes.POP));
+        } // haax!
         constructor.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, configclass.name, name, "Ljava/util/List;"));
     }
 

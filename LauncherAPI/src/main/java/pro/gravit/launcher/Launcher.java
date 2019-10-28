@@ -2,7 +2,6 @@ package pro.gravit.launcher;
 
 import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -18,7 +17,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 public final class Launcher {
-
     // Authlib constants
     @LauncherAPI
     public static final String SKIN_URL_PROPERTY = "skinURL";
@@ -43,8 +41,6 @@ public final class Launcher {
     @LauncherAPI
     public static final String GUARD_DIR = "guard";
     @LauncherAPI
-    public static final String CONFIG_FILE = "config.bin";
-    @LauncherAPI
     public static ClientProfile profile;
     @LauncherAPI
     public static final String INIT_SCRIPT_FILE = "init.js";
@@ -59,8 +55,8 @@ public final class Launcher {
     public static LauncherConfig getConfig() {
         LauncherConfig config = CONFIG.get();
         if (config == null) {
-            try (HInput input = new HInput(IOHelper.newInput(IOHelper.getResourceURL(CONFIG_FILE)))) {
-                config = new LauncherConfig(input);
+            try {
+                config = new LauncherConfig();
             } catch (IOException | InvalidKeySpecException e) {
                 throw new SecurityException(e);
             }

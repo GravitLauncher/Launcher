@@ -1,10 +1,6 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.serialize.HInput;
-import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.VerifyHelper;
 import pro.gravit.utils.verify.LauncherTrustManager;
 
 import java.io.IOException;
@@ -13,9 +9,10 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
-public final class LauncherConfig extends StreamObject {
+public final class LauncherConfig {
     private static final AutogenConfig config = new AutogenConfig();
     private static final SecureAutogenConfig secureConfig = new SecureAutogenConfig();
+    private static final SimpleAutogenConfig runtimeConfig = new SimpleAutogenConfig();
 
 
     public static AutogenConfig getAutogenConfig() {
@@ -45,9 +42,8 @@ public final class LauncherConfig extends StreamObject {
     public final String secureCheckSalt;
     public final String passwordEncryptKey;
 
-    @LauncherAPI
-    public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
-        publicKey = SecurityHelper.toPublicECKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
+    public LauncherConfig() throws IOException, InvalidKeySpecException {
+        publicKey = SecurityHelper.toPublicECKey(runtimeConfig.key);
         secureCheckHash = config.secureCheckHash;
         secureCheckSalt = config.secureCheckSalt;
         passwordEncryptKey = config.passwordEncryptKey;
@@ -72,46 +68,7 @@ public final class LauncherConfig extends StreamObject {
         else env = LauncherEnvironment.STD;
         Launcher.applyLauncherEnv(env);
         environment = env;
-        // Read signed runtime
-        int count = input.readLength(0);
-        Map<String, byte[]> localResources = new HashMap<>(count);
-        for (int i = 0; i < count; i++) {
-            String name = input.readString(255);
-            VerifyHelper.putIfAbsent(localResources, name,
-                    input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH),
-                    String.format("Duplicate runtime resource: '%s'", name));
-        }
-        runtime = Collections.unmodifiableMap(localResources);
-    }
-
-    @LauncherAPI
-    public LauncherConfig(String address, ECPublicKey publicKey, Map<String, byte[]> runtime, String projectName) {
-        this.address = address;
-        this.publicKey = publicKey;
-        this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
-        this.projectName = projectName;
-        this.clientPort = 32148;
-        guardType = "no";
-        isWarningMissArchJava = true;
-        isNettyEnabled = false;
-        environment = LauncherEnvironment.STD;
-        secureCheckSalt = null;
-        secureCheckHash = null;
-        passwordEncryptKey = null;
-        trustManager = null;
-    }
-
-    @Override
-    public void write(HOutput output) throws IOException {
-        output.writeByteArray(publicKey.getEncoded(), SecurityHelper.CRYPTO_MAX_LENGTH);
-
-        // Write signed runtime
-        Set<Map.Entry<String, byte[]>> entrySet = runtime.entrySet();
-        output.writeLength(entrySet.size(), 0);
-        for (Map.Entry<String, byte[]> entry : runtime.entrySet()) {
-            output.writeString(entry.getKey(), 255);
-            output.writeByteArray(entry.getValue(), SecurityHelper.CRYPTO_MAX_LENGTH);
-        }
+        runtime = Collections.unmodifiableMap(runtimeConfig.entries);
     }
 
     public enum LauncherEnvironment {
