@@ -36,7 +36,8 @@ import pro.gravit.utils.helper.LogHelper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.InvalidAlgorithmParameterException;
@@ -390,9 +391,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     private LauncherBinary binary() {
         if (launcherEXEBinaryClass != null) {
             try {
-                return launcherEXEBinaryClass.getConstructor(LaunchServer.class).newInstance(this);
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                return (LauncherBinary) MethodHandles.publicLookup().findConstructor(launcherEXEBinaryClass, MethodType.methodType(void.class, LaunchServer.class)).invoke(this);
+            } catch (Throwable e) {
                 LogHelper.error(e);
             }
         }
