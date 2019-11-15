@@ -42,6 +42,22 @@ public final class LauncherConfig {
     public final String secureCheckSalt;
     public final String passwordEncryptKey;
 
+    public LauncherConfig(String address, ECPublicKey publicKey, Map<String, byte[]> runtime, String projectName) {
+        this.address = address;
+        this.publicKey = publicKey;
+        this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
+        this.projectName = projectName;
+        this.clientPort = 32148;
+        guardType = "no";
+        isWarningMissArchJava = true;
+        isNettyEnabled = false;
+        environment = LauncherEnvironment.STD;
+        secureCheckSalt = null;
+        secureCheckHash = null;
+        passwordEncryptKey = null;
+        trustManager = null;
+    }
+    
     public LauncherConfig() throws IOException, InvalidKeySpecException {
         publicKey = SecurityHelper.toPublicECKey(runtimeConfig.key);
         secureCheckHash = config.secureCheckHash;
