@@ -319,7 +319,12 @@ public final class LaunchServerConfig {
         newConfig.netty.fileServerEnabled = true;
         newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
         newConfig.netty.performance = new NettyPerformanceConfig();
-        newConfig.netty.performance.usingEpoll = Epoll.isAvailable();
+        try {
+        	newConfig.netty.performance.usingEpoll = Epoll.isAvailable();
+        } catch (Throwable e) {
+            // Epoll class line 51+ catch (Exception) but Error will be thrown by System.load
+        	newConfig.netty.performance.usingEpoll = false;
+        } // such as on ARM
         newConfig.netty.performance.bossThread = 2;
         newConfig.netty.performance.workerThread = 8;
 

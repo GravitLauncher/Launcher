@@ -4,7 +4,7 @@ import pro.gravit.launcher.gui.RuntimeProvider;
 import pro.gravit.launcher.modules.LauncherModule;
 
 public class ClientPreGuiPhase extends LauncherModule.Event {
-    public final RuntimeProvider runtimeProvider;
+    public RuntimeProvider runtimeProvider;
 
     public ClientPreGuiPhase(RuntimeProvider runtimeProvider) {
         this.runtimeProvider = runtimeProvider;

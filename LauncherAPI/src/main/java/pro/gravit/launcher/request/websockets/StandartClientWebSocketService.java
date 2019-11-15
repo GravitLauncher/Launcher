@@ -65,7 +65,7 @@ public class StandartClientWebSocketService extends ClientWebSocketService {
             }
             WebSocketEvent result = event.result;
             waitEventHandler.requests.remove(event);
-            if (event.result.getType().equals("error") || event.result.getType().equals("exception")) {
+            if (event.result.getType().equals("error")) {
                 ErrorRequestEvent errorRequestEvent = (ErrorRequestEvent) event.result;
                 throw new ExecutionException(new RequestException(errorRequestEvent.error));
             }
