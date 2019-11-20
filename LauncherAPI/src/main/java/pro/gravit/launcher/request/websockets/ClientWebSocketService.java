@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.NotificationEvent;
+import pro.gravit.launcher.events.SignalEvent;
 import pro.gravit.launcher.events.request.*;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedEntryAdapter;
@@ -109,6 +110,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
         results.register("register", RegisterRequestEvent.class);
         results.register("setpassword", SetPasswordRequestEvent.class);
         results.register("notification", NotificationEvent.class);
+        results.register("signal", SignalEvent.class);
     }
 
     public void registerHandler(EventHandler eventHandler) {
