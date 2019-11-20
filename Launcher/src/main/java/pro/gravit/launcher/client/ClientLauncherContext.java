@@ -12,6 +12,8 @@ public class ClientLauncherContext {
     public final List<String> args = new LinkedList<>();
     public String pathLauncher;
     public ProcessBuilder builder;
+    public Process process;
     public ClientProfile clientProfile;
     public PlayerProfile playerProfile;
+    public ClientLauncher.Params params;
 }
