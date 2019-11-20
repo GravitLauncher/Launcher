@@ -47,10 +47,18 @@ public class ListDownloader {
 
     public static class DownloadTask {
         public final String apply;
-        public final long size;
+        public long size;
+        public final String urlApply;
 
         public DownloadTask(String apply, long size) {
             this.apply = apply;
+            urlApply = apply;
+            this.size = size;
+        }
+
+        public DownloadTask(String urlApply, String apply, long size) {
+            this.apply = apply;
+            this.urlApply = urlApply;
             this.size = size;
         }
     }
@@ -70,7 +78,7 @@ public class ListDownloader {
             String path = baseUri.getPath();
             List<IOException> excs = new CopyOnWriteArrayList<>();
             for (DownloadTask apply : applies) {
-                URI u = new URI(scheme, host, path + apply.apply, "", "");
+                URI u = new URI(scheme, host, path + apply.urlApply, "", "");
                 callback.stateChanged(apply.apply, 0L, apply.size);
                 Path targetPath = dstDirFile.resolve(apply.apply);
                 toExec.add(() -> {
@@ -181,7 +189,9 @@ public class ListDownloader {
             }
             long contentLength = response.getEntity().getContentLength();
             if (task != null && contentLength != task.size) {
-                LogHelper.warning("Missing content length: expected %d | found %d", task.size, contentLength);
+            	if (task.size > 0)
+            		LogHelper.warning("Missing content length: expected %d | found %d", task.size, contentLength);
+            	else task.size = contentLength;
             }
             if (zip) {
                 try (ZipInputStream input = IOHelper.newZipInput(source)) {

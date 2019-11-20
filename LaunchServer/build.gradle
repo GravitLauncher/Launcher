@@ -81,6 +81,7 @@ dependencies {
     bundle 'org.fusesource.jansi:jansi:1.18'
     bundle 'commons-io:commons-io:2.6'
     bundle 'commons-codec:commons-codec:1.12'
+    bundle 'org.apache.httpcomponents:httpclient:4.5.7'
     bundle 'org.javassist:javassist:3.25.0-GA'
     bundle 'io.netty:netty-all:4.1.36.Final'
     bundle 'org.hibernate:hibernate-core:5.4.4.Final'

@@ -10,6 +10,8 @@ import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.verify.LauncherTrustManager;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -29,6 +31,7 @@ import java.util.function.Predicate;
 import java.util.jar.JarFile;
 
 public class SimpleModuleManager implements LauncherModulesManager {
+    private static final MethodType VOID_TYPE = MethodType.methodType(void.class);
     protected final List<LauncherModule> modules = new ArrayList<>();
     protected final List<String> moduleNames = new ArrayList<>();
     protected final SimpleModuleContext context;
@@ -149,10 +152,17 @@ public class SimpleModuleManager implements LauncherModulesManager {
             @SuppressWarnings("unchecked")
             Class<? extends LauncherModule> clazz = (Class<? extends LauncherModule>) Class.forName(moduleClass, false, classLoader);
             checkModuleClass(clazz, checkMode);
-            LauncherModule module = clazz.newInstance();
+            if (!LauncherModule.class.isAssignableFrom(clazz))
+            	throw new ClassNotFoundException("Invalid module class... Not contains LauncherModule in hierarchy.");
+            LauncherModule module;
+            try {
+            	module = (LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invoke();
+            } catch (Throwable e) {
+            	throw (InstantiationException) new InstantiationException("Error on instancing...").initCause(e);
+            }
             loadModule(module);
             return module;
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+        } catch (ClassNotFoundException | InstantiationException e) {
             LogHelper.error(e);
             LogHelper.error("In module %s Module-Main-Class incorrect", file.toString());
             return null;
