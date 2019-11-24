@@ -43,7 +43,7 @@ public abstract class AuthProvider implements AutoCloseable {
      */
     public abstract AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws Exception;
 
-    public void preAuth(String login, AuthRequest.AuthPasswordInterface password, String customText, String ip) {
+    public void preAuth(String login, AuthRequest.AuthPasswordInterface password, String ip) {
     }
 
     @Override

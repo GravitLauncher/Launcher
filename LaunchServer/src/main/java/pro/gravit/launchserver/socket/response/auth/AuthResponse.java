@@ -3,6 +3,7 @@ package pro.gravit.launchserver.socket.response.auth;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.hwid.HWID;
+import pro.gravit.launcher.hwid.NoHWID;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.AuthECPassword;
@@ -32,7 +33,6 @@ public class AuthResponse extends SimpleResponse {
     public final transient static Random random = new SecureRandom();
     public String login;
     public String client;
-    public String customText;
     public boolean getSession;
 
     public AuthRequest.AuthPasswordInterface password;
@@ -66,13 +66,19 @@ public class AuthResponse extends SimpleResponse {
                     throw new AuthException("Password decryption error");
                 }
             }
+            if(hwid == null) hwid = new NoHWID();
             AuthProviderPair pair;
             if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
             else pair = server.config.getAuthProviderPair(auth_id);
-            AuthContext context = new AuthContext(clientData, login, customText, client, hwid, ip, authType);
+            if(pair == null)
+            {
+                sendError("auth_id incorrect");
+                return;
+            }
+            AuthContext context = new AuthContext(clientData, login, client, hwid, ip, authType);
             AuthProvider provider = pair.provider;
             server.authHookManager.preHook.hook(context, clientData);
-            provider.preAuth(login, password, customText, ip);
+            provider.preAuth(login, password, ip);
             AuthProviderResult aresult = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(aresult.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", aresult.username));
@@ -128,10 +134,9 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public static class AuthContext {
-        public AuthContext(Client client, String login, String customText, String profileName, HWID hwid, String ip, ConnectTypes authType) {
+        public AuthContext(Client client, String login, String profileName, HWID hwid, String ip, ConnectTypes authType) {
             this.client = client;
             this.login = login;
-            this.customText = customText;
             this.profileName = profileName;
             this.hwid = hwid;
             this.ip = ip;
@@ -143,7 +148,6 @@ public class AuthResponse extends SimpleResponse {
         public int password_length; //Use AuthProvider for get password
         public final String profileName;
         public final HWID hwid;
-        public final String customText;
         public final String ip;
         public final ConnectTypes authType;
         public final Client client;
