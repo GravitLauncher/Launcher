@@ -38,9 +38,8 @@ task javadocJar(type: Jar) {
 
 dependencies {
     pack project(':LauncherAuthlib')
-    pack 'org.bouncycastle:bcprov-jdk15:1.46'
-    pack 'org.apache.httpcomponents:httpclient:4.5.7'
-    pack 'io.netty:netty-codec-http:4.1.36.Final'
+    pack 'org.apache.httpcomponents:httpclient:4.5.10'
+    pack 'io.netty:netty-codec-http:4.1.43.Final'
 }
 
 shadowJar {
