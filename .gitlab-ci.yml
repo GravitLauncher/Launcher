@@ -11,7 +11,7 @@ stages:
   - test
 
 build:
-  image: java:11
+  image: gradle:jdk11
   stage: build
   before_script:
     - apt-get -y update
@@ -43,7 +43,7 @@ build:
       - artifacts
 
 test:
-  image: java:11
+  image: gradle:jdk11
   stage: test
   script:
     - ./gradlew check
