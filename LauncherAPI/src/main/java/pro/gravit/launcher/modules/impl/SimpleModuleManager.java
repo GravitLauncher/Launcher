@@ -26,6 +26,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
@@ -156,7 +157,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
             	throw new ClassNotFoundException("Invalid module class... Not contains LauncherModule in hierarchy.");
             LauncherModule module;
             try {
-            	module = (LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invoke();
+            	module = (LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invokeWithArguments(Collections.emptyList());
             } catch (Throwable e) {
             	throw (InstantiationException) new InstantiationException("Error on instancing...").initCause(e);
             }
