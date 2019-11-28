@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.binary;
 
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.asm.NodeUtils;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -13,11 +14,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ProguardConf {
     private static final String chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ";
 
+    public static final String[] JAVA9_OPTS = new String[] {
+    		"-libraryjars '<java.home>/jmods/'"
+    };
+    public static final String[] JAVA8_OPTS = new String[] {
+    		"-libraryjars '<java.home>/lib/rt.jar'",
+    		"-libraryjars '<java.home>/lib/jce.jar'",
+    		"-libraryjars '<java.home>/lib/ext/nashorn.jar'",
+    		"-libraryjars '<java.home>/lib/ext/jfxrt.jar'"
+    };
     private static String generateString(SecureRandom rand, String lowString, String upString, int il) {
         StringBuilder sb = new StringBuilder(Math.max(il, lowString.length()));
         for (int i = 0; i < lowString.length(); ++i) {
@@ -50,9 +61,11 @@ public class ProguardConf {
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add("-injar \'" + inputJar.toAbsolutePath() + "\'");
         confStrs.add("-outjar \'" + outputJar.toAbsolutePath() + "\'");
+    	Collections.addAll(confStrs, NodeUtils.JAVA9 ? JAVA9_OPTS : JAVA8_OPTS);
         srv.launcherBinary.coreLibs.stream()
                 .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
                 .forEach(confStrs::add);
+        
         srv.launcherBinary.addonLibs.stream()
                 .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
                 .forEach(confStrs::add);

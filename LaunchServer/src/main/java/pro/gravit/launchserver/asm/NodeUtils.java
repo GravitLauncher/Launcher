@@ -15,6 +15,17 @@ import java.util.List;
 import static org.objectweb.asm.Opcodes.*;
 
 public final class NodeUtils {
+	public static final boolean JAVA9;
+
+	static {
+		boolean java9 = false;
+		try {
+			Class.forName("java.lang.StackWalker");
+			java9 = true;
+		} catch (final Throwable e) {
+		}
+		JAVA9 = java9;
+	}
     private NodeUtils() {
     }
 
