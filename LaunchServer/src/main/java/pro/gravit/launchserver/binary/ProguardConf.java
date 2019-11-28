@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class ProguardConf {
-    private static final String chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ";
+    private static final char[] chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ".toCharArray();
 
     public static final String[] JAVA9_OPTS = new String[] {
     		"-libraryjars '<java.home>/jmods/'"
@@ -35,7 +35,7 @@ public class ProguardConf {
             sb.append(rand.nextBoolean() ? lowString.charAt(i) : upString.charAt(i));
         }
         int toI = il - lowString.length();
-        for (int i = 0; i < toI; i++) sb.append(chars.charAt(rand.nextInt(chars.length())));
+        for (int i = 0; i < toI; i++) sb.append(chars[rand.nextInt(chars.length)]);
         return sb.toString();
     }
 
