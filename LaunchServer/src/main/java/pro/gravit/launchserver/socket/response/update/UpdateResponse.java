@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.socket.response.update;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;

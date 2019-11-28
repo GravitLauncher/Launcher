@@ -70,7 +70,7 @@ public class ProguardConf {
                 .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
                 .forEach(confStrs::add);
         confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
-        confStrs.add(readConf());
+        confStrs.add("@".concat(config.toFile().getName()));
         return confStrs.toArray(new String[0]);
     }
 
@@ -101,9 +101,5 @@ public class ProguardConf {
         } catch (IOException e) {
             LogHelper.error(e);
         }
-    }
-
-    private String readConf() {
-        return "@".concat(config.toFile().getName());
     }
 }

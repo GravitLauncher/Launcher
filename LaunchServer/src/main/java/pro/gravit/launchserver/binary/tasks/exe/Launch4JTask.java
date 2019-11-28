@@ -4,7 +4,6 @@ import net.sf.launch4j.Builder;
 import net.sf.launch4j.Log;
 import net.sf.launch4j.config.*;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
 import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.IOHelper;

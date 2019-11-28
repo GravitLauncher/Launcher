@@ -1,7 +1,6 @@
 package pro.gravit.launcher.client;
 
 import pro.gravit.launcher.ClientLauncherWrapper;
-import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.managers.ClientHookManager;
