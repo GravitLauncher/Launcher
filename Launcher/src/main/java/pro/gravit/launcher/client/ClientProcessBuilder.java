@@ -109,14 +109,14 @@ public class ClientProcessBuilder {
         // Add classpath and main class
         String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         context.pathLauncher = pathLauncher;
-        Collections.addAll(context.args, ClientLauncherWrapper.MAGIC_ARG);
+        context.args.add(ClientLauncherWrapper.MAGIC_ARG);
         Collections.addAll(context.args, profile.getJvmArgs());
         profile.pushOptionalJvmArgs(context.args);
-        Collections.addAll(context.args, "-Djava.library.path=".concat(params.clientDir.resolve(nativesDir).toString())); // Add Native Path
-        Collections.addAll(context.args, "-javaagent:".concat(pathLauncher));
+        context.args.add("-Djava.library.path=".concat(params.clientDir.resolve(nativesDir).toString())); // Add Native Path
+        context.args.add("-javaagent:".concat(pathLauncher));
         ClientHookManager.clientLaunchHook.hook(context);
         LauncherGuardManager.guard.addCustomParams(context);
-        Collections.addAll(context.args, ClientLauncher.class.getName());
+        context.args.add(ClientLauncher.class.getName());
         ClientHookManager.clientLaunchFinallyHook.hook(context);
 
         // Print commandline debug message

@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,8 +61,8 @@ public class ClientLauncherWrapper {
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_OPTDIR_PROPERTY);
         if (!noJava9check && !System.getProperty("java.version").startsWith("1.8")) {
             LogHelper.debug("Found Java 9+ ( %s )", System.getProperty("java.version"));
-            Collections.addAll(args, "--add-modules");
-            Collections.addAll(args, "javafx.base,javafx.fxml,javafx.controls,jdk.unsupported");
+            args.add("--add-modules");
+            args.add("javafx.base,javafx.fxml,javafx.controls,jdk.unsupported");
             Path jvmDir = Paths.get(System.getProperty("java.home"));
             String pathToFx = System.getenv("PATH_TO_FX");
             Path fxPath = pathToFx == null ? null : Paths.get(pathToFx);
@@ -75,17 +74,17 @@ public class ClientLauncherWrapper {
             tryAddModule(findPath, "javafx.controls", builder);
             String modulePath = builder.toString();
             if (!modulePath.isEmpty()) {
-                Collections.addAll(args, "--module-path");
-                Collections.addAll(args, modulePath);
+                args.add("--module-path");
+                args.add(modulePath);
             }
         }
-        Collections.addAll(args, MAGIC_ARG);
-        Collections.addAll(args, "-XX:+DisableAttachMechanism");
-        Collections.addAll(args, "-Xmx256M");
+        args.add(MAGIC_ARG);
+        args.add("-XX:+DisableAttachMechanism");
+        args.add("-Xmx256M");
         //Collections.addAll(args, "-javaagent:".concat(pathLauncher));
-        Collections.addAll(args, "-cp");
-        Collections.addAll(args, pathLauncher);
-        Collections.addAll(args, LauncherEngine.class.getName());
+        args.add("-cp");
+        args.add(pathLauncher);
+        args.add(LauncherEngine.class.getName());
         LauncherEngine.modulesManager.callWrapper(processBuilder, args);
         EnvHelper.addEnv(processBuilder);
         LogHelper.debug("Commandline: " + args);
