@@ -28,14 +28,14 @@ public class UpdateResponse extends SimpleResponse {
             for (ClientProfile p : server.getProfiles()) {
                 if (!client.profile.getTitle().equals(p.getTitle())) continue;
                 if (!p.isWhitelistContains(client.username)) {
-                    service.sendObject(ctx, new ErrorRequestEvent("You don't download this folder"));
+                    sendError("You don't download this folder");
                     return;
                 }
             }
         }
         HashedDir dir = server.updatesDirMap.get(dirName);
         if (dir == null) {
-            service.sendObject(ctx, new ErrorRequestEvent(String.format("Directory %s not found", dirName)));
+            sendError(String.format("Directory %s not found", dirName));
             return;
         }
         String url = server.config.netty.downloadURL.replace("%dirname%", IOHelper.urlEncode(dirName));
@@ -45,6 +45,6 @@ public class UpdateResponse extends SimpleResponse {
             url = bind.url;
             zip = bind.zip;
         }
-        service.sendObject(ctx, new UpdateRequestEvent(dir, url, zip));
+        sendResult(new UpdateRequestEvent(dir, url, zip));
     }
 }
