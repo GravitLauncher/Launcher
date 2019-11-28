@@ -9,6 +9,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.jar.JarFile;
 
@@ -59,7 +60,7 @@ public final class StarterAgent {
 
     public static void premain(String agentArgument, Instrumentation inst) {
         StarterAgent.inst = inst;
-        libraries = Paths.get("libraries");
+        libraries = Paths.get(Optional.ofNullable(agentArgument).map(e -> e.trim()).filter(e -> !e.isEmpty()).orElse("libraries"));
         isStarted = true;
         try {
             Files.walkFileTree(libraries, Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new StarterVisitor());

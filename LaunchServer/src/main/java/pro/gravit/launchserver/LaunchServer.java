@@ -247,15 +247,22 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public static final Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
 
     public static class LaunchServerDirectories {
+    	public static final String UPDATES_NAME = "updates", PROFILES_NAME = "profiles",
+    			TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
+    			LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile";
         public Path updatesDir;
         public Path profilesDir;
+        public Path launcherLibrariesDir;
+        public Path launcherLibrariesCompileDir;
         public Path dir;
         public Path trustStore;
 
         public void collect() {
-            if (updatesDir == null) updatesDir = dir.resolve("updates");
-            if (profilesDir == null) profilesDir = dir.resolve("profiles");
-            if (trustStore == null) trustStore = dir.resolve("truststore");
+            if (updatesDir == null) updatesDir = dir.resolve(UPDATES_NAME);
+            if (profilesDir == null) profilesDir = dir.resolve(PROFILES_NAME);
+            if (trustStore == null) trustStore = dir.resolve(TRUSTSTORE_NAME);
+            if (launcherLibrariesDir == null) launcherLibrariesDir = dir.resolve(LAUNCHERLIBRARIES_NAME);
+            if (launcherLibrariesCompileDir == null) launcherLibrariesCompileDir = dir.resolve(LAUNCHERLIBRARIESCOMPILE_NAME);
         }
     }
 
@@ -273,8 +280,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.runtime = runtimeConfig;
         this.certificateManager = certificateManager;
         taskPool = new Timer("Timered task worker thread", true);
-        launcherLibraries = dir.resolve("launcher-libraries");
-        launcherLibrariesCompile = dir.resolve("launcher-libraries-compile");
+        launcherLibraries = directories.launcherLibrariesDir;
+        launcherLibrariesCompile = directories.launcherLibrariesCompileDir;
 
         config.setLaunchServer(this);
 

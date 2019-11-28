@@ -44,6 +44,7 @@ import java.security.interfaces.ECPublicKey;
 
 public class LaunchServerStarter {
     public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
+    public static final boolean inDocker = Boolean.getBoolean("launchserver.dockered");
 
     public static void main(String[] args) throws Exception {
         JVMHelper.checkStackTrace(LaunchServerStarter.class);
@@ -177,9 +178,15 @@ public class LaunchServerStarter {
                 }
             }
         };
-
+        LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
+        directories.dir = dir;
+        if (inDocker) {
+        	Path parentLibraries = StarterAgent.libraries.toAbsolutePath().normalize().getParent();
+        	directories.launcherLibrariesCompileDir = parentLibraries.resolve(LaunchServer.LaunchServerDirectories.LAUNCHERLIBRARIESCOMPILE_NAME);
+        	directories.launcherLibrariesDir = parentLibraries.resolve(LaunchServer.LaunchServerDirectories.LAUNCHERLIBRARIES_NAME);
+        }
         LaunchServer server = new LaunchServerBuilder()
-                .setDir(dir)
+                .setDirectories(directories)
                 .setEnv(env)
                 .setCommandHandler(localCommandHandler)
                 .setPrivateKey(privateKey)
