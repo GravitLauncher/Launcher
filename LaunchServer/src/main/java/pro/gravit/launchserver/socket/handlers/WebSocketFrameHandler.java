@@ -11,6 +11,7 @@ import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
@@ -25,6 +26,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     }
 
     private Client client;
+    private final UUID connectUUID = UUID.randomUUID();
 
     static {
     }
@@ -35,6 +37,10 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     public Client getClient() {
         return client;
+    }
+
+    public final UUID getConnectUUID() {
+        return connectUUID;
     }
 
     @Override
