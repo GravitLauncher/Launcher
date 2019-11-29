@@ -14,4 +14,6 @@ public abstract class RequestEvent implements WebSocketEvent {
      */
     @LauncherNetworkAPI
     public UUID requestUUID;
+
+    public static final UUID eventUUID = UUID.fromString("fac0e2bd-9820-4449-b191-1d7c9bf781be");
 }
