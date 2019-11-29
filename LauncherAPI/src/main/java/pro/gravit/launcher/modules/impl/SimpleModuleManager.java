@@ -144,7 +144,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
     @Override
     public LauncherModule loadModule(Path file) throws IOException {
         try (JarFile f = new JarFile(file.toFile())) {
-            String moduleClass = f.getManifest().getMainAttributes().getValue("Module-Main-Class");
+            String moduleClass = f.getManifest() != null ? f.getManifest().getMainAttributes().getValue("Module-Main-Class") : null;
             if (moduleClass == null) {
                 LogHelper.error("In module %s Module-Main-Class not found", file.toString());
                 return null;
