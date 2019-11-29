@@ -1,5 +1,6 @@
 package pro.gravit.launchserver.auth.provider;
 
+import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
@@ -11,6 +12,13 @@ public abstract class AuthProvider implements AutoCloseable {
     public static final ProviderMap<AuthProvider> providers = new ProviderMap<>("AuthProvider");
     private static boolean registredProv = false;
     protected transient LaunchServer srv = null;
+
+    public GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType getFirstAuthType() {
+        return GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType.PASSWORD;
+    }
+    public GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType getSecondAuthType() {
+        return GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType.NONE;
+    }
 
     public static AuthProviderResult authError(String message) throws AuthException {
         throw new AuthException(message);

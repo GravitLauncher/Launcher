@@ -19,7 +19,7 @@ public class GetAvailabilityAuthResponse extends SimpleResponse {
     public void execute(ChannelHandlerContext ctx, Client client) {
         List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>();
         for (AuthProviderPair pair : server.config.auth) {
-            list.add(new GetAvailabilityAuthRequestEvent.AuthAvailability(pair.name, pair.displayName));
+            list.add(new GetAvailabilityAuthRequestEvent.AuthAvailability(pair.name, pair.displayName, pair.provider.getFirstAuthType(), pair.provider.getSecondAuthType()));
         }
         sendResult(new GetAvailabilityAuthRequestEvent(list));
     }
