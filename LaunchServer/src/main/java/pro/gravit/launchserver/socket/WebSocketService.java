@@ -133,6 +133,14 @@ public class WebSocketService {
         ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)), ctx.voidPromise());
     }
 
+    public void sendObject(Channel channel, Object obj) {
+        channel.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class)), channel.voidPromise());
+    }
+
+    public void sendObject(Channel channel, Object obj, Type type) {
+        channel.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)), channel.voidPromise());
+    }
+
     public void sendObjectAll(Object obj) {
         for (Channel ch : channels) {
             ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class)), ch.voidPromise());
