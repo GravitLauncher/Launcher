@@ -7,6 +7,7 @@ import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
+import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.IOHelper;
 
 public class UpdateResponse extends SimpleResponse {
@@ -19,7 +20,7 @@ public class UpdateResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (!client.isAuth || client.type != Client.Type.USER || client.profile == null) {
+        if (!client.isAuth || client.type != AuthResponse.ConnectTypes.CLIENT || client.profile == null) {
             sendError("Access denied");
             return;
         }

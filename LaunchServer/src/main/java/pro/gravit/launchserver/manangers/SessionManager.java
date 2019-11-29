@@ -2,6 +2,7 @@ package pro.gravit.launchserver.manangers;
 
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.socket.Client;
+import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,7 +28,7 @@ public class SessionManager implements NeedGarbageCollection {
         long time = System.currentTimeMillis();
         clientSet.entrySet().removeIf(entry -> {
             Client c = entry.getValue();
-            return (c.timestamp + SESSION_TIMEOUT < time) && ((c.type == Client.Type.USER) || ((c.type == Client.Type.SERVER) && GARBAGE_SERVER));
+            return (c.timestamp + SESSION_TIMEOUT < time) && ((c.type == AuthResponse.ConnectTypes.CLIENT) || ((c.type == AuthResponse.ConnectTypes.SERVER) && GARBAGE_SERVER));
         });
     }
 

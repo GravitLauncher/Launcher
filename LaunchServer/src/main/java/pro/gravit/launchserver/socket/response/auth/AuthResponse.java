@@ -127,6 +127,7 @@ public class AuthResponse extends SimpleResponse {
                     LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
                 }
             }
+            clientData.type = authType;
             sendResult(result);
         } catch (AuthException | HWIDException | HookException e) {
             sendError(e.getMessage());
