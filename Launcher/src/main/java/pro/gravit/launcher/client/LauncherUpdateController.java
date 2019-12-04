@@ -22,60 +22,58 @@ public class LauncherUpdateController {
 
     public void postDiff(UpdateRequest request, UpdateRequestEvent e, HashedDir.Diff diff) throws IOException {
         if (e.zip && e.fullDownload) return;
-        if (SettingsManager.settings.featureStore) {
-            LogHelper.info("Enabled HStore feature. Find");
-            AtomicReference<NewLauncherSettings.HashedStoreEntry> lastEn = new AtomicReference<>(null);
-            //ArrayList<String> removed = new ArrayList<>();
-            diff.mismatch.walk(File.separator, (path, name, entry) -> {
-                if (entry.getType() == HashedEntry.Type.DIR) {
-                    Files.createDirectories(request.getDir().resolve(path));
-                    return HashedDir.WalkAction.CONTINUE;
-                }
-                HashedFile file = (HashedFile) entry;
-                //Первый экспериментальный способ - честно обходим все возможные Store
-                Path ret = null;
-                if (lastEn.get() == null) {
-                    for (NewLauncherSettings.HashedStoreEntry en : SettingsManager.settings.lastHDirs) {
-                        ret = tryFind(en, file);
-                        if (ret != null) {
-                            lastEn.set(en);
-                            break;
-                        }
-                    }
-                } else {
-                    ret = tryFind(lastEn.get(), file);
-                }
-                if (ret == null) {
-                    for (NewLauncherSettings.HashedStoreEntry en : SettingsManager.settings.lastHDirs) {
-                        ret = tryFind(en, file);
-                        if (ret != null) {
-                            lastEn.set(en);
-                            break;
-                        }
-                    }
-                }
-                if (ret != null) {
-                    //Еще раз проверим корректность хеша
-                    //Возможно эта проверка избыточна
-                    //if(file.isSame(ret, true))
-                    {
-                        Path source = request.getDir().resolve(path);
-                        if (LogHelper.isDebugEnabled()) {
-                            LogHelper.debug("Copy file %s to %s", ret.toAbsolutePath().toString(), source.toAbsolutePath().toString());
-                        }
-                        //Let's go!
-                        Files.deleteIfExists(source);
-                        Files.copy(ret, source);
-                        try (InputStream input = IOHelper.newInput(ret)) {
-                            IOHelper.transfer(input, source);
-                        }
-                        entry.flag = true;
-                        //removed.add(path.replace('\\', '/'));
-                    }
-                }
+        LogHelper.info("Enabled HStore feature. Find");
+        AtomicReference<NewLauncherSettings.HashedStoreEntry> lastEn = new AtomicReference<>(null);
+        //ArrayList<String> removed = new ArrayList<>();
+        diff.mismatch.walk(File.separator, (path, name, entry) -> {
+            if (entry.getType() == HashedEntry.Type.DIR) {
+                Files.createDirectories(request.getDir().resolve(path));
                 return HashedDir.WalkAction.CONTINUE;
-            });
-        }
+            }
+            HashedFile file = (HashedFile) entry;
+            //Первый экспериментальный способ - честно обходим все возможные Store
+            Path ret = null;
+            if (lastEn.get() == null) {
+                for (NewLauncherSettings.HashedStoreEntry en : SettingsManager.settings.lastHDirs) {
+                    ret = tryFind(en, file);
+                    if (ret != null) {
+                        lastEn.set(en);
+                        break;
+                    }
+                }
+            } else {
+                ret = tryFind(lastEn.get(), file);
+            }
+            if (ret == null) {
+                for (NewLauncherSettings.HashedStoreEntry en : SettingsManager.settings.lastHDirs) {
+                    ret = tryFind(en, file);
+                    if (ret != null) {
+                        lastEn.set(en);
+                        break;
+                    }
+                }
+            }
+            if (ret != null) {
+                //Еще раз проверим корректность хеша
+                //Возможно эта проверка избыточна
+                //if(file.isSame(ret, true))
+                {
+                    Path source = request.getDir().resolve(path);
+                    if (LogHelper.isDebugEnabled()) {
+                        LogHelper.debug("Copy file %s to %s", ret.toAbsolutePath().toString(), source.toAbsolutePath().toString());
+                    }
+                    //Let's go!
+                    Files.deleteIfExists(source);
+                    Files.copy(ret, source);
+                    try (InputStream input = IOHelper.newInput(ret)) {
+                        IOHelper.transfer(input, source);
+                    }
+                    entry.flag = true;
+                    //removed.add(path.replace('\\', '/'));
+                }
+            }
+            return HashedDir.WalkAction.CONTINUE;
+        });
     }
 
     public Path tryFind(NewLauncherSettings.HashedStoreEntry en, HashedFile file) throws IOException {
