@@ -1,7 +1,6 @@
 package pro.gravit.launcher.client;
 
 import pro.gravit.launcher.NewLauncherSettings;
-import pro.gravit.launcher.downloader.ListDownloader;
 import pro.gravit.launcher.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
@@ -17,21 +16,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+@Deprecated
+public class LauncherUpdateController {
 
-public class LauncherUpdateController implements UpdateRequest.UpdateController {
-    @Override
-    public void preUpdate(UpdateRequest request, UpdateRequestEvent e) {
-
-    }
-
-    @Override
-    public void preDiff(UpdateRequest request, UpdateRequestEvent e) {
-
-    }
-
-    @Override
     public void postDiff(UpdateRequest request, UpdateRequestEvent e, HashedDir.Diff diff) throws IOException {
         if (e.zip && e.fullDownload) return;
         if (SettingsManager.settings.featureStore) {
@@ -115,20 +103,5 @@ public class LauncherUpdateController implements UpdateRequest.UpdateController 
             return HashedDir.WalkAction.CONTINUE;
         });
         return ret.get();
-    }
-
-    @Override
-    public void preDownload(UpdateRequest request, UpdateRequestEvent e, List<ListDownloader.DownloadTask> adds) {
-
-    }
-
-    @Override
-    public void postDownload(UpdateRequest request, UpdateRequestEvent e) {
-
-    }
-
-    @Override
-    public void postUpdate(UpdateRequest request, UpdateRequestEvent e) {
-
     }
 }

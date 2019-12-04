@@ -158,7 +158,6 @@ public class LauncherEngine {
                 }
             };
         }
-        if (UpdateRequest.getController() == null) UpdateRequest.setController(new LauncherUpdateController());
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");
