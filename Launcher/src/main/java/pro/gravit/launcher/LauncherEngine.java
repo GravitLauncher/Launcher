@@ -166,8 +166,6 @@ public class LauncherEngine {
         LauncherEngine.modulesManager.invokeEvent(new ClientEngineInitPhase(this));
         runtimeProvider.preLoad();
         LauncherGuardManager.initGuard(false);
-        FunctionalBridge.getHWID = CommonHelper.newThread("GetHWID Thread", true, FunctionalBridge::getHWID);
-        FunctionalBridge.getHWID.start();
         LogHelper.debug("Dir: %s", DirBridge.dir);
         runtimeProvider.run(args);
     }
