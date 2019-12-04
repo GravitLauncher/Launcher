@@ -86,6 +86,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherAPI
     private int sortIndex;
     @LauncherAPI
+    private UUID uuid;
+    @LauncherAPI
     private String title;
     @LauncherAPI
     private String info;
@@ -384,9 +386,17 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.version = version.name;
     }
 
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
+
     @Override
     public String toString() {
         return title;
+    }
+
+    public UUID getUUID() {
+        return uuid;
     }
 
     @LauncherAPI
