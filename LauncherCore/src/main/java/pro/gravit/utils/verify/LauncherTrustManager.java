@@ -9,10 +9,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SignatureException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,5 +83,16 @@ public class LauncherTrustManager {
 
     public X509Certificate[] getTrusted() {
         return Arrays.copyOf(trustSigners, trustSigners.length); // AntiModify orig array!!!
+    }
+
+    public void isCertificateCodeSign(X509Certificate certificate)
+    {
+        if(!certificate.getKeyUsage()[0]) throw new SecurityException("Certificate keyUsage \"digitalSignature\" check failed");
+        List<String> extended;
+        try {
+            extended = certificate.getExtendedKeyUsage();
+        } catch (CertificateParsingException e) {
+            throw new SecurityException(e);
+        }
     }
 }
