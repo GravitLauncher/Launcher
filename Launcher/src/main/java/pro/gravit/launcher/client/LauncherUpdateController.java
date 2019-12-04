@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class LauncherUpdateController {
 
     public void postDiff(UpdateRequest request, UpdateRequestEvent e, HashedDir.Diff diff) throws IOException {
+        /*
         if (e.zip && e.fullDownload) return;
         LogHelper.info("Enabled HStore feature. Find");
         AtomicReference<NewLauncherSettings.HashedStoreEntry> lastEn = new AtomicReference<>(null);
@@ -74,6 +75,7 @@ public class LauncherUpdateController {
             }
             return HashedDir.WalkAction.CONTINUE;
         });
+        */
     }
 
     public Path tryFind(NewLauncherSettings.HashedStoreEntry en, HashedFile file) throws IOException {
