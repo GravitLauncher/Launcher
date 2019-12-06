@@ -7,12 +7,12 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
 
-import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -30,6 +30,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
     public static final String READ = "r";
     public static final int HTTP_CACHE_SECONDS = 60;
     private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
+    private static final boolean TYPE_PROBE = Boolean.parseBoolean(System.getProperty("launcher.fileserver.typeprobe", "true"));
     private final Path base;
     private final boolean fullOut;
     private final boolean showHiddenFiles;
@@ -269,7 +270,11 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
      * @param file     file to extract content type
      */
     private static void setContentTypeHeader(HttpResponse response, File file) {
-        MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, mimeTypesMap.getContentType(file.getPath()));
+    	if (TYPE_PROBE)
+    		try {
+    			response.headers().set(HttpHeaderNames.CONTENT_TYPE, Files.probeContentType(file.toPath()));
+    		} catch (Throwable e) {
+    			// ignore
+    		}
     }
 }
