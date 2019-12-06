@@ -88,7 +88,7 @@ public class ClientProcessBuilder {
         context.args.add(MAGICAL_INTEL_OPTION);
         context.params = params;
         if(paramsWriter != null) paramsWriter.write(context);
-        if (params.ram > 0 && params.ram <= FunctionalBridge.getJVMTotalMemory()) {
+        if (params.ram > 0) {
             context.args.add("-Xms" + params.ram + 'M');
             context.args.add("-Xmx" + params.ram + 'M');
         }

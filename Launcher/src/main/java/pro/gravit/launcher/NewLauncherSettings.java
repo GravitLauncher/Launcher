@@ -9,36 +9,9 @@ import java.util.*;
 
 public class NewLauncherSettings {
     @LauncherAPI
-    public String login;
-    @LauncherAPI
-    public String auth;
-    @LauncherAPI
-    public byte[] rsaPassword;
-    @LauncherAPI
-    public int profile;
-    @LauncherAPI
-    public transient Path updatesDir;
-    @LauncherAPI
-    public String updatesDirPath;
-    @LauncherAPI
-    public boolean autoEnter;
-    @LauncherAPI
-    public boolean debug;
-    @LauncherAPI
-    public boolean fullScreen;
-    @LauncherAPI
-    public boolean offline;
-    @LauncherAPI
-    public int ram;
-
-    @LauncherAPI
-    public byte[] lastDigest;
-    @LauncherAPI
-    public List<ClientProfile> lastProfiles = new LinkedList<>();
-    @LauncherAPI
     public Map<String, UserSettings> userSettings = new HashMap<>();
     @LauncherAPI
-    public boolean featureStore;
+    public List<String> features = new ArrayList<>();
     @LauncherAPI
     public String consoleUnlockKey;
 

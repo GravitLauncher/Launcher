@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.UUID;
 
 public final class DownloadClientCommand extends Command {
 
@@ -61,6 +62,7 @@ public final class DownloadClientCommand extends Command {
         }
         client.setTitle(dirName);
         client.setDir(dirName);
+        client.setUUID(UUID.randomUUID());
         try (BufferedWriter writer = IOHelper.newWriter(IOHelper.resolveIncremental(server.profilesDir,
                 dirName, "json"))) {
             Launcher.gsonManager.configGson.toJson(client, writer);

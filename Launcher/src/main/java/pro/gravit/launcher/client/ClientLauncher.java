@@ -10,6 +10,7 @@ import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hwid.HWIDProvider;
+import pro.gravit.launcher.hwid.OshiHWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
@@ -48,6 +49,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class ClientLauncher {
+
+    @LauncherAPI
+    public static int getClientJVMBits() {
+        return LauncherGuardManager.guard.getClientJVMBits();
+    }
+
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
         private final Stream.Builder<Path> result;
 
@@ -327,7 +334,7 @@ public final class ClientLauncher {
         context.playerProfile = params.pp;
         context.args.add(javaBin.toString());
         context.args.add(MAGICAL_INTEL_OPTION);
-        if (params.ram > 0 && params.ram <= FunctionalBridge.getJVMTotalMemory()) {
+        if (params.ram > 0) {
             context.args.add("-Xms" + params.ram + 'M');
             context.args.add("-Xmx" + params.ram + 'M');
         }

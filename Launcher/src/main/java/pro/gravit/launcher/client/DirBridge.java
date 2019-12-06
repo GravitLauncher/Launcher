@@ -106,6 +106,8 @@ public class DirBridge {
         try {
             DirBridge.dir = getLauncherDir(projectName);
             if (!IOHelper.exists(DirBridge.dir)) Files.createDirectories(DirBridge.dir);
+            DirBridge.defaultUpdatesDir = DirBridge.dir.resolve("updates");
+            if (!IOHelper.exists(DirBridge.defaultUpdatesDir)) Files.createDirectories(DirBridge.defaultUpdatesDir);
             DirBridge.dirStore = getStoreDir(projectName);
             if (!IOHelper.exists(DirBridge.dirStore)) Files.createDirectories(DirBridge.dirStore);
             DirBridge.dirProjectStore = getProjectStoreDir(projectName);

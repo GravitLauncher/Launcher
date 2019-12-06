@@ -42,8 +42,6 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
     @LauncherAPI
     @Override
     public NewLauncherSettings getConfig() {
-        if (settings.updatesDir != null)
-            settings.updatesDirPath = settings.updatesDir.toString();
         return settings;
     }
 
@@ -57,8 +55,6 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
     @Override
     public void setConfig(NewLauncherSettings config) {
         settings = config;
-        if (settings.updatesDirPath != null)
-            settings.updatesDir = Paths.get(settings.updatesDirPath);
         if (settings.consoleUnlockKey != null && !ConsoleManager.isConsoleUnlock) {
             if (ConsoleManager.checkUnlockKey(settings.consoleUnlockKey)) {
                 ConsoleManager.unlock();

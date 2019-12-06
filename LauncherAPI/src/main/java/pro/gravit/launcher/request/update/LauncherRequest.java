@@ -3,7 +3,6 @@ package pro.gravit.launcher.request.update;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
-import pro.gravit.launcher.downloader.ListDownloader;
 import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
@@ -15,6 +14,8 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -60,9 +61,13 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
                 IOHelper.transfer(BINARY_PATH, stream);
             }*/
             try {
-                ListDownloader downloader = new ListDownloader();
                 Files.deleteIfExists(C_BINARY_PATH);
-                downloader.downloadOne(result.url, C_BINARY_PATH);
+                URL url = new URL(result.url);
+                URLConnection connection = url.openConnection();
+                try(InputStream in = connection.getInputStream())
+                {
+                    IOHelper.transfer(in, C_BINARY_PATH);
+                }
                 try (InputStream in = IOHelper.newInput(C_BINARY_PATH)) {
                     IOHelper.transfer(in, BINARY_PATH);
                 }
