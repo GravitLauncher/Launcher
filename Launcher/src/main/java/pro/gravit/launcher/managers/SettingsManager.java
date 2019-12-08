@@ -1,6 +1,5 @@
 package pro.gravit.launcher.managers;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.NewLauncherSettings;
 import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.launcher.config.JsonConfigurable;
@@ -32,26 +31,26 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
 
     }
 
-    @LauncherAPI
+
     public static NewLauncherSettings settings;
 
     public SettingsManager() {
         super(NewLauncherSettings.class, DirBridge.dir.resolve("settings.json"));
     }
 
-    @LauncherAPI
+
     @Override
     public NewLauncherSettings getConfig() {
         return settings;
     }
 
-    @LauncherAPI
+
     @Override
     public NewLauncherSettings getDefaultConfig() {
         return new NewLauncherSettings();
     }
 
-    @LauncherAPI
+
     @Override
     public void setConfig(NewLauncherSettings config) {
         settings = config;
@@ -63,13 +62,13 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         }
     }
 
-    @LauncherAPI
+
     public void loadHDirStore(Path storePath) throws IOException {
         Files.createDirectories(storePath);
         IOHelper.walk(storePath, new StoreFileVisitor(), false);
     }
 
-    @LauncherAPI
+
     public void saveHDirStore(Path storeProjectPath) throws IOException {
         Files.createDirectories(storeProjectPath);
         for (NewLauncherSettings.HashedStoreEntry e : settings.lastHDirs) {
@@ -84,12 +83,12 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         }
     }
 
-    @LauncherAPI
+
     public void loadHDirStore() throws IOException {
         loadHDirStore(DirBridge.dirStore);
     }
 
-    @LauncherAPI
+
     public void saveHDirStore() throws IOException {
         saveHDirStore(DirBridge.dirProjectStore);
     }

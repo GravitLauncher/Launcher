@@ -8,17 +8,17 @@ import java.util.StringJoiner;
 
 public class ClientPermissions {
     public static final ClientPermissions DEFAULT = new ClientPermissions();
-    @LauncherAPI
+    @LauncherNetworkAPI
     public boolean canAdmin;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public boolean canServer;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public final boolean canUSR1;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public final boolean canUSR2;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public final boolean canUSR3;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public boolean canBot;
 
     public ClientPermissions(HInput input) throws IOException {
@@ -43,7 +43,7 @@ public class ClientPermissions {
         canBot = (data & (1 << 5)) != 0;
     }
 
-    @LauncherAPI
+
     public long toLong() {
         long result = 0;
         result |= !canAdmin ? 0 : 1;

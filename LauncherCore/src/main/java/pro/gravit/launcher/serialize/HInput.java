@@ -1,6 +1,5 @@
 package pro.gravit.launcher.serialize;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.ByteArrayInputStream;
@@ -12,15 +11,15 @@ import java.util.Objects;
 import java.util.UUID;
 
 public final class HInput implements AutoCloseable {
-    @LauncherAPI
+
     public final InputStream stream;
 
-    @LauncherAPI
+
     public HInput(byte[] bytes) {
         stream = new ByteArrayInputStream(bytes);
     }
 
-    @LauncherAPI
+
     public HInput(InputStream stream) {
         this.stream = Objects.requireNonNull(stream, "stream");
     }
@@ -30,17 +29,17 @@ public final class HInput implements AutoCloseable {
         stream.close();
     }
 
-    @LauncherAPI
+
     public String readASCII(int maxBytes) throws IOException {
         return IOHelper.decodeASCII(readByteArray(maxBytes));
     }
 
-    @LauncherAPI
+
     public BigInteger readBigInteger(int maxBytes) throws IOException {
         return new BigInteger(readByteArray(maxBytes));
     }
 
-    @LauncherAPI
+
     public boolean readBoolean() throws IOException {
         int b = readUnsignedByte();
         switch (b) {
@@ -53,41 +52,41 @@ public final class HInput implements AutoCloseable {
         }
     }
 
-    @LauncherAPI
+
     public byte[] readByteArray(int max) throws IOException {
         byte[] bytes = new byte[readLength(max)];
         IOHelper.read(stream, bytes);
         return bytes;
     }
 
-    @LauncherAPI
+
     public int readInt() throws IOException {
         return (readUnsignedByte() << 24) + (readUnsignedByte() << 16) + (readUnsignedByte() << 8) + readUnsignedByte();
     }
 
-    @LauncherAPI
+
     public int readLength(int max) throws IOException {
         if (max < 0)
             return -max;
         return IOHelper.verifyLength(readVarInt(), max);
     }
 
-    @LauncherAPI
+
     public long readLong() throws IOException {
         return (long) readInt() << 32 | readInt() & 0xFFFFFFFFL;
     }
 
-    @LauncherAPI
+
     public short readShort() throws IOException {
         return (short) ((readUnsignedByte() << 8) + readUnsignedByte());
     }
 
-    @LauncherAPI
+
     public String readString(int maxBytes) throws IOException {
         return IOHelper.decode(readByteArray(maxBytes));
     }
 
-    @LauncherAPI
+
     public int readUnsignedByte() throws IOException {
         int b = stream.read();
         if (b < 0)
@@ -95,17 +94,17 @@ public final class HInput implements AutoCloseable {
         return b;
     }
 
-    @LauncherAPI
+
     public int readUnsignedShort() throws IOException {
         return Short.toUnsignedInt(readShort());
     }
 
-    @LauncherAPI
+
     public UUID readUUID() throws IOException {
         return new UUID(readLong(), readLong());
     }
 
-    @LauncherAPI
+
     public int readVarInt() throws IOException {
         int shift = 0;
         int result = 0;
@@ -119,7 +118,7 @@ public final class HInput implements AutoCloseable {
         throw new IOException("VarInt too big");
     }
 
-    @LauncherAPI
+
     public long readVarLong() throws IOException {
         int shift = 0;
         long result = 0;

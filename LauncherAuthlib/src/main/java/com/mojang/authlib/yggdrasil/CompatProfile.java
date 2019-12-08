@@ -1,13 +1,12 @@
 package com.mojang.authlib.yggdrasil;
 
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.util.UUID;
 
-@LauncherAPI
+
 public class CompatProfile {
     public static final String SKIN_URL_PROPERTY = Launcher.SKIN_URL_PROPERTY;
     public static final String SKIN_DIGEST_PROPERTY = Launcher.SKIN_DIGEST_PROPERTY;

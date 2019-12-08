@@ -1,7 +1,6 @@
 package pro.gravit.utils.helper;
 
 import com.google.gson.*;
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.utils.command.CommandException;
 
 import javax.script.ScriptEngine;
@@ -16,9 +15,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class CommonHelper {
-    @LauncherAPI
+
     public static final ScriptEngineManager scriptManager = new ScriptEngineManager();
-    @LauncherAPI
+
     public static final ScriptEngineFactory nashornFactory = getEngineFactories(scriptManager);
 
     private static ScriptEngineFactory getEngineFactories(ScriptEngineManager manager) {
@@ -28,19 +27,19 @@ public final class CommonHelper {
         return null;
     }
 
-    @LauncherAPI
+
     public static String low(String s) {
         return s.toLowerCase(Locale.US);
     }
 
-    @LauncherAPI
+
     public static boolean multiMatches(Pattern[] pattern, String from) {
         for (Pattern p : pattern)
             if (p.matcher(from).matches()) return true;
         return false;
     }
 
-    @LauncherAPI
+
     public static String multiReplace(Pattern[] pattern, String from, String replace) {
         Matcher m;
         String tmp = null;
@@ -51,12 +50,12 @@ public final class CommonHelper {
         return tmp != null ? tmp : from;
     }
 
-    @LauncherAPI
+
     public static ScriptEngine newScriptEngine() {
         return nashornFactory.getScriptEngine();
     }
 
-    @LauncherAPI
+
     public static Thread newThread(String name, boolean daemon, Runnable runnable) {
         Thread thread = new Thread(runnable);
         thread.setDaemon(daemon);
@@ -65,7 +64,7 @@ public final class CommonHelper {
         return thread;
     }
 
-    @LauncherAPI
+
     public static String replace(String source, String... params) {
         for (int i = 0; i < params.length; i += 2)
             source = source.replace('%' + params[i] + '%', params[i + 1]);
@@ -124,7 +123,7 @@ public final class CommonHelper {
         return result.toArray(new String[0]);
     }
 
-    @LauncherAPI
+
     public static GsonBuilder newBuilder() {
         return new GsonBuilder().registerTypeHierarchyAdapter(byte[].class,
                 ByteArrayToBase64TypeAdapter.INSTANCE);

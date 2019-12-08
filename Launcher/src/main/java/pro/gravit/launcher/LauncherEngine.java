@@ -126,7 +126,7 @@ public class LauncherEngine {
     }
 
 
-    @LauncherAPI
+
     public void start(String... args) throws Throwable {
         //Launcher.modulesManager = new ClientModuleManager(this);
         ClientPreGuiPhase event = new ClientPreGuiPhase(null);

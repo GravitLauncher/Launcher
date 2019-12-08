@@ -49,7 +49,7 @@ import java.util.stream.Stream;
 
 public final class ClientLauncher {
 
-    @LauncherAPI
+
     public static int getClientJVMBits() {
         return LauncherGuardManager.guard.getClientJVMBits();
     }
@@ -71,30 +71,30 @@ public final class ClientLauncher {
 
     public static final class Params extends StreamObject {
         // Client paths
-        @LauncherAPI
+
         public final Path assetDir;
-        @LauncherAPI
+
         public final Path clientDir;
 
         // Client params
-        @LauncherAPI
+
         public final PlayerProfile pp;
-        @LauncherAPI
+
         public final String accessToken;
-        @LauncherAPI
+
         public final boolean autoEnter;
-        @LauncherAPI
+
         public final boolean fullScreen;
-        @LauncherAPI
+
         public final int ram;
-        @LauncherAPI
+
         public final int width;
-        @LauncherAPI
+
         public final int height;
-        @LauncherAPI
+
         public final long session;
 
-        @LauncherAPI
+
         public Params(byte[] launcherDigest, Path assetDir, Path clientDir, PlayerProfile pp, String accessToken,
                       boolean autoEnter, boolean fullScreen, int ram, int width, int height) {
             // Client paths
@@ -111,7 +111,7 @@ public final class ClientLauncher {
             this.session = Request.getSession();
         }
 
-        @LauncherAPI
+
         public Params(HInput input) throws Exception {
             session = input.readLong();
             // Client paths
@@ -165,13 +165,13 @@ public final class ClientLauncher {
     private static ClientClassLoader classLoader;
 
     public static class ClientUserProperties {
-        @LauncherAPI
+
         String[] skinURL;
-        @LauncherAPI
+
         String[] skinDigest;
-        @LauncherAPI
+
         String[] cloakURL;
-        @LauncherAPI
+
         String[] cloakDigest;
     }
 
@@ -233,7 +233,7 @@ public final class ClientLauncher {
         }
     }
 
-    @LauncherAPI
+
     public static void setJavaBinPath(Path javaBinPath) {
         JavaBinPath = javaBinPath;
     }
@@ -248,7 +248,7 @@ public final class ClientLauncher {
         Collections.addAll(args, "--assetsDir", params.assetDir.toString());
     }
 
-    @LauncherAPI
+
     public static void checkJVMBitsAndVersion() {
         if (JVMHelper.JVM_BITS != JVMHelper.OS_BITS) {
             String error = String.format("У Вас установлена Java %d, но Ваша система определена как %d. Установите Java правильной разрядности", JVMHelper.JVM_BITS, JVMHelper.OS_BITS);
@@ -266,7 +266,7 @@ public final class ClientLauncher {
         }
     }
 
-    @LauncherAPI
+
     public static boolean isLaunched() {
         return Launcher.LAUNCHED.get();
     }
@@ -321,7 +321,7 @@ public final class ClientLauncher {
 
     public static PlayerProfile playerProfile;
 
-    @LauncherAPI
+
     public static Process launch(
             HashedDir assetHDir, HashedDir clientHDir,
             ClientProfile profile, Params params, boolean pipeOutput) throws Throwable {
@@ -432,7 +432,7 @@ public final class ClientLauncher {
         }
     }
 
-    @LauncherAPI
+
     public static void main(String... args) throws Throwable {
         LauncherEngine.IS_CLIENT.set(true);
         LauncherEngine engine = LauncherEngine.clientInstance();
@@ -570,7 +570,7 @@ public final class ClientLauncher {
         Launcher.gsonManager.initGson();
     }
 
-    @LauncherAPI
+
     public static void setProfile(ClientProfile profile) {
         Launcher.profile = profile;
         LogHelper.debug("New Profile name: %s", profile.getTitle());

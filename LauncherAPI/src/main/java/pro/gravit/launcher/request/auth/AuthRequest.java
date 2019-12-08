@@ -1,6 +1,5 @@
 package pro.gravit.launcher.request.auth;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.hwid.HWID;
@@ -46,7 +45,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         PROXY
     }
 
-    @LauncherAPI
+
     public AuthRequest(String login, byte[] password, HWID hwid) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.password = new AuthECPassword(password.clone());
@@ -57,7 +56,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         authType = ConnectTypes.CLIENT;
     }
 
-    @LauncherAPI
+
     public AuthRequest(String login, byte[] password, HWID hwid, String auth_id) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.password = new AuthECPassword(password.clone());
@@ -68,7 +67,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         authType = ConnectTypes.CLIENT;
     }
 
-    @LauncherAPI
+
     public AuthRequest(String login, byte[] password, HWID hwid, String customText, String auth_id) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.password = new AuthECPassword(password.clone());

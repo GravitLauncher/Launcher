@@ -1,6 +1,5 @@
 package pro.gravit.launcher.hasher;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
@@ -17,23 +16,23 @@ public final class HashedFile extends HashedEntry {
     public static final DigestAlgorithm DIGEST_ALGO = DigestAlgorithm.MD5;
 
     // Instance
-    @LauncherAPI
+
     public final long size;
     @LauncherNetworkAPI
     private final byte[] digest;
 
-    @LauncherAPI
+
     public HashedFile(HInput input) throws IOException {
         this(input.readVarLong(), input.readBoolean() ? input.readByteArray(-DIGEST_ALGO.bytes) : null);
     }
 
-    @LauncherAPI
+
     public HashedFile(long size, byte[] digest) {
         this.size = VerifyHelper.verifyLong(size, VerifyHelper.L_NOT_NEGATIVE, "Illegal size: " + size);
         this.digest = digest == null ? null : DIGEST_ALGO.verify(digest).clone();
     }
 
-    @LauncherAPI
+
     public HashedFile(Path file, long size, boolean digest) throws IOException {
         this(size, digest ? SecurityHelper.digest(DIGEST_ALGO, file) : null);
     }
@@ -43,12 +42,12 @@ public final class HashedFile extends HashedEntry {
         return Type.FILE;
     }
 
-    @LauncherAPI
+
     public boolean isSame(HashedFile o) {
         return size == o.size && (digest == null || o.digest == null || Arrays.equals(digest, o.digest));
     }
 
-    @LauncherAPI
+
     public boolean isSame(Path file, boolean digest) throws IOException {
         if (size != IOHelper.readAttributes(file).size())
             return false;
@@ -60,7 +59,7 @@ public final class HashedFile extends HashedEntry {
         return Arrays.equals(this.digest, actualDigest);
     }
 
-    @LauncherAPI
+
     public boolean isSameDigest(byte[] digest) {
         return this.digest == null || digest == null || Arrays.equals(this.digest, digest);
     }

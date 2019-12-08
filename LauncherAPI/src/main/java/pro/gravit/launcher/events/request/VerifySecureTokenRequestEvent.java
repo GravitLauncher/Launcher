@@ -1,10 +1,10 @@
 package pro.gravit.launcher.events.request;
 
-import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.RequestEvent;
 
 public class VerifySecureTokenRequestEvent extends RequestEvent {
-    @LauncherAPI
+    @LauncherNetworkAPI
     public final boolean success;
 
     @Override

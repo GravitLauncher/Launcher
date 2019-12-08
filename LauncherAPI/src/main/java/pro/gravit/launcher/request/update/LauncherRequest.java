@@ -1,7 +1,6 @@
 package pro.gravit.launcher.request.update;
 
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.launcher.request.Request;
@@ -30,16 +29,16 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     public final String secureSalt;
     @LauncherNetworkAPI
     public int launcher_type = EXE_BINARY ? 2 : 1;
-    @LauncherAPI
+
     public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
 
-    @LauncherAPI
+
     public static final Path C_BINARY_PATH = BINARY_PATH.getParent().resolve(IOHelper.getFileName(BINARY_PATH) + ".tmp");
 
-    @LauncherAPI
+
     public static final boolean EXE_BINARY = IOHelper.hasExtension(BINARY_PATH, "exe");
 
-    @LauncherAPI
+
     public static void update(LauncherRequestEvent result) throws IOException {
         List<String> args = new ArrayList<>(8);
         args.add(IOHelper.resolveJavaBin(null).toString());
@@ -90,7 +89,6 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
         return result;
     }
 
-    @LauncherAPI
     public LauncherRequest() {
         Path launcherPath = IOHelper.getCodeSource(LauncherRequest.class);
         try {

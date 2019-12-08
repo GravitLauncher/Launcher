@@ -1,6 +1,5 @@
 package pro.gravit.launcher.request.uuid;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.BatchProfileByUsernameRequestEvent;
 import pro.gravit.launcher.request.Request;
@@ -22,7 +21,7 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
     @LauncherNetworkAPI
     private final Entry[] list;
 
-    @LauncherAPI
+
     public BatchProfileByUsernameRequest(String... usernames) throws IOException {
         this.list = new Entry[usernames.length];
         for (int i = 0; i < usernames.length; ++i) {

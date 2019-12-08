@@ -1,22 +1,22 @@
 package pro.gravit.launcher.hwid;
 
 import com.google.gson.Gson;
-import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherNetworkAPI;
 
 import java.util.Objects;
 import java.util.StringJoiner;
 
 public class OshiHWID implements HWID {
     public static Gson gson = new Gson();
-    @LauncherAPI
+    @LauncherNetworkAPI
     public long totalMemory = 0;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public String serialNumber;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public String HWDiskSerial;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public String processorID;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public String macAddr;
 
     @Override

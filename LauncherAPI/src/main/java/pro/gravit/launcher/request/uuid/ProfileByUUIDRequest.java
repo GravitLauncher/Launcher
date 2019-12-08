@@ -1,6 +1,5 @@
 package pro.gravit.launcher.request.uuid;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
 import pro.gravit.launcher.request.Request;
@@ -13,7 +12,7 @@ public final class ProfileByUUIDRequest extends Request<ProfileByUUIDRequestEven
     @LauncherNetworkAPI
     private final UUID uuid;
 
-    @LauncherAPI
+
     public ProfileByUUIDRequest(UUID uuid) {
         this.uuid = Objects.requireNonNull(uuid, "uuid");
     }

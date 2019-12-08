@@ -24,16 +24,16 @@ public final class LauncherConfig extends StreamObject {
 
     // Instance
     public String address;
-    @LauncherAPI
+
     public final String projectName;
     public final int clientPort;
     public String secretKeyClient;
     public String oemUnlockKey;
     public final LauncherTrustManager trustManager;
-    @LauncherAPI
+
     public final ECPublicKey publicKey;
 
-    @LauncherAPI
+
     public final Map<String, byte[]> runtime;
     public final boolean isWarningMissArchJava;
     public boolean isNettyEnabled;
@@ -45,7 +45,7 @@ public final class LauncherConfig extends StreamObject {
     public final String secureCheckSalt;
     public final String passwordEncryptKey;
 
-    @LauncherAPI
+
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
         publicKey = SecurityHelper.toPublicECKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
         secureCheckHash = config.secureCheckHash;
@@ -84,7 +84,7 @@ public final class LauncherConfig extends StreamObject {
         runtime = Collections.unmodifiableMap(localResources);
     }
 
-    @LauncherAPI
+
     public LauncherConfig(String address, ECPublicKey publicKey, Map<String, byte[]> runtime, String projectName) {
         this.address = address;
         this.publicKey = publicKey;

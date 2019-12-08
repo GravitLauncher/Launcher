@@ -1,6 +1,5 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 
