@@ -1,6 +1,8 @@
 package pro.gravit.utils;
 
 import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -66,7 +68,25 @@ public class PublicURLClassLoader extends URLClassLoader {
 
     @Override
     public String findLibrary(String name) {
-        return nativePath.concat(name);
+        return nativePath.concat(IOHelper.PLATFORM_SEPARATOR).concat(getNativePrefix()).concat(name).concat(getNativeEx());
+    }
+    public String getNativeEx()
+    {
+        if(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
+            return ".dll";
+        else if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
+            return ".so";
+        else if(JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX)
+            return ".dylib";
+        return "";
+    }
+    public String getNativePrefix()
+    {
+        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
+            return "lib";
+        else if(JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX)
+            return "lib";
+        return "";
     }
 
     @Override

@@ -292,6 +292,10 @@ public final class ClientLauncher {
         LogHelper.debug("Args: " + copy);
         // Resolve main class and method
         Class<?> mainClass = classLoader.loadClass(profile.getMainClass());
+        for(URL u : classLoader.getURLs())
+        {
+            LogHelper.info("ClassLoader URL: %s", u.toString());
+        }
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
@@ -468,12 +472,12 @@ public final class ClientLauncher {
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
         for (Path classpathURL : classPath) {
-            LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
+            //LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
         }
         profile.pushOptionalClassPath(cp -> {
             LinkedList<Path> optionalClassPath = resolveClassPathList(params.clientDir, cp);
             for (Path classpathURL : optionalClassPath) {
-                LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
+                //LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
             }
         });
         URL[] classpathurls = resolveClassPath(params.clientDir, profile.getClassPath());
@@ -507,6 +511,8 @@ public final class ClientLauncher {
         AuthService.uuid = params.pp.uuid;
         ClientService.instrumentation = LauncherAgent.inst;
         ClientService.classLoader = classLoader;
+        classLoader.addURL(IOHelper.getCodeSource(ClientLauncher.class).toUri().toURL());
+        //classForName(classLoader, "com.google.common.collect.ForwardingMultimap");
         ClientService.baseURLs = classpathurls;
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
@@ -530,6 +536,13 @@ public final class ClientLauncher {
             verifyHDir(params.clientDir, clientHDir, clientMatcher, digest);
             LauncherEngine.modulesManager.invokeEvent(new ClientLaunchPhase(context));
             launch(profile, params);
+        }
+    }
+    public static void classForName(ClassLoader loader, String name)
+    {
+        try {
+            Class.forName(name, false, loader);
+        } catch (ClassNotFoundException ignored) {
         }
     }
 

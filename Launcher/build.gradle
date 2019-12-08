@@ -53,7 +53,7 @@ shadowJar {
 }
 
 dependencies {
-    pack project(':LauncherAuthlib')
+    pack project(':LauncherAPI')
     bundle 'com.github.oshi:oshi-core:3.13.0'
     pack 'io.netty:netty-codec-http:4.1.43.Final'
     pack 'org.ow2.asm:asm-tree:7.1'
