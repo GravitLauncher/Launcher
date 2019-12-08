@@ -10,7 +10,6 @@ import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hwid.HWIDProvider;
-import pro.gravit.launcher.hwid.OshiHWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
@@ -163,7 +162,7 @@ public final class ClientLauncher {
     // Constants
     private static final Path NATIVES_DIR = IOHelper.toPath("natives");
     private static final Path RESOURCEPACKS_DIR = IOHelper.toPath("resourcepacks");
-    private static PublicURLClassLoader classLoader;
+    private static ClientClassLoader classLoader;
 
     public static class ClientUserProperties {
         @LauncherAPI
@@ -481,10 +480,9 @@ public final class ClientLauncher {
             }
         });
         URL[] classpathurls = resolveClassPath(params.clientDir, profile.getClassPath());
-        classLoader = new PublicURLClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
+        classLoader = new ClientClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
         classLoader.nativePath = params.clientDir.resolve(NATIVES_DIR).toString();
-        PublicURLClassLoader.systemclassloader = classLoader;
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
         LogHelper.debug("Restore sessions");

@@ -7,7 +7,6 @@ import pro.gravit.launcher.request.auth.JoinServerRequest;
 import pro.gravit.launcher.request.uuid.BatchProfileByUsernameRequest;
 import pro.gravit.launcher.request.uuid.ProfileByUUIDRequest;
 import pro.gravit.launcher.request.uuid.ProfileByUsernameRequest;
-import pro.gravit.launcher.serialize.SerializeLimits;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.util.UUID;
@@ -15,7 +14,7 @@ import java.util.UUID;
 // Used to bypass Launcher's class name obfuscation and access API
 @LauncherAPI
 public class CompatBridge {
-    public static final int PROFILES_MAX_BATCH_SIZE = SerializeLimits.MAX_BATCH_SIZE;
+    public static final int PROFILES_MAX_BATCH_SIZE = 128;
 
     public static CompatProfile checkServer(String username, String serverID) throws Exception {
         LogHelper.debug("CompatBridge.checkServer, Username: '%s', Server ID: %s", username, serverID);
