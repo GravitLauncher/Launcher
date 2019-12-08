@@ -24,7 +24,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.verify.LauncherTrustManager;
+import pro.gravit.launcher.LauncherTrustManager;
 
 import java.io.*;
 import java.math.BigInteger;

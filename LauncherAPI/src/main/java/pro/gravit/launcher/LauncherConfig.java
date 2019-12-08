@@ -5,7 +5,6 @@ import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
-import pro.gravit.utils.verify.LauncherTrustManager;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;

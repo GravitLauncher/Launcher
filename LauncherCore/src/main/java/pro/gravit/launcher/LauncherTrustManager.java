@@ -1,4 +1,4 @@
-package pro.gravit.utils.verify;
+package pro.gravit.launcher;
 
 import pro.gravit.utils.helper.LogHelper;
 

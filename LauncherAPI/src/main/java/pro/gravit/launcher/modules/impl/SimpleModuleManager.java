@@ -7,7 +7,7 @@ import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.verify.LauncherTrustManager;
+import pro.gravit.launcher.LauncherTrustManager;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -169,11 +169,16 @@ public class SimpleModuleManager implements LauncherModulesManager {
             return null;
         }
     }
-
+    //JVMHelper.getCertificates
+    private static X509Certificate[] getCertificates(Class<?> clazz) {
+        Object[] signers = clazz.getSigners();
+        if (signers == null) return null;
+        return Arrays.stream(signers).filter((c) -> c instanceof X509Certificate).map((c) -> (X509Certificate) c).toArray(X509Certificate[]::new);
+    }
 
     public void checkModuleClass(Class<? extends LauncherModule> clazz, LauncherTrustManager.CheckMode mode) throws SecurityException {
         if (trustManager == null) return;
-        X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
+        X509Certificate[] certificates = getCertificates(clazz);
         if (certificates == null) {
             if (mode == LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED)
                 throw new SecurityException(String.format("Class %s not signed", clazz.getName()));

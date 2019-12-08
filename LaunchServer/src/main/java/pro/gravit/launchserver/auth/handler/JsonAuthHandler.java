@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.auth.handler;
 
 import pro.gravit.launcher.Launcher;
-import pro.gravit.utils.HTTPRequest;
+import pro.gravit.launcher.HTTPRequest;
 
 import java.io.IOException;
 import java.net.URL;

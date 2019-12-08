@@ -1,4 +1,4 @@
-package pro.gravit.utils;
+package pro.gravit.launcher;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -16,25 +16,6 @@ import java.nio.charset.StandardCharsets;
 public final class HTTPRequest {
     private static final int TIMEOUT = 10000;
     private static final JsonParser parser = new JsonParser();
-
-    public static int sendCrashreport(String strurl, byte[] data) throws IOException {
-        URL url = new URL(strurl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type",
-                "application/x-www-form-urlencoded");
-        connection.setRequestProperty("Content-Length",
-                Integer.toString(data.length));
-        connection.setRequestProperty("Content-Language", "en-US");
-        OutputStream outputStream = connection.getOutputStream();
-        outputStream.write(data);
-        outputStream.close();
-        return connection.getResponseCode();
-    }
-
-    public static int sendCrashreport(String strurl, String data) throws IOException {
-        return sendCrashreport(strurl, data.getBytes(IOHelper.UNICODE_CHARSET));
-    }
 
     public static JsonElement jsonRequest(JsonElement request, URL url) throws IOException {
         return jsonRequest(request, "POST", url);

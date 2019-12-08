@@ -6,7 +6,7 @@ import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.auth.AuthException;
-import pro.gravit.utils.HTTPRequest;
+import pro.gravit.launcher.HTTPRequest;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;

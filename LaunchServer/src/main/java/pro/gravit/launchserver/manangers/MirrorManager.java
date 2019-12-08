@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.manangers;
 
 import com.google.gson.JsonElement;
-import pro.gravit.utils.HTTPRequest;
+import pro.gravit.launcher.HTTPRequest;
 import pro.gravit.utils.HttpDownloader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;

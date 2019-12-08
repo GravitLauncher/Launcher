@@ -14,10 +14,8 @@ import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.RestoreSessionRequest;
-import pro.gravit.launcher.request.update.UpdateRequest;
 import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
 import pro.gravit.utils.helper.*;
-import pro.gravit.utils.verify.LauncherTrustManager;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -27,16 +25,24 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LauncherEngine {
+    //JVMHelper.getCertificates
+    public static X509Certificate[] getCertificates(Class<?> clazz) {
+        Object[] signers = clazz.getSigners();
+        if (signers == null) return null;
+        return Arrays.stream(signers).filter((c) -> c instanceof X509Certificate).map((c) -> (X509Certificate) c).toArray(X509Certificate[]::new);
+    }
+
     public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
 
     public static void checkClass(Class<?> clazz) throws SecurityException {
         LauncherTrustManager trustManager = Launcher.getConfig().trustManager;
         if (trustManager == null) return;
-        X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
+        X509Certificate[] certificates = getCertificates(clazz);
         if (certificates == null) {
             throw new SecurityException(String.format("Class %s not signed", clazz.getName()));
         }
@@ -54,7 +60,7 @@ public class LauncherEngine {
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
         //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
-        JVMHelper.verifyNoAgent();
+        verifyNoAgent();
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
         LauncherEngine.checkClass(LauncherEngine.class);
@@ -89,6 +95,10 @@ public class LauncherEngine {
     public static void initGson(ClientModuleManager modulesManager) {
         Launcher.gsonManager = new ClientGsonManager(modulesManager);
         Launcher.gsonManager.initGson();
+    }
+
+    public static void verifyNoAgent() {
+        if (JVMHelper.RUNTIME_MXBEAN.getInputArguments().stream().filter(e -> e != null && !e.isEmpty()).anyMatch(e -> e.contains("javaagent"))) throw new SecurityException("JavaAgent found");
     }
 
     public void readKeys() throws IOException, InvalidKeySpecException {

@@ -5,7 +5,7 @@ import pro.gravit.launcher.modules.LauncherModuleInfo;
 import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.verify.LauncherTrustManager;
+import pro.gravit.launcher.LauncherTrustManager;
 
 import java.nio.file.Path;
 import java.util.Arrays;

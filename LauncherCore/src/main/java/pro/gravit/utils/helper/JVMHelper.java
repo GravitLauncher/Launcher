@@ -190,7 +190,4 @@ public final class JVMHelper {
     private JVMHelper() {
     }
 
-	public static void verifyNoAgent() {
-		if (RUNTIME_MXBEAN.getInputArguments().stream().filter(e -> e != null && !e.isEmpty()).anyMatch(e -> e.contains("javaagent"))) throw new SecurityException("JavaAgent found");
-	}
 }

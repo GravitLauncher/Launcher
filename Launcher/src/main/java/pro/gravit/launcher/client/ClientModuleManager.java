@@ -3,7 +3,7 @@ package pro.gravit.launcher.client;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.impl.SimpleModuleManager;
-import pro.gravit.utils.verify.LauncherTrustManager;
+import pro.gravit.launcher.LauncherTrustManager;
 
 import java.nio.file.Path;
 import java.util.Collection;
