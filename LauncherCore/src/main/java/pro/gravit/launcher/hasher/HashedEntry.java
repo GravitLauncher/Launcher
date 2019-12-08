@@ -1,5 +1,6 @@
 package pro.gravit.launcher.hasher;
 
+import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.stream.EnumSerializer;
 import pro.gravit.launcher.serialize.stream.StreamObject;
@@ -28,7 +29,7 @@ public abstract class HashedEntry extends StreamObject {
         }
     }
 
-
+    @LauncherNetworkAPI
     public boolean flag; // For external usage
 
 
