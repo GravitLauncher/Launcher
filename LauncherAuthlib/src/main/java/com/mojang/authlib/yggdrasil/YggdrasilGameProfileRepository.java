@@ -6,7 +6,6 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.ProfileLookupCallback;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.request.uuid.BatchProfileByUsernameRequest;
-import pro.gravit.launcher.serialize.SerializeLimits;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
@@ -37,8 +36,8 @@ public class YggdrasilGameProfileRepository implements GameProfileRepository {
     public void findProfilesByNames(String[] usernames, Agent agent, ProfileLookupCallback callback) {
         int offset = 0;
         while (offset < usernames.length) {
-            String[] sliceUsernames = Arrays.copyOfRange(usernames, offset, Math.min(offset + SerializeLimits.MAX_BATCH_SIZE, usernames.length));
-            offset += SerializeLimits.MAX_BATCH_SIZE;
+            String[] sliceUsernames = Arrays.copyOfRange(usernames, offset, Math.min(offset + 128, usernames.length));
+            offset += 128;
 
             // Batch Username-To-UUID request
             PlayerProfile[] sliceProfiles;

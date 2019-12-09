@@ -1,9 +1,13 @@
-package pro.gravit.utils;
+package pro.gravit.launcher.client;
+
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class PublicURLClassLoader extends URLClassLoader {
+public class ClientClassLoader extends URLClassLoader {
+    public String nativePath;
 
     /**
      * Constructs a new URLClassLoader for the specified URLs using the
@@ -25,7 +29,7 @@ public class PublicURLClassLoader extends URLClassLoader {
      * @throws NullPointerException if {@code urls} is {@code null}.
      * @see SecurityManager#checkCreateClassLoader
      */
-    public PublicURLClassLoader(URL[] urls) {
+    public ClientClassLoader(URL[] urls) {
         super(urls);
     }
 
@@ -50,8 +54,31 @@ public class PublicURLClassLoader extends URLClassLoader {
      * @throws NullPointerException if {@code urls} is {@code null}.
      * @see SecurityManager#checkCreateClassLoader
      */
-    public PublicURLClassLoader(URL[] urls, ClassLoader parent) {
+    public ClientClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
+    }
+
+    @Override
+    public String findLibrary(String name) {
+        return nativePath.concat(IOHelper.PLATFORM_SEPARATOR).concat(getNativePrefix()).concat(name).concat(getNativeEx());
+    }
+    public String getNativeEx()
+    {
+        if(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
+            return ".dll";
+        else if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
+            return ".so";
+        else if(JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX)
+            return ".dylib";
+        return "";
+    }
+    public String getNativePrefix()
+    {
+        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
+            return "lib";
+        else if(JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX)
+            return "lib";
+        return "";
     }
 
     @Override
@@ -59,3 +86,4 @@ public class PublicURLClassLoader extends URLClassLoader {
         super.addURL(url);
     }
 }
+

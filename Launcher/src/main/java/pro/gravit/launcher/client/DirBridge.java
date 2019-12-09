@@ -1,7 +1,6 @@
 package pro.gravit.launcher.client;
 
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -17,26 +16,26 @@ public class DirBridge {
     public static final String CUSTOMDIR_PROPERTY = "launcher.customdir";
     public static final String USE_OPTDIR_PROPERTY = "launcher.useoptdir";
 
-    @LauncherAPI
+
     public static Path dir;
-    @LauncherAPI
+
     public static Path dirStore;
-    @LauncherAPI
+
     public static Path dirProjectStore;
-    @LauncherAPI
+
     public static Path dirUpdates;
-    @LauncherAPI
+
     public static Path defaultUpdatesDir;
-    @LauncherAPI
+
     public static boolean useLegacyDir;
 
-    @LauncherAPI
+
     public static void move(Path newDir) throws IOException {
         IOHelper.move(dirUpdates, newDir);
         dirUpdates = newDir;
     }
 
-    @LauncherAPI
+
     public static Path getAppDataDir() throws IOException {
         boolean isCustomDir = Boolean.getBoolean(System.getProperty(USE_CUSTOMDIR_PROPERTY, "false"));
         if (isCustomDir) {
@@ -66,12 +65,12 @@ public class DirBridge {
         }
     }
 
-    @LauncherAPI
+
     public static Path getLauncherDir(String projectname) throws IOException {
         return getAppDataDir().resolve(projectname);
     }
 
-    @LauncherAPI
+
     public static Path getStoreDir(String projectname) throws IOException {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
             return getAppDataDir().resolve("store");
@@ -81,22 +80,22 @@ public class DirBridge {
             return getAppDataDir().resolve("minecraftStore");
     }
 
-    @LauncherAPI
+
     public static Path getProjectStoreDir(String projectname) throws IOException {
         return getStoreDir(projectname).resolve(projectname);
     }
 
-    @LauncherAPI
+
     public static Path getGuardDir() {
         return dir.resolve("guard");
     }
 
-    @LauncherAPI
+
     public static Path getLegacyLauncherDir(String projectname) {
         return IOHelper.HOME_DIR.resolve(projectname);
     }
 
-    @LauncherAPI
+
     public static void setUseLegacyDir(boolean b) {
         useLegacyDir = b;
     }

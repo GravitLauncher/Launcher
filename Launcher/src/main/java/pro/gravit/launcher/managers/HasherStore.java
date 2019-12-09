@@ -1,6 +1,5 @@
 package pro.gravit.launcher.managers;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
@@ -19,15 +18,15 @@ public class HasherStore {
     public Map<String, HasherStoreEnity> store;
 
     public static class HasherStoreEnity {
-        @LauncherAPI
+
         public HashedDir hdir;
-        @LauncherAPI
+
         public Path dir;
-        @LauncherAPI
+
         public Collection<String> shared;
     }
 
-    @LauncherAPI
+
     public void addProfileUpdateDir(ClientProfile profile, Path dir, HashedDir hdir) {
         HasherStoreEnity e = new HasherStoreEnity();
         e.hdir = hdir;
@@ -37,7 +36,7 @@ public class HasherStore {
         store.put(profile.getTitle(), e);
     }
 
-    @LauncherAPI
+
     public void copyCompareFilesTo(String name, Path targetDir, HashedDir targetHDir, String[] shared) {
         store.forEach((key, e) -> {
             if (key.equals(name)) return;
@@ -47,7 +46,7 @@ public class HasherStore {
         });
     }
 
-    @LauncherAPI
+
     public void recurseCopy(String filename, HashedEntry entry, String name, Path targetDir, Path sourceDir) {
         if (!IOHelper.isDir(targetDir)) {
             try {

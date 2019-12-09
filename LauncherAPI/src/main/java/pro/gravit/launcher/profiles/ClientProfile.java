@@ -1,6 +1,6 @@
 package pro.gravit.launcher.profiles;
 
-import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.optional.OptionalDepend;
@@ -14,7 +14,7 @@ import java.net.InetSocketAddress;
 import java.util.*;
 
 public final class ClientProfile implements Comparable<ClientProfile> {
-    @LauncherAPI
+
     public enum Version {
         MC125("1.2.5", 29),
         MC147("1.4.7", 51),
@@ -73,54 +73,54 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
     // Version
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String version;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String assetIndex;
 
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String dir;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String assetDir;
     // Client
-    @LauncherAPI
+    @LauncherNetworkAPI
     private int sortIndex;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private UUID uuid;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String title;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String info;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String serverAddress;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private int serverPort;
 
     //  Updater and client watch service
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> update = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> updateExclusions = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> updateShared = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> updateVerify = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final Set<OptionalFile> updateOptional = new HashSet<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private boolean updateFastCheck;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private boolean useWhitelist;
     // Client launcher
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String mainClass;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> jvmArgs = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> classPath = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> clientArgs = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> whitelist = new ArrayList<>();
 
     @Override
@@ -128,27 +128,27 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return Integer.compare(getSortIndex(), o.getSortIndex());
     }
 
-    @LauncherAPI
+
     public String getAssetIndex() {
         return assetIndex;
     }
 
-    @LauncherAPI
+
     public FileNameMatcher getAssetUpdateMatcher() {
         return getVersion().compareTo(Version.MC1710) >= 0 ? ASSET_MATCHER : null;
     }
 
-    @LauncherAPI
+
     public String[] getClassPath() {
         return classPath.toArray(new String[0]);
     }
 
-    @LauncherAPI
+
     public String[] getClientArgs() {
         return clientArgs.toArray(new String[0]);
     }
 
-    @LauncherAPI
+
     public String getDir() {
         return dir;
     }
@@ -157,12 +157,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.dir = dir;
     }
 
-    @LauncherAPI
+
     public String getAssetDir() {
         return assetDir;
     }
 
-    @LauncherAPI
+
     public FileNameMatcher getClientUpdateMatcher(/*boolean excludeOptional*/) {
         String[] updateArray = update.toArray(new String[0]);
         String[] verifyArray = updateVerify.toArray(new String[0]);
@@ -179,27 +179,27 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return new FileNameMatcher(updateArray, verifyArray, exclusionsArray);
     }
 
-    @LauncherAPI
+
     public String[] getJvmArgs() {
         return jvmArgs.toArray(new String[0]);
     }
 
-    @LauncherAPI
+
     public String getMainClass() {
         return mainClass;
     }
 
-    @LauncherAPI
+
     public String getServerAddress() {
         return serverAddress;
     }
 
-    @LauncherAPI
+
     public Set<OptionalFile> getOptional() {
         return updateOptional;
     }
 
-    @LauncherAPI
+
     public void updateOptionalGraph() {
         for (OptionalFile file : updateOptional) {
             if (file.dependenciesFile != null) {
@@ -217,19 +217,19 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    @LauncherAPI
+
     public OptionalFile getOptionalFile(String file, OptionalType type) {
         for (OptionalFile f : updateOptional)
             if (f.type.equals(type) && f.name.equals(file)) return f;
         return null;
     }
 
-    @LauncherAPI
+
     public Collection<String> getShared() {
         return updateShared;
     }
 
-    @LauncherAPI
+
     public void markOptional(String name, OptionalType type) {
         OptionalFile file = getOptionalFile(name, type);
         if (file == null) {
@@ -238,7 +238,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         markOptional(file);
     }
 
-    @LauncherAPI
+
     public void markOptional(OptionalFile file) {
 
         if (file.mark) return;
@@ -257,7 +257,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    @LauncherAPI
+
     public void unmarkOptional(String name, OptionalType type) {
         OptionalFile file = getOptionalFile(name, type);
         if (file == null) {
@@ -266,7 +266,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         unmarkOptional(file);
     }
 
-    @LauncherAPI
+
     public void unmarkOptional(OptionalFile file) {
         if (!file.mark) return;
         file.mark = false;
@@ -330,58 +330,58 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         void run(String[] opt) throws IOException;
     }
 
-    @LauncherAPI
+
     public int getServerPort() {
         return serverPort;
     }
 
-    @LauncherAPI
+
     public InetSocketAddress getServerSocketAddress() {
         return InetSocketAddress.createUnresolved(getServerAddress(), getServerPort());
     }
 
-    @LauncherAPI
+
     public int getSortIndex() {
         return sortIndex;
     }
 
-    @LauncherAPI
+
     public String getTitle() {
         return title;
     }
 
-    @LauncherAPI
+
     public String getInfo() {
         return info;
     }
 
-    @LauncherAPI
+
     public Version getVersion() {
         return Version.byName(version);
     }
 
-    @LauncherAPI
+
     public boolean isUpdateFastCheck() {
         return updateFastCheck;
     }
 
-    @LauncherAPI
+
     public boolean isWhitelistContains(String username) {
         if (!useWhitelist) return true;
         return whitelist.stream().anyMatch(profileCaseSensitive ? e -> e.equals(username) : e -> e.equalsIgnoreCase(username));
     }
 
-    @LauncherAPI
+
     public void setTitle(String title) {
         this.title = title;
     }
 
-    @LauncherAPI
+
     public void setInfo(String info) {
         this.info = info;
     }
 
-    @LauncherAPI
+
     public void setVersion(Version version) {
         this.version = version.name;
     }
@@ -399,7 +399,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return uuid;
     }
 
-    @LauncherAPI
+
     public void verify() {
         // Version
         getVersion();

@@ -10,7 +10,6 @@ import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hwid.HWIDProvider;
-import pro.gravit.launcher.hwid.OshiHWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
@@ -50,7 +49,7 @@ import java.util.stream.Stream;
 
 public final class ClientLauncher {
 
-    @LauncherAPI
+
     public static int getClientJVMBits() {
         return LauncherGuardManager.guard.getClientJVMBits();
     }
@@ -72,30 +71,30 @@ public final class ClientLauncher {
 
     public static final class Params extends StreamObject {
         // Client paths
-        @LauncherAPI
+
         public final Path assetDir;
-        @LauncherAPI
+
         public final Path clientDir;
 
         // Client params
-        @LauncherAPI
+
         public final PlayerProfile pp;
-        @LauncherAPI
+
         public final String accessToken;
-        @LauncherAPI
+
         public final boolean autoEnter;
-        @LauncherAPI
+
         public final boolean fullScreen;
-        @LauncherAPI
+
         public final int ram;
-        @LauncherAPI
+
         public final int width;
-        @LauncherAPI
+
         public final int height;
-        @LauncherAPI
+
         public final long session;
 
-        @LauncherAPI
+
         public Params(byte[] launcherDigest, Path assetDir, Path clientDir, PlayerProfile pp, String accessToken,
                       boolean autoEnter, boolean fullScreen, int ram, int width, int height) {
             // Client paths
@@ -112,7 +111,7 @@ public final class ClientLauncher {
             this.session = Request.getSession();
         }
 
-        @LauncherAPI
+
         public Params(HInput input) throws Exception {
             session = input.readLong();
             // Client paths
@@ -163,16 +162,16 @@ public final class ClientLauncher {
     // Constants
     private static final Path NATIVES_DIR = IOHelper.toPath("natives");
     private static final Path RESOURCEPACKS_DIR = IOHelper.toPath("resourcepacks");
-    private static PublicURLClassLoader classLoader;
+    private static ClientClassLoader classLoader;
 
     public static class ClientUserProperties {
-        @LauncherAPI
+
         String[] skinURL;
-        @LauncherAPI
+
         String[] skinDigest;
-        @LauncherAPI
+
         String[] cloakURL;
-        @LauncherAPI
+
         String[] cloakDigest;
     }
 
@@ -234,7 +233,7 @@ public final class ClientLauncher {
         }
     }
 
-    @LauncherAPI
+
     public static void setJavaBinPath(Path javaBinPath) {
         JavaBinPath = javaBinPath;
     }
@@ -249,7 +248,7 @@ public final class ClientLauncher {
         Collections.addAll(args, "--assetsDir", params.assetDir.toString());
     }
 
-    @LauncherAPI
+
     public static void checkJVMBitsAndVersion() {
         if (JVMHelper.JVM_BITS != JVMHelper.OS_BITS) {
             String error = String.format("У Вас установлена Java %d, но Ваша система определена как %d. Установите Java правильной разрядности", JVMHelper.JVM_BITS, JVMHelper.OS_BITS);
@@ -267,7 +266,7 @@ public final class ClientLauncher {
         }
     }
 
-    @LauncherAPI
+
     public static boolean isLaunched() {
         return Launcher.LAUNCHED.get();
     }
@@ -292,6 +291,10 @@ public final class ClientLauncher {
         LogHelper.debug("Args: " + copy);
         // Resolve main class and method
         Class<?> mainClass = classLoader.loadClass(profile.getMainClass());
+        for(URL u : classLoader.getURLs())
+        {
+            LogHelper.info("ClassLoader URL: %s", u.toString());
+        }
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
@@ -318,7 +321,7 @@ public final class ClientLauncher {
 
     public static PlayerProfile playerProfile;
 
-    @LauncherAPI
+
     public static Process launch(
             HashedDir assetHDir, HashedDir clientHDir,
             ClientProfile profile, Params params, boolean pipeOutput) throws Throwable {
@@ -429,7 +432,7 @@ public final class ClientLauncher {
         }
     }
 
-    @LauncherAPI
+
     public static void main(String... args) throws Throwable {
         LauncherEngine.IS_CLIENT.set(true);
         LauncherEngine engine = LauncherEngine.clientInstance();
@@ -468,19 +471,18 @@ public final class ClientLauncher {
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
         for (Path classpathURL : classPath) {
-            LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
+            //LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
         }
         profile.pushOptionalClassPath(cp -> {
             LinkedList<Path> optionalClassPath = resolveClassPathList(params.clientDir, cp);
             for (Path classpathURL : optionalClassPath) {
-                LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
+                //LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
             }
         });
         URL[] classpathurls = resolveClassPath(params.clientDir, profile.getClassPath());
-        classLoader = new PublicURLClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
+        classLoader = new ClientClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
         classLoader.nativePath = params.clientDir.resolve(NATIVES_DIR).toString();
-        PublicURLClassLoader.systemclassloader = classLoader;
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
         LogHelper.debug("Restore sessions");
@@ -507,6 +509,8 @@ public final class ClientLauncher {
         AuthService.uuid = params.pp.uuid;
         ClientService.instrumentation = LauncherAgent.inst;
         ClientService.classLoader = classLoader;
+        classLoader.addURL(IOHelper.getCodeSource(ClientLauncher.class).toUri().toURL());
+        //classForName(classLoader, "com.google.common.collect.ForwardingMultimap");
         ClientService.baseURLs = classpathurls;
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
@@ -530,6 +534,13 @@ public final class ClientLauncher {
             verifyHDir(params.clientDir, clientHDir, clientMatcher, digest);
             LauncherEngine.modulesManager.invokeEvent(new ClientLaunchPhase(context));
             launch(profile, params);
+        }
+    }
+    public static void classForName(ClassLoader loader, String name)
+    {
+        try {
+            Class.forName(name, false, loader);
+        } catch (ClassNotFoundException ignored) {
         }
     }
 
@@ -559,7 +570,7 @@ public final class ClientLauncher {
         Launcher.gsonManager.initGson();
     }
 
-    @LauncherAPI
+
     public static void setProfile(ClientProfile profile) {
         Launcher.profile = profile;
         LogHelper.debug("New Profile name: %s", profile.getTitle());

@@ -1,7 +1,5 @@
 package pro.gravit.utils.helper;
 
-import pro.gravit.launcher.LauncherAPI;
-
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
@@ -266,12 +264,12 @@ public final class SecurityHelper {
         return bytes;
     }
 
-    @LauncherAPI
+
     public static String randomStringToken() {
         return randomStringToken(newRandom());
     }
 
-    @LauncherAPI
+
     public static String randomStringToken(Random random) {
         return toHex(randomToken(random));
     }

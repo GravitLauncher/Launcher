@@ -1,6 +1,5 @@
 package pro.gravit.launcher.utils;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
@@ -69,7 +68,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
 
     private final boolean digest;
 
-    @LauncherAPI
+
     public DirWatcher(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) throws IOException {
         this.dir = Objects.requireNonNull(dir, "dir");
         this.hdir = Objects.requireNonNull(hdir, "hdir");
@@ -83,7 +82,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     }
 
     @Override
-    @LauncherAPI
+
     public void close() throws IOException {
         service.close();
     }
@@ -124,7 +123,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     }
 
     @Override
-    @LauncherAPI
+
     public void run() {
         try {
             processLoop();

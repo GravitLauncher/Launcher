@@ -1,6 +1,5 @@
 package pro.gravit.launcher.profiles;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
@@ -12,26 +11,26 @@ import java.util.Objects;
 import java.util.UUID;
 
 public final class PlayerProfile extends StreamObject {
-    @LauncherAPI
+
     public static PlayerProfile newOfflineProfile(String username) {
         return new PlayerProfile(offlineUUID(username), username, null, null);
     }
 
-    @LauncherAPI
+
     public static UUID offlineUUID(String username) {
         return UUID.nameUUIDFromBytes(IOHelper.encodeASCII("OfflinePlayer:" + username));
     }
 
-    @LauncherAPI
+
     public final UUID uuid;
 
-    @LauncherAPI
+
     public final String username;
 
-    @LauncherAPI
+
     public final Texture skin, cloak;
 
-    @LauncherAPI
+
     public PlayerProfile(HInput input) throws IOException {
         uuid = input.readUUID();
         username = VerifyHelper.verifyUsername(input.readString(64));
@@ -39,7 +38,7 @@ public final class PlayerProfile extends StreamObject {
         cloak = input.readBoolean() ? new Texture(input) : null;
     }
 
-    @LauncherAPI
+
     public PlayerProfile(UUID uuid, String username, Texture skin, Texture cloak) {
         this.uuid = Objects.requireNonNull(uuid, "uuid");
         this.username = VerifyHelper.verifyUsername(username);

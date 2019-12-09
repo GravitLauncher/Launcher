@@ -1,6 +1,5 @@
 package pro.gravit.launcher.hasher;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
@@ -19,9 +18,9 @@ import java.util.Map.Entry;
 
 public final class HashedDir extends HashedEntry {
     public static final class Diff {
-        @LauncherAPI
+
         public final HashedDir mismatch;
-        @LauncherAPI
+
         public final HashedDir extra;
 
         private Diff(HashedDir mismatch, HashedDir extra) {
@@ -29,7 +28,7 @@ public final class HashedDir extends HashedEntry {
             this.extra = extra;
         }
 
-        @LauncherAPI
+
         public boolean isSame() {
             return mismatch.isEmpty() && extra.isEmpty();
         }
@@ -105,11 +104,11 @@ public final class HashedDir extends HashedEntry {
     @LauncherNetworkAPI
     private final Map<String, HashedEntry> map = new HashMap<>(32);
 
-    @LauncherAPI
+
     public HashedDir() {
     }
 
-    @LauncherAPI
+
     public HashedDir(HInput input) throws IOException {
         int entriesCount = input.readLength(0);
         for (int i = 0; i < entriesCount; i++) {
@@ -134,19 +133,19 @@ public final class HashedDir extends HashedEntry {
         }
     }
 
-    @LauncherAPI
+
     public HashedDir(Path dir, FileNameMatcher matcher, boolean allowSymlinks, boolean digest) throws IOException {
         IOHelper.walk(dir, new HashFileVisitor(dir, matcher, allowSymlinks, digest), true);
     }
 
-    @LauncherAPI
+
     public Diff diff(HashedDir other, FileNameMatcher matcher) {
         HashedDir mismatch = sideDiff(other, matcher, new LinkedList<>(), true);
         HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
         return new Diff(mismatch, extra);
     }
 
-    @LauncherAPI
+
     public Diff compare(HashedDir other, FileNameMatcher matcher) {
         HashedDir mismatch = sideDiff(other, matcher, new LinkedList<>(), true);
         HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
@@ -190,7 +189,7 @@ public final class HashedDir extends HashedEntry {
         }
     }
 
-    @LauncherAPI
+
     public HashedEntry getEntry(String name) {
         return map.get(name);
     }
@@ -200,17 +199,17 @@ public final class HashedDir extends HashedEntry {
         return Type.DIR;
     }
 
-    @LauncherAPI
+
     public boolean isEmpty() {
         return map.isEmpty();
     }
 
-    @LauncherAPI
+
     public Map<String, HashedEntry> map() {
         return Collections.unmodifiableMap(map);
     }
 
-    @LauncherAPI
+
     public HashedEntry resolve(Iterable<String> path) {
         HashedEntry current = this;
         for (String pathEntry : path) {

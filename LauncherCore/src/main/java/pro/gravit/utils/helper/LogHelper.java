@@ -3,7 +3,6 @@ package pro.gravit.utils.helper;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.fusesource.jansi.AnsiOutputStream;
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 
 import java.io.*;
@@ -20,15 +19,15 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class LogHelper {
-    @LauncherAPI
+
     public static final String DEBUG_PROPERTY = "launcher.debug";
-    @LauncherAPI
+
     public static final String DEV_PROPERTY = "launcher.dev";
-    @LauncherAPI
+
     public static final String STACKTRACE_PROPERTY = "launcher.stacktrace";
-    @LauncherAPI
+
     public static final String NO_JANSI_PROPERTY = "launcher.noJAnsi";
-    @LauncherAPI
+
     public static final boolean JANSI;
 
     // Output settings
@@ -63,22 +62,22 @@ public final class LogHelper {
     private LogHelper() {
     }
 
-    @LauncherAPI
+
     public static void addOutput(OutputEnity output) {
         OUTPUTS.add(Objects.requireNonNull(output, "output"));
     }
 
-    @LauncherAPI
+
     public static void addExcCallback(Consumer<Throwable> output) {
         EXCEPTIONS_CALLBACKS.add(Objects.requireNonNull(output, "output"));
     }
 
-    @LauncherAPI
+
     public static void addOutput(Output output, OutputTypes type) {
         OUTPUTS.add(new OutputEnity(Objects.requireNonNull(output, "output"), type));
     }
 
-    @LauncherAPI
+
     public static void addOutput(Path file) throws IOException {
         if (JANSI) {
             addOutput(new JAnsiOutput(IOHelper.newOutput(file, true)), OutputTypes.JANSI);
@@ -87,89 +86,89 @@ public final class LogHelper {
         }
     }
 
-    @LauncherAPI
+
     public static void addOutput(Writer writer) {
         addOutput(new WriterOutput(writer), OutputTypes.PLAIN);
     }
 
-    @LauncherAPI
+
     public static void debug(String message) {
         if (isDebugEnabled()) {
             log(Level.DEBUG, message, false);
         }
     }
 
-    @LauncherAPI
+
     public static void dev(String message) {
         if (isDevEnabled()) {
             log(Level.DEV, message, false);
         }
     }
 
-    @LauncherAPI
+
     public static void debug(String format, Object... args) {
         debug(String.format(format, args));
     }
 
-    @LauncherAPI
+
     public static void dev(String format, Object... args) {
         if (isDevEnabled()) {
             dev(String.format(format, args));
         }
     }
 
-    @LauncherAPI
+
     public static void error(Throwable exc) {
         EXCEPTIONS_CALLBACKS.forEach(e -> e.accept(exc));
         error(isStacktraceEnabled() ? toString(exc) : exc.toString());
     }
 
-    @LauncherAPI
+
     public static void error(String message) {
         log(Level.ERROR, message, false);
     }
 
-    @LauncherAPI
+
     public static void error(String format, Object... args) {
         error(String.format(format, args));
     }
 
-    @LauncherAPI
+
     public static void info(String message) {
         log(Level.INFO, message, false);
     }
 
-    @LauncherAPI
+
     public static void info(String format, Object... args) {
         info(String.format(format, args));
     }
 
-    @LauncherAPI
+
     public static boolean isDebugEnabled() {
         return DEBUG_ENABLED.get();
     }
 
-    @LauncherAPI
+
     public static void setDebugEnabled(boolean debugEnabled) {
         DEBUG_ENABLED.set(debugEnabled);
     }
 
-    @LauncherAPI
+
     public static boolean isStacktraceEnabled() {
         return STACKTRACE_ENABLED.get();
     }
 
-    @LauncherAPI
+
     public static boolean isDevEnabled() {
         return DEV_ENABLED.get();
     }
 
-    @LauncherAPI
+
     public static void setStacktraceEnabled(boolean stacktraceEnabled) {
         STACKTRACE_ENABLED.set(stacktraceEnabled);
     }
 
-    @LauncherAPI
+
     public static void setDevEnabled(boolean stacktraceEnabled) {
         DEV_ENABLED.set(stacktraceEnabled);
     }
@@ -178,7 +177,7 @@ public final class LogHelper {
         return DATE_TIME_FORMATTER.format(LocalDateTime.now());
     }
 
-    @LauncherAPI
+
     public static void log(Level level, String message, boolean sub) {
         String dateTime = DATE_TIME_FORMATTER.format(LocalDateTime.now());
         String jansiString = null, plainString = null, htmlString = null;
@@ -211,12 +210,12 @@ public final class LogHelper {
         }
     }
 
-    @LauncherAPI
+
     public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr) {
         rawLog(plainStr, jansiStr, null);
     }
 
-    @LauncherAPI
+
     public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr, Supplier<String> htmlStr) {
         String jansiString = null, plainString = null, htmlString = null;
         for (OutputEnity output : OUTPUTS) {
@@ -248,7 +247,7 @@ public final class LogHelper {
         }
     }
 
-    @LauncherAPI
+
     public static void printVersion(String product) {
         String jansiString = null, plainString = null;
         for (OutputEnity output : OUTPUTS) {
@@ -272,7 +271,7 @@ public final class LogHelper {
         }
     }
 
-    @LauncherAPI
+
     public static void printLicense(String product) {
         String jansiString = null, plainString = null;
         for (OutputEnity output : OUTPUTS) {
@@ -296,61 +295,61 @@ public final class LogHelper {
         }
     }
 
-    @LauncherAPI
+
     public static boolean removeOutput(OutputEnity output) {
         return OUTPUTS.remove(output);
     }
 
-    @LauncherAPI
+
     public static boolean removeStdOutput() {
         return removeOutput(STD_OUTPUT);
     }
 
-    @LauncherAPI
+
     public static void subDebug(String message) {
         if (isDebugEnabled()) {
             log(Level.DEBUG, message, true);
         }
     }
 
-    @LauncherAPI
+
     public static void subDebug(String format, Object... args) {
         subDebug(String.format(format, args));
     }
 
-    @LauncherAPI
+
     public static void subInfo(String message) {
         log(Level.INFO, message, true);
     }
 
-    @LauncherAPI
+
     public static void subInfo(String format, Object... args) {
         subInfo(String.format(format, args));
     }
 
-    @LauncherAPI
+
     public static void subWarning(String message) {
         log(Level.WARNING, message, true);
     }
 
-    @LauncherAPI
+
     public static void subWarning(String format, Object... args) {
         subWarning(String.format(format, args));
     }
 
-    @LauncherAPI
+
     public static String toString(Throwable exc) {
         StringWriter sw = new StringWriter();
         exc.printStackTrace(new PrintWriter(sw));
         return sw.toString();
     }
 
-    @LauncherAPI
+
     public static void warning(String message) {
         log(Level.WARNING, message, false);
     }
 
-    @LauncherAPI
+
     public static void warning(String format, Object... args) {
         warning(String.format(format, args));
     }
@@ -425,13 +424,13 @@ public final class LogHelper {
         }
     }
 
-    @LauncherAPI
+
     @FunctionalInterface
     public interface Output {
         void println(String message);
     }
 
-    @LauncherAPI
+
     public enum Level {
         DEV("DEV"), DEBUG("DEBUG"), INFO("INFO"), WARNING("WARN"), ERROR("ERROR");
         public final String name;

@@ -1,6 +1,5 @@
 package pro.gravit.launcher.request;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.stream.EnumSerializer;
 
@@ -15,7 +14,7 @@ public enum RequestType implements EnumSerializer.Itf {
     CUSTOM(255); // Custom requests
     private static final EnumSerializer<RequestType> SERIALIZER = new EnumSerializer<>(RequestType.class);
 
-    @LauncherAPI
+
     public static RequestType read(HInput input) throws IOException {
         return SERIALIZER.read(input);
     }

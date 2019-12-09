@@ -1,10 +1,10 @@
 package pro.gravit.launcher.profiles.optional;
 
-import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherNetworkAPI;
 
 public class OptionalDepend {
-    @LauncherAPI
+    @LauncherNetworkAPI
     public String name;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public OptionalType type;
 }

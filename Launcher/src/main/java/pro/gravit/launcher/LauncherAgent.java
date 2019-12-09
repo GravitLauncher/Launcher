@@ -10,7 +10,7 @@ import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
 import java.util.jar.JarFile;
 
-@LauncherAPI
+
 public final class LauncherAgent {
     private static boolean isAgentStarted = false;
     public static Instrumentation inst;

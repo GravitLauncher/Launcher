@@ -8,21 +8,17 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class NewLauncherSettings {
-    @LauncherAPI
+    @LauncherNetworkAPI
     public Map<String, UserSettings> userSettings = new HashMap<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     public List<String> features = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     public String consoleUnlockKey;
 
     public static class HashedStoreEntry {
-        @LauncherAPI
         public final HashedDir hdir;
-        @LauncherAPI
         public final String name;
-        @LauncherAPI
         public final String fullPath;
-        @LauncherAPI
         public transient boolean needSave = false;
 
         public HashedStoreEntry(HashedDir hdir, String name, String fullPath) {
@@ -32,10 +28,9 @@ public class NewLauncherSettings {
         }
     }
 
-    @LauncherAPI
+    @LauncherNetworkAPI
     public final transient List<HashedStoreEntry> lastHDirs = new ArrayList<>(16);
 
-    @LauncherAPI
     public void putHDir(String name, Path path, HashedDir dir) {
         String fullPath = path.toAbsolutePath().toString();
         lastHDirs.removeIf((e) -> e.fullPath.equals(fullPath) && e.name.equals(name));

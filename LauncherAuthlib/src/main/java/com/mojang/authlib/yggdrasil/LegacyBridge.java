@@ -1,6 +1,5 @@
 package com.mojang.authlib.yggdrasil;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.request.auth.CheckServerRequest;
 import pro.gravit.launcher.request.auth.JoinServerRequest;
 import pro.gravit.utils.helper.CommonHelper;
@@ -8,7 +7,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 // Used by 1.6.4 and below versions
-@LauncherAPI
+
 public class LegacyBridge {
     public static boolean checkServer(String username, String serverID) throws Exception {
         LogHelper.debug("LegacyBridge.checkServer, Username: '%s', Server ID: %s", username, serverID);
