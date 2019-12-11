@@ -75,9 +75,6 @@ public class LauncherEngine {
         HWIDProvider.registerHWIDs();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         LauncherConfig config = Launcher.getConfig();
-        if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {
-            if (!LauncherAgent.isStarted()) throw new SecurityException("LauncherAgent must started");
-        }
         long startTime = System.currentTimeMillis();
         try {
             new LauncherEngine().start(args);

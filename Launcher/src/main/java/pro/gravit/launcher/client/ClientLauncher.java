@@ -356,13 +356,12 @@ public final class ClientLauncher {
             }
         }
         // Add classpath and main class
-        String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
-        context.pathLauncher = pathLauncher;
+        context.pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
         context.args.add(ClientLauncherWrapper.MAGIC_ARG);
         Collections.addAll(context.args, profile.getJvmArgs());
         profile.pushOptionalJvmArgs(context.args);
         context.args.add("-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
-        context.args.add("-javaagent:".concat(pathLauncher));
+        //context.args.add("-javaagent:".concat(pathLauncher));
         ClientHookManager.clientLaunchHook.hook(context);
         LauncherGuardManager.guard.addCustomParams(context);
         context.args.add(ClientLauncher.class.getName());
@@ -443,10 +442,7 @@ public final class ClientLauncher {
         LauncherConfig.getAutogenConfig().initModules(); //INIT
         LauncherEngine.modulesManager.initModules(null);
         initGson(LauncherEngine.modulesManager);
-        if (!LauncherAgent.isStarted()) {
-            NativeJVMHalt.haltA(100);
-            return;
-        }
+        LauncherEngine.verifyNoAgent();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();
@@ -507,7 +503,6 @@ public final class ClientLauncher {
         };
         AuthService.username = params.pp.username;
         AuthService.uuid = params.pp.uuid;
-        ClientService.instrumentation = LauncherAgent.inst;
         ClientService.classLoader = classLoader;
         classLoader.addURL(IOHelper.getCodeSource(ClientLauncher.class).toUri().toURL());
         //classForName(classLoader, "com.google.common.collect.ForwardingMultimap");
