@@ -2,9 +2,6 @@ package pro.gravit.launcher.managers;
 
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.console.UnlockCommand;
-import pro.gravit.launcher.console.admin.ExecCommand;
-import pro.gravit.launcher.console.admin.LogListenerCommand;
-import pro.gravit.utils.command.BaseCommandCategory;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
@@ -53,10 +50,6 @@ public class ConsoleManager {
 
     public static void unlock() {
         handler.registerCommand("debug", new DebugCommand());
-        BaseCommandCategory admin = new BaseCommandCategory();
-        admin.registerCommand("exec", new ExecCommand());
-        admin.registerCommand("logListen", new LogListenerCommand());
-        handler.registerCategory(new CommandHandler.Category(admin, "admin", "Server admin commands"));
         isConsoleUnlock = true;
     }
 }

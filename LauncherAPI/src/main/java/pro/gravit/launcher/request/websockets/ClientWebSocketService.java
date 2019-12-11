@@ -22,18 +22,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
 
-public class ClientWebSocketService extends ClientJSONPoint {
+public abstract class ClientWebSocketService extends ClientJSONPoint {
     public final Gson gson;
     public OnCloseCallback onCloseCallback;
     public final Boolean onConnect;
     public ReconnectCallback reconnectCallback;
     public static final ProviderMap<WebSocketEvent> results = new ProviderMap<>();
     public static final ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
-    private HashSet<EventHandler> handlers;
 
     public ClientWebSocketService(String address) throws SSLException {
         super(createURL(address));
-        handlers = new HashSet<>();
         this.gson = Launcher.gsonManager.gson;
         this.onConnect = true;
     }
@@ -56,10 +54,9 @@ public class ClientWebSocketService extends ClientJSONPoint {
     @Override
     void onMessage(String message) {
         WebSocketEvent result = gson.fromJson(message, WebSocketEvent.class);
-        for (EventHandler handler : handlers) {
-            handler.process(result);
-        }
+        eventHandle(result);
     }
+    public abstract<T extends WebSocketEvent> void eventHandle(T event);
 
     @Override
     void onDisconnect() {
@@ -113,10 +110,6 @@ public class ClientWebSocketService extends ClientJSONPoint {
         results.register("signal", SignalEvent.class);
     }
 
-    public void registerHandler(EventHandler eventHandler) {
-        handlers.add(eventHandler);
-    }
-
     public void waitIfNotConnected() {
         /*if(!isOpen() && !isClosed() && !isClosing())
         {
@@ -150,6 +143,11 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     @FunctionalInterface
     public interface EventHandler {
-        void process(WebSocketEvent webSocketEvent);
+        /**
+         * @param event processing event
+         * @param <T> event type
+         * @return false - continue, true - stop
+         */
+        <T extends WebSocketEvent> boolean eventHandle(T event);
     }
 }

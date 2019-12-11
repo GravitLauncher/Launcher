@@ -14,7 +14,7 @@ import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.RestoreSessionRequest;
-import pro.gravit.launcher.request.websockets.StandartClientWebSocketService;
+import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.utils.helper.*;
 
 import java.io.IOException;
@@ -146,7 +146,7 @@ public class LauncherEngine {
         if (Request.service == null) {
             String address = Launcher.getConfig().address;
             LogHelper.debug("Start async connection to %s", address);
-            Request.service = StandartClientWebSocketService.initWebSockets(address, true);
+            Request.service = StdWebSocketService.initWebSockets(address, true);
             Request.service.reconnectCallback = () ->
             {
                 LogHelper.debug("WebSocket connect closed. Try reconnect");

@@ -76,6 +76,18 @@ public abstract class ClientJSONPoint {
         ch = bootstrap.connect(uri.getHost(), port).sync().channel();
         webSocketClientHandler.handshakeFuture().sync();
     }
+    public void openAsync(Runnable onConnect) {
+        //System.out.println("WebSocket Client connecting");
+        webSocketClientHandler =
+                new WebSocketClientHandler(
+                        WebSocketClientHandshakerFactory.newHandshaker(
+                                uri, WebSocketVersion.V13, null, false, EmptyHttpHeaders.INSTANCE, 12800000), this);
+        ChannelFuture future = bootstrap.connect();
+        future.addListener((e) -> {
+            ch = future.channel();
+            webSocketClientHandler.handshakeFuture().addListener((e1) -> onConnect.run());
+        });
+    }
 
     public ChannelFuture send(String text) {
         LogHelper.dev("Send: %s", text);
