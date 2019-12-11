@@ -82,7 +82,7 @@ public abstract class ClientJSONPoint {
                 new WebSocketClientHandler(
                         WebSocketClientHandshakerFactory.newHandshaker(
                                 uri, WebSocketVersion.V13, null, false, EmptyHttpHeaders.INSTANCE, 12800000), this);
-        ChannelFuture future = bootstrap.connect();
+        ChannelFuture future = bootstrap.connect(uri.getHost(), port);
         future.addListener((e) -> {
             ch = future.channel();
             webSocketClientHandler.handshakeFuture().addListener((e1) -> onConnect.run());

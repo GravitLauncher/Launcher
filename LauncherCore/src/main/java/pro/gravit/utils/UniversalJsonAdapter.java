@@ -46,6 +46,10 @@ public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeseriali
         if (classPath == null && src instanceof TypeSerializeInterface) {
             classPath = ((TypeSerializeInterface) src).getType();
         }
+        if(classPath == null)
+        {
+            LogHelper.warning("Class %s type null", src.getClass());
+        }
         jo.add(PROP_NAME, new JsonPrimitive(classPath));
 
         return jo;

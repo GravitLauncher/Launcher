@@ -40,7 +40,7 @@ public class LauncherTrustManager {
     }
 
     public interface CertificateChecker {
-        void check(X509Certificate cert, X509Certificate signer) throws SecurityException;
+        void check(X509Certificate cert, X509Certificate signer, int number) throws SecurityException;
     }
 
     public void checkCertificate(X509Certificate[] certs, CertificateChecker checker) throws CertificateException, NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
@@ -61,7 +61,7 @@ public class LauncherTrustManager {
                     throw new CertificateException(String.format("Certificate %s is not signed by a trusted signer", cert.getSubjectDN().getName()));
                 }
             }
-            checker.check(cert, signer);
+            checker.check(cert, signer, i);
         }
         Collections.addAll(trustCache, certs);
     }
@@ -108,11 +108,11 @@ public class LauncherTrustManager {
     }
     public void isCertificateCA(X509Certificate certificate)
     {
-        if(certificate.getBasicConstraints() <= 0) throw new SecurityException("This certificate not CA");
+        if(certificate.getBasicConstraints() < 0) throw new SecurityException("This certificate not CA");
     }
-    public void stdCertificateChecker(X509Certificate cert, X509Certificate signer)
+    public void stdCertificateChecker(X509Certificate cert, X509Certificate signer, int number)
     {
-        if(signer == null)
+        if(number == 0)
             isCertificateCodeSign(cert);
         else
             isCertificateCA(cert);

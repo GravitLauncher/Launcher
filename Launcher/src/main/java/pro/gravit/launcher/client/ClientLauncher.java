@@ -448,7 +448,6 @@ public final class ClientLauncher {
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncher.class);
         LogHelper.printVersion("Client Launcher");
-        //System.setSecurityManager(new ClientSecurityManager());
         engine.readKeys();
         HWIDProvider.registerHWIDs();
         LauncherGuardManager.initGuard(true);
