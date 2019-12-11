@@ -465,18 +465,14 @@ public final class ClientLauncher {
         LauncherEngine.modulesManager.invokeEvent(new ClientLauncherInitPhase(context));
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
-        for (Path classpathURL : classPath) {
-            //LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
-        }
+        URL[] classpath = resolveClassPath(params.clientDir, profile.getClassPath());
+        classLoader = new ClientClassLoader(classpath, ClassLoader.getSystemClassLoader());
         profile.pushOptionalClassPath(cp -> {
             LinkedList<Path> optionalClassPath = resolveClassPathList(params.clientDir, cp);
             for (Path classpathURL : optionalClassPath) {
-                //LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
+                classLoader.addURL(classpathURL.normalize().toAbsolutePath().toUri().toURL());
             }
         });
-        URL[] classpathurls = resolveClassPath(params.clientDir, profile.getClassPath());
-        classLoader = new ClientClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
         classLoader.nativePath = params.clientDir.resolve(NATIVES_DIR).toString();
         // Start client with WatchService monitoring
@@ -506,7 +502,7 @@ public final class ClientLauncher {
         ClientService.classLoader = classLoader;
         classLoader.addURL(IOHelper.getCodeSource(ClientLauncher.class).toUri().toURL());
         //classForName(classLoader, "com.google.common.collect.ForwardingMultimap");
-        ClientService.baseURLs = classpathurls;
+        ClientService.baseURLs = classpath;
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
