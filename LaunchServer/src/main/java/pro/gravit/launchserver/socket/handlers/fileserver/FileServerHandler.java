@@ -6,13 +6,14 @@ import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
+import pro.gravit.launchserver.socket.handlers.ContentType;
+import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -25,12 +26,15 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-    public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
-    public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
+    public static final SimpleDateFormat dateFormatter;
     public static final String READ = "r";
-    public static final int HTTP_CACHE_SECONDS = 60;
+    static {
+        dateFormatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+        dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
+    public static final int HTTP_CACHE_SECONDS = VerifyHelper.verifyInt(Integer.parseInt(System.getProperty("launcher.fileserver.cachesec", "60")), VerifyHelper.NOT_NEGATIVE, "HttpCache seconds should be positive");
     private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
-    private static final boolean TYPE_PROBE = Boolean.parseBoolean(System.getProperty("launcher.fileserver.typeprobe", "true"));
+    private static final ContentType TYPE_PROBE = Arrays.stream(ContentType.values()).filter(e -> e.name().toLowerCase(Locale.US).equals(System.getProperty("launcher.fileserver.typeprobe", "nio"))).findFirst().orElse(ContentType.NONE);
     private final Path base;
     private final boolean fullOut;
     private final boolean showHiddenFiles;
@@ -88,7 +92,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         // Cache Validation
         String ifModifiedSince = request.headers().get(HttpHeaderNames.IF_MODIFIED_SINCE);
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
-            SimpleDateFormat dateFormatter = new SimpleDateFormat(HTTP_DATE_FORMAT, Locale.US);
             Date ifModifiedSinceDate = dateFormatter.parse(ifModifiedSince);
 
             // Only compare up to the second because the datetime format we send to the client
@@ -234,11 +237,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
      * @param response HTTP response
      */
     private static void setDateHeader(FullHttpResponse response) {
-        SimpleDateFormat dateFormatter = new SimpleDateFormat(HTTP_DATE_FORMAT, Locale.US);
-        dateFormatter.setTimeZone(TimeZone.getTimeZone(HTTP_DATE_GMT_TIMEZONE));
-
-        Calendar time = new GregorianCalendar();
-        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(time.getTime()));
+        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(new Date(System.currentTimeMillis())));
     }
 
     /**
@@ -248,9 +247,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
      * @param fileToCache file to extract content type
      */
     private static void setDateAndCacheHeaders(HttpResponse response, File fileToCache) {
-        SimpleDateFormat dateFormatter = new SimpleDateFormat(HTTP_DATE_FORMAT, Locale.US);
-        dateFormatter.setTimeZone(TimeZone.getTimeZone(HTTP_DATE_GMT_TIMEZONE));
-
         // Date header
         Calendar time = new GregorianCalendar();
         response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(time.getTime()));
@@ -270,11 +266,8 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
      * @param file     file to extract content type
      */
     private static void setContentTypeHeader(HttpResponse response, File file) {
-    	if (TYPE_PROBE)
-    		try {
-    			response.headers().set(HttpHeaderNames.CONTENT_TYPE, Files.probeContentType(file.toPath()));
-    		} catch (Throwable e) {
-    			// ignore
-    		}
+    			String contentType = TYPE_PROBE.forPath(file);
+    			if (contentType != null)
+    				response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
     }
 }
