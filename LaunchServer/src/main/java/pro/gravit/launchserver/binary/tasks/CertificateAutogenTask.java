@@ -1,8 +1,10 @@
 package pro.gravit.launchserver.binary.tasks;
 
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -58,6 +60,7 @@ public class CertificateAutogenTask implements LauncherBuildTask {
                     Date.from(startDate.plusDays(3650).atZone(ZoneId.systemDefault()).toInstant()),
                     new X500Name("CN=ca"),
                     SubjectPublicKeyInfo.getInstance(server.publicKey.getEncoded()));
+            builder.addExtension(Extension.getInstance("1.3.6.1.5.5.7.3.3"));
             JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder("SHA256WITHECDSA");
             ContentSigner signer = csBuilder.build(server.privateKey);
             bcCertificate = builder.build(signer);

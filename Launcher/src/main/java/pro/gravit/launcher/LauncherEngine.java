@@ -47,9 +47,7 @@ public class LauncherEngine {
             throw new SecurityException(String.format("Class %s not signed", clazz.getName()));
         }
         try {
-            trustManager.checkCertificate(certificates, (c, s) -> {
-
-            });
+            trustManager.checkCertificate(certificates, trustManager::stdCertificateChecker);
         } catch (CertificateException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
             throw new SecurityException(e);
         }

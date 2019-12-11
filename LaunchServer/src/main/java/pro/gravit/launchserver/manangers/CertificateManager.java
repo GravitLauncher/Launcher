@@ -208,9 +208,7 @@ public class CertificateManager {
             return;
         }
         try {
-            trustManager.checkCertificate(certificates, (c, s) -> {
-
-            });
+            trustManager.checkCertificate(certificates, trustManager::stdCertificateChecker);
         } catch (CertificateException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
             throw new SecurityException(e);
         }

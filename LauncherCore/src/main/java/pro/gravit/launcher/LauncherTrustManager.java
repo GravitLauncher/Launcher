@@ -91,8 +91,30 @@ public class LauncherTrustManager {
         List<String> extended;
         try {
             extended = certificate.getExtendedKeyUsage();
+            if(extended == null) throw new SecurityException("Certificate extendedKeyUsage null");
+            boolean isCodeSign = false;
+            for(String s : extended)
+            {
+                if(s.equals("1.3.6.1.5.5.7.3.3"))
+                {
+                    isCodeSign = true;
+                    break;
+                }
+            }
+            if(!isCodeSign) throw new SecurityException("Certificate extendedKeyUsage codeSign checkFailed");
         } catch (CertificateParsingException e) {
             throw new SecurityException(e);
         }
+    }
+    public void isCertificateCA(X509Certificate certificate)
+    {
+        if(certificate.getBasicConstraints() <= 0) throw new SecurityException("This certificate not CA");
+    }
+    public void stdCertificateChecker(X509Certificate cert, X509Certificate signer)
+    {
+        if(signer == null)
+            isCertificateCodeSign(cert);
+        else
+            isCertificateCA(cert);
     }
 }
