@@ -299,7 +299,12 @@ public final class ClientLauncher {
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
         // Invoke main method
-        mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
+        try {
+            mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
+        } finally {
+            Request.service.close();
+        }
+
     }
 
     private static Process process = null;
@@ -501,7 +506,7 @@ public final class ClientLauncher {
         ClientService.classLoader = classLoader;
         classLoader.addURL(IOHelper.getCodeSource(ClientLauncher.class).toUri().toURL());
         //classForName(classLoader, "com.google.common.collect.ForwardingMultimap");
-        ClientService.baseURLs = classpath;
+        ClientService.baseURLs = classLoader.getURLs();
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();

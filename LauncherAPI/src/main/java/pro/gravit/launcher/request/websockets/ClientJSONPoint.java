@@ -108,7 +108,7 @@ public abstract class ClientJSONPoint {
             ch.closeFuture().sync();
         }
 
-        //group.shutdownGracefully();
+        group.shutdownGracefully();
     }
 
     public void eval(final String text) {
