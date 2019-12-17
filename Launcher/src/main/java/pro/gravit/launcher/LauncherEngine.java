@@ -1,7 +1,9 @@
 package pro.gravit.launcher;
 
+import pro.gravit.launcher.api.SystemService;
 import pro.gravit.launcher.client.*;
 import pro.gravit.launcher.client.events.ClientEngineInitPhase;
+import pro.gravit.launcher.client.events.ClientExitPhase;
 import pro.gravit.launcher.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.NoRuntimeProvider;
@@ -10,11 +12,13 @@ import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.managers.ConsoleManager;
+import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.RestoreSessionRequest;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
+import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.helper.*;
 
 import java.io.IOException;
@@ -53,6 +57,18 @@ public class LauncherEngine {
         }
     }
 
+    public static void exitLauncher(int code)
+    {
+        modulesManager.invokeEvent(new ClientExitPhase(code));
+        try {
+            System.exit(code);
+        } catch (Exception e) //Forge Security Manager?
+        {
+            NativeJVMHalt.haltA(code);
+        }
+
+    }
+
     public static void main(String... args) throws Throwable {
         JVMHelper.checkStackTrace(LauncherEngine.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
@@ -84,7 +100,7 @@ public class LauncherEngine {
         LogHelper.debug("Launcher started in %dms", endTime - startTime);
         //Request.service.close();
         //FunctionalBridge.close();
-        System.exit(0);
+        SystemService.exit(0);
     }
 
     public static void initGson(ClientModuleManager modulesManager) {

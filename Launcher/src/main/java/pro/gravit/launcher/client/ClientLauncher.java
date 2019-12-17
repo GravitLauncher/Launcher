@@ -463,6 +463,7 @@ public final class ClientLauncher {
         HashedDir assetHDir = p.assetHDir, clientHDir = p.clientHDir;
         ClientLaunchContext context = new ClientLaunchContext(params, profile, assetHDir, clientHDir);
         Launcher.profile = profile;
+        AuthService.profile = profile;
         playerProfile = params.pp;
         Request.setSession(params.session);
         checkJVMBitsAndVersion();

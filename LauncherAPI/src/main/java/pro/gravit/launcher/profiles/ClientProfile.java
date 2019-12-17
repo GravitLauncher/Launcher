@@ -69,6 +69,14 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public static final boolean profileCaseSensitive = Boolean.getBoolean("launcher.clientProfile.caseSensitive");
+    public enum SecurityManagerConfig
+    {
+        NONE, CLIENT, LAUNCHER, MIXED
+    }
+    public enum ClassLoaderConfig
+    {
+        AGENT, LAUNCHER
+    }
 
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
@@ -122,6 +130,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private final List<String> clientArgs = new ArrayList<>();
     @LauncherNetworkAPI
     private final List<String> whitelist = new ArrayList<>();
+    @LauncherNetworkAPI
+    public SecurityManagerConfig securityManagerConfig = SecurityManagerConfig.CLIENT;
+    @LauncherNetworkAPI
+    public ClassLoaderConfig classLoaderConfig = ClassLoaderConfig.LAUNCHER;
 
     @Override
     public int compareTo(ClientProfile o) {
