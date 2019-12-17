@@ -17,12 +17,13 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 
 public class AsyncDownloader {
+	public static final Callback IGNORE = (ignored) -> {};
     public AsyncDownloader(Callback callback) {
         this.callback = callback;
     }
 
     public AsyncDownloader() {
-        callback = (ignored) -> {};
+        callback = IGNORE;
     }
 
     @FunctionalInterface
@@ -33,11 +34,18 @@ public class AsyncDownloader {
     public final Callback callback;
     public static class SizedFile
     {
-        public final String path;
+        public final String urlPath, filePath;
         public final long size;
 
         public SizedFile(String path, long size) {
-            this.path = path;
+            this.urlPath = path;
+            this.filePath = path;
+            this.size = size;
+        }
+        
+        public SizedFile(String urlPath, String filePath, long size) {
+            this.urlPath = urlPath;
+            this.filePath = filePath;
             this.size = size;
         }
     }
@@ -67,8 +75,8 @@ public class AsyncDownloader {
         String path = baseUri.getPath();
         for(AsyncDownloader.SizedFile currentFile : files)
         {
-            URL url = new URI(scheme,host,path + currentFile.path, "", "").toURL();
-            downloadFile(url, targetDir.resolve(currentFile.path), currentFile.size);
+            URL url = new URI(scheme, host, path + currentFile.urlPath, "", "").toURL();
+            downloadFile(url, targetDir.resolve(currentFile.filePath), currentFile.size);
         }
     }
     public List<List<SizedFile>> sortFiles(List<SizedFile> files, int threads)
@@ -90,7 +98,8 @@ public class AsyncDownloader {
         return result;
     }
 
-    public CompletableFuture[] runDownloadList(List<List<SizedFile>> files, String baseURL, Path targetDir, Executor executor) {
+    @SuppressWarnings("rawtypes")
+	public CompletableFuture[] runDownloadList(List<List<SizedFile>> files, String baseURL, Path targetDir, Executor executor) {
         int threads = files.size();
         CompletableFuture[] futures = new CompletableFuture[threads];
         for(int i=0;i<threads;++i)

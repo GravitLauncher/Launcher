@@ -2,12 +2,10 @@ package pro.gravit.launcher;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;

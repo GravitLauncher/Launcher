@@ -46,7 +46,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         return requestDo(service);
     }
 
-    @SuppressWarnings("unchecked")
     protected R requestDo(StdWebSocketService service) throws Exception {
         return service.requestSync(this);
     }

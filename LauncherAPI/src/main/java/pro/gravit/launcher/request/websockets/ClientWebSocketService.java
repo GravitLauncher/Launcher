@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 
 public abstract class ClientWebSocketService extends ClientJSONPoint {
     public final Gson gson;

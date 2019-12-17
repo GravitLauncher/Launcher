@@ -18,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 public class StdWebSocketService extends ClientWebSocketService {
-    private final ConcurrentHashMap<UUID, CompletableFuture> futureMap = new ConcurrentHashMap<>();
+    @SuppressWarnings("rawtypes")
+	private final ConcurrentHashMap<UUID, CompletableFuture> futureMap = new ConcurrentHashMap<>();
     private final HashSet<EventHandler> eventHandlers = new HashSet<>();
     public void registerEventHandler(EventHandler handler)
     {
@@ -50,7 +51,8 @@ public class StdWebSocketService extends ClientWebSocketService {
                 processEventHandlers(webSocketEvent);
                 return;
             }
-            CompletableFuture future = futureMap.get(event.requestUUID);
+            @SuppressWarnings("rawtypes")
+			CompletableFuture future = futureMap.get(event.requestUUID);
             if(future != null) {
                 if (event instanceof ErrorRequestEvent) {
                     future.completeExceptionally(new RequestException(((ErrorRequestEvent) event).error));
