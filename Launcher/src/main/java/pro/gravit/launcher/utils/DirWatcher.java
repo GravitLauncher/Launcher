@@ -47,7 +47,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     };
 
     public static final String IGN_OVERFLOW = "launcher.dirwatcher.ignoreOverflows";
-	private static final boolean PROP_IGN_OVERFLOW = Boolean.getBoolean(IGN_OVERFLOW);
+	private static final boolean PROP_IGN_OVERFLOW = Boolean.parseBoolean(System.getProperty(IGN_OVERFLOW, "true"));
 
     private static void handleError(Throwable e) {
         LogHelper.error(e);
