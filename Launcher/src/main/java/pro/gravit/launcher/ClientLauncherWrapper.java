@@ -3,6 +3,7 @@ package pro.gravit.launcher;
 import pro.gravit.launcher.client.ClientLauncher;
 import pro.gravit.launcher.client.ClientModuleManager;
 import pro.gravit.launcher.client.DirBridge;
+import pro.gravit.launcher.utils.DirWatcher;
 import pro.gravit.utils.helper.EnvHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
@@ -59,6 +60,7 @@ public class ClientLauncherWrapper {
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_OPTDIR_PROPERTY);
+        JVMHelper.addSystemPropertyToArgs(args, DirWatcher.IGN_OVERFLOW);
         if (!noJava9check && !System.getProperty("java.version").startsWith("1.8")) {
             LogHelper.debug("Found Java 9+ ( %s )", System.getProperty("java.version"));
             args.add("--add-modules");

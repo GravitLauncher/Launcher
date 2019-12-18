@@ -46,6 +46,9 @@ public final class DirWatcher implements Runnable, AutoCloseable {
             StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
     };
 
+    public static final String IGN_OVERFLOW = "launcher.dirwatcher.ignoreOverflows";
+	private static final boolean PROP_IGN_OVERFLOW = Boolean.getBoolean(IGN_OVERFLOW);
+
     private static void handleError(Throwable e) {
         LogHelper.error(e);
         NativeJVMHalt.haltA(-123);
@@ -82,7 +85,6 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     }
 
     @Override
-
     public void close() throws IOException {
         service.close();
     }
@@ -92,7 +94,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
         for (WatchEvent<?> event : key.pollEvents()) {
             Kind<?> kind = event.kind();
             if (kind.equals(StandardWatchEventKinds.OVERFLOW)) {
-                if (Boolean.getBoolean("launcher.dirwatcher.ignoreOverflows"))
+                if (PROP_IGN_OVERFLOW)
                     continue; // Sometimes it's better to ignore than interrupt fair playing
                 throw new IOException("Overflow");
             }

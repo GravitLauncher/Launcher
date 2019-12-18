@@ -5,6 +5,7 @@ import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.utils.DirWatcher;
 import pro.gravit.utils.helper.EnvHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
@@ -99,6 +100,7 @@ public class ClientProcessBuilder {
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.USE_CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.USE_OPTDIR_PROPERTY);
+        JVMHelper.addSystemPropertyToArgs(context.args, DirWatcher.IGN_OVERFLOW);
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
             if (JVMHelper.OS_VERSION.startsWith("10.")) {
                 LogHelper.debug("MustDie 10 fix is applied");

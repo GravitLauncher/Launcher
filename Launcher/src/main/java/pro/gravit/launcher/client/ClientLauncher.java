@@ -351,6 +351,7 @@ public final class ClientLauncher {
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.USE_CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.USE_OPTDIR_PROPERTY);
+        JVMHelper.addSystemPropertyToArgs(context.args, DirWatcher.IGN_OVERFLOW);
         if (JVMHelper.OS_TYPE == OS.MUSTDIE) {
             if (JVMHelper.OS_VERSION.startsWith("10.")) {
                 LogHelper.debug("MustDie 10 fix is applied");
