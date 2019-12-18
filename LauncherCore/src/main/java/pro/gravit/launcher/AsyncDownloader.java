@@ -79,6 +79,13 @@ public class AsyncDownloader {
             downloadFile(url, targetDir.resolve(currentFile.filePath), currentFile.size);
         }
     }
+    public void downloadListInOneThreadSimple(List<SizedFile> files, String baseURL, Path targetDir) throws URISyntaxException, IOException {
+
+        for(AsyncDownloader.SizedFile currentFile : files)
+        {
+            downloadFile(new URL(baseURL + currentFile.urlPath), targetDir.resolve(currentFile.filePath), currentFile.size);
+        }
+    }
     public List<List<SizedFile>> sortFiles(List<SizedFile> files, int threads)
     {
         files.sort(Comparator.comparingLong((f) -> -f.size));
@@ -116,6 +123,24 @@ public class AsyncDownloader {
         return futures;
     }
 
+    @SuppressWarnings("rawtypes")
+	public CompletableFuture[] runDownloadListSimple(List<List<SizedFile>> files, String baseURL, Path targetDir, Executor executor) {
+        int threads = files.size();
+        CompletableFuture[] futures = new CompletableFuture[threads];
+        for(int i=0;i<threads;++i)
+        {
+            List<SizedFile> currentTasks = files.get(i);
+            futures[i] = CompletableFuture.runAsync(() -> {
+                try {
+                	downloadListInOneThreadSimple(currentTasks, baseURL, targetDir);
+                } catch (URISyntaxException | IOException e) {
+                    throw new CompletionException(e);
+                }
+            }, executor);
+        }
+        return futures;
+    }
+    
     public void transfer(InputStream input, Path file, long size) throws IOException {
         try (OutputStream fileOutput = IOHelper.newOutput(file)) {
             long downloaded = 0L;
