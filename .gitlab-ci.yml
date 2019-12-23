@@ -30,6 +30,8 @@ build:
     - mv LaunchServer.jar ../../../artifacts/LaunchServer.jar
     - cd ../../../ServerWrapper/build/libs
     - mv ServerWrapper.jar ../../../artifacts/ServerWrapper.jar
+    - cd ../../../LauncherAuthlib/build/libs
+    - mv LauncherAuthlib.jar ../../../artifacts/LauncherAuthlib.jar
     - cd ../../../
     - mv modules/*_module/build/libs/*.jar artifacts/modules
     - mv modules/*_swmodule/build/libs/*.jar artifacts/modules
