@@ -95,7 +95,7 @@ public class ListDownloader {
         for(int i=0;i<THREADS;++i)
         {
             try {
-                threads[i].wait();
+                threads[i].join();
                 if(excRef.get() != null)
                 {
                     Exception ex = excRef.get();
