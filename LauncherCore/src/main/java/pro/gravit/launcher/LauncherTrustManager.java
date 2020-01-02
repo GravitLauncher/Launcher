@@ -87,7 +87,7 @@ public class LauncherTrustManager {
 
     public void isCertificateCodeSign(X509Certificate certificate)
     {
-        if(!certificate.getKeyUsage()[0]) throw new SecurityException("Certificate keyUsage \"digitalSignature\" check failed");
+        //if(!certificate.getKeyUsage()[0]) throw new SecurityException("Certificate keyUsage \"digitalSignature\" check failed");
         List<String> extended;
         try {
             extended = certificate.getExtendedKeyUsage();

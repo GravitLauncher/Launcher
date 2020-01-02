@@ -59,7 +59,7 @@ public class CertificateAutogenTask implements LauncherBuildTask {
                     new X500Name("CN=ca"),
                     SubjectPublicKeyInfo.getInstance(server.publicKey.getEncoded()));
             builder.addExtension(Extension.extendedKeyUsage, false, new ExtendedKeyUsage(KeyPurposeId.id_kp_codeSigning));
-            builder.addExtension(Extension.keyUsage, false, new KeyUsage(1));
+            //builder.addExtension(Extension.keyUsage, false, new KeyUsage(1));
             JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder("SHA256WITHECDSA");
             ContentSigner signer = csBuilder.build(server.privateKey);
             bcCertificate = builder.build(signer);

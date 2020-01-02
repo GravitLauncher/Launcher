@@ -17,7 +17,7 @@ public class HibernateAuthProvider extends AuthProvider {
         if (user == null && autoReg) {
             AuthHookManager.RegContext context = new AuthHookManager.RegContext(login, ((AuthPlainPassword) password).password, ip, false);
             if (srv.authHookManager.registraion.hook(context)) {
-                user = srv.config.dao.userService.registerNewUser(login, ((AuthPlainPassword) password).password);
+                //user = srv.config.dao.userService.registerNewUser(login, ((AuthPlainPassword) password).password); //TODO: FIX
             } else {
                 throw new AuthException("Registration canceled. Try again later");
             }
