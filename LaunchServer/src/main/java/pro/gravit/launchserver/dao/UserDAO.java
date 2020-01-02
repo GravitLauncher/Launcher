@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.dao;
 
-import pro.gravit.launcher.hwid.OshiHWID;
+import pro.gravit.launcher.hwid.HWID;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,8 +11,6 @@ public interface UserDAO {
     User findByUsername(String username);
 
     User findByUUID(UUID uuid);
-
-    List<UserHWID> findHWID(OshiHWID hwid);
 
     void save(User user);
 

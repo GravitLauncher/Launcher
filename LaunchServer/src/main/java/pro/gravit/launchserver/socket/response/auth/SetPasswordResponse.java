@@ -31,11 +31,11 @@ public class SetPasswordResponse extends SimpleResponse {
             return;
         }
         if (username != null) {
-            User user = server.config.dao.userService.findUserByUsername(username);
+            User user = server.config.dao.userDAO.findByUsername(username);
             user.setPassword(newPassword);
             sendResult(new SetPasswordRequestEvent());
         } else {
-            User user = server.config.dao.userService.findUserByUsername(client.username);
+            User user = server.config.dao.userDAO.findByUsername(client.username);
             if (user.verifyPassword(oldPassword)) {
                 user.setPassword(newPassword);
                 sendResult(new SetPasswordRequestEvent());

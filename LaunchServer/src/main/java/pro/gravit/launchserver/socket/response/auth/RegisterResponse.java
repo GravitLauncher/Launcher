@@ -2,6 +2,7 @@ package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launchserver.dao.User;
+import pro.gravit.launchserver.dao.impl.UserHibernateImpl;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
@@ -24,17 +25,17 @@ public class RegisterResponse extends SimpleResponse {
             sendError("Hash invalid");
             return;
         }
-        User checkUser = server.config.dao.userService.findUserByUsername(login);
+        User checkUser = server.config.dao.userDAO.findByUsername(login);
         if (checkUser != null) {
             sendError("User already register");
             return;
         }
-        User user = new User();
+        UserHibernateImpl user = new UserHibernateImpl();
         user.username = login;
         user.email = email;
         user.setPassword(password);
         user.uuid = UUID.randomUUID();
-        server.config.dao.userService.saveUser(user);
+        server.config.dao.userDAO.save(user);
     }
 
     @Override

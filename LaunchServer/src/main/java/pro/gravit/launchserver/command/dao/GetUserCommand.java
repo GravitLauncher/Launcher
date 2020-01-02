@@ -23,12 +23,12 @@ public class GetUserCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
-        User user = server.config.dao.userService.findUserByUsername(args[0]);
+        User user = server.config.dao.userDAO.findByUsername(args[0]);
         if (user == null) {
             LogHelper.error("User %s not found", args[0]);
             return;
         }
-        LogHelper.info("[%s] UUID: %s", user.username, user.uuid.toString());
+        LogHelper.info("[%s] UUID: %s", user.getUsername(), user.getUuid().toString());
         //for(UserHWID hwid : user.hwids)
         //{
         //    LogHelper.info("[%s] HWID: memory: %d | serial %s | hwdiskserial: %s | processorID %s | macAddr %s", user.username, hwid.totalMemory, hwid.serialNumber, hwid.HWDiskSerial, hwid.processorID, hwid.macAddr);

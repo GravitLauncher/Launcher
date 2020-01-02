@@ -13,7 +13,7 @@ public class HibernateAuthProvider extends AuthProvider {
     @Override
     public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws Exception {
         if (!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
-        User user = srv.config.dao.userService.findUserByUsername(login);
+        User user = srv.config.dao.userDAO.findByUsername(login);
         if (user == null && autoReg) {
             AuthHookManager.RegContext context = new AuthHookManager.RegContext(login, ((AuthPlainPassword) password).password, ip, false);
             if (srv.authHookManager.registraion.hook(context)) {

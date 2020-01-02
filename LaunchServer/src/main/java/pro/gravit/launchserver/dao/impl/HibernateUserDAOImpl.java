@@ -3,6 +3,7 @@ package pro.gravit.launchserver.dao.impl;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;
@@ -22,55 +23,34 @@ public class HibernateUserDAOImpl implements UserDAO {
         this.factory = factory;
     }
 
-    public User findById(int id) {
+    public UserHibernateImpl findById(int id) {
         try (Session s = factory.openSession()) {
-            return s.get(User.class, id);
+            return s.get(UserHibernateImpl.class, id);
         }
     }
 
-    public User findByUsername(String username) {
+    public UserHibernateImpl findByUsername(String username) {
         EntityManager em = factory.createEntityManager();
         em.getTransaction().begin();
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<User> personCriteria = cb.createQuery(User.class);
-        Root<User> rootUser = personCriteria.from(User.class);
+        CriteriaQuery<UserHibernateImpl> personCriteria = cb.createQuery(UserHibernateImpl.class);
+        Root<UserHibernateImpl> rootUser = personCriteria.from(UserHibernateImpl.class);
         personCriteria.select(rootUser).where(cb.equal(rootUser.get("username"), username));
-        List<User> ret = em.createQuery(personCriteria).getResultList();
+        List<UserHibernateImpl> ret = em.createQuery(personCriteria).getResultList();
         em.close();
         return ret.size() == 0 ? null : ret.get(0);
     }
 
-    public User findByUUID(UUID uuid) {
+    public UserHibernateImpl findByUUID(UUID uuid) {
         EntityManager em = factory.createEntityManager();
         em.getTransaction().begin();
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<User> personCriteria = cb.createQuery(User.class);
-        Root<User> rootUser = personCriteria.from(User.class);
+        CriteriaQuery<UserHibernateImpl> personCriteria = cb.createQuery(UserHibernateImpl.class);
+        Root<UserHibernateImpl> rootUser = personCriteria.from(UserHibernateImpl.class);
         personCriteria.select(rootUser).where(cb.equal(rootUser.get("uuid"), uuid));
-        List<User> ret = em.createQuery(personCriteria).getResultList();
+        List<UserHibernateImpl> ret = em.createQuery(personCriteria).getResultList();
         em.close();
         return ret.size() == 0 ? null : ret.get(0);
-    }
-
-    @Override
-    public List<UserHWID> findHWID(OshiHWID hwid) {
-        EntityManager em = factory.createEntityManager();
-        em.getTransaction().begin();
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<UserHWID> personCriteria = cb.createQuery(UserHWID.class);
-        Root<UserHWID> rootUser = personCriteria.from(UserHWID.class);
-        personCriteria.select(rootUser).where(
-                cb.or(
-                        cb.equal(rootUser.get("totalMemory"), hwid.totalMemory),
-                        cb.equal(rootUser.get("HWDiskSerial"), hwid.HWDiskSerial),
-                        cb.equal(rootUser.get("serialNumber"), hwid.serialNumber),
-                        cb.equal(rootUser.get("processorID"), hwid.processorID),
-                        cb.equal(rootUser.get("macAddr"), hwid.macAddr)
-                )
-        );
-        List<UserHWID> ret = em.createQuery(personCriteria).getResultList();
-        em.close();
-        return ret;
     }
 
     public void save(User user) {
