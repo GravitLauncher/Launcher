@@ -24,6 +24,8 @@ public class OptionalFile extends Observable {
     @LauncherNetworkAPI
     public String info;
     @LauncherNetworkAPI
+    public OptionalTrigger[] triggers;
+    @LauncherNetworkAPI
     public OptionalDepend[] dependenciesFile;
     @LauncherNetworkAPI
     public OptionalDepend[] conflictFile;
