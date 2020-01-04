@@ -504,6 +504,7 @@ public final class ClientLauncher {
         AuthService.username = params.pp.username;
         AuthService.uuid = params.pp.uuid;
         ClientService.classLoader = classLoader;
+        ClientService.nativePath = classLoader.nativePath;
         classLoader.addURL(IOHelper.getCodeSource(ClientLauncher.class).toUri().toURL());
         //classForName(classLoader, "com.google.common.collect.ForwardingMultimap");
         ClientService.baseURLs = classLoader.getURLs();
