@@ -256,6 +256,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
         if (file.mark) return;
         file.mark = true;
+        file.notifyObservers(true);
         if (file.dependencies != null) {
             for (OptionalFile dep : file.dependencies) {
                 if (dep.dependenciesCount == null) dep.dependenciesCount = new HashSet<>();
@@ -283,6 +284,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public void unmarkOptional(OptionalFile file) {
         if (!file.mark) return;
         file.mark = false;
+        file.notifyObservers(false);
         if (file.dependenciesCount != null) {
             for (OptionalFile f : file.dependenciesCount) {
                 if (f.isPreset) continue;

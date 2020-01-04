@@ -7,9 +7,10 @@ import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Observable;
 import java.util.Set;
 
-public class OptionalFile {
+public class OptionalFile extends Observable {
     @LauncherNetworkAPI
     public String[] list;
     @LauncherNetworkAPI
