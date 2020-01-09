@@ -55,12 +55,15 @@ public class ProfileByUUIDResponse extends SimpleResponse {
         } else {
             pair = client.auth;
         }
-        if(pair == null)
-        {
+        if (pair == null) {
             sendError("ProfileByUUIDResponse: AuthProviderPair is null");
             return;
         }
         username = pair.handler.uuidToUsername(uuid);
+        if (username == null) {
+            sendError(String.format("ProfileByUUIDResponse: User with uuid %s not found or AuthProvider#uuidToUsername returned null", uuid));
+            return;
+        }
         sendResult(new ProfileByUUIDRequestEvent(getProfile(uuid, username, this.client, client.auth.textureProvider)));
     }
 }
