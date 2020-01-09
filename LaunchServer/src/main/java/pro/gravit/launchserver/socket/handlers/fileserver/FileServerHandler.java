@@ -34,7 +34,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
     }
     public static final int HTTP_CACHE_SECONDS = VerifyHelper.verifyInt(Integer.parseInt(System.getProperty("launcher.fileserver.cachesec", "60")), VerifyHelper.NOT_NEGATIVE, "HttpCache seconds should be positive");
     private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
-    private static final ContentType TYPE_PROBE = Arrays.stream(ContentType.values()).filter(e -> e.name().toLowerCase(Locale.US).equals(System.getProperty("launcher.fileserver.typeprobe", "nio"))).findFirst().orElse(ContentType.NONE);
+    private static final ContentType TYPE_PROBE = Arrays.stream(ContentType.values()).filter(e -> e.name().toLowerCase(Locale.US).equals(System.getProperty("launcher.fileserver.typeprobe", "nio"))).findFirst().orElse(ContentType.UNIVERSAL);
     private final Path base;
     private final boolean fullOut;
     private final boolean showHiddenFiles;
