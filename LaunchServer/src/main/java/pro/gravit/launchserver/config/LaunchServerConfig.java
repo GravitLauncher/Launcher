@@ -16,6 +16,7 @@ import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.provider.RejectAuthProvider;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
+import pro.gravit.launchserver.binary.tasks.exe.Launch4JTask;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.RegLimiterComponent;
@@ -209,6 +210,9 @@ public final class LaunchServerConfig {
         public boolean enabled;
         public boolean setMaxVersion;
         public String maxVersion;
+        public String minVersion = "1.8.0";
+        public String supportURL = null;
+        public String downloadUrl = Launch4JTask.DOWNLOAD_URL;
         public String productName;
         public String productVer;
         public String fileDesc;

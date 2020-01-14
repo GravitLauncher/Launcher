@@ -28,7 +28,7 @@ public class Launch4JTask implements LauncherBuildTask {
     }
 
     // URL constants
-    private static final String DOWNLOAD_URL = "http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html"; // Oracle
+    public static final String DOWNLOAD_URL = "http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html"; // Oracle
     // JRE 8
     // File constants
     private final Path faviconFile;
@@ -80,8 +80,8 @@ public class Launch4JTask implements LauncherBuildTask {
         // Set file options
         config.setChdir(".");
         config.setErrTitle("JVM Error");
-        config.setDownloadUrl(DOWNLOAD_URL);
-
+        config.setDownloadUrl(server.config.launch4j.downloadUrl);
+        if (server.config.launch4j.supportURL != null) config.setSupportUrl(server.config.launch4j.supportURL);
         // Set boolean options
         config.setPriorityIndex(0);
         config.setHeaderType(Config.GUI_HEADER);
@@ -90,7 +90,7 @@ public class Launch4JTask implements LauncherBuildTask {
 
         // Prepare JRE
         Jre jre = new Jre();
-        jre.setMinVersion("1.8.0");
+        jre.setMinVersion(server.config.launch4j.minVersion);
         if (server.config.launch4j.setMaxVersion)
             jre.setMaxVersion(server.config.launch4j.maxVersion);
         jre.setRuntimeBits(Jre.RUNTIME_BITS_64_AND_32);
