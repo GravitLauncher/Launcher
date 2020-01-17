@@ -129,6 +129,7 @@ var settingsOverlay = {
             settingsOverlay.transferDialog.setVisible(false);
         });
         settingsOverlay.transferDialog.lookup("#applyTransfer").setOnAction(function(event) {
+            DirBridge.dirUpdates = settings.updatesDir;
             DirBridge.move(newDir);
             settings.updatesDir = newDir;
             DirBridge.dirUpdates = settings.updatesDir;
