@@ -21,11 +21,14 @@ public class InjectClassAcceptor {
 	public static final List<Class<?>> zPrimitivesList = Arrays.asList(primitives);
 	public static final String INJ_DESC = Type.getDescriptor(LauncherInject.class);
 
-	public static void visit(ClassNode cn, Map<String, Object> object) {
+	public static void checkMap(Map<String,Object> object) {
 		if (!object.values().stream().allMatch(zPrimitivesList::contains))
 			throw new IllegalArgumentException("Only primitives in values...");
+	}
+	
+	public static void visit(ClassNode cn, Map<String, Object> object) {
 		cn.fields.stream().filter(e -> e.invisibleAnnotations != null)
-				.filter(e -> e.invisibleAnnotations.stream().anyMatch(f -> f.desc.equals(INJ_DESC))).forEach(e -> {
+				.filter(e -> !e.invisibleAnnotations.isEmpty() && e.invisibleAnnotations.stream().anyMatch(f -> f.desc.equals(INJ_DESC))).forEach(e -> {
 					// Notice that fields that will be used with this algo should not have default
 					// value by = ...;
 					AnnotationNode n = e.invisibleAnnotations.stream().filter(f -> INJ_DESC.equals(f.desc)).findFirst()
