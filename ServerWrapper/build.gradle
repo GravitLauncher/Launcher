@@ -38,7 +38,6 @@ task javadocJar(type: Jar) {
 
 dependencies {
     pack project(':LauncherAuthlib')
-    pack 'org.apache.httpcomponents:httpclient:4.5.10'
     pack 'io.netty:netty-codec-http:4.1.43.Final'
 }
 
