@@ -22,7 +22,7 @@ public class InjectClassAcceptor {
 	public static final String INJ_DESC = Type.getDescriptor(LauncherInject.class);
 
 	public static void checkMap(Map<String,Object> object) {
-		if (!object.values().stream().allMatch(zPrimitivesList::contains))
+		if (!zPrimitivesList.containsAll(object.values()))
 			throw new IllegalArgumentException("Only primitives in values...");
 	}
 	
