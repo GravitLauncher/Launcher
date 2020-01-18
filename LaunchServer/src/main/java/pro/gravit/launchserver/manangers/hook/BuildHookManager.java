@@ -27,13 +27,11 @@ public class BuildHookManager {
     private final Set<Transformer> CLASS_TRANSFORMER;
     private final Set<String> CLASS_BLACKLIST;
     private final Set<String> MODULE_CLASS;
-    private final Map<String, byte[]> INCLUDE_CLASS;
 
     public BuildHookManager() {
         HOOKS = new HashSet<>(4);
         CLASS_BLACKLIST = new HashSet<>(4);
         MODULE_CLASS = new HashSet<>(4);
-        INCLUDE_CLASS = new HashMap<>(4);
         CLASS_TRANSFORMER = new HashSet<>(4);
         BUILDRUNTIME = true;
         autoRegisterIgnoredClass(AutogenConfig.class.getName());
@@ -54,14 +52,6 @@ public class BuildHookManager {
         byte[] result = clazz;
         for (Transformer transformer : CLASS_TRANSFORMER) result = transformer.transform(result, classname, reader);
         return result;
-    }
-
-    public void registerIncludeClass(String classname, byte[] classdata) {
-        INCLUDE_CLASS.put(classname, classdata);
-    }
-
-    public Map<String, byte[]> getIncludeClass() {
-        return INCLUDE_CLASS;
     }
 
     public boolean isContainsBlacklist(String clazz) {

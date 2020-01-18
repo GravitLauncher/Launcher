@@ -43,20 +43,6 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
     public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServer srv, Predicate<ZipEntry> excluder, boolean needFixes) throws IOException {
         try (ClassMetadataReader reader = new ClassMetadataReader()) {
             reader.getCp().add(new JarFile(inputFile.toFile()));
-            List<JarFile> libs = srv.launcherBinary.coreLibs.stream().map(e -> {
-                try {
-                    return new JarFile(e.toFile());
-                } catch (IOException e1) {
-                    throw new RuntimeException(e1);
-                }
-            }).collect(Collectors.toList());
-            libs.addAll(srv.launcherBinary.addonLibs.stream().map(e -> {
-                try {
-                    return new JarFile(e.toFile());
-                } catch (IOException e1) {
-                    throw new RuntimeException(e1);
-                }
-            }).collect(Collectors.toList()));
             try (ZipInputStream input = IOHelper.newZipInput(addFile)) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {

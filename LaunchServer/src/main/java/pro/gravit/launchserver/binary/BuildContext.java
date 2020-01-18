@@ -29,6 +29,14 @@ public class BuildContext {
         ZipEntry zip = IOHelper.newZipEntry(filename);
         output.putNextEntry(zip);
         IOHelper.transfer(inputStream, output);
+        output.closeEntry();
+        fileList.add(filename);
+    }
+    public void pushBytes(String filename, byte[] bytes) throws IOException {
+        ZipEntry zip = IOHelper.newZipEntry(filename);
+        output.putNextEntry(zip);
+        output.write(bytes);
+        output.closeEntry();
         fileList.add(filename);
     }
 

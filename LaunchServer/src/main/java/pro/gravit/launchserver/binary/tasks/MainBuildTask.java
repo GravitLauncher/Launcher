@@ -1,7 +1,10 @@
 package pro.gravit.launchserver.binary.tasks;
 
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
 import pro.gravit.launcher.AutogenConfig;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
@@ -37,27 +40,80 @@ import static pro.gravit.utils.helper.IOHelper.newZipEntry;
 public class MainBuildTask implements LauncherBuildTask {
     private final LaunchServer server;
     public final ClassMetadataReader reader;
+    @FunctionalInterface
+    public interface Transformer {
+        byte[] transform(byte[] input, String classname, BuildContext context);
+    }
 
-    private final class RuntimeDirVisitor extends SimpleFileVisitor<Path> {
+    public interface ASMTransformer extends Transformer {
+        default byte[] transform(byte[] input, String classname, BuildContext context)
+        {
+            ClassReader reader = new ClassReader(input);
+            ClassNode cn = new ClassNode();
+            reader.accept(cn, 0);
+            transform(cn, classname, context);
+            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+            cn.accept(writer);
+            return writer.toByteArray();
+        }
+        void transform(ClassNode cn, String classname, BuildContext context);
+    }
+    public abstract static class ASMAnnotationFieldProcessor implements ASMTransformer
+    {
+        private final String desc;
+
+        protected ASMAnnotationFieldProcessor(String desc) {
+            this.desc = desc;
+        }
+
+        @Override
+        public void transform(ClassNode cn, String classname, BuildContext context) {
+            for(FieldNode fn : cn.fields)
+            {
+                if(fn.invisibleAnnotations == null || fn.invisibleAnnotations.isEmpty()) continue;
+                AnnotationNode found = null;
+                for(AnnotationNode an : fn.invisibleAnnotations)
+                {
+                    if(an == null) continue;
+                    if(desc.equals(an.desc))
+                    {
+                        found = an;
+                        break;
+                    }
+                }
+                if(found != null)
+                {
+                    transformField(found, fn, cn, classname, context);
+                }
+            }
+        }
+        abstract public void transformField(AnnotationNode an, FieldNode fn, ClassNode cn, String classname, BuildContext context);
+    }
+
+    private final static class RuntimeDirVisitor extends SimpleFileVisitor<Path> {
         private final ZipOutputStream output;
-        private final Map<String, byte[]> runtime;
+        private final Map<String, byte[]> hashs;
+        private final Path sourceDir;
+        private final String targetDir;
 
-        private RuntimeDirVisitor(ZipOutputStream output, Map<String, byte[]> runtime) {
+        private RuntimeDirVisitor(ZipOutputStream output, Map<String, byte[]> hashs, Path sourceDir, String targetDir) {
             this.output = output;
-            this.runtime = runtime;
+            this.hashs = hashs;
+            this.sourceDir = sourceDir;
+            this.targetDir = targetDir;
         }
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            String dirName = IOHelper.toString(server.launcherBinary.runtimeDir.relativize(dir));
+            String dirName = IOHelper.toString(sourceDir.relativize(dir));
             output.putNextEntry(newEntry(dirName + '/'));
             return super.preVisitDirectory(dir, attrs);
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            String fileName = IOHelper.toString(server.launcherBinary.runtimeDir.relativize(file));
-            runtime.put(fileName, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, file));
+            String fileName = IOHelper.toString(sourceDir.relativize(file));
+            hashs.put(fileName, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, file));
 
             // Create zip entry and transfer contents
             output.putNextEntry(newEntry(fileName));
@@ -66,45 +122,13 @@ public class MainBuildTask implements LauncherBuildTask {
             // Return result
             return super.visitFile(file, attrs);
         }
-    }
 
-    private final class GuardDirVisitor extends SimpleFileVisitor<Path> {
-        private final ZipOutputStream output;
-        private final Map<String, byte[]> guard;
-
-        private GuardDirVisitor(ZipOutputStream output, Map<String, byte[]> guard) {
-            this.output = output;
-            this.guard = guard;
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            String dirName = IOHelper.toString(server.launcherBinary.guardDir.relativize(dir));
-            output.putNextEntry(newGuardEntry(dirName + '/'));
-            return super.preVisitDirectory(dir, attrs);
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            String fileName = IOHelper.toString(server.launcherBinary.guardDir.relativize(file));
-            guard.put(fileName, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, file));
-
-            // Create zip entry and transfer contents
-            output.putNextEntry(newGuardEntry(fileName));
-            IOHelper.transfer(file, output);
-
-            // Return result
-            return super.visitFile(file, attrs);
+        private ZipEntry newEntry(String fileName) {
+            return newZipEntry(  targetDir + IOHelper.CROSS_SEPARATOR + fileName);
         }
     }
-
-    private static ZipEntry newEntry(String fileName) {
-        return newZipEntry(Launcher.RUNTIME_DIR + IOHelper.CROSS_SEPARATOR + fileName);
-    }
-
-    private static ZipEntry newGuardEntry(String fileName) {
-        return newZipEntry(Launcher.GUARD_DIR + IOHelper.CROSS_SEPARATOR + fileName);
-    }
+    public Set<String> blacklist = new HashSet<>();
+    public List<Transformer> transformers = new ArrayList<>();
 
     public MainBuildTask(LaunchServer srv) {
         server = srv;
@@ -171,13 +195,13 @@ public class MainBuildTask implements LauncherBuildTask {
                     LogHelper.error(e1);
                 }
             });
-            String zPath = launcherConfigurator.getZipEntryPath();
-            String sPath = secureConfigurator.getZipEntryPath();
+            context.pushBytes(launcherConfigurator.getZipEntryPath(), launcherConfigurator.getBytecode(reader));
+            context.pushBytes(secureConfigurator.getZipEntryPath(), secureConfigurator.getBytecode(reader));
             try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputJar))) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
                     String filename = e.getName();
-                    if (server.buildHookManager.isContainsBlacklist(filename) || e.isDirectory() || zPath.equals(filename) || sPath.equals(filename)) {
+                    if (e.isDirectory() || blacklist.contains(filename) || context.fileList.contains(filename)) {
                         e = input.getNextEntry();
                         continue;
                     }
@@ -191,12 +215,8 @@ public class MainBuildTask implements LauncherBuildTask {
                     if (filename.endsWith(".class")) {
                         String classname = filename.replace('/', '.').substring(0,
                                 filename.length() - ".class".length());
-                        byte[] bytes;
-                        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(2048)) {
-                            IOHelper.transfer(input, outputStream);
-                            bytes = outputStream.toByteArray();
-                        }
-                        bytes = server.buildHookManager.classTransform(bytes, classname, this);
+                        byte[] bytes = IOHelper.read(input);
+                        bytes = transformClass(bytes, classname, context);
                         output.write(bytes);
                     } else
                         IOHelper.transfer(input, output);
@@ -204,17 +224,13 @@ public class MainBuildTask implements LauncherBuildTask {
                     e = input.getNextEntry();
                 }
             }
-            // write additional classes
-            for (Map.Entry<String, byte[]> ent : server.buildHookManager.getIncludeClass().entrySet()) {
-                output.putNextEntry(newZipEntry(JarHelper.getClassFile(ent.getKey())));
-                output.write(server.buildHookManager.classTransform(ent.getValue(), ent.getKey(), this));
-            }
+
             // map for guard
             Map<String, byte[]> runtime = new HashMap<>(256);
             if (server.buildHookManager.buildRuntime()) {
                 // Write launcher guard dir
-                IOHelper.walk(server.launcherBinary.runtimeDir, new RuntimeDirVisitor(output, runtime), false);
-                IOHelper.walk(server.launcherBinary.guardDir, new GuardDirVisitor(output, runtime), false);
+                IOHelper.walk(server.launcherBinary.runtimeDir, new RuntimeDirVisitor(output, runtime, server.launcherBinary.runtimeDir, "runtime"), false);
+                IOHelper.walk(server.launcherBinary.guardDir,  new RuntimeDirVisitor(output, runtime, server.launcherBinary.guardDir, "guard"), false);
             }
             // Create launcher config file
             byte[] launcherConfigBytes;
@@ -229,16 +245,52 @@ public class MainBuildTask implements LauncherBuildTask {
             // Write launcher config file
             output.putNextEntry(newZipEntry(Launcher.CONFIG_FILE));
             output.write(launcherConfigBytes);
-            ZipEntry e = newZipEntry(zPath);
-            output.putNextEntry(e);
-            output.write(launcherConfigurator.getBytecode(reader));
-
-            e = newZipEntry(sPath);
-            output.putNextEntry(e);
-            output.write(secureConfigurator.getBytecode(reader));
         }
         reader.close();
         return outputJar;
+    }
+
+    public byte[] transformClass(byte[] bytes, String classname, BuildContext context)
+    {
+        byte[] result = bytes;
+        ClassReader cr = null;
+        ClassWriter writer = null;
+        ClassNode cn = null;
+        for(Transformer t : transformers)
+        {
+            if(t instanceof ASMTransformer)
+            {
+                ASMTransformer asmTransformer = (ASMTransformer) t;
+                if(cn == null)
+                {
+                    cr = new ClassReader(result);
+                    cn = new ClassNode();
+                    cr.accept(cn, 0);
+                }
+                asmTransformer.transform(cn, classname, context);
+                continue;
+            }
+            else if(cn != null)
+            {
+                writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+                cn.accept(writer);
+                result = writer.toByteArray();
+            }
+            byte[] old_result = result;
+            result = t.transform(result, classname, context);
+            if(old_result != result)
+            {
+                cr = null;
+                cn = null;
+            }
+        }
+        if(cn != null)
+        {
+            writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+            cn.accept(writer);
+            result = writer.toByteArray();
+        }
+        return result;
     }
 
     @Override
