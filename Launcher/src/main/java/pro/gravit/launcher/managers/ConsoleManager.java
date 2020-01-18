@@ -1,6 +1,8 @@
 package pro.gravit.launcher.managers;
 
 import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.client.events.ClientUnlockConsoleEvent;
 import pro.gravit.launcher.console.UnlockCommand;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
@@ -48,8 +50,14 @@ public class ConsoleManager {
         return key.equals(Launcher.getConfig().oemUnlockKey);
     }
 
-    public static void unlock() {
+    public static boolean unlock() {
+        if(isConsoleUnlock) return true;
+        ClientUnlockConsoleEvent event = new ClientUnlockConsoleEvent(handler);
+        LauncherEngine.modulesManager.invokeEvent(event);
+        if(event.isCancel()) return false;
         handler.registerCommand("debug", new DebugCommand());
+        handler.unregisterCommand("unlock");
         isConsoleUnlock = true;
+        return true;
     }
 }
