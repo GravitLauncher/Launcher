@@ -13,6 +13,7 @@ import pro.gravit.launchserver.asm.ConfigGenerator;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.LauncherConfigurator;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JarHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -120,10 +121,10 @@ public class MainBuildTask implements LauncherBuildTask {
         Path outputJar = server.launcherBinary.nextPath("main");
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
             ClassNode cn = new ClassNode();
-            new ClassReader(IOHelper.getResourceBytes(AutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn, 0);
+            new ClassReader(JarHelper.getClassBytes(AutogenConfig.class)).accept(cn, 0);
             LauncherConfigurator launcherConfigurator = new LauncherConfigurator(cn);
             ClassNode cn1 = new ClassNode();
-            new ClassReader(IOHelper.getResourceBytes(SecureAutogenConfig.class.getName().replace('.', '/').concat(".class"))).accept(cn1, 0);
+            new ClassReader(JarHelper.getClassBytes(SecureAutogenConfig.class)).accept(cn1, 0);
             ConfigGenerator secureConfigurator = new ConfigGenerator(cn1);
             BuildContext context = new BuildContext(output, launcherConfigurator, this);
             server.buildHookManager.hook(context);
@@ -205,7 +206,7 @@ public class MainBuildTask implements LauncherBuildTask {
             }
             // write additional classes
             for (Map.Entry<String, byte[]> ent : server.buildHookManager.getIncludeClass().entrySet()) {
-                output.putNextEntry(newZipEntry(ent.getKey().replace('.', '/').concat(".class")));
+                output.putNextEntry(newZipEntry(JarHelper.getClassFile(ent.getKey())));
                 output.write(server.buildHookManager.classTransform(ent.getValue(), ent.getKey(), this));
             }
             // map for guard

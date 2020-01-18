@@ -10,6 +10,7 @@ import org.objectweb.asm.tree.FieldNode;
 import pro.gravit.launcher.LauncherInject;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.utils.PublicURLClassLoader;
+import pro.gravit.utils.helper.JarHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.InputStream;
@@ -38,16 +39,10 @@ public class ASMTransformersTest {
     public static void prepare() throws Exception {
         classLoader = new ASMClassLoader(ASMTransformersTest.class.getClassLoader());
     }
-    InputStream getClass(Class<?> clazz)
-    {
-        String className = clazz.getName();
-        String classAsPath = className.replace('.', '/') + ".class";
-        return clazz.getClassLoader().getResourceAsStream(classAsPath);
-    }
     @Test
     void testASM() throws Exception
     {
-        ClassReader reader = new ClassReader(getClass(TestClass.class));
+        ClassReader reader = new ClassReader(JarHelper.getClassBytes(TestClass.class));
         ClassNode node = new ClassNode();
         reader.accept(node, ClassReader.SKIP_DEBUG);
         node.name = "ASMTestClass";

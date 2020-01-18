@@ -5,6 +5,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JarHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +31,7 @@ public final class NodeUtils {
     }
 
     public static ClassNode forClass(Class<?> cls, int flags) {
-        try (InputStream in = cls.getClassLoader().getResourceAsStream(cls.getName().replace('.', '/') + ".class")) {
+        try (InputStream in = JarHelper.getClassBytesStream(cls)) {
             ClassNode ret = new ClassNode();
             new ClassReader(IOHelper.read(in)).accept(ret, flags);
             return ret;
