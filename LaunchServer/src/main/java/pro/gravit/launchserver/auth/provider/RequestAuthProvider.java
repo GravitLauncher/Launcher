@@ -19,7 +19,6 @@ public final class RequestAuthProvider extends AuthProvider {
     private String url;
     private transient Pattern pattern;
     private String response;
-    private boolean usePermission;
 
     @Override
     public void init(LaunchServer srv) {
@@ -37,7 +36,7 @@ public final class RequestAuthProvider extends AuthProvider {
         // Match username
         Matcher matcher = pattern.matcher(currentResponse);
         return matcher.matches() && matcher.groupCount() >= 1 ?
-                new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(Long.parseLong(matcher.group("permission"))) : srv.config.permissionsHandler.getPermissions(login)) :
+                new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken(), new ClientPermissions(Long.parseLong(matcher.group("permission")))) :
                 authError(currentResponse);
     }
 

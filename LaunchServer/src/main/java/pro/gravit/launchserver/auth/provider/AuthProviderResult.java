@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.auth.provider;
 
 import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launchserver.LaunchServer;
 
 
 public class AuthProviderResult {
@@ -9,10 +8,10 @@ public class AuthProviderResult {
     public final String accessToken;
     public final ClientPermissions permissions;
 
-    public AuthProviderResult(String username, String accessToken, LaunchServer server) {
+    public AuthProviderResult(String username, String accessToken) {
         this.username = username;
         this.accessToken = accessToken;
-        permissions = server.config.permissionsHandler.getPermissions(username);
+        permissions = ClientPermissions.DEFAULT;
     }
 
     public AuthProviderResult(String username, String accessToken, ClientPermissions permissions) {

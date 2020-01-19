@@ -8,10 +8,6 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import pro.gravit.launchserver.auth.hwid.AcceptHWIDHandler;
-import pro.gravit.launchserver.auth.hwid.HWIDHandler;
-import pro.gravit.launchserver.auth.permissions.DefaultPermissionsHandler;
-import pro.gravit.launchserver.auth.permissions.JsonFilePermissionsHandler;
-import pro.gravit.launchserver.auth.permissions.PermissionsHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.provider.RejectAuthProvider;
@@ -66,8 +62,6 @@ public final class LaunchServerConfig {
 
     public ProtectHandler protectHandler;
 
-    public PermissionsHandler permissionsHandler;
-
     public AuthProviderPair getAuthProviderPair() {
         if (authDefault != null) return authDefault;
         for (AuthProviderPair pair : auth) {
@@ -78,8 +72,6 @@ public final class LaunchServerConfig {
         }
         throw new IllegalStateException("Default AuthProviderPair not found");
     }
-
-    public HWIDHandler hwidHandler;
 
     public Map<String, Component> components;
 
@@ -123,9 +115,6 @@ public final class LaunchServerConfig {
         if (!isOneDefault) {
             throw new IllegalStateException("No auth pairs declared by default.");
         }
-        if (permissionsHandler == null) {
-            throw new NullPointerException("PermissionsHandler must not be null");
-        }
         if (env == null) {
             throw new NullPointerException("Env must not be null");
         }
@@ -139,8 +128,6 @@ public final class LaunchServerConfig {
         for (AuthProviderPair provider : auth) {
             provider.init(server);
         }
-        permissionsHandler.init(server);
-        hwidHandler.init();
         if (dao != null)
             dao.init(server);
         if (protectHandler != null) {
@@ -149,13 +136,12 @@ public final class LaunchServerConfig {
         if (components != null) {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
         }
-        server.registerObject("permissionsHandler", permissionsHandler);
-        server.registerObject("hwidHandler", hwidHandler);
         if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
             for (AuthProviderPair pair : auth) {
                 server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                 server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                server.registerObject("auth.".concat(pair.name).concat(".hwid"), pair.hwid);
             }
         }
 
@@ -165,13 +151,12 @@ public final class LaunchServerConfig {
 
     public void close(LaunchServer.ReloadType type) {
         try {
-            server.unregisterObject("permissionsHandler", permissionsHandler);
-            server.unregisterObject("hwidHandler", hwidHandler);
             if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
                 for (AuthProviderPair pair : auth) {
                     server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                     server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                     server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                    server.unregisterObject("auth.".concat(pair.name).concat(".hwid"), pair.hwid);
                 }
             }
             if (type.equals(LaunchServer.ReloadType.FULL)) {
@@ -192,16 +177,6 @@ public final class LaunchServerConfig {
         try {
             for (AuthProviderPair p : auth) p.close();
         } catch (IOException e) {
-            LogHelper.error(e);
-        }
-        try {
-            hwidHandler.close();
-        } catch (Exception e) {
-            LogHelper.error(e);
-        }
-        try {
-            permissionsHandler.close();
-        } catch (Exception e) {
             LogHelper.error(e);
         }
     }
@@ -305,17 +280,13 @@ public final class LaunchServerConfig {
         newConfig.launch4j.maxVersion = "1.8.999";
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
-        newConfig.hwidHandler = new AcceptHWIDHandler();
         newConfig.auth = new AuthProviderPair[]{new AuthProviderPair(new RejectAuthProvider("Настройте authProvider"),
                 new MemoryAuthHandler(),
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
-                , "std")};
+                , new AcceptHWIDHandler(), "std")};
         newConfig.auth[0].displayName = "Default";
         newConfig.protectHandler = new StdProtectHandler();
         if (env.equals(LaunchServer.LaunchServerEnv.TEST))
-            newConfig.permissionsHandler = new DefaultPermissionsHandler();
-        else
-            newConfig.permissionsHandler = new JsonFilePermissionsHandler();
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 

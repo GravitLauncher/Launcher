@@ -97,7 +97,7 @@ public class AuthResponse extends SimpleResponse {
             //    throw new AuthException("You profile not found");
             //}
             if (authType == ConnectTypes.CLIENT)
-                server.config.hwidHandler.check(hwid, aresult.username);
+                pair.hwid.check(hwid, aresult.username);
             server.authHookManager.postHook.hook(context, clientData);
             clientData.isAuth = true;
             clientData.permissions = aresult.permissions;

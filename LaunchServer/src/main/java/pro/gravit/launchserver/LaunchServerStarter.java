@@ -7,7 +7,6 @@ import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.hwid.HWIDHandler;
-import pro.gravit.launchserver.auth.permissions.PermissionsHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
@@ -211,7 +210,6 @@ public class LaunchServerStarter {
         AuthProvider.registerProviders();
         TextureProvider.registerProviders();
         HWIDHandler.registerHandlers();
-        PermissionsHandler.registerHandlers();
         Component.registerComponents();
         ProtectHandler.registerHandlers();
         WebSocketService.registerResponses();

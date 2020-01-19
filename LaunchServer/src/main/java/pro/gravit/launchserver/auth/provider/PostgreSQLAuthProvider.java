@@ -33,7 +33,7 @@ public final class PostgreSQLAuthProvider extends AuthProvider {
             // Execute SQL query
             s.setQueryTimeout(PostgreSQLSourceConfig.TIMEOUT);
             try (ResultSet set = s.executeQuery()) {
-                return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(set.getLong(2)) : srv.config.permissionsHandler.getPermissions(set.getString(1))) : authError(message);
+                return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), new ClientPermissions(set.getLong(2))) : authError(message);
             }
         }
     }

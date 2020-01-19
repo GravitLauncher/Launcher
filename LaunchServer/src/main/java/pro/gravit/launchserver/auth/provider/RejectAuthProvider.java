@@ -1,5 +1,6 @@
 package pro.gravit.launchserver.auth.provider;
 
+import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.AuthException;
@@ -28,7 +29,7 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
         if (whitelist != null) {
             for (String username : whitelist) {
                 if (login.equals(username)) {
-                    return new AuthProviderResult(login, SecurityHelper.randomStringToken(), srv);
+                    return new AuthProviderResult(login, SecurityHelper.randomStringToken(), ClientPermissions.DEFAULT);
                 }
             }
         }

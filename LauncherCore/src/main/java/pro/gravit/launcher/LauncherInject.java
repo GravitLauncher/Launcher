@@ -10,4 +10,5 @@ import java.lang.annotation.Target;
 @Target(FIELD)
 public @interface LauncherInject {
 	public String value(); // target of inject
+
 }
