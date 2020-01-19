@@ -18,7 +18,6 @@ import pro.gravit.launchserver.manangers.MirrorManager;
 import pro.gravit.launchserver.manangers.ReconfigurableManager;
 import pro.gravit.launchserver.manangers.SessionManager;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
-import pro.gravit.launchserver.manangers.hook.BuildHookManager;
 import pro.gravit.launchserver.modules.events.LaunchServerFullInitEvent;
 import pro.gravit.launchserver.modules.events.LaunchServerInitPhase;
 import pro.gravit.launchserver.modules.events.LaunchServerPostInitPhase;
@@ -226,9 +225,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     public final CertificateManager certificateManager;
 
-
-    public final BuildHookManager buildHookManager;
-
     public final ProguardConf proguardConf;
 
 
@@ -310,7 +306,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
 
         // build hooks, anti-brutforce and other
-        buildHookManager = new BuildHookManager();
         proguardConf = new ProguardConf(this);
         sessionManager = new SessionManager();
         mirrorManager = new MirrorManager();

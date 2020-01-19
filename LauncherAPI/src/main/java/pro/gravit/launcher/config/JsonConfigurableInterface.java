@@ -29,6 +29,16 @@ public interface JsonConfigurableInterface<T> {
         }
     }
 
+    default String toJsonString(Gson gson)
+    {
+        return gson.toJson(getConfig(), getType());
+    }
+
+    default String toJsonString()
+    {
+        return toJsonString(Launcher.gsonManager.configGson);
+    }
+
 
     default void loadConfig(Gson gson, Path configPath) throws IOException {
         if (generateConfigIfNotExists(configPath)) return;

@@ -9,23 +9,20 @@ import pro.gravit.launcher.AutogenConfig;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.SecureAutogenConfig;
-import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.ConfigGenerator;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.LauncherConfigurator;
+import pro.gravit.utils.HookException;
+import pro.gravit.utils.HookSet;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JarHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.security.cert.CertificateEncodingException;
 import java.util.*;
 import java.util.jar.JarFile;
@@ -43,6 +40,38 @@ public class MainBuildTask implements LauncherBuildTask {
     @FunctionalInterface
     public interface Transformer {
         byte[] transform(byte[] input, String classname, BuildContext context);
+    }
+    public static class IOHookSet<R> {
+        public final Set<IOHook<R>> list = new HashSet<>();
+
+        @FunctionalInterface
+        public interface IOHook<R> {
+            /**
+             * @param context custom param
+             * False to continue processing hook
+             * @throws HookException The hook may return the error text throwing this exception
+             */
+            void hook(R context) throws HookException, IOException;
+        }
+
+        public void registerHook(IOHook<R> hook) {
+            list.add(hook);
+        }
+
+        public boolean unregisterHook(IOHook<R> hook) {
+            return list.remove(hook);
+        }
+
+        /**
+         * @param context custom param
+         * False to continue
+         * @throws HookException The hook may return the error text throwing this exception
+         */
+        public void hook(R context) throws HookException, IOException {
+            for (IOHook<R> hook : list) {
+                hook.hook(context);
+            }
+        }
     }
 
     public interface ASMTransformer extends Transformer {
@@ -89,46 +118,10 @@ public class MainBuildTask implements LauncherBuildTask {
         }
         abstract public void transformField(AnnotationNode an, FieldNode fn, ClassNode cn, String classname, BuildContext context);
     }
-
-    private final static class RuntimeDirVisitor extends SimpleFileVisitor<Path> {
-        private final ZipOutputStream output;
-        private final Map<String, byte[]> hashs;
-        private final Path sourceDir;
-        private final String targetDir;
-
-        private RuntimeDirVisitor(ZipOutputStream output, Map<String, byte[]> hashs, Path sourceDir, String targetDir) {
-            this.output = output;
-            this.hashs = hashs;
-            this.sourceDir = sourceDir;
-            this.targetDir = targetDir;
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            String dirName = IOHelper.toString(sourceDir.relativize(dir));
-            output.putNextEntry(newEntry(dirName + '/'));
-            return super.preVisitDirectory(dir, attrs);
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            String fileName = IOHelper.toString(sourceDir.relativize(file));
-            hashs.put(fileName, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, file));
-
-            // Create zip entry and transfer contents
-            output.putNextEntry(newEntry(fileName));
-            IOHelper.transfer(file, output);
-
-            // Return result
-            return super.visitFile(file, attrs);
-        }
-
-        private ZipEntry newEntry(String fileName) {
-            return newZipEntry(  targetDir + IOHelper.CROSS_SEPARATOR + fileName);
-        }
-    }
     public Set<String> blacklist = new HashSet<>();
     public List<Transformer> transformers = new ArrayList<>();
+    public IOHookSet<BuildContext> preBuildHook = new IOHookSet<>();
+    public IOHookSet<BuildContext> postBuildHook = new IOHookSet<>();
 
     public MainBuildTask(LaunchServer srv) {
         server = srv;
@@ -150,8 +143,8 @@ public class MainBuildTask implements LauncherBuildTask {
             ClassNode cn1 = new ClassNode();
             new ClassReader(JarHelper.getClassBytes(SecureAutogenConfig.class)).accept(cn1, 0);
             ConfigGenerator secureConfigurator = new ConfigGenerator(cn1);
-            BuildContext context = new BuildContext(output, launcherConfigurator, this);
-            server.buildHookManager.hook(context);
+            BuildContext context = new BuildContext(output, launcherConfigurator, reader.getCp(), this);
+            preBuildHook.hook(context);
             launcherConfigurator.setStringField("address", server.config.netty.address);
             launcherConfigurator.setStringField("projectname", server.config.projectName);
             launcherConfigurator.setStringField("secretKeyClient", SecurityHelper.randomStringAESKey());
@@ -186,7 +179,7 @@ public class MainBuildTask implements LauncherBuildTask {
             //LogHelper.debug("[checkSecure] %s: %s", launcherSalt, Arrays.toString(launcherSecureHash));
             if (server.runtime.oemUnlockKey == null) server.runtime.oemUnlockKey = SecurityHelper.randomStringToken();
             launcherConfigurator.setStringField("oemUnlockKey", server.runtime.oemUnlockKey);
-            server.buildHookManager.registerAllClientModuleClass(launcherConfigurator);
+            context.clientModules.forEach(launcherConfigurator::addModuleClass);
             reader.getCp().add(new JarFile(inputJar.toFile()));
             server.launcherBinary.coreLibs.forEach(e -> {
                 try {
@@ -197,54 +190,18 @@ public class MainBuildTask implements LauncherBuildTask {
             });
             context.pushBytes(launcherConfigurator.getZipEntryPath(), launcherConfigurator.getBytecode(reader));
             context.pushBytes(secureConfigurator.getZipEntryPath(), secureConfigurator.getBytecode(reader));
-            try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputJar))) {
-                ZipEntry e = input.getNextEntry();
-                while (e != null) {
-                    String filename = e.getName();
-                    if (e.isDirectory() || blacklist.contains(filename) || context.fileList.contains(filename)) {
-                        e = input.getNextEntry();
-                        continue;
-                    }
-                    try {
-                        output.putNextEntry(IOHelper.newZipEntry(e));
-                    } catch (ZipException ex) {
-                        LogHelper.error(ex);
-                        e = input.getNextEntry();
-                        continue;
-                    }
-                    if (filename.endsWith(".class")) {
-                        String classname = filename.replace('/', '.').substring(0,
-                                filename.length() - ".class".length());
-                        byte[] bytes = IOHelper.read(input);
-                        bytes = transformClass(bytes, classname, context);
-                        output.write(bytes);
-                    } else
-                        IOHelper.transfer(input, output);
-                    context.fileList.add(filename);
-                    e = input.getNextEntry();
-                }
-            }
+
+            context.pushJarFile(inputJar, (e) -> blacklist.contains(e.getName()), (e) -> true);
 
             // map for guard
             Map<String, byte[]> runtime = new HashMap<>(256);
-            if (server.buildHookManager.buildRuntime()) {
-                // Write launcher guard dir
-                IOHelper.walk(server.launcherBinary.runtimeDir, new RuntimeDirVisitor(output, runtime, server.launcherBinary.runtimeDir, "runtime"), false);
-                IOHelper.walk(server.launcherBinary.guardDir,  new RuntimeDirVisitor(output, runtime, server.launcherBinary.guardDir, "guard"), false);
-            }
-            // Create launcher config file
-            byte[] launcherConfigBytes;
-            try (ByteArrayOutputStream configArray = IOHelper.newByteArrayOutput()) {
-                try (HOutput configOutput = new HOutput(configArray)) {
-                    new LauncherConfig(server.config.netty.address, server.publicKey, runtime, server.config.projectName)
-                            .write(configOutput);
-                }
-                launcherConfigBytes = configArray.toByteArray();
-            }
+            // Write launcher guard dir
+            context.pushDir(server.launcherBinary.runtimeDir, Launcher.RUNTIME_DIR, runtime, false);
+            context.pushDir(server.launcherBinary.guardDir, Launcher.GUARD_DIR, runtime, false);
 
-            // Write launcher config file
-            output.putNextEntry(newZipEntry(Launcher.CONFIG_FILE));
-            output.write(launcherConfigBytes);
+            LauncherConfig launcherConfig = new LauncherConfig(server.config.netty.address, server.publicKey, runtime, server.config.projectName);
+            context.pushFile(Launcher.CONFIG_FILE, launcherConfig);
+            postBuildHook.hook(context);
         }
         reader.close();
         return outputJar;
