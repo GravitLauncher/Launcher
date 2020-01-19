@@ -37,10 +37,10 @@ public class MysqlHWIDHandler extends HWIDHandler {
 
     private String banMessage;
 
-    private final boolean compareMode = false;
+    private boolean compareMode = false;
     //Using queryHWID "queryHwids": "SELECT * FROM `users_hwids` WHERE `totalMemory` = ? or `serialNumber` = ? or `HWDiskSerial` = ? or `processorID` = ? or `MACAddr` = ?"
-    private final int compare = 50; //При наборе схожести в 50 очков
-    private final boolean oneCompareMode = false;
+    private int compare = 50; //При наборе схожести в 50 очков
+    private boolean oneCompareMode = false;
 
     /*
         //Добавить поля hwid в базу с пользователями
