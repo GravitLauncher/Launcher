@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AuthProvider;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
@@ -104,6 +105,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
     public void run(String... args) throws Throwable {
         initGson(modulesManager);
+        AuthRequest.registerProviders();
         if (args.length > 0 && args[0].equals("setup") && !disableSetup) {
             LogHelper.debug("Read ServerWrapperConfig.json");
             loadConfig();
