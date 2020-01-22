@@ -139,12 +139,26 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 				else
 					throw new UnsupportedOperationException("Unsupported class" + c.getName());
 			}
+		} else if (e.desc.equals("Ljava/util/Map;")) {
+			serializeMap(injector, (Map<String, String>) val);
 		} else {
 			if (!cPrimitivesList.contains(e.desc) || !zPrimitivesList.contains(val.getClass()))
 				throw new UnsupportedOperationException("Unsupported class");
 			injector.add(new LdcInsnNode(val));
 		}
-		// TODO Map<String,String>
+	}
+
+	private static void serializeMap(InsnList inj, Map<String, String> map) {
+		inj.add(new TypeInsnNode(Opcodes.NEW, "java/util/HashMap"));
+		inj.add(new InsnNode(Opcodes.DUP)); // +1
+		inj.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/util/HashMap", "<init>", "()V"));
+		map.forEach((k, v) -> {
+        	inj.add(new InsnNode(Opcodes.DUP)); // +1-1
+        	inj.add(NodeUtils.getSafeStringInsnList(k));
+        	inj.add(NodeUtils.getSafeStringInsnList(v));
+        	inj.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, "java/util/Map", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", true));
+        	inj.add(new InsnNode(Opcodes.POP));
+        });
 	}
 
 	private static void serializebArr(InsnList injector, byte[] val) {
