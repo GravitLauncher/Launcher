@@ -141,6 +141,7 @@ public class JSRuntimeProvider implements RuntimeProvider {
         } catch (ClassNotFoundException ignored) {
             LogHelper.warning("JavaFX API isn't available");
             LauncherEngine.noJavaFxAlert();
+            System.exit(0);
         }
     }
 
