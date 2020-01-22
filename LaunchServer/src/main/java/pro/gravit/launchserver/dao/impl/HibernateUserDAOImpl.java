@@ -3,11 +3,8 @@ package pro.gravit.launchserver.dao.impl;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import pro.gravit.launcher.hwid.HWID;
-import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserDAO;
-import pro.gravit.launchserver.dao.UserHWID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;

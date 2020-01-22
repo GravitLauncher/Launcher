@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.dao.impl;
 
-import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launchserver.dao.UserHWID;
 

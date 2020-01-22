@@ -6,7 +6,6 @@ import org.hibernate.Transaction;
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launchserver.dao.HwidDAO;
-import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.UserHWID;
 
 import javax.persistence.EntityManager;
