@@ -27,7 +27,15 @@ import pro.gravit.utils.helper.EnvHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
+import javax.swing.*;
+
 public class LauncherEngine {
+
+    public static void noJavaFxAlert() {
+        String message = String.format("Библиотеки JavaFX не найдены. У вас %s(x%d) ОС %s(x%d). Java %s. Установите Java с поддержкой JavaFX, например OracleJRE 8 x%d с официального сайта.\nЕсли вы не можете решить проблему самостоятельно обратитесь к администрации своего проекта", JVMHelper.RUNTIME_MXBEAN.getVmName(),
+                JVMHelper.JVM_BITS, JVMHelper.OS_TYPE.name, JVMHelper.OS_BITS, JVMHelper.RUNTIME_MXBEAN.getSpecVersion(), JVMHelper.OS_BITS);
+        JOptionPane.showMessageDialog(null, message, "GravitLauncher", JOptionPane.ERROR_MESSAGE);
+    }
 
     public static void main(String... args) throws Throwable {
         JVMHelper.checkStackTrace(LauncherEngine.class);

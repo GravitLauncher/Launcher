@@ -63,8 +63,6 @@ public class ClientLauncherWrapper {
         if (!noJava9check && !System.getProperty("java.version").startsWith("1.8"))
         {
             LogHelper.debug("Found Java 9+ ( %s )", System.getProperty("java.version"));
-            Collections.addAll(args, "--add-modules");
-            Collections.addAll(args, "javafx.base,javafx.fxml,javafx.controls,jdk.unsupported");
             Path jvmDir = Paths.get(System.getProperty("java.home"));
             String pathToFx = System.getenv("PATH_TO_FX");
             Path fxPath = pathToFx == null ? null : Paths.get(pathToFx);
@@ -79,6 +77,8 @@ public class ClientLauncherWrapper {
             {
                 Collections.addAll(args, "--module-path");
                 Collections.addAll(args, modulePath);
+                Collections.addAll(args, "--add-modules");
+                Collections.addAll(args, "javafx.base,javafx.fxml,javafx.controls,jdk.unsupported");
             }
         }
         Collections.addAll(args, MAGIC_ARG);

@@ -140,6 +140,7 @@ public class JSRuntimeProvider implements RuntimeProvider {
             bindings.put("JSApplicationClass", JSApplication.class);
         } catch (ClassNotFoundException ignored) {
             LogHelper.warning("JavaFX API isn't available");
+            LauncherEngine.noJavaFxAlert();
         }
     }
 
