@@ -13,6 +13,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.ConfigGenerator;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
+import pro.gravit.launchserver.asm.SafeClassWriter;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.LauncherConfigurator;
 import pro.gravit.utils.HookException;
@@ -82,7 +83,7 @@ public class MainBuildTask implements LauncherBuildTask {
             ClassNode cn = new ClassNode();
             reader.accept(cn, 0);
             transform(cn, classname, context);
-            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+            SafeClassWriter writer = new SafeClassWriter(context.task.reader,ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
             cn.accept(writer);
             return writer.toByteArray();
         }
@@ -234,7 +235,7 @@ public class MainBuildTask implements LauncherBuildTask {
             }
             else if(cn != null)
             {
-                writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+                writer = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
                 cn.accept(writer);
                 result = writer.toByteArray();
             }
@@ -248,7 +249,7 @@ public class MainBuildTask implements LauncherBuildTask {
         }
         if(cn != null)
         {
-            writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+            writer = new SafeClassWriter(reader,ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
             cn.accept(writer);
             result = writer.toByteArray();
         }
