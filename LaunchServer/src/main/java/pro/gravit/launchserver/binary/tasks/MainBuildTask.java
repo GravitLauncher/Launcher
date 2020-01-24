@@ -12,6 +12,7 @@ import pro.gravit.launcher.SecureAutogenConfig;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.ConfigGenerator;
+import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.LauncherConfigurator;
 import pro.gravit.utils.HookException;
@@ -123,9 +124,13 @@ public class MainBuildTask implements LauncherBuildTask {
     public IOHookSet<BuildContext> preBuildHook = new IOHookSet<>();
     public IOHookSet<BuildContext> postBuildHook = new IOHookSet<>();
 
+    public Map<String, Object> properties = new HashMap<>();
+
     public MainBuildTask(LaunchServer srv) {
         server = srv;
         reader = new ClassMetadataReader();
+        InjectClassAcceptor injectClassAcceptor = new InjectClassAcceptor(properties);
+        transformers.add(injectClassAcceptor);
     }
 
     @Override

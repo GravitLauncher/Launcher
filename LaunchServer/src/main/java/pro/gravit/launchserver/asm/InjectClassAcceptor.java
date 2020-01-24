@@ -49,14 +49,15 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
         		return ret;
         	});
         List<MethodNode> constructors = cn.methods.stream().filter(e -> "<init>".equals(e.name)).collect(Collectors.toList());
-        MethodNode init = constructors.stream().filter(e -> e.invisibleAnnotations.stream().filter(f -> INJ_C_DESC.equals(f.desc)).findFirst()
-				.isPresent()).findFirst().orElseGet(() -> constructors.stream().filter(e -> e.desc.equals("()V")).findFirst().orElse(null));
+        MethodNode init = constructors.stream().filter(e -> e != null && e.invisibleAnnotations != null && e.invisibleAnnotations.stream().anyMatch(f -> INJ_C_DESC.equals(f.desc))).findFirst()
+				.orElseGet(() -> constructors.stream().filter(e -> e.desc.equals("()V")).findFirst().orElse(null));
         cn.fields.stream().filter(e -> e.invisibleAnnotations != null)
 				.filter(e -> !e.invisibleAnnotations.isEmpty() && e.invisibleAnnotations.stream().anyMatch(f -> f.desc.equals(INJ_DESC))).forEach(e -> {
 					// Notice that fields that will be used with this algo should not have default
 					// value by = ...;
 					AnnotationNode n = e.invisibleAnnotations.stream().filter(f -> INJ_DESC.equals(f.desc)).findFirst()
 							.get();
+					e.invisibleAnnotations.removeIf(f -> INJ_DESC.equals(f.desc));
 					AtomicReference<String> valueName = new AtomicReference<>(null);
 					n.accept(new AnnotationVisitor(Opcodes.ASM7) {
 						@Override

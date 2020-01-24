@@ -8,6 +8,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import pro.gravit.launcher.LauncherInject;
+import pro.gravit.launcher.LauncherInjectionConstructor;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.JarHelper;
@@ -48,7 +49,8 @@ public class ASMTransformersTest {
         node.name = "ASMTestClass";
         Map<String, Object> map = new HashMap<>();
         map.put("testprop", 1234);
-        InjectClassAcceptor.visit(node, map);
+        InjectClassAcceptor injectClassAcceptor = new InjectClassAcceptor(map);
+        injectClassAcceptor.transform(node, "ASMTestClass", null);
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         node.accept(writer);
         byte[] bytes = writer.toByteArray();
