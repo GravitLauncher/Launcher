@@ -114,9 +114,10 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 		});
 	}
 
-	private static Map<Class<?>, Serializer<?>> serializers = new HashMap<>();
+	private static final Map<Class<?>, Serializer<?>> serializers;
 
 	static {
+		serializers = new HashMap<>();
 		serializers.put(List.class, new ListSerializer());
 		serializers.put(Map.class, new MapSerializer());
 		serializers.put(byte[].class, new ByteArraySerializer());
