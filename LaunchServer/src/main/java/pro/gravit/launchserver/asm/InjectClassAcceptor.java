@@ -21,14 +21,11 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 		this.values = values;
 	}
 
-	private static final List<Class<?>> primitiveClasses = Arrays.asList(java.lang.Boolean.class, java.lang.Character.class,
-			java.lang.Byte.class, java.lang.Short.class, java.lang.Integer.class, java.lang.Long.class,
+	private static final List<Class<?>> primitiveLDCClasses = Arrays.asList(java.lang.Integer.class, java.lang.Long.class,
 			java.lang.Float.class, java.lang.Double.class, java.lang.String.class);
 	private static final String INJECTED_FIELD_DESC = Type.getDescriptor(LauncherInject.class);
 	private static final String INJECTED_CONSTRUCTOR_DESC = Type.getDescriptor(LauncherInjectionConstructor.class);
-	private static final List<String> primitiveDescriptors = Arrays.asList(Type.INT_TYPE.getDescriptor(),
-			Type.VOID_TYPE.getDescriptor(), Type.BOOLEAN_TYPE.getDescriptor(), Type.BYTE_TYPE.getDescriptor(),
-			Type.CHAR_TYPE.getDescriptor(), Type.SHORT_TYPE.getDescriptor(), Type.DOUBLE_TYPE.getDescriptor(),
+	private static final List<String> primitiveLDCDescriptors = Arrays.asList(Type.INT_TYPE.getDescriptor(), Type.DOUBLE_TYPE.getDescriptor(),
 			Type.FLOAT_TYPE.getDescriptor(), Type.LONG_TYPE.getDescriptor(), Type.getDescriptor(String.class));
 
 	private static void visit(ClassNode classNode, Map<String, Object> values) {
@@ -75,7 +72,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 			}
 			Object value = values.get(valueName.get());
 			if ((field.access & Opcodes.ACC_STATIC) != 0) {
-				if (primitiveDescriptors.contains(field.desc) && primitiveClasses.contains(value.getClass())) {
+				if (primitiveLDCDescriptors.contains(field.desc) && primitiveLDCClasses.contains(value.getClass())) {
 					field.value = value;
 					return;
 				}
@@ -123,20 +120,47 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 		serializers.put(List.class, new ListSerializer());
 		serializers.put(Map.class, new MapSerializer());
 		serializers.put(byte[].class, new ByteArraySerializer());
+		serializers.put(Short.class, serializerClass(Opcodes.I2S));
+		serializers.put(Byte.class, serializerClass(Opcodes.I2B));
+		serializers.put(Boolean.class, (Serializer<Boolean>) e -> {
+			InsnList ret = new InsnList();
+			ret.add(new InsnNode(e ? Opcodes.ICONST_1 : Opcodes.ICONST_0));
+			return ret;
+		});
+		serializers.put(Character.class, (Serializer<Character>) e -> {
+			InsnList ret = new InsnList();
+			ret.add(NodeUtils.push((int) e.charValue()));
+			ret.add(new InsnNode(Opcodes.I2C));
+			return ret;
+		});
 	}
 
+	private static Serializer<?> serializerClass(int opcode) {
+		return new Serializer<Number>() {
+			@Override
+			public InsnList serialize(Number value) {
+				InsnList ret = new InsnList();
+				ret.add(NodeUtils.push(((Number) value).intValue()));
+				ret.add(new InsnNode(opcode));
+				return ret;
+			}
+			
+		};
+	}
+	
+	@FunctionalInterface
 	private interface Serializer<T> {
 		InsnList serialize(T value);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static InsnList serializeValue(Object value) {
 		if (value == null) {
 			InsnList insnList = new InsnList();
 			insnList.add(new InsnNode(Opcodes.ACONST_NULL));
 			return insnList;
 		}
-		if (primitiveClasses.contains(value.getClass())) {
+		if (primitiveLDCClasses.contains(value.getClass())) {
 			InsnList insnList = new InsnList();
 			insnList.add(new LdcInsnNode(value));
 			return insnList;
@@ -150,6 +174,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 				value.getClass()));
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static class ListSerializer implements Serializer<List> {
 
 		@Override
@@ -171,6 +196,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static class MapSerializer implements Serializer<Map> {
 
 		@Override
@@ -195,7 +221,6 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 	}
 
 	private static class ByteArraySerializer implements Serializer<byte[]> {
-
 		@Override
 		public InsnList serialize(byte[] value) {
 			InsnList insnList = new InsnList();
