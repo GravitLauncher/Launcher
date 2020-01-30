@@ -19,7 +19,6 @@ public final class PostgreSQLAuthProvider extends AuthProvider {
     private String query;
     private String message;
     private String[] queryParams;
-    private boolean usePermission;
 
     @Override
     public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws SQLException, AuthException {

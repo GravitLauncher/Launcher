@@ -6,15 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
 import pro.gravit.launcher.LauncherInject;
-import pro.gravit.launcher.LauncherInjectionConstructor;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
-import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.JarHelper;
-import pro.gravit.utils.helper.LogHelper;
 
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;

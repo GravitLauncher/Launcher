@@ -17,7 +17,6 @@ import pro.gravit.launchserver.asm.SafeClassWriter;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.LauncherConfigurator;
 import pro.gravit.utils.HookException;
-import pro.gravit.utils.HookSet;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JarHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -29,12 +28,7 @@ import java.security.cert.CertificateEncodingException;
 import java.util.*;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import static pro.gravit.utils.helper.IOHelper.newZipEntry;
 
 public class MainBuildTask implements LauncherBuildTask {
     private final LaunchServer server;

@@ -7,7 +7,6 @@ import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class AuthProviderPair {
