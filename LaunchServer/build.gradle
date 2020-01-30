@@ -71,7 +71,7 @@ task cleanjar(type: Jar, dependsOn: jar) {
 
 dependencies {
     pack project(':LauncherAPI')
-    bundle 'org.ow2.asm:asm-commons:7.1'
+    bundle 'org.ow2.asm:asm-commons:7.3.1'
     bundle 'mysql:mysql-connector-java:8.0.16'
     bundle 'org.postgresql:postgresql:42.2.6'
     bundle 'org.jline:jline:3.13.1'

@@ -16,7 +16,9 @@ import pro.gravit.utils.helper.LogHelper;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ASMTransformersTest {
@@ -34,7 +36,11 @@ public class ASMTransformersTest {
     public static class TestClass
     {
         @LauncherInject(value = "testprop")
-        public static int test = 1;
+        public int test;
+        @LauncherInject(value = "testprop2")
+        public List<String> s;
+        @LauncherInject(value = "testprop3")
+        public Map<String, String> map;
     }
     @BeforeAll
     public static void prepare() throws Exception {
@@ -49,6 +55,14 @@ public class ASMTransformersTest {
         node.name = "ASMTestClass";
         Map<String, Object> map = new HashMap<>();
         map.put("testprop", 1234);
+        List<String> strings = new ArrayList<>();
+        strings.add("a");
+        strings.add("b");
+        map.put("testprop2", strings);
+        Map<String, String> byteMap = new HashMap<>();
+        byteMap.put("a", "TEST A");
+        byteMap.put("b", "TEST B");
+        map.put("testprop3", byteMap);
         InjectClassAcceptor injectClassAcceptor = new InjectClassAcceptor(map);
         injectClassAcceptor.transform(node, "ASMTestClass", null);
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
@@ -56,8 +70,15 @@ public class ASMTransformersTest {
         byte[] bytes = writer.toByteArray();
         classLoader.rawDefineClass("ASMTestClass", bytes, 0, bytes.length);
         Class<?> clazz = classLoader.loadClass("ASMTestClass");
+        Object instance = clazz.newInstance();
         Field field = clazz.getField("test");
-        Object result = field.get(null);
+        Object result = field.get(instance);
         Assertions.assertEquals(1234, (int) (Integer) result);
+        field = clazz.getField("s");
+        result = field.get(instance);
+        Assertions.assertEquals(strings, result);
+        field = clazz.getField("map");
+        result = field.get(instance);
+        Assertions.assertEquals(byteMap, result);
     }
 }
