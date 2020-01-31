@@ -80,7 +80,7 @@ public class LauncherEngine {
         LauncherEngine.checkClass(LauncherAgent.class);
         LauncherEngine.checkClass(ClientLauncher.class);
         LauncherEngine.modulesManager = new ClientModuleManager();
-        LauncherConfig.initModules();
+        LauncherConfig.initModules(LauncherEngine.modulesManager);
         LauncherEngine.modulesManager.initModules(null);
         // Start Launcher
         initGson(LauncherEngine.modulesManager);

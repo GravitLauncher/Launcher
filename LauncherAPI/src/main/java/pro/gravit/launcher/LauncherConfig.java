@@ -1,12 +1,17 @@
 package pro.gravit.launcher;
 
+import pro.gravit.launcher.modules.LauncherModule;
+import pro.gravit.launcher.modules.LauncherModulesManager;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
+import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.security.cert.CertificateException;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -17,6 +22,8 @@ public final class LauncherConfig extends StreamObject {
 	private static final int cenv = -1;
 	@LauncherInject("launchercore.certificates")
 	private static final List<byte[]> secureConfigCertificates = null;
+	@LauncherInject("launcher.modules")
+	private static final List<Class<?>> modulesClasses = null;
 	@LauncherInject("launcher.address")
 	public String address;
 	@LauncherInject("launcher.projectName")
@@ -118,17 +125,16 @@ public final class LauncherConfig extends StreamObject {
         DEV, DEBUG, STD, PROD
     }
 
-	public static void initModules() {
-		// TODO Fill
-		/*
-		 * Old filler
-	    public void addModuleClass(String fullName) {
-        initModuleMethod.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, launcherName, "modulesManager", modulesManagerDesc));
-        initModuleMethod.instructions.add(new TypeInsnNode(Opcodes.NEW, fullName.replace('.', '/')));
-        initModuleMethod.instructions.add(new InsnNode(Opcodes.DUP));
-        initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, fullName.replace('.', '/'), "<init>", "()V"));
-        initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, modulesManagerName, "loadModule", registerModDesc));
-    }
-		 */
+    private static final MethodType VOID_TYPE = MethodType.methodType(void.class);
+
+	public static void initModules(LauncherModulesManager modulesManager) {
+		for (Class<?> clazz : modulesClasses)
+			try {
+				modulesManager.loadModule((LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invokeWithArguments(Collections.emptyList()));
+			} catch (Throwable e) {
+				LogHelper.error(e);
+			}
+		// This method should be called once at exec time.
+		modulesClasses.clear();
 	}
 }

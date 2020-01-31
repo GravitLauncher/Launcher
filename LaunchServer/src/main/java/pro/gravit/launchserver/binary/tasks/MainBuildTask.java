@@ -2,6 +2,7 @@ package pro.gravit.launchserver.binary.tasks;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -14,7 +15,6 @@ import pro.gravit.launchserver.asm.SafeClassWriter;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.utils.HookException;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JarHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -170,7 +170,7 @@ public class MainBuildTask implements LauncherBuildTask {
             //LogHelper.debug("[checkSecure] %s: %s", launcherSalt, Arrays.toString(launcherSecureHash));
             if (server.runtime.oemUnlockKey == null) server.runtime.oemUnlockKey = SecurityHelper.randomStringToken();
             properties.put("runtimeconfig.oemUnlockKey", server.runtime.oemUnlockKey);
-            context.clientModules.forEach(launcherConfigurator::addModuleClass);
+            properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             reader.getCp().add(new JarFile(inputJar.toFile()));
             server.launcherBinary.coreLibs.forEach(e -> {
                 try {
