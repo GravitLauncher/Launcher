@@ -31,7 +31,7 @@ public class ClientLauncherWrapper {
         EnvHelper.checkDangerousParams();
         LauncherConfig config = Launcher.getConfig();
         LauncherEngine.modulesManager = new ClientModuleManager();
-        LauncherConfig.getAutogenConfig().initModules();
+        LauncherConfig.initModules();
 
         LogHelper.info("Launcher for project %s", config.projectName);
         if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {

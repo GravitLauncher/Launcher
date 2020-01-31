@@ -443,7 +443,7 @@ public final class ClientLauncher {
         LauncherEngine.checkClass(LauncherAgent.class);
         LauncherEngine.checkClass(ClientLauncher.class);
         LauncherEngine.modulesManager = new ClientModuleManager();
-        LauncherConfig.getAutogenConfig().initModules(); //INIT
+        LauncherConfig.initModules(); //INIT
         LauncherEngine.modulesManager.initModules(null);
         initGson(LauncherEngine.modulesManager);
         LauncherEngine.verifyNoAgent();

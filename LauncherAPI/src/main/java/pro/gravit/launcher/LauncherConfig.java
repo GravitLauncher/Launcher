@@ -13,20 +13,19 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 public final class LauncherConfig extends StreamObject {
-    private static final AutogenConfig config = new AutogenConfig();
-    private static final SecureAutogenConfig secureConfig = new SecureAutogenConfig();
-
-
-    public static AutogenConfig getAutogenConfig() {
-        return config;
-    }
-
-    // Instance
-    public String address;
-
+	@LauncherInject("launchercore.env")
+	private static final int cenv = -1;
+	@LauncherInject("launchercore.certificates")
+	private static final List<byte[]> secureConfigCertificates = null;
+	@LauncherInject("launcher.address")
+	public String address;
+	@LauncherInject("launcher.projectName")
     public final String projectName;
+	@LauncherInject("launcher.port")
     public final int clientPort;
+	@LauncherInject("runtimeconfig.secretKeyClient")
     public String secretKeyClient;
+	@LauncherInject("runtimeconfig.oemUnlockKey")
     public String oemUnlockKey;
     public final LauncherTrustManager trustManager;
 
@@ -34,40 +33,43 @@ public final class LauncherConfig extends StreamObject {
 
 
     public final Map<String, byte[]> runtime;
+    @LauncherInject("launcher.isWarningMissArchJava")
     public final boolean isWarningMissArchJava;
-    public boolean isNettyEnabled;
     public LauncherEnvironment environment;
-
+    @LauncherInject("launcher.guardType")
     public final String guardType;
-
+    @LauncherInject("runtimeconfig.secureCheckHash")
     public final String secureCheckHash;
+    @LauncherInject("runtimeconfig.secureCheckSalt")
     public final String secureCheckSalt;
+    @LauncherInject("runtimeconfig.passwordEncryptKey")
     public final String passwordEncryptKey;
 
-
+    @SuppressWarnings("unused")
+	@LauncherInjectionConstructor
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
         publicKey = SecurityHelper.toPublicECKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
-        secureCheckHash = config.secureCheckHash;
-        secureCheckSalt = config.secureCheckSalt;
-        passwordEncryptKey = config.passwordEncryptKey;
-        projectName = config.projectname;
-        clientPort = config.clientPort;
-        secretKeyClient = config.secretKeyClient;
-        oemUnlockKey = config.oemUnlockKey;
+        secureCheckHash = null;
+        secureCheckSalt = null;
+        passwordEncryptKey = null;
+        projectName = null;
+        clientPort = -1;
+        secretKeyClient = null;
+        oemUnlockKey = null;
         try {
-            trustManager = new LauncherTrustManager(secureConfig.certificates);
+            trustManager = new LauncherTrustManager(secureConfigCertificates);
         } catch (CertificateException e) {
             throw new IOException(e);
         }
 
-        isWarningMissArchJava = config.isWarningMissArchJava;
-        guardType = config.guardType;
-        address = config.address;
+        isWarningMissArchJava = false;
+        guardType = null;
+        address = null;
         LauncherEnvironment env;
-        if (config.env == 0) env = LauncherEnvironment.DEV;
-        else if (config.env == 1) env = LauncherEnvironment.DEBUG;
-        else if (config.env == 2) env = LauncherEnvironment.STD;
-        else if (config.env == 3) env = LauncherEnvironment.PROD;
+        if (cenv == 0) env = LauncherEnvironment.DEV;
+        else if (cenv == 1) env = LauncherEnvironment.DEBUG;
+        else if (cenv == 2) env = LauncherEnvironment.STD;
+        else if (cenv == 3) env = LauncherEnvironment.PROD;
         else env = LauncherEnvironment.STD;
         Launcher.applyLauncherEnv(env);
         environment = env;
@@ -92,7 +94,6 @@ public final class LauncherConfig extends StreamObject {
         this.clientPort = 32148;
         guardType = "no";
         isWarningMissArchJava = true;
-        isNettyEnabled = false;
         environment = LauncherEnvironment.STD;
         secureCheckSalt = null;
         secureCheckHash = null;
@@ -116,4 +117,18 @@ public final class LauncherConfig extends StreamObject {
     public enum LauncherEnvironment {
         DEV, DEBUG, STD, PROD
     }
+
+	public static void initModules() {
+		// TODO Fill
+		/*
+		 * Old filler
+	    public void addModuleClass(String fullName) {
+        initModuleMethod.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, launcherName, "modulesManager", modulesManagerDesc));
+        initModuleMethod.instructions.add(new TypeInsnNode(Opcodes.NEW, fullName.replace('.', '/')));
+        initModuleMethod.instructions.add(new InsnNode(Opcodes.DUP));
+        initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, fullName.replace('.', '/'), "<init>", "()V"));
+        initModuleMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, modulesManagerName, "loadModule", registerModDesc));
+    }
+		 */
+	}
 }

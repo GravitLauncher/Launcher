@@ -123,6 +123,11 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 		serializers.put(byte[].class, new ByteArraySerializer());
 		serializers.put(Short.class, serializerClass(Opcodes.I2S));
 		serializers.put(Byte.class, serializerClass(Opcodes.I2B));
+		serializers.put(Type.class, (Serializer<Type>) e -> { // ow.Type == java.lang.Class in LDC
+			InsnList ret = new InsnList();
+			ret.add(new LdcInsnNode(e));
+			return ret;
+		});
 		serializers.put(Boolean.class, (Serializer<Boolean>) e -> {
 			InsnList ret = new InsnList();
 			ret.add(new InsnNode(e ? Opcodes.ICONST_1 : Opcodes.ICONST_0));

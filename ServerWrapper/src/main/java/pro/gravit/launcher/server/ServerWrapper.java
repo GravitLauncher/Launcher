@@ -196,7 +196,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             if(IOHelper.isFile(publicKeyFile))
                 publicKey = SecurityHelper.toPublicECKey(IOHelper.read(publicKeyFile));
             cfg = new LauncherConfig(config.address, publicKey, new HashMap<>(), config.projectname);
-            cfg.isNettyEnabled = true;
             cfg.address = config.address;
         } catch (InvalidKeySpecException | IOException e) {
             LogHelper.error(e);
