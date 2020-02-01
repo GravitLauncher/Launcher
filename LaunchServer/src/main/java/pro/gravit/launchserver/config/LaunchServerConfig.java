@@ -41,7 +41,7 @@ public final class LaunchServerConfig {
 
     public String binaryName;
 
-    public final boolean copyBinaries = true;
+    public boolean copyBinaries = true;
 
     public LauncherConfig.LauncherEnvironment env;
 
@@ -241,10 +241,10 @@ public final class LaunchServerConfig {
         public String downloadURL;
         public String launcherEXEURL;
         public String address;
-        public final Map<String, LaunchServerConfig.NettyUpdatesBind> bindings = new HashMap<>();
+        public Map<String, LaunchServerConfig.NettyUpdatesBind> bindings = new HashMap<>();
         public NettyPerformanceConfig performance;
         public NettyBindAddress[] binds;
-        public final LogLevel logLevel = LogLevel.DEBUG;
+        public LogLevel logLevel = LogLevel.DEBUG;
     }
 
     public static class NettyPerformanceConfig {
@@ -254,8 +254,8 @@ public final class LaunchServerConfig {
     }
 
     public static class NettyBindAddress {
-        public final String address;
-        public final int port;
+        public String address;
+        public int port;
 
         public NettyBindAddress(String address, int port) {
             this.address = address;
