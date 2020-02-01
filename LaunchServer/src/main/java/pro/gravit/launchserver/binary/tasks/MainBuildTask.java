@@ -134,43 +134,10 @@ public class MainBuildTask implements LauncherBuildTask {
         Path outputJar = server.launcherBinary.nextPath("main");
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
             BuildContext context = new BuildContext(output, reader.getCp(), this);
+            initProps();
             preBuildHook.hook(context);
-            properties.clear();
-            properties.put("launcher.address", server.config.netty.address);
-            properties.put("launcher.projectName", server.config.projectName);
-            properties.put("runtimeconfig.secretKeyClient", SecurityHelper.randomStringAESKey());
-            properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
-            properties.put("launcher.guardType", server.config.launcher.guardType);
-            properties.put("launcher.isWarningMissArchJava", server.config.launcher.warningMissArchJava);
-            properties.put("launchercore.env" ,server.config.env);
-            properties.put("runtimeconfig.passwordEncryptKey", server.runtime.passwordEncryptKey);
-            List<byte[]> certificates = Arrays.stream(server.certificateManager.trustManager.getTrusted()).map(e -> {
-                try {
-                    return e.getEncoded();
-                } catch (CertificateEncodingException e2) {
-                    LogHelper.error(e2);
-                    return new byte[0];
-                }
-            }).collect(Collectors.toList());
-            if(!server.config.sign.enabled)
-            {
-                CertificateAutogenTask task = server.launcherBinary.getTaskByClass(CertificateAutogenTask.class).get();
-                try {
-                    certificates.add(task.certificate.getEncoded());
-                } catch (CertificateEncodingException e) {
-                    throw new InternalError(e);
-                }
-            }
-            properties.put("launchercore.certificates", certificates);
-            String launcherSalt = SecurityHelper.randomStringToken();
-            byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
-                    server.runtime.clientCheckSecret.concat(".").concat(launcherSalt));
-            properties.put("runtimeconfig.secureCheckHash", Base64.getEncoder().encodeToString(launcherSecureHash));
-            properties.put("runtimeconfig.secureCheckSalt", launcherSalt);
-            //LogHelper.debug("[checkSecure] %s: %s", launcherSalt, Arrays.toString(launcherSecureHash));
-            if (server.runtime.oemUnlockKey == null) server.runtime.oemUnlockKey = SecurityHelper.randomStringToken();
-            properties.put("runtimeconfig.oemUnlockKey", server.runtime.oemUnlockKey);
             properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
+            postInitProps();
             reader.getCp().add(new JarFile(inputJar.toFile()));
             server.launcherBinary.coreLibs.forEach(e -> {
                 try {
@@ -195,7 +162,49 @@ public class MainBuildTask implements LauncherBuildTask {
         return outputJar;
     }
 
-    public byte[] transformClass(byte[] bytes, String classname, BuildContext context)
+    protected void postInitProps() {
+    	List<byte[]> certificates = Arrays.stream(server.certificateManager.trustManager.getTrusted()).map(e -> {
+            try {
+                return e.getEncoded();
+            } catch (CertificateEncodingException e2) {
+                LogHelper.error(e2);
+                return new byte[0];
+            }
+        }).collect(Collectors.toList());
+        if(!server.config.sign.enabled)
+        {
+            CertificateAutogenTask task = server.launcherBinary.getTaskByClass(CertificateAutogenTask.class).get();
+            try {
+                certificates.add(task.certificate.getEncoded());
+            } catch (CertificateEncodingException e) {
+                throw new InternalError(e);
+            }
+        }
+        properties.put("launchercore.certificates", certificates);
+	}
+
+	protected void initProps() {
+    	properties.clear();
+        properties.put("launcher.address", server.config.netty.address);
+        properties.put("launcher.projectName", server.config.projectName);
+        properties.put("runtimeconfig.secretKeyClient", SecurityHelper.randomStringAESKey());
+        properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
+        properties.put("launcher.guardType", server.config.launcher.guardType);
+        properties.put("launcher.isWarningMissArchJava", server.config.launcher.warningMissArchJava);
+        properties.put("launchercore.env" ,server.config.env);
+        properties.put("runtimeconfig.passwordEncryptKey", server.runtime.passwordEncryptKey);
+        String launcherSalt = SecurityHelper.randomStringToken();
+        byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
+                server.runtime.clientCheckSecret.concat(".").concat(launcherSalt));
+        properties.put("runtimeconfig.secureCheckHash", Base64.getEncoder().encodeToString(launcherSecureHash));
+        properties.put("runtimeconfig.secureCheckSalt", launcherSalt);
+        //LogHelper.debug("[checkSecure] %s: %s", launcherSalt, Arrays.toString(launcherSecureHash));
+        if (server.runtime.oemUnlockKey == null) server.runtime.oemUnlockKey = SecurityHelper.randomStringToken();
+        properties.put("runtimeconfig.oemUnlockKey", server.runtime.oemUnlockKey);
+        
+	}
+
+	public byte[] transformClass(byte[] bytes, String classname, BuildContext context)
     {
         byte[] result = bytes;
         ClassReader cr = null;
