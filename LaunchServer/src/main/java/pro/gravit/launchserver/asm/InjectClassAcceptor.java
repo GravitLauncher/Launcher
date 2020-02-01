@@ -45,9 +45,9 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 		classNode.fields.forEach(field -> {
 			// Notice that fields that will be used with this algo should not have default
 			// value by = ...;
-			AnnotationNode valueAnnotation = field.invisibleAnnotations.stream()
+			AnnotationNode valueAnnotation = field.invisibleAnnotations != null ? field.invisibleAnnotations.stream()
 					.filter(annotation -> INJECTED_FIELD_DESC.equals(annotation.desc)).findFirst()
-					.orElse(null);
+					.orElse(null) : null;
 			if (valueAnnotation == null) {
 				return;
 			}
