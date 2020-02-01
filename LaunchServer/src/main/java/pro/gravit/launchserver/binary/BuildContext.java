@@ -32,7 +32,6 @@ import static pro.gravit.utils.helper.IOHelper.newZipEntry;
 
 public class BuildContext {
     public final ZipOutputStream output;
-    public final LauncherConfigurator config;
     public final List<JarFile> readerClassPath;
     public final MainBuildTask task;
     public final HashSet<String> fileList;
@@ -78,9 +77,8 @@ public class BuildContext {
     }
 
 
-    public BuildContext(ZipOutputStream output, LauncherConfigurator config, List<JarFile> readerClassPath, MainBuildTask task) {
+    public BuildContext(ZipOutputStream output, List<JarFile> readerClassPath, MainBuildTask task) {
         this.output = output;
-        this.config = config;
         this.readerClassPath = readerClassPath;
         this.task = task;
         fileList = new HashSet<>(1024);
