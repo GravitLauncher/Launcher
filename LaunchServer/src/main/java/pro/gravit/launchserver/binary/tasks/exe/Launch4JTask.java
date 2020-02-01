@@ -27,13 +27,9 @@ public class Launch4JTask implements LauncherBuildTask {
         }
     }
 
-    // URL constants
     public static final String DOWNLOAD_URL = "http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html"; // Oracle
-    // JRE 8
-    // File constants
     private final Path faviconFile;
 
-    // File constants
     private final LaunchServer server;
 
     public Launch4JTask(LaunchServer launchServer) {
