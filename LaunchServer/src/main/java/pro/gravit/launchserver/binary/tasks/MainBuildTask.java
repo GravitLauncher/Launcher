@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.LauncherConfig.LauncherEnvironment;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
@@ -191,7 +192,22 @@ public class MainBuildTask implements LauncherBuildTask {
         properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
         properties.put("launcher.guardType", server.config.launcher.guardType);
         properties.put("launcher.isWarningMissArchJava", server.config.launcher.warningMissArchJava);
-        properties.put("launchercore.env" ,server.config.env);
+        int cenv = -1;
+        switch (server.config.env) {
+        case DEV:
+        	cenv = 0;
+        	break;
+        case DEBUG:
+        	cenv = 1;
+        	break;
+        case STD:
+        	cenv = 2;
+        	break;
+        case PROD:
+        	cenv = 3;
+        	break;
+        }
+        properties.put("launchercore.env", cenv);
         properties.put("runtimeconfig.passwordEncryptKey", server.runtime.passwordEncryptKey);
         String launcherSalt = SecurityHelper.randomStringToken();
         byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
