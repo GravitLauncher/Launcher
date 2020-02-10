@@ -18,8 +18,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 public final class LauncherConfig extends StreamObject {
-	@LauncherInject("launchercore.env")
-	private static final int cenv = -1;
 	@LauncherInject("launchercore.certificates")
 	private static final List<byte[]> secureConfigCertificates = null;
 	@LauncherInject("launcher.modules")
@@ -42,6 +40,7 @@ public final class LauncherConfig extends StreamObject {
     public final Map<String, byte[]> runtime;
     @LauncherInject("launcher.isWarningMissArchJava")
     public final boolean isWarningMissArchJava;
+	@LauncherInject("launchercore.env")
     public LauncherEnvironment environment;
     @LauncherInject("launcher.guardType")
     public final String guardType;
@@ -52,7 +51,6 @@ public final class LauncherConfig extends StreamObject {
     @LauncherInject("runtimeconfig.passwordEncryptKey")
     public final String passwordEncryptKey;
 
-    @SuppressWarnings("unused")
 	@LauncherInjectionConstructor
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
         publicKey = SecurityHelper.toPublicECKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
@@ -72,14 +70,8 @@ public final class LauncherConfig extends StreamObject {
         isWarningMissArchJava = false;
         guardType = null;
         address = null;
-        LauncherEnvironment env;
-        if (cenv == 0) env = LauncherEnvironment.DEV;
-        else if (cenv == 1) env = LauncherEnvironment.DEBUG;
-        else if (cenv == 2) env = LauncherEnvironment.STD;
-        else if (cenv == 3) env = LauncherEnvironment.PROD;
-        else env = LauncherEnvironment.STD;
-        Launcher.applyLauncherEnv(env);
-        environment = env;
+        environment = LauncherEnvironment.STD;
+        Launcher.applyLauncherEnv(environment);
         // Read signed runtime
         int count = input.readLength(0);
         Map<String, byte[]> localResources = new HashMap<>(count);
