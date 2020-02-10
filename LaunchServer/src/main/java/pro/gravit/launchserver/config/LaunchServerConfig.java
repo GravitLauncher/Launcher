@@ -52,12 +52,15 @@ public final class LaunchServerConfig {
     public DaoProvider dao;
 
     private transient AuthProviderPair authDefault;
+    private transient Map<String, AuthProviderPair> authPairs = null;
 
     public AuthProviderPair getAuthProviderPair(String name) {
-        for (AuthProviderPair pair : auth) {
-            if (pair.name.equals(name)) return pair;
-        }
-        return null;
+    	if (authPairs == null) {
+    		Map<String, AuthProviderPair> pairs = new HashMap<>();
+    		for (AuthProviderPair p : auth) pairs.put(p.name, p);
+    		authPairs = pairs;
+    	}
+        return authPairs.get(name);
     }
 
     public ProtectHandler protectHandler;
@@ -125,6 +128,7 @@ public final class LaunchServerConfig {
 
     public void init(LaunchServer.ReloadType type) {
         Launcher.applyLauncherEnv(env);
+        authPairs = null;
         for (AuthProviderPair provider : auth) {
             provider.init(server);
         }
@@ -144,8 +148,6 @@ public final class LaunchServerConfig {
                 server.registerObject("auth.".concat(pair.name).concat(".hwid"), pair.hwid);
             }
         }
-
-
         Arrays.stream(mirrors).forEach(server.mirrorManager::addMirror);
     }
 
