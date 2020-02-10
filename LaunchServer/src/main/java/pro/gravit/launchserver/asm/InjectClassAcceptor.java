@@ -14,6 +14,7 @@ import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 import pro.gravit.launcher.LauncherInject;
 import pro.gravit.launcher.LauncherInjectionConstructor;
 
+@SuppressWarnings("rawtypes")
 public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 	private final Map<String, Object> values;
 
@@ -139,6 +140,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 			ret.add(new InsnNode(Opcodes.I2C));
 			return ret;
 		});
+		serializers.put(Enum.class, (Serializer<Enum>) value -> NodeUtils.makeValueEnumGetter(value));
 	}
 
 	private static Serializer<?> serializerClass(int opcode) {
@@ -159,7 +161,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 		InsnList serialize(T value);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	private static InsnList serializeValue(Object value) {
 		if (value == null) {
 			InsnList insnList = new InsnList();
@@ -171,8 +173,6 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 			insnList.add(new LdcInsnNode(value));
 			return insnList;
 		}
-		if (Enum.class.isInstance(value))
-			return NodeUtils.makeValueEnumGetter((Enum)value);
 		for (Map.Entry<Class<?>, Serializer<?>> serializerEntry : serializers.entrySet()) {
 			if (serializerEntry.getKey().isInstance(value)) {
 				return ((Serializer) serializerEntry.getValue()).serialize(value);
@@ -182,9 +182,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 				value.getClass()));
 	}
 
-	@SuppressWarnings("rawtypes")
 	private static class ListSerializer implements Serializer<List> {
-
 		@Override
 		public InsnList serialize(List value) {
 			InsnList insnList = new InsnList();
@@ -204,9 +202,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	private static class MapSerializer implements Serializer<Map> {
-
 		@Override
 		public InsnList serialize(Map value) {
 			InsnList insnList = new InsnList();
