@@ -246,4 +246,11 @@ public final class NodeUtils {
             ret.add(new LdcInsnNode(value));
         return ret;
     }
+
+    public static InsnList makeValueEnumGetter(@SuppressWarnings("rawtypes") Enum u) {
+		InsnList ret = new InsnList();
+		Type e = Type.getType(u.getClass());
+		ret.add(new FieldInsnNode(Opcodes.GETSTATIC, e.getInternalName(), u.name(), e.getDescriptor()));
+		return ret;
+	}
 }

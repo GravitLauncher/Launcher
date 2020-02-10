@@ -8,7 +8,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.LauncherConfig.LauncherEnvironment;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;

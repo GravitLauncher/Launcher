@@ -171,6 +171,8 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 			insnList.add(new LdcInsnNode(value));
 			return insnList;
 		}
+		if (Enum.class.isInstance(value))
+			return NodeUtils.makeValueEnumGetter((Enum)value);
 		for (Map.Entry<Class<?>, Serializer<?>> serializerEntry : serializers.entrySet()) {
 			if (serializerEntry.getKey().isInstance(value)) {
 				return ((Serializer) serializerEntry.getValue()).serialize(value);
