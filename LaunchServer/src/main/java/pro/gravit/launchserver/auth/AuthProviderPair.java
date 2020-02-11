@@ -15,20 +15,20 @@ public class AuthProviderPair {
     public TextureProvider textureProvider;
     public HWIDHandler hwid;
     public Map<String, String> links;
-    public final String name;
+    public transient String name;
     public String displayName;
     public final boolean isDefault = true;
 
-    public AuthProviderPair(AuthProvider provider, AuthHandler handler, TextureProvider textureProvider, HWIDHandler hwid, String name) {
+    public AuthProviderPair(AuthProvider provider, AuthHandler handler, TextureProvider textureProvider, HWIDHandler hwid) {
         this.provider = provider;
         this.handler = handler;
         this.textureProvider = textureProvider;
         this.hwid = hwid;
-        this.name = name;
     }
 
-    public void init(LaunchServer srv) {
-        if(links != null) link(srv);
+    public void init(LaunchServer srv, String name) {
+    	this.name = name;
+    	if(links != null) link(srv);
         if(provider == null) throw new NullPointerException(String.format("Auth %s provider null", name));
         if(handler == null) throw new NullPointerException(String.format("Auth %s handler null", name));
         if(textureProvider == null) throw new NullPointerException(String.format("Auth %s textureProvider null", name));

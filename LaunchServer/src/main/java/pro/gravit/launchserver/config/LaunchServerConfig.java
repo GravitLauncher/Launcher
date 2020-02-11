@@ -47,27 +47,21 @@ public final class LaunchServerConfig {
 
     // Handlers & Providers
 
-    public AuthProviderPair[] auth;
+    public Map<String, AuthProviderPair> auth;
 
     public DaoProvider dao;
 
     private transient AuthProviderPair authDefault;
-    private transient Map<String, AuthProviderPair> authPairs = null;
 
     public AuthProviderPair getAuthProviderPair(String name) {
-    	if (authPairs == null) {
-    		Map<String, AuthProviderPair> pairs = new HashMap<>();
-    		for (AuthProviderPair p : auth) pairs.put(p.name, p);
-    		authPairs = pairs;
-    	}
-        return authPairs.get(name);
+        return auth.get(name);
     }
 
     public ProtectHandler protectHandler;
 
     public AuthProviderPair getAuthProviderPair() {
         if (authDefault != null) return authDefault;
-        for (AuthProviderPair pair : auth) {
+        for (AuthProviderPair pair : auth.values()) {
             if (pair.isDefault) {
                 authDefault = pair;
                 return pair;
@@ -102,11 +96,12 @@ public final class LaunchServerConfig {
 
 
     public void verify() {
-        if (auth == null || auth[0] == null) {
-            throw new NullPointerException("AuthHandler must not be null");
+        if (auth == null || auth.size() < 1) {
+            throw new NullPointerException("AuthProviderPair`s count should be at least one");
         }
+
         boolean isOneDefault = false;
-        for (AuthProviderPair pair : auth) {
+        for (AuthProviderPair pair : auth.values()) {
             if (pair.isDefault) {
                 isOneDefault = true;
                 break;
@@ -128,9 +123,8 @@ public final class LaunchServerConfig {
 
     public void init(LaunchServer.ReloadType type) {
         Launcher.applyLauncherEnv(env);
-        authPairs = null;
-        for (AuthProviderPair provider : auth) {
-            provider.init(server);
+        for (Map.Entry<String,AuthProviderPair> provider : auth.entrySet()) {
+            provider.getValue().init(server, provider.getKey());
         }
         if (dao != null)
             dao.init(server);
@@ -141,7 +135,7 @@ public final class LaunchServerConfig {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
         }
         if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
-            for (AuthProviderPair pair : auth) {
+            for (AuthProviderPair pair : auth.values()) {
                 server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                 server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
@@ -154,7 +148,7 @@ public final class LaunchServerConfig {
     public void close(LaunchServer.ReloadType type) {
         try {
             if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
-                for (AuthProviderPair pair : auth) {
+                for (AuthProviderPair pair : auth.values()) {
                     server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                     server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                     server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
@@ -177,7 +171,7 @@ public final class LaunchServerConfig {
             LogHelper.error(e);
         }
         try {
-            for (AuthProviderPair p : auth) p.close();
+            for (AuthProviderPair p : auth.values()) p.close();
         } catch (IOException e) {
             LogHelper.error(e);
         }
@@ -282,11 +276,13 @@ public final class LaunchServerConfig {
         newConfig.launch4j.maxVersion = "1.8.999";
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
-        newConfig.auth = new AuthProviderPair[]{new AuthProviderPair(new RejectAuthProvider("Настройте authProvider"),
+        newConfig.auth = new HashMap<>();
+        AuthProviderPair a = new AuthProviderPair(new RejectAuthProvider("Настройте authProvider"),
                 new MemoryAuthHandler(),
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
-                , new AcceptHWIDHandler(), "std")};
-        newConfig.auth[0].displayName = "Default";
+                , new AcceptHWIDHandler());
+        a.displayName = "Default";
+        newConfig.auth.put("std", a);
         newConfig.protectHandler = new StdProtectHandler();
         if (env.equals(LaunchServer.LaunchServerEnv.TEST))
         newConfig.binaryName = "Launcher";

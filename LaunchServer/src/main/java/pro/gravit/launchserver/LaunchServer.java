@@ -76,7 +76,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     public void reload(ReloadType type) throws Exception {
         config.close(type);
-        AuthProviderPair[] pairs = null;
+        Map<String, AuthProviderPair> pairs = null;
         if (type.equals(ReloadType.NO_AUTH)) {
             pairs = config.auth;
         }
