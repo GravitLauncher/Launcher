@@ -35,14 +35,13 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
     public boolean initProxy;
 
     public enum ConnectTypes {
+        @Deprecated
         @LauncherNetworkAPI
         SERVER,
         @LauncherNetworkAPI
         CLIENT,
         @LauncherNetworkAPI
-        BOT,
-        @LauncherNetworkAPI
-        PROXY
+        API
     }
 
 

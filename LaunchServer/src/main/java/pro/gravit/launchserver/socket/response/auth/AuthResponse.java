@@ -42,7 +42,10 @@ public class AuthResponse extends SimpleResponse {
     public HWID hwid;
 
     public enum ConnectTypes {
-        SERVER, CLIENT, API
+        @Deprecated
+        SERVER,
+        CLIENT,
+        API
     }
 
     @Override
@@ -109,10 +112,6 @@ public class AuthResponse extends SimpleResponse {
                 clientData.username = login;
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
-            if (authType == ConnectTypes.SERVER && !clientData.permissions.canServer) {
-                AuthProvider.authError("authType: SERVER not allowed for this account");
-                return;
-            }
             if (getSession) {
                 if (clientData.session == 0) {
                     clientData.session = random.nextLong();

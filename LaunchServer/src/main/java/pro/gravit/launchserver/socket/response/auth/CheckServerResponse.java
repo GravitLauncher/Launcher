@@ -21,6 +21,11 @@ public class CheckServerResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client pClient) {
+        if(!pClient.isAuth || pClient.type == AuthResponse.ConnectTypes.CLIENT)
+        {
+            sendError("Permissions denied");
+            return;
+        }
         CheckServerRequestEvent result = new CheckServerRequestEvent();
         try {
             server.authHookManager.checkServerHook.hook(this, pClient);

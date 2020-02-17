@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 public class SessionManager implements NeedGarbageCollection {
 
     public static final long SESSION_TIMEOUT = 3 * 60 * 60 * 1000; // 3 часа
-    public static final boolean GARBAGE_SERVER = Boolean.parseBoolean(System.getProperty("launcher.garbageSessionsServer", "false"));
     private final Map<Long, Client> clientSet = new HashMap<>(128);
 
 
@@ -28,7 +27,7 @@ public class SessionManager implements NeedGarbageCollection {
         long time = System.currentTimeMillis();
         clientSet.entrySet().removeIf(entry -> {
             Client c = entry.getValue();
-            return (c.timestamp + SESSION_TIMEOUT < time) && ((c.type == AuthResponse.ConnectTypes.CLIENT) || ((c.type == AuthResponse.ConnectTypes.SERVER) && GARBAGE_SERVER));
+            return (c.timestamp + SESSION_TIMEOUT < time);
         });
     }
 
