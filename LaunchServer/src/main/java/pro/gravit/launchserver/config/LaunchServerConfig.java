@@ -284,7 +284,6 @@ public final class LaunchServerConfig {
         a.displayName = "Default";
         newConfig.auth.put("std", a);
         newConfig.protectHandler = new StdProtectHandler();
-        if (env.equals(LaunchServer.LaunchServerEnv.TEST))
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 

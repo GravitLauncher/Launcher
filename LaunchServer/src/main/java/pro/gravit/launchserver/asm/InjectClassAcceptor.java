@@ -136,11 +136,11 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
 		});
 		serializers.put(Character.class, (Serializer<Character>) e -> {
 			InsnList ret = new InsnList();
-			ret.add(NodeUtils.push((int) e.charValue()));
+			ret.add(NodeUtils.push((int) e));
 			ret.add(new InsnNode(Opcodes.I2C));
 			return ret;
 		});
-		serializers.put(Enum.class, (Serializer<Enum>) value -> NodeUtils.makeValueEnumGetter(value));
+		serializers.put(Enum.class, (Serializer<Enum>) NodeUtils::makeValueEnumGetter);
 	}
 
 	private static Serializer<?> serializerClass(int opcode) {
