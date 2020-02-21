@@ -16,6 +16,7 @@ public class LaunchServerModulesManager extends SimpleModuleManager {
     public LaunchServerModulesManager(Path modulesDir, Path configDir, LauncherTrustManager trustManager) {
         super(modulesDir, configDir, trustManager);
         coreModule = new LaunchServerCoreModule();
+        checkMode = LauncherTrustManager.CheckMode.NONE_IN_NOT_SIGNED;
         modules.add(coreModule);
     }
 

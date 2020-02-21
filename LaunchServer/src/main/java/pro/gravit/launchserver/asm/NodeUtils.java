@@ -5,6 +5,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.JarHelper;
 
 import java.io.IOException;
@@ -16,17 +17,7 @@ import java.util.List;
 import static org.objectweb.asm.Opcodes.*;
 
 public final class NodeUtils {
-	public static final boolean JAVA9;
 
-	static {
-		boolean java9 = false;
-		try {
-			Class.forName("java.lang.StackWalker");
-			java9 = true;
-		} catch (final Throwable e) {
-		}
-		JAVA9 = java9;
-	}
     private NodeUtils() {
     }
 

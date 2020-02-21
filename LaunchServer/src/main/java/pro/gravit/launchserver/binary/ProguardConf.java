@@ -2,10 +2,7 @@ package pro.gravit.launchserver.binary;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.NodeUtils;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.UnpackHelper;
+import pro.gravit.utils.helper.*;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -61,7 +58,7 @@ public class ProguardConf {
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add("-injar \'" + inputJar.toAbsolutePath() + "\'");
         confStrs.add("-outjar \'" + outputJar.toAbsolutePath() + "\'");
-    	Collections.addAll(confStrs, NodeUtils.JAVA9 ? JAVA9_OPTS : JAVA8_OPTS);
+    	Collections.addAll(confStrs, JVMHelper.JVM_VERSION >= 9 ? JAVA9_OPTS : JAVA8_OPTS);
         srv.launcherBinary.coreLibs.stream()
                 .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
                 .forEach(confStrs::add);
