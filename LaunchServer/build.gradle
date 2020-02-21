@@ -8,7 +8,7 @@ repositories {
         url "https://oss.sonatype.org/content/repositories/snapshots"
     }
     maven {
-        url "http://maven.geomajas.org/"
+        url "https://maven.geomajas.org/"
     }
 }
 
@@ -31,7 +31,6 @@ jar {
     dependsOn parent.childProjects.Launcher.tasks.build
     from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
     from(parent.childProjects.Launcher.tasks.shadowJar.archivePath)
-    from(parent.childProjects.Launcher.tasks.genRuntimeJS.archivePath)
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
             "Can-Redefine-Classes": "true",
@@ -125,6 +124,7 @@ task hikari(type: Copy) {
 task launch4jM(type: Copy) {
     into "$buildDir/libs/libraries/launch4j"
     from(configurations.launch4jCJ.collect { it.isDirectory() ? it : zipTree(it) })
+    duplicatesStrategy = 'INCLUDE'
     includeEmptyDirs false
     eachFile { FileCopyDetails fcp ->
         if (fcp.relativePath.pathString.startsWith("launch4j-")) {
@@ -163,8 +163,8 @@ task dumpCompileOnlyLibs(type: Copy) {
 
 task bundle(type: Zip) {
     dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.jar
-    archiveName 'LaunchServer.zip'
-    destinationDir file("$buildDir")
+    archiveFileName = 'LaunchServer.zip'
+    destinationDirectory = file("$buildDir")
     from(tasks.dumpLibs.destinationDir) { into 'libraries' }
     from(tasks.dumpCompileOnlyLibs.destinationDir) { into 'launcher-libraries-compile' }
     from tasks.jar.archivePath

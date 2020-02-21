@@ -15,9 +15,9 @@ configure(subprojects.findAll { it.name != 'modules' }) {
 
     repositories {
         mavenCentral()
-        maven { url 'http://oss.sonatype.org/content/groups/public' }
+        maven { url 'https://oss.sonatype.org/content/groups/public' }
         maven {
-            url "http://clojars.org/repo/"
+            url "https://clojars.org/repo/"
         }
     }
 

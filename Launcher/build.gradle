@@ -8,7 +8,7 @@ String mainAgentName = "pro.gravit.launcher.LauncherAgent"
 
 repositories {
     maven {
-        url "http://repo.spring.io/plugins-release/"
+        url "https://repo.spring.io/plugins-release/"
     }
 }
 javafx {
@@ -59,19 +59,13 @@ dependencies {
     pack 'org.ow2.asm:asm-tree:7.1'
 }
 
-task genRuntimeJS(type: Zip) {
-    archiveName = "runtime.zip"
-    destinationDir = file("${buildDir}/tmp")
-    from "runtime/"
-}
-
 task dumpLibs(type: Copy) {
     into "$buildDir/libs/libraries"
     from configurations.bundle
 }
 
 
-assemble.dependsOn tasks.genRuntimeJS, tasks.dumpLibs, tasks.shadowJar
+assemble.dependsOn tasks.dumpLibs, tasks.shadowJar
 
 publishing {
     publications {
