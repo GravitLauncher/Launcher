@@ -1,7 +1,8 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '5.0.0' apply false
+    id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
     id 'maven-publish'
     id 'signing'
+    id 'org.openjfx.javafxplugin' version '0.0.8' apply false
 }
 group = 'pro.gravit.launcher'
 version = '5.1.1-SNAPSHOT'
@@ -9,7 +10,7 @@ version = '5.1.1-SNAPSHOT'
 configure(subprojects.findAll { it.name != 'modules' }) {
     apply plugin: 'idea'
     apply plugin: 'eclipse'
-    apply plugin: 'java'
+    apply plugin: 'java-library'
 
     group = 'pro.gravit'
 
@@ -26,8 +27,8 @@ configure(subprojects.findAll { it.name != 'modules' }) {
         aptCompileOnly
         aptOnly
         aptOnly.extendsFrom apt, aptCompileOnly
-        compile.extendsFrom apt
-        compileOnly.extendsFrom aptCompileOnly
+        api.extendsFrom apt
+        implementation.extendsFrom aptCompileOnly
     }
 
     tasks.withType(JavaCompile) {

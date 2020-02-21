@@ -5,7 +5,7 @@ String mainAgentName = "pro.gravit.launcher.server.ServerAgent"
 
 configurations {
     pack
-    compile.extendsFrom pack
+    api.extendsFrom pack
 }
 
 repositories {
