@@ -1,9 +1,6 @@
 package pro.gravit.launchserver.socket;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.Gson;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -34,14 +31,16 @@ import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.lang.reflect.Type;
+
 public class WebSocketService {
     public final ChannelGroup channels;
-    public static ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
-    public static class WebSocketRequestContext
-    {
-        public WebSocketServerResponse response;
-        public Client client;
-        public String ip;
+    public static final ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
+
+    public static class WebSocketRequestContext {
+        public final WebSocketServerResponse response;
+        public final Client client;
+        public final String ip;
 
         public WebSocketRequestContext(WebSocketServerResponse response, Client client, String ip) {
             this.response = response;
@@ -49,6 +48,7 @@ public class WebSocketService {
             this.ip = ip;
         }
     }
+
     public final BiHookSet<WebSocketRequestContext, ChannelHandlerContext> hook = new BiHookSet<>();
 
     public WebSocketService(ChannelGroup channels, LaunchServer server) {
@@ -71,8 +71,7 @@ public class WebSocketService {
 
     void process(ChannelHandlerContext ctx, WebSocketServerResponse response, Client client, String ip) {
         WebSocketRequestContext context = new WebSocketRequestContext(response, client, ip);
-        if(hook.hook(context, ctx))
-        {
+        if (hook.hook(context, ctx)) {
             return;
         }
         if (response instanceof SimpleResponse) {
@@ -132,6 +131,14 @@ public class WebSocketService {
 
     public void sendObject(ChannelHandlerContext ctx, Object obj, Type type) {
         ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)), ctx.voidPromise());
+    }
+
+    public void sendObject(Channel channel, Object obj) {
+        channel.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class)), channel.voidPromise());
+    }
+
+    public void sendObject(Channel channel, Object obj, Type type) {
+        channel.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)), channel.voidPromise());
     }
 
     public void sendObjectAll(Object obj) {

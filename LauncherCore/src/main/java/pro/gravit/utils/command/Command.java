@@ -1,21 +1,15 @@
 package pro.gravit.utils.command;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import org.jline.reader.Candidate;
-
 import pro.gravit.utils.helper.VerifyHelper;
+
+import java.util.*;
 
 public abstract class Command {
     /**
      * List of available subcommands
      */
-    public Map<String, Command> childCommands;
+    public final Map<String, Command> childCommands;
 
     public Command() {
         childCommands = new HashMap<>();
@@ -49,63 +43,58 @@ public abstract class Command {
 
     /**
      * Creates a JLine candidate that appears in the list of available options when you press TAB
-     * @param category this command category
+     *
+     * @param category    this command category
      * @param commandName this command name
      * @return JLine Candidate
      */
-    public Candidate buildCandidate(CommandHandler.Category category, String commandName)
-    {
+    public Candidate buildCandidate(CommandHandler.Category category, String commandName) {
         return new Candidate(commandName);
     }
 
     /**
      * Returns a list of available options for the next word for the current command.
-     * @param words list all user words
+     *
+     * @param words     list all user words
      * @param wordIndex current word index
-     * @param word current word
+     * @param word      current word
      * @return list of available Candidate
      */
-    public List<Candidate> complete(List<String> words, int wordIndex, String word)
-    {
-        if(wordIndex == 0)
-        {
+    public List<Candidate> complete(List<String> words, int wordIndex, String word) {
+        if (wordIndex == 0) {
             List<Candidate> candidates = new ArrayList<>();
-            childCommands.forEach((k,v) -> {
-                if(k.startsWith(word))
-                {
+            childCommands.forEach((k, v) -> {
+                if (k.startsWith(word)) {
                     candidates.add(new Candidate(k));
                 }
             });
             return candidates;
-        }
-        else
-        {
+        } else {
             Command cmd = childCommands.get(words.get(0));
-            if(cmd == null) return new ArrayList<>();
+            if (cmd == null) return new ArrayList<>();
             return cmd.complete(words.subList(1, words.size()), wordIndex - 1, word);
         }
     }
 
     /**
      * Transfer control to subcommands
+     *
      * @param args command arguments(includes subcommand name)
-     * @throws Exception
-     * Error executing command
+     * @throws Exception Error executing command
      */
-    public void invokeSubcommands(String... args) throws Exception
-    {
+    public void invokeSubcommands(String... args) throws Exception {
         verifyArgs(args, 1);
         Command command = childCommands.get(args[0]);
-        if(command == null) throw new CommandException(String.format("Unknown sub command: '%s'", args[0]));
+        if (command == null) throw new CommandException(String.format("Unknown sub command: '%s'", args[0]));
         command.invoke(Arrays.copyOfRange(args, 1, args.length));
     }
 
 
     /**
      * Run current command
+     *
      * @param args command arguments
-     * @throws Exception
-     * Error executing command
+     * @throws Exception Error executing command
      */
     public abstract void invoke(String... args) throws Exception;
 

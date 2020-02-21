@@ -1,11 +1,5 @@
 package com.mojang.authlib.yggdrasil;
 
-import java.net.InetAddress;
-import java.util.Base64;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.UUID;
-
 import com.google.common.collect.Iterables;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -18,7 +12,6 @@ import com.mojang.authlib.minecraft.BaseMinecraftSessionService;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.request.auth.CheckServerRequest;
@@ -27,6 +20,12 @@ import pro.gravit.launcher.request.uuid.ProfileByUUIDRequest;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
+
+import java.net.InetAddress;
+import java.util.Base64;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionService {
     public static final JsonParser JSON_PARSER = new JsonParser();
@@ -209,6 +208,7 @@ public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionServic
         try {
             success = new JoinServerRequest(username, accessToken, serverID).request().allow;
         } catch (Exception e) {
+            LogHelper.error(e);
             throw new AuthenticationUnavailableException(e);
         }
 

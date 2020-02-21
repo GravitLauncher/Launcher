@@ -1,7 +1,6 @@
 package pro.gravit.launcher.impl;
 
 import org.junit.jupiter.api.Assertions;
-
 import pro.gravit.launcher.modules.LauncherInitContext;
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.LauncherModuleInfo;
@@ -11,7 +10,7 @@ public class MainModule extends LauncherModule {
 
     public MainModule() {
         super(new LauncherModuleInfo("main",
-        new Version(1,0,0),
+                new Version(1, 0, 0),
                 0, new String[]{"depend1", "depend2"}));
     }
 

@@ -1,5 +1,9 @@
 package pro.gravit.launchserver.binary;
 
+import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.asm.NodeUtils;
+import pro.gravit.utils.helper.*;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -7,24 +11,28 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.UnpackHelper;
-
 public class ProguardConf {
-    private static final String chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ";
+    private static final char[] chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ".toCharArray();
 
+    public static final String[] JAVA9_OPTS = new String[] {
+    		"-libraryjars '<java.home>/jmods/'"
+    };
+    public static final String[] JAVA8_OPTS = new String[] {
+    		"-libraryjars '<java.home>/lib/rt.jar'",
+    		"-libraryjars '<java.home>/lib/jce.jar'",
+    		"-libraryjars '<java.home>/lib/ext/nashorn.jar'",
+    		"-libraryjars '<java.home>/lib/ext/jfxrt.jar'"
+    };
     private static String generateString(SecureRandom rand, String lowString, String upString, int il) {
         StringBuilder sb = new StringBuilder(Math.max(il, lowString.length()));
         for (int i = 0; i < lowString.length(); ++i) {
             sb.append(rand.nextBoolean() ? lowString.charAt(i) : upString.charAt(i));
         }
         int toI = il - lowString.length();
-        for (int i = 0; i < toI; i++) sb.append(chars.charAt(rand.nextInt(chars.length())));
+        for (int i = 0; i < toI; i++) sb.append(chars[rand.nextInt(chars.length)]);
         return sb.toString();
     }
 
@@ -45,18 +53,21 @@ public class ProguardConf {
     public String[] buildConfig(Path inputJar, Path outputJar) {
         List<String> confStrs = new ArrayList<>();
         prepare(false);
-        if (srv.config.launcher.proguardGenMappings) confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
+        if (srv.config.launcher.proguardGenMappings)
+            confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add("-injar \'" + inputJar.toAbsolutePath() + "\'");
         confStrs.add("-outjar \'" + outputJar.toAbsolutePath() + "\'");
+    	Collections.addAll(confStrs, JVMHelper.JVM_VERSION >= 9 ? JAVA9_OPTS : JAVA8_OPTS);
         srv.launcherBinary.coreLibs.stream()
                 .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
                 .forEach(confStrs::add);
+        
         srv.launcherBinary.addonLibs.stream()
                 .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
                 .forEach(confStrs::add);
         confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
-        confStrs.add(readConf());
+        confStrs.add("@".concat(config.toFile().getName()));
         return confStrs.toArray(new String[0]);
     }
 
@@ -87,9 +98,5 @@ public class ProguardConf {
         } catch (IOException e) {
             LogHelper.error(e);
         }
-    }
-
-    private String readConf() {
-        return "@".concat(config.toFile().getName());
     }
 }

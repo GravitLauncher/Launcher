@@ -1,5 +1,9 @@
 package pro.gravit.launchserver.manangers;
 
+import pro.gravit.launcher.NeedGarbageCollection;
+import pro.gravit.launchserver.socket.Client;
+import pro.gravit.launchserver.socket.response.auth.AuthResponse;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,14 +11,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import pro.gravit.launcher.NeedGarbageCollection;
-import pro.gravit.launchserver.socket.Client;
-
 public class SessionManager implements NeedGarbageCollection {
 
     public static final long SESSION_TIMEOUT = 3 * 60 * 60 * 1000; // 3 часа
-    public static final boolean GARBAGE_SERVER = Boolean.parseBoolean(System.getProperty("launcher.garbageSessionsServer", "false"));
-    private Map<Long, Client> clientSet = new HashMap<>(128);
+    private final Map<Long, Client> clientSet = new HashMap<>(128);
 
 
     public boolean addClient(Client client) {
@@ -27,7 +27,7 @@ public class SessionManager implements NeedGarbageCollection {
         long time = System.currentTimeMillis();
         clientSet.entrySet().removeIf(entry -> {
             Client c = entry.getValue();
-            return (c.timestamp + SESSION_TIMEOUT < time) && ((c.type == Client.Type.USER) || ((c.type == Client.Type.SERVER) && GARBAGE_SERVER));
+            return (c.timestamp + SESSION_TIMEOUT < time);
         });
     }
 

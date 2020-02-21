@@ -1,22 +1,12 @@
 package pro.gravit.launcher.request.websockets;
 
-import java.util.concurrent.TimeUnit;
-
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.util.concurrent.TimeUnit;
 
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
 
@@ -34,7 +24,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     @Override
-    public void handlerAdded(final ChannelHandlerContext ctx) throws Exception {
+    public void handlerAdded(final ChannelHandlerContext ctx) {
         handshakeFuture = ctx.newPromise();
     }
 
@@ -42,9 +32,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         handshaker.handshake(ctx.channel());
         clientJSONPoint.onOpen();
-        ctx.executor().scheduleWithFixedDelay(() -> {
-            ctx.channel().writeAndFlush(new PingWebSocketFrame());
-        }, 20L, 20L, TimeUnit.SECONDS);
+        ctx.executor().scheduleWithFixedDelay(() -> ctx.channel().writeAndFlush(new PingWebSocketFrame()), 20L, 20L, TimeUnit.SECONDS);
     }
 
     @Override
@@ -93,7 +81,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     @Override
-    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         LogHelper.error(cause);
 
         if (!handshakeFuture.isDone()) {

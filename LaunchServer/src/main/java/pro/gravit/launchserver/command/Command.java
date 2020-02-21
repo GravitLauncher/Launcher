@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.command;
 
-import java.util.Map;
-
 import pro.gravit.launchserver.LaunchServer;
+
+import java.util.Map;
 
 public abstract class Command extends pro.gravit.utils.command.Command {
 

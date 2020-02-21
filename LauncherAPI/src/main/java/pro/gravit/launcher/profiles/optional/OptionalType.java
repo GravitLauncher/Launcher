@@ -1,15 +1,14 @@
 package pro.gravit.launcher.profiles.optional;
 
-import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherNetworkAPI;
 
-@LauncherAPI
 public enum OptionalType {
-    @LauncherAPI
+    @LauncherNetworkAPI
     FILE,
-    @LauncherAPI
+    @LauncherNetworkAPI
     CLASSPATH,
-    @LauncherAPI
+    @LauncherNetworkAPI
     JVMARGS,
-    @LauncherAPI
+    @LauncherNetworkAPI
     CLIENTARGS
 }

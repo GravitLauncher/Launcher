@@ -1,5 +1,14 @@
 package pro.gravit.launcher.client;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.serialize.HInput;
+import pro.gravit.launcher.serialize.HOutput;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.VerifyHelper;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -10,26 +19,15 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.serialize.HInput;
-import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.VerifyHelper;
-
 public final class ServerPinger {
-    private JsonParser parser = new JsonParser();
+    private final JsonParser parser = new JsonParser();
 
     public static final class Result {
-        @LauncherAPI
+
         public final int onlinePlayers;
-        @LauncherAPI
+
         public final int maxPlayers;
-        @LauncherAPI
+
         public final String raw;
 
         public Result(int onlinePlayers, int maxPlayers, String raw) {
@@ -40,7 +38,7 @@ public final class ServerPinger {
             this.raw = raw;
         }
 
-        @LauncherAPI
+
         public boolean isOverfilled() {
             return onlinePlayers >= maxPlayers;
         }
@@ -76,7 +74,7 @@ public final class ServerPinger {
 
     private Instant cacheTime = null;
 
-    @LauncherAPI
+
     public ServerPinger(ClientProfile profile) {
         this.address = Objects.requireNonNull(profile.getServerSocketAddress(), "address");
         this.version = Objects.requireNonNull(profile.getVersion(), "version");
@@ -195,7 +193,7 @@ public final class ServerPinger {
         return new Result(online, max, response);
     }
 
-    @LauncherAPI
+
     public Result ping() throws IOException {
         Instant now = Instant.now();
         synchronized (cacheLock) {

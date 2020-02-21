@@ -1,18 +1,17 @@
 package pro.gravit.launchserver.auth.hwid;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import pro.gravit.launcher.hwid.HWID;
+import pro.gravit.launcher.hwid.OshiHWID;
+import pro.gravit.launcher.HTTPRequest;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-
-import pro.gravit.launcher.hwid.HWID;
-import pro.gravit.launcher.hwid.OshiHWID;
-import pro.gravit.utils.HTTPRequest;
-import pro.gravit.utils.helper.LogHelper;
 
 public final class JsonHWIDHandler extends HWIDHandler {
     private static final Gson gson = new Gson();
@@ -23,12 +22,12 @@ public final class JsonHWIDHandler extends HWIDHandler {
     private URL urlGet;
     private String apiKey;
 
-    public class banRequest {
+    public static class banRequest {
         public banRequest(OshiHWID hwid) {
             this.hwid = hwid;
         }
 
-        OshiHWID hwid;
+        final OshiHWID hwid;
         String apiKey;
 
         public banRequest(OshiHWID hwid, String apiKey) {
@@ -37,14 +36,14 @@ public final class JsonHWIDHandler extends HWIDHandler {
         }
     }
 
-    public class checkRequest {
+    public static class checkRequest {
         public checkRequest(String username, OshiHWID hwid) {
             this.username = username;
             this.hwid = hwid;
         }
 
-        String username;
-        OshiHWID hwid;
+        final String username;
+        final OshiHWID hwid;
         String apiKey;
 
         public checkRequest(String username, OshiHWID hwid, String apiKey) {
@@ -54,21 +53,21 @@ public final class JsonHWIDHandler extends HWIDHandler {
         }
     }
 
-    public class Result {
+    public static class Result {
         String error;
     }
 
-    public class BannedResult {
+    public static class BannedResult {
         boolean isBanned;
         String error;
     }
 
-    public class HWIDRequest {
+    public static class HWIDRequest {
         public HWIDRequest(String username) {
             this.username = username;
         }
 
-        String username;
+        final String username;
         String apiKey;
 
         public HWIDRequest(String username, String apiKey) {

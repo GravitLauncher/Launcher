@@ -19,7 +19,7 @@ public class MultiCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         for (String arg : args) {
             server.commandHandler.eval(arg, false);
         }

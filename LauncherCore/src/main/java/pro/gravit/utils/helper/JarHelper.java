@@ -1,6 +1,7 @@
 package pro.gravit.utils.helper;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class JarHelper {
 
     @FunctionalInterface
     public interface JarWalkCallback {
-        void process(ZipInputStream input, ZipEntry e, String fullClassName, String clazz) throws IOException;
+        void process(ZipInputStream input, ZipEntry e, String fullClassName, String clazz);
     }
 
     public static void zipWalk(ZipInputStream input, ZipWalkCallback callback) throws IOException {
@@ -74,4 +75,31 @@ public class JarHelper {
         Path file = IOHelper.getCodeSource(clazz);
         jarMap(file, map, overwrite);
     }
+
+    public static String getClassFile(Class<?> clazz)
+    {
+        return getClassFile(clazz.getName());
+    }
+    public static String getClassFile(String classname)
+    {
+        return classname.replace('.', '/').concat(".class");
+    }
+    public static byte[] getClassBytes(Class<?> clazz) throws IOException
+    {
+        return getClassBytes(clazz, clazz.getClassLoader());
+    }
+    public static byte[] getClassBytes(Class<?> clazz, ClassLoader classLoader) throws IOException
+    {
+        return IOHelper.read(classLoader.getResourceAsStream(getClassFile(clazz)));
+    }
+    public static InputStream getClassBytesStream(Class<?> clazz) throws IOException
+    {
+        return getClassBytesStream(clazz, clazz.getClassLoader());
+    }
+    public static InputStream getClassBytesStream(Class<?> clazz, ClassLoader classLoader) throws IOException
+    {
+        return classLoader.getResourceAsStream(getClassFile(clazz));
+    }
+
+
 }

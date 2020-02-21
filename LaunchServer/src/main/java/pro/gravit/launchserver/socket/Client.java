@@ -4,13 +4,14 @@ import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
+import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.LogHelper;
 
 public class Client {
     public long session;
     public String auth_id;
     public long timestamp;
-    public Type type;
+    public AuthResponse.ConnectTypes type;
     public ClientProfile profile;
     public boolean isAuth;
     public boolean checkSign;
@@ -25,7 +26,7 @@ public class Client {
     public Client(long session) {
         this.session = session;
         timestamp = System.currentTimeMillis();
-        type = Type.USER;
+        type = null;
         isAuth = false;
         permissions = ClientPermissions.DEFAULT;
         username = "";

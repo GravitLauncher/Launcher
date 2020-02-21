@@ -1,32 +1,25 @@
 package pro.gravit.utils;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-
-import pro.gravit.launcher.LauncherAPI;
+import java.util.*;
 
 public final class Version {
-    @LauncherAPI
+
     public final int major;
-    @LauncherAPI
+
     public final int minor;
-    @LauncherAPI
+
     public final int patch;
-    @LauncherAPI
+
     public final int build;
-    @LauncherAPI
+
     public final Type release;
     public static final int MAJOR = 5;
-    public static final int MINOR = 0;
-    public static final int PATCH = 10;
+    public static final int MINOR = 1;
+    public static final int PATCH = 0;
     public static final int BUILD = 1;
-    public static final Version.Type RELEASE = Type.STABLE;
+    public static final Version.Type RELEASE = Type.BETA;
 
-    @LauncherAPI
+
     public Version(int major, int minor, int patch) {
         this.major = major;
         this.minor = minor;
@@ -35,7 +28,7 @@ public final class Version {
         release = Type.UNKNOWN;
     }
 
-    @LauncherAPI
+
     public Version(int major, int minor, int patch, int build) {
         this.major = major;
         this.minor = minor;
@@ -44,7 +37,7 @@ public final class Version {
         release = Type.UNKNOWN;
     }
 
-    @LauncherAPI
+
     public Version(int major, int minor, int patch, int build, Type release) {
         this.major = major;
         this.minor = minor;
@@ -58,7 +51,7 @@ public final class Version {
     }
 
     @Override
-    @LauncherAPI
+
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -69,30 +62,30 @@ public final class Version {
                 build == that.build;
     }
 
-    @LauncherAPI
+
     public String getVersionString() {
         return String.format("%d.%d.%d", major, minor, patch);
     }
 
     @Override
-    @LauncherAPI
+
     public int hashCode() {
         return Objects.hash(major, minor, patch, build);
     }
 
-    @LauncherAPI
+
     public String getReleaseStatus() {
         if (release.equals(Type.UNKNOWN)) return "";
         return release.name().toLowerCase(Locale.ENGLISH);
     }
 
     @Override
-    @LauncherAPI
+
     public String toString() {
         return String.format("%d.%d.%d-%d %s", major, minor, patch, build, getReleaseStatus());
     }
 
-    @LauncherAPI
+
     public enum Type {
         LTS,
         STABLE,
@@ -106,7 +99,7 @@ public final class Version {
         public static final Map<String, Type> unModTypes = Collections.unmodifiableMap(types);
 
         static {
-            Arrays.asList(values()).stream().forEach(type -> types.put(type.name().substring(0, type.name().length() < 3 ? type.name().length() : 3).toLowerCase(Locale.ENGLISH), type));
+            Arrays.asList(values()).forEach(type -> types.put(type.name().substring(0, type.name().length() < 3 ? type.name().length() : 3).toLowerCase(Locale.ENGLISH), type));
         }
     }
 }

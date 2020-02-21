@@ -1,59 +1,23 @@
 package pro.gravit.launcher;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import pro.gravit.launcher.client.UserSettings;
 import pro.gravit.launcher.hasher.HashedDir;
-import pro.gravit.launcher.profiles.ClientProfile;
+
+import java.nio.file.Path;
+import java.util.*;
 
 public class NewLauncherSettings {
-    @LauncherAPI
-    public String login;
-    @LauncherAPI
-    public String auth;
-    @LauncherAPI
-    public byte[] rsaPassword;
-    @LauncherAPI
-    public int profile;
-    @LauncherAPI
-    public transient Path updatesDir;
-    @LauncherAPI
-    public String updatesDirPath;
-    @LauncherAPI
-    public boolean autoEnter;
-    @LauncherAPI
-    public boolean debug;
-    @LauncherAPI
-    public boolean fullScreen;
-    @LauncherAPI
-    public boolean offline;
-    @LauncherAPI
-    public int ram;
-
-    @LauncherAPI
-    public byte[] lastDigest;
-    @LauncherAPI
-    public List<ClientProfile> lastProfiles = new LinkedList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     public Map<String, UserSettings> userSettings = new HashMap<>();
-    @LauncherAPI
-    public boolean featureStore;
-    @LauncherAPI
+    @LauncherNetworkAPI
+    public List<String> features = new ArrayList<>();
+    @LauncherNetworkAPI
     public String consoleUnlockKey;
 
     public static class HashedStoreEntry {
-        @LauncherAPI
-        public HashedDir hdir;
-        @LauncherAPI
-        public String name;
-        @LauncherAPI
-        public String fullPath;
-        @LauncherAPI
+        public final HashedDir hdir;
+        public final String name;
+        public final String fullPath;
         public transient boolean needSave = false;
 
         public HashedStoreEntry(HashedDir hdir, String name, String fullPath) {
@@ -63,10 +27,9 @@ public class NewLauncherSettings {
         }
     }
 
-    @LauncherAPI
-    public transient List<HashedStoreEntry> lastHDirs = new ArrayList<>(16);
+    @LauncherNetworkAPI
+    public final transient List<HashedStoreEntry> lastHDirs = new ArrayList<>(16);
 
-    @LauncherAPI
     public void putHDir(String name, Path path, HashedDir dir) {
         String fullPath = path.toAbsolutePath().toString();
         lastHDirs.removeIf((e) -> e.fullPath.equals(fullPath) && e.name.equals(name));

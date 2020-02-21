@@ -1,10 +1,5 @@
 package pro.gravit.launchserver.auth.provider;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
@@ -15,15 +10,19 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public final class RequestAuthProvider extends AuthProvider {
     private String url;
     private transient Pattern pattern;
     private String response;
-    private boolean usePermission;
 
     @Override
     public void init(LaunchServer srv) {
-    	super.init(srv);
+        super.init(srv);
         if (url == null) LogHelper.error("[Verify][AuthProvider] url cannot be null");
         if (response == null) LogHelper.error("[Verify][AuthProvider] response cannot be null");
         pattern = Pattern.compile(response);
@@ -31,13 +30,13 @@ public final class RequestAuthProvider extends AuthProvider {
 
     @Override
     public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws IOException {
-        if(!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
+        if (!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
         String currentResponse = IOHelper.request(new URL(getFormattedURL(login, ((AuthPlainPassword) password).password, ip)));
 
         // Match username
         Matcher matcher = pattern.matcher(currentResponse);
         return matcher.matches() && matcher.groupCount() >= 1 ?
-                new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken(), usePermission ? new ClientPermissions(Long.parseLong(matcher.group("permission"))) : srv.config.permissionsHandler.getPermissions(login)) :
+                new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken(), new ClientPermissions(Long.parseLong(matcher.group("permission")))) :
                 authError(currentResponse);
     }
 

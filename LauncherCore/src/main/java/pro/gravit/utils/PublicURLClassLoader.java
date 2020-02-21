@@ -3,17 +3,7 @@ package pro.gravit.utils;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import pro.gravit.launcher.LauncherAPI;
-
 public class PublicURLClassLoader extends URLClassLoader {
-    @LauncherAPI
-    public static ClassLoader systemclassloader = ClassLoader.getSystemClassLoader();
-    public String nativePath;
-
-    @LauncherAPI
-    public static ClassLoader getSystemClassLoader() {
-        return systemclassloader;
-    }
 
     /**
      * Constructs a new URLClassLoader for the specified URLs using the
@@ -62,11 +52,6 @@ public class PublicURLClassLoader extends URLClassLoader {
      */
     public PublicURLClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
-    }
-
-    @Override
-    public String findLibrary(String name) {
-        return nativePath.concat(name);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package pro.gravit.launchserver;
 
-import java.util.Map;
-
 import pro.gravit.utils.command.Command;
+
+import java.util.Map;
 
 /**
  * Allows calling commands using the config command
@@ -10,6 +10,7 @@ import pro.gravit.utils.command.Command;
 public interface Reconfigurable {
     /**
      * Gets a list of commands available for this object.
+     *
      * @return Key - Command Name
      * Value is a command object
      */

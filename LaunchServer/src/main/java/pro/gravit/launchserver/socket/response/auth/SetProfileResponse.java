@@ -1,13 +1,13 @@
 package pro.gravit.launchserver.socket.response.auth;
 
-import java.util.Collection;
-
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.SetProfileRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.HookException;
+
+import java.util.Collection;
 
 public class SetProfileResponse extends SimpleResponse {
     public String client;

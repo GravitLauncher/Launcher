@@ -1,10 +1,10 @@
 package pro.gravit.utils.command;
 
+import pro.gravit.utils.helper.VerifyHelper;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-
-import pro.gravit.utils.helper.VerifyHelper;
 
 public class BaseCommandCategory implements CommandCategory {
     private final Map<String, Command> commands = new ConcurrentHashMap<>(32);

@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.manangers;
 
 import com.google.gson.GsonBuilder;
-
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.GsonManager;
@@ -11,7 +10,6 @@ import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.hwid.HWIDHandler;
-import pro.gravit.launchserver.auth.permissions.PermissionsHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
@@ -35,7 +33,6 @@ public class LaunchServerGsonManager extends GsonManager {
         builder.registerTypeAdapter(AuthProvider.class, new UniversalJsonAdapter<>(AuthProvider.providers));
         builder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
         builder.registerTypeAdapter(AuthHandler.class, new UniversalJsonAdapter<>(AuthHandler.providers));
-        builder.registerTypeAdapter(PermissionsHandler.class, new UniversalJsonAdapter<>(PermissionsHandler.providers));
         builder.registerTypeAdapter(HWIDHandler.class, new UniversalJsonAdapter<>(HWIDHandler.providers));
         builder.registerTypeAdapter(Component.class, new UniversalJsonAdapter<>(Component.providers));
         builder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(ProtectHandler.providers));

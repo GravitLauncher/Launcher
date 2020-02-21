@@ -1,15 +1,6 @@
 package pro.gravit.launchserver.command.dump;
 
-import java.io.Reader;
-import java.io.Writer;
-import java.lang.reflect.Type;
-import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.google.gson.reflect.TypeToken;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
@@ -17,6 +8,14 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.Reader;
+import java.io.Writer;
+import java.lang.reflect.Type;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DumpSessionsCommand extends Command {
     public DumpSessionsCommand(LaunchServer server) {

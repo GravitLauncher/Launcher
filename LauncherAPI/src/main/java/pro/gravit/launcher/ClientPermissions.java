@@ -1,24 +1,24 @@
 package pro.gravit.launcher;
 
-import java.io.IOException;
-import java.util.StringJoiner;
-
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 
+import java.io.IOException;
+import java.util.StringJoiner;
+
 public class ClientPermissions {
     public static final ClientPermissions DEFAULT = new ClientPermissions();
-    @LauncherAPI
+    @LauncherNetworkAPI
     public boolean canAdmin;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public boolean canServer;
-    @LauncherAPI
-    public boolean canUSR1;
-    @LauncherAPI
-    public boolean canUSR2;
-    @LauncherAPI
-    public boolean canUSR3;
-    @LauncherAPI
+    @LauncherNetworkAPI
+    public final boolean canUSR1;
+    @LauncherNetworkAPI
+    public final boolean canUSR2;
+    @LauncherNetworkAPI
+    public final boolean canUSR3;
+    @LauncherNetworkAPI
     public boolean canBot;
 
     public ClientPermissions(HInput input) throws IOException {
@@ -43,7 +43,7 @@ public class ClientPermissions {
         canBot = (data & (1 << 5)) != 0;
     }
 
-    @LauncherAPI
+
     public long toLong() {
         long result = 0;
         result |= !canAdmin ? 0 : 1;

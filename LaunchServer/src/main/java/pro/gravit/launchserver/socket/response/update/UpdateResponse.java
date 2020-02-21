@@ -1,13 +1,13 @@
 package pro.gravit.launchserver.socket.response.update;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
+import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.IOHelper;
 
 public class UpdateResponse extends SimpleResponse {
@@ -20,7 +20,7 @@ public class UpdateResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (!client.isAuth || client.type != Client.Type.USER || client.profile == null) {
+        if (!client.isAuth || client.type != AuthResponse.ConnectTypes.CLIENT || client.profile == null) {
             sendError("Access denied");
             return;
         }
@@ -28,14 +28,14 @@ public class UpdateResponse extends SimpleResponse {
             for (ClientProfile p : server.getProfiles()) {
                 if (!client.profile.getTitle().equals(p.getTitle())) continue;
                 if (!p.isWhitelistContains(client.username)) {
-                    service.sendObject(ctx, new ErrorRequestEvent("You don't download this folder"));
+                    sendError("You don't download this folder");
                     return;
                 }
             }
         }
         HashedDir dir = server.updatesDirMap.get(dirName);
         if (dir == null) {
-            service.sendObject(ctx, new ErrorRequestEvent(String.format("Directory %s not found", dirName)));
+            sendError(String.format("Directory %s not found", dirName));
             return;
         }
         String url = server.config.netty.downloadURL.replace("%dirname%", IOHelper.urlEncode(dirName));
@@ -45,6 +45,6 @@ public class UpdateResponse extends SimpleResponse {
             url = bind.url;
             zip = bind.zip;
         }
-        service.sendObject(ctx, new UpdateRequestEvent(dir, url, zip));
+        sendResult(new UpdateRequestEvent(dir, url, zip));
     }
 }

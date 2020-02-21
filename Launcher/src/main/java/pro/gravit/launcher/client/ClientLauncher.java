@@ -1,44 +1,12 @@
 package pro.gravit.launcher.client;
 
-import java.io.IOException;
-import java.lang.ProcessBuilder.Redirect;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.URL;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.PosixFilePermission;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.swing.JOptionPane;
-
-import pro.gravit.launcher.ClientLauncherWrapper;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherAPI;
-import pro.gravit.launcher.LauncherAgent;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.*;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
 import pro.gravit.launcher.client.events.ClientLaunchPhase;
 import pro.gravit.launcher.client.events.ClientLauncherInitPhase;
 import pro.gravit.launcher.client.events.ClientLauncherPostInitPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
-import pro.gravit.launcher.gui.JSRuntimeProvider;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hwid.HWIDProvider;
@@ -54,18 +22,36 @@ import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.launcher.utils.DirWatcher;
-import pro.gravit.launcher.utils.NativeJVMHalt;
-import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.EnvHelper;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.*;
 import pro.gravit.utils.helper.JVMHelper.OS;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
+
+import javax.swing.*;
+import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class ClientLauncher {
+
+
+    public static int getClientJVMBits() {
+        return LauncherGuardManager.guard.getClientJVMBits();
+    }
+
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
         private final Stream.Builder<Path> result;
 
@@ -83,30 +69,30 @@ public final class ClientLauncher {
 
     public static final class Params extends StreamObject {
         // Client paths
-        @LauncherAPI
+
         public final Path assetDir;
-        @LauncherAPI
+
         public final Path clientDir;
 
         // Client params
-        @LauncherAPI
+
         public final PlayerProfile pp;
-        @LauncherAPI
+
         public final String accessToken;
-        @LauncherAPI
+
         public final boolean autoEnter;
-        @LauncherAPI
+
         public final boolean fullScreen;
-        @LauncherAPI
+
         public final int ram;
-        @LauncherAPI
+
         public final int width;
-        @LauncherAPI
+
         public final int height;
-        @LauncherAPI
+
         public final long session;
 
-        @LauncherAPI
+
         public Params(byte[] launcherDigest, Path assetDir, Path clientDir, PlayerProfile pp, String accessToken,
                       boolean autoEnter, boolean fullScreen, int ram, int width, int height) {
             // Client paths
@@ -123,7 +109,7 @@ public final class ClientLauncher {
             this.session = Request.getSession();
         }
 
-        @LauncherAPI
+
         public Params(HInput input) throws Exception {
             session = input.readLong();
             // Client paths
@@ -174,16 +160,16 @@ public final class ClientLauncher {
     // Constants
     private static final Path NATIVES_DIR = IOHelper.toPath("natives");
     private static final Path RESOURCEPACKS_DIR = IOHelper.toPath("resourcepacks");
-    private static PublicURLClassLoader classLoader;
+    private static ClientClassLoader classLoader;
 
     public static class ClientUserProperties {
-        @LauncherAPI
+
         String[] skinURL;
-        @LauncherAPI
+
         String[] skinDigest;
-        @LauncherAPI
+
         String[] cloakURL;
-        @LauncherAPI
+
         String[] cloakDigest;
     }
 
@@ -245,7 +231,7 @@ public final class ClientLauncher {
         }
     }
 
-    @LauncherAPI
+
     public static void setJavaBinPath(Path javaBinPath) {
         JavaBinPath = javaBinPath;
     }
@@ -260,7 +246,7 @@ public final class ClientLauncher {
         Collections.addAll(args, "--assetsDir", params.assetDir.toString());
     }
 
-    @LauncherAPI
+
     public static void checkJVMBitsAndVersion() {
         if (JVMHelper.JVM_BITS != JVMHelper.OS_BITS) {
             String error = String.format("У Вас установлена Java %d, но Ваша система определена как %d. Установите Java правильной разрядности", JVMHelper.JVM_BITS, JVMHelper.OS_BITS);
@@ -278,7 +264,7 @@ public final class ClientLauncher {
         }
     }
 
-    @LauncherAPI
+
     public static boolean isLaunched() {
         return Launcher.LAUNCHED.get();
     }
@@ -296,40 +282,49 @@ public final class ClientLauncher {
         List<String> copy = new ArrayList<>(args);
         for (int i = 0, l = copy.size(); i < l; i++) {
             String s = copy.get(i);
-            if ( i + 1 < l && ("--accessToken".equals(s) || "--session".equals(s))) {
+            if (i + 1 < l && ("--accessToken".equals(s) || "--session".equals(s))) {
                 copy.set(i + 1, "censored");
             }
         }
         LogHelper.debug("Args: " + copy);
         // Resolve main class and method
         Class<?> mainClass = classLoader.loadClass(profile.getMainClass());
+        for(URL u : classLoader.getURLs())
+        {
+            LogHelper.info("ClassLoader URL: %s", u.toString());
+        }
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
         // Invoke main method
-        mainMethod.invokeWithArguments((Object)args.toArray(new String[0]));
+        try {
+            mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
+        } finally {
+            Request.service.close();
+        }
+
     }
 
     private static Process process = null;
     private static boolean clientStarted = false;
     private static Thread writeParamsThread;
 
-	public static void setWriteParamsThread(Thread writeParamsThread) {
-		ClientLauncher.writeParamsThread = writeParamsThread;
-		ClientLauncher.writeParamsThread.start();
-	}
+    public static void setWriteParamsThread(Thread writeParamsThread) {
+        ClientLauncher.writeParamsThread = writeParamsThread;
+        ClientLauncher.writeParamsThread.start();
+    }
 
-	public static Process getProcess() {
-		return process;
-	}
+    public static Process getProcess() {
+        return process;
+    }
 
-	public static void setClientStarted() {
-		clientStarted = true;
-	}
+    public static void setClientStarted() {
+        clientStarted = true;
+    }
 
-	public static PlayerProfile playerProfile;
+    public static PlayerProfile playerProfile;
 
-    @LauncherAPI
+
     public static Process launch(
             HashedDir assetHDir, HashedDir clientHDir,
             ClientProfile profile, Params params, boolean pipeOutput) throws Throwable {
@@ -345,7 +340,7 @@ public final class ClientLauncher {
         context.playerProfile = params.pp;
         context.args.add(javaBin.toString());
         context.args.add(MAGICAL_INTEL_OPTION);
-        if (params.ram > 0 && params.ram <= FunctionalBridge.getJVMTotalMemory()) {
+        if (params.ram > 0) {
             context.args.add("-Xms" + params.ram + 'M');
             context.args.add("-Xmx" + params.ram + 'M');
         }
@@ -356,6 +351,7 @@ public final class ClientLauncher {
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.USE_CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(context.args, DirBridge.USE_OPTDIR_PROPERTY);
+        JVMHelper.addSystemPropertyToArgs(context.args, DirWatcher.IGN_OVERFLOW);
         if (JVMHelper.OS_TYPE == OS.MUSTDIE) {
             if (JVMHelper.OS_VERSION.startsWith("10.")) {
                 LogHelper.debug("MustDie 10 fix is applied");
@@ -364,16 +360,15 @@ public final class ClientLauncher {
             }
         }
         // Add classpath and main class
-        String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
-        context.pathLauncher = pathLauncher;
-        Collections.addAll(context.args, ClientLauncherWrapper.MAGIC_ARG);
+        context.pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
+        context.args.add(ClientLauncherWrapper.MAGIC_ARG);
         Collections.addAll(context.args, profile.getJvmArgs());
         profile.pushOptionalJvmArgs(context.args);
-        Collections.addAll(context.args, "-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
-        Collections.addAll(context.args, "-javaagent:".concat(pathLauncher));
+        context.args.add("-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
+        //context.args.add("-javaagent:".concat(pathLauncher));
         ClientHookManager.clientLaunchHook.hook(context);
         LauncherGuardManager.guard.addCustomParams(context);
-        Collections.addAll(context.args, ClientLauncher.class.getName());
+        context.args.add(ClientLauncher.class.getName());
         ClientHookManager.clientLaunchFinallyHook.hook(context);
 
         // Print commandline debug message
@@ -398,12 +393,12 @@ public final class ClientLauncher {
         ClientHookManager.preStartHook.hook(context, builder);
         process = builder.start();
         if (builder.command() != command) {
-        	LogHelper.error("Something strange cheating...");
+            LogHelper.error("Something strange cheating...");
             System.exit(100);
-        	clientStarted = false;
+            clientStarted = false;
             return null;
         }
-        if(ClientHookManager.postStartHook.hook(context, builder)) return process;
+        if (ClientHookManager.postStartHook.hook(context, builder)) return process;
         if (!pipeOutput) {
             for (int i = 0; i < 50; ++i) {
                 if (!process.isAlive()) {
@@ -424,8 +419,8 @@ public final class ClientLauncher {
         clientStarted = false;
         return process;
     }
-    public static class ClientLaunchContext
-    {
+
+    public static class ClientLaunchContext {
         public final Params params;
         public final ClientProfile profile;
         public final HashedDir assetHDir, clientHDir;
@@ -440,27 +435,24 @@ public final class ClientLauncher {
         }
     }
 
-    @LauncherAPI
+
     public static void main(String... args) throws Throwable {
+        LauncherEngine.IS_CLIENT.set(true);
         LauncherEngine engine = LauncherEngine.clientInstance();
-        //Launcher.modulesManager = new ClientModuleManager(engine);
+        LauncherEngine.checkClass(LauncherEngine.class);
+        LauncherEngine.checkClass(LauncherAgent.class);
+        LauncherEngine.checkClass(ClientLauncher.class);
         LauncherEngine.modulesManager = new ClientModuleManager();
-        LauncherConfig.getAutogenConfig().initModules(); //INIT
+        LauncherConfig.initModules(LauncherEngine.modulesManager); //INIT
         LauncherEngine.modulesManager.initModules(null);
         initGson(LauncherEngine.modulesManager);
-        //Launcher.modulesManager.preInitModules();
-        if (!LauncherAgent.isStarted()) {
-        	NativeJVMHalt.haltA(100);
-        	return;
-        }
+        LauncherEngine.verifyNoAgent();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         JVMHelper.verifySystemProperties(ClientLauncher.class, true);
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncher.class);
         LogHelper.printVersion("Client Launcher");
-        if (engine.runtimeProvider == null) engine.runtimeProvider = new JSRuntimeProvider();
-        engine.runtimeProvider.init(true);
-        engine.runtimeProvider.preLoad();
+        engine.readKeys();
         HWIDProvider.registerHWIDs();
         LauncherGuardManager.initGuard(true);
         LogHelper.debug("Reading ClientLauncher params");
@@ -470,27 +462,23 @@ public final class ClientLauncher {
         HashedDir assetHDir = p.assetHDir, clientHDir = p.clientHDir;
         ClientLaunchContext context = new ClientLaunchContext(params, profile, assetHDir, clientHDir);
         Launcher.profile = profile;
+        AuthService.profile = profile;
         playerProfile = params.pp;
         Request.setSession(params.session);
         checkJVMBitsAndVersion();
         LauncherEngine.modulesManager.invokeEvent(new ClientLauncherInitPhase(context));
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        LinkedList<Path> classPath = resolveClassPathList(params.clientDir, profile.getClassPath());
-        for (Path classpathURL : classPath) {
-            LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
-        }
+        URL[] classpath = resolveClassPath(params.clientDir, profile.getClassPath());
+        classLoader = new ClientClassLoader(classpath, ClassLoader.getSystemClassLoader());
         profile.pushOptionalClassPath(cp -> {
             LinkedList<Path> optionalClassPath = resolveClassPathList(params.clientDir, cp);
             for (Path classpathURL : optionalClassPath) {
-                LauncherAgent.addJVMClassPath(classpathURL.normalize().toAbsolutePath());
+                classLoader.addURL(classpathURL.normalize().toAbsolutePath().toUri().toURL());
             }
         });
-        URL[] classpathurls = resolveClassPath(params.clientDir, profile.getClassPath());
-        classLoader = new PublicURLClassLoader(classpathurls, ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
         classLoader.nativePath = params.clientDir.resolve(NATIVES_DIR).toString();
-        PublicURLClassLoader.systemclassloader = classLoader;
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
         LogHelper.debug("Restore sessions");
@@ -515,9 +503,11 @@ public final class ClientLauncher {
         };
         AuthService.username = params.pp.username;
         AuthService.uuid = params.pp.uuid;
-        ClientService.instrumentation = LauncherAgent.inst;
         ClientService.classLoader = classLoader;
-        ClientService.baseURLs = classpathurls;
+        ClientService.nativePath = classLoader.nativePath;
+        classLoader.addURL(IOHelper.getCodeSource(ClientLauncher.class).toUri().toURL());
+        //classForName(classLoader, "com.google.common.collect.ForwardingMultimap");
+        ClientService.baseURLs = classLoader.getURLs();
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
@@ -542,6 +532,13 @@ public final class ClientLauncher {
             launch(profile, params);
         }
     }
+    public static void classForName(ClassLoader loader, String name)
+    {
+        try {
+            Class.forName(name, false, loader);
+        } catch (ClassNotFoundException ignored) {
+        }
+    }
 
     private static URL[] resolveClassPath(Path clientDir, String... classPath) throws IOException {
         return resolveClassPathStream(clientDir, classPath).map(IOHelper::toURL).toArray(URL[]::new);
@@ -554,7 +551,7 @@ public final class ClientLauncher {
     private static Stream<Path> resolveClassPathStream(Path clientDir, String... classPath) throws IOException {
         Stream.Builder<Path> builder = Stream.builder();
         for (String classPathEntry : classPath) {
-            Path path = clientDir.resolve(IOHelper.toPath(classPathEntry));
+            Path path = clientDir.resolve(IOHelper.toPath(classPathEntry.replace(IOHelper.CROSS_SEPARATOR, IOHelper.PLATFORM_SEPARATOR)));
             if (IOHelper.isDir(path)) { // Recursive walking and adding
                 IOHelper.walk(path, new ClassPathFileVisitor(builder), false);
                 continue;
@@ -569,7 +566,7 @@ public final class ClientLauncher {
         Launcher.gsonManager.initGson();
     }
 
-    @LauncherAPI
+
     public static void setProfile(ClientProfile profile) {
         Launcher.profile = profile;
         LogHelper.debug("New Profile name: %s", profile.getTitle());
@@ -600,53 +597,55 @@ public final class ClientLauncher {
     private ClientLauncher() {
     }
 
-    public static interface ParamsAPI {
-    	ParamContainer read() throws Exception;
-    	void write(ParamContainer p) throws Exception;
+    public interface ParamsAPI {
+        ParamContainer read() throws Exception;
+
+        void write(ParamContainer p) throws Exception;
     }
-    
+
     public static ParamsAPI container = new ParamsAPI() {
-		@Override
-		public ParamContainer read() throws Exception {
-			ParamContainer p;
+        @Override
+        public ParamContainer read() throws Exception {
+            ParamContainer p;
             try (Socket socket = IOHelper.newSocket()) {
                 socket.connect(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
                 try (HInput input = new HInput(socket.getInputStream())) {
-                	p = new ParamContainer(input);
+                    p = new ParamContainer(input);
                 }
             }
             return p;
-		}
-		@Override
-		public void write(ParamContainer p) throws Exception {
-	        setWriteParamsThread(CommonHelper.newThread("Client params writter", true, () ->
-	        {
-	            try {
-	                try (ServerSocket socket = new ServerSocket()) {
-	                    socket.setReuseAddress(true);
-	                    socket.setSoTimeout(30000);
-	                    socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
-	                    Socket client = socket.accept();
-	                    if (process == null) {
-	                        LogHelper.error("Process is null");
-	                        return;
-	                    }
-	                    if (!process.isAlive()) {
-	                        LogHelper.error("Process is not alive");
-	                        JOptionPane.showMessageDialog(null, "Client Process crashed", "Launcher", JOptionPane.ERROR_MESSAGE);
-	                        return;
-	                    }
-	                    try (HOutput output = new HOutput(client.getOutputStream())) {
-	                        p.write(output);
-	                    }
-	                    clientStarted = true;
-	                }
-	            } catch (IOException e) {
-	                LogHelper.error(e);
-	            }
-	        }));
-		}
-    	
+        }
+
+        @Override
+        public void write(ParamContainer p) throws Exception {
+            setWriteParamsThread(CommonHelper.newThread("Client params writter", true, () ->
+            {
+                try {
+                    try (ServerSocket socket = new ServerSocket()) {
+                        socket.setReuseAddress(true);
+                        socket.setSoTimeout(30000);
+                        socket.bind(new InetSocketAddress(SOCKET_HOST, SOCKET_PORT));
+                        Socket client = socket.accept();
+                        if (process == null) {
+                            LogHelper.error("Process is null");
+                            return;
+                        }
+                        if (!process.isAlive()) {
+                            LogHelper.error("Process is not alive");
+                            JOptionPane.showMessageDialog(null, "Client Process crashed", "Launcher", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        try (HOutput output = new HOutput(client.getOutputStream())) {
+                            p.write(output);
+                        }
+                        clientStarted = true;
+                    }
+                } catch (IOException e) {
+                    LogHelper.error(e);
+                }
+            }));
+        }
+
     };
 
     public static class ParamContainer extends StreamObject {
@@ -662,24 +661,24 @@ public final class ClientLauncher {
         public ParamContainer() {
         }
 
-        public ParamContainer(Params params, ClientProfile profile,  HashedDir assetHDir, HashedDir clientHDir) {
-        	this.params = params;
-        	this.profile = profile;
-        	this.assetHDir = assetHDir;
-        	this.clientHDir = clientHDir;
+        public ParamContainer(Params params, ClientProfile profile, HashedDir assetHDir, HashedDir clientHDir) {
+            this.params = params;
+            this.profile = profile;
+            this.assetHDir = assetHDir;
+            this.clientHDir = clientHDir;
         }
 
         public Params params;
         public ClientProfile profile;
         public HashedDir assetHDir, clientHDir;
 
-		@Override
-		public void write(HOutput output) throws IOException {
+        @Override
+        public void write(HOutput output) throws IOException {
             params.write(output);
             output.writeString(Launcher.gsonManager.gson.toJson(profile), 0);
             assetHDir.write(output);
             clientHDir.write(output);
             ClientHookManager.paramsOutputHook.hook(output);
-		}
+        }
     }
 }

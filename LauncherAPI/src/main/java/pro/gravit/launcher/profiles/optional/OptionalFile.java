@@ -1,42 +1,45 @@
 package pro.gravit.launcher.profiles.optional;
 
-import java.io.IOException;
-import java.util.Objects;
-import java.util.Set;
-
-import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.helper.LogHelper;
 
-public class OptionalFile {
-    @LauncherAPI
+import java.io.IOException;
+import java.util.Objects;
+import java.util.Observable;
+import java.util.Set;
+
+public class OptionalFile extends Observable {
+    @LauncherNetworkAPI
     public String[] list;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public OptionalType type;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public boolean mark;
-    @LauncherAPI
-    public boolean visible = true;
-    @LauncherAPI
+    @LauncherNetworkAPI
+    public final boolean visible = true;
+    @LauncherNetworkAPI
     public String name;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public String info;
-    @LauncherAPI
+    @LauncherNetworkAPI
+    public OptionalTrigger[] triggers;
+    @LauncherNetworkAPI
     public OptionalDepend[] dependenciesFile;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public OptionalDepend[] conflictFile;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public transient OptionalFile[] dependencies;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public transient OptionalFile[] conflict;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public int subTreeLevel = 1;
-    @LauncherAPI
+    @LauncherNetworkAPI
     public boolean isPreset;
-    @LauncherAPI
-    public long permissions = 0L;
-    @LauncherAPI
+    @LauncherNetworkAPI
+    public final long permissions = 0L;
+
     public transient Set<OptionalFile> dependenciesCount;
 
     @Override
@@ -51,32 +54,32 @@ public class OptionalFile {
         return Objects.hash(name);
     }
 
-    @LauncherAPI
+
     public OptionalType getType() {
         return OptionalType.FILE;
     }
 
-    @LauncherAPI
+
     public String getName() {
         return name;
     }
 
-    @LauncherAPI
+
     public boolean isVisible() {
         return visible;
     }
 
-    @LauncherAPI
+
     public boolean isMark() {
         return mark;
     }
 
-    @LauncherAPI
+
     public long getPermissions() {
         return permissions;
     }
 
-    @LauncherAPI
+
     public void writeType(HOutput output) throws IOException {
         switch (type) {
 
@@ -98,7 +101,7 @@ public class OptionalFile {
         }
     }
 
-    @LauncherAPI
+
     public static OptionalType readType(HInput input) throws IOException {
         int t = input.readInt();
         OptionalType type;

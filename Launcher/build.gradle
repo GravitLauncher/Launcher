@@ -1,3 +1,6 @@
+plugins {
+    id 'org.openjfx.javafxplugin' version '0.0.5'
+}
 apply plugin: 'com.github.johnrengelman.shadow'
 
 String mainClassName = "pro.gravit.launcher.ClientLauncherWrapper"
@@ -8,7 +11,10 @@ repositories {
         url "http://repo.spring.io/plugins-release/"
     }
 }
-
+javafx {
+    version = "12"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
@@ -47,10 +53,9 @@ shadowJar {
 }
 
 dependencies {
-    pack project(':LauncherAuthlib')
+    pack project(':LauncherAPI')
     bundle 'com.github.oshi:oshi-core:3.13.0'
-    bundle 'org.apache.httpcomponents:httpclient:4.5.7'
-    pack 'io.netty:netty-codec-http:4.1.36.Final'
+    pack 'io.netty:netty-codec-http:4.1.43.Final'
     pack 'org.ow2.asm:asm-tree:7.1'
 }
 

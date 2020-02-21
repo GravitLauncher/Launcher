@@ -15,7 +15,7 @@ public class DebugCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         boolean newValue, newTraceValue;
         if (args.length >= 1) {
             newValue = Boolean.parseBoolean(args[0]);

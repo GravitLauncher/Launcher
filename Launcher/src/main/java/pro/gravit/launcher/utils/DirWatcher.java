@@ -1,21 +1,5 @@
 package pro.gravit.launcher.utils;
 
-import java.io.IOException;
-import java.nio.file.ClosedWatchServiceException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchEvent.Kind;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Objects;
-
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
@@ -24,6 +8,14 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.JVMHelper.OS;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.WatchEvent.Kind;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.Objects;
 
 public final class DirWatcher implements Runnable, AutoCloseable {
     private final class RegisterFileVisitor extends SimpleFileVisitor<Path> {
@@ -54,6 +46,9 @@ public final class DirWatcher implements Runnable, AutoCloseable {
             StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
     };
 
+    public static final String IGN_OVERFLOW = "launcher.dirwatcher.ignoreOverflows";
+	private static final boolean PROP_IGN_OVERFLOW = Boolean.parseBoolean(System.getProperty(IGN_OVERFLOW, "true"));
+
     private static void handleError(Throwable e) {
         LogHelper.error(e);
         NativeJVMHalt.haltA(-123);
@@ -76,7 +71,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
 
     private final boolean digest;
 
-    @LauncherAPI
+
     public DirWatcher(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) throws IOException {
         this.dir = Objects.requireNonNull(dir, "dir");
         this.hdir = Objects.requireNonNull(hdir, "hdir");
@@ -90,7 +85,6 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     }
 
     @Override
-    @LauncherAPI
     public void close() throws IOException {
         service.close();
     }
@@ -100,7 +94,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
         for (WatchEvent<?> event : key.pollEvents()) {
             Kind<?> kind = event.kind();
             if (kind.equals(StandardWatchEventKinds.OVERFLOW)) {
-                if (Boolean.getBoolean("launcher.dirwatcher.ignoreOverflows"))
+                if (PROP_IGN_OVERFLOW)
                     continue; // Sometimes it's better to ignore than interrupt fair playing
                 throw new IOException("Overflow");
             }
@@ -131,7 +125,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     }
 
     @Override
-    @LauncherAPI
+
     public void run() {
         try {
             processLoop();

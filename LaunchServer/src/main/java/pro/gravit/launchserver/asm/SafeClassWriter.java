@@ -1,9 +1,9 @@
 package pro.gravit.launchserver.asm;
 
-import java.util.ArrayList;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+
+import java.util.ArrayList;
 
 /**
  * ClassWriter с другой реализацией метода getCommonSuperClass: при его
@@ -17,6 +17,7 @@ public class SafeClassWriter extends ClassWriter {
         super(flags);
         this.classMetadataReader = classMetadataReader;
     }
+
 
     public SafeClassWriter(ClassReader classReader, ClassMetadataReader classMetadataReader, int flags) {
         super(classReader, flags);

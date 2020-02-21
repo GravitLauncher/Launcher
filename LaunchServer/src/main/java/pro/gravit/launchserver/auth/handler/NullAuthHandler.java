@@ -1,11 +1,11 @@
 package pro.gravit.launchserver.auth.handler;
 
+import pro.gravit.launchserver.auth.provider.AuthProviderResult;
+import pro.gravit.utils.helper.VerifyHelper;
+
 import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
-
-import pro.gravit.launchserver.auth.provider.AuthProviderResult;
-import pro.gravit.utils.helper.VerifyHelper;
 
 public final class NullAuthHandler extends AuthHandler {
     private volatile AuthHandler handler;

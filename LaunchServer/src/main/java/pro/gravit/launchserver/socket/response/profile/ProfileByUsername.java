@@ -1,12 +1,12 @@
 package pro.gravit.launchserver.socket.response.profile;
 
-import java.util.UUID;
-
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.helper.LogHelper;
+
+import java.util.UUID;
 
 public class ProfileByUsername extends SimpleResponse {
     String username;

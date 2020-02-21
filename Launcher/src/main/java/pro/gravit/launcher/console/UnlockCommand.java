@@ -21,8 +21,11 @@ public class UnlockCommand extends Command {
         verifyArgs(args, 1);
         if (ConsoleManager.checkUnlockKey(args[0])) {
             LogHelper.info("Unlock successful");
-            ConsoleManager.unlock();
-            ConsoleManager.handler.unregisterCommand("unlock");
+            if(!ConsoleManager.unlock())
+            {
+                LogHelper.error("Console unlock canceled");
+                return;
+            }
             LogHelper.info("Write unlock key");
             SettingsManager.settings.consoleUnlockKey = args[0];
         } else {

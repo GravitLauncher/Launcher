@@ -1,17 +1,11 @@
 package pro.gravit.launcher.request.websockets;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.util.HashSet;
-
-import javax.net.ssl.SSLException;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.ExceptionEvent;
+import pro.gravit.launcher.events.NotificationEvent;
+import pro.gravit.launcher.events.SignalEvent;
 import pro.gravit.launcher.events.request.*;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedEntryAdapter;
@@ -21,24 +15,27 @@ import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.UniversalJsonAdapter;
 import pro.gravit.utils.helper.LogHelper;
 
-public class ClientWebSocketService extends ClientJSONPoint {
+import javax.net.ssl.SSLException;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+public abstract class ClientWebSocketService extends ClientJSONPoint {
     public final Gson gson;
     public OnCloseCallback onCloseCallback;
     public final Boolean onConnect;
     public ReconnectCallback reconnectCallback;
-    public static ProviderMap<WebSocketEvent> results = new ProviderMap<>();
-    public static ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
-    private HashSet<EventHandler> handlers;
+    public static final ProviderMap<WebSocketEvent> results = new ProviderMap<>();
+    public static final ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
 
     public ClientWebSocketService(String address) throws SSLException {
         super(createURL(address));
-        handlers = new HashSet<>();
         this.gson = Launcher.gsonManager.gson;
         this.onConnect = true;
     }
 
-    public static void appendTypeAdapters(GsonBuilder builder)
-    {
+    public static void appendTypeAdapters(GsonBuilder builder) {
         builder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         builder.registerTypeAdapter(WebSocketEvent.class, new UniversalJsonAdapter<>(ClientWebSocketService.results));
         builder.registerTypeAdapter(WebSocketRequest.class, new UniversalJsonAdapter<>(ClientWebSocketService.requests));
@@ -47,21 +44,18 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     private static URI createURL(String address) {
         try {
-            URI u = new URI(address);
-            return u;
-        } catch (Throwable e) {
-            LogHelper.error(e);
-            return null;
+            return new URI(address);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     void onMessage(String message) {
         WebSocketEvent result = gson.fromJson(message, WebSocketEvent.class);
-        for (EventHandler handler : handlers) {
-            handler.process(result);
-        }
+        eventHandle(result);
     }
+    public abstract<T extends WebSocketEvent> void eventHandle(T event);
 
     @Override
     void onDisconnect() {
@@ -70,7 +64,7 @@ public class ClientWebSocketService extends ClientJSONPoint {
     }
 
     @Override
-    void onOpen() throws Exception {
+    void onOpen() {
         synchronized (onConnect) {
             onConnect.notifyAll();
         }
@@ -111,10 +105,8 @@ public class ClientWebSocketService extends ClientJSONPoint {
         results.register("exception", ExceptionEvent.class);
         results.register("register", RegisterRequestEvent.class);
         results.register("setpassword", SetPasswordRequestEvent.class);
-    }
-
-    public void registerHandler(EventHandler eventHandler) {
-        handlers.add(eventHandler);
+        results.register("notification", NotificationEvent.class);
+        results.register("signal", SignalEvent.class);
     }
 
     public void waitIfNotConnected() {
@@ -150,6 +142,11 @@ public class ClientWebSocketService extends ClientJSONPoint {
 
     @FunctionalInterface
     public interface EventHandler {
-        void process(WebSocketEvent webSocketEvent);
+        /**
+         * @param event processing event
+         * @param <T> event type
+         * @return false - continue, true - stop
+         */
+        <T extends WebSocketEvent> boolean eventHandle(T event);
     }
 }

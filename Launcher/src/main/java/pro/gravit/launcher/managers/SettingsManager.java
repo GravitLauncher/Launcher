@@ -1,14 +1,5 @@
 package pro.gravit.launcher.managers;
 
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.NewLauncherSettings;
 import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.launcher.config.JsonConfigurable;
@@ -18,8 +9,12 @@ import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+
 public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
-    public class StoreFileVisitor extends SimpleFileVisitor<Path> {
+    public static class StoreFileVisitor extends SimpleFileVisitor<Path> {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                 throws IOException {
@@ -36,33 +31,29 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
 
     }
 
-    @LauncherAPI
+
     public static NewLauncherSettings settings;
 
     public SettingsManager() {
         super(NewLauncherSettings.class, DirBridge.dir.resolve("settings.json"));
     }
 
-    @LauncherAPI
+
     @Override
     public NewLauncherSettings getConfig() {
-        if (settings.updatesDir != null)
-            settings.updatesDirPath = settings.updatesDir.toString();
         return settings;
     }
 
-    @LauncherAPI
+
     @Override
     public NewLauncherSettings getDefaultConfig() {
         return new NewLauncherSettings();
     }
 
-    @LauncherAPI
+
     @Override
     public void setConfig(NewLauncherSettings config) {
         settings = config;
-        if (settings.updatesDirPath != null)
-            settings.updatesDir = Paths.get(settings.updatesDirPath);
         if (settings.consoleUnlockKey != null && !ConsoleManager.isConsoleUnlock) {
             if (ConsoleManager.checkUnlockKey(settings.consoleUnlockKey)) {
                 ConsoleManager.unlock();
@@ -71,13 +62,13 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         }
     }
 
-    @LauncherAPI
+
     public void loadHDirStore(Path storePath) throws IOException {
         Files.createDirectories(storePath);
         IOHelper.walk(storePath, new StoreFileVisitor(), false);
     }
 
-    @LauncherAPI
+
     public void saveHDirStore(Path storeProjectPath) throws IOException {
         Files.createDirectories(storeProjectPath);
         for (NewLauncherSettings.HashedStoreEntry e : settings.lastHDirs) {
@@ -92,12 +83,12 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         }
     }
 
-    @LauncherAPI
+
     public void loadHDirStore() throws IOException {
         loadHDirStore(DirBridge.dirStore);
     }
 
-    @LauncherAPI
+
     public void saveHDirStore() throws IOException {
         saveHDirStore(DirBridge.dirProjectStore);
     }

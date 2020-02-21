@@ -71,26 +71,26 @@ task cleanjar(type: Jar, dependsOn: jar) {
 
 dependencies {
     pack project(':LauncherAPI')
-    bundle 'org.ow2.asm:asm-commons:7.1'
+    bundle 'org.ow2.asm:asm-commons:7.3.1'
     bundle 'mysql:mysql-connector-java:8.0.16'
-	bundle 'org.postgresql:postgresql:42.2.6'
-    bundle 'org.jline:jline:3.11.0'
-    bundle 'org.jline:jline-reader:3.11.0'
-    bundle 'org.jline:jline-terminal:3.11.0'
-    bundle 'net.sf.proguard:proguard-base:6.1.0'
+    bundle 'org.postgresql:postgresql:42.2.6'
+    bundle 'org.jline:jline:3.13.1'
+    bundle 'org.jline:jline-reader:3.13.1'
+    bundle 'org.jline:jline-terminal:3.13.1'
+    bundle 'net.sf.proguard:proguard-base:6.2.0'
     bundle 'org.fusesource.jansi:jansi:1.18'
     bundle 'commons-io:commons-io:2.6'
     bundle 'commons-codec:commons-codec:1.12'
-    bundle 'org.javassist:javassist:3.25.0-GA'
-    bundle 'io.netty:netty-all:4.1.36.Final'
-    bundle 'org.hibernate:hibernate-core:5.4.4.Final'
+    bundle 'org.apache.httpcomponents:httpclient:4.5.10'
+    bundle 'io.netty:netty-all:4.1.43.Final'
+    bundle 'org.hibernate:hibernate-core:5.4.9.Final'
     bundle 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
     bundle 'org.slf4j:slf4j-simple:1.7.25'
     bundle 'org.slf4j:slf4j-api:1.7.25'
 
     hikari 'io.micrometer:micrometer-core:1.0.6'
-    hikari('com.zaxxer:HikariCP:3.2.0') {
+    hikari('com.zaxxer:HikariCP:3.4.1') {
         exclude group: 'javassist'
         exclude group: 'io.micrometer'
         exclude group: 'org.slf4j'

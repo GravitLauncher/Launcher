@@ -1,5 +1,11 @@
 package pro.gravit.launchserver.auth.hwid;
 
+import com.google.gson.reflect.TypeToken;
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.hwid.HWID;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -10,16 +16,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import com.google.gson.reflect.TypeToken;
-
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.hwid.HWID;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-
 public class JsonFileHWIDHandler extends HWIDHandler {
-    public class Entry {
-        public HWID hwid;
+    public static class Entry {
+        public final HWID hwid;
         public String username;
         public boolean isBanned = false;
 
@@ -41,15 +40,18 @@ public class JsonFileHWIDHandler extends HWIDHandler {
         }
     }
 
-    public String filename = "hwids.json";
+    public final String filename = "hwids.json";
     public transient LinkedList<Entry> list = new LinkedList<>();
-    public String banMessage = "You banned";
+    public final String banMessage = "You banned";
 
     @Override
     public void ban(List<HWID> hwid) {
         for (Entry e : list) {
             for (HWID banHWID : hwid) {
-                if (e.hwid.equals(banHWID)) e.isBanned = true;
+                if (e.hwid.equals(banHWID)) {
+                    e.isBanned = true;
+                    break;
+                }
             }
         }
     }
@@ -101,7 +103,10 @@ public class JsonFileHWIDHandler extends HWIDHandler {
     public void unban(List<HWID> hwid) {
         for (Entry e : list) {
             for (HWID banHWID : hwid) {
-                if (e.hwid.equals(banHWID)) e.isBanned = false;
+                if (e.hwid.equals(banHWID)) {
+                    e.isBanned = false;
+                    break;
+                }
             }
         }
     }

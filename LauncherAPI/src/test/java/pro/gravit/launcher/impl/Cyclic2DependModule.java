@@ -8,7 +8,7 @@ import pro.gravit.utils.Version;
 public class Cyclic2DependModule extends LauncherModule {
     public Cyclic2DependModule() {
         super(new LauncherModuleInfo("cyclic2",
-                new Version(1,0,0),
+                new Version(1, 0, 0),
                 2, new String[]{"cyclic1"}));
     }
 

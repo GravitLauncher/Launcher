@@ -1,6 +1,5 @@
 package pro.gravit.launcher.request.auth;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.CheckServerRequestEvent;
 import pro.gravit.launcher.request.Request;
@@ -13,7 +12,7 @@ public final class CheckServerRequest extends Request<CheckServerRequestEvent> i
     @LauncherNetworkAPI
     private final String serverID;
 
-    @LauncherAPI
+
     public CheckServerRequest(String username, String serverID) {
         this.username = VerifyHelper.verifyUsername(username);
         this.serverID = VerifyHelper.verifyServerID(serverID);

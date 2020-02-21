@@ -1,26 +1,6 @@
 package pro.gravit.launchserver.manangers;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.math.BigInteger;
-import java.nio.file.Path;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.ECGenParameterSpec;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -40,9 +20,32 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
-
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.launcher.LauncherTrustManager;
+
+import java.io.*;
+import java.math.BigInteger;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.spec.ECGenParameterSpec;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class CertificateManager {
     public X509CertificateHolder ca;
@@ -51,12 +54,10 @@ public class CertificateManager {
     public X509CertificateHolder server;
     public AsymmetricKeyParameter serverKey;
 
+    public LauncherTrustManager trustManager;
 
-    //public X509CertificateHolder server;
-    //public AsymmetricKeyParameter serverKey;
-
-    public int validDays = 60;
-    public int minusHours = 6;
+    public final int validDays = 60;
+    public final int minusHours = 6;
 
     public String orgName;
 
@@ -80,7 +81,7 @@ public class CertificateManager {
     }
 
     public void generateCA() throws NoSuchAlgorithmException, IOException, OperatorCreationException, InvalidAlgorithmParameterException {
-        ECGenParameterSpec  ecGenSpec = new ECGenParameterSpec("secp384r1");
+        ECGenParameterSpec ecGenSpec = new ECGenParameterSpec("secp384k1");
         KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
         generator.initialize(ecGenSpec, SecurityHelper.newRandom());
         KeyPair pair = generator.generateKeyPair();
@@ -90,21 +91,21 @@ public class CertificateManager {
         subject.addRDN(BCStyle.CN, orgName.concat(" CA"));
         subject.addRDN(BCStyle.O, orgName);
 
-        X509v3CertificateBuilder builder= new X509v3CertificateBuilder(
+        X509v3CertificateBuilder builder = new X509v3CertificateBuilder(
                 subject.build(),
                 new BigInteger("0"),
                 Date.from(startDate.atZone(ZoneId.systemDefault()).toInstant()),
                 Date.from(startDate.plusDays(3650).atZone(ZoneId.systemDefault()).toInstant()),
                 new X500Name("CN=ca"),
                 SubjectPublicKeyInfo.getInstance(pair.getPublic().getEncoded()));
-        JcaContentSignerBuilder csBuilder= new JcaContentSignerBuilder("SHA256WITHECDSA");
+        JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder("SHA256WITHECDSA");
         ContentSigner signer = csBuilder.build(pair.getPrivate());
         ca = builder.build(signer);
         caKey = PrivateKeyFactory.createKey(pair.getPrivate().getEncoded());
     }
 
     public KeyPair generateKeyPair() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
-        ECGenParameterSpec  ecGenSpec = new ECGenParameterSpec("secp384r1");
+        ECGenParameterSpec ecGenSpec = new ECGenParameterSpec("secp384k1");
         KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
         generator.initialize(ecGenSpec, SecurityHelper.newRandom());
         return generator.generateKeyPair();
@@ -147,11 +148,9 @@ public class CertificateManager {
 
     public AsymmetricKeyParameter readPrivateKey(Reader reader) throws IOException {
         AsymmetricKeyParameter ret;
-        try(PemReader reader1 = new PemReader(reader))
-        {
+        try (PemReader reader1 = new PemReader(reader)) {
             byte[] bytes = reader1.readPemObject().getContent();
-            try(ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes))
-            {
+            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
 
                 ret = PrivateKeyFactory.createKey(inputStream);
             }
@@ -165,11 +164,53 @@ public class CertificateManager {
 
     public X509CertificateHolder readCertificate(Reader reader) throws IOException {
         X509CertificateHolder ret;
-        try(PemReader reader1 = new PemReader(reader))
-        {
+        try (PemReader reader1 = new PemReader(reader)) {
             byte[] bytes = reader1.readPemObject().getContent();
             ret = new X509CertificateHolder(bytes);
         }
         return ret;
+    }
+
+    public void readTrustStore(Path dir) throws IOException, CertificateException {
+        if (!IOHelper.isDir(dir)) {
+            Files.createDirectories(dir);
+            try (OutputStream outputStream = IOHelper.newOutput(dir.resolve("GravitCentralRootCA.crt"));
+                 InputStream inputStream = IOHelper.newInput(IOHelper.getResourceURL("pro/gravit/launchserver/defaults/GravitCentralRootCA.crt"))) {
+                IOHelper.transfer(inputStream, outputStream);
+            }
+        }
+        List<X509Certificate> certificates = new ArrayList<>();
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        IOHelper.walk(dir, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                if (file.toFile().getName().endsWith(".crt")) {
+                    try (InputStream inputStream = IOHelper.newInput(file)) {
+                        certificates.add((X509Certificate) certFactory.generateCertificate(inputStream));
+                    } catch (CertificateException e) {
+                        throw new IOException(e);
+                    }
+                }
+                return super.visitFile(file, attrs);
+            }
+        }, false);
+        trustManager = new LauncherTrustManager(certificates.toArray(new X509Certificate[0]));
+    }
+
+    public void checkClass(Class<?> clazz, LauncherTrustManager.CheckMode mode) throws SecurityException {
+        if (trustManager == null) return;
+        X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
+        if (certificates == null) {
+            if (mode == LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED)
+                throw new SecurityException(String.format("Class %s not signed", clazz.getName()));
+            else if (mode == LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED)
+                LogHelper.warning("Class %s not signed", clazz.getName());
+            return;
+        }
+        try {
+            trustManager.checkCertificate(certificates, trustManager::stdCertificateChecker);
+        } catch (CertificateException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            throw new SecurityException(e);
+        }
     }
 }

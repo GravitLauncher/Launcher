@@ -1,14 +1,14 @@
 package pro.gravit.launchserver.auth.hwid;
 
+import pro.gravit.launcher.hwid.HWID;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import pro.gravit.launcher.hwid.HWID;
-
 public class MemoryHWIDHandler extends HWIDHandler {
-    public class Entry {
-        public HWID hwid;
+    public static class Entry {
+        public final HWID hwid;
         public String username;
         public boolean isBanned = false;
 
@@ -30,14 +30,17 @@ public class MemoryHWIDHandler extends HWIDHandler {
         }
     }
 
-    public transient LinkedList<Entry> list = new LinkedList<>();
-    public String banMessage = "You banned";
+    public final transient LinkedList<Entry> list = new LinkedList<>();
+    public final String banMessage = "You banned";
 
     @Override
     public void ban(List<HWID> hwid) {
         for (Entry e : list) {
             for (HWID banHWID : hwid) {
-                if (e.hwid.equals(banHWID)) e.isBanned = true;
+                if (e.hwid.equals(banHWID)) {
+                    e.isBanned = true;
+                    break;
+                }
             }
         }
     }
@@ -79,7 +82,10 @@ public class MemoryHWIDHandler extends HWIDHandler {
     public void unban(List<HWID> hwid) {
         for (Entry e : list) {
             for (HWID banHWID : hwid) {
-                if (e.hwid.equals(banHWID)) e.isBanned = false;
+                if (e.hwid.equals(banHWID)) {
+                    e.isBanned = false;
+                    break;
+                }
             }
         }
     }

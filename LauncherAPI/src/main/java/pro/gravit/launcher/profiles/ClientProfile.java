@@ -1,17 +1,6 @@
 package pro.gravit.launcher.profiles;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.optional.OptionalDepend;
@@ -20,10 +9,14 @@ import pro.gravit.launcher.profiles.optional.OptionalType;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.*;
+
 public final class ClientProfile implements Comparable<ClientProfile> {
-    @LauncherAPI
+
     public enum Version {
-    	MC125("1.2.5", 29),
+        MC125("1.2.5", 29),
         MC147("1.4.7", 51),
         MC152("1.5.2", 61),
         MC164("1.6.4", 78),
@@ -46,7 +39,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         MC1141("1.14.1", 480),
         MC1142("1.14.2", 485),
         MC1143("1.14.3", 490),
-        MC1144("1.14.4", 498);
+        MC1144("1.14.4", 498),
+        MC115("1.15", 573),
+        MC1151("1.15.1", 575),
+        MC1152("1.15.2", 578);
         private static final Map<String, Version> VERSIONS;
 
         static {
@@ -76,84 +72,98 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public static final boolean profileCaseSensitive = Boolean.getBoolean("launcher.clientProfile.caseSensitive");
+    public enum SecurityManagerConfig
+    {
+        NONE, CLIENT, LAUNCHER, MIXED
+    }
+    public enum ClassLoaderConfig
+    {
+        AGENT, LAUNCHER
+    }
 
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
     // Version
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String version;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String assetIndex;
 
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String dir;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String assetDir;
     // Client
-    @LauncherAPI
+    @LauncherNetworkAPI
     private int sortIndex;
-    @LauncherAPI
+    @LauncherNetworkAPI
+    private UUID uuid;
+    @LauncherNetworkAPI
     private String title;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String info;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String serverAddress;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private int serverPort;
 
     //  Updater and client watch service
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> update = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> updateExclusions = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> updateShared = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> updateVerify = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final Set<OptionalFile> updateOptional = new HashSet<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private boolean updateFastCheck;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private boolean useWhitelist;
     // Client launcher
-    @LauncherAPI
+    @LauncherNetworkAPI
     private String mainClass;
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> jvmArgs = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> classPath = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> clientArgs = new ArrayList<>();
-    @LauncherAPI
+    @LauncherNetworkAPI
     private final List<String> whitelist = new ArrayList<>();
+    @LauncherNetworkAPI
+    public SecurityManagerConfig securityManagerConfig = SecurityManagerConfig.CLIENT;
+    @LauncherNetworkAPI
+    public ClassLoaderConfig classLoaderConfig = ClassLoaderConfig.LAUNCHER;
 
     @Override
     public int compareTo(ClientProfile o) {
         return Integer.compare(getSortIndex(), o.getSortIndex());
     }
 
-    @LauncherAPI
+
     public String getAssetIndex() {
         return assetIndex;
     }
 
-    @LauncherAPI
+
     public FileNameMatcher getAssetUpdateMatcher() {
         return getVersion().compareTo(Version.MC1710) >= 0 ? ASSET_MATCHER : null;
     }
 
-    @LauncherAPI
+
     public String[] getClassPath() {
         return classPath.toArray(new String[0]);
     }
 
-    @LauncherAPI
+
     public String[] getClientArgs() {
         return clientArgs.toArray(new String[0]);
     }
 
-    @LauncherAPI
+
     public String getDir() {
         return dir;
     }
@@ -162,12 +172,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.dir = dir;
     }
 
-    @LauncherAPI
+
     public String getAssetDir() {
         return assetDir;
     }
 
-    @LauncherAPI
+
     public FileNameMatcher getClientUpdateMatcher(/*boolean excludeOptional*/) {
         String[] updateArray = update.toArray(new String[0]);
         String[] verifyArray = updateVerify.toArray(new String[0]);
@@ -184,27 +194,27 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return new FileNameMatcher(updateArray, verifyArray, exclusionsArray);
     }
 
-    @LauncherAPI
+
     public String[] getJvmArgs() {
         return jvmArgs.toArray(new String[0]);
     }
 
-    @LauncherAPI
+
     public String getMainClass() {
         return mainClass;
     }
 
-    @LauncherAPI
+
     public String getServerAddress() {
         return serverAddress;
     }
 
-    @LauncherAPI
+
     public Set<OptionalFile> getOptional() {
         return updateOptional;
     }
 
-    @LauncherAPI
+
     public void updateOptionalGraph() {
         for (OptionalFile file : updateOptional) {
             if (file.dependenciesFile != null) {
@@ -222,19 +232,19 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    @LauncherAPI
+
     public OptionalFile getOptionalFile(String file, OptionalType type) {
         for (OptionalFile f : updateOptional)
             if (f.type.equals(type) && f.name.equals(file)) return f;
         return null;
     }
 
-    @LauncherAPI
+
     public Collection<String> getShared() {
         return updateShared;
     }
 
-    @LauncherAPI
+
     public void markOptional(String name, OptionalType type) {
         OptionalFile file = getOptionalFile(name, type);
         if (file == null) {
@@ -243,11 +253,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         markOptional(file);
     }
 
-    @LauncherAPI
+
     public void markOptional(OptionalFile file) {
 
         if (file.mark) return;
         file.mark = true;
+        file.notifyObservers(true);
         if (file.dependencies != null) {
             for (OptionalFile dep : file.dependencies) {
                 if (dep.dependenciesCount == null) dep.dependenciesCount = new HashSet<>();
@@ -262,7 +273,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    @LauncherAPI
+
     public void unmarkOptional(String name, OptionalType type) {
         OptionalFile file = getOptionalFile(name, type);
         if (file == null) {
@@ -271,10 +282,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         unmarkOptional(file);
     }
 
-    @LauncherAPI
+
     public void unmarkOptional(OptionalFile file) {
         if (!file.mark) return;
         file.mark = false;
+        file.notifyObservers(false);
         if (file.dependenciesCount != null) {
             for (OptionalFile f : file.dependenciesCount) {
                 if (f.isPreset) continue;
@@ -335,60 +347,64 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         void run(String[] opt) throws IOException;
     }
 
-    @LauncherAPI
+
     public int getServerPort() {
         return serverPort;
     }
 
-    @LauncherAPI
+
     public InetSocketAddress getServerSocketAddress() {
         return InetSocketAddress.createUnresolved(getServerAddress(), getServerPort());
     }
 
-    @LauncherAPI
+
     public int getSortIndex() {
         return sortIndex;
     }
 
-    @LauncherAPI
+
     public String getTitle() {
         return title;
     }
 
-    @LauncherAPI
+
     public String getInfo() {
         return info;
     }
 
-    @LauncherAPI
+
     public Version getVersion() {
         return Version.byName(version);
     }
 
-    @LauncherAPI
+
     public boolean isUpdateFastCheck() {
         return updateFastCheck;
     }
 
-    @LauncherAPI
+
     public boolean isWhitelistContains(String username) {
         if (!useWhitelist) return true;
         return whitelist.stream().anyMatch(profileCaseSensitive ? e -> e.equals(username) : e -> e.equalsIgnoreCase(username));
     }
 
-    @LauncherAPI
+
     public void setTitle(String title) {
         this.title = title;
     }
 
-    @LauncherAPI
+
     public void setInfo(String info) {
         this.info = info;
     }
 
-    @LauncherAPI
+
     public void setVersion(Version version) {
         this.version = version.name;
+    }
+
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
     }
 
     @Override
@@ -396,7 +412,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return title;
     }
 
-    @LauncherAPI
+    public UUID getUUID() {
+        return uuid;
+    }
+
+
     public void verify() {
         // Version
         getVersion();
@@ -434,144 +454,19 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             if (f.name == null) throw new IllegalArgumentException("Optional: name must not be null");
             if (f.list == null) throw new IllegalArgumentException("Optional: list must not be null");
             for (String s : f.list) {
-                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.list", f.name));
+                if (s == null)
+                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.list", f.name));
             }
-            if(f.conflictFile != null) for (OptionalDepend s : f.conflictFile) {
-                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.conflictFile", f.name));
+            if (f.conflictFile != null) for (OptionalDepend s : f.conflictFile) {
+                if (s == null)
+                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.conflictFile", f.name));
             }
-            if(f.dependenciesFile != null)  for (OptionalDepend s : f.dependenciesFile) {
-                if (s == null) throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.dependenciesFile", f.name));
+            if (f.dependenciesFile != null) for (OptionalDepend s : f.dependenciesFile) {
+                if (s == null)
+                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.dependenciesFile", f.name));
             }
         }
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((assetDir == null) ? 0 : assetDir.hashCode());
-        result = prime * result + ((assetIndex == null) ? 0 : assetIndex.hashCode());
-        result = prime * result + ((classPath == null) ? 0 : classPath.hashCode());
-        result = prime * result + ((clientArgs == null) ? 0 : clientArgs.hashCode());
-        result = prime * result + ((dir == null) ? 0 : dir.hashCode());
-        result = prime * result + ((jvmArgs == null) ? 0 : jvmArgs.hashCode());
-        result = prime * result + ((mainClass == null) ? 0 : mainClass.hashCode());
-        result = prime * result + ((serverAddress == null) ? 0 : serverAddress.hashCode());
-        result = prime * result + serverPort;
-        result = prime * result + sortIndex;
-        result = prime * result + ((title == null) ? 0 : title.hashCode());
-        result = prime * result + ((info == null) ? 0 : info.hashCode());
-        result = prime * result + ((update == null) ? 0 : update.hashCode());
-        result = prime * result + ((updateExclusions == null) ? 0 : updateExclusions.hashCode());
-        result = prime * result + (updateFastCheck ? 1231 : 1237);
-        result = prime * result + ((updateOptional == null) ? 0 : updateOptional.hashCode());
-        result = prime * result + ((updateShared == null) ? 0 : updateShared.hashCode());
-        result = prime * result + ((updateVerify == null) ? 0 : updateVerify.hashCode());
-        result = prime * result + (useWhitelist ? 1231 : 1237);
-        result = prime * result + ((version == null) ? 0 : version.hashCode());
-        result = prime * result + ((whitelist == null) ? 0 : whitelist.hashCode());
-        return result;
-    }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ClientProfile other = (ClientProfile) obj;
-        if (assetDir == null) {
-            if (other.assetDir != null)
-                return false;
-        } else if (!assetDir.equals(other.assetDir))
-            return false;
-        if (assetIndex == null) {
-            if (other.assetIndex != null)
-                return false;
-        } else if (!assetIndex.equals(other.assetIndex))
-            return false;
-        if (classPath == null) {
-            if (other.classPath != null)
-                return false;
-        } else if (!classPath.equals(other.classPath))
-            return false;
-        if (clientArgs == null) {
-            if (other.clientArgs != null)
-                return false;
-        } else if (!clientArgs.equals(other.clientArgs))
-            return false;
-        if (dir == null) {
-            if (other.dir != null)
-                return false;
-        } else if (!dir.equals(other.dir))
-            return false;
-        if (jvmArgs == null) {
-            if (other.jvmArgs != null)
-                return false;
-        } else if (!jvmArgs.equals(other.jvmArgs))
-            return false;
-        if (mainClass == null) {
-            if (other.mainClass != null)
-                return false;
-        } else if (!mainClass.equals(other.mainClass))
-            return false;
-        if (serverAddress == null) {
-            if (other.serverAddress != null)
-                return false;
-        } else if (!serverAddress.equals(other.serverAddress))
-            return false;
-        if (serverPort != other.serverPort)
-            return false;
-        if (sortIndex != other.sortIndex)
-            return false;
-        if (title == null) {
-            if (other.title != null)
-                return false;
-        } else if (!title.equals(other.title))
-            return false;
-        if (info == null) {
-            if (other.info != null)
-                return false;
-        } else if (!info.equals(other.info))
-            return false;
-        if (update == null) {
-            if (other.update != null)
-                return false;
-        } else if (!update.equals(other.update))
-            return false;
-        if (updateExclusions == null) {
-            if (other.updateExclusions != null)
-                return false;
-        } else if (!updateExclusions.equals(other.updateExclusions))
-            return false;
-        if (updateFastCheck != other.updateFastCheck)
-            return false;
-        if (updateOptional == null) {
-            if (other.updateOptional != null)
-                return false;
-        } else if (!updateOptional.equals(other.updateOptional))
-            return false;
-        if (updateShared == null) {
-            if (other.updateShared != null)
-                return false;
-        } else if (!updateShared.equals(other.updateShared))
-            return false;
-        if (updateVerify == null) {
-            if (other.updateVerify != null)
-                return false;
-        } else if (!updateVerify.equals(other.updateVerify))
-            return false;
-        if (useWhitelist != other.useWhitelist)
-            return false;
-        if (version == null) {
-            if (other.version != null)
-                return false;
-        } else if (!version.equals(other.version))
-            return false;
-        if (whitelist == null) {
-            return other.whitelist == null;
-        } else return whitelist.equals(other.whitelist);
-    }
 }

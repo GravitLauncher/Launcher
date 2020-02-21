@@ -1,22 +1,22 @@
 package pro.gravit.launcher.request.auth;
 
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.request.Request;
+import pro.gravit.launcher.request.auth.password.AuthECPassword;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
-import pro.gravit.launcher.request.auth.password.AuthRSAPassword;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.VerifyHelper;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements WebSocketRequest {
-    public static ProviderMap<AuthPasswordInterface> providers = new ProviderMap<>();
-    public interface AuthPasswordInterface
-    {
+    public static final ProviderMap<AuthPasswordInterface> providers = new ProviderMap<>();
+
+    public interface AuthPasswordInterface {
         boolean check();
     }
+
     @LauncherNetworkAPI
     private final String login;
     @LauncherNetworkAPI
@@ -35,20 +35,19 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
     public boolean initProxy;
 
     public enum ConnectTypes {
+        @Deprecated
         @LauncherNetworkAPI
         SERVER,
         @LauncherNetworkAPI
         CLIENT,
         @LauncherNetworkAPI
-        BOT,
-        @LauncherNetworkAPI
-        PROXY
+        API
     }
 
-    @LauncherAPI
+
     public AuthRequest(String login, byte[] password, HWID hwid) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
-        this.password = new AuthRSAPassword(password.clone());
+        this.password = new AuthECPassword(password.clone());
         this.hwid = hwid;
         customText = "";
         auth_id = "";
@@ -56,10 +55,10 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         authType = ConnectTypes.CLIENT;
     }
 
-    @LauncherAPI
+
     public AuthRequest(String login, byte[] password, HWID hwid, String auth_id) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
-        this.password = new AuthRSAPassword(password.clone());
+        this.password = new AuthECPassword(password.clone());
         this.hwid = hwid;
         this.auth_id = auth_id;
         customText = "";
@@ -67,10 +66,10 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         authType = ConnectTypes.CLIENT;
     }
 
-    @LauncherAPI
+
     public AuthRequest(String login, byte[] password, HWID hwid, String customText, String auth_id) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
-        this.password = new AuthRSAPassword(password.clone());
+        this.password = new AuthECPassword(password.clone());
         this.hwid = hwid;
         this.auth_id = auth_id;
         this.customText = customText;
@@ -80,7 +79,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
 
     public AuthRequest(String login, byte[] encryptedPassword, String auth_id, ConnectTypes authType) {
         this.login = login;
-        this.password = new AuthRSAPassword(encryptedPassword.clone());
+        this.password = new AuthECPassword(encryptedPassword.clone());
         this.auth_id = auth_id;
         this.authType = authType;
         this.hwid = null;
@@ -102,11 +101,13 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
     public String getType() {
         return "auth";
     }
+
     private static boolean registerProviders = false;
+
     public static void registerProviders() {
-        if(!registerProviders) {
+        if (!registerProviders) {
             providers.register("plain", AuthPlainPassword.class);
-            providers.register("rsa", AuthRSAPassword.class);
+            providers.register("rsa", AuthECPassword.class);
             registerProviders = true;
         }
     }

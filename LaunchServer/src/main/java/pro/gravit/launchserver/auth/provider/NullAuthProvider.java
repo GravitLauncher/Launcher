@@ -1,10 +1,10 @@
 package pro.gravit.launchserver.auth.provider;
 
-import java.io.IOException;
-import java.util.Objects;
-
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.utils.helper.VerifyHelper;
+
+import java.io.IOException;
+import java.util.Objects;
 
 public final class NullAuthProvider extends AuthProvider {
     private volatile AuthProvider provider;

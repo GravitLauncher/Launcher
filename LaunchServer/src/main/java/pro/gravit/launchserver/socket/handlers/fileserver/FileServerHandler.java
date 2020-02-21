@@ -1,15 +1,13 @@
 package pro.gravit.launchserver.socket.handlers.fileserver;
 
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
-import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
-import static io.netty.handler.codec.http.HttpResponseStatus.FOUND;
-import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
-import static io.netty.handler.codec.http.HttpResponseStatus.METHOD_NOT_ALLOWED;
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_MODIFIED;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.*;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.stream.ChunkedFile;
+import io.netty.util.CharsetUtil;
+import pro.gravit.launchserver.socket.handlers.ContentType;
+import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,43 +17,24 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import javax.activation.MimetypesFileTypeMap;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.DefaultFileRegion;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpChunkedInput;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.stream.ChunkedFile;
-import io.netty.util.CharsetUtil;
+import static io.netty.handler.codec.http.HttpMethod.GET;
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-    public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
-    public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
+    public static final SimpleDateFormat dateFormatter;
     public static final String READ = "r";
-    public static final int HTTP_CACHE_SECONDS = 60;
-	private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
+    static {
+        dateFormatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+        dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
+    public static final int HTTP_CACHE_SECONDS = VerifyHelper.verifyInt(Integer.parseInt(System.getProperty("launcher.fileserver.cachesec", "60")), VerifyHelper.NOT_NEGATIVE, "HttpCache seconds should be positive");
+    private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
+    private static final ContentType TYPE_PROBE = Arrays.stream(ContentType.values()).filter(e -> e.name().toLowerCase(Locale.US).equals(System.getProperty("launcher.fileserver.typeprobe", "nio"))).findFirst().orElse(ContentType.UNIVERSAL);
     private final Path base;
     private final boolean fullOut;
     private final boolean showHiddenFiles;
@@ -88,11 +67,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
             return;
         }
 
-        if (path == null) {
-            sendError(ctx, FORBIDDEN);
-            return;
-        }
-
         File file = base.resolve(path).toFile();
         if ((file.isHidden() && !showHiddenFiles) || !file.exists()) {
             sendError(ctx, NOT_FOUND);
@@ -118,7 +92,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         // Cache Validation
         String ifModifiedSince = request.headers().get(HttpHeaderNames.IF_MODIFIED_SINCE);
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
-            SimpleDateFormat dateFormatter = new SimpleDateFormat(HTTP_DATE_FORMAT, Locale.US);
             Date ifModifiedSinceDate = dateFormatter.parse(ifModifiedSince);
 
             // Only compare up to the second because the datetime format we send to the client
@@ -159,7 +132,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
                     ctx.write(new DefaultFileRegion(raf.getChannel(), 0, fileLength), ctx.newProgressivePromise());
             // Write the end marker.
             lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-        	lastContentFuture.addListener(new ClosingChannelFutureListener(raf));
+            lastContentFuture.addListener(new ClosingChannelFutureListener(raf));
         } else {
             sendFileFuture =
                     ctx.writeAndFlush(new HttpChunkedInput(new ChunkedFile(raf, 0, fileLength, 8192)),
@@ -203,7 +176,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
                 .append("<li><a href=\"../\">..</a></li>\r\n");
 
         for (File f : dir.listFiles()) {
-            if (( f.isHidden() && !showHidden) || !f.canRead()) {
+            if ((f.isHidden() && !showHidden) || !f.canRead()) {
                 continue;
             }
 
@@ -264,11 +237,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
      * @param response HTTP response
      */
     private static void setDateHeader(FullHttpResponse response) {
-        SimpleDateFormat dateFormatter = new SimpleDateFormat(HTTP_DATE_FORMAT, Locale.US);
-        dateFormatter.setTimeZone(TimeZone.getTimeZone(HTTP_DATE_GMT_TIMEZONE));
-
-        Calendar time = new GregorianCalendar();
-        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(time.getTime()));
+        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(new Date(System.currentTimeMillis())));
     }
 
     /**
@@ -278,9 +247,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
      * @param fileToCache file to extract content type
      */
     private static void setDateAndCacheHeaders(HttpResponse response, File fileToCache) {
-        SimpleDateFormat dateFormatter = new SimpleDateFormat(HTTP_DATE_FORMAT, Locale.US);
-        dateFormatter.setTimeZone(TimeZone.getTimeZone(HTTP_DATE_GMT_TIMEZONE));
-
         // Date header
         Calendar time = new GregorianCalendar();
         response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(time.getTime()));
@@ -300,7 +266,8 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
      * @param file     file to extract content type
      */
     private static void setContentTypeHeader(HttpResponse response, File file) {
-        MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, mimeTypesMap.getContentType(file.getPath()));
+    			String contentType = TYPE_PROBE.forPath(file);
+    			if (contentType != null)
+    				response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
     }
 }

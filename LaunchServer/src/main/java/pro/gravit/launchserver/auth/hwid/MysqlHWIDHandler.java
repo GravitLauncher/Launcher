@@ -1,17 +1,17 @@
 package pro.gravit.launchserver.auth.hwid;
 
+import pro.gravit.launcher.hwid.HWID;
+import pro.gravit.launcher.hwid.OshiHWID;
+import pro.gravit.launchserver.auth.MySQLSourceConfig;
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.LogHelper;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import pro.gravit.launcher.hwid.HWID;
-import pro.gravit.launcher.hwid.OshiHWID;
-import pro.gravit.launchserver.auth.MySQLSourceConfig;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 public class MysqlHWIDHandler extends HWIDHandler {
     private MySQLSourceConfig mySQLHolder;
@@ -151,10 +151,10 @@ public class MysqlHWIDHandler extends HWIDHandler {
                     db_hwid.serialNumber = set.getString(hwidFieldSerialNumber);
                     db_hwid.processorID = set.getString(hwidFieldProcessorID);
                     db_hwid.HWDiskSerial = set.getString(hwidFieldHWDiskSerial);
-                    db_hwid.totalMemory = Long.valueOf(set.getString(hwidFieldTotalMemory));
+                    db_hwid.totalMemory = Long.parseLong(set.getString(hwidFieldTotalMemory));
                     db_hwid.macAddr = set.getString(hwidFieldMAC);
                     if (LogHelper.isDevEnabled()) {
-                        LogHelper.dev("Compare HWID: %s vs %s", hwid.getSerializeString(), db_hwid.getSerializeString());
+                        LogHelper.dev("Compare HWID: %s vs %s", hwid.toString(), db_hwid.toString());
                     }
                     int compare_point = hwid.compare(db_hwid);
                     if (compare_point < compare) continue;
@@ -238,7 +238,7 @@ public class MysqlHWIDHandler extends HWIDHandler {
                         ResultSet rs = s.executeQuery();
                         if (rs.next()) {
                             OshiHWID oshiHWID = new OshiHWID();
-                            oshiHWID.totalMemory = Long.valueOf(rs.getString(hwidFieldTotalMemory));
+                            oshiHWID.totalMemory = Long.parseLong(rs.getString(hwidFieldTotalMemory));
                             oshiHWID.serialNumber = rs.getString(hwidFieldSerialNumber);
                             oshiHWID.HWDiskSerial = rs.getString(hwidFieldHWDiskSerial);
                             oshiHWID.processorID = rs.getString(hwidFieldProcessorID);

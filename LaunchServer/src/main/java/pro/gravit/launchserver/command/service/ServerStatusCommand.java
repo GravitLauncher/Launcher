@@ -39,7 +39,7 @@ public class ServerStatusCommand extends Command {
             commands += category.category.commandsMap().size();
         }
         LogHelper.info("Sessions: %d | Commands: %d(%d categories)", server.sessionManager.getSessions().size(), commands, server.commandHandler.getCategories().size() + 1);
-        for (AuthProviderPair pair : server.config.auth) {
+        for (AuthProviderPair pair : server.config.auth.values()) {
             if (pair.handler instanceof CachedAuthHandler) {
                 LogHelper.info("AuthHandler %s: EntryCache: %d | usernameCache: %d", pair.name, ((CachedAuthHandler) pair.handler).getEntryCache().size(), ((CachedAuthHandler) pair.handler).getUsernamesCache().size());
             }

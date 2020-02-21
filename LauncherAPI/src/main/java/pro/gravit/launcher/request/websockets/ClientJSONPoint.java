@@ -1,16 +1,7 @@
 package pro.gravit.launcher.request.websockets;
 
-import java.io.IOException;
-import java.net.URI;
-
-import javax.net.ssl.SSLException;
-
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -25,13 +16,16 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import pro.gravit.utils.helper.LogHelper;
 
+import javax.net.ssl.SSLException;
+import java.net.URI;
+
 public abstract class ClientJSONPoint {
 
     private final URI uri;
     protected Channel ch;
     private static final EventLoopGroup group = new NioEventLoopGroup();
     protected WebSocketClientHandler webSocketClientHandler;
-    protected Bootstrap bootstrap = new Bootstrap();
+    protected final Bootstrap bootstrap = new Bootstrap();
     protected boolean ssl = false;
     protected int port;
     public boolean isClosed;
@@ -61,7 +55,7 @@ public abstract class ClientJSONPoint {
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    public void initChannel(SocketChannel ch) throws Exception {
+                    public void initChannel(SocketChannel ch) {
                         ChannelPipeline pipeline = ch.pipeline();
                         if (sslCtx != null) {
                             pipeline.addLast(sslCtx.newHandler(ch.alloc(), uri.getHost(), port));
@@ -82,17 +76,29 @@ public abstract class ClientJSONPoint {
         ch = bootstrap.connect(uri.getHost(), port).sync().channel();
         webSocketClientHandler.handshakeFuture().sync();
     }
+    public void openAsync(Runnable onConnect) {
+        //System.out.println("WebSocket Client connecting");
+        webSocketClientHandler =
+                new WebSocketClientHandler(
+                        WebSocketClientHandshakerFactory.newHandshaker(
+                                uri, WebSocketVersion.V13, null, false, EmptyHttpHeaders.INSTANCE, 12800000), this);
+        ChannelFuture future = bootstrap.connect(uri.getHost(), port);
+        future.addListener((e) -> {
+            ch = future.channel();
+            webSocketClientHandler.handshakeFuture().addListener((e1) -> onConnect.run());
+        });
+    }
 
     public ChannelFuture send(String text) {
         LogHelper.dev("Send: %s", text);
         return ch.writeAndFlush(new TextWebSocketFrame(text), ch.voidPromise());
     }
 
-    abstract void onMessage(String message) throws Exception;
+    abstract void onMessage(String message);
 
-    abstract void onDisconnect() throws Exception;
+    abstract void onDisconnect();
 
-    abstract void onOpen() throws Exception;
+    abstract void onOpen();
 
     public void close() throws InterruptedException {
         //System.out.println("WebSocket Client sending close");
@@ -102,10 +108,10 @@ public abstract class ClientJSONPoint {
             ch.closeFuture().sync();
         }
 
-        //group.shutdownGracefully();
+        group.shutdownGracefully();
     }
 
-    public void eval(final String text) throws IOException {
+    public void eval(final String text) {
         ch.writeAndFlush(new TextWebSocketFrame(text), ch.voidPromise());
     }
 

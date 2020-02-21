@@ -1,5 +1,7 @@
 package pro.gravit.launcher.config;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.nio.file.Path;
 
 public class SimpleConfigurable<T> extends JsonConfigurable<T> {
@@ -16,11 +18,12 @@ public class SimpleConfigurable<T> extends JsonConfigurable<T> {
         return config;
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public T getDefaultConfig() {
         try {
-            return tClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            return (T) MethodHandles.publicLookup().findConstructor(tClass, MethodType.methodType(void.class)).invokeWithArguments();
+        } catch (Throwable e) {
             return null;
         }
     }

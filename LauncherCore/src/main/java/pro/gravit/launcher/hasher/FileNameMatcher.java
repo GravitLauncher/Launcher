@@ -2,8 +2,6 @@ package pro.gravit.launcher.hasher;
 
 import java.util.Collection;
 
-import pro.gravit.launcher.LauncherAPI;
-
 public final class FileNameMatcher {
     private static final String[] NO_ENTRIES = new String[0];
 
@@ -36,7 +34,7 @@ public final class FileNameMatcher {
     private final String[] exclusions;
 
 
-    @LauncherAPI
+
     public FileNameMatcher(String[] update, String[] verify, String[] exclusions) {
         this.update = update;
         this.verify = verify;

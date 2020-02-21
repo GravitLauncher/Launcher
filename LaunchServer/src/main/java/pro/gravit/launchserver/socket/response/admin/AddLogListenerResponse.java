@@ -7,7 +7,7 @@ import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.helper.LogHelper;
 
 public class AddLogListenerResponse extends SimpleResponse {
-    public LogHelper.OutputTypes outputType = LogHelper.OutputTypes.PLAIN;
+    public final LogHelper.OutputTypes outputType = LogHelper.OutputTypes.PLAIN;
 
     @Override
     public String getType() {

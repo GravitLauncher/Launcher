@@ -7,15 +7,14 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 
-import pro.gravit.launcher.LauncherAPI;
-
 public final class JVMHelper {
-    @LauncherAPI
+
     public enum OS {
         MUSTDIE("mustdie"), LINUX("linux"), MACOSX("macosx");
 
@@ -42,21 +41,32 @@ public final class JVMHelper {
     public static final OperatingSystemMXBean OPERATING_SYSTEM_MXBEAN =
             ManagementFactory.getOperatingSystemMXBean();
     // System properties
-    @LauncherAPI
+
     public static final OS OS_TYPE = OS.byName(OPERATING_SYSTEM_MXBEAN.getName());
-    @LauncherAPI
+
     public static final String OS_VERSION = OPERATING_SYSTEM_MXBEAN.getVersion();
-    @LauncherAPI
+
     public static final int OS_BITS = getCorrectOSArch();
-    @LauncherAPI
+
     public static final int JVM_BITS = Integer.parseInt(System.getProperty("sun.arch.data.model"));
 
-    @LauncherAPI
+
     public static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
     // Public static fields
     public static final Runtime RUNTIME = Runtime.getRuntime();
 
     public static final ClassLoader LOADER = ClassLoader.getSystemClassLoader();
+
+    public static final int JVM_VERSION = getVersion();
+    public static int getVersion() {
+        String version = System.getProperty("java.version");
+        if(version.startsWith("1.")) {
+            version = version.substring(2, 3);
+        } else {
+            int dot = version.indexOf(".");
+            if(dot != -1) { version = version.substring(0, dot); }
+        } return Integer.parseInt(version);
+    }
 
     static {
         try {
@@ -81,7 +91,7 @@ public final class JVMHelper {
         throw new ClassNotFoundException(Arrays.toString(names));
     }
 
-    @LauncherAPI
+
     public static void fullGC() {
         RUNTIME.gc();
         RUNTIME.runFinalization();
@@ -110,6 +120,12 @@ public final class JVMHelper {
         return list;
     }
 
+    public static X509Certificate[] getCertificates(Class<?> clazz) {
+        Object[] signers = clazz.getSigners();
+        if (signers == null) return null;
+        return Arrays.stream(signers).filter((c) -> c instanceof X509Certificate).map((c) -> (X509Certificate) c).toArray(X509Certificate[]::new);
+    }
+
     public static void checkStackTrace(Class<?> mainClass) {
         LogHelper.debug("Testing stacktrace");
         Exception e = new Exception("Testing stacktrace");
@@ -128,27 +144,27 @@ public final class JVMHelper {
         return System.getProperty("os.arch").contains("64") ? 64 : 32;
     }
 
-    @LauncherAPI
+
     public static String getEnvPropertyCaseSensitive(String name) {
         return System.getenv().get(name);
     }
 
-    @LauncherAPI
+
     public static boolean isJVMMatchesSystemArch() {
         return JVM_BITS == OS_BITS;
     }
 
-    @LauncherAPI
+
     public static String jvmProperty(String name, String value) {
         return String.format("-D%s=%s", name, value);
     }
 
-    @LauncherAPI
+
     public static String systemToJvmProperty(String name) {
         return String.format("-D%s=%s", name, System.getProperties().getProperty(name));
     }
 
-    @LauncherAPI
+
     public static void addSystemPropertyToArgs(Collection<String> args, String name) {
         String property = System.getProperty(name);
         if (property != null)
@@ -173,4 +189,5 @@ public final class JVMHelper {
 
     private JVMHelper() {
     }
+
 }

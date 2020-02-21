@@ -1,22 +1,12 @@
 package pro.gravit.launchserver;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.KeyPair;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.hwid.HWIDHandler;
-import pro.gravit.launchserver.auth.permissions.PermissionsHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
@@ -24,9 +14,11 @@ import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
+import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.WebSocketService;
+import pro.gravit.utils.Version;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
@@ -34,8 +26,25 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.launcher.LauncherTrustManager;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.KeyPair;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 
 public class LaunchServerStarter {
+    public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
+    public static final boolean inDocker = Boolean.getBoolean("launchserver.dockered");
+
     public static void main(String[] args) throws Exception {
         JVMHelper.checkStackTrace(LaunchServerStarter.class);
         JVMHelper.verifySystemProperties(LaunchServer.class, true);
@@ -46,18 +55,30 @@ public class LaunchServerStarter {
             LogHelper.error("StarterAgent is not started!");
             LogHelper.error("You should add to JVM options this option: `-javaagent:LaunchServer.jar`");
         }
-
         Path dir = IOHelper.WORKING_DIR;
         Path configFile, runtimeConfigFile;
-        Path publicKeyFile =dir.resolve("public.key");
+        Path publicKeyFile = dir.resolve("public.key");
         Path privateKeyFile = dir.resolve("private.key");
-        RSAPublicKey publicKey;
-        RSAPrivateKey privateKey;
+        ECPublicKey publicKey;
+        ECPrivateKey privateKey;
+        Security.addProvider(new BouncyCastleProvider());
+        CertificateManager certificateManager = new CertificateManager();
+        try {
+            certificateManager.readTrustStore(dir.resolve("truststore"));
+        } catch (CertificateException e) {
+            throw new IOException(e);
+        }
+        {
+            //LauncherTrustManager.CheckMode mode = (Version.RELEASE == Version.Type.LTS || Version.RELEASE == Version.Type.STABLE) ?
+            //        (allowUnsigned ? LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED : LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED) :
+            //        (allowUnsigned ? LauncherTrustManager.CheckMode.NONE_IN_NOT_SIGNED : LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED);
+            certificateManager.checkClass(LaunchServer.class, LauncherTrustManager.CheckMode.NONE_IN_NOT_SIGNED);
+        }
 
         LaunchServerRuntimeConfig runtimeConfig;
         LaunchServerConfig config;
         LaunchServer.LaunchServerEnv env = LaunchServer.LaunchServerEnv.PRODUCTION;
-        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(dir.resolve("modules"), dir.resolve("config"));
+        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(dir.resolve("modules"), dir.resolve("config"), certificateManager.trustManager);
         modulesManager.autoload();
         modulesManager.initModules(null);
         registerAll();
@@ -84,19 +105,17 @@ public class LaunchServerStarter {
             LogHelper.warning("JLine2 isn't in classpath, using std");
         }
         if (IOHelper.isFile(publicKeyFile) && IOHelper.isFile(privateKeyFile)) {
-            LogHelper.info("Reading RSA keypair");
-            publicKey = SecurityHelper.toPublicRSAKey(IOHelper.read(publicKeyFile));
-            privateKey = SecurityHelper.toPrivateRSAKey(IOHelper.read(privateKeyFile));
-            if (!publicKey.getModulus().equals(privateKey.getModulus()))
-                throw new IOException("Private and public key modulus mismatch");
+            LogHelper.info("Reading EC keypair");
+            publicKey = SecurityHelper.toPublicECKey(IOHelper.read(publicKeyFile));
+            privateKey = SecurityHelper.toPrivateECKey(IOHelper.read(privateKeyFile));
         } else {
-            LogHelper.info("Generating RSA keypair");
-            KeyPair pair = SecurityHelper.genRSAKeyPair();
-            publicKey = (RSAPublicKey) pair.getPublic();
-            privateKey = (RSAPrivateKey) pair.getPrivate();
+            LogHelper.info("Generating EC keypair");
+            KeyPair pair = SecurityHelper.genECKeyPair(new SecureRandom());
+            publicKey = (ECPublicKey) pair.getPublic();
+            privateKey = (ECPrivateKey) pair.getPrivate();
 
             // Write key pair list
-            LogHelper.info("Writing RSA keypair list");
+            LogHelper.info("Writing EC keypair list");
             IOHelper.write(publicKeyFile, publicKey.getEncoded());
             IOHelper.write(privateKeyFile, privateKey.getEncoded());
         }
@@ -158,9 +177,15 @@ public class LaunchServerStarter {
                 }
             }
         };
-
+        LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
+        directories.dir = dir;
+        if (inDocker) {
+        	Path parentLibraries = StarterAgent.libraries.toAbsolutePath().normalize().getParent();
+        	directories.launcherLibrariesCompileDir = parentLibraries.resolve(LaunchServer.LaunchServerDirectories.LAUNCHERLIBRARIESCOMPILE_NAME);
+        	directories.launcherLibrariesDir = parentLibraries.resolve(LaunchServer.LaunchServerDirectories.LAUNCHERLIBRARIES_NAME);
+        }
         LaunchServer server = new LaunchServerBuilder()
-                .setDir(dir)
+                .setDirectories(directories)
                 .setEnv(env)
                 .setCommandHandler(localCommandHandler)
                 .setPrivateKey(privateKey)
@@ -169,6 +194,7 @@ public class LaunchServerStarter {
                 .setConfig(config)
                 .setModulesManager(modulesManager)
                 .setLaunchServerConfigManager(launchServerConfigManager)
+                .setCertificateManager(certificateManager)
                 .build();
         server.run();
     }
@@ -178,14 +204,12 @@ public class LaunchServerStarter {
         Launcher.gsonManager.initGson();
     }
 
-    public static void registerAll()
-    {
+    public static void registerAll() {
 
         AuthHandler.registerHandlers();
         AuthProvider.registerProviders();
         TextureProvider.registerProviders();
         HWIDHandler.registerHandlers();
-        PermissionsHandler.registerHandlers();
         Component.registerComponents();
         ProtectHandler.registerHandlers();
         WebSocketService.registerResponses();

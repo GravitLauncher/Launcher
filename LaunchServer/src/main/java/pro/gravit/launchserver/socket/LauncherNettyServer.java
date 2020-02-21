@@ -1,7 +1,5 @@
 package pro.gravit.launchserver.socket;
 
-import java.net.InetSocketAddress;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -24,23 +22,23 @@ import pro.gravit.launchserver.socket.handlers.fileserver.FileServerHandler;
 import pro.gravit.utils.BiHookSet;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.net.InetSocketAddress;
+
 public class LauncherNettyServer implements AutoCloseable {
     public final ServerBootstrap serverBootstrap;
     public final EventLoopGroup bossGroup;
     public final EventLoopGroup workerGroup;
     public final WebSocketService service;
-    public final BiHookSet<NettyConnectContext,SocketChannel> pipelineHook = new BiHookSet<>();
+    public final BiHookSet<NettyConnectContext, SocketChannel> pipelineHook = new BiHookSet<>();
     private static final String WEBSOCKET_PATH = "/api";
 
     public LauncherNettyServer(LaunchServer server) {
         LaunchServerConfig.NettyConfig config = server.config.netty;
         NettyObjectFactory.setUsingEpoll(config.performance.usingEpoll);
-        if(config.performance.usingEpoll)
-        {
+        if (config.performance.usingEpoll) {
             LogHelper.debug("Netty: Epoll enabled");
         }
-        if(config.performance.usingEpoll && !Epoll.isAvailable())
-        {
+        if (config.performance.usingEpoll && !Epoll.isAvailable()) {
             LogHelper.error("Epoll is not available: (netty,perfomance.usingEpoll configured wrongly)", Epoll.unavailabilityCause());
         }
         bossGroup = NettyObjectFactory.newEventLoopGroup(config.performance.bossThread);
@@ -57,7 +55,7 @@ public class LauncherNettyServer implements AutoCloseable {
                         NettyConnectContext context = new NettyConnectContext();
                         //p.addLast(new LoggingHandler(LogLevel.INFO));
                         pipeline.addLast("http-codec", new HttpServerCodec());
-                        pipeline.addLast("http-codec-compressor",new HttpObjectAggregator(65536));
+                        pipeline.addLast("http-codec-compressor", new HttpObjectAggregator(65536));
                         if (server.config.netty.ipForwarding)
                             pipeline.addLast("forward-http", new NettyIpForwardHandler(context));
                         pipeline.addLast("websock-comp", new WebSocketServerCompressionHandler());

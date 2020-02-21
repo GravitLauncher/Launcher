@@ -1,8 +1,5 @@
 package pro.gravit.launcher.request.uuid;
 
-import java.io.IOException;
-
-import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.BatchProfileByUsernameRequestEvent;
 import pro.gravit.launcher.request.Request;
@@ -11,8 +8,10 @@ import pro.gravit.launcher.serialize.SerializeLimits;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
+import java.io.IOException;
+
 public final class BatchProfileByUsernameRequest extends Request<BatchProfileByUsernameRequestEvent> implements WebSocketRequest {
-    class Entry {
+    static class Entry {
         @LauncherNetworkAPI
         String username;
         @LauncherNetworkAPI
@@ -22,7 +21,7 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
     @LauncherNetworkAPI
     private final Entry[] list;
 
-    @LauncherAPI
+
     public BatchProfileByUsernameRequest(String... usernames) throws IOException {
         this.list = new Entry[usernames.length];
         for (int i = 0; i < usernames.length; ++i) {
