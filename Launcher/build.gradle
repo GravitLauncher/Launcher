@@ -62,8 +62,13 @@ task dumpLibs(type: Copy) {
     from configurations.bundle
 }
 
+task genRuntimeJS(type: Zip) {
+    archiveFileName = "runtime.zip"
+    destinationDirectory = file("${buildDir}/tmp")
+    from "runtime/"
+}
 
-assemble.dependsOn tasks.dumpLibs, tasks.shadowJar
+assemble.dependsOn tasks.genRuntimeJS, tasks.dumpLibs, tasks.shadowJar
 
 publishing {
     publications {
