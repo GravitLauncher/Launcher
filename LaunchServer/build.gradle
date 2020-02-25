@@ -8,7 +8,7 @@ repositories {
         url "https://oss.sonatype.org/content/repositories/snapshots"
     }
     maven {
-        url "https://maven.geomajas.org/"
+        url "http://maven.geomajas.org/"
     }
 }
 
@@ -24,11 +24,10 @@ configurations {
     launch4j
     launch4jCJ
     bundleOnly.extendsFrom bundle
-    compile.extendsFrom bundle, hikari, pack, launch4j
+    compile.extendsFrom bundle, hikari, pack, launch4jCJ, launch4j
 }
 
 jar {
-    duplicatesStrategy = 'INCLUDE'
     dependsOn parent.childProjects.Launcher.tasks.build
     from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
     from(parent.childProjects.Launcher.tasks.shadowJar.archivePath)
@@ -115,7 +114,7 @@ dependencies {
     compileOnlyA 'com.google.guava:guava:26.0-jre'
     compileOnlyA 'log4j:log4j:1.2.17' // Do not update (laggy dep).
     compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.1'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.4.1'
 }
 
 task hikari(type: Copy) {
@@ -126,7 +125,6 @@ task hikari(type: Copy) {
 task launch4jM(type: Copy) {
     into "$buildDir/libs/libraries/launch4j"
     from(configurations.launch4jCJ.collect { it.isDirectory() ? it : zipTree(it) })
-    duplicatesStrategy = 'INCLUDE'
     includeEmptyDirs false
     eachFile { FileCopyDetails fcp ->
         if (fcp.relativePath.pathString.startsWith("launch4j-")) {
@@ -165,8 +163,8 @@ task dumpCompileOnlyLibs(type: Copy) {
 
 task bundle(type: Zip) {
     dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.jar
-    archiveFileName = 'LaunchServer.zip'
-    destinationDirectory = file("$buildDir")
+    archiveName 'LaunchServer.zip'
+    destinationDir file("$buildDir")
     from(tasks.dumpLibs.destinationDir) { into 'libraries' }
     from(tasks.dumpCompileOnlyLibs.destinationDir) { into 'launcher-libraries-compile' }
     from tasks.jar.archivePath

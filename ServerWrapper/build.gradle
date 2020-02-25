@@ -5,12 +5,12 @@ String mainAgentName = "pro.gravit.launcher.server.ServerAgent"
 
 configurations {
     pack
-    api.extendsFrom pack
+    compile.extendsFrom pack
 }
 
 repositories {
     maven {
-        url "https://repo.spring.io/plugins-release/"
+        url "http://repo.spring.io/plugins-release/"
     }
 }
 

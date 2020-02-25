@@ -2,9 +2,9 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 dependencies {
-    api project(':LauncherCore')
-    implementation 'io.netty:netty-codec-http:4.1.43.Final'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.1'
+    compile project(':LauncherCore')
+    compileOnly 'io.netty:netty-codec-http:4.1.43.Final'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.4.1'
 }
 
 test {

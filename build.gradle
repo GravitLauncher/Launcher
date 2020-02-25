@@ -1,8 +1,7 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
+    id 'com.github.johnrengelman.shadow' version '5.0.0' apply false
     id 'maven-publish'
     id 'signing'
-    id 'org.openjfx.javafxplugin' version '0.0.8' apply false
 }
 group = 'pro.gravit.launcher'
 version = '5.1.1-SNAPSHOT'
@@ -10,15 +9,15 @@ version = '5.1.1-SNAPSHOT'
 configure(subprojects.findAll { it.name != 'modules' }) {
     apply plugin: 'idea'
     apply plugin: 'eclipse'
-    apply plugin: 'java-library'
+    apply plugin: 'java'
 
     group = 'pro.gravit'
 
     repositories {
         mavenCentral()
-        maven { url 'https://oss.sonatype.org/content/groups/public' }
+        maven { url 'http://oss.sonatype.org/content/groups/public' }
         maven {
-            url "https://clojars.org/repo/"
+            url "http://clojars.org/repo/"
         }
     }
 
@@ -27,8 +26,8 @@ configure(subprojects.findAll { it.name != 'modules' }) {
         aptCompileOnly
         aptOnly
         aptOnly.extendsFrom apt, aptCompileOnly
-        api.extendsFrom apt
-        implementation.extendsFrom aptCompileOnly
+        compile.extendsFrom apt
+        compileOnly.extendsFrom aptCompileOnly
     }
 
     tasks.withType(JavaCompile) {

@@ -2,7 +2,7 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 dependencies {
-    api project(':LauncherAPI')
-    implementation 'com.google.guava:guava:26.0-jre'
-    api files('../compat/authlib/authlib-clean.jar')
+    compile project(':LauncherAPI')
+    compileOnly 'com.google.guava:guava:26.0-jre'
+    compile files('../compat/authlib/authlib-clean.jar')
 }

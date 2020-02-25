@@ -1,5 +1,6 @@
 package pro.gravit.utils.helper;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -100,6 +101,21 @@ public class JarHelper {
     {
         return classLoader.getResourceAsStream(getClassFile(clazz));
     }
-
-
+    public static byte[] getClassFromJar(String name, Path file) throws IOException
+    {
+        String filename = getClassFile(name);
+        try(ZipInputStream inputStream = IOHelper.newZipInput(file))
+        {
+            ZipEntry entry = inputStream.getNextEntry();
+            while(entry != null)
+            {
+                if(entry.getName().equals(filename))
+                {
+                    return IOHelper.read(inputStream);
+                }
+                entry = inputStream.getNextEntry();
+            }
+        }
+        throw new FileNotFoundException(filename);
+    }
 }

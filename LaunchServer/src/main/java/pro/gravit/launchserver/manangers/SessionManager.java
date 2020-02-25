@@ -2,7 +2,6 @@ package pro.gravit.launchserver.manangers;
 
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 
 import java.util.HashMap;
 import java.util.HashSet;

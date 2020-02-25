@@ -733,11 +733,4 @@ public final class IOHelper {
 
     private IOHelper() {
     }
-
-	public static void keepDir(Path dir) throws IOException {
-		if (Files.isDirectory(dir))
-            return;
-        Files.deleteIfExists(dir);
-        Files.createDirectory(dir);
-	}
 }

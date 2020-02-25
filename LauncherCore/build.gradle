@@ -1,15 +1,15 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 dependencies {
-    api 'org.fusesource.jansi:jansi:1.18'
-    api 'org.jline:jline:3.11.0'
-    api 'org.jline:jline-reader:3.11.0'
-    api 'org.jline:jline-terminal:3.11.0'
-    api 'org.bouncycastle:bcprov-jdk15:1.46'
-    api 'com.google.code.gson:gson:2.8.5'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.1'
+    compileOnly 'org.fusesource.jansi:jansi:1.18'
+    compileOnly 'org.jline:jline:3.11.0'
+    compileOnly 'org.jline:jline-reader:3.11.0'
+    compileOnly 'org.jline:jline-terminal:3.11.0'
+    compileOnly 'org.bouncycastle:bcprov-jdk15:1.46'
+    compile 'com.google.code.gson:gson:2.8.5'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.4.1'
 }
 
 test {
