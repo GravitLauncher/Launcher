@@ -3,6 +3,7 @@ package pro.gravit.launcher.client;
 import pro.gravit.launcher.*;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
+import pro.gravit.launcher.api.SystemService;
 import pro.gravit.launcher.client.events.ClientLaunchPhase;
 import pro.gravit.launcher.client.events.ClientLauncherInitPhase;
 import pro.gravit.launcher.client.events.ClientLauncherPostInitPhase;
@@ -300,7 +301,7 @@ public final class ClientLauncher {
         try {
             mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
         } finally {
-            Request.service.close();
+            SystemService.exit(0);
         }
 
     }
