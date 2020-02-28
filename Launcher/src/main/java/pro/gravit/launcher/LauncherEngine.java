@@ -61,7 +61,7 @@ public class LauncherEngine {
         modulesManager.invokeEvent(new ClientExitPhase(code));
         try {
             System.exit(code);
-        } catch (Exception e) //Forge Security Manager?
+        } catch (Throwable e) //Forge Security Manager?
         {
             NativeJVMHalt.haltA(code);
         }
@@ -99,7 +99,7 @@ public class LauncherEngine {
         LogHelper.debug("Launcher started in %dms", endTime - startTime);
         //Request.service.close();
         //FunctionalBridge.close();
-        SystemService.exit(0);
+        LauncherEngine.exitLauncher(0);
     }
 
     public static void initGson(ClientModuleManager modulesManager) {
