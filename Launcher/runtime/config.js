@@ -1,8 +1,8 @@
 var config = {
     //*** Настройки лаунчера ***//
-    dir: "GravitLauncher",    // Название папки лаунчера
-    title: "GravitLauncher",  // Заголовок окна
-    icons: ["favicon.png"],   // Путь/Пути до иконки окна
+    dir: "GravitLauncher", // Название папки лаунчера
+    title: "GravitLauncher", // Заголовок окна
+    icons: ["favicon.png"], // Путь/Пути до иконки окна
 
     links: [
         //*** Ссылки ***//
@@ -11,7 +11,7 @@ var config = {
             text: "GravitLauncher",
             url: "https://gravit.pro",
         },
-    
+
         {
             id: "discord",
             text: "",
@@ -19,18 +19,21 @@ var config = {
         }
     ],
 
+    //*** Сервер Hastebin для сохранения лога ***//
+    hasteserver: "https://hasteb.in/",
+
     //*** Стандартные настройки клиента ***//
-    autoEnterDefault: false,    // Автоматический вход на выбранный сервер
-    fullScreenDefault: false,   // Клиент в полный экран
-    featureStoreDefault: true,  // Поиск файлов в других клиентах (Используется для экономии трафика и ускорения загрузки)
-    ramDefault: 1024,           // Количество оперативной памяти выделенной по умолчанию (0 - Автоматически)
+    autoEnterDefault: false, // Автоматический вход на выбранный сервер
+    fullScreenDefault: false, // Клиент в полный экран
+    featureStoreDefault: true, // Поиск файлов в других клиентах (Используется для экономии трафика и ускорения загрузки)
+    ramDefault: 1024, // Количество оперативной памяти выделенной по умолчанию (0 - Автоматически)
 
     //*** Настройка загрузки JVM ***//
     /* LaunchServer: guardtype = java */
     jvm: {
-        enable: false,                       // Включение загрузки своей JVM
-        jvmMustdie32Dir: "jre-8u211-win32",  // Название папки JVM для Windows x32
-        jvmMustdie64Dir: "jre-8u211-win64",  // Название папки JVM для Windows x64
+        enable: false, // Включение загрузки своей JVM
+        jvmMustdie32Dir: "jre-8u211-win32", // Название папки JVM для Windows x32
+        jvmMustdie64Dir: "jre-8u211-win64", // Название папки JVM для Windows x64
     },
 
     settingsMagic: 0xC0DE5, // Магия вне хогвартса

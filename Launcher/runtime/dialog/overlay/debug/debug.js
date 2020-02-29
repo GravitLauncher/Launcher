@@ -21,8 +21,17 @@ var debug = {
 
         debug.copy = debug.overlay.lookup("#copy");
         debug.copy.setOnAction(function(event) {
+            var haste = FunctionalBridge.hastebin(config.hasteserver, debug.output.getText());
+
+            if (haste == null) {
+                debug.copy.setText("Ошибка!");
+                return;
+            }
+
+            openURL(new java.net.URL(haste));
+
             var content = new javafx.scene.input.ClipboardContent();
-            content.putString(debug.output.getText());
+            content.putString(haste);
 
             javafx.scene.input.Clipboard.getSystemClipboard().
             setContent(content);
