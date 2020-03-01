@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -18,7 +17,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherAPI;
+import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.guard.LauncherGuardManager;
@@ -27,6 +28,7 @@ import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.hwid.OshiHWIDProvider;
 import pro.gravit.launcher.managers.ConsoleManager;
+import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.managers.HasherManager;
 import pro.gravit.launcher.managers.HasherStore;
 import pro.gravit.launcher.request.Request;
@@ -35,9 +37,9 @@ import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.HTTPRequest;
 
 public class FunctionalBridge {
-    @LauncherAPI
     public class HasteResponse {
-        String key;
+        @LauncherNetworkAPI
+        public String key;
     }
     @LauncherAPI
     public static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(0);
@@ -154,7 +156,7 @@ public class FunctionalBridge {
     @LauncherAPI
     public static String hastebin(String hasteserver, String log) throws IOException {
         JsonParser parser = new JsonParser();
-        Gson gson = new Gson();
+        Gson gson = Launcher.gsonManager.gson;
 
         URL url = new URL(hasteserver + "documents");
         

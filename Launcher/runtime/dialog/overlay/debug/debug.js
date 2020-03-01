@@ -28,7 +28,12 @@ var debug = {
                 return;
             }
 
-            openURL(new java.net.URL(haste));
+            try {
+                openURL(new java.net.URL(haste));
+            } catch (e) {
+                LogHelper.error("Error Open Link");
+                LogHelper.error(e);
+            }
 
             var content = new javafx.scene.input.ClipboardContent();
             content.putString(haste);
