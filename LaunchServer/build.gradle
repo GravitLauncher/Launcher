@@ -28,10 +28,10 @@ configurations {
 }
 
 jar {
-    dependsOn parent.childProjects.Launcher.tasks.build
+    dependsOn parent.childProjects.Launcher.tasks.assemble
     from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
-    from(parent.childProjects.Launcher.tasks.shadowJar.archivePath)
-    from(parent.childProjects.Launcher.tasks.genRuntimeJS.archivePath)
+    from(parent.childProjects.Launcher.tasks.shadowJar)
+    from(parent.childProjects.Launcher.tasks.genRuntimeJS)
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
             "Can-Redefine-Classes": "true",
@@ -71,24 +71,22 @@ task cleanjar(type: Jar, dependsOn: jar) {
 
 dependencies {
     pack project(':LauncherAPI')
-    bundle 'org.ow2.asm:asm-commons:7.3.1'
-    bundle 'mysql:mysql-connector-java:8.0.16'
-    bundle 'org.postgresql:postgresql:42.2.6'
-    bundle 'org.jline:jline:3.13.1'
-    bundle 'org.jline:jline-reader:3.13.1'
-    bundle 'org.jline:jline-terminal:3.13.1'
-    bundle 'net.sf.proguard:proguard-base:6.2.0'
-    bundle 'org.fusesource.jansi:jansi:1.18'
-    bundle 'commons-io:commons-io:2.6'
-    bundle 'commons-codec:commons-codec:1.12'
-    bundle 'org.apache.httpcomponents:httpclient:4.5.10'
-    bundle 'io.netty:netty-all:4.1.43.Final'
-    bundle 'org.hibernate:hibernate-core:5.4.9.Final'
-    bundle 'org.bouncycastle:bcpkix-jdk15on:1.61'
+    bundle group: 'org.fusesource.jansi', name:'jansi', version: rootProject['verJansi']
+    bundle group: 'org.jline', name: 'jline', version: rootProject['verJline']
+    bundle group: 'org.jline', name: 'jline-reader', version: rootProject['verJline']
+    bundle group: 'org.jline', name: 'jline-terminal', version: rootProject['verJline']
+    bundle group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: rootProject['verBcpkix']
+    bundle group: 'org.ow2.asm', name: 'asm-commons', version: rootProject['verAsm']
+    bundle group: 'io.netty', name: 'netty-all', version: rootProject['verNetty']
+    bundle group: 'org.slf4j', name: 'slf4j-simple', version: rootProject['verSlf4j']
+    bundle group: 'org.slf4j', name: 'slf4j-api', version: rootProject['verSlf4j']
+    bundle group: 'org.hibernate', name: 'hibernate-core', version: rootProject['verHibernate']
+    bundle group: 'mysql', name: 'mysql-connector-java', version: rootProject['verMySQLConn']
+    bundle group: 'org.postgresql', name: 'postgresql', version: rootProject['verPostgreSQLConn']
+    bundle group: 'net.sf.proguard', name: 'proguard-base', version: rootProject['verProguard']
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 
-    bundle 'org.slf4j:slf4j-simple:1.7.25'
-    bundle 'org.slf4j:slf4j-api:1.7.25'
-
+    //TODO rewrite
     hikari 'io.micrometer:micrometer-core:1.0.6'
     hikari('com.zaxxer:HikariCP:3.4.1') {
         exclude group: 'javassist'
@@ -101,6 +99,7 @@ dependencies {
         exclude group: 'net.java.abeille'
         exclude group: 'foxtrot'
         exclude group: 'com.jgoodies'
+        exclude group: 'org.slf4j'
     }
 
     launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-win32') {
@@ -110,13 +109,15 @@ dependencies {
     launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-linux') {
         exclude group: '*'
     }
+    // Rewrite end.
 
-    compileOnlyA 'com.google.guava:guava:26.0-jre'
-    compileOnlyA 'log4j:log4j:1.2.17' // Do not update (laggy dep).
+    compileOnly group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
+    // Do not update (laggy deps).
+    compileOnlyA 'log4j:log4j:1.2.17'
     compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.1'
 }
 
+//TODO rewrite
 task hikari(type: Copy) {
     duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries/hikaricp"
@@ -152,10 +153,11 @@ task launch4jA(type: Copy) {
         fcp.mode = 0755
     }
 }
+// Rewrite end.
 
 task dumpLibs(type: Copy) {
     duplicatesStrategy = 'EXCLUDE'
-    dependsOn tasks.hikari, tasks.launch4jM, tasks.launch4jA
+    dependsOn tasks.hikari, tasks.launch4jM, tasks.launch4jA //TODO rewrite this
     into "$buildDir/libs/libraries"
     from configurations.bundleOnly
 }
@@ -173,7 +175,7 @@ task bundle(type: Zip) {
     destinationDirectory = file("$buildDir")
     from(tasks.dumpLibs.destinationDir) { into 'libraries' }
     from(tasks.dumpCompileOnlyLibs.destinationDir) { into 'launcher-libraries-compile' }
-    from tasks.jar.archivePath
+    from tasks.jar
     from(parent.childProjects.Launcher.tasks.dumpLibs) { into 'launcher-libraries' }
 }
 

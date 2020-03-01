@@ -7,6 +7,8 @@ plugins {
 group = 'pro.gravit.launcher'
 version = '5.1.1-SNAPSHOT'
 
+apply from: 'props.gradle'
+
 configure(subprojects.findAll { it.name != 'modules' }) {
     apply plugin: 'idea'
     apply plugin: 'eclipse'

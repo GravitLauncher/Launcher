@@ -2,13 +2,13 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 dependencies {
-    compileOnly 'org.fusesource.jansi:jansi:1.18'
-    compileOnly 'org.jline:jline:3.11.0'
-    compileOnly 'org.jline:jline-reader:3.11.0'
-    compileOnly 'org.jline:jline-terminal:3.11.0'
-    compileOnly 'org.bouncycastle:bcprov-jdk15:1.46'
-    api 'com.google.code.gson:gson:2.8.5'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.1'
+    compileOnly group: 'org.fusesource.jansi', name:'jansi', version: rootProject['verJansi']
+    compileOnly group: 'org.jline', name: 'jline', version: rootProject['verJline']
+    compileOnly group: 'org.jline', name: 'jline-reader', version: rootProject['verJline']
+    compileOnly group: 'org.jline', name: 'jline-terminal', version: rootProject['verJline']
+    compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15', version: rootProject['verBcprov']
+    api group: 'com.google.code.gson', name: 'gson', version: rootProject['verGson']
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 }
 
 test {
