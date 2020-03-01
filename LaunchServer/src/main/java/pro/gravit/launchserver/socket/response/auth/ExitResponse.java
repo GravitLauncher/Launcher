@@ -39,6 +39,7 @@ public class ExitResponse extends SimpleResponse {
             newClient.isSecure = client.isSecure;
             newClient.checkSign = client.checkSign;
             handler.setClient(newClient);
+            if(client.session != 0) server.sessionManager.removeClient(client.session);
             if(exitAll)
             {
                 service.channels.forEach((channel) -> {
