@@ -30,7 +30,6 @@ configure(subprojects.findAll { it.name != 'modules' }) {
 
     eclipse {
         classpath {
-            plusConfigurations += [ configurations.compileOnly ]
             downloadSources = true
             downloadJavadoc = true
         }

@@ -60,8 +60,8 @@ dependencies {
 
 task genRuntimeJS(type: Zip) {
     duplicatesStrategy = 'EXCLUDE'
-    archiveName = "runtime.zip"
-    destinationDir = file("${buildDir}/tmp")
+    archiveFileName = "runtime.zip"
+    destinationDirectory = file("${buildDir}/tmp")
     from "runtime/"
 }
 
