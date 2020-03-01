@@ -301,7 +301,7 @@ public final class ClientLauncher {
         try {
             mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
         } finally {
-            SystemService.exit(0);
+            LauncherEngine.exitLauncher(0);
         }
 
     }

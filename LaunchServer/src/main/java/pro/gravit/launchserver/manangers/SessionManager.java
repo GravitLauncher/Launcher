@@ -40,6 +40,11 @@ public class SessionManager implements NeedGarbageCollection {
         return clientSet.computeIfAbsent(session, Client::new);
     }
 
+    public Client removeClient(long session)
+    {
+        return clientSet.remove(session);
+    }
+
 
     public void updateClient(long session) {
         Client c = clientSet.get(session);

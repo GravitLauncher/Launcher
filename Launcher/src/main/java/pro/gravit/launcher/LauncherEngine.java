@@ -1,6 +1,5 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.api.SystemService;
 import pro.gravit.launcher.client.*;
 import pro.gravit.launcher.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientExitPhase;
@@ -59,7 +58,12 @@ public class LauncherEngine {
     public static void exitLauncher(int code)
     {
         modulesManager.invokeEvent(new ClientExitPhase(code));
-        NativeJVMHalt.haltA(code);
+        try {
+            System.exit(code);
+        } catch (Throwable e) //Forge Security Manager?
+        {
+            NativeJVMHalt.haltA(code);
+        }
     }
 
     public static void main(String... args) throws Throwable {
@@ -93,7 +97,7 @@ public class LauncherEngine {
         LogHelper.debug("Launcher started in %dms", endTime - startTime);
         //Request.service.close();
         //FunctionalBridge.close();
-        SystemService.exit(0);
+        LauncherEngine.exitLauncher(0);
     }
 
     public static void initGson(ClientModuleManager modulesManager) {
