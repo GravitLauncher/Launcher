@@ -59,13 +59,7 @@ public class LauncherEngine {
     public static void exitLauncher(int code)
     {
         modulesManager.invokeEvent(new ClientExitPhase(code));
-        try {
-            System.exit(code);
-        } catch (Exception e) //Forge Security Manager?
-        {
-            NativeJVMHalt.haltA(code);
-        }
-
+        NativeJVMHalt.haltA(code);
     }
 
     public static void main(String... args) throws Throwable {

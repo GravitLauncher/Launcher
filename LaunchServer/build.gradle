@@ -8,7 +8,7 @@ repositories {
         url "https://oss.sonatype.org/content/repositories/snapshots"
     }
     maven {
-        url "http://maven.geomajas.org/"
+        url "https://maven.geomajas.org/"
     }
 }
 
@@ -24,7 +24,7 @@ configurations {
     launch4j
     launch4jCJ
     bundleOnly.extendsFrom bundle
-    compile.extendsFrom bundle, hikari, pack, launch4jCJ, launch4j
+    api.extendsFrom bundle, hikari, pack, launch4jCJ, launch4j
 }
 
 jar {
@@ -114,15 +114,17 @@ dependencies {
     compileOnlyA 'com.google.guava:guava:26.0-jre'
     compileOnlyA 'log4j:log4j:1.2.17' // Do not update (laggy dep).
     compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
-    testCompile 'org.junit.jupiter:junit-jupiter:5.4.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.1'
 }
 
 task hikari(type: Copy) {
+    duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries/hikaricp"
     from configurations.hikari
 }
 
 task launch4jM(type: Copy) {
+    duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries/launch4j"
     from(configurations.launch4jCJ.collect { it.isDirectory() ? it : zipTree(it) })
     includeEmptyDirs false
@@ -139,6 +141,7 @@ task launch4jM(type: Copy) {
 }
 
 task launch4jA(type: Copy) {
+    duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries/launch4j"
     from(configurations.launch4j)
     includeEmptyDirs false
@@ -151,17 +154,20 @@ task launch4jA(type: Copy) {
 }
 
 task dumpLibs(type: Copy) {
+    duplicatesStrategy = 'EXCLUDE'
     dependsOn tasks.hikari, tasks.launch4jM, tasks.launch4jA
     into "$buildDir/libs/libraries"
     from configurations.bundleOnly
 }
 
 task dumpCompileOnlyLibs(type: Copy) {
+    duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/launcher-libraries-compile"
     from configurations.compileOnlyA
 }
 
 task bundle(type: Zip) {
+    duplicatesStrategy = 'EXCLUDE'
     dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.jar
     archiveName 'LaunchServer.zip'
     destinationDir file("$buildDir")

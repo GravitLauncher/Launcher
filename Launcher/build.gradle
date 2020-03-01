@@ -1,6 +1,4 @@
-plugins {
-    id 'org.openjfx.javafxplugin' version '0.0.5'
-}
+apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 String mainClassName = "pro.gravit.launcher.ClientLauncherWrapper"
@@ -8,7 +6,7 @@ String mainAgentName = "pro.gravit.launcher.LauncherAgent"
 
 repositories {
     maven {
-        url "http://repo.spring.io/plugins-release/"
+        url "https://repo.spring.io/plugins-release/"
     }
 }
 javafx {
@@ -21,7 +19,7 @@ targetCompatibility = '1.8'
 configurations {
     bundle
     pack
-    compile.extendsFrom bundle, pack
+    api.extendsFrom bundle, pack
 }
 
 jar {
@@ -45,6 +43,7 @@ task javadocJar(type: Jar) {
 }
 
 shadowJar {
+    duplicatesStrategy = 'EXCLUDE'
     classifier = null
     relocate 'org.objectweb.asm', 'pro.gravit.repackage.org.objectweb.asm'
     relocate 'io.netty', 'pro.gravit.repackage.io.netty'
@@ -60,12 +59,14 @@ dependencies {
 }
 
 task genRuntimeJS(type: Zip) {
+    duplicatesStrategy = 'EXCLUDE'
     archiveName = "runtime.zip"
     destinationDir = file("${buildDir}/tmp")
     from "runtime/"
 }
 
 task dumpLibs(type: Copy) {
+    duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries"
     from configurations.bundle
 }

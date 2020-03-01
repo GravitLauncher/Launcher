@@ -10,6 +10,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.ByteBuffer;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Vector;
 
@@ -87,7 +88,8 @@ public class FMLPatcher extends ClassLoader implements Opcodes {
     }
 
     public static String randomStr(final int lenght) {
-        final String alphabet = "abcdefghijklmnopqrstuvwxyz";
+        String alphabet = "abcdefghijklmnopqrstuvwxyz";
+        alphabet += alphabet.toUpperCase(Locale.US);
         final StringBuilder sb = new StringBuilder(lenght);
         final Random random = SecurityHelper.newRandom();
         for (int i = 0; i < lenght; i++)
