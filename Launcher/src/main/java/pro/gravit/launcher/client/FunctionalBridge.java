@@ -6,14 +6,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import pro.gravit.launcher.LauncherAPI;
@@ -30,8 +32,13 @@ import pro.gravit.launcher.managers.HasherStore;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.HTTPRequest;
 
 public class FunctionalBridge {
+    @LauncherAPI
+    public class HasteResponse {
+        String key;
+    }
     @LauncherAPI
     public static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(0);
     @LauncherAPI
@@ -145,35 +152,41 @@ public class FunctionalBridge {
     }
 
     @LauncherAPI
-    public static String hastebin(String hasteserver, String log) {
-        HttpURLConnection connection = null;
+    public static String hastebin(String hasteserver, String log) throws IOException {
+        JsonParser parser = new JsonParser();
+        Gson gson = new Gson();
+
+        URL url = new URL(hasteserver + "documents");
+        
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setConnectTimeout(10000);
+        try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8)) {
+            writer.write(log);
+            writer.flush();
+        }
+
+        InputStreamReader reader;
+        int statusCode = connection.getResponseCode();
+
+        if (200 <= statusCode && statusCode < 300)
+            reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
+        else
+            reader = new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8);
         try {
-            //Create connection
-            URL url = new URL(hasteserver + "documents");
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-
-            //Send request
-            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-            wr.writeBytes(log);
-            wr.flush();
-            wr.close();
-
-            //Get Response
-            BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-            String result = rd.readLine();
-
-            return hasteserver + new JsonParser().parse(result).getAsJsonObject().get("key").getAsString();
-
-        } catch (IOException e) {
-            LogHelper.error(e);
+            JsonElement response = parser.parse(reader);
+            HasteResponse obj = gson.fromJson(response, HasteResponse.class);
+            return hasteserver + obj.key;
+        } catch (Exception e) {
+            if (200 > statusCode || statusCode > 300) {
+                LogHelper.error("JsonRequest failed. Server response code %d", statusCode);
+                throw new IOException(e);
+            }
             return null;
-        } finally {
-            if (connection == null) return null;
-            connection.disconnect();
         }
     }
 }
