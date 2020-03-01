@@ -107,6 +107,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("setpassword", SetPasswordRequestEvent.class);
         results.register("notification", NotificationEvent.class);
         results.register("signal", SignalEvent.class);
+        results.register("exit", ExitRequestEvent.class);
     }
 
     public void waitIfNotConnected() {

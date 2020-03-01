@@ -123,6 +123,7 @@ public class WebSocketService {
         providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
         providers.register("register", RegisterResponse.class);
         providers.register("setPassword", SetPasswordResponse.class);
+        providers.register("exit", ExitResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {
