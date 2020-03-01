@@ -66,6 +66,11 @@ public class WebSocketService {
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
         String request = frame.text();
         WebSocketServerResponse response = gson.fromJson(request, WebSocketServerResponse.class);
+        if(response == null)
+        {
+            RequestEvent event= new ErrorRequestEvent("This type of request is not supported");
+            sendObject(ctx, event);
+        }
         process(ctx, response, client, ip);
     }
 
