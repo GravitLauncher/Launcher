@@ -22,7 +22,7 @@
         </padding>
     </TextArea>
    <Pane layoutY="405.0" prefHeight="45.0" prefWidth="693.0" style="-fx-background-color: #ffffff;" />
-    <Button fx:id="copy" defaultButton="true" layoutX="373.0" layoutY="415.0" prefHeight="30.0" prefWidth="100.0" text="Копировать" />
+    <Button fx:id="copy" defaultButton="true" layoutX="373.0" layoutY="415.0" prefHeight="30.0" prefWidth="100.0" text="Загрузить на Hastebin" />
     <Button fx:id="action" layoutX="533.0" layoutY="415.0" prefHeight="25.0" prefWidth="150.0" text="Убить" />
    <Label fx:id="version" layoutX="14.0" layoutY="419.0" text="GravitLauncher" />
 </Pane>
