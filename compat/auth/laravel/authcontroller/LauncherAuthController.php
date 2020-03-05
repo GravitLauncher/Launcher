@@ -12,10 +12,9 @@ class LauncherAuthController extends Controller
         $data = json_decode($request->getContent());
 
         if ($data->apiKey !== env('LAUNCHER_APIKEY')) {
-            $response = [
+            return response()->json([
                 'error' => 'Неверный ключ. Обратитесь к администратору',
-            ];
-            return json_encode($response);
+            ]);
         }
 
         if (Auth::attempt(['name' => $data->username, 'password' => $data->password])) {
@@ -24,15 +23,14 @@ class LauncherAuthController extends Controller
                 ->where('name', '=', $data->username)
                 ->first();
 
-            $response = [
+            return response()->json([
                 'username' => $data->username,
                 'permission' => $perm->launcher_permission,
-            ];
+            ]);
         } else {
-            $response = [
+            return response()->json([
                 'error' => 'Неверный логин или пароль',
-            ];
+            ]);
         }
-        return json_encode($response);
     }
 }
