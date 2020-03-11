@@ -22,9 +22,8 @@ configurations {
     hikari
     pack
     launch4j
-    launch4jCJ
     bundleOnly.extendsFrom bundle
-    api.extendsFrom bundle, hikari, pack, launch4jCJ, launch4j
+    api.extendsFrom bundle, hikari, pack, launch4j
 }
 
 jar {
@@ -86,7 +85,6 @@ dependencies {
     bundle group: 'net.sf.proguard', name: 'proguard-base', version: rootProject['verProguard']
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 
-    //TODO rewrite
     hikari 'io.micrometer:micrometer-core:1.0.6'
     hikari('com.zaxxer:HikariCP:3.4.1') {
         exclude group: 'javassist'
@@ -102,14 +100,13 @@ dependencies {
         exclude group: 'org.slf4j'
     }
 
-    launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-win32') {
+    launch4j('net.sf.launch4j:launch4j:3.12:workdir-win32') {
         exclude group: '*'
     }
 
-    launch4jCJ('net.sf.launch4j:launch4j:3.12:workdir-linux') {
+    launch4j('net.sf.launch4j:launch4j:3.12:workdir-linux') {
         exclude group: '*'
     }
-    // Rewrite end.
 
     compileOnly group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
     // Do not update (laggy deps).
@@ -117,23 +114,24 @@ dependencies {
     compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
 }
 
-//TODO rewrite
 task hikari(type: Copy) {
     duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries/hikaricp"
     from configurations.hikari
 }
 
-task launch4jM(type: Copy) {
+task launch4j(type: Copy) {
     duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries/launch4j"
-    from(configurations.launch4jCJ.collect { it.isDirectory() ? it : zipTree(it) })
+    from(configurations.launch4j.collect { it.isDirectory() ? it : (it.getName().contains("workdir") ? zipTree(it) : it) })
     includeEmptyDirs false
     eachFile { FileCopyDetails fcp ->
         if (fcp.relativePath.pathString.startsWith("launch4j-")) {
-            def segments = fcp.relativePath.segments
-            def pathSegments = segments[1..-1] as String[]
-            fcp.relativePath = new RelativePath(!fcp.file.isDirectory(), pathSegments)
+            if (fcp.relativePath.pathString.contains("workdir")) {
+                def segments = fcp.relativePath.segments
+                def pathSegments = segments[1..-1] as String[]
+                fcp.relativePath = new RelativePath(!fcp.file.isDirectory(), pathSegments)
+            }
             fcp.mode = 0755
         } else {
             fcp.exclude()
@@ -141,23 +139,9 @@ task launch4jM(type: Copy) {
     }
 }
 
-task launch4jA(type: Copy) {
-    duplicatesStrategy = 'EXCLUDE'
-    into "$buildDir/libs/libraries/launch4j"
-    from(configurations.launch4j)
-    includeEmptyDirs false
-    eachFile { FileCopyDetails fcp ->
-        if (fcp.name.startsWith("launch4j")) {
-            fcp.name = "launch4j.jar"
-        }
-        fcp.mode = 0755
-    }
-}
-// Rewrite end.
-
 task dumpLibs(type: Copy) {
     duplicatesStrategy = 'EXCLUDE'
-    dependsOn tasks.hikari, tasks.launch4jM, tasks.launch4jA //TODO rewrite this
+    dependsOn tasks.hikari, tasks.launch4j
     into "$buildDir/libs/libraries"
     from configurations.bundleOnly
 }
