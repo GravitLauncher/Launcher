@@ -99,14 +99,8 @@ dependencies {
         exclude group: 'com.jgoodies'
         exclude group: 'org.slf4j'
     }
-
-    launch4j('net.sf.launch4j:launch4j:3.12:workdir-win32') {
-        exclude group: '*'
-    }
-
-    launch4j('net.sf.launch4j:launch4j:3.12:workdir-linux') {
-        exclude group: '*'
-    }
+    launch4j('net.sf.launch4j:launch4j:3.12:workdir-win32') { transitive = false }
+    launch4j('net.sf.launch4j:launch4j:3.12:workdir-linux') { transitive = false }
 
     compileOnly group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
     // Do not update (laggy deps).
@@ -123,19 +117,16 @@ task hikari(type: Copy) {
 task launch4j(type: Copy) {
     duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries/launch4j"
-    from(configurations.launch4j.collect { it.isDirectory() ? it : (it.getName().contains("workdir") ? zipTree(it) : it) })
+    from(configurations.launch4j.collect { it.isDirectory() ? it : ((it.getName().startsWith("launch4j") && it.getName().contains("workdir")) ? zipTree(it) : it) })
     includeEmptyDirs false
     eachFile { FileCopyDetails fcp ->
-        if (fcp.relativePath.pathString.startsWith("launch4j-")) {
-            if (fcp.relativePath.pathString.contains("workdir")) {
+            if (fcp.relativePath.pathString.startsWith("launch4j-") &&
+                    fcp.relativePath.pathString.contains("workdir")) {
                 def segments = fcp.relativePath.segments
                 def pathSegments = segments[1..-1] as String[]
                 fcp.relativePath = new RelativePath(!fcp.file.isDirectory(), pathSegments)
             }
             fcp.mode = 0755
-        } else {
-            fcp.exclude()
-        }
     }
 }
 
@@ -166,7 +157,7 @@ task bundle(type: Zip) {
 task dumpClientLibs(type: Copy) {
     dependsOn parent.childProjects.Launcher.tasks.build
     into "$buildDir/libs/launcher-libraries"
-    from parent.childProjects.Launcher.tasks.dumpLibs.destinationDir
+    from parent.childProjects.Launcher.tasks.dumpLibs
 }
 
 assemble.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle, tasks.cleanjar
