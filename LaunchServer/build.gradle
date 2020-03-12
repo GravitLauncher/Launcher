@@ -92,17 +92,17 @@ dependencies {
         exclude group: 'org.slf4j'
     }
 
-    launch4j('net.sf.launch4j:launch4j:3.12') {
+    launch4j('net.sf.launch4j:launch4j:' + rootProject['verLaunch4j']) {
         exclude group: 'org.apache.ant'
         exclude group: 'net.java.abeille'
         exclude group: 'foxtrot'
         exclude group: 'com.jgoodies'
         exclude group: 'org.slf4j'
     }
-    launch4j('net.sf.launch4j:launch4j:3.12:workdir-win32') { transitive = false }
-    launch4j('net.sf.launch4j:launch4j:3.12:workdir-linux') { transitive = false }
+    launch4j('net.sf.launch4j:launch4j:' + rootProject['verLaunch4j'] + ':workdir-win32') { transitive = false }
+    launch4j('net.sf.launch4j:launch4j:' + rootProject['verLaunch4j'] + 'workdir-linux') { transitive = false }
 
-    compileOnly group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
+    compileOnlyA group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
     // Do not update (laggy deps).
     compileOnlyA 'log4j:log4j:1.2.17'
     compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
@@ -125,7 +125,7 @@ task launch4j(type: Copy) {
                 def segments = fcp.relativePath.segments
                 def pathSegments = segments[1..-1] as String[]
                 fcp.relativePath = new RelativePath(!fcp.file.isDirectory(), pathSegments)
-            }
+            } else if (fcp.relativePath.pathString.contains("META-INF")) fcp.exclude()
             fcp.mode = 0755
     }
 }
@@ -150,7 +150,7 @@ task bundle(type: Zip) {
     destinationDirectory = file("$buildDir")
     from(tasks.dumpLibs.destinationDir) { into 'libraries' }
     from(tasks.dumpCompileOnlyLibs.destinationDir) { into 'launcher-libraries-compile' }
-    from tasks.jar
+    from(tasks.jar)
     from(parent.childProjects.Launcher.tasks.dumpLibs) { into 'launcher-libraries' }
 }
 
