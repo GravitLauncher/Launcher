@@ -34,10 +34,7 @@ import java.lang.ProcessBuilder.Redirect;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.URL;
+import java.net.*;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -302,6 +299,10 @@ public final class ClientLauncher {
         // Invoke main method
         try {
             mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
+            LogHelper.debug("Main exit successful");
+        } catch (Throwable e) {
+           LogHelper.error(e);
+           throw e;
         } finally {
             LauncherEngine.exitLauncher(0);
         }
