@@ -3,6 +3,7 @@ package pro.gravit.launcher.client;
 import pro.gravit.launcher.*;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
+import pro.gravit.launcher.api.SystemService;
 import pro.gravit.launcher.client.events.ClientLaunchPhase;
 import pro.gravit.launcher.client.events.ClientLauncherInitPhase;
 import pro.gravit.launcher.client.events.ClientLauncherPostInitPhase;
@@ -13,6 +14,7 @@ import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
+import pro.gravit.launcher.patches.FMLPatcher;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.request.Request;
@@ -32,10 +34,7 @@ import java.lang.ProcessBuilder.Redirect;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.URL;
+import java.net.*;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -293,14 +292,19 @@ public final class ClientLauncher {
         {
             LogHelper.info("ClassLoader URL: %s", u.toString());
         }
+        FMLPatcher.apply();
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
         // Invoke main method
         try {
             mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
+            LogHelper.debug("Main exit successful");
+        } catch (Throwable e) {
+           LogHelper.error(e);
+           throw e;
         } finally {
-            Request.service.close();
+            LauncherEngine.exitLauncher(0);
         }
 
     }

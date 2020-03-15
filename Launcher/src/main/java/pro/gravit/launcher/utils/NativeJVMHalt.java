@@ -2,6 +2,7 @@ package pro.gravit.launcher.utils;
 
 import pro.gravit.launcher.patches.FMLPatcher;
 import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 import javax.swing.*;
 import java.awt.event.WindowEvent;
@@ -22,23 +23,30 @@ public final class NativeJVMHalt {
     }
 
     public static void haltA(int code) {
+        Throwable[] th = new Throwable[3];
         NativeJVMHalt halt = new NativeJVMHalt(code);
         try {
             JVMHelper.RUNTIME.exit(code);
-        } catch (Throwable ignored) {
+        } catch (Throwable exitExc) {
+            th[0] = exitExc;
             try {
                 new WindowShutdown();
-            } catch (Throwable ignored1) {
+            } catch (Throwable windowExc) {
+                th[1] = windowExc;
             }
         }
         try {
             FMLPatcher.exit(code);
-        } catch (Throwable ignored) {
+        } catch (Throwable fmlExc) {
+            th[2] = fmlExc;
         }
-
-        halt.aaabbb38C_D();
+        for(Throwable t : th)
+        {
+            if(t != null) LogHelper.error(t);
+        }
         boolean a = halt.aaabBooleanC_D();
         System.out.println(a);
+        halt.aaabbb38C_D();
 
     }
 

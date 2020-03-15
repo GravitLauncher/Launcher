@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.binary;
 
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.asm.NodeUtils;
 import pro.gravit.utils.helper.*;
 
 import java.io.IOException;

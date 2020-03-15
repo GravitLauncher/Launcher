@@ -63,7 +63,7 @@ public abstract class HWIDHandler implements AutoCloseable, Reconfigurable {
     public abstract void ban(List<HWID> hwid) throws HWIDException;
 
     public void check(HWID hwid, String username) throws HWIDException {
-        if (hwid.isNull()) return;
+        if (hwid == null || hwid.isNull()) return;
         check0(hwid, username);
     }
 

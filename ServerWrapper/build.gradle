@@ -5,12 +5,12 @@ String mainAgentName = "pro.gravit.launcher.server.ServerAgent"
 
 configurations {
     pack
-    compile.extendsFrom pack
+    api.extendsFrom pack
 }
 
 repositories {
     maven {
-        url "http://repo.spring.io/plugins-release/"
+        url "https://repo.spring.io/plugins-release/"
     }
 }
 
@@ -42,6 +42,7 @@ dependencies {
 }
 
 shadowJar {
+    duplicatesStrategy = 'EXCLUDE'
     classifier = null
     relocate 'io.netty', 'pro.gravit.repackage.io.netty'
     configurations = [project.configurations.pack]
