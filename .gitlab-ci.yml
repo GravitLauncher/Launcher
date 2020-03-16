@@ -41,6 +41,7 @@ build:
     - cp modules/*_swmodule/build/libs/*.jar artifacts/modules
     - cp modules/*_lmodule/build/libs/*.jar artifacts/modules
   cache:
+    key: "$CI_COMMIT_REF_NAME"
     paths:
       - .gradle
       - LaunchServer/build
@@ -59,6 +60,8 @@ test:
   script:
     - gradle check
   cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
     paths:
       - .gradle
       - LaunchServer/build
@@ -74,6 +77,8 @@ deploy-demo:
     - gradle build
     - eval $(ssh $SSH_USER@$SSH_HOST 'cd $SSH_DIR && cat deploy.sh')
   cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
     paths:
       - .gradle
       - LaunchServer/build
