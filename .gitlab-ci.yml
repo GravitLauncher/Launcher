@@ -4,6 +4,8 @@ stages:
   - build
   - test
   - deploy
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
 before_script:
   - apt-get -y update
@@ -18,11 +20,13 @@ before_script:
   - chmod 700 ~/.ssh
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   - git submodule sync
-  - git submodule update --init --recursive
+  - mv modules modules_cache || true
+  - git submodule update --init --recursive --force
+  - cp -a modules_cache/* modules/ || true
 build:
   stage: build
   script:
-    - ./gradlew assemble
+    - gradle assemble
   after_script:
     - mkdir -p artifacts/modules
     - cd LaunchServer/build/libs/
@@ -39,6 +43,12 @@ build:
   cache:
     paths:
       - .gradle
+      - LaunchServer/build
+      - Launcher/build
+      - LauncherCore/build
+      - LauncherAPI/build
+      - LauncherAuthlib/build
+      - modules/*_*module/build
   artifacts:
     expire_in: 6 week
     paths:
@@ -47,9 +57,28 @@ build:
 test:
   stage: test
   script:
-    - ./gradlew check
+    - gradle check
+  cache:
+    paths:
+      - .gradle
+      - LaunchServer/build
+      - Launcher/build
+      - LauncherCore/build
+      - LauncherAPI/build
+      - LauncherAuthlib/build
+      - modules/*_*module/build
 
 deploy-demo:
   stage: deploy
   script:
-    - ssh $SSH_USER@$SSH_HOST 'echo HELLO WORLD'
+    - gradle build
+    - eval $(ssh $SSH_USER@$SSH_HOST 'cd $SSH_DIR && cat deploy.sh')
+  cache:
+    paths:
+      - .gradle
+      - LaunchServer/build
+      - Launcher/build
+      - LauncherCore/build
+      - LauncherAPI/build
+      - LauncherAuthlib/build
+      - modules/*_*module/build
