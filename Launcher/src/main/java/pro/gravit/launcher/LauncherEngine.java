@@ -7,7 +7,6 @@ import pro.gravit.launcher.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.NoRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
-import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.managers.ConsoleManager;
@@ -83,7 +82,6 @@ public class LauncherEngine {
         // Start Launcher
         initGson(LauncherEngine.modulesManager);
         ConsoleManager.initConsole();
-        HWIDProvider.registerHWIDs();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         Launcher.getConfig(); // init config
         long startTime = System.currentTimeMillis();

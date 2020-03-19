@@ -2,7 +2,6 @@ package pro.gravit.launchserver.auth;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
-import pro.gravit.launchserver.auth.hwid.HWIDHandler;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 
@@ -13,17 +12,15 @@ public class AuthProviderPair {
     public AuthProvider provider;
     public AuthHandler handler;
     public TextureProvider textureProvider;
-    public HWIDHandler hwid;
     public Map<String, String> links;
     public transient String name;
     public String displayName;
     public final boolean isDefault = true;
 
-    public AuthProviderPair(AuthProvider provider, AuthHandler handler, TextureProvider textureProvider, HWIDHandler hwid) {
+    public AuthProviderPair(AuthProvider provider, AuthHandler handler, TextureProvider textureProvider) {
         this.provider = provider;
         this.handler = handler;
         this.textureProvider = textureProvider;
-        this.hwid = hwid;
     }
 
     public void init(LaunchServer srv, String name) {
@@ -32,10 +29,8 @@ public class AuthProviderPair {
         if(provider == null) throw new NullPointerException(String.format("Auth %s provider null", name));
         if(handler == null) throw new NullPointerException(String.format("Auth %s handler null", name));
         if(textureProvider == null) throw new NullPointerException(String.format("Auth %s textureProvider null", name));
-        if(hwid == null) throw new NullPointerException(String.format("Auth %s hwid null", name));
         provider.init(srv);
         handler.init(srv);
-        hwid.init();
     }
     public void link(LaunchServer srv)
     {
@@ -59,11 +54,6 @@ public class AuthProviderPair {
             {
                 if(pair.textureProvider == null) throw new NullPointerException(String.format("Auth %s link failed. %s.textureProvider is null", name, v));
                 textureProvider = pair.textureProvider;
-            }
-            else if("hwid".equals(k))
-            {
-                if(pair.hwid == null) throw new NullPointerException(String.format("Auth %s link failed. %s.hwid is null", name, v));
-                hwid = pair.hwid;
             }
         });
     }

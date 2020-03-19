@@ -3,9 +3,7 @@ package pro.gravit.launchserver.dao.provider;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.dao.impl.HibernateHwidDAOImpl;
 import pro.gravit.launchserver.dao.impl.UserHibernateImpl;
-import pro.gravit.launchserver.dao.impl.UserHWIDImpl;
 import pro.gravit.launchserver.dao.impl.HibernateUserDAOImpl;
 import pro.gravit.utils.helper.CommonHelper;
 
@@ -27,7 +25,6 @@ public class HibernateDaoProvider extends DaoProvider {
         Runnable init = () -> {
             Configuration cfg = new Configuration()
                     .addAnnotatedClass(UserHibernateImpl.class)
-                    .addAnnotatedClass(UserHWIDImpl.class)
                     .setProperty("hibernate.connection.driver_class", driver)
                     .setProperty("hibernate.connection.url", url)
                     .setProperty("hibernate.connection.username", username)
@@ -39,7 +36,6 @@ public class HibernateDaoProvider extends DaoProvider {
                 cfg.configure(Paths.get(hibernateConfig).toFile());
             sessionFactory = cfg.buildSessionFactory();
             userDAO = new HibernateUserDAOImpl(sessionFactory);
-            hwidDao = new HibernateHwidDAOImpl(sessionFactory);
         };
         if (parallelHibernateInit)
             CommonHelper.newThread("Hibernate Thread", true, init);

@@ -24,10 +24,6 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
     @LauncherNetworkAPI
     private final String auth_id;
     @LauncherNetworkAPI
-    private final HWID hwid;
-    @LauncherNetworkAPI
-    private final String customText;
-    @LauncherNetworkAPI
     private final boolean getSession;
     @LauncherNetworkAPI
     private final ConnectTypes authType;
@@ -45,34 +41,19 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
     }
 
 
-    public AuthRequest(String login, byte[] password, HWID hwid) {
+    public AuthRequest(String login, byte[] password) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.password = new AuthECPassword(password.clone());
-        this.hwid = hwid;
-        customText = "";
         auth_id = "";
         getSession = true;
         authType = ConnectTypes.CLIENT;
     }
 
-
+    @Deprecated
     public AuthRequest(String login, byte[] password, HWID hwid, String auth_id) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.password = new AuthECPassword(password.clone());
-        this.hwid = hwid;
         this.auth_id = auth_id;
-        customText = "";
-        getSession = true;
-        authType = ConnectTypes.CLIENT;
-    }
-
-
-    public AuthRequest(String login, byte[] password, HWID hwid, String customText, String auth_id) {
-        this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
-        this.password = new AuthECPassword(password.clone());
-        this.hwid = hwid;
-        this.auth_id = auth_id;
-        this.customText = customText;
         getSession = true;
         authType = ConnectTypes.CLIENT;
     }
@@ -82,8 +63,6 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         this.password = new AuthECPassword(encryptedPassword.clone());
         this.auth_id = auth_id;
         this.authType = authType;
-        this.hwid = null;
-        this.customText = "";
         this.getSession = false;
     }
 
@@ -92,8 +71,6 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         this.password = new AuthPlainPassword(password);
         this.auth_id = auth_id;
         this.authType = authType;
-        this.hwid = null;
-        this.customText = "";
         this.getSession = false;
     }
 
