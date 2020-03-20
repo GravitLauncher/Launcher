@@ -1,0 +1,18 @@
+project.ext {
+    verAsm = '7.2'
+    verNetty = '4.1.43.Final'
+    verOshiCore = '3.13.0'
+    verJunit = '5.6.0'
+    verGuavaC = '26.0-jre'
+    verJansi = '1.18'
+    verJline = '3.11.0'
+    verBcprov = '1.46'
+    verGson = '2.8.5'
+    verBcpkix = '1.61'
+    verSlf4j = '1.7.25'
+    verMySQLConn = '8.0.16'
+    verPostgreSQLConn = '42.2.6'
+    verProguard = '6.2.0'
+    verLaunch4j = '3.12'
+    verHibernate = '5.4.9.Final'
+}

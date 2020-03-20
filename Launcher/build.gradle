@@ -53,9 +53,9 @@ shadowJar {
 
 dependencies {
     pack project(':LauncherAPI')
-    bundle 'com.github.oshi:oshi-core:3.13.0'
-    pack 'io.netty:netty-codec-http:4.1.43.Final'
-    pack 'org.ow2.asm:asm-tree:7.1'
+    bundle group: 'com.github.oshi', name: 'oshi-core', version: rootProject['verOshiCore']
+    pack group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
+    pack group: 'org.ow2.asm', name: 'asm-tree', version: rootProject['verAsm']
 }
 
 task genRuntimeJS(type: Zip) {

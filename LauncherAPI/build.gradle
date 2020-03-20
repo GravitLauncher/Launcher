@@ -3,8 +3,8 @@ targetCompatibility = '1.8'
 
 dependencies {
     api project(':LauncherCore')
-    compileOnly 'io.netty:netty-codec-http:4.1.43.Final'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.1'
+    compileOnly group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 }
 
 test {
