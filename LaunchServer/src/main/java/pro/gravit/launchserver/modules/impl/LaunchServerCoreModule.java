@@ -19,4 +19,9 @@ public class LaunchServerCoreModule extends LauncherModule {
     public void testEvent(InitPhase event) {
         //LogHelper.debug("[LaunchServerCore] Event LaunchServerInitPhase passed");
     }
+
+    @Override
+    public <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass) {
+        return super.registerEvent(handle, tClass);
+    }
 }

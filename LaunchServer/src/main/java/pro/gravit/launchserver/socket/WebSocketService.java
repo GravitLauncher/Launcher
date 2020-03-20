@@ -22,6 +22,7 @@ import pro.gravit.launchserver.socket.response.profile.BatchProfileByUsername;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUsername;
 import pro.gravit.launchserver.socket.response.secure.GetSecureLevelInfoResponse;
+import pro.gravit.launchserver.socket.response.secure.SecurityReportResponse;
 import pro.gravit.launchserver.socket.response.secure.VerifySecureLevelKeyResponse;
 import pro.gravit.launchserver.socket.response.update.LauncherResponse;
 import pro.gravit.launchserver.socket.response.update.UpdateListResponse;
@@ -129,6 +130,7 @@ public class WebSocketService {
         providers.register("exit", ExitResponse.class);
         providers.register("getSecureLevelInfo", GetSecureLevelInfoResponse.class);
         providers.register("verifySecureLevelKey", VerifySecureLevelKeyResponse.class);
+        providers.register("securityReport", SecurityReportResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {

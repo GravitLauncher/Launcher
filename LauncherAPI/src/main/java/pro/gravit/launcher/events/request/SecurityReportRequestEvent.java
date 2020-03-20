@@ -1,0 +1,36 @@
+package pro.gravit.launcher.events.request;
+
+import pro.gravit.launcher.events.RequestEvent;
+
+public class SecurityReportRequestEvent extends RequestEvent {
+    public SecurityReportRequestEvent(ReportAction action) {
+        this.action = action;
+        this.otherAction = null;
+    }
+
+    public SecurityReportRequestEvent(String otherAction) {
+        this.action = ReportAction.OTHER;
+        this.otherAction = otherAction;
+    }
+
+    public SecurityReportRequestEvent() {
+        this.action = ReportAction.NONE;
+        this.otherAction = null;
+    }
+
+    public enum ReportAction
+    {
+        NONE,
+        LOGOUT,
+        EXIT,
+        CRASH,
+        OTHER
+    }
+    public final ReportAction action;
+    public final String otherAction;
+
+    @Override
+    public String getType() {
+        return "securityReport";
+    }
+}
