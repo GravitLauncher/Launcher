@@ -49,6 +49,13 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         authType = ConnectTypes.CLIENT;
     }
 
+    public AuthRequest(String login, byte[] password, String auth_id) {
+        this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
+        this.password = new AuthECPassword(password.clone());
+        this.auth_id = auth_id;
+        getSession = true;
+        authType = ConnectTypes.CLIENT;
+    }
     @Deprecated
     public AuthRequest(String login, byte[] password, HWID hwid, String auth_id) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
