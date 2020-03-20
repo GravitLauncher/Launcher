@@ -12,6 +12,7 @@ public abstract class ProtectHandler {
         if (!registredHandl) {
             providers.register("none", NoProtectHandler.class);
             providers.register("std", StdProtectHandler.class);
+            providers.register("advanced", AdvancedProtectHandler.class);
             registredHandl = true;
         }
     }

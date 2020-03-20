@@ -19,6 +19,7 @@ public class Client {
     public ClientPermissions permissions;
     public String username;
     public String verifyToken;
+    public TrustLevel trustLevel;
     public transient LogHelper.OutputEnity logOutput;
 
     public transient AuthProviderPair auth;
@@ -47,5 +48,9 @@ public class Client {
     public enum Type {
         SERVER,
         USER
+    }
+    public static class TrustLevel
+    {
+        public byte[] verifySecureKey;
     }
 }
