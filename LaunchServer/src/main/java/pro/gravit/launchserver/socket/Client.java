@@ -15,10 +15,8 @@ public class Client {
     public ClientProfile profile;
     public boolean isAuth;
     public boolean checkSign;
-    public boolean isSecure;
     public ClientPermissions permissions;
     public String username;
-    public String verifyToken;
     public TrustLevel trustLevel;
     public transient LogHelper.OutputEnity logOutput;
 

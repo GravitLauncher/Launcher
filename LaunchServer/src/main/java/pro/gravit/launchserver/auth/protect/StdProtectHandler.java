@@ -8,7 +8,7 @@ public class StdProtectHandler extends ProtectHandler {
 
     @Override
     public boolean allowGetAccessToken(AuthResponse.AuthContext context) {
-        return (context.authType == AuthResponse.ConnectTypes.CLIENT) && (!checkSecure || context.client.isSecure);
+        return (context.authType == AuthResponse.ConnectTypes.CLIENT) && (!checkSecure || context.client.checkSign);
     }
 
     @Override

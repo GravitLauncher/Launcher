@@ -10,7 +10,7 @@ public class AdvancedProtectHandler extends ProtectHandler implements SecureProt
 
     @Override
     public boolean allowGetAccessToken(AuthResponse.AuthContext context) {
-        return (context.authType == AuthResponse.ConnectTypes.CLIENT) && context.client.isSecure;
+        return (context.authType == AuthResponse.ConnectTypes.CLIENT) && context.client.checkSign;
     }
 
     @Override
@@ -25,6 +25,6 @@ public class AdvancedProtectHandler extends ProtectHandler implements SecureProt
 
     @Override
     public boolean allowGetSecureLevelInfo(Client client) {
-        return client.isSecure;
+        return client.checkSign;
     }
 }
