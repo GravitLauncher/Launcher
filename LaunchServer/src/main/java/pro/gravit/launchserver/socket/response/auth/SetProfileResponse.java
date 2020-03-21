@@ -31,10 +31,6 @@ public class SetProfileResponse extends SimpleResponse {
         Collection<ClientProfile> profiles = server.getProfiles();
         for (ClientProfile p : profiles) {
             if (p.getTitle().equals(this.client)) {
-                if (!p.isWhitelistContains(client.username)) {
-                    sendError(server.config.whitelistRejectString);
-                    return;
-                }
                 client.profile = p;
                 sendResult(new SetProfileRequestEvent(p));
                 return;

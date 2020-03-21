@@ -24,15 +24,6 @@ public class UpdateResponse extends SimpleResponse {
             sendError("Access denied");
             return;
         }
-        if (!client.permissions.canAdmin) {
-            for (ClientProfile p : server.getProfiles()) {
-                if (!client.profile.getTitle().equals(p.getTitle())) continue;
-                if (!p.isWhitelistContains(client.username)) {
-                    sendError("You don't download this folder");
-                    return;
-                }
-            }
-        }
         HashedDir dir = server.updatesDirMap.get(dirName);
         if (dir == null) {
             sendError(String.format("Directory %s not found", dirName));

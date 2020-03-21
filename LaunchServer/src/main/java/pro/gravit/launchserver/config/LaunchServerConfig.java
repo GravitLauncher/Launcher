@@ -74,7 +74,6 @@ public final class LaunchServerConfig {
     public ExeConf launch4j;
     public NettyConfig netty;
 
-    public String whitelistRejectString;
     public LauncherConf launcher;
     public CertificateConf certificate;
     public JarSignerConf sign;
@@ -282,7 +281,6 @@ public final class LaunchServerConfig {
         newConfig.auth.put("std", a);
         newConfig.protectHandler = new StdProtectHandler();
         newConfig.binaryName = "Launcher";
-        newConfig.whitelistRejectString = "Вас нет в белом списке";
 
         newConfig.netty = new NettyConfig();
         newConfig.netty.fileServerEnabled = true;

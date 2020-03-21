@@ -120,8 +120,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private final Set<OptionalFile> updateOptional = new HashSet<>();
     @LauncherNetworkAPI
     private boolean updateFastCheck;
-    @LauncherNetworkAPI
-    private boolean useWhitelist;
     // Client launcher
     @LauncherNetworkAPI
     private String mainClass;
@@ -131,8 +129,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private final List<String> classPath = new ArrayList<>();
     @LauncherNetworkAPI
     private final List<String> clientArgs = new ArrayList<>();
-    @LauncherNetworkAPI
-    private final List<String> whitelist = new ArrayList<>();
     @LauncherNetworkAPI
     public SecurityManagerConfig securityManagerConfig = SecurityManagerConfig.CLIENT;
     @LauncherNetworkAPI
@@ -380,12 +376,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public boolean isUpdateFastCheck() {
         return updateFastCheck;
-    }
-
-
-    public boolean isWhitelistContains(String username) {
-        if (!useWhitelist) return true;
-        return whitelist.stream().anyMatch(profileCaseSensitive ? e -> e.equals(username) : e -> e.equalsIgnoreCase(username));
     }
 
 
