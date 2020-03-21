@@ -6,6 +6,7 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.secure.SecurityReportResponse;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import java.security.Signature;
 import java.security.SignatureException;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -15,10 +16,12 @@ public interface SecureProtectHandler {
     {
         return SecurityHelper.randomBytes(128);
     }
-    default void verifySecureLevelKey(byte[] publicKey, byte[] signature) throws InvalidKeySpecException, SignatureException {
+    default void verifySecureLevelKey(byte[] publicKey, byte[] data, byte[] signature) throws InvalidKeySpecException, SignatureException {
         if(publicKey == null || signature == null) throw new InvalidKeySpecException();
         ECPublicKey pubKey = SecurityHelper.toPublicECKey(publicKey);
-        SecurityHelper.newECVerifySignature(pubKey).update(signature);
+        Signature sign = SecurityHelper.newECVerifySignature(pubKey);
+        sign.update(data);
+        sign.verify(signature);
     }
     GetSecureLevelInfoRequestEvent onGetSecureLevelInfo(GetSecureLevelInfoRequestEvent event);
     boolean allowGetSecureLevelInfo(Client client);

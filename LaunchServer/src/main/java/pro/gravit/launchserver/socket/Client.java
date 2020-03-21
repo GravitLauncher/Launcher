@@ -50,5 +50,7 @@ public class Client {
     public static class TrustLevel
     {
         public byte[] verifySecureKey;
+        public boolean keyChecked;
+        public byte[] publicKey;
     }
 }

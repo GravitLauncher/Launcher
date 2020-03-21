@@ -23,7 +23,7 @@ public class GetSecureLevelInfoResponse extends SimpleResponse {
         SecureProtectHandler secureProtectHandler = (SecureProtectHandler) server.config.protectHandler;
         if(!secureProtectHandler.allowGetSecureLevelInfo(client))
         {
-            sendError("Permissions denied");
+            sendError("Access denied");
             return;
         }
         if(client.trustLevel == null) client.trustLevel = new Client.TrustLevel();
