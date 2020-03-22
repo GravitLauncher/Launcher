@@ -19,6 +19,7 @@ public class GetSecureLevelInfoResponse extends SimpleResponse {
             GetSecureLevelInfoRequestEvent response = new GetSecureLevelInfoRequestEvent(null);
             response.enabled = false;
             sendResult(response);
+            return;
         }
         SecureProtectHandler secureProtectHandler = (SecureProtectHandler) server.config.protectHandler;
         if(!secureProtectHandler.allowGetSecureLevelInfo(client))
