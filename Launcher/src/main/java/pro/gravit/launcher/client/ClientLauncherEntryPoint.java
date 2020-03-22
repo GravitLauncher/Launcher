@@ -61,7 +61,7 @@ public class ClientLauncherEntryPoint {
         LauncherEngine engine = LauncherEngine.clientInstance();
         LauncherEngine.checkClass(LauncherEngine.class);
         LauncherEngine.checkClass(LauncherAgent.class);
-        LauncherEngine.checkClass(ClientLauncher.class);
+        LauncherEngine.checkClass(ClientLauncherEntryPoint.class);
         LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.initModules(LauncherEngine.modulesManager); //INIT
         LauncherEngine.modulesManager.initModules(null);
@@ -124,7 +124,7 @@ public class ClientLauncherEntryPoint {
         AuthService.uuid = params.playerProfile.uuid;
         ClientService.classLoader = classLoader;
         ClientService.nativePath = classLoader.nativePath;
-        classLoader.addURL(IOHelper.getCodeSource(ClientLauncher.class).toUri().toURL());
+        classLoader.addURL(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
         //classForName(classLoader, "com.google.common.collect.ForwardingMultimap");
         ClientService.baseURLs = classLoader.getURLs();
         LogHelper.debug("Starting JVM and client WatchService");
