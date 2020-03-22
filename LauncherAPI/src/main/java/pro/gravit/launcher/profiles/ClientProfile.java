@@ -128,6 +128,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private final List<String> classPath = new ArrayList<>();
     @LauncherNetworkAPI
+    private final List<String> altClassPath = new ArrayList<>();
+    @LauncherNetworkAPI
     private final List<String> clientArgs = new ArrayList<>();
     @LauncherNetworkAPI
     public SecurityManagerConfig securityManagerConfig = SecurityManagerConfig.CLIENT;
@@ -151,6 +153,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
 
     public String[] getClassPath() {
+        return classPath.toArray(new String[0]);
+    }
+
+    public String[] getAlternativeClassPath() {
         return classPath.toArray(new String[0]);
     }
 
@@ -194,6 +200,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public String[] getJvmArgs() {
         return jvmArgs.toArray(new String[0]);
     }
+
 
 
     public String getMainClass() {

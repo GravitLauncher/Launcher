@@ -39,6 +39,7 @@ public class LauncherEngine {
     }
 
     public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
+    public static ClientLauncherProcess.ClientParams clientParams;
 
     public static void checkClass(Class<?> clazz) throws SecurityException {
         LauncherTrustManager trustManager = Launcher.getConfig().trustManager;
