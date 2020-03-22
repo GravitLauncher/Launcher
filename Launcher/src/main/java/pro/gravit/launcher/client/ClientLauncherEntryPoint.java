@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClientLauncherEntryPoint {
-    private ClientLauncherProcess.ClientParams readParams(SocketAddress address) throws IOException {
+    private static ClientLauncherProcess.ClientParams readParams(SocketAddress address) throws IOException {
         try (Socket socket = IOHelper.newSocket())
         {
             socket.connect(address);
@@ -56,7 +56,7 @@ public class ClientLauncherEntryPoint {
         }
     }
     private static ClientClassLoader classLoader;
-    public void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Throwable {
         LauncherEngine.IS_CLIENT.set(true);
         LauncherEngine engine = LauncherEngine.clientInstance();
         LauncherEngine.checkClass(LauncherEngine.class);
@@ -68,9 +68,9 @@ public class ClientLauncherEntryPoint {
         initGson(LauncherEngine.modulesManager);
         LauncherEngine.verifyNoAgent();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
-        JVMHelper.verifySystemProperties(ClientLauncher.class, true);
+        JVMHelper.verifySystemProperties(ClientLauncherEntryPoint.class, true);
         EnvHelper.checkDangerousParams();
-        JVMHelper.checkStackTrace(ClientLauncher.class);
+        JVMHelper.checkStackTrace(ClientLauncherEntryPoint.class);
         LogHelper.printVersion("Client Launcher");
         engine.readKeys();
         LauncherGuardManager.initGuard(true);

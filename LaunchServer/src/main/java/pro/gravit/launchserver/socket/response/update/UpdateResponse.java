@@ -21,7 +21,7 @@ public class UpdateResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (server.config.protectHandler instanceof ProfilesProtectHandler && ((ProfilesProtectHandler) server.config.protectHandler).canGetUpdates(dirName, client)) {
+        if (server.config.protectHandler instanceof ProfilesProtectHandler && !((ProfilesProtectHandler) server.config.protectHandler).canGetUpdates(dirName, client)) {
             sendError("Access denied");
             return;
         }

@@ -8,10 +8,7 @@ import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.EnvHelper;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.utils.helper.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,7 +23,7 @@ import java.util.*;
 
 public class ClientLauncherProcess {
     private transient Process process;
-    private final transient Boolean[] waitWriteParams = new Boolean[1];
+    private final transient Boolean[] waitWriteParams = new Boolean[] {false};
     public final Path executeFile;
     public final Path workDir;
     public final Path javaDir;
@@ -136,8 +133,8 @@ public class ClientLauncherProcess {
 
             // Add args for tweaker
             Collections.addAll(args, "--version", profile.getVersion().name);
-            Collections.addAll(args, "--gameDir", clientDir.toString());
-            Collections.addAll(args, "--assetsDir", assetDir.toString());
+            Collections.addAll(args, "--gameDir", clientDir);
+            Collections.addAll(args, "--assetsDir", assetDir);
         }
 
         private void addModernClientArgs(Collection<String> args) {
@@ -201,6 +198,7 @@ public class ClientLauncherProcess {
         processArgs.add("-cp");
         //ADD CLASSPATH
         processArgs.add(String.join(getPathSeparator(), systemClassPath));
+        processArgs.add(mainClass);
         processArgs.addAll(systemClientArgs);
         synchronized (waitWriteParams)
         {
@@ -209,6 +207,8 @@ public class ClientLauncherProcess {
                 waitWriteParams.wait(1000);
             }
         }
+        if(LogHelper.isDebugEnabled())
+        LogHelper.debug("Commandline: %s", Arrays.toString(processArgs.toArray()));
         ProcessBuilder processBuilder = new ProcessBuilder(processArgs);
         EnvHelper.addEnv(processBuilder);
         processBuilder.environment().putAll(systemEnv);

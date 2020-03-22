@@ -157,7 +157,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public String[] getAlternativeClassPath() {
-        return classPath.toArray(new String[0]);
+        return altClassPath.toArray(new String[0]);
     }
 
 
