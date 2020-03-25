@@ -228,6 +228,7 @@ public class ClientLauncherEntryPoint {
             System.setProperty("minecraft.applet.TargetDirectory", params.clientDir);
         }
         Collections.addAll(args, profile.getClientArgs());
+        profile.pushOptionalClientArgs(args);
         List<String> copy = new ArrayList<>(args);
         for (int i = 0, l = copy.size(); i < l; i++) {
             String s = copy.get(i);

@@ -248,20 +248,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
 
-    public void markOptional(String name, OptionalType type) {
-        OptionalFile file = getOptionalFile(name, type);
-        if (file == null) {
-            throw new SecurityException(String.format("Optional %s not found in optionalList", name));
-        }
-        markOptional(file);
-    }
-
-
     public void markOptional(OptionalFile file) {
 
         if (file.mark) return;
         file.mark = true;
-        file.notifyObservers(true);
+        file.watchEvent(true);
         if (file.dependencies != null) {
             for (OptionalFile dep : file.dependencies) {
                 if (dep.dependenciesCount == null) dep.dependenciesCount = new HashSet<>();
@@ -277,19 +268,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
 
-    public void unmarkOptional(String name, OptionalType type) {
-        OptionalFile file = getOptionalFile(name, type);
-        if (file == null) {
-            throw new SecurityException(String.format("Optional %s not found in optionalList", name));
-        }
-        unmarkOptional(file);
-    }
-
-
     public void unmarkOptional(OptionalFile file) {
         if (!file.mark) return;
         file.mark = false;
-        file.notifyObservers(false);
+        file.watchEvent(false);
         if (file.dependenciesCount != null) {
             for (OptionalFile f : file.dependenciesCount) {
                 if (f.isPreset) continue;

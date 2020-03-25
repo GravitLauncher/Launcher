@@ -11,7 +11,7 @@ public class OptionalTrigger {
     public boolean need = true;
     public long value;
     public long compareMode = 0;
-    boolean isTriggered()
+    public boolean isTriggered()
     {
         long test;
         switch (type)

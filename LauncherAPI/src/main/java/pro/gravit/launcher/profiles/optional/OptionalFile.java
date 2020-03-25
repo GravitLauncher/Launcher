@@ -6,11 +6,11 @@ import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
-import java.util.Objects;
-import java.util.Observable;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
-public class OptionalFile extends Observable {
+public class OptionalFile {
     @LauncherNetworkAPI
     public String[] list;
     @LauncherNetworkAPI
@@ -18,7 +18,7 @@ public class OptionalFile extends Observable {
     @LauncherNetworkAPI
     public boolean mark;
     @LauncherNetworkAPI
-    public final boolean visible = true;
+    public boolean visible = true;
     @LauncherNetworkAPI
     public String name;
     @LauncherNetworkAPI
@@ -124,5 +124,28 @@ public class OptionalFile extends Observable {
                 break;
         }
         return type;
+    }
+    private volatile transient Collection<BiConsumer<OptionalFile, Boolean>> watchList = null;
+    public void registerWatcher(BiConsumer<OptionalFile, Boolean> watcher)
+    {
+        if(watchList == null) watchList = ConcurrentHashMap.newKeySet();
+        watchList.add(watcher);
+    }
+    public void removeWatcher(BiConsumer<OptionalFile, Boolean> watcher)
+    {
+        if(watchList == null) return;
+        watchList.remove(watcher);
+    }
+    public void clearAllWatchers()
+    {
+        if(watchList == null) return;
+        watchList.clear();
+    }
+    public void watchEvent(boolean isMark)
+    {
+        if(watchList == null) return;
+        watchList.forEach((e) -> {
+            e.accept(this, isMark);
+        });
     }
 }

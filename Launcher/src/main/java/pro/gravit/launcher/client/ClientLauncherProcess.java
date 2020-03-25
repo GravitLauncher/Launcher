@@ -70,6 +70,7 @@ public class ClientLauncherProcess {
     {
         this.systemClassPath.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString());
         Collections.addAll(this.jvmArgs, this.params.profile.getJvmArgs());
+        this.params.profile.pushOptionalJvmArgs(this.jvmArgs);
         this.systemEnv.put("JAVA_HOME", javaDir.toString());
         Collections.addAll(this.systemClassPath, this.params.profile.getAlternativeClassPath());
         if (params.ram > 0) {
