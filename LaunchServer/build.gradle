@@ -100,7 +100,7 @@ dependencies {
         exclude group: 'org.slf4j'
     }
     launch4j('net.sf.launch4j:launch4j:' + rootProject['verLaunch4j'] + ':workdir-win32') { transitive = false }
-    launch4j('net.sf.launch4j:launch4j:' + rootProject['verLaunch4j'] + 'workdir-linux') { transitive = false }
+    launch4j('net.sf.launch4j:launch4j:' + rootProject['verLaunch4j'] + ':workdir-linux64') { transitive = false }
 
     compileOnlyA group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
     // Do not update (laggy deps).
