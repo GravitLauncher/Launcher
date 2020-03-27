@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "User")
 @Table(name = "users")
 public class UserHibernateImpl implements User {
     @Id
