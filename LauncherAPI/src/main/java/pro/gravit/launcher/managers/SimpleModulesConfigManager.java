@@ -22,7 +22,7 @@ public class SimpleModulesConfigManager implements ModulesConfigManager {
 
     @Override
     public Path getModuleConfig(String moduleName, String configName) {
-        return getModuleConfigDir(moduleName).resolve(moduleName.concat(configName.concat(".json")));
+        return getModuleConfigDir(moduleName).resolve(configName.concat(".json"));
     }
 
     public Path getModuleConfigDir(String moduleName) {

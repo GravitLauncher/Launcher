@@ -1,51 +1,90 @@
-image: docker:latest
-services:
-  - docker:dind
-
-variables:
-  DOCKER_DRIVER: overlay2
-  CI_VERSION: '6.6.$CI_PIPELINE_IID'
+image: gradle:jdk11
 
 stages:
   - build
   - test
+  - deploy
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
+before_script:
+  - apt-get -y update
+  - 'which zip || ( apt-get -y install zip )'
+  - 'which git || ( apt-get -y install git )'
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+  - chmod +x gradlew
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | base64 -d | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - git submodule sync
+  - mv modules modules_cache || true
+  - git submodule update --init --recursive --force
+  - cp -a modules_cache/* modules/ || true
 build:
-  image: gradle:jdk11
   stage: build
-  before_script:
-    - apt-get -y update
-    - apt-get -y install zip git
-    - export GRADLE_USER_HOME=`pwd`/.gradle
-    - chmod +x gradlew
-    - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-    - git submodule sync
-    - git submodule update --init --recursive
   script:
-    - ./gradlew assemble
+    - gradle assemble
   after_script:
     - mkdir -p artifacts/modules
     - cd LaunchServer/build/libs/
     - zip -r -9 ../../../artifacts/libraries.zip * -x "LaunchServer.jar" -x "LaunchServer-clean.jar"
-    - mv LaunchServer.jar ../../../artifacts/LaunchServer.jar
+    - cp LaunchServer.jar ../../../artifacts/LaunchServer.jar
     - cd ../../../ServerWrapper/build/libs
-    - mv ServerWrapper.jar ../../../artifacts/ServerWrapper.jar
+    - cp ServerWrapper.jar ../../../artifacts/ServerWrapper.jar
     - cd ../../../LauncherAuthlib/build/libs
-    - mv LauncherAuthlib.jar ../../../artifacts/LauncherAuthlib.jar
+    - cp LauncherAuthlib.jar ../../../artifacts/LauncherAuthlib.jar
     - cd ../../../
-    - mv modules/*_module/build/libs/*.jar artifacts/modules
-    - mv modules/*_swmodule/build/libs/*.jar artifacts/modules
-    - mv modules/*_lmodule/build/libs/*.jar artifacts/modules
+    - cp modules/*_module/build/libs/*.jar artifacts/modules
+    - cp modules/*_swmodule/build/libs/*.jar artifacts/modules
+    - cp modules/*_lmodule/build/libs/*.jar artifacts/modules
   cache:
+    key: "$CI_COMMIT_REF_NAME"
     paths:
       - .gradle
+      - LaunchServer/build
+      - Launcher/build
+      - LauncherCore/build
+      - LauncherAPI/build
+      - LauncherAuthlib/build
+      - modules/*_*module/build
   artifacts:
     expire_in: 6 week
     paths:
       - artifacts
 
 test:
-  image: gradle:jdk11
   stage: test
   script:
-    - ./gradlew check
+    - gradle check
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - .gradle
+      - LaunchServer/build
+      - Launcher/build
+      - LauncherCore/build
+      - LauncherAPI/build
+      - LauncherAuthlib/build
+      - modules/*_*module/build
+
+deploy-demo:
+  stage: deploy
+  only: [dev]
+  script:
+    - gradle build
+    - eval $(ssh $SSH_USER@$SSH_HOST 'cd $SSH_DIR && cat deploy.sh')
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - .gradle
+      - LaunchServer/build
+      - Launcher/build
+      - LauncherCore/build
+      - LauncherAPI/build
+      - LauncherAuthlib/build
+      - modules/*_*module/build

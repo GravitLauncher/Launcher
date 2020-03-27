@@ -21,8 +21,9 @@ import pro.gravit.launchserver.socket.response.auth.*;
 import pro.gravit.launchserver.socket.response.profile.BatchProfileByUsername;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUsername;
-import pro.gravit.launchserver.socket.response.secure.GetSecureTokenResponse;
-import pro.gravit.launchserver.socket.response.secure.VerifySecureTokenResponse;
+import pro.gravit.launchserver.socket.response.secure.GetSecureLevelInfoResponse;
+import pro.gravit.launchserver.socket.response.secure.SecurityReportResponse;
+import pro.gravit.launchserver.socket.response.secure.VerifySecureLevelKeyResponse;
 import pro.gravit.launchserver.socket.response.update.LauncherResponse;
 import pro.gravit.launchserver.socket.response.update.UpdateListResponse;
 import pro.gravit.launchserver.socket.response.update.UpdateResponse;
@@ -123,12 +124,13 @@ public class WebSocketService {
         providers.register("batchProfileByUsername", BatchProfileByUsername.class);
         providers.register("profileByUsername", ProfileByUsername.class);
         providers.register("profileByUUID", ProfileByUUIDResponse.class);
-        providers.register("getSecureToken", GetSecureTokenResponse.class);
-        providers.register("verifySecureToken", VerifySecureTokenResponse.class);
         providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
         providers.register("register", RegisterResponse.class);
         providers.register("setPassword", SetPasswordResponse.class);
         providers.register("exit", ExitResponse.class);
+        providers.register("getSecureLevelInfo", GetSecureLevelInfoResponse.class);
+        providers.register("verifySecureLevelKey", VerifySecureLevelKeyResponse.class);
+        providers.register("securityReport", SecurityReportResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {

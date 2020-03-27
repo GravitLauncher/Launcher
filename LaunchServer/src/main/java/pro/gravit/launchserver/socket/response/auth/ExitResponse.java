@@ -36,7 +36,6 @@ public class ExitResponse extends SimpleResponse {
                 return;
             }
             Client newClient = new Client(0);
-            newClient.isSecure = client.isSecure;
             newClient.checkSign = client.checkSign;
             handler.setClient(newClient);
             if(client.session != 0) server.sessionManager.removeClient(client.session);
@@ -56,7 +55,6 @@ public class ExitResponse extends SimpleResponse {
                         if(chClient.session != client.session) return;
                     }
                     Client newCusClient = new Client(0);
-                    newCusClient.isSecure = chClient.isSecure;
                     newCusClient.checkSign = chClient.checkSign;
                     wsHandler.setClient(newCusClient);
                     if(chClient.session != 0) server.sessionManager.removeClient(chClient.session);
@@ -76,7 +74,6 @@ public class ExitResponse extends SimpleResponse {
                 Client chClient = wsHandler.getClient();
                 if(!chClient.isAuth || !username.equals(chClient.username)) return;
                 Client newCusClient = new Client(0);
-                newCusClient.isSecure = chClient.isSecure;
                 newCusClient.checkSign = chClient.checkSign;
                 wsHandler.setClient(newCusClient);
                 if(chClient.session != 0) server.sessionManager.removeClient(chClient.session);

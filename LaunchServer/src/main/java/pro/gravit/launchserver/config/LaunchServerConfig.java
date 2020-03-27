@@ -7,7 +7,6 @@ import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.handler.MemoryAuthHandler;
-import pro.gravit.launchserver.auth.hwid.AcceptHWIDHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.provider.RejectAuthProvider;
@@ -75,7 +74,6 @@ public final class LaunchServerConfig {
     public ExeConf launch4j;
     public NettyConfig netty;
 
-    public String whitelistRejectString;
     public LauncherConf launcher;
     public CertificateConf certificate;
     public JarSignerConf sign;
@@ -139,7 +137,6 @@ public final class LaunchServerConfig {
                 server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                 server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
-                server.registerObject("auth.".concat(pair.name).concat(".hwid"), pair.hwid);
             }
         }
         Arrays.stream(mirrors).forEach(server.mirrorManager::addMirror);
@@ -152,7 +149,6 @@ public final class LaunchServerConfig {
                     server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                     server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                     server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
-                    server.unregisterObject("auth.".concat(pair.name).concat(".hwid"), pair.hwid);
                 }
             }
             if (type.equals(LaunchServer.ReloadType.FULL)) {
@@ -280,12 +276,11 @@ public final class LaunchServerConfig {
         AuthProviderPair a = new AuthProviderPair(new RejectAuthProvider("Настройте authProvider"),
                 new MemoryAuthHandler(),
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
-                , new AcceptHWIDHandler());
+                );
         a.displayName = "Default";
         newConfig.auth.put("std", a);
         newConfig.protectHandler = new StdProtectHandler();
         newConfig.binaryName = "Launcher";
-        newConfig.whitelistRejectString = "Вас нет в белом списке";
 
         newConfig.netty = new NettyConfig();
         newConfig.netty.fileServerEnabled = true;

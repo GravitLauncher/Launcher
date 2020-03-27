@@ -11,6 +11,7 @@ import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedEntryAdapter;
 import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
+import pro.gravit.launcher.request.secure.VerifySecureLevelKeyRequest;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.UniversalJsonAdapter;
 import pro.gravit.utils.helper.LogHelper;
@@ -97,8 +98,6 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("error", ErrorRequestEvent.class);
         results.register("update", UpdateRequestEvent.class);
         results.register("restoreSession", RestoreSessionRequestEvent.class);
-        results.register("getSecureToken", GetSecureTokenRequestEvent.class);
-        results.register("verifySecureToken", VerifySecureTokenRequestEvent.class);
         results.register("log", LogEvent.class);
         results.register("cmdExec", ExecCommandRequestEvent.class);
         results.register("getAvailabilityAuth", GetAvailabilityAuthRequestEvent.class);
@@ -108,6 +107,9 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("notification", NotificationEvent.class);
         results.register("signal", SignalEvent.class);
         results.register("exit", ExitRequestEvent.class);
+        results.register("getSecureLevelInfo", GetSecureLevelInfoRequestEvent.class);
+        results.register("verifySecureLevelKey", VerifySecureLevelKeyRequestEvent.class);
+        results.register("securityReport", SecurityReportRequestEvent.class);
     }
 
     public void waitIfNotConnected() {

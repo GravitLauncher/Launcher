@@ -7,7 +7,6 @@ import pro.gravit.launcher.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.gui.NoRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
-import pro.gravit.launcher.hwid.HWIDProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.managers.ConsoleManager;
@@ -40,6 +39,7 @@ public class LauncherEngine {
     }
 
     public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
+    public static ClientLauncherProcess.ClientParams clientParams;
 
     public static void checkClass(Class<?> clazz) throws SecurityException {
         LauncherTrustManager trustManager = Launcher.getConfig().trustManager;
@@ -76,14 +76,13 @@ public class LauncherEngine {
         LogHelper.printLicense("Launcher");
         LauncherEngine.checkClass(LauncherEngine.class);
         LauncherEngine.checkClass(LauncherAgent.class);
-        LauncherEngine.checkClass(ClientLauncher.class);
+        LauncherEngine.checkClass(ClientLauncherEntryPoint.class);
         LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherConfig.initModules(LauncherEngine.modulesManager);
         LauncherEngine.modulesManager.initModules(null);
         // Start Launcher
         initGson(LauncherEngine.modulesManager);
         ConsoleManager.initConsole();
-        HWIDProvider.registerHWIDs();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         Launcher.getConfig(); // init config
         long startTime = System.currentTimeMillis();

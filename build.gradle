@@ -5,7 +5,9 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.7' apply false
 }
 group = 'pro.gravit.launcher'
-version = '5.1.1'
+version = '5.1.2'
+
+apply from: 'props.gradle'
 
 configure(subprojects.findAll { it.name != 'modules' }) {
     apply plugin: 'idea'

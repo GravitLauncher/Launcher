@@ -34,7 +34,7 @@ public class ClientsCommand extends Command {
                 LogHelper.info("Channel %s | connectUUID %s | checkSign %s", ip, frameHandler.getConnectUUID(), client.checkSign ? "true" : "false");
             else {
                 LogHelper.info("Client name %s | ip %s | connectUUID %s", client.username == null ? "null" : client.username, ip, frameHandler.getConnectUUID());
-                LogHelper.subInfo("Data: checkSign %s | isSecure %s | auth_id %s", client.checkSign ? "true" : "false", client.isSecure ? "true" : "false",
+                LogHelper.subInfo("Data: checkSign %s | auth_id %s", client.checkSign ? "true" : "false",
                         client.auth_id);
                 LogHelper.subInfo("Permissions: %s (long %d)", client.permissions == null ? "null" : client.permissions.toString(), client.permissions == null ? 0 : client.permissions.toLong());
             }

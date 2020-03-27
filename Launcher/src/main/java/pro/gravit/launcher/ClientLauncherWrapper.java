@@ -53,7 +53,7 @@ public class ClientLauncherWrapper {
         Path javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
         List<String> args = new LinkedList<>();
         args.add(javaBin.toString());
-        String pathLauncher = IOHelper.getCodeSource(ClientLauncher.class).toString();
+        String pathLauncher = IOHelper.getCodeSource(LauncherEngine.class).toString();
         args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         args.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled())));
         args.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, Boolean.toString(LogHelper.isDevEnabled())));

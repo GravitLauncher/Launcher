@@ -2,15 +2,12 @@ package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.hwid.HWID;
-import pro.gravit.launcher.hwid.NoHWID;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.AuthECPassword;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
-import pro.gravit.launchserver.auth.hwid.HWIDException;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.provider.AuthProviderResult;
 import pro.gravit.launchserver.socket.Client;
@@ -39,7 +36,6 @@ public class AuthResponse extends SimpleResponse {
 
     public String auth_id;
     public ConnectTypes authType;
-    public HWID hwid;
 
     public enum ConnectTypes {
         @Deprecated
@@ -69,7 +65,6 @@ public class AuthResponse extends SimpleResponse {
                     throw new AuthException("Password decryption error");
                 }
             }
-            if(hwid == null) hwid = new NoHWID();
             AuthProviderPair pair;
             if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
             else pair = server.config.getAuthProviderPair(auth_id);
@@ -78,7 +73,7 @@ public class AuthResponse extends SimpleResponse {
                 sendError("auth_id incorrect");
                 return;
             }
-            AuthContext context = new AuthContext(clientData, login, client, hwid, ip, authType);
+            AuthContext context = new AuthContext(clientData, login, client, ip, authType);
             AuthProvider provider = pair.provider;
             server.authHookManager.preHook.hook(context, clientData);
             provider.preAuth(login, password, ip);
@@ -87,20 +82,9 @@ public class AuthResponse extends SimpleResponse {
                 AuthProvider.authError(String.format("Illegal result: '%s'", aresult.username));
                 return;
             }
-            Collection<ClientProfile> profiles = server.getProfiles();
-            for (ClientProfile p : profiles) {
-                if (p.getTitle().equals(client)) {
-                    if (!p.isWhitelistContains(login)) {
-                        throw new AuthException(server.config.whitelistRejectString);
-                    }
-                    clientData.profile = p;
-                }
-            }
             //if (clientData.profile == null) {
             //    throw new AuthException("You profile not found");
             //}
-            if (authType == ConnectTypes.CLIENT)
-                pair.hwid.check(hwid, aresult.username);
             server.authHookManager.postHook.hook(context, clientData);
             clientData.isAuth = true;
             clientData.permissions = aresult.permissions;
@@ -128,17 +112,16 @@ public class AuthResponse extends SimpleResponse {
             }
             clientData.type = authType;
             sendResult(result);
-        } catch (AuthException | HWIDException | HookException e) {
+        } catch (AuthException | HookException e) {
             sendError(e.getMessage());
         }
     }
 
     public static class AuthContext {
-        public AuthContext(Client client, String login, String profileName, HWID hwid, String ip, ConnectTypes authType) {
+        public AuthContext(Client client, String login, String profileName, String ip, ConnectTypes authType) {
             this.client = client;
             this.login = login;
             this.profileName = profileName;
-            this.hwid = hwid;
             this.ip = ip;
             this.authType = authType;
         }
@@ -147,7 +130,6 @@ public class AuthResponse extends SimpleResponse {
         @Deprecated
         public int password_length; //Use AuthProvider for get password
         public final String profileName;
-        public final HWID hwid;
         public final String ip;
         public final ConnectTypes authType;
         public final Client client;

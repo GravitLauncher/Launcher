@@ -10,6 +10,8 @@ import pro.gravit.launcher.LauncherInject;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.utils.helper.JarHelper;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,11 +40,11 @@ public class ASMTransformersTest {
         public Map<String, String> map;
     }
     @BeforeAll
-    public static void prepare() throws Exception {
+    public static void prepare() throws Throwable {
         classLoader = new ASMClassLoader(ASMTransformersTest.class.getClassLoader());
     }
     @Test
-    void testASM() throws Exception
+    void testASM() throws Throwable
     {
         ClassReader reader = new ClassReader(JarHelper.getClassBytes(TestClass.class));
         ClassNode node = new ClassNode();
@@ -65,15 +67,13 @@ public class ASMTransformersTest {
         byte[] bytes = writer.toByteArray();
         classLoader.rawDefineClass("ASMTestClass", bytes, 0, bytes.length);
         Class<?> clazz = classLoader.loadClass("ASMTestClass");
-        Object instance = clazz.newInstance();
-        Field field = clazz.getField("test");
-        Object result = field.get(instance);
-        Assertions.assertEquals(1234, (int) (Integer) result);
-        field = clazz.getField("s");
-        result = field.get(instance);
-        Assertions.assertEquals(strings, result);
-        field = clazz.getField("map");
-        result = field.get(instance);
-        Assertions.assertEquals(byteMap, result);
+        Object instance = MethodHandles.publicLookup().findConstructor(clazz, MethodType.methodType(void.class)).invoke();
+        Assertions.assertEquals(1234, (int)
+            MethodHandles.publicLookup().findGetter(clazz, "test", int.class).invoke(instance));
+        Assertions.assertEquals(strings, (List<String>)
+                MethodHandles.publicLookup().findGetter(clazz, "s", List.class).invoke(instance));
+
+        Assertions.assertEquals(byteMap, (Map<String, Object>)
+                MethodHandles.publicLookup().findGetter(clazz, "map", Map.class).invoke(instance));
     }
 }

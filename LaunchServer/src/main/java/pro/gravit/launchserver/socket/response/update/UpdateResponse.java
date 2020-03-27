@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -20,18 +21,9 @@ public class UpdateResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (!client.isAuth || client.type != AuthResponse.ConnectTypes.CLIENT || client.profile == null) {
+        if (server.config.protectHandler instanceof ProfilesProtectHandler && !((ProfilesProtectHandler) server.config.protectHandler).canGetUpdates(dirName, client)) {
             sendError("Access denied");
             return;
-        }
-        if (!client.permissions.canAdmin) {
-            for (ClientProfile p : server.getProfiles()) {
-                if (!client.profile.getTitle().equals(p.getTitle())) continue;
-                if (!p.isWhitelistContains(client.username)) {
-                    sendError("You don't download this folder");
-                    return;
-                }
-            }
         }
         HashedDir dir = server.updatesDirMap.get(dirName);
         if (dir == null) {

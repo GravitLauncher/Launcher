@@ -120,8 +120,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private final Set<OptionalFile> updateOptional = new HashSet<>();
     @LauncherNetworkAPI
     private boolean updateFastCheck;
-    @LauncherNetworkAPI
-    private boolean useWhitelist;
     // Client launcher
     @LauncherNetworkAPI
     private String mainClass;
@@ -130,9 +128,9 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private final List<String> classPath = new ArrayList<>();
     @LauncherNetworkAPI
-    private final List<String> clientArgs = new ArrayList<>();
+    private final List<String> altClassPath = new ArrayList<>();
     @LauncherNetworkAPI
-    private final List<String> whitelist = new ArrayList<>();
+    private final List<String> clientArgs = new ArrayList<>();
     @LauncherNetworkAPI
     public SecurityManagerConfig securityManagerConfig = SecurityManagerConfig.CLIENT;
     @LauncherNetworkAPI
@@ -156,6 +154,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public String[] getClassPath() {
         return classPath.toArray(new String[0]);
+    }
+
+    public String[] getAlternativeClassPath() {
+        return altClassPath.toArray(new String[0]);
     }
 
 
@@ -198,6 +200,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public String[] getJvmArgs() {
         return jvmArgs.toArray(new String[0]);
     }
+
 
 
     public String getMainClass() {
@@ -245,20 +248,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
 
-    public void markOptional(String name, OptionalType type) {
-        OptionalFile file = getOptionalFile(name, type);
-        if (file == null) {
-            throw new SecurityException(String.format("Optional %s not found in optionalList", name));
-        }
-        markOptional(file);
-    }
-
-
     public void markOptional(OptionalFile file) {
 
         if (file.mark) return;
         file.mark = true;
-        file.notifyObservers(true);
+        file.watchEvent(true);
         if (file.dependencies != null) {
             for (OptionalFile dep : file.dependencies) {
                 if (dep.dependenciesCount == null) dep.dependenciesCount = new HashSet<>();
@@ -274,19 +268,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
 
-    public void unmarkOptional(String name, OptionalType type) {
-        OptionalFile file = getOptionalFile(name, type);
-        if (file == null) {
-            throw new SecurityException(String.format("Optional %s not found in optionalList", name));
-        }
-        unmarkOptional(file);
-    }
-
-
     public void unmarkOptional(OptionalFile file) {
         if (!file.mark) return;
         file.mark = false;
-        file.notifyObservers(false);
+        file.watchEvent(false);
         if (file.dependenciesCount != null) {
             for (OptionalFile f : file.dependenciesCount) {
                 if (f.isPreset) continue;
@@ -380,12 +365,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public boolean isUpdateFastCheck() {
         return updateFastCheck;
-    }
-
-
-    public boolean isWhitelistContains(String username) {
-        if (!useWhitelist) return true;
-        return whitelist.stream().anyMatch(profileCaseSensitive ? e -> e.equals(username) : e -> e.equalsIgnoreCase(username));
     }
 
 

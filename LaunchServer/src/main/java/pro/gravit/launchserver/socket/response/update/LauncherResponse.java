@@ -36,9 +36,8 @@ public class LauncherResponse extends SimpleResponse {
             byte[] hash = server.launcherBinary.getDigest();
             if (hash == null)
                 service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, server.config.netty.launcherURL));
-            if (Arrays.equals(bytes, hash)) {
+            if (Arrays.equals(bytes, hash) && checkSecure(secureHash, secureSalt)) {
                 client.checkSign = true;
-                client.isSecure = checkSecure(secureHash, secureSalt);
                 sendResult(new LauncherRequestEvent(false, server.config.netty.launcherURL));
             } else {
                 sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherURL));
@@ -47,9 +46,8 @@ public class LauncherResponse extends SimpleResponse {
         {
             byte[] hash = server.launcherEXEBinary.getDigest();
             if (hash == null) sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL));
-            if (Arrays.equals(bytes, hash)) {
+            if (Arrays.equals(bytes, hash) && checkSecure(secureHash, secureSalt)) {
                 client.checkSign = true;
-                client.isSecure = checkSecure(secureHash, secureSalt);
                 sendResult(new LauncherRequestEvent(false, server.config.netty.launcherEXEURL));
             } else {
                 sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL));
