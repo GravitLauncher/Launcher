@@ -5,6 +5,7 @@ import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.optional.OptionalDepend;
 import pro.gravit.launcher.profiles.optional.OptionalFile;
+import pro.gravit.launcher.profiles.optional.OptionalTrigger;
 import pro.gravit.launcher.profiles.optional.OptionalType;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
@@ -443,6 +444,16 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             if (f.dependenciesFile != null) for (OptionalDepend s : f.dependenciesFile) {
                 if (s == null)
                     throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.dependenciesFile", f.name));
+            }
+            if(f.triggers != null)
+            {
+                for(OptionalTrigger trigger : f.triggers)
+                {
+                    if(trigger == null)
+                        throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.triggers", f.name));
+                    if(trigger.type == null)
+                        throw new IllegalArgumentException(String.format("trigger.type must not be null in updateOptional.%s.triggers", f.name));
+                }
             }
         }
     }
