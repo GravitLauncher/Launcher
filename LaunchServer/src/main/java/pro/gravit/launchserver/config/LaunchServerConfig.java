@@ -5,6 +5,7 @@ import io.netty.handler.logging.LogLevel;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
@@ -124,8 +125,10 @@ public final class LaunchServerConfig {
         for (Map.Entry<String,AuthProviderPair> provider : auth.entrySet()) {
             provider.getValue().init(server, provider.getKey());
         }
-        if (dao != null)
+        if (dao != null) {
+            server.registerObject("dao", dao);
             dao.init(server);
+        }
         if (protectHandler != null) {
             protectHandler.checkLaunchServerLicense();
         }

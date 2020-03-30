@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.dao.impl.UserHibernateImpl;
 import pro.gravit.launchserver.socket.Client;
@@ -21,7 +22,7 @@ public class RegisterResponse extends SimpleResponse {
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         byte[] normalHash = registerHash(login, server.runtime.registerApiKey);
-        if (!(client.isAuth && client.permissions.canAdmin) && !Arrays.equals(normalHash, verifyHash)) {
+        if (!(client.isAuth && client.permissions.isPermission(ClientPermissions.PermissionConsts.ADMIN)) && !Arrays.equals(normalHash, verifyHash)) {
             sendError("Hash invalid");
             return;
         }

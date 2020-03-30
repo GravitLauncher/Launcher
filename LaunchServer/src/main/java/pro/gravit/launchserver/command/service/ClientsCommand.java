@@ -36,7 +36,7 @@ public class ClientsCommand extends Command {
                 LogHelper.info("Client name %s | ip %s | connectUUID %s", client.username == null ? "null" : client.username, ip, frameHandler.getConnectUUID());
                 LogHelper.subInfo("Data: checkSign %s | auth_id %s", client.checkSign ? "true" : "false",
                         client.auth_id);
-                LogHelper.subInfo("Permissions: %s (long %d)", client.permissions == null ? "null" : client.permissions.toString(), client.permissions == null ? 0 : client.permissions.toLong());
+                LogHelper.subInfo("Permissions: %s (permissions %d | flags %d)", client.permissions == null ? "null" : client.permissions.toString(), client.permissions == null ? 0 : client.permissions.permissions, client.permissions == null ? 0 : client.permissions.flags);
             }
         }));
     }

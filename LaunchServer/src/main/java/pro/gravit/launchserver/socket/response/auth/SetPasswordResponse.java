@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.events.request.SetPasswordRequestEvent;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.socket.Client;
@@ -26,7 +27,7 @@ public class SetPasswordResponse extends SimpleResponse {
             sendError("You not authorized");
             return;
         }
-        if (username != null && !client.permissions.canAdmin) {
+        if (username != null && !client.permissions.isPermission(ClientPermissions.PermissionConsts.ADMIN)) {
             sendError("You not admin");
             return;
         }

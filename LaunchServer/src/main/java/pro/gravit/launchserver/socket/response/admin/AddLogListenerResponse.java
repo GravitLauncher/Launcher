@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.socket.response.admin;
 
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.events.request.LogEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -20,7 +21,7 @@ public class AddLogListenerResponse extends SimpleResponse {
             sendError("Access denied");
             return;
         }
-        if (!client.permissions.canAdmin) {
+        if (!client.permissions.isPermission(ClientPermissions.PermissionConsts.ADMIN)) {
             sendError("Access denied");
             return;
         }

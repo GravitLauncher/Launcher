@@ -12,10 +12,6 @@ public class AuthService {
     public static ClientProfile profile;
 
     public static boolean isAdmin() {
-        return permissions.canAdmin;
-    }
-
-    public static boolean isServer() {
-        return permissions.canServer;
+        return permissions.isPermission(ClientPermissions.PermissionConsts.ADMIN);
     }
 }
