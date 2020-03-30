@@ -4,7 +4,10 @@ import pro.gravit.launcher.client.*;
 import pro.gravit.launcher.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientExitPhase;
 import pro.gravit.launcher.client.events.ClientPreGuiPhase;
+import pro.gravit.launcher.guard.LauncherGuardInterface;
 import pro.gravit.launcher.guard.LauncherGuardManager;
+import pro.gravit.launcher.guard.LauncherNoGuard;
+import pro.gravit.launcher.guard.LauncherWrapperGuard;
 import pro.gravit.launcher.gui.NoRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
@@ -40,6 +43,7 @@ public class LauncherEngine {
 
     public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
     public static ClientLauncherProcess.ClientParams clientParams;
+    public static LauncherGuardInterface guard;
 
     public static void checkClass(Class<?> clazz) throws SecurityException {
         LauncherTrustManager trustManager = Launcher.getConfig().trustManager;
@@ -146,6 +150,7 @@ public class LauncherEngine {
 
     public void start(String... args) throws Throwable {
         //Launcher.modulesManager = new ClientModuleManager(this);
+        LauncherEngine.guard = tryGetStdGuard();
         ClientPreGuiPhase event = new ClientPreGuiPhase(null);
         LauncherEngine.modulesManager.invokeEvent(event);
         runtimeProvider = event.runtimeProvider;
@@ -184,6 +189,18 @@ public class LauncherEngine {
         LauncherGuardManager.initGuard(false);
         LogHelper.debug("Dir: %s", DirBridge.dir);
         runtimeProvider.run(args);
+    }
+
+    public static LauncherGuardInterface tryGetStdGuard()
+    {
+        switch (Launcher.getConfig().guardType)
+        {
+            case "no":
+                return new LauncherNoGuard();
+            case "wrapper":
+                return new LauncherWrapperGuard();
+        }
+        return null;
     }
 
     public static LauncherEngine clientInstance() {

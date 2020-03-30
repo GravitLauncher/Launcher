@@ -41,13 +41,8 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+@Deprecated
 public final class ClientLauncher {
-
-
-    public static int getClientJVMBits() {
-        return LauncherGuardManager.guard.getClientJVMBits();
-    }
 
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
         private final Stream.Builder<Path> result;
@@ -336,7 +331,7 @@ public final class ClientLauncher {
         container.write(new ParamContainer(params, profile, assetHDir, clientHDir));
         checkJVMBitsAndVersion();
         LogHelper.debug("Resolving JVM binary");
-        Path javaBin = LauncherGuardManager.getGuardJavaBinPath();
+        Path javaBin = null;
         context.javaBin = javaBin;
         context.clientProfile = profile;
         context.playerProfile = params.pp;
@@ -369,7 +364,6 @@ public final class ClientLauncher {
         context.args.add("-Djava.library.path=".concat(params.clientDir.resolve(NATIVES_DIR).toString())); // Add Native Path
         //context.args.add("-javaagent:".concat(pathLauncher));
         ClientHookManager.clientLaunchHook.hook(context);
-        LauncherGuardManager.guard.addCustomParams(context);
         context.args.add(ClientLauncher.class.getName());
         ClientHookManager.clientLaunchFinallyHook.hook(context);
 
@@ -380,7 +374,6 @@ public final class ClientLauncher {
         LogHelper.debug("Launching client instance");
         ProcessBuilder builder = new ProcessBuilder(context.args);
         context.builder = builder;
-        LauncherGuardManager.guard.addCustomEnv(context);
         //else
         //builder.environment().put("CLASSPATH", classPathString.toString());
         EnvHelper.addEnv(builder);

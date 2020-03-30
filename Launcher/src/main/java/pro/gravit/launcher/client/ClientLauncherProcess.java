@@ -1,6 +1,8 @@
 package pro.gravit.launcher.client;
 
 import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.guard.LauncherGuardInterface;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
@@ -24,9 +26,9 @@ import java.util.*;
 public class ClientLauncherProcess {
     private transient Process process;
     private final transient Boolean[] waitWriteParams = new Boolean[] {false};
-    public final Path executeFile;
-    public final Path workDir;
-    public final Path javaDir;
+    public Path executeFile;
+    public Path workDir;
+    public Path javaDir;
     public final ClientParams params = new ClientParams();
     public final List<String> jvmArgs = new LinkedList<>();
     public final List<String> systemClientArgs = new LinkedList<>();
@@ -42,18 +44,24 @@ public class ClientLauncherProcess {
         this.mainClass = mainClass;
     }
 
+    public ClientLauncherProcess(Path clientDir, Path assetDir, Path javaDir,
+                                 ClientProfile profile, PlayerProfile playerProfile, String accessToken,
+                                 HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
+        this(clientDir, assetDir, javaDir, clientDir.resolve("resourcepacks"), profile, playerProfile, accessToken, clientHDir, assetHDir, jvmHDir);
+    }
+
     public ClientLauncherProcess(Path clientDir, Path assetDir,
                                  ClientProfile profile, PlayerProfile playerProfile, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
-        this(clientDir, assetDir, clientDir.resolve("resourcepacks"), profile, playerProfile, accessToken, clientHDir, assetHDir, jvmHDir);
+        this(clientDir, assetDir, Paths.get(System.getProperty("java.home")), clientDir.resolve("resourcepacks"), profile, playerProfile, accessToken, clientHDir, assetHDir, jvmHDir);
     }
 
-    public ClientLauncherProcess(Path clientDir, Path assetDir, Path resourcePackDir,
+    public ClientLauncherProcess(Path clientDir, Path assetDir, Path javaDir, Path resourcePackDir,
                                  ClientProfile profile, PlayerProfile playerProfile, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
-        this.executeFile = LauncherGuardManager.getGuardJavaBinPath();
         this.workDir = clientDir.toAbsolutePath();
-        this.javaDir = Paths.get(System.getProperty("java.home"));
+        this.javaDir = javaDir;
+        this.executeFile = IOHelper.resolveJavaBin(this.javaDir);
         this.mainClass = ClientLauncherEntryPoint.class.getName();
         this.params.clientDir = this.workDir.toString();
         this.params.resourcePackDir = resourcePackDir.toAbsolutePath().toString();
@@ -193,6 +201,7 @@ public class ClientLauncherProcess {
     }
     public void start(boolean pipeOutput) throws IOException, InterruptedException {
         if(isStarted) throw new IllegalStateException("Process already started");
+        if(LauncherEngine.guard != null) LauncherEngine.guard.applyGuardParams(this);
         List<String> processArgs = new LinkedList<>();
         processArgs.add(executeFile.toString());
         processArgs.addAll(jvmArgs);
@@ -212,6 +221,7 @@ public class ClientLauncherProcess {
         LogHelper.debug("Commandline: %s", Arrays.toString(processArgs.toArray()));
         ProcessBuilder processBuilder = new ProcessBuilder(processArgs);
         EnvHelper.addEnv(processBuilder);
+        processBuilder.environment().put("JAVA_HOME", javaDir.toAbsolutePath().toString());
         processBuilder.environment().putAll(systemEnv);
         processBuilder.directory(workDir.toFile());
         processBuilder.inheritIO();
