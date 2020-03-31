@@ -19,6 +19,7 @@ public final class PostgreSQLAuthProvider extends AuthProvider {
     private String query;
     private String message;
     private String[] queryParams;
+    private boolean flagsEnabled;
 
     @Override
     public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws SQLException, AuthException {
@@ -32,7 +33,8 @@ public final class PostgreSQLAuthProvider extends AuthProvider {
             // Execute SQL query
             s.setQueryTimeout(PostgreSQLSourceConfig.TIMEOUT);
             try (ResultSet set = s.executeQuery()) {
-                return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), new ClientPermissions(set.getLong(2))) : authError(message);
+                return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), new ClientPermissions(
+                        set.getLong(2), flagsEnabled ? set.getLong(3) : 0)) : authError(message);
             }
         }
     }

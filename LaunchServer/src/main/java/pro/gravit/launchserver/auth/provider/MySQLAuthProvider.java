@@ -20,6 +20,7 @@ public final class MySQLAuthProvider extends AuthProvider {
     private String query;
     private String message;
     private String[] queryParams;
+    private boolean flagsEnabled;
 
     @Override
     public void init(LaunchServer srv) {
@@ -41,7 +42,8 @@ public final class MySQLAuthProvider extends AuthProvider {
             // Execute SQL query
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             try (ResultSet set = s.executeQuery()) {
-                return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), new ClientPermissions(set.getLong(2))) : authError(message);
+                return set.next() ? new AuthProviderResult(set.getString(1), SecurityHelper.randomStringToken(), new ClientPermissions(
+                        set.getLong(2), flagsEnabled ? set.getLong(3) : 0)) : authError(message);
             }
         }
 

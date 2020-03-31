@@ -21,6 +21,7 @@ public final class JsonAuthProvider extends AuthProvider {
         String username;
         String error;
         long permissions;
+        long flags;
     }
 
     public static class authRequest {
@@ -54,7 +55,7 @@ public final class JsonAuthProvider extends AuthProvider {
 
         authResult result = gson.fromJson(content, authResult.class);
         if (result.username != null)
-            return new AuthProviderResult(result.username, SecurityHelper.randomStringToken(), new ClientPermissions(result.permissions));
+            return new AuthProviderResult(result.username, SecurityHelper.randomStringToken(), new ClientPermissions(result.permissions, result.flags));
         else if (result.error != null)
             return authError(result.error);
         else

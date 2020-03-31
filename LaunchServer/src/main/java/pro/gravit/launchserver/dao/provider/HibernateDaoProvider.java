@@ -90,6 +90,7 @@ public class HibernateDaoProvider extends DaoProvider implements Reconfigurable 
                 long perm = Long.parseLong(args[1]);
                 boolean value = Boolean.parseBoolean(args[2]);
                 permissions.setPermission(perm, value);
+                user.setPermissions(permissions);
                 userDAO.update(user);
             }
         });
@@ -106,6 +107,7 @@ public class HibernateDaoProvider extends DaoProvider implements Reconfigurable 
                 long perm = Long.parseLong(args[1]);
                 boolean value = Boolean.parseBoolean(args[2]);
                 permissions.setFlag(perm, value);
+                user.setPermissions(permissions);
                 userDAO.update(user);
             }
         });
