@@ -26,3 +26,24 @@ jobs:
 
     - name: Build with Gradle
       run: ./gradlew build
+
+    - name: Create artifacts
+      run: |
+        mkdir -p artifacts/modules
+        cd LaunchServer/build/libs/
+        zip -r -9 ../../../artifacts/libraries.zip * -x "LaunchServer.jar" -x "LaunchServer-clean.jar"
+        cp LaunchServer.jar ../../../artifacts/LaunchServer.jar
+        cd ../../../ServerWrapper/build/libs
+        cp ServerWrapper.jar ../../../artifacts/ServerWrapper.jar
+        cd ../../../LauncherAuthlib/build/libs
+        cp LauncherAuthlib.jar ../../../artifacts/LauncherAuthlib.jar
+        cd ../../../
+        cp modules/*_module/build/libs/*.jar artifacts/modules
+        cp modules/*_swmodule/build/libs/*.jar artifacts/modules
+        cp modules/*_lmodule/build/libs/*.jar artifacts/modules
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: Launcher
+        path: artifacts
