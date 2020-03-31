@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HibernateDaoProvider extends DaoProvider implements Reconfigurable {
+public class HibernateDaoProvider extends DaoProvider implements Reconfigurable, AutoCloseable {
     public String driver;
     public String url;
     public String username;
@@ -112,5 +112,10 @@ public class HibernateDaoProvider extends DaoProvider implements Reconfigurable 
             }
         });
         return commands;
+    }
+
+    @Override
+    public void close() throws Exception {
+        sessionFactory.close();
     }
 }

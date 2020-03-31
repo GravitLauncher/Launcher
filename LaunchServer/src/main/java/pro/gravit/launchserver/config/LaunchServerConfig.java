@@ -152,6 +152,7 @@ public final class LaunchServerConfig {
                     server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                     server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                     server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                    pair.close();
                 }
             }
             if (type.equals(LaunchServer.ReloadType.FULL)) {
@@ -169,10 +170,16 @@ public final class LaunchServerConfig {
         } catch (Exception e) {
             LogHelper.error(e);
         }
-        try {
-            for (AuthProviderPair p : auth.values()) p.close();
-        } catch (IOException e) {
-            LogHelper.error(e);
+        if(dao != null) {
+            server.unregisterObject("dao", dao);
+            if(dao instanceof AutoCloseable)
+            {
+                try {
+                    ((AutoCloseable) dao).close();
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                }
+            }
         }
     }
 
