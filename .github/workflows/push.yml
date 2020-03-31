@@ -1,5 +1,9 @@
 name: push
-on: push
+on: 
+  push:
+  create:
+    tags:
+      - v*
 jobs:
   launcher:
     name: Launcher
@@ -14,7 +18,7 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.gradle/caches
-        key: gravit-${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}-mods-1_7_10
+        key: gravit-${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}-launcher
 
     - name: Set up JDK 11
       uses: actions/setup-java@v1
@@ -47,3 +51,32 @@ jobs:
       with:
         name: Launcher
         path: artifacts
+
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      if: github.event_name == 'create'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: GravitLauncher ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Pack release
+      if: github.event_name == 'create'
+      run: |
+        cd artifacts/
+        zip -r -9 ../Release.zip *
+
+    - name: Upload release
+      if: github.event_name == 'create'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./Release.zip
+        asset_name: Release.zip
+        asset_content_type: application/zip
