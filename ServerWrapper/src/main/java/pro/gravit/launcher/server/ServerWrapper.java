@@ -259,7 +259,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String login;
         public String[] args;
         public String password;
-        public final String auth_id = "";
+        public String auth_id = "";
         public LauncherConfig.LauncherEnvironment env;
     }
 
