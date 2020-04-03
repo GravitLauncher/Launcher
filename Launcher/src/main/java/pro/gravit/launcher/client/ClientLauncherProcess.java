@@ -3,8 +3,10 @@ package pro.gravit.launcher.client;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.LauncherNetworkAPI;
-import pro.gravit.launcher.guard.LauncherGuardInterface;
-import pro.gravit.launcher.guard.LauncherGuardManager;
+import pro.gravit.launcher.client.events.client.ClientProcessBuilderCreateEvent;
+import pro.gravit.launcher.client.events.client.ClientProcessBuilderLaunchedEvent;
+import pro.gravit.launcher.client.events.client.ClientProcessBuilderParamsWrittedEvent;
+import pro.gravit.launcher.client.events.client.ClientProcessBuilderPreLaunchEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
@@ -13,10 +15,7 @@ import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -87,6 +86,7 @@ public class ClientLauncherProcess {
             this.jvmArgs.add("-Xmx" + params.ram + 'M');
         }
         this.params.session = Request.getSession();
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));
     }
 
 
@@ -215,6 +215,7 @@ public class ClientLauncherProcess {
     public void start(boolean pipeOutput) throws IOException, InterruptedException {
         if(isStarted) throw new IllegalStateException("Process already started");
         if(LauncherEngine.guard != null) LauncherEngine.guard.applyGuardParams(this);
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderPreLaunchEvent(this));
         List<String> processArgs = new LinkedList<>();
         processArgs.add(executeFile.toString());
         processArgs.addAll(jvmArgs);
@@ -243,6 +244,7 @@ public class ClientLauncherProcess {
             processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
         }
         process = processBuilder.start();
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderLaunchedEvent(this));
         isStarted = true;
     }
     public void runWriteParams(SocketAddress address) throws IOException
@@ -265,6 +267,7 @@ public class ClientLauncherProcess {
                 params.javaHDir.write(output);
             }
         }
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderParamsWrittedEvent(this));
     }
 
     public Process getProcess() {

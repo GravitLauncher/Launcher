@@ -25,6 +25,10 @@ public class StdWebSocketService extends ClientWebSocketService {
     {
         eventHandlers.add(handler);
     }
+    public void unregisterEventHandler(EventHandler handler)
+    {
+        eventHandlers.remove(handler);
+    }
     public<T extends WebSocketEvent> void processEventHandlers(T event)
     {
         for(EventHandler handler : eventHandlers)
