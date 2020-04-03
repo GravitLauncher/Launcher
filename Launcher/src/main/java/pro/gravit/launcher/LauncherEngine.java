@@ -11,7 +11,6 @@ import pro.gravit.launcher.guard.LauncherWrapperGuard;
 import pro.gravit.launcher.gui.NoRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
-import pro.gravit.launcher.managers.ClientHookManager;
 import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.request.Request;
@@ -155,7 +154,6 @@ public class LauncherEngine {
         LauncherEngine.modulesManager.invokeEvent(event);
         runtimeProvider = event.runtimeProvider;
         if (runtimeProvider == null) runtimeProvider = new NoRuntimeProvider();
-        ClientHookManager.initGuiHook.hook(runtimeProvider);
         runtimeProvider.init(false);
         //runtimeProvider.preLoad();
         if (Request.service == null) {

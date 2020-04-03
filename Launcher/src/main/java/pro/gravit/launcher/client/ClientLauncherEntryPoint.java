@@ -6,9 +6,7 @@ import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
-import pro.gravit.launcher.client.events.ClientLaunchPhase;
-import pro.gravit.launcher.client.events.ClientLauncherInitPhase;
-import pro.gravit.launcher.client.events.ClientLauncherPostInitPhase;
+import pro.gravit.launcher.client.events.client.*;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
@@ -34,7 +32,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -59,6 +56,10 @@ public class ClientLauncherEntryPoint {
     public static void main(String[] args) throws Throwable {
         LauncherEngine.IS_CLIENT.set(true);
         LauncherEngine engine = LauncherEngine.clientInstance();
+        JVMHelper.verifySystemProperties(ClientLauncherEntryPoint.class, true);
+        EnvHelper.checkDangerousParams();
+        JVMHelper.checkStackTrace(ClientLauncherEntryPoint.class);
+        LogHelper.printVersion("Client Launcher");
         LauncherEngine.checkClass(LauncherEngine.class);
         LauncherEngine.checkClass(LauncherAgent.class);
         LauncherEngine.checkClass(ClientLauncherEntryPoint.class);
@@ -68,10 +69,6 @@ public class ClientLauncherEntryPoint {
         initGson(LauncherEngine.modulesManager);
         LauncherEngine.verifyNoAgent();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
-        JVMHelper.verifySystemProperties(ClientLauncherEntryPoint.class, true);
-        EnvHelper.checkDangerousParams();
-        JVMHelper.checkStackTrace(ClientLauncherEntryPoint.class);
-        LogHelper.printVersion("Client Launcher");
         engine.readKeys();
         LauncherGuardManager.initGuard(true);
         LogHelper.debug("Reading ClientLauncher params");
@@ -82,7 +79,7 @@ public class ClientLauncherEntryPoint {
         LauncherEngine.clientParams = params;
         Request.setSession(params.session);
         checkJVMBitsAndVersion();
-        LauncherEngine.modulesManager.invokeEvent(new ClientLauncherInitPhase(null));
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessInitPhase(engine, params));
 
         Path clientDir = Paths.get(params.clientDir);
         Path assetDir = Paths.get(params.assetDir);
@@ -98,6 +95,7 @@ public class ClientLauncherEntryPoint {
         classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
         classLoader.nativePath = clientDir.resolve("natives").toString();
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
         LogHelper.debug("Restore sessions");
@@ -127,6 +125,7 @@ public class ClientLauncherEntryPoint {
         classLoader.addURL(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
         //classForName(classLoader, "com.google.common.collect.ForwardingMultimap");
         ClientService.baseURLs = classLoader.getURLs();
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessReadyEvent(engine, params));
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
@@ -144,6 +143,7 @@ public class ClientLauncherEntryPoint {
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
             verifyHDir(assetDir, params.assetHDir, assetMatcher, digest);
             verifyHDir(clientDir, params.clientHDir, clientMatcher, digest);
+            LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
             launch(profile, params);
         }
     }
@@ -244,6 +244,7 @@ public class ClientLauncherEntryPoint {
             LogHelper.info("ClassLoader URL: %s", u.toString());
         }
         FMLPatcher.apply();
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessPreInvokeMainClassEvent(params, profile, args));
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();

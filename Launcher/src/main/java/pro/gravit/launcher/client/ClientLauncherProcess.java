@@ -2,6 +2,7 @@ package pro.gravit.launcher.client;
 
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.guard.LauncherGuardInterface;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.HashedDir;
@@ -136,6 +137,18 @@ public class ClientLauncherProcess {
         }
 
 
+        public static class ClientUserProperties {
+            @LauncherNetworkAPI
+            public String[] skinURL;
+            @LauncherNetworkAPI
+            public String[] skinDigest;
+            @LauncherNetworkAPI
+            public String[] cloakURL;
+            @LauncherNetworkAPI
+            public String[] cloakDigest;
+        }
+
+
         public void addClientLegacyArgs(Collection<String> args) {
             args.add(playerProfile.username);
             args.add(accessToken);
@@ -159,7 +172,7 @@ public class ClientLauncherProcess {
                 if (version.compareTo(ClientProfile.Version.MC1710) >= 0) {
                     // Add user properties
                     Collections.addAll(args, "--userType", "mojang");
-                    ClientLauncher.ClientUserProperties properties = new ClientLauncher.ClientUserProperties();
+                    ClientUserProperties properties = new ClientUserProperties();
                     if (playerProfile.skin != null) {
                         properties.skinURL = new String[]{playerProfile.skin.url};
                         properties.skinDigest = new String[]{SecurityHelper.toHex(playerProfile.skin.digest)};

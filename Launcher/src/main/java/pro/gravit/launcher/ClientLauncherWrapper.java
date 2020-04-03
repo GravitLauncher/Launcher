@@ -1,6 +1,5 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.client.ClientLauncher;
 import pro.gravit.launcher.client.ClientModuleManager;
 import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.launcher.utils.DirWatcher;
