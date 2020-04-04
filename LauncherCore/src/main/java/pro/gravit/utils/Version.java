@@ -17,7 +17,7 @@ public final class Version {
     public static final int MINOR = 1;
     public static final int PATCH = 3;
     public static final int BUILD = 1;
-    public static final Version.Type RELEASE = Type.DEV;
+    public static final Version.Type RELEASE = Type.STABLE;
 
 
     public Version(int major, int minor, int patch) {
