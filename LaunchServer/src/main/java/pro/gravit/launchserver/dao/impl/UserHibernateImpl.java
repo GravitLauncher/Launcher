@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "User")
 @Table(name = "users")
 public class UserHibernateImpl implements User {
     @Id
@@ -29,6 +29,7 @@ public class UserHibernateImpl implements User {
     public String serverID;
     private String password_salt;
     public long permissions;
+    public long flags;
 
     public void setPassword(String password) {
         password_salt = SecurityHelper.randomStringAESKey();
@@ -55,11 +56,12 @@ public class UserHibernateImpl implements User {
     }
 
     public ClientPermissions getPermissions() {
-        return new ClientPermissions(permissions);
+        return new ClientPermissions(permissions, flags);
     }
 
     public void setPermissions(ClientPermissions permissions) {
-        this.permissions = permissions.toLong();
+        this.permissions = permissions.permissions;
+        this.flags = permissions.flags;
     }
 
     public String getAccessToken() {

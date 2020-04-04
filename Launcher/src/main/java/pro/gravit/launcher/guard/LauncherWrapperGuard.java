@@ -1,22 +1,14 @@
 package pro.gravit.launcher.guard;
 
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.client.ClientLauncherContext;
+import pro.gravit.launcher.client.ClientLauncherProcess;
 import pro.gravit.launcher.client.DirBridge;
-import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.UnpackHelper;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.Map;
 
 public class LauncherWrapperGuard implements LauncherGuardInterface {
-
-    public String protectToken;
 
     @Override
     public String getName() {
@@ -24,22 +16,15 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
     }
 
     @Override
-    public Path getJavaBinPath() {
+    public void applyGuardParams(ClientLauncherProcess process) {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
             String projectName = Launcher.getConfig().projectName;
             String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
-            return DirBridge.getGuardDir().resolve(wrapperUnpackName);
-        } else
-            return IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
+            process.executeFile = DirBridge.getGuardDir().resolve(wrapperUnpackName);
+        }
     }
 
-    @Override
-    public int getClientJVMBits() {
-        return JVMHelper.JVM_BITS;
-    }
-
-    @Override
-    public void init(boolean clientInstance) {
+    public LauncherWrapperGuard() {
         try {
             String wrapperName = JVMHelper.JVM_BITS == 64 ? "wrapper64.exe" : "wrapper32.exe";
             String projectName = Launcher.getConfig().projectName;
@@ -50,26 +35,5 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
         } catch (IOException e) {
             throw new SecurityException(e);
         }
-    }
-
-    @Override
-    public void addCustomParams(ClientLauncherContext context) {
-        Collections.addAll(context.args, "-Djava.class.path=".concat(context.pathLauncher));
-    }
-
-    @Override
-    public void addCustomEnv(ClientLauncherContext context) {
-        Map<String, String> env = context.builder.environment();
-        env.put("JAVA_HOME", System.getProperty("java.home"));
-        LauncherConfig config = Launcher.getConfig();
-        env.put("GUARD_USERNAME", context.playerProfile.username);
-        env.put("GUARD_PROJECTNAME", config.projectName);
-        if (protectToken != null)
-            env.put("GUARD_TOKEN", protectToken);
-    }
-
-    @Override
-    public void setProtectToken(String token) {
-        protectToken = token;
     }
 }

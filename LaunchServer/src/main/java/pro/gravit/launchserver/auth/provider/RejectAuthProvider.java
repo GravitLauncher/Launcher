@@ -22,7 +22,7 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
     }
 
     private String message;
-    private ArrayList<String> whitelist;
+    private ArrayList<String> whitelist = new ArrayList<>();
 
     @Override
     public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws AuthException {
@@ -46,9 +46,18 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
         Map<String, Command> commands = new HashMap<>();
         commands.put("message", new SubCommand() {
             @Override
-            public void invoke(String... args) {
+            public void invoke(String... args) throws Exception {
+                verifyArgs(args, 1);
                 message = args[0];
                 LogHelper.info("New reject message: %s", message);
+            }
+        });
+        commands.put("whirelist.add", new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                verifyArgs(args, 1);
+                whitelist.add(args[0]);
+                LogHelper.info("%s added to whitelist", args[0]);
             }
         });
         return commands;

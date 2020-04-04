@@ -98,7 +98,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             LogHelper.debug("Init components");
             config.components.forEach((k, v) -> {
                 LogHelper.subDebug("Init component %s", k);
-                registerObject("component.".concat(k), v);
                 v.init(this);
             });
             LogHelper.debug("Init components successful");

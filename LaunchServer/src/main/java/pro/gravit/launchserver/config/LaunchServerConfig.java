@@ -5,6 +5,7 @@ import io.netty.handler.logging.LogLevel;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
@@ -124,8 +125,10 @@ public final class LaunchServerConfig {
         for (Map.Entry<String,AuthProviderPair> provider : auth.entrySet()) {
             provider.getValue().init(server, provider.getKey());
         }
-        if (dao != null)
+        if (dao != null) {
+            server.registerObject("dao", dao);
             dao.init(server);
+        }
         if (protectHandler != null) {
             protectHandler.checkLaunchServerLicense();
         }
@@ -149,6 +152,7 @@ public final class LaunchServerConfig {
                     server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                     server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                     server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                    pair.close();
                 }
             }
             if (type.equals(LaunchServer.ReloadType.FULL)) {
@@ -166,10 +170,16 @@ public final class LaunchServerConfig {
         } catch (Exception e) {
             LogHelper.error(e);
         }
-        try {
-            for (AuthProviderPair p : auth.values()) p.close();
-        } catch (IOException e) {
-            LogHelper.error(e);
+        if(dao != null) {
+            server.unregisterObject("dao", dao);
+            if(dao instanceof AutoCloseable)
+            {
+                try {
+                    ((AutoCloseable) dao).close();
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                }
+            }
         }
     }
 

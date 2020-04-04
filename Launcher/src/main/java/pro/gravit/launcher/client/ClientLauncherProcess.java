@@ -1,7 +1,12 @@
 package pro.gravit.launcher.client;
 
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.guard.LauncherGuardManager;
+import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.client.events.client.ClientProcessBuilderCreateEvent;
+import pro.gravit.launcher.client.events.client.ClientProcessBuilderLaunchedEvent;
+import pro.gravit.launcher.client.events.client.ClientProcessBuilderParamsWrittedEvent;
+import pro.gravit.launcher.client.events.client.ClientProcessBuilderPreLaunchEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
@@ -10,10 +15,7 @@ import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -24,9 +26,9 @@ import java.util.*;
 public class ClientLauncherProcess {
     private transient Process process;
     private final transient Boolean[] waitWriteParams = new Boolean[] {false};
-    public final Path executeFile;
-    public final Path workDir;
-    public final Path javaDir;
+    public Path executeFile;
+    public Path workDir;
+    public Path javaDir;
     public final ClientParams params = new ClientParams();
     public final List<String> jvmArgs = new LinkedList<>();
     public final List<String> systemClientArgs = new LinkedList<>();
@@ -42,18 +44,24 @@ public class ClientLauncherProcess {
         this.mainClass = mainClass;
     }
 
+    public ClientLauncherProcess(Path clientDir, Path assetDir, Path javaDir,
+                                 ClientProfile profile, PlayerProfile playerProfile, String accessToken,
+                                 HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
+        this(clientDir, assetDir, javaDir, clientDir.resolve("resourcepacks"), profile, playerProfile, accessToken, clientHDir, assetHDir, jvmHDir);
+    }
+
     public ClientLauncherProcess(Path clientDir, Path assetDir,
                                  ClientProfile profile, PlayerProfile playerProfile, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
-        this(clientDir, assetDir, clientDir.resolve("resourcepacks"), profile, playerProfile, accessToken, clientHDir, assetHDir, jvmHDir);
+        this(clientDir, assetDir, Paths.get(System.getProperty("java.home")), clientDir.resolve("resourcepacks"), profile, playerProfile, accessToken, clientHDir, assetHDir, jvmHDir);
     }
 
-    public ClientLauncherProcess(Path clientDir, Path assetDir, Path resourcePackDir,
+    public ClientLauncherProcess(Path clientDir, Path assetDir, Path javaDir, Path resourcePackDir,
                                  ClientProfile profile, PlayerProfile playerProfile, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
-        this.executeFile = LauncherGuardManager.getGuardJavaBinPath();
         this.workDir = clientDir.toAbsolutePath();
-        this.javaDir = Paths.get(System.getProperty("java.home"));
+        this.javaDir = javaDir;
+        this.executeFile = IOHelper.resolveJavaBin(this.javaDir);
         this.mainClass = ClientLauncherEntryPoint.class.getName();
         this.params.clientDir = this.workDir.toString();
         this.params.resourcePackDir = resourcePackDir.toAbsolutePath().toString();
@@ -78,6 +86,7 @@ public class ClientLauncherProcess {
             this.jvmArgs.add("-Xmx" + params.ram + 'M');
         }
         this.params.session = Request.getSession();
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));
     }
 
 
@@ -128,6 +137,18 @@ public class ClientLauncherProcess {
         }
 
 
+        public static class ClientUserProperties {
+            @LauncherNetworkAPI
+            public String[] skinURL;
+            @LauncherNetworkAPI
+            public String[] skinDigest;
+            @LauncherNetworkAPI
+            public String[] cloakURL;
+            @LauncherNetworkAPI
+            public String[] cloakDigest;
+        }
+
+
         public void addClientLegacyArgs(Collection<String> args) {
             args.add(playerProfile.username);
             args.add(accessToken);
@@ -151,7 +172,7 @@ public class ClientLauncherProcess {
                 if (version.compareTo(ClientProfile.Version.MC1710) >= 0) {
                     // Add user properties
                     Collections.addAll(args, "--userType", "mojang");
-                    ClientLauncher.ClientUserProperties properties = new ClientLauncher.ClientUserProperties();
+                    ClientUserProperties properties = new ClientUserProperties();
                     if (playerProfile.skin != null) {
                         properties.skinURL = new String[]{playerProfile.skin.url};
                         properties.skinDigest = new String[]{SecurityHelper.toHex(playerProfile.skin.digest)};
@@ -193,6 +214,8 @@ public class ClientLauncherProcess {
     }
     public void start(boolean pipeOutput) throws IOException, InterruptedException {
         if(isStarted) throw new IllegalStateException("Process already started");
+        if(LauncherEngine.guard != null) LauncherEngine.guard.applyGuardParams(this);
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderPreLaunchEvent(this));
         List<String> processArgs = new LinkedList<>();
         processArgs.add(executeFile.toString());
         processArgs.addAll(jvmArgs);
@@ -212,6 +235,7 @@ public class ClientLauncherProcess {
         LogHelper.debug("Commandline: %s", Arrays.toString(processArgs.toArray()));
         ProcessBuilder processBuilder = new ProcessBuilder(processArgs);
         EnvHelper.addEnv(processBuilder);
+        processBuilder.environment().put("JAVA_HOME", javaDir.toAbsolutePath().toString());
         processBuilder.environment().putAll(systemEnv);
         processBuilder.directory(workDir.toFile());
         processBuilder.inheritIO();
@@ -220,6 +244,7 @@ public class ClientLauncherProcess {
             processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
         }
         process = processBuilder.start();
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderLaunchedEvent(this));
         isStarted = true;
     }
     public void runWriteParams(SocketAddress address) throws IOException
@@ -242,6 +267,7 @@ public class ClientLauncherProcess {
                 params.javaHDir.write(output);
             }
         }
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderParamsWrittedEvent(this));
     }
 
     public Process getProcess() {
