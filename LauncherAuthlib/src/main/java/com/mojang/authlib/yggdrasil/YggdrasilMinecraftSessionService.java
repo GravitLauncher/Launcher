@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionService {
-    public static final JsonParser JSON_PARSER = new JsonParser();
     public static final boolean NO_TEXTURES = Boolean.parseBoolean("launcher.com.mojang.authlib.noTextures");
 
     public static void fillTextureProperties(GameProfile profile, PlayerProfile pp) {
@@ -62,7 +61,7 @@ public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionServic
         JsonObject texturesJSON;
         try {
             byte[] decoded = Base64.getDecoder().decode(texturesBase64);
-            texturesJSON = JSON_PARSER.parse(new String(decoded, IOHelper.UNICODE_CHARSET)).getAsJsonObject().getAsJsonObject("textures");
+            texturesJSON = JsonParser.parseString(new String(decoded, IOHelper.UNICODE_CHARSET)).getAsJsonObject().getAsJsonObject("textures");
         } catch (Exception ignored) {
             LogHelper.error("Could not decode textures payload, Username: '%s', UUID: '%s'", profile.getName(), profile.getUUID());
             return;

@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 
 public final class HTTPRequest {
     private static final int TIMEOUT = 10000;
-    private static final JsonParser parser = new JsonParser();
 
     public static JsonElement jsonRequest(JsonElement request, URL url) throws IOException {
         return jsonRequest(request, "POST", url);
@@ -42,7 +41,7 @@ public final class HTTPRequest {
         else
             reader = new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8);
         try {
-            return parser.parse(reader);
+            return JsonParser.parseReader(reader);
         } catch (Exception e) {
             if (200 > statusCode || statusCode > 300) {
                 LogHelper.error("JsonRequest failed. Server response code %d", statusCode);

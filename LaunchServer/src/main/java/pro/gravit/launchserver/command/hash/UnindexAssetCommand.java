@@ -16,8 +16,6 @@ import java.util.Collections;
 import java.util.Map;
 
 public final class UnindexAssetCommand extends Command {
-    private static final JsonParser parser = new JsonParser();
-
     public UnindexAssetCommand(LaunchServer server) {
         super(server);
     }
@@ -51,7 +49,7 @@ public final class UnindexAssetCommand extends Command {
         JsonObject objects;
         LogHelper.subInfo("Reading asset index file: '%s'", indexFileName);
         try (BufferedReader reader = IOHelper.newReader(IndexAssetCommand.resolveIndexFile(inputAssetDir, indexFileName))) {
-            objects = parser.parse(reader).getAsJsonObject().get("objects").getAsJsonObject();
+            objects = JsonParser.parseReader(reader).getAsJsonObject().get("objects").getAsJsonObject();
         }
 
         // Restore objects

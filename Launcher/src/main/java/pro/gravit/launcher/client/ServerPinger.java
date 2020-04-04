@@ -20,7 +20,6 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public final class ServerPinger {
-    private final JsonParser parser = new JsonParser();
 
     public static final class Result {
 
@@ -184,7 +183,7 @@ public final class ServerPinger {
         }
 
         // Parse JSON response
-        JsonObject object = parser.parse(response).getAsJsonObject();
+        JsonObject object = JsonParser.parseString(response).getAsJsonObject();
         JsonObject playersObject = object.get("players").getAsJsonObject();
         int online = playersObject.get("online").getAsInt();
         int max = playersObject.get("max").getAsInt();
