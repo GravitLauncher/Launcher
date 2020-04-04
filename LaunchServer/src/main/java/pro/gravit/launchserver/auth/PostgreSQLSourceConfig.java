@@ -43,8 +43,8 @@ public final class PostgreSQLSourceConfig implements AutoCloseable {
             PGSimpleDataSource postgresqlSource = new PGSimpleDataSource();
 
             // Set credentials
-            postgresqlSource.setServerName(address);
-            postgresqlSource.setPortNumber(port);
+            postgresqlSource.setServerNames(new String[] {address}); //TODO support multinode PostgreSQL DB
+            postgresqlSource.setPortNumbers(new int[] {port});
             postgresqlSource.setUser(username);
             postgresqlSource.setPassword(password);
             postgresqlSource.setDatabaseName(database);
