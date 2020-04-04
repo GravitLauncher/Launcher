@@ -71,10 +71,13 @@ public class ClientLauncherWrapper {
             tryAddModule(findPath, "javafx.graphics", builder);
             tryAddModule(findPath, "javafx.fxml", builder);
             tryAddModule(findPath, "javafx.controls", builder);
+            boolean useSwing = tryAddModule(findPath, "javafx.swing", builder);
             String modulePath = builder.toString();
             if (!modulePath.isEmpty()) {
                 args.add("--add-modules");
-                args.add("javafx.base,javafx.fxml,javafx.controls,jdk.unsupported");
+                String javaModules = "javafx.base,javafx.fxml,javafx.controls,jdk.unsupported";
+                if(useSwing) javaModules = javaModules.concat(",javafx.swing");
+                args.add(javaModules);
                 args.add("--module-path");
                 args.add(modulePath);
             }
