@@ -14,26 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MirrorManager {
-    public static class Mirror {
-        final String baseUrl;
-        boolean enabled;
-
-        Mirror(String url) {
-            //assetsURLMask = url.concat("assets/%s.zip");
-            //clientsURLMask = url.concat("clients/%s.zip");
-            baseUrl = url;
-        }
-
-        private URL formatArgs(String mask, Object... args) throws MalformedURLException {
-            Object[] data = Arrays.stream(args).map(e -> IOHelper.urlEncode(e.toString())).toArray();
-            return new URL(baseUrl.concat(String.format(mask, data)));
-        }
-
-        public URL getURL(String mask, Object... args) throws MalformedURLException {
-            return formatArgs(mask, args);
-        }
-    }
-
     protected final ArrayList<Mirror> list = new ArrayList<>();
     private Mirror defaultMirror;
 
@@ -117,5 +97,25 @@ public class MirrorManager {
             }
         }
         throw new IOException("Error jsonRequest. All mirrors return error");
+    }
+
+    public static class Mirror {
+        final String baseUrl;
+        boolean enabled;
+
+        Mirror(String url) {
+            //assetsURLMask = url.concat("assets/%s.zip");
+            //clientsURLMask = url.concat("clients/%s.zip");
+            baseUrl = url;
+        }
+
+        private URL formatArgs(String mask, Object... args) throws MalformedURLException {
+            Object[] data = Arrays.stream(args).map(e -> IOHelper.urlEncode(e.toString())).toArray();
+            return new URL(baseUrl.concat(String.format(mask, data)));
+        }
+
+        public URL getURL(String mask, Object... args) throws MalformedURLException {
+            return formatArgs(mask, args);
+        }
     }
 }

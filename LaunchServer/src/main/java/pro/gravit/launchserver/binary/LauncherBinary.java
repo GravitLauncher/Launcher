@@ -19,16 +19,17 @@ public abstract class LauncherBinary extends BinaryPipeline {
         syncBinaryFile = binaryFile;
     }
 
-    public void build() throws IOException
-    {
-        build(syncBinaryFile, server.config.launcher.deleteTempFiles);
+    public static Path resolve(LaunchServer server, String ext) {
+        return server.config.copyBinaries ? server.updatesDir.resolve(server.config.binaryName + ext) : server.dir.resolve(server.config.binaryName + ext);
     }
 
+    public void build() throws IOException {
+        build(syncBinaryFile, server.config.launcher.deleteTempFiles);
+    }
 
     public final boolean exists() {
         return syncBinaryFile != null && IOHelper.isFile(syncBinaryFile);
     }
-
 
     public final byte[] getDigest() {
         return digest;
@@ -47,9 +48,5 @@ public abstract class LauncherBinary extends BinaryPipeline {
         sign = exists ? SecurityHelper.sign(IOHelper.read(syncBinaryFile), server.privateKey) : null;
 
         return exists;
-    }
-
-    public static Path resolve(LaunchServer server, String ext) {
-        return server.config.copyBinaries ? server.updatesDir.resolve(server.config.binaryName + ext) : server.dir.resolve(server.config.binaryName + ext);
     }
 }

@@ -19,6 +19,13 @@ public class SaveProfilesCommand extends Command {
         super(server);
     }
 
+    public static void saveProfile(ClientProfile profile, Path path) throws IOException {
+        if (profile.getUUID() == null) profile.setUUID(UUID.randomUUID());
+        try (Writer w = IOHelper.newWriter(path)) {
+            Launcher.gsonManager.configGson.toJson(profile, w);
+        }
+    }
+
     @Override
     public String getArgsDescription() {
         return "[profile names...]";
@@ -32,33 +39,21 @@ public class SaveProfilesCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
-        if(args.length > 0)
-        {
-            for(String profileName : args)
-            {
+        if (args.length > 0) {
+            for (String profileName : args) {
                 Path profilePath = server.profilesDir.resolve(profileName.concat(".json"));
-                if(!Files.exists(profilePath))
-                {
+                if (!Files.exists(profilePath)) {
                     LogHelper.error("Profile %s not found", profilePath.toString());
                     return;
                 }
                 ClientProfile profile;
-                try(Reader reader = IOHelper.newReader(profilePath))
-                {
+                try (Reader reader = IOHelper.newReader(profilePath)) {
                     profile = Launcher.gsonManager.configGson.fromJson(reader, ClientProfile.class);
                 }
                 saveProfile(profile, profilePath);
                 LogHelper.info("Profile %s save successful", profilePath.toString());
             }
             server.syncProfilesDir();
-        }
-    }
-    public static void saveProfile(ClientProfile profile, Path path) throws IOException
-    {
-        if(profile.getUUID() == null) profile.setUUID(UUID.randomUUID());
-        try(Writer w = IOHelper.newWriter(path))
-        {
-            Launcher.gsonManager.configGson.toJson(profile, w);
         }
     }
 }

@@ -12,26 +12,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
 
 public class SignDirCommand extends Command {
-    private class SignJarVisitor extends SimpleFileVisitor<Path>
-    {
-        private SignJarTask task;
-        public SignJarVisitor(SignJarTask task) {
-            this.task = task;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (file.toFile().getName().endsWith(".jar"))
-            {
-                Path tmpSign = server.dir.resolve("build").resolve(file.toFile().getName());
-                LogHelper.info("Signing jar %s", file.toString());
-                task.sign(server.config.sign, file, tmpSign);
-                Files.deleteIfExists(file);
-                Files.move(tmpSign, file);
-            }
-            return super.visitFile(file, attrs);
-        }
-    }
     public SignDirCommand(LaunchServer server) {
         super(server);
     }
@@ -50,11 +30,31 @@ public class SignDirCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
         Path targetDir = Paths.get(args[0]);
-        if(!IOHelper.isDir(targetDir))
+        if (!IOHelper.isDir(targetDir))
             throw new IllegalArgumentException(String.format("%s not directory", targetDir.toString()));
         Optional<SignJarTask> task = server.launcherBinary.getTaskByClass(SignJarTask.class);
-        if(!task.isPresent()) throw new IllegalStateException("SignJarTask not found");
+        if (!task.isPresent()) throw new IllegalStateException("SignJarTask not found");
         IOHelper.walk(targetDir, new SignJarVisitor(task.get()), true);
         LogHelper.info("Success signed");
+    }
+
+    private class SignJarVisitor extends SimpleFileVisitor<Path> {
+        private SignJarTask task;
+
+        public SignJarVisitor(SignJarTask task) {
+            this.task = task;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (file.toFile().getName().endsWith(".jar")) {
+                Path tmpSign = server.dir.resolve("build").resolve(file.toFile().getName());
+                LogHelper.info("Signing jar %s", file.toString());
+                task.sign(server.config.sign, file, tmpSign);
+                Files.deleteIfExists(file);
+                Files.move(tmpSign, file);
+            }
+            return super.visitFile(file, attrs);
+        }
     }
 }

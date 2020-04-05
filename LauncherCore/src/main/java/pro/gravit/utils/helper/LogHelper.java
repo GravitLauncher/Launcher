@@ -35,48 +35,54 @@ public final class LogHelper {
     private static final AtomicBoolean DEBUG_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEBUG_PROPERTY));
     private static final AtomicBoolean STACKTRACE_ENABLED = new AtomicBoolean(Boolean.getBoolean(STACKTRACE_PROPERTY));
     private static final AtomicBoolean DEV_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEV_PROPERTY));
-
-    public static class OutputEnity {
-        public final Output output;
-        public final OutputTypes type;
-
-        public OutputEnity(Output output, OutputTypes type) {
-            this.output = output;
-            this.type = type;
-        }
-    }
-
-    public enum OutputTypes {
-        @LauncherNetworkAPI
-        PLAIN,
-        @LauncherNetworkAPI
-        JANSI,
-        @LauncherNetworkAPI
-        HTML
-    }
-
     private static final Set<OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
     private static final Set<Consumer<Throwable>> EXCEPTIONS_CALLBACKS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
     private static final OutputEnity STD_OUTPUT;
 
+    static {
+        // Use JAnsi if available
+        boolean jansi;
+        try {
+            if (Boolean.getBoolean(NO_JANSI_PROPERTY)) {
+                jansi = false;
+            } else {
+                Class.forName("org.fusesource.jansi.Ansi");
+                AnsiConsole.systemInstall();
+                jansi = true;
+            }
+        } catch (ClassNotFoundException ignored) {
+            jansi = false;
+        }
+        JANSI = jansi;
+
+        // Add std writer
+        STD_OUTPUT = new OutputEnity(System.out::println, JANSI ? OutputTypes.JANSI : OutputTypes.PLAIN);
+        addOutput(STD_OUTPUT);
+
+        // Add file log writer
+        String logFile = System.getProperty("launcher.logFile");
+        if (logFile != null) {
+            try {
+                addOutput(IOHelper.toPath(logFile));
+            } catch (IOException e) {
+                error(e);
+            }
+        }
+    }
     private LogHelper() {
     }
-
 
     public static void addOutput(OutputEnity output) {
         OUTPUTS.add(Objects.requireNonNull(output, "output"));
     }
 
-
     public static void addExcCallback(Consumer<Throwable> output) {
         EXCEPTIONS_CALLBACKS.add(Objects.requireNonNull(output, "output"));
     }
 
-
     public static void addOutput(Output output, OutputTypes type) {
         OUTPUTS.add(new OutputEnity(Objects.requireNonNull(output, "output"), type));
     }
-
 
     public static void addOutput(Path file) throws IOException {
         if (JANSI) {
@@ -86,11 +92,9 @@ public final class LogHelper {
         }
     }
 
-
     public static void addOutput(Writer writer) {
         addOutput(new WriterOutput(writer), OutputTypes.PLAIN);
     }
-
 
     public static void debug(String message) {
         if (isDebugEnabled()) {
@@ -98,18 +102,15 @@ public final class LogHelper {
         }
     }
 
-
     public static void dev(String message) {
         if (isDevEnabled()) {
             log(Level.DEV, message, false);
         }
     }
 
-
     public static void debug(String format, Object... args) {
         debug(String.format(format, args));
     }
-
 
     public static void dev(String format, Object... args) {
         if (isDevEnabled()) {
@@ -117,57 +118,46 @@ public final class LogHelper {
         }
     }
 
-
     public static void error(Throwable exc) {
         EXCEPTIONS_CALLBACKS.forEach(e -> e.accept(exc));
         error(isStacktraceEnabled() ? toString(exc) : exc.toString());
     }
 
-
     public static void error(String message) {
         log(Level.ERROR, message, false);
     }
-
 
     public static void error(String format, Object... args) {
         error(String.format(format, args));
     }
 
-
     public static void info(String message) {
         log(Level.INFO, message, false);
     }
-
 
     public static void info(String format, Object... args) {
         info(String.format(format, args));
     }
 
-
     public static boolean isDebugEnabled() {
         return DEBUG_ENABLED.get();
     }
-
 
     public static void setDebugEnabled(boolean debugEnabled) {
         DEBUG_ENABLED.set(debugEnabled);
     }
 
-
     public static boolean isStacktraceEnabled() {
         return STACKTRACE_ENABLED.get();
     }
-
-
-    public static boolean isDevEnabled() {
-        return DEV_ENABLED.get();
-    }
-
 
     public static void setStacktraceEnabled(boolean stacktraceEnabled) {
         STACKTRACE_ENABLED.set(stacktraceEnabled);
     }
 
+    public static boolean isDevEnabled() {
+        return DEV_ENABLED.get();
+    }
 
     public static void setDevEnabled(boolean stacktraceEnabled) {
         DEV_ENABLED.set(stacktraceEnabled);
@@ -176,7 +166,6 @@ public final class LogHelper {
     public static String getDataTime() {
         return DATE_TIME_FORMATTER.format(LocalDateTime.now());
     }
-
 
     public static void log(Level level, String message, boolean sub) {
         String dateTime = DATE_TIME_FORMATTER.format(LocalDateTime.now());
@@ -210,11 +199,9 @@ public final class LogHelper {
         }
     }
 
-
     public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr) {
         rawLog(plainStr, jansiStr, null);
     }
-
 
     public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr, Supplier<String> htmlStr) {
         String jansiString = null, plainString = null, htmlString = null;
@@ -247,7 +234,6 @@ public final class LogHelper {
         }
     }
 
-
     public static void printVersion(String product) {
         String jansiString = null, plainString = null;
         for (OutputEnity output : OUTPUTS) {
@@ -270,7 +256,6 @@ public final class LogHelper {
             }
         }
     }
-
 
     public static void printLicense(String product) {
         String jansiString = null, plainString = null;
@@ -295,16 +280,13 @@ public final class LogHelper {
         }
     }
 
-
     public static boolean removeOutput(OutputEnity output) {
         return OUTPUTS.remove(output);
     }
 
-
     public static boolean removeStdOutput() {
         return removeOutput(STD_OUTPUT);
     }
-
 
     public static void subDebug(String message) {
         if (isDebugEnabled()) {
@@ -312,31 +294,25 @@ public final class LogHelper {
         }
     }
 
-
     public static void subDebug(String format, Object... args) {
         subDebug(String.format(format, args));
     }
-
 
     public static void subInfo(String message) {
         log(Level.INFO, message, true);
     }
 
-
     public static void subInfo(String format, Object... args) {
         subInfo(String.format(format, args));
     }
-
 
     public static void subWarning(String message) {
         log(Level.WARNING, message, true);
     }
 
-
     public static void subWarning(String format, Object... args) {
         subWarning(String.format(format, args));
     }
-
 
     public static String toString(Throwable exc) {
         StringWriter sw = new StringWriter();
@@ -344,11 +320,9 @@ public final class LogHelper {
         return sw.toString();
     }
 
-
     public static void warning(String message) {
         log(Level.WARNING, message, false);
     }
-
 
     public static void warning(String format, Object... args) {
         warning(String.format(format, args));
@@ -393,43 +367,14 @@ public final class LogHelper {
         return FormatHelper.rawFormat(level, dateTime, sub) + message;
     }
 
-    static {
-        // Use JAnsi if available
-        boolean jansi;
-        try {
-            if (Boolean.getBoolean(NO_JANSI_PROPERTY)) {
-                jansi = false;
-            } else {
-                Class.forName("org.fusesource.jansi.Ansi");
-                AnsiConsole.systemInstall();
-                jansi = true;
-            }
-        } catch (ClassNotFoundException ignored) {
-            jansi = false;
-        }
-        JANSI = jansi;
-
-        // Add std writer
-        STD_OUTPUT = new OutputEnity(System.out::println, JANSI ? OutputTypes.JANSI : OutputTypes.PLAIN);
-        addOutput(STD_OUTPUT);
-
-        // Add file log writer
-        String logFile = System.getProperty("launcher.logFile");
-        if (logFile != null) {
-            try {
-                addOutput(IOHelper.toPath(logFile));
-            } catch (IOException e) {
-                error(e);
-            }
-        }
+    public enum OutputTypes {
+        @LauncherNetworkAPI
+        PLAIN,
+        @LauncherNetworkAPI
+        JANSI,
+        @LauncherNetworkAPI
+        HTML
     }
-
-
-    @FunctionalInterface
-    public interface Output {
-        void println(String message);
-    }
-
 
     public enum Level {
         DEV("DEV"), DEBUG("DEBUG"), INFO("INFO"), WARNING("WARN"), ERROR("ERROR");
@@ -442,6 +387,22 @@ public final class LogHelper {
         @Override
         public String toString() {
             return name;
+        }
+    }
+
+
+    @FunctionalInterface
+    public interface Output {
+        void println(String message);
+    }
+
+    public static class OutputEnity {
+        public final Output output;
+        public final OutputTypes type;
+
+        public OutputEnity(Output output, OutputTypes type) {
+            this.output = output;
+            this.type = type;
         }
     }
 

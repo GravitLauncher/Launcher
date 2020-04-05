@@ -17,6 +17,7 @@ public final class SecurityReportRequest extends Request<SecurityReportRequestEv
         this.smallBytes = smallBytes;
         this.largeBytes = largeBytes;
     }
+
     public SecurityReportRequest(String reportType, String smallData, String largeData, byte[] smallBytes) {
         this.reportType = reportType;
         this.smallData = smallData;
@@ -24,6 +25,7 @@ public final class SecurityReportRequest extends Request<SecurityReportRequestEv
         this.smallBytes = smallBytes;
         this.largeBytes = null;
     }
+
     public SecurityReportRequest(String reportType, String smallData, String largeData) {
         this.reportType = reportType;
         this.smallData = smallData;
@@ -31,6 +33,7 @@ public final class SecurityReportRequest extends Request<SecurityReportRequestEv
         this.smallBytes = null;
         this.largeBytes = null;
     }
+
     public SecurityReportRequest(String reportType, String smallData, byte[] smallBytes) {
         this.reportType = reportType;
         this.smallData = smallData;
@@ -38,6 +41,7 @@ public final class SecurityReportRequest extends Request<SecurityReportRequestEv
         this.smallBytes = smallBytes;
         this.largeBytes = null;
     }
+
     public SecurityReportRequest(String reportType, byte[] smallBytes, byte[] largeBytes) {
         this.reportType = reportType;
         this.smallData = null;
@@ -45,6 +49,7 @@ public final class SecurityReportRequest extends Request<SecurityReportRequestEv
         this.smallBytes = smallBytes;
         this.largeBytes = largeBytes;
     }
+
     public SecurityReportRequest(String reportType, byte[] smallBytes) {
         this.reportType = reportType;
         this.smallData = null;
@@ -52,6 +57,7 @@ public final class SecurityReportRequest extends Request<SecurityReportRequestEv
         this.smallBytes = smallBytes;
         this.largeBytes = null;
     }
+
     public SecurityReportRequest(String reportType, String smallData) {
         this.reportType = reportType;
         this.smallData = smallData;
@@ -59,6 +65,7 @@ public final class SecurityReportRequest extends Request<SecurityReportRequestEv
         this.smallBytes = null;
         this.largeBytes = null;
     }
+
     public SecurityReportRequest(String reportType) {
         this.reportType = reportType;
         this.smallData = null;

@@ -12,11 +12,7 @@ import pro.gravit.utils.helper.VerifyHelper;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements WebSocketRequest {
     public static final ProviderMap<AuthPasswordInterface> providers = new ProviderMap<>();
-
-    public interface AuthPasswordInterface {
-        boolean check();
-    }
-
+    private static boolean registerProviders = false;
     @LauncherNetworkAPI
     private final String login;
     @LauncherNetworkAPI
@@ -30,17 +26,6 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
     @LauncherNetworkAPI
     public boolean initProxy;
 
-    public enum ConnectTypes {
-        @Deprecated
-        @LauncherNetworkAPI
-        SERVER,
-        @LauncherNetworkAPI
-        CLIENT,
-        @LauncherNetworkAPI
-        API
-    }
-
-
     public AuthRequest(String login, byte[] password) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.password = new AuthECPassword(password.clone());
@@ -49,6 +34,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         authType = ConnectTypes.CLIENT;
     }
 
+
     public AuthRequest(String login, byte[] password, String auth_id) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.password = new AuthECPassword(password.clone());
@@ -56,6 +42,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         getSession = true;
         authType = ConnectTypes.CLIENT;
     }
+
     @Deprecated
     public AuthRequest(String login, byte[] password, HWID hwid, String auth_id) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
@@ -81,18 +68,30 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         this.getSession = false;
     }
 
-    @Override
-    public String getType() {
-        return "auth";
-    }
-
-    private static boolean registerProviders = false;
-
     public static void registerProviders() {
         if (!registerProviders) {
             providers.register("plain", AuthPlainPassword.class);
             providers.register("rsa", AuthECPassword.class);
             registerProviders = true;
         }
+    }
+
+    @Override
+    public String getType() {
+        return "auth";
+    }
+
+    public enum ConnectTypes {
+        @Deprecated
+        @LauncherNetworkAPI
+        SERVER,
+        @LauncherNetworkAPI
+        CLIENT,
+        @LauncherNetworkAPI
+        API
+    }
+
+    public interface AuthPasswordInterface {
+        boolean check();
     }
 }

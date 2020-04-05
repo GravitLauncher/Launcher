@@ -26,7 +26,10 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,12 +40,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClientLauncherEntryPoint {
+    private static ClientClassLoader classLoader;
+
     private static ClientLauncherProcess.ClientParams readParams(SocketAddress address) throws IOException {
-        try (Socket socket = IOHelper.newSocket())
-        {
+        try (Socket socket = IOHelper.newSocket()) {
             socket.connect(address);
-            try(HInput input = new HInput(socket.getInputStream()))
-            {
+            try (HInput input = new HInput(socket.getInputStream())) {
                 byte[] serialized = input.readByteArray(0);
                 ClientLauncherProcess.ClientParams params = Launcher.gsonManager.gson.fromJson(new String(serialized, IOHelper.UNICODE_CHARSET), ClientLauncherProcess.ClientParams.class);
                 params.clientHDir = new HashedDir(input);
@@ -52,7 +55,7 @@ public class ClientLauncherEntryPoint {
             }
         }
     }
-    private static ClientClassLoader classLoader;
+
     public static void main(String[] args) throws Throwable {
         LauncherEngine.IS_CLIENT.set(true);
         LauncherEngine engine = LauncherEngine.clientInstance();
@@ -147,10 +150,12 @@ public class ClientLauncherEntryPoint {
             launch(profile, params);
         }
     }
+
     private static void initGson(ClientModuleManager moduleManager) {
         Launcher.gsonManager = new ClientGsonManager(moduleManager);
         Launcher.gsonManager.initGson();
     }
+
     public static void verifyHDir(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) throws IOException {
         //if (matcher != null)
         //    matcher = matcher.verifyOnly();
@@ -172,6 +177,7 @@ public class ClientLauncherEntryPoint {
             throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
         }
     }
+
     public static void checkJVMBitsAndVersion() {
         if (JVMHelper.JVM_BITS != JVMHelper.OS_BITS) {
             String error = String.format("У Вас установлена Java %d, но Ваша система определена как %d. Установите Java правильной разрядности", JVMHelper.JVM_BITS, JVMHelper.OS_BITS);
@@ -188,6 +194,7 @@ public class ClientLauncherEntryPoint {
                 JOptionPane.showMessageDialog(null, error);
         }
     }
+
     private static LinkedList<Path> resolveClassPathList(Path clientDir, String... classPath) throws IOException {
         return resolveClassPathStream(clientDir, classPath).collect(Collectors.toCollection(LinkedList::new));
     }
@@ -204,20 +211,7 @@ public class ClientLauncherEntryPoint {
         }
         return builder.build();
     }
-    private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
-        private final Stream.Builder<Path> result;
 
-        private ClassPathFileVisitor(Stream.Builder<Path> result) {
-            this.result = result;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (IOHelper.hasExtension(file, "jar") || IOHelper.hasExtension(file, "zip"))
-                result.accept(file);
-            return super.visitFile(file, attrs);
-        }
-    }
     private static void launch(ClientProfile profile, ClientLauncherProcess.ClientParams params) throws Throwable {
         // Add client args
         Collection<String> args = new LinkedList<>();
@@ -239,8 +233,7 @@ public class ClientLauncherEntryPoint {
         LogHelper.debug("Args: " + copy);
         // Resolve main class and method
         Class<?> mainClass = classLoader.loadClass(profile.getMainClass());
-        for(URL u : classLoader.getURLs())
-        {
+        for (URL u : classLoader.getURLs()) {
             LogHelper.info("ClassLoader URL: %s", u.toString());
         }
         FMLPatcher.apply();
@@ -259,5 +252,20 @@ public class ClientLauncherEntryPoint {
             LauncherEngine.exitLauncher(0);
         }
 
+    }
+
+    private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
+        private final Stream.Builder<Path> result;
+
+        private ClassPathFileVisitor(Stream.Builder<Path> result) {
+            this.result = result;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (IOHelper.hasExtension(file, "jar") || IOHelper.hasExtension(file, "zip"))
+                result.accept(file);
+            return super.visitFile(file, attrs);
+        }
     }
 }

@@ -15,9 +15,14 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
+    static {
+    }
+
     public final LaunchServer srv;
     public final WebSocketService service;
+    private final UUID connectUUID = UUID.randomUUID();
     public NettyConnectContext context;
+    private Client client;
 
     public WebSocketFrameHandler(NettyConnectContext context, LaunchServer srv, WebSocketService service) {
         this.context = context;
@@ -25,18 +30,12 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         this.service = service;
     }
 
-    private Client client;
-    private final UUID connectUUID = UUID.randomUUID();
-
-    static {
+    public Client getClient() {
+        return client;
     }
 
     public void setClient(Client client) {
         this.client = client;
-    }
-
-    public Client getClient() {
-        return client;
     }
 
     public final UUID getConnectUUID() {

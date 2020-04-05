@@ -16,9 +16,13 @@ import java.util.Vector;
 
 public class FMLPatcher extends ClassLoader implements Opcodes {
     public static final MethodType EXITMH = MethodType.methodType(void.class, int.class);
-    public static volatile FMLPatcher INSTANCE = null;
     public static final String[] PACKAGES = new String[]{"cpw.mods.fml.", "net.minecraftforge.fml.", "cpw.mods."};
     public static final Vector<MethodHandle> MHS = new Vector<>();
+    public static volatile FMLPatcher INSTANCE = null;
+
+    public FMLPatcher(final ClassLoader cl) {
+        super(cl);
+    }
 
     public static void apply() {
         INSTANCE = new FMLPatcher(null); // Never cause ClassFormatError (fuck forge 1.14!!!)
@@ -95,10 +99,6 @@ public class FMLPatcher extends ClassLoader implements Opcodes {
         for (int i = 0; i < lenght; i++)
             sb.append(alphabet.charAt(random.nextInt(26)));
         return sb.toString();
-    }
-
-    public FMLPatcher(final ClassLoader cl) {
-        super(cl);
     }
 
     public Class<?> def(final String name, final String exName) {

@@ -6,18 +6,6 @@ import java.util.Set;
 public class BiHookSet<V, R> {
     public final Set<Hook<V, R>> list = new HashSet<>();
 
-    @FunctionalInterface
-    public interface Hook<V, R> {
-        /**
-         * @param context custom param
-         * @param object  custom param
-         * @return True if you need to interrupt hook processing
-         * False to continue processing hook
-         * @throws HookException The hook may return the error text throwing this exception
-         */
-        boolean hook(V object, R context) throws HookException;
-    }
-
     public void registerHook(Hook<V, R> hook) {
         list.add(hook);
     }
@@ -38,5 +26,17 @@ public class BiHookSet<V, R> {
             if (hook.hook(context, object)) return true;
         }
         return false;
+    }
+
+    @FunctionalInterface
+    public interface Hook<V, R> {
+        /**
+         * @param context custom param
+         * @param object  custom param
+         * @return True if you need to interrupt hook processing
+         * False to continue processing hook
+         * @throws HookException The hook may return the error text throwing this exception
+         */
+        boolean hook(V object, R context) throws HookException;
     }
 }

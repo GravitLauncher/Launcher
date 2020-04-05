@@ -10,11 +10,11 @@ import java.nio.file.Paths;
 import java.security.KeyPair;
 
 public class TestCommand extends Command {
+    private NettyServerSocketHandler handler = null;
+
     public TestCommand(LaunchServer server) {
         super(server);
     }
-
-    private NettyServerSocketHandler handler = null;
 
     @Override
     public String getArgsDescription() {

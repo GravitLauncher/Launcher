@@ -15,21 +15,21 @@ import java.util.UUID;
 @Entity(name = "User")
 @Table(name = "users")
 public class UserHibernateImpl implements User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
     @Column(unique = true)
     public String username;
     public String email;
     @Column(unique = true)
     public UUID uuid;
+    public String serverID;
+    public long permissions;
+    public long flags;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
     @Column(name = "password")
     private byte[] password;
     private String accessToken;
-    public String serverID;
     private String password_salt;
-    public long permissions;
-    public long flags;
 
     public void setPassword(String password) {
         password_salt = SecurityHelper.randomStringAESKey();

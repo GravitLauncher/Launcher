@@ -13,23 +13,6 @@ public abstract class CommandHandler implements Runnable {
     private final List<Category> categories = new ArrayList<>();
     private final CommandCategory baseCategory = new BaseCommandCategory();
 
-    public static class Category {
-        public final CommandCategory category;
-        public final String name;
-        public String description;
-
-        public Category(CommandCategory category, String name) {
-            this.category = category;
-            this.name = name;
-        }
-
-        public Category(CommandCategory category, String name, String description) {
-            this.category = category;
-            this.name = name;
-            this.description = description;
-        }
-    }
-
     public void eval(String line, boolean bell) {
         LogHelper.info("Command '%s'", line);
         try {
@@ -46,7 +29,6 @@ public abstract class CommandHandler implements Runnable {
         eval(args, bell);
     }
 
-
     public void eval(String[] args, boolean bell) throws Exception {
         if (args.length == 0)
             return;
@@ -60,7 +42,6 @@ public abstract class CommandHandler implements Runnable {
         if (bell && endTime - startTime >= 5000)
             bell();
     }
-
 
     public Command lookup(String name) throws CommandException {
         Command command = findCommand(name);
@@ -80,7 +61,6 @@ public abstract class CommandHandler implements Runnable {
         return cmd;
     }
 
-
     /**
      * Reads a line from the console
      *
@@ -93,7 +73,6 @@ public abstract class CommandHandler implements Runnable {
         for (String line = readLine(); line != null; line = readLine())
             eval(line, true);
     }
-
 
     public void registerCommand(String name, Command command) {
         baseCategory.registerCommand(name, command);
@@ -125,11 +104,6 @@ public abstract class CommandHandler implements Runnable {
         }
     }
 
-    @FunctionalInterface
-    public interface CommandWalk {
-        void walk(Category category, String name, Command command);
-    }
-
     /**
      * Walk all categories
      * Categories are sorted in the order they are added.
@@ -159,11 +133,32 @@ public abstract class CommandHandler implements Runnable {
      */
     public abstract void bell();
 
-
     /**
      * Cleans the console
      *
      * @throws IOException Internal Error
      */
     public abstract void clear() throws IOException;
+
+    @FunctionalInterface
+    public interface CommandWalk {
+        void walk(Category category, String name, Command command);
+    }
+
+    public static class Category {
+        public final CommandCategory category;
+        public final String name;
+        public String description;
+
+        public Category(CommandCategory category, String name) {
+            this.category = category;
+            this.name = name;
+        }
+
+        public Category(CommandCategory category, String name, String description) {
+            this.category = category;
+            this.name = name;
+            this.description = description;
+        }
+    }
 }

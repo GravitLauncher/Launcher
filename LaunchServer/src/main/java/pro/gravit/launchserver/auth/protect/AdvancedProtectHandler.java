@@ -4,7 +4,6 @@ import pro.gravit.launcher.events.request.GetSecureLevelInfoRequestEvent;
 import pro.gravit.launchserver.auth.protect.interfaces.SecureProtectHandler;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
-import pro.gravit.utils.helper.SecurityHelper;
 
 public class AdvancedProtectHandler extends ProtectHandler implements SecureProtectHandler {
 

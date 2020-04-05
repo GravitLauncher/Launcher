@@ -40,21 +40,18 @@ import java.util.zip.ZipOutputStream;
  */
 public class SignerJar implements AutoCloseable {
 
-	private static final String MANIFEST_FN = "META-INF/MANIFEST.MF";
+    private static final String MANIFEST_FN = "META-INF/MANIFEST.MF";
+    private static final String DIGEST_HASH = SignHelper.hashFunctionName + "-Digest";
     private final String SIG_FN;
     private final String SIG_KEY_FN;
-	private static final String DIGEST_HASH = SignHelper.hashFunctionName + "-Digest";
-
     private final ZipOutputStream zos;
 
     private final Map<String, String> manifestAttributes;
+    private final Map<String, String> fileDigests;
+    private final Map<String, String> sectionDigests;
+    private final Supplier<CMSSignedDataGenerator> gen;
     private String manifestHash;
     private String manifestMainHash;
-
-    private final Map<String, String> fileDigests;
-
-    private final Map<String, String> sectionDigests;
-	private final Supplier<CMSSignedDataGenerator> gen;
 
     public SignerJar(ZipOutputStream out, Supplier<CMSSignedDataGenerator> gen, String sig_fn, String sig_key_fn) {
         zos = out;
@@ -76,7 +73,7 @@ public class SignerJar implements AutoCloseable {
      * @throws NullPointerException if any of the arguments is {@code null}
      */
     public void addFileContents(String filename, byte[] contents) throws IOException {
-    	addFileContents(filename, new ByteArrayInputStream(contents));
+        addFileContents(filename, new ByteArrayInputStream(contents));
     }
 
     /**
@@ -89,7 +86,7 @@ public class SignerJar implements AutoCloseable {
      * @throws NullPointerException if any of the arguments is {@code null}
      */
     public void addFileContents(String filename, InputStream contents) throws IOException {
-    	addFileContents(IOHelper.newZipEntry(filename), contents);
+        addFileContents(IOHelper.newZipEntry(filename), contents);
     }
 
     /**
@@ -102,7 +99,7 @@ public class SignerJar implements AutoCloseable {
      * @throws NullPointerException if any of the arguments is {@code null}
      */
     public void addFileContents(ZipEntry entry, byte[] contents) throws IOException {
-    	addFileContents(entry, new ByteArrayInputStream(contents));
+        addFileContents(entry, new ByteArrayInputStream(contents));
     }
 
     /**
@@ -138,7 +135,7 @@ public class SignerJar implements AutoCloseable {
      * underlying stream.
      *
      * @throws IOException
-     * @throws RuntimeException    if the signing goes wrong
+     * @throws RuntimeException if the signing goes wrong
      */
     @Override
     public void close() throws IOException {
@@ -152,7 +149,7 @@ public class SignerJar implements AutoCloseable {
      * underlying stream open.
      *
      * @throws IOException
-     * @throws RuntimeException    if the signing goes wrong
+     * @throws RuntimeException if the signing goes wrong
      */
     public void finish() throws IOException {
         writeManifest();
@@ -272,7 +269,7 @@ public class SignerJar implements AutoCloseable {
      * Signs the .SIG file and writes the signature (.RSA file) to the JAR.
      *
      * @throws IOException
-     * @throws RuntimeException    if the signing failed
+     * @throws RuntimeException if the signing failed
      */
     private void writeSignature(byte[] sigFile) throws IOException {
         zos.putNextEntry(IOHelper.newZipEntry(SIG_KEY_FN));

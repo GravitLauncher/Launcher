@@ -10,46 +10,24 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
-    public static class StoreFileVisitor extends SimpleFileVisitor<Path> {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                throws IOException {
-            try (HInput input = new HInput(IOHelper.newInput(file))) {
-                String dirName = input.readString(128);
-                String fullPath = input.readString(1024);
-                HashedDir dir = new HashedDir(input);
-                settings.lastHDirs.add(new NewLauncherSettings.HashedStoreEntry(dir, dirName, fullPath));
-            } catch (IOException e) {
-                LogHelper.error("Skip file %s exception: %s", file.toAbsolutePath().toString(), e.getMessage());
-            }
-            return super.visitFile(file, attrs);
-        }
-
-    }
-
-
     public static NewLauncherSettings settings;
+
 
     public SettingsManager() {
         super(NewLauncherSettings.class, DirBridge.dir.resolve("settings.json"));
     }
 
-
     @Override
     public NewLauncherSettings getConfig() {
         return settings;
     }
-
-
-    @Override
-    public NewLauncherSettings getDefaultConfig() {
-        return new NewLauncherSettings();
-    }
-
 
     @Override
     public void setConfig(NewLauncherSettings config) {
@@ -62,12 +40,15 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         }
     }
 
+    @Override
+    public NewLauncherSettings getDefaultConfig() {
+        return new NewLauncherSettings();
+    }
 
     public void loadHDirStore(Path storePath) throws IOException {
         Files.createDirectories(storePath);
         IOHelper.walk(storePath, new StoreFileVisitor(), false);
     }
-
 
     public void saveHDirStore(Path storeProjectPath) throws IOException {
         Files.createDirectories(storeProjectPath);
@@ -83,13 +64,28 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         }
     }
 
-
     public void loadHDirStore() throws IOException {
         loadHDirStore(DirBridge.dirStore);
     }
 
-
     public void saveHDirStore() throws IOException {
         saveHDirStore(DirBridge.dirProjectStore);
+    }
+
+    public static class StoreFileVisitor extends SimpleFileVisitor<Path> {
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+            try (HInput input = new HInput(IOHelper.newInput(file))) {
+                String dirName = input.readString(128);
+                String fullPath = input.readString(1024);
+                HashedDir dir = new HashedDir(input);
+                settings.lastHDirs.add(new NewLauncherSettings.HashedStoreEntry(dir, dirName, fullPath));
+            } catch (IOException e) {
+                LogHelper.error("Skip file %s exception: %s", file.toAbsolutePath().toString(), e.getMessage());
+            }
+            return super.visitFile(file, attrs);
+        }
+
     }
 }

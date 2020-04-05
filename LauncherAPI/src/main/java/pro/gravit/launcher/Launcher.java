@@ -30,29 +30,19 @@ public final class Launcher {
     public static final String CLOAK_DIGEST_PROPERTY = "cloakDigest";
     // Used to determine from clientside is launched from launcher
     public static final AtomicBoolean LAUNCHED = new AtomicBoolean(false);
-
-    private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
-
     public static final int PROTOCOL_MAGIC_LEGACY = 0x724724_00 + 24;
-
     public static final int PROTOCOL_MAGIC = 0xA205B064; // e = 2.718281828
-
-    // Constants
-
     public static final String RUNTIME_DIR = "runtime";
 
+    // Constants
     public static final String GUARD_DIR = "guard";
-
     public static final String CONFIG_FILE = "config.bin";
-
-    public static ClientProfile profile;
-
     public static final String INIT_SCRIPT_FILE = "init.js";
-
     public static final String API_SCRIPT_FILE = "engine/api.js";
     public static final String CONFIG_SCRIPT_FILE = "config.js";
-
+    private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
+    public static ClientProfile profile;
     public static GsonManager gsonManager;
 
 

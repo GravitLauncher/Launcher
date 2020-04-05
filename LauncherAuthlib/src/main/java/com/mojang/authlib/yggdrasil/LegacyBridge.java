@@ -9,6 +9,9 @@ import pro.gravit.utils.helper.LogHelper;
 // Used by 1.6.4 and below versions
 
 public class LegacyBridge {
+    private LegacyBridge() {
+    }
+
     public static boolean checkServer(String username, String serverID) throws Exception {
         LogHelper.debug("LegacyBridge.checkServer, Username: '%s', Server ID: %s", username, serverID);
         return new CheckServerRequest(username, serverID).request() != null;
@@ -35,8 +38,5 @@ public class LegacyBridge {
         } catch (Exception e) {
             return e.toString();
         }
-    }
-
-    private LegacyBridge() {
     }
 }

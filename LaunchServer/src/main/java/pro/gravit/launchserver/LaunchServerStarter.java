@@ -2,6 +2,7 @@ package pro.gravit.launchserver;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherTrustManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
@@ -23,7 +24,6 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.launcher.LauncherTrustManager;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -177,9 +177,9 @@ public class LaunchServerStarter {
         LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
         directories.dir = dir;
         if (inDocker) {
-        	Path parentLibraries = StarterAgent.libraries.toAbsolutePath().normalize().getParent();
-        	directories.launcherLibrariesCompileDir = parentLibraries.resolve(LaunchServer.LaunchServerDirectories.LAUNCHERLIBRARIESCOMPILE_NAME);
-        	directories.launcherLibrariesDir = parentLibraries.resolve(LaunchServer.LaunchServerDirectories.LAUNCHERLIBRARIES_NAME);
+            Path parentLibraries = StarterAgent.libraries.toAbsolutePath().normalize().getParent();
+            directories.launcherLibrariesCompileDir = parentLibraries.resolve(LaunchServer.LaunchServerDirectories.LAUNCHERLIBRARIESCOMPILE_NAME);
+            directories.launcherLibrariesDir = parentLibraries.resolve(LaunchServer.LaunchServerDirectories.LAUNCHERLIBRARIES_NAME);
         }
         LaunchServer server = new LaunchServerBuilder()
                 .setDirectories(directories)

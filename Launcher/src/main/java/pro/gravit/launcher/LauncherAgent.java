@@ -12,8 +12,8 @@ import java.util.jar.JarFile;
 
 
 public final class LauncherAgent {
-    private static boolean isAgentStarted = false;
     public static Instrumentation inst;
+    private static boolean isAgentStarted = false;
 
     public static void addJVMClassPath(String path) throws IOException {
         LogHelper.debug("Launcher Agent addJVMClassPath");
@@ -23,10 +23,6 @@ public final class LauncherAgent {
     public static void addJVMClassPath(Path path) throws IOException {
         LogHelper.debug("Launcher Agent addJVMClassPath");
         inst.appendToSystemClassLoaderSearch(new JarFile(path.toFile()));
-    }
-
-    public boolean isAgentStarted() {
-        return isAgentStarted;
     }
 
     public static void premain(String agentArgument, Instrumentation instrumentation) {
@@ -56,6 +52,10 @@ public final class LauncherAgent {
     }
 
     public static boolean isStarted() {
+        return isAgentStarted;
+    }
+
+    public boolean isAgentStarted() {
         return isAgentStarted;
     }
 }

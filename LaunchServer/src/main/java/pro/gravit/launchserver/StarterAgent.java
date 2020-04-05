@@ -6,14 +6,29 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarFile;
 
 public final class StarterAgent {
+
+    public static Instrumentation inst = null;
+    public static Path libraries = null;
+    private static boolean isStarted = false;
+
+    public static boolean isAgentStarted() {
+        return isStarted;
+    }
+
+    public static void premain(String agentArgument, Instrumentation inst) {
+        StarterAgent.inst = inst;
+        libraries = Paths.get(Optional.ofNullable(agentArgument).map(e -> e.trim()).filter(e -> !e.isEmpty()).orElse("libraries"));
+        isStarted = true;
+        try {
+            Files.walkFileTree(libraries, Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new StarterVisitor());
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+        }
+    }
 
     private static final class StarterVisitor extends SimpleFileVisitor<Path> {
         private static final Set<PosixFilePermission> DPERMS;
@@ -47,25 +62,6 @@ public final class StarterAgent {
             if (file.toFile().getName().endsWith(".jar"))
                 inst.appendToSystemClassLoaderSearch(new JarFile(file.toFile()));
             return super.visitFile(file, attrs);
-        }
-    }
-
-    public static Instrumentation inst = null;
-    public static Path libraries = null;
-    private static boolean isStarted = false;
-
-    public static boolean isAgentStarted() {
-        return isStarted;
-    }
-
-    public static void premain(String agentArgument, Instrumentation inst) {
-        StarterAgent.inst = inst;
-        libraries = Paths.get(Optional.ofNullable(agentArgument).map(e -> e.trim()).filter(e -> !e.isEmpty()).orElse("libraries"));
-        isStarted = true;
-        try {
-            Files.walkFileTree(libraries, Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new StarterVisitor());
-        } catch (IOException e) {
-            e.printStackTrace(System.err);
         }
     }
 }

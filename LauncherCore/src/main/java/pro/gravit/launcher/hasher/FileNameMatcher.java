@@ -4,6 +4,16 @@ import java.util.Collection;
 
 public final class FileNameMatcher {
     private static final String[] NO_ENTRIES = new String[0];
+    // Instance
+    private final String[] update;
+    private final String[] verify;
+    private final String[] exclusions;
+
+    public FileNameMatcher(String[] update, String[] verify, String[] exclusions) {
+        this.update = update;
+        this.verify = verify;
+        this.exclusions = exclusions;
+    }
 
     private static boolean anyMatch(String[] entries, Collection<String> path) {
         //return path.stream().anyMatch(e -> Arrays.stream(entries).anyMatch(p -> p.endsWith(e)));
@@ -26,21 +36,6 @@ public final class FileNameMatcher {
         }
         return false;
     }
-
-    // Instance
-    private final String[] update;
-    private final String[] verify;
-
-    private final String[] exclusions;
-
-
-
-    public FileNameMatcher(String[] update, String[] verify, String[] exclusions) {
-        this.update = update;
-        this.verify = verify;
-        this.exclusions = exclusions;
-    }
-
 
     public boolean shouldUpdate(Collection<String> path) {
         return (anyMatch(update, path) || anyMatch(verify, path)) && !anyMatch(exclusions, path);

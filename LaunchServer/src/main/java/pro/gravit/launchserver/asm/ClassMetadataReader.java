@@ -18,33 +18,18 @@ import java.util.jar.JarFile;
  * чего угодно. Работает через поиск class-файлов в classpath.
  */
 public class ClassMetadataReader implements Closeable {
-    private static class CheckSuperClassVisitor extends ClassVisitor {
-
-        String superClassName;
-
-        public CheckSuperClassVisitor() {
-            super(Opcodes.ASM7);
-        }
-
-        @Override
-        public void visit(int version, int access, String name, String signature, String superName,
-                          String[] interfaces) {
-            superClassName = superName;
-        }
-    }
-
     private final List<JarFile> cp;
 
     public ClassMetadataReader(List<JarFile> cp) {
         this.cp = cp;
     }
 
-    public List<JarFile> getCp() {
-        return cp;
-    }
-
     public ClassMetadataReader() {
         this.cp = new ArrayList<>();
+    }
+
+    public List<JarFile> getCp() {
+        return cp;
     }
 
     public void acceptVisitor(byte[] classData, ClassVisitor visitor) {
@@ -62,7 +47,6 @@ public class ClassMetadataReader implements Closeable {
     public void acceptVisitor(String className, ClassVisitor visitor, int flags) throws IOException {
         acceptVisitor(getClassData(className), visitor, flags);
     }
-
 
     public byte[] getClassData(String className) throws IOException {
         for (JarFile f : cp) {
@@ -109,6 +93,21 @@ public class ClassMetadataReader implements Closeable {
     public void close() {
         cp.forEach(IOHelper::close);
         cp.clear();
+    }
+
+    private static class CheckSuperClassVisitor extends ClassVisitor {
+
+        String superClassName;
+
+        public CheckSuperClassVisitor() {
+            super(Opcodes.ASM7);
+        }
+
+        @Override
+        public void visit(int version, int access, String name, String signature, String superName,
+                          String[] interfaces) {
+            superClassName = superName;
+        }
     }
 
 }

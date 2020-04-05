@@ -14,15 +14,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class RejectAuthProvider extends AuthProvider implements Reconfigurable {
+    private String message;
+    private ArrayList<String> whitelist = new ArrayList<>();
+
     public RejectAuthProvider() {
     }
-
     public RejectAuthProvider(String message) {
         this.message = message;
     }
-
-    private String message;
-    private ArrayList<String> whitelist = new ArrayList<>();
 
     @Override
     public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws AuthException {

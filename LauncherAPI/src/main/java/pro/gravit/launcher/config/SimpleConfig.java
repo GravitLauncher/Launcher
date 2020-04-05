@@ -6,8 +6,8 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 
 public abstract class SimpleConfig<T> implements JsonConfigurableInterface<T> {
-    private transient final Class<T> type;
     protected transient final Path configPath;
+    private transient final Class<T> type;
 
     protected SimpleConfig(Class<T> type, Path configPath) {
         this.type = type;
@@ -21,7 +21,7 @@ public abstract class SimpleConfig<T> implements JsonConfigurableInterface<T> {
     }
 
     @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public T getDefaultConfig() {
         try {
             return (T) MethodHandles.publicLookup().findConstructor(type, MethodType.methodType(void.class)).invokeWithArguments();

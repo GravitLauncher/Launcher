@@ -7,9 +7,6 @@ import pro.gravit.launcher.profiles.PlayerProfile;
 
 public class AuthRequestEvent extends RequestEvent {
 
-    public AuthRequestEvent() {
-    }
-
     @LauncherNetworkAPI
     public ClientPermissions permissions;
     @LauncherNetworkAPI
@@ -20,6 +17,8 @@ public class AuthRequestEvent extends RequestEvent {
     public String protectToken;
     @LauncherNetworkAPI
     public long session;
+    public AuthRequestEvent() {
+    }
 
     public AuthRequestEvent(PlayerProfile pp, String accessToken, ClientPermissions permissions) {
         this.playerProfile = pp;

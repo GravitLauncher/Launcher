@@ -21,14 +21,14 @@ import java.net.URI;
 
 public abstract class ClientJSONPoint {
 
-    private final URI uri;
-    protected Channel ch;
     private static final EventLoopGroup group = new NioEventLoopGroup();
-    protected WebSocketClientHandler webSocketClientHandler;
     protected final Bootstrap bootstrap = new Bootstrap();
+    private final URI uri;
+    public boolean isClosed;
+    protected Channel ch;
+    protected WebSocketClientHandler webSocketClientHandler;
     protected boolean ssl = false;
     protected int port;
-    public boolean isClosed;
 
     public ClientJSONPoint(final String uri) throws SSLException {
         this(URI.create(uri));
@@ -76,6 +76,7 @@ public abstract class ClientJSONPoint {
         ch = bootstrap.connect(uri.getHost(), port).sync().channel();
         webSocketClientHandler.handshakeFuture().sync();
     }
+
     public void openAsync(Runnable onConnect) {
         //System.out.println("WebSocket Client connecting");
         webSocketClientHandler =

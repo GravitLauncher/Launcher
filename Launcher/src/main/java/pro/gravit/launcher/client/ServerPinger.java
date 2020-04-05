@@ -21,34 +21,24 @@ import java.util.regex.Pattern;
 
 public final class ServerPinger {
 
-    public static final class Result {
-
-        public final int onlinePlayers;
-
-        public final int maxPlayers;
-
-        public final String raw;
-
-        public Result(int onlinePlayers, int maxPlayers, String raw) {
-            this.onlinePlayers = VerifyHelper.verifyInt(onlinePlayers,
-                    VerifyHelper.NOT_NEGATIVE, "onlinePlayers can't be < 0");
-            this.maxPlayers = VerifyHelper.verifyInt(maxPlayers,
-                    VerifyHelper.NOT_NEGATIVE, "maxPlayers can't be < 0");
-            this.raw = raw;
-        }
-
-
-        public boolean isOverfilled() {
-            return onlinePlayers >= maxPlayers;
-        }
-    }
-
     // Constants
     private static final String LEGACY_PING_HOST_MAGIC = "§1";
     private static final String LEGACY_PING_HOST_CHANNEL = "MC|PingHost";
     private static final Pattern LEGACY_PING_HOST_DELIMETER = Pattern.compile("\0", Pattern.LITERAL);
-
     private static final int PACKET_LENGTH = 65535;
+    // Instance
+    private final InetSocketAddress address;
+    private final ClientProfile.Version version;
+    // Cache
+    private final Object cacheLock = new Object();
+    private Result cache = null;
+    private Exception cacheException = null;
+    private Instant cacheTime = null;
+
+    public ServerPinger(ClientProfile profile) {
+        this.address = Objects.requireNonNull(profile.getServerSocketAddress(), "address");
+        this.version = Objects.requireNonNull(profile.getVersion(), "version");
+    }
 
     private static String readUTF16String(HInput input) throws IOException {
         int length = input.readUnsignedShort() << 1;
@@ -59,24 +49,6 @@ public final class ServerPinger {
     private static void writeUTF16String(HOutput output, String s) throws IOException {
         output.writeShort((short) s.length());
         output.stream.write(s.getBytes(StandardCharsets.UTF_16BE));
-    }
-
-    // Instance
-    private final InetSocketAddress address;
-    private final ClientProfile.Version version;
-    // Cache
-    private final Object cacheLock = new Object();
-
-    private Result cache = null;
-
-    private Exception cacheException = null;
-
-    private Instant cacheTime = null;
-
-
-    public ServerPinger(ClientProfile profile) {
-        this.address = Objects.requireNonNull(profile.getServerSocketAddress(), "address");
-        this.version = Objects.requireNonNull(profile.getVersion(), "version");
     }
 
     private Result doPing() throws IOException {
@@ -192,7 +164,6 @@ public final class ServerPinger {
         return new Result(online, max, response);
     }
 
-
     public Result ping() throws IOException {
         Instant now = Instant.now();
         synchronized (cacheLock) {
@@ -220,6 +191,28 @@ public final class ServerPinger {
 
             // We're done
             return cache;
+        }
+    }
+
+    public static final class Result {
+
+        public final int onlinePlayers;
+
+        public final int maxPlayers;
+
+        public final String raw;
+
+        public Result(int onlinePlayers, int maxPlayers, String raw) {
+            this.onlinePlayers = VerifyHelper.verifyInt(onlinePlayers,
+                    VerifyHelper.NOT_NEGATIVE, "onlinePlayers can't be < 0");
+            this.maxPlayers = VerifyHelper.verifyInt(maxPlayers,
+                    VerifyHelper.NOT_NEGATIVE, "maxPlayers can't be < 0");
+            this.raw = raw;
+        }
+
+
+        public boolean isOverfilled() {
+            return onlinePlayers >= maxPlayers;
         }
     }
 }

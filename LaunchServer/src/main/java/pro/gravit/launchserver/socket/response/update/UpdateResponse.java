@@ -3,12 +3,10 @@ package pro.gravit.launchserver.socket.response.update;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
-import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
-import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.IOHelper;
 
 public class UpdateResponse extends SimpleResponse {

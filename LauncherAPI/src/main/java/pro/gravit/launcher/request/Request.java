@@ -10,26 +10,23 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Request<R extends WebSocketEvent> implements WebSocketRequest {
+    public static StdWebSocketService service;
     private static long session = SecurityHelper.secureRandom.nextLong();
     @LauncherNetworkAPI
     public final UUID requestUUID = UUID.randomUUID();
-    public static StdWebSocketService service;
-
-    public static void setSession(long session) {
-        Request.session = session;
-    }
+    private transient final AtomicBoolean started = new AtomicBoolean(false);
 
     public static long getSession() {
         return Request.session;
     }
 
+    public static void setSession(long session) {
+        Request.session = session;
+    }
 
     public static void requestError(String message) throws RequestException {
         throw new RequestException(message);
     }
-
-    private transient final AtomicBoolean started = new AtomicBoolean(false);
-
 
     public R request() throws Exception {
         if (!started.compareAndSet(false, true))

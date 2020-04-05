@@ -18,26 +18,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 public abstract class CachedAuthHandler extends AuthHandler implements NeedGarbageCollection, Reconfigurable {
-    public static final class Entry {
-
-        public final UUID uuid;
-        private String username;
-        private String accessToken;
-        private String serverID;
-
-
-        public Entry(UUID uuid, String username, String accessToken, String serverID) {
-            this.uuid = Objects.requireNonNull(uuid, "uuid");
-            this.username = Objects.requireNonNull(username, "username");
-            this.accessToken = accessToken == null ? null : SecurityHelper.verifyToken(accessToken);
-            this.serverID = serverID == null ? null : VerifyHelper.verifyServerID(serverID);
-        }
-    }
-
-    protected static class EntryAndUsername {
-        public Map<UUID, CachedAuthHandler.Entry> entryCache;
-        public Map<String, UUID> usernameCache;
-    }
+    private transient final Map<UUID, Entry> entryCache = new HashMap<>(1024);
+    private transient final Map<String, UUID> usernamesCache = new HashMap<>(1024);
 
     @Override
     public Map<String, Command> getCommands() {
@@ -91,10 +73,6 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
         return commands;
     }
 
-    private transient final Map<UUID, Entry> entryCache = new HashMap<>(1024);
-    private transient final Map<String, UUID> usernamesCache = new HashMap<>(1024);
-
-
     protected void addEntry(Entry entry) {
         Entry previous = entryCache.put(entry.uuid, entry);
         if (previous != null)
@@ -122,9 +100,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
                 serverID.equals(entry.serverID) ? entry.uuid : null;
     }
 
-
     protected abstract Entry fetchEntry(String username) throws IOException;
-
 
     protected abstract Entry fetchEntry(UUID uuid) throws IOException;
 
@@ -187,7 +163,6 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
 
     protected abstract boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException;
 
-
     protected abstract boolean updateServerID(UUID uuid, String serverID) throws IOException;
 
     @Override
@@ -200,5 +175,26 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
     public final synchronized String uuidToUsername(UUID uuid) throws IOException {
         Entry entry = getEntry(uuid);
         return entry == null ? null : entry.username;
+    }
+
+    public static final class Entry {
+
+        public final UUID uuid;
+        private String username;
+        private String accessToken;
+        private String serverID;
+
+
+        public Entry(UUID uuid, String username, String accessToken, String serverID) {
+            this.uuid = Objects.requireNonNull(uuid, "uuid");
+            this.username = Objects.requireNonNull(username, "username");
+            this.accessToken = accessToken == null ? null : SecurityHelper.verifyToken(accessToken);
+            this.serverID = serverID == null ? null : VerifyHelper.verifyServerID(serverID);
+        }
+    }
+
+    protected static class EntryAndUsername {
+        public Map<UUID, CachedAuthHandler.Entry> entryCache;
+        public Map<String, UUID> usernameCache;
     }
 }

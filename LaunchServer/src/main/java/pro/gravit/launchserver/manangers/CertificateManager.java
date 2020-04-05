@@ -20,11 +20,11 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
+import pro.gravit.launcher.LauncherTrustManager;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.launcher.LauncherTrustManager;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -48,17 +48,13 @@ import java.util.Date;
 import java.util.List;
 
 public class CertificateManager {
-    public X509CertificateHolder ca;
-    public AsymmetricKeyParameter caKey;
-
-    public X509CertificateHolder server;
-    public AsymmetricKeyParameter serverKey;
-
-    public LauncherTrustManager trustManager;
-
     public final int validDays = 60;
     public final int minusHours = 6;
-
+    public X509CertificateHolder ca;
+    public AsymmetricKeyParameter caKey;
+    public X509CertificateHolder server;
+    public AsymmetricKeyParameter serverKey;
+    public LauncherTrustManager trustManager;
     public String orgName;
 
     public X509CertificateHolder generateCertificate(String subjectName, PublicKey subjectPublicKey) throws OperatorCreationException {

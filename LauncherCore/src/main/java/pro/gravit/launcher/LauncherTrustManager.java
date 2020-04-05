@@ -35,14 +35,6 @@ public class LauncherTrustManager {
         }).toArray(X509Certificate[]::new);
     }
 
-    public enum CheckMode {
-        EXCEPTION_IN_NOT_SIGNED, WARN_IN_NOT_SIGNED, NONE_IN_NOT_SIGNED
-    }
-
-    public interface CertificateChecker {
-        void check(X509Certificate cert, X509Certificate signer, int number) throws SecurityException;
-    }
-
     public void checkCertificate(X509Certificate[] certs, CertificateChecker checker) throws CertificateException, NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         if (certs == null) throw new SecurityException("Object not signed");
         for (int i = 0; i < certs.length; ++i) {
@@ -80,41 +72,45 @@ public class LauncherTrustManager {
         return false;
     }
 
-
     public X509Certificate[] getTrusted() {
         return Arrays.copyOf(trustSigners, trustSigners.length); // AntiModify orig array!!!
     }
 
-    public void isCertificateCodeSign(X509Certificate certificate)
-    {
+    public void isCertificateCodeSign(X509Certificate certificate) {
         //if(!certificate.getKeyUsage()[0]) throw new SecurityException("Certificate keyUsage \"digitalSignature\" check failed");
         List<String> extended;
         try {
             extended = certificate.getExtendedKeyUsage();
-            if(extended == null) throw new SecurityException("Certificate extendedKeyUsage null");
+            if (extended == null) throw new SecurityException("Certificate extendedKeyUsage null");
             boolean isCodeSign = false;
-            for(String s : extended)
-            {
-                if(s.equals("1.3.6.1.5.5.7.3.3"))
-                {
+            for (String s : extended) {
+                if (s.equals("1.3.6.1.5.5.7.3.3")) {
                     isCodeSign = true;
                     break;
                 }
             }
-            if(!isCodeSign) throw new SecurityException("Certificate extendedKeyUsage codeSign checkFailed");
+            if (!isCodeSign) throw new SecurityException("Certificate extendedKeyUsage codeSign checkFailed");
         } catch (CertificateParsingException e) {
             throw new SecurityException(e);
         }
     }
-    public void isCertificateCA(X509Certificate certificate)
-    {
-        if(certificate.getBasicConstraints() < 0) throw new SecurityException("This certificate not CA");
+
+    public void isCertificateCA(X509Certificate certificate) {
+        if (certificate.getBasicConstraints() < 0) throw new SecurityException("This certificate not CA");
     }
-    public void stdCertificateChecker(X509Certificate cert, X509Certificate signer, int number)
-    {
-        if(number == 0)
+
+    public void stdCertificateChecker(X509Certificate cert, X509Certificate signer, int number) {
+        if (number == 0)
             isCertificateCodeSign(cert);
         else
             isCertificateCA(cert);
+    }
+
+    public enum CheckMode {
+        EXCEPTION_IN_NOT_SIGNED, WARN_IN_NOT_SIGNED, NONE_IN_NOT_SIGNED
+    }
+
+    public interface CertificateChecker {
+        void check(X509Certificate cert, X509Certificate signer, int number) throws SecurityException;
     }
 }

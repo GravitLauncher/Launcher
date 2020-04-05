@@ -49,7 +49,7 @@ public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeseriali
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
         Class<? extends R> cls = providerMap.getClass(typename);
         if (cls == null) {
-            if(printErrorIfUnknownType) LogHelper.error("%s %s not found", name, typename);
+            if (printErrorIfUnknownType) LogHelper.error("%s %s not found", name, typename);
             return null;
         }
         return context.deserialize(json, cls);
@@ -63,11 +63,9 @@ public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeseriali
         if (classPath == null && src instanceof TypeSerializeInterface) {
             classPath = ((TypeSerializeInterface) src).getType();
         }
-        if(classPath == null)
-        {
-            if(printErrorIfUnknownType) LogHelper.warning("Class %s type null", src.getClass());
-        }
-        else jo.add(PROP_NAME, new JsonPrimitive(classPath));
+        if (classPath == null) {
+            if (printErrorIfUnknownType) LogHelper.warning("Class %s type null", src.getClass());
+        } else jo.add(PROP_NAME, new JsonPrimitive(classPath));
 
         return jo;
     }

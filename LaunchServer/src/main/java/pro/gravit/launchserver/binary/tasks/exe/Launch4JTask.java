@@ -13,28 +13,19 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class Launch4JTask implements LauncherBuildTask {
-    private final static class Launch4JLog extends Log {
-        private static final Launch4JLog INSTANCE = new Launch4JLog();
-
-        @Override
-        public void append(String s) {
-            LogHelper.subInfo(s);
-        }
-
-        @Override
-        public void clear() {
-            // Do nothing
-        }
-    }
-
     public static final String DOWNLOAD_URL = "http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html"; // Oracle
+    private static final String VERSION = Version.getVersion().getVersionString();
+    private static final int BUILD = Version.getVersion().build;
     private final Path faviconFile;
-
     private final LaunchServer server;
 
     public Launch4JTask(LaunchServer launchServer) {
         this.server = launchServer;
         faviconFile = launchServer.dir.resolve("favicon.ico");
+    }
+
+    public static String formatVars(String mask) {
+        return String.format(mask, VERSION, BUILD);
     }
 
     @Override
@@ -70,6 +61,7 @@ public class Launch4JTask implements LauncherBuildTask {
     public boolean allowDelete() {
         return true;
     }
+
     private Path setConfig() {
         Path path = server.launcherEXEBinary.nextPath(getName());
         Config config = new Config();
@@ -120,10 +112,17 @@ public class Launch4JTask implements LauncherBuildTask {
         return path;
     }
 
-    private static final String VERSION = Version.getVersion().getVersionString();
-    private static final int BUILD = Version.getVersion().build;
+    private final static class Launch4JLog extends Log {
+        private static final Launch4JLog INSTANCE = new Launch4JLog();
 
-    public static String formatVars(String mask) {
-        return String.format(mask, VERSION, BUILD);
+        @Override
+        public void append(String s) {
+            LogHelper.subInfo(s);
+        }
+
+        @Override
+        public void clear() {
+            // Do nothing
+        }
     }
 }

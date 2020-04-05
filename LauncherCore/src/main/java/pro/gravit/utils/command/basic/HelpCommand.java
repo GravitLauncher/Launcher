@@ -13,6 +13,10 @@ import java.util.Map.Entry;
 public final class HelpCommand extends Command {
     private final CommandHandler handler;
 
+    public HelpCommand(CommandHandler handler) {
+        this.handler = handler;
+    }
+
     public static void printCommand(String name, Command command) {
         String args = command.getArgsDescription();
         //LogHelper.subInfo("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());
@@ -48,10 +52,6 @@ public final class HelpCommand extends Command {
     private static void printCategory(String name, String description) {
         if (description != null) LogHelper.info("Category: %s - %s", name, description);
         else LogHelper.info("Category: %s", name);
-    }
-
-    public HelpCommand(CommandHandler handler) {
-        this.handler = handler;
     }
 
     @Override

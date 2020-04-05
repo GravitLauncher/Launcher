@@ -38,7 +38,7 @@ task javadocJar(type: Jar) {
 
 dependencies {
     pack project(':LauncherAuthlib')
-    pack group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']    
+    pack group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
 }
 
 shadowJar {

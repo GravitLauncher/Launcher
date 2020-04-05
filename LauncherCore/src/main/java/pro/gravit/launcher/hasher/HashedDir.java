@@ -17,97 +17,11 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public final class HashedDir extends HashedEntry {
-    public static final class Diff {
-
-        public final HashedDir mismatch;
-
-        public final HashedDir extra;
-
-        private Diff(HashedDir mismatch, HashedDir extra) {
-            this.mismatch = mismatch;
-            this.extra = extra;
-        }
-
-
-        public boolean isSame() {
-            return mismatch.isEmpty() && extra.isEmpty();
-        }
-    }
-
-    private final class HashFileVisitor extends SimpleFileVisitor<Path> {
-        private final Path dir;
-        private final FileNameMatcher matcher;
-        private final boolean allowSymlinks;
-        private final boolean digest;
-
-        // State
-        private HashedDir current = HashedDir.this;
-        private final Deque<String> path = new LinkedList<>();
-        private final Deque<HashedDir> stack = new LinkedList<>();
-
-        private HashFileVisitor(Path dir, FileNameMatcher matcher, boolean allowSymlinks, boolean digest) {
-            this.dir = dir;
-            this.matcher = matcher;
-            this.allowSymlinks = allowSymlinks;
-            this.digest = digest;
-        }
-
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            FileVisitResult result = super.postVisitDirectory(dir, exc);
-            if (this.dir.equals(dir))
-                return result;
-
-            // Add directory to parent
-            HashedDir parent = stack.removeLast();
-            parent.map.put(path.removeLast(), current);
-            current = parent;
-
-            // We're done
-            return result;
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            FileVisitResult result = super.preVisitDirectory(dir, attrs);
-            if (this.dir.equals(dir))
-                return result;
-
-            // Verify is not symlink
-            // Symlinks was disallowed because modification of it's destination are ignored by DirWatcher
-            if (!allowSymlinks && attrs.isSymbolicLink())
-                throw new SecurityException("Symlinks are not allowed");
-
-            // Add child
-            stack.add(current);
-            current = new HashedDir();
-            path.add(IOHelper.getFileName(dir));
-
-            // We're done
-            return result;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            // Verify is not symlink
-            if (!allowSymlinks && attrs.isSymbolicLink())
-                throw new SecurityException("Symlinks are not allowed");
-
-            // Add file (may be unhashed, if exclusion)
-            path.add(IOHelper.getFileName(file));
-            boolean doDigest = digest && (matcher == null || matcher.shouldUpdate(path));
-            current.map.put(path.removeLast(), new HashedFile(file, attrs.size(), doDigest));
-            return super.visitFile(file, attrs);
-        }
-    }
-
     @LauncherNetworkAPI
     private final Map<String, HashedEntry> map = new HashMap<>(32);
 
-
     public HashedDir() {
     }
-
 
     public HashedDir(HInput input) throws IOException {
         int entriesCount = input.readLength(0);
@@ -138,13 +52,11 @@ public final class HashedDir extends HashedEntry {
         IOHelper.walk(dir, new HashFileVisitor(dir, matcher, allowSymlinks, digest), true);
     }
 
-
     public Diff diff(HashedDir other, FileNameMatcher matcher) {
         HashedDir mismatch = sideDiff(other, matcher, new LinkedList<>(), true);
         HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
         return new Diff(mismatch, extra);
     }
-
 
     public Diff compare(HashedDir other, FileNameMatcher matcher) {
         HashedDir mismatch = sideDiff(other, matcher, new LinkedList<>(), true);
@@ -189,7 +101,6 @@ public final class HashedDir extends HashedEntry {
         }
     }
 
-
     public HashedEntry getEntry(String name) {
         return map.get(name);
     }
@@ -199,16 +110,13 @@ public final class HashedDir extends HashedEntry {
         return Type.DIR;
     }
 
-
     public boolean isEmpty() {
         return map.isEmpty();
     }
 
-
     public Map<String, HashedEntry> map() {
         return Collections.unmodifiableMap(map);
     }
-
 
     public HashedEntry resolve(Iterable<String> path) {
         HashedEntry current = this;
@@ -350,15 +258,6 @@ public final class HashedDir extends HashedEntry {
         walk(append, separator, callback, true);
     }
 
-    public enum WalkAction {
-        STOP, CONTINUE
-    }
-
-    @FunctionalInterface
-    public interface WalkCallback {
-        WalkAction walked(String path, String name, HashedEntry entry) throws IOException;
-    }
-
     private WalkAction walk(String append, CharSequence separator, WalkCallback callback, boolean noSeparator) throws IOException {
         for (Map.Entry<String, HashedEntry> entry : map.entrySet()) {
             HashedEntry e = entry.getValue();
@@ -381,5 +280,97 @@ public final class HashedDir extends HashedEntry {
             }
         }
         return WalkAction.CONTINUE;
+    }
+
+    public enum WalkAction {
+        STOP, CONTINUE
+    }
+
+    @FunctionalInterface
+    public interface WalkCallback {
+        WalkAction walked(String path, String name, HashedEntry entry) throws IOException;
+    }
+
+    public static final class Diff {
+
+        public final HashedDir mismatch;
+
+        public final HashedDir extra;
+
+        private Diff(HashedDir mismatch, HashedDir extra) {
+            this.mismatch = mismatch;
+            this.extra = extra;
+        }
+
+
+        public boolean isSame() {
+            return mismatch.isEmpty() && extra.isEmpty();
+        }
+    }
+
+    private final class HashFileVisitor extends SimpleFileVisitor<Path> {
+        private final Path dir;
+        private final FileNameMatcher matcher;
+        private final boolean allowSymlinks;
+        private final boolean digest;
+        private final Deque<String> path = new LinkedList<>();
+        private final Deque<HashedDir> stack = new LinkedList<>();
+        // State
+        private HashedDir current = HashedDir.this;
+
+        private HashFileVisitor(Path dir, FileNameMatcher matcher, boolean allowSymlinks, boolean digest) {
+            this.dir = dir;
+            this.matcher = matcher;
+            this.allowSymlinks = allowSymlinks;
+            this.digest = digest;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            FileVisitResult result = super.postVisitDirectory(dir, exc);
+            if (this.dir.equals(dir))
+                return result;
+
+            // Add directory to parent
+            HashedDir parent = stack.removeLast();
+            parent.map.put(path.removeLast(), current);
+            current = parent;
+
+            // We're done
+            return result;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            FileVisitResult result = super.preVisitDirectory(dir, attrs);
+            if (this.dir.equals(dir))
+                return result;
+
+            // Verify is not symlink
+            // Symlinks was disallowed because modification of it's destination are ignored by DirWatcher
+            if (!allowSymlinks && attrs.isSymbolicLink())
+                throw new SecurityException("Symlinks are not allowed");
+
+            // Add child
+            stack.add(current);
+            current = new HashedDir();
+            path.add(IOHelper.getFileName(dir));
+
+            // We're done
+            return result;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            // Verify is not symlink
+            if (!allowSymlinks && attrs.isSymbolicLink())
+                throw new SecurityException("Symlinks are not allowed");
+
+            // Add file (may be unhashed, if exclusion)
+            path.add(IOHelper.getFileName(file));
+            boolean doDigest = digest && (matcher == null || matcher.shouldUpdate(path));
+            current.map.put(path.removeLast(), new HashedFile(file, attrs.size(), doDigest));
+            return super.visitFile(file, attrs);
+        }
     }
 }

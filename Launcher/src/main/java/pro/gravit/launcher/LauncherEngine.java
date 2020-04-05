@@ -1,6 +1,9 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.client.*;
+import pro.gravit.launcher.client.ClientLauncherEntryPoint;
+import pro.gravit.launcher.client.ClientLauncherProcess;
+import pro.gravit.launcher.client.ClientModuleManager;
+import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.launcher.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientExitPhase;
 import pro.gravit.launcher.client.events.ClientPreGuiPhase;
@@ -33,16 +36,26 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LauncherEngine {
+    public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
+    public static ClientLauncherProcess.ClientParams clientParams;
+    public static LauncherGuardInterface guard;
+    public static ClientModuleManager modulesManager;
+    // Instance
+    private final AtomicBoolean started = new AtomicBoolean(false);
+    public RuntimeProvider runtimeProvider;
+    public ECPublicKey publicKey;
+    public ECPrivateKey privateKey;
+
+    private LauncherEngine() {
+
+    }
+
     //JVMHelper.getCertificates
     public static X509Certificate[] getCertificates(Class<?> clazz) {
         Object[] signers = clazz.getSigners();
         if (signers == null) return null;
         return Arrays.stream(signers).filter((c) -> c instanceof X509Certificate).map((c) -> (X509Certificate) c).toArray(X509Certificate[]::new);
     }
-
-    public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
-    public static ClientLauncherProcess.ClientParams clientParams;
-    public static LauncherGuardInterface guard;
 
     public static void checkClass(Class<?> clazz) throws SecurityException {
         LauncherTrustManager trustManager = Launcher.getConfig().trustManager;
@@ -58,8 +71,7 @@ public class LauncherEngine {
         }
     }
 
-    public static void exitLauncher(int code)
-    {
+    public static void exitLauncher(int code) {
         modulesManager.invokeEvent(new ClientExitPhase(code));
         try {
             System.exit(code);
@@ -108,7 +120,22 @@ public class LauncherEngine {
     }
 
     public static void verifyNoAgent() {
-        if (JVMHelper.RUNTIME_MXBEAN.getInputArguments().stream().filter(e -> e != null && !e.isEmpty()).anyMatch(e -> e.contains("javaagent"))) throw new SecurityException("JavaAgent found");
+        if (JVMHelper.RUNTIME_MXBEAN.getInputArguments().stream().filter(e -> e != null && !e.isEmpty()).anyMatch(e -> e.contains("javaagent")))
+            throw new SecurityException("JavaAgent found");
+    }
+
+    public static LauncherGuardInterface tryGetStdGuard() {
+        switch (Launcher.getConfig().guardType) {
+            case "no":
+                return new LauncherNoGuard();
+            case "wrapper":
+                return new LauncherWrapperGuard();
+        }
+        return null;
+    }
+
+    public static LauncherEngine clientInstance() {
+        return new LauncherEngine();
     }
 
     public void readKeys() throws IOException, InvalidKeySpecException {
@@ -132,20 +159,6 @@ public class LauncherEngine {
             IOHelper.write(privateKeyFile, privateKey.getEncoded());
         }
     }
-
-    // Instance
-    private final AtomicBoolean started = new AtomicBoolean(false);
-    public RuntimeProvider runtimeProvider;
-    public ECPublicKey publicKey;
-    public ECPrivateKey privateKey;
-
-    public static ClientModuleManager modulesManager;
-
-    private LauncherEngine() {
-
-    }
-
-
 
     public void start(String... args) throws Throwable {
         //Launcher.modulesManager = new ClientModuleManager(this);
@@ -187,21 +200,5 @@ public class LauncherEngine {
         LauncherGuardManager.initGuard(false);
         LogHelper.debug("Dir: %s", DirBridge.dir);
         runtimeProvider.run(args);
-    }
-
-    public static LauncherGuardInterface tryGetStdGuard()
-    {
-        switch (Launcher.getConfig().guardType)
-        {
-            case "no":
-                return new LauncherNoGuard();
-            case "wrapper":
-                return new LauncherWrapperGuard();
-        }
-        return null;
-    }
-
-    public static LauncherEngine clientInstance() {
-        return new LauncherEngine();
     }
 }

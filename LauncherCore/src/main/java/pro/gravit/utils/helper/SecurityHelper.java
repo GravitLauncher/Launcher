@@ -23,86 +23,31 @@ import java.util.Random;
 
 public final class SecurityHelper {
 
-    public enum DigestAlgorithm {
-        PLAIN("plain", -1), MD5("MD5", 128), SHA1("SHA-1", 160), SHA224("SHA-224", 224), SHA256("SHA-256", 256), SHA512("SHA-512", 512);
-        private static final Map<String, DigestAlgorithm> ALGORITHMS;
-
-        static {
-            DigestAlgorithm[] algorithmsValues = values();
-            ALGORITHMS = new HashMap<>(algorithmsValues.length);
-            for (DigestAlgorithm algorithm : algorithmsValues)
-                ALGORITHMS.put(algorithm.name, algorithm);
-        }
-
-        public static DigestAlgorithm byName(String name) {
-            return VerifyHelper.getMapValue(ALGORITHMS, name, String.format("Unknown digest algorithm: '%s'", name));
-        }
-
-        // Instance
-        public final String name;
-
-        public final int bits;
-
-        public final int bytes;
-
-        DigestAlgorithm(String name, int bits) {
-            this.name = name;
-            this.bits = bits;
-
-            // Convert to bytes
-            bytes = bits / Byte.SIZE;
-            assert bits % Byte.SIZE == 0;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
-        public byte[] verify(byte[] digest) {
-            if (digest.length != bytes)
-                throw new IllegalArgumentException("Invalid digest length: " + digest.length);
-            return digest;
-        }
-    }
-
-    // EC Algorithm constants
-
     public static final String EC_ALGO = "EC";
 
+    // EC Algorithm constants
     public static final String EC_CURVE = "secp256k1";
-
     public static final String EC_SIGN_ALGO = "SHA256withECDSA";
-
     public static final String EC_CIPHER_ALGO = "ECIES";
+    public static final int TOKEN_LENGTH = 16;
 
     // RSA Algorithm constants
     // Algorithm size constants
-
-    public static final int TOKEN_LENGTH = 16;
-
     public static final int AES_KEY_LENGTH = 8;
-
     public static final int TOKEN_STRING_LENGTH = TOKEN_LENGTH << 1;
-
     public static final int RSA_KEY_LENGTH_BITS = 2048;
-
     public static final int RSA_KEY_LENGTH = RSA_KEY_LENGTH_BITS / Byte.SIZE;
-
-
     public static final int CRYPTO_MAX_LENGTH = 2048;
-    // Certificate constants
-
     public static final String HEX = "0123456789abcdef";
+    // Certificate constants
     public static final byte[] NUMBERS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
-
     public static final SecureRandom secureRandom = new SecureRandom();
     // Random generator constants
     private static final char[] VOWELS = {'e', 'u', 'i', 'o', 'a'};
-
     private static final char[] CONS = {'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'k', 'l', 'c', 'v', 'b', 'n', 'm'};
 
+    private SecurityHelper() {
+    }
 
     public static byte[] digest(DigestAlgorithm algo, byte[] bytes) {
         return newDigest(algo).digest(bytes);
@@ -442,9 +387,6 @@ public final class SecurityHelper {
         }
     }
 
-    private SecurityHelper() {
-    }
-
     //AES
     public static byte[] encrypt(String seed, byte[] cleartext) throws Exception {
         byte[] rawKey = getRawKey(seed.getBytes());
@@ -463,7 +405,6 @@ public final class SecurityHelper {
         SecretKey sKey = kGen.generateKey();
         return sKey.getEncoded();
     }
-
 
     public static byte[] encrypt(byte[] raw, byte[] clear) throws Exception {
         SecretKeySpec sKeySpec = new SecretKeySpec(raw, "AES");
@@ -490,5 +431,46 @@ public final class SecurityHelper {
             result[i] = Integer.valueOf(hexString.substring(2 * i, 2 * i + 2), 16).byteValue();
         }
         return result;
+    }
+
+    public enum DigestAlgorithm {
+        PLAIN("plain", -1), MD5("MD5", 128), SHA1("SHA-1", 160), SHA224("SHA-224", 224), SHA256("SHA-256", 256), SHA512("SHA-512", 512);
+        private static final Map<String, DigestAlgorithm> ALGORITHMS;
+
+        static {
+            DigestAlgorithm[] algorithmsValues = values();
+            ALGORITHMS = new HashMap<>(algorithmsValues.length);
+            for (DigestAlgorithm algorithm : algorithmsValues)
+                ALGORITHMS.put(algorithm.name, algorithm);
+        }
+
+        // Instance
+        public final String name;
+        public final int bits;
+        public final int bytes;
+
+        DigestAlgorithm(String name, int bits) {
+            this.name = name;
+            this.bits = bits;
+
+            // Convert to bytes
+            bytes = bits / Byte.SIZE;
+            assert bits % Byte.SIZE == 0;
+        }
+
+        public static DigestAlgorithm byName(String name) {
+            return VerifyHelper.getMapValue(ALGORITHMS, name, String.format("Unknown digest algorithm: '%s'", name));
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+
+        public byte[] verify(byte[] digest) {
+            if (digest.length != bytes)
+                throw new IllegalArgumentException("Invalid digest length: " + digest.length);
+            return digest;
+        }
     }
 }

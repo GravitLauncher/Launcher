@@ -29,12 +29,26 @@ public class DirBridge {
 
     public static boolean useLegacyDir;
 
+    static {
+        String projectName = Launcher.getConfig().projectName;
+        try {
+            DirBridge.dir = getLauncherDir(projectName);
+            if (!IOHelper.exists(DirBridge.dir)) Files.createDirectories(DirBridge.dir);
+            DirBridge.defaultUpdatesDir = DirBridge.dir.resolve("updates");
+            if (!IOHelper.exists(DirBridge.defaultUpdatesDir)) Files.createDirectories(DirBridge.defaultUpdatesDir);
+            DirBridge.dirStore = getStoreDir(projectName);
+            if (!IOHelper.exists(DirBridge.dirStore)) Files.createDirectories(DirBridge.dirStore);
+            DirBridge.dirProjectStore = getProjectStoreDir(projectName);
+            if (!IOHelper.exists(DirBridge.dirProjectStore)) Files.createDirectories(DirBridge.dirProjectStore);
+        } catch (IOException e) {
+            LogHelper.error(e);
+        }
+    }
 
     public static void move(Path newDir) throws IOException {
         IOHelper.move(dirUpdates, newDir);
         dirUpdates = newDir;
     }
-
 
     public static Path getAppDataDir() throws IOException {
         boolean isCustomDir = Boolean.getBoolean(System.getProperty(USE_CUSTOMDIR_PROPERTY, "false"));
@@ -65,11 +79,9 @@ public class DirBridge {
         }
     }
 
-
     public static Path getLauncherDir(String projectname) throws IOException {
         return getAppDataDir().resolve(projectname);
     }
-
 
     public static Path getStoreDir(String projectname) throws IOException {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
@@ -80,39 +92,19 @@ public class DirBridge {
             return getAppDataDir().resolve("minecraftStore");
     }
 
-
     public static Path getProjectStoreDir(String projectname) throws IOException {
         return getStoreDir(projectname).resolve(projectname);
     }
-
 
     public static Path getGuardDir() {
         return dir.resolve("guard");
     }
 
-
     public static Path getLegacyLauncherDir(String projectname) {
         return IOHelper.HOME_DIR.resolve(projectname);
     }
 
-
     public static void setUseLegacyDir(boolean b) {
         useLegacyDir = b;
-    }
-
-    static {
-        String projectName = Launcher.getConfig().projectName;
-        try {
-            DirBridge.dir = getLauncherDir(projectName);
-            if (!IOHelper.exists(DirBridge.dir)) Files.createDirectories(DirBridge.dir);
-            DirBridge.defaultUpdatesDir = DirBridge.dir.resolve("updates");
-            if (!IOHelper.exists(DirBridge.defaultUpdatesDir)) Files.createDirectories(DirBridge.defaultUpdatesDir);
-            DirBridge.dirStore = getStoreDir(projectName);
-            if (!IOHelper.exists(DirBridge.dirStore)) Files.createDirectories(DirBridge.dirStore);
-            DirBridge.dirProjectStore = getProjectStoreDir(projectName);
-            if (!IOHelper.exists(DirBridge.dirProjectStore)) Files.createDirectories(DirBridge.dirProjectStore);
-        } catch (IOException e) {
-            LogHelper.error(e);
-        }
     }
 }

@@ -13,16 +13,14 @@ public enum RequestType implements EnumSerializer.Itf {
     PROFILES(10), SERVERAUTH(11), SETPROFILE(12), LAUNCHER(13), CHANGESERVER(14), EXECCOMMAND(15),
     CUSTOM(255); // Custom requests
     private static final EnumSerializer<RequestType> SERIALIZER = new EnumSerializer<>(RequestType.class);
-
-
-    public static RequestType read(HInput input) throws IOException {
-        return SERIALIZER.read(input);
-    }
-
     private final int n;
 
     RequestType(int n) {
         this.n = n;
+    }
+
+    public static RequestType read(HInput input) throws IOException {
+        return SERIALIZER.read(input);
     }
 
     @Override

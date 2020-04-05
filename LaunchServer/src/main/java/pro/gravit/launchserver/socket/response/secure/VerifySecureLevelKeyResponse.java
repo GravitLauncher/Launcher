@@ -12,6 +12,7 @@ import java.security.spec.InvalidKeySpecException;
 public class VerifySecureLevelKeyResponse extends SimpleResponse {
     public byte[] publicKey;
     public byte[] signature;
+
     @Override
     public String getType() {
         return "verifySecureLevelKey";
@@ -19,24 +20,20 @@ public class VerifySecureLevelKeyResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        if(!(server.config.protectHandler instanceof SecureProtectHandler) || client.trustLevel == null || client.trustLevel.verifySecureKey == null)
-        {
+        if (!(server.config.protectHandler instanceof SecureProtectHandler) || client.trustLevel == null || client.trustLevel.verifySecureKey == null) {
             sendError("This method not allowed");
             return;
         }
         SecureProtectHandler secureProtectHandler = (SecureProtectHandler) server.config.protectHandler;
         try {
             secureProtectHandler.verifySecureLevelKey(publicKey, client.trustLevel.verifySecureKey, signature);
-        } catch (InvalidKeySpecException e)
-        {
+        } catch (InvalidKeySpecException e) {
             sendError("Invalid public key");
             return;
-        } catch (SignatureException e)
-        {
+        } catch (SignatureException e) {
             sendError("Invalid signature");
             return;
-        } catch (SecurityException e)
-        {
+        } catch (SecurityException e) {
             sendError(e.getMessage());
             return;
         }
