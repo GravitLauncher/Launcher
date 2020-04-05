@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Set;
 
+// TODO refactor
 @SuppressWarnings("unused")
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private SSLServerSocketFactory ssf;
@@ -17,9 +18,6 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
 
     public LauncherNettyServer nettyServer;
-
-    // API
-    private Set<Socket> sockets;
 
     private transient final LaunchServer server;
 
@@ -29,7 +27,8 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
 
     @Override
     public void close() {
-        //TODO: Close Impl
+        nettyServer.close();
+        nettyServer.service.channels.close();
     }
 
     @Override
