@@ -23,6 +23,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
 
     @Override
     public void close() {
+        if (nettyServer == null) return;
         nettyServer.close();
         nettyServer.service.channels.close();
     }
