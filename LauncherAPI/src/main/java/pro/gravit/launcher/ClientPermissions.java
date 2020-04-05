@@ -8,7 +8,9 @@ import java.util.StringJoiner;
 
 public class ClientPermissions {
     public static final ClientPermissions DEFAULT = new ClientPermissions();
+    @LauncherNetworkAPI
     public long permissions;
+    @LauncherNetworkAPI
     public long flags;
     public enum PermissionConsts
     {
