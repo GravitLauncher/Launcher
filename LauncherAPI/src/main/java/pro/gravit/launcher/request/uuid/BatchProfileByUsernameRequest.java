@@ -11,16 +11,8 @@ import pro.gravit.utils.helper.VerifyHelper;
 import java.io.IOException;
 
 public final class BatchProfileByUsernameRequest extends Request<BatchProfileByUsernameRequestEvent> implements WebSocketRequest {
-    static class Entry {
-        @LauncherNetworkAPI
-        String username;
-        @LauncherNetworkAPI
-        String client;
-    }
-
     @LauncherNetworkAPI
     private final Entry[] list;
-
 
     public BatchProfileByUsernameRequest(String... usernames) throws IOException {
         this.list = new Entry[usernames.length];
@@ -36,5 +28,12 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
     @Override
     public String getType() {
         return "batchProfileByUsername";
+    }
+
+    static class Entry {
+        @LauncherNetworkAPI
+        String username;
+        @LauncherNetworkAPI
+        String client;
     }
 }

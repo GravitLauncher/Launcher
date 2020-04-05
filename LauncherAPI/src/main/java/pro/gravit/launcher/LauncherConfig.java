@@ -18,30 +18,20 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 public final class LauncherConfig extends StreamObject {
-	@LauncherInject("launchercore.certificates")
-	private static final List<byte[]> secureConfigCertificates = null;
-	@LauncherInject("launcher.modules")
-	private static final List<Class<?>> modulesClasses = null;
-	@LauncherInject("launcher.address")
-	public String address;
-	@LauncherInject("launcher.projectName")
+    @LauncherInject("launchercore.certificates")
+    private static final List<byte[]> secureConfigCertificates = null;
+    @LauncherInject("launcher.modules")
+    private static final List<Class<?>> modulesClasses = null;
+    private static final MethodType VOID_TYPE = MethodType.methodType(void.class);
+    @LauncherInject("launcher.projectName")
     public final String projectName;
-	@LauncherInject("launcher.port")
+    @LauncherInject("launcher.port")
     public final int clientPort;
-	@LauncherInject("runtimeconfig.secretKeyClient")
-    public String secretKeyClient;
-	@LauncherInject("runtimeconfig.oemUnlockKey")
-    public String oemUnlockKey;
     public final LauncherTrustManager trustManager;
-
     public final ECPublicKey publicKey;
-
-
     public final Map<String, byte[]> runtime;
     @LauncherInject("launcher.isWarningMissArchJava")
     public final boolean isWarningMissArchJava;
-	@LauncherInject("launchercore.env")
-    public LauncherEnvironment environment;
     @LauncherInject("launcher.guardType")
     public final String guardType;
     @LauncherInject("runtimeconfig.secureCheckHash")
@@ -50,8 +40,17 @@ public final class LauncherConfig extends StreamObject {
     public final String secureCheckSalt;
     @LauncherInject("runtimeconfig.passwordEncryptKey")
     public final String passwordEncryptKey;
+    @LauncherInject("launcher.address")
+    public String address;
+    @LauncherInject("runtimeconfig.secretKeyClient")
+    public String secretKeyClient;
+    @LauncherInject("runtimeconfig.oemUnlockKey")
+    public String oemUnlockKey;
+    @LauncherInject("launchercore.env")
+    public LauncherEnvironment environment;
 
-	@LauncherInjectionConstructor
+
+    @LauncherInjectionConstructor
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
         publicKey = SecurityHelper.toPublicECKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
         secureCheckHash = null;
@@ -84,7 +83,6 @@ public final class LauncherConfig extends StreamObject {
         runtime = Collections.unmodifiableMap(localResources);
     }
 
-
     public LauncherConfig(String address, ECPublicKey publicKey, Map<String, byte[]> runtime, String projectName) {
         this.address = address;
         this.publicKey = publicKey;
@@ -98,6 +96,17 @@ public final class LauncherConfig extends StreamObject {
         secureCheckHash = null;
         passwordEncryptKey = null;
         trustManager = null;
+    }
+
+    public static void initModules(LauncherModulesManager modulesManager) {
+        for (Class<?> clazz : modulesClasses)
+            try {
+                modulesManager.loadModule((LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invokeWithArguments(Collections.emptyList()));
+            } catch (Throwable e) {
+                LogHelper.error(e);
+            }
+        // This method should be called once at exec time.
+        modulesClasses.clear();
     }
 
     @Override
@@ -116,17 +125,4 @@ public final class LauncherConfig extends StreamObject {
     public enum LauncherEnvironment {
         DEV, DEBUG, STD, PROD
     }
-
-    private static final MethodType VOID_TYPE = MethodType.methodType(void.class);
-
-	public static void initModules(LauncherModulesManager modulesManager) {
-		for (Class<?> clazz : modulesClasses)
-			try {
-				modulesManager.loadModule((LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invokeWithArguments(Collections.emptyList()));
-			} catch (Throwable e) {
-				LogHelper.error(e);
-			}
-		// This method should be called once at exec time.
-		modulesClasses.clear();
-	}
 }

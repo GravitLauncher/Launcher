@@ -51,10 +51,10 @@ public class ConsoleManager {
     }
 
     public static boolean unlock() {
-        if(isConsoleUnlock) return true;
+        if (isConsoleUnlock) return true;
         ClientUnlockConsoleEvent event = new ClientUnlockConsoleEvent(handler);
         LauncherEngine.modulesManager.invokeEvent(event);
-        if(event.isCancel()) return false;
+        if (event.isCancel()) return false;
         handler.registerCommand("debug", new DebugCommand());
         handler.unregisterCommand("unlock");
         isConsoleUnlock = true;

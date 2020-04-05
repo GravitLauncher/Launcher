@@ -11,6 +11,10 @@ import java.io.IOException;
 import java.util.UUID;
 
 public final class RequestTextureProvider extends TextureProvider {
+    // Instance
+    private String skinURL;
+    private String cloakURL;
+
     public RequestTextureProvider() {
     }
 
@@ -36,11 +40,6 @@ public final class RequestTextureProvider extends TextureProvider {
                 "uuid", IOHelper.urlEncode(uuid.toString()), "hash", IOHelper.urlEncode(Launcher.toHash(uuid)),
                 "client", IOHelper.urlEncode(client == null ? "unknown" : client));
     }
-
-    // Instance
-    private String skinURL;
-
-    private String cloakURL;
 
     @Override
     public void close() {

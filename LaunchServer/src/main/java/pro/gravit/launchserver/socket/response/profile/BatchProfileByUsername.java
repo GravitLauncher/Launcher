@@ -10,11 +10,6 @@ import pro.gravit.utils.helper.LogHelper;
 import java.util.UUID;
 
 public class BatchProfileByUsername extends SimpleResponse {
-    static class Entry {
-        String username;
-        String client;
-    }
-
     Entry[] list;
 
     @Override
@@ -35,5 +30,10 @@ public class BatchProfileByUsername extends SimpleResponse {
             result.playerProfiles[i] = ProfileByUUIDResponse.getProfile(uuid, list[i].username, list[i].client, client.auth.textureProvider);
         }
         sendResult(result);
+    }
+
+    static class Entry {
+        String username;
+        String client;
     }
 }

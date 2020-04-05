@@ -16,8 +16,8 @@ import java.util.zip.ZipInputStream;
 public final class HttpDownloader {
     public static final int INTERVAL = 500;
     public final AtomicInteger writed;
-    private volatile String filename;
     public final Thread thread;
+    private volatile String filename;
 
     public HttpDownloader(URL url, Path file) {
         writed = new AtomicInteger(0);
@@ -32,10 +32,6 @@ public final class HttpDownloader {
         });
         thread.setDaemon(true);
         thread.start();
-    }
-
-    public String getFilename() {
-        return filename;
     }
 
     public static void downloadFile(URL url, Path file, Consumer<Integer> chanheTrack) throws IOException {
@@ -68,5 +64,9 @@ public final class HttpDownloader {
                 IOHelper.transfer(input, dir.resolve(IOHelper.toPath(name)));
             }
         }
+    }
+
+    public String getFilename() {
+        return filename;
     }
 }

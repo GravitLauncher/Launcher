@@ -15,14 +15,13 @@ public class LauncherRequestEvent extends RequestEvent {
     public byte[] digest;
     @LauncherNetworkAPI
     public byte[] binary;
+    @LauncherNetworkAPI
+    public boolean needUpdate;
 
     public LauncherRequestEvent(boolean needUpdate, String url) {
         this.needUpdate = needUpdate;
         this.url = url;
     }
-
-    @LauncherNetworkAPI
-    public boolean needUpdate;
 
     public LauncherRequestEvent(boolean b, byte[] digest) {
         this.needUpdate = b;

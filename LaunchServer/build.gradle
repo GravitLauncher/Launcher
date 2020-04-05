@@ -70,7 +70,7 @@ task cleanjar(type: Jar, dependsOn: jar) {
 
 dependencies {
     pack project(':LauncherAPI')
-    bundle group: 'org.fusesource.jansi', name:'jansi', version: rootProject['verJansi']
+    bundle group: 'org.fusesource.jansi', name: 'jansi', version: rootProject['verJansi']
     bundle group: 'org.jline', name: 'jline', version: rootProject['verJline']
     bundle group: 'org.jline', name: 'jline-reader', version: rootProject['verJline']
     bundle group: 'org.jline', name: 'jline-terminal', version: rootProject['verJline']
@@ -117,16 +117,18 @@ task hikari(type: Copy) {
 task launch4j(type: Copy) {
     duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries/launch4j"
-    from(configurations.launch4j.collect { it.isDirectory() ? it : ((it.getName().startsWith("launch4j") && it.getName().contains("workdir")) ? zipTree(it) : it) })
+    from(configurations.launch4j.collect {
+        it.isDirectory() ? it : ((it.getName().startsWith("launch4j") && it.getName().contains("workdir")) ? zipTree(it) : it)
+    })
     includeEmptyDirs false
     eachFile { FileCopyDetails fcp ->
-            if (fcp.relativePath.pathString.startsWith("launch4j-") &&
-                    fcp.relativePath.pathString.contains("workdir")) {
-                def segments = fcp.relativePath.segments
-                def pathSegments = segments[1..-1] as String[]
-                fcp.relativePath = new RelativePath(!fcp.file.isDirectory(), pathSegments)
-            } else if (fcp.relativePath.pathString.contains("META-INF")) fcp.exclude()
-            fcp.mode = 0755
+        if (fcp.relativePath.pathString.startsWith("launch4j-") &&
+                fcp.relativePath.pathString.contains("workdir")) {
+            def segments = fcp.relativePath.segments
+            def pathSegments = segments[1..-1] as String[]
+            fcp.relativePath = new RelativePath(!fcp.file.isDirectory(), pathSegments)
+        } else if (fcp.relativePath.pathString.contains("META-INF")) fcp.exclude()
+        fcp.mode = 0755
     }
 }
 

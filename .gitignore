@@ -107,6 +107,6 @@ buildnumber
 *.directory
 cmd.bat
 cmd.sh
+project/target
 ## PVS Studio
 .PVS-Studio/
-project/target

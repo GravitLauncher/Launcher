@@ -27,12 +27,94 @@ import java.util.List;
 
 public class SignHelper {
 
+    public static final OutputStream NULL = new OutputStream() {
+        @Override
+        public String toString() {
+            return "NullOutputStream";
+        }
+
+        /** Discards the specified byte array. */
+        @Override
+        public void write(byte[] b) {
+        }
+
+        /** Discards the specified byte array. */
+        @Override
+        public void write(byte[] b, int off, int len) {
+        }
+
+        /** Discards the specified byte. */
+        @Override
+        public void write(int b) {
+        }
+
+        /** Never closes */
+        @Override
+        public void close() {
+        }
+    };
+    public static final String hashFunctionName = "SHA-256";
+
+    private SignHelper() {
+    }
+
+    /**
+     * Creates the KeyStore with given algo.
+     */
+    public static KeyStore getStore(Path file, String storepass, String algo) throws IOException {
+        try {
+            KeyStore st = KeyStore.getInstance(algo);
+            st.load(IOHelper.newInput(file), storepass != null ? storepass.toCharArray() : null);
+            return st;
+        } catch (NoSuchAlgorithmException | CertificateException | KeyStoreException e) {
+            throw new IOException(e);
+        }
+    }
+
+    /**
+     * Creates the beast that can actually sign the data (for JKS, for other make it).
+     */
+    public static CMSSignedDataGenerator createSignedDataGenerator(KeyStore keyStore, String keyAlias, String signAlgo, String keyPassword) throws KeyStoreException, OperatorCreationException, CertificateEncodingException, UnrecoverableKeyException, NoSuchAlgorithmException, CMSException {
+        List<Certificate> certChain = new ArrayList<>(Arrays.asList(keyStore.getCertificateChain(keyAlias)));
+        @SuppressWarnings("rawtypes")
+        Store certStore = new JcaCertStore(certChain);
+        Certificate cert = keyStore.getCertificate(keyAlias);
+        PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias, keyPassword != null ? keyPassword.toCharArray() : null);
+        ContentSigner signer = new JcaContentSignerBuilder(signAlgo).setProvider("BC").build(privateKey);
+        CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
+        DigestCalculatorProvider dcp = new JcaDigestCalculatorProviderBuilder().setProvider("BC").build();
+        SignerInfoGenerator sig = new JcaSignerInfoGeneratorBuilder(dcp).build(signer, (X509Certificate) cert);
+        generator.addSignerInfoGenerator(sig);
+        generator.addCertificates(certStore);
+        return generator;
+    }
+
+    public static CMSSignedDataGenerator createSignedDataGenerator(PrivateKey privateKey, Certificate cert, List<Certificate> certChain, String signAlgo) throws OperatorCreationException, CertificateEncodingException, CMSException {
+        @SuppressWarnings("rawtypes")
+        Store certStore = new JcaCertStore(certChain);
+        ContentSigner signer = new JcaContentSignerBuilder(signAlgo).setProvider("BC").build(privateKey);
+        CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
+        DigestCalculatorProvider dcp = new JcaDigestCalculatorProviderBuilder().setProvider("BC").build();
+        SignerInfoGenerator sig = new JcaSignerInfoGeneratorBuilder(dcp).build(signer, (X509Certificate) cert);
+        generator.addSignerInfoGenerator(sig);
+        generator.addCertificates(certStore);
+        return generator;
+    }
+
+    public static MessageDigest hasher() {
+        try {
+            return MessageDigest.getInstance(hashFunctionName);
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        }
+    }
+
     /**
      * Helper output stream that also sends the data to the given.
      */
     public static class HashingOutputStream extends OutputStream {
-    	public final OutputStream out;
-    	public final MessageDigest hasher;
+        public final OutputStream out;
+        public final MessageDigest hasher;
 
         public HashingOutputStream(OutputStream out, MessageDigest hasher) {
             this.out = out;
@@ -66,11 +148,12 @@ public class SignHelper {
             out.write(b);
             hasher.update((byte) b);
         }
-        
+
         public byte[] digest() {
-        	return hasher.digest();
+            return hasher.digest();
         }
     }
+
     /**
      * Helper output stream that also sends the data to the given.
      */
@@ -81,88 +164,7 @@ public class SignHelper {
 
         @Override
         public void close() throws IOException {
-        	// Do nothing
-        }
-    }
-    
-    public static final OutputStream NULL = new OutputStream() {
-        @Override
-        public String toString() {
-            return "NullOutputStream";
-        }
-
-        /** Discards the specified byte array. */
-        @Override
-        public void write(byte[] b) {
-        }
-
-        /** Discards the specified byte array. */
-        @Override
-        public void write(byte[] b, int off, int len) {
-        }
-
-        /** Discards the specified byte. */
-        @Override
-        public void write(int b) {
-        }
-        
-        /** Never closes */
-        @Override
-        public void close() {
-        }
-    };
-	private SignHelper() {
-	}
-	
-	/**
-     * Creates the KeyStore with given algo.
-     */
-    public static KeyStore getStore(Path file, String storepass, String algo) throws IOException {
-        try {
-            KeyStore st = KeyStore.getInstance(algo);
-            st.load(IOHelper.newInput(file), storepass != null ? storepass.toCharArray() : null);
-            return st;
-        } catch (NoSuchAlgorithmException | CertificateException | KeyStoreException e) {
-            throw new IOException(e);
-        }
-    }
-
-    /**
-     * Creates the beast that can actually sign the data (for JKS, for other make it).
-     */
-    public static CMSSignedDataGenerator createSignedDataGenerator(KeyStore keyStore, String keyAlias, String signAlgo, String keyPassword) throws KeyStoreException, OperatorCreationException, CertificateEncodingException, UnrecoverableKeyException, NoSuchAlgorithmException, CMSException {
-        List<Certificate> certChain = new ArrayList<>(Arrays.asList(keyStore.getCertificateChain(keyAlias)));
-        @SuppressWarnings("rawtypes")
-        Store certStore = new JcaCertStore(certChain);
-        Certificate cert = keyStore.getCertificate(keyAlias);
-        PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias, keyPassword != null ? keyPassword.toCharArray() : null);
-        ContentSigner signer = new JcaContentSignerBuilder(signAlgo).setProvider("BC").build(privateKey);
-        CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
-        DigestCalculatorProvider dcp = new JcaDigestCalculatorProviderBuilder().setProvider("BC").build();
-        SignerInfoGenerator sig = new JcaSignerInfoGeneratorBuilder(dcp).build(signer, (X509Certificate) cert);
-        generator.addSignerInfoGenerator(sig);
-        generator.addCertificates(certStore);
-        return generator;
-    }
-    public static CMSSignedDataGenerator createSignedDataGenerator(PrivateKey privateKey, Certificate cert, List<Certificate> certChain, String signAlgo) throws OperatorCreationException, CertificateEncodingException, CMSException {
-        @SuppressWarnings("rawtypes")
-        Store certStore = new JcaCertStore(certChain);
-        ContentSigner signer = new JcaContentSignerBuilder(signAlgo).setProvider("BC").build(privateKey);
-        CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
-        DigestCalculatorProvider dcp = new JcaDigestCalculatorProviderBuilder().setProvider("BC").build();
-        SignerInfoGenerator sig = new JcaSignerInfoGeneratorBuilder(dcp).build(signer, (X509Certificate) cert);
-        generator.addSignerInfoGenerator(sig);
-        generator.addCertificates(certStore);
-        return generator;
-    }
-
-    public static final String hashFunctionName = "SHA-256";
-    
-    public static MessageDigest hasher() {
-        try {
-            return MessageDigest.getInstance(hashFunctionName);
-        } catch (NoSuchAlgorithmException e) {
-            return null;
+            // Do nothing
         }
     }
 }

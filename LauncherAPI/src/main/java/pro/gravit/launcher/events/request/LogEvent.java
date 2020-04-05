@@ -4,15 +4,15 @@ import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.request.WebSocketEvent;
 
 public class LogEvent implements WebSocketEvent {
-    @Override
-    public String getType() {
-        return "log";
-    }
-
     @LauncherNetworkAPI
     public final String string;
 
     public LogEvent(String string) {
         this.string = string;
+    }
+
+    @Override
+    public String getType() {
+        return "log";
     }
 }

@@ -7,6 +7,10 @@ import pro.gravit.launcher.request.websockets.WebSocketRequest;
 
 public final class UpdateRequest extends Request<UpdateRequestEvent> implements WebSocketRequest {
 
+    // Instance
+    @LauncherNetworkAPI
+    private final String dirName;
+
     public UpdateRequest(String dirName) {
         this.dirName = dirName;
     }
@@ -15,8 +19,4 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
     public String getType() {
         return "update";
     }
-
-    // Instance
-    @LauncherNetworkAPI
-    private final String dirName;
 }

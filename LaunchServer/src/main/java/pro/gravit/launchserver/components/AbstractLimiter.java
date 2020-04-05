@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractLimiter<T> extends Component implements NeedGarbageCollection, Reconfigurable {
+    public final List<T> exclude = new ArrayList<>();
+    protected final transient Map<T, LimitEntry> map = new HashMap<>();
     public int rateLimit;
     public int rateLimitMillis;
-    public final List<T> exclude = new ArrayList<>();
 
     @Override
     public Map<String, Command> getCommands() {
@@ -67,23 +68,6 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
         map.entrySet().removeIf((e) -> e.getValue().time + rateLimitMillis < time);
     }
 
-    static class LimitEntry {
-        long time;
-        int trys;
-
-        public LimitEntry(long time, int trys) {
-            this.time = time;
-            this.trys = trys;
-        }
-
-        public LimitEntry() {
-            time = System.currentTimeMillis();
-            trys = 0;
-        }
-    }
-
-    protected final transient Map<T, LimitEntry> map = new HashMap<>();
-
     public boolean check(T address) {
         if (exclude.contains(address)) return true;
         LimitEntry entry = map.get(address);
@@ -103,6 +87,21 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
                 return true;
             }
             return false;
+        }
+    }
+
+    static class LimitEntry {
+        long time;
+        int trys;
+
+        public LimitEntry(long time, int trys) {
+            this.time = time;
+            this.trys = trys;
+        }
+
+        public LimitEntry() {
+            time = System.currentTimeMillis();
+            trys = 0;
         }
     }
 }

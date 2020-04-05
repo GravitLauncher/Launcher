@@ -33,21 +33,36 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
-    public static ServerWrapperModulesManager modulesManager;
-    public Config config;
-    public PublicURLClassLoader ucp;
-    public ClassLoader loader;
-    public ClientPermissions permissions;
-    public static ServerWrapper wrapper;
-
     public static final Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
     public static final Path modulesConfigDir = Paths.get(System.getProperty("serverwrapper.modulesConfigDir", "modules-config"));
     public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
     public static final Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile", "public.key"));
     public static final boolean disableSetup = Boolean.parseBoolean(System.getProperty("serverwrapper.disableSetup", "false"));
+    public static ServerWrapperModulesManager modulesManager;
+    public static ServerWrapper wrapper;
+    public Config config;
+    public PublicURLClassLoader ucp;
+    public ClassLoader loader;
+    public ClientPermissions permissions;
+    public ClientProfile profile;
 
     public ServerWrapper(Type type, Path configPath) {
         super(type, configPath);
+    }
+
+    public static void initGson(ServerWrapperModulesManager modulesManager) {
+        Launcher.gsonManager = new ServerWrapperGsonManager(modulesManager);
+        Launcher.gsonManager.initGson();
+    }
+
+    public static void main(String... args) throws Throwable {
+        LogHelper.printVersion("ServerWrapper");
+        LogHelper.printLicense("ServerWrapper");
+        modulesManager = new ServerWrapperModulesManager(modulesDir, modulesConfigDir);
+        modulesManager.autoload();
+        modulesManager.initModules(null);
+        ServerWrapper.wrapper = new ServerWrapper(ServerWrapper.Config.class, configFile);
+        ServerWrapper.wrapper.run(args);
     }
 
     public boolean auth() {
@@ -95,11 +110,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             }
         }
         return false;
-    }
-
-    public static void initGson(ServerWrapperModulesManager modulesManager) {
-        Launcher.gsonManager = new ServerWrapperGsonManager(modulesManager);
-        Launcher.gsonManager.initGson();
     }
 
     public void run(String... args) throws Throwable {
@@ -193,7 +203,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LauncherConfig cfg = null;
         try {
             ECPublicKey publicKey = null;
-            if(IOHelper.isFile(publicKeyFile))
+            if (IOHelper.isFile(publicKeyFile))
                 publicKey = SecurityHelper.toPublicECKey(IOHelper.read(publicKeyFile));
             cfg = new LauncherConfig(config.address, publicKey, new HashMap<>(), config.projectname);
             cfg.address = config.address;
@@ -203,19 +213,14 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         Launcher.setConfig(cfg);
     }
 
-    public static void main(String... args) throws Throwable {
-        LogHelper.printVersion("ServerWrapper");
-        LogHelper.printLicense("ServerWrapper");
-        modulesManager = new ServerWrapperModulesManager(modulesDir, modulesConfigDir);
-        modulesManager.autoload();
-        modulesManager.initModules(null);
-        ServerWrapper.wrapper = new ServerWrapper(ServerWrapper.Config.class, configFile);
-        ServerWrapper.wrapper.run(args);
-    }
-
     @Override
     public Config getConfig() {
         return config;
+    }
+
+    @Override
+    public void setConfig(Config config) {
+        this.config = config;
     }
 
     @Override
@@ -234,11 +239,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         newConfig.address = "ws://localhost:9274/api";
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         return newConfig;
-    }
-
-    @Override
-    public void setConfig(Config config) {
-        this.config = config;
     }
 
     public static final class Config {
@@ -265,6 +265,4 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
     public static final class WebSocketConf {
     }
-
-    public ClientProfile profile;
 }

@@ -15,6 +15,9 @@ import java.util.UUID;
 public class CompatBridge {
     public static final int PROFILES_MAX_BATCH_SIZE = 128;
 
+    private CompatBridge() {
+    }
+
     public static CompatProfile checkServer(String username, String serverID) throws Exception {
         LogHelper.debug("CompatBridge.checkServer, Username: '%s', Server ID: %s", username, serverID);
         return CompatProfile.fromPlayerProfile(new CheckServerRequest(username, serverID).request().playerProfile);
@@ -45,8 +48,5 @@ public class CompatBridge {
 
         // We're dones
         return resultProfiles;
-    }
-
-    private CompatBridge() {
     }
 }

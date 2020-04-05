@@ -21,23 +21,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class LauncherRequest extends Request<LauncherRequestEvent> implements WebSocketRequest {
-    @LauncherNetworkAPI
-    public byte[] digest;
+    public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
+    public static final Path C_BINARY_PATH = BINARY_PATH.getParent().resolve(IOHelper.getFileName(BINARY_PATH) + ".tmp");
+    public static final boolean EXE_BINARY = IOHelper.hasExtension(BINARY_PATH, "exe");
     @LauncherNetworkAPI
     public final String secureHash;
     @LauncherNetworkAPI
     public final String secureSalt;
     @LauncherNetworkAPI
+    public byte[] digest;
+    @LauncherNetworkAPI
     public int launcher_type = EXE_BINARY ? 2 : 1;
 
-    public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
 
-
-    public static final Path C_BINARY_PATH = BINARY_PATH.getParent().resolve(IOHelper.getFileName(BINARY_PATH) + ".tmp");
-
-
-    public static final boolean EXE_BINARY = IOHelper.hasExtension(BINARY_PATH, "exe");
-
+    public LauncherRequest() {
+        Path launcherPath = IOHelper.getCodeSource(LauncherRequest.class);
+        try {
+            digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);
+        } catch (IOException e) {
+            LogHelper.error(e);
+        }
+        secureHash = Launcher.getConfig().secureCheckHash;
+        secureSalt = Launcher.getConfig().secureCheckSalt;
+    }
 
     public static void update(LauncherRequestEvent result) throws IOException {
         List<String> args = new ArrayList<>(8);
@@ -63,8 +69,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
                 Files.deleteIfExists(C_BINARY_PATH);
                 URL url = new URL(result.url);
                 URLConnection connection = url.openConnection();
-                try(InputStream in = connection.getInputStream())
-                {
+                try (InputStream in = connection.getInputStream()) {
                     IOHelper.transfer(in, C_BINARY_PATH);
                 }
                 try (InputStream in = IOHelper.newInput(C_BINARY_PATH)) {
@@ -87,17 +92,6 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
         LauncherRequestEvent result = super.request(service);
         if (result.needUpdate) update(result);
         return result;
-    }
-
-    public LauncherRequest() {
-        Path launcherPath = IOHelper.getCodeSource(LauncherRequest.class);
-        try {
-            digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);
-        } catch (IOException e) {
-            LogHelper.error(e);
-        }
-        secureHash = Launcher.getConfig().secureCheckHash;
-        secureSalt = Launcher.getConfig().secureCheckSalt;
     }
 
     @Override

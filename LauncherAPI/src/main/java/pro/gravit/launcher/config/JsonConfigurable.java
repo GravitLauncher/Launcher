@@ -4,8 +4,8 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 
 public abstract class JsonConfigurable<T> implements JsonConfigurableInterface<T> {
-    private transient final Type type;
     protected transient final Path configPath;
+    private transient final Type type;
 
 
     public JsonConfigurable(Type type, Path configPath) {
@@ -26,9 +26,7 @@ public abstract class JsonConfigurable<T> implements JsonConfigurableInterface<T
 
     public abstract T getConfig();
 
+    public abstract void setConfig(T config);
 
     public abstract T getDefaultConfig();
-
-
-    public abstract void setConfig(T config);
 }

@@ -17,7 +17,10 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 
 public class AsyncDownloader {
-	public static final Callback IGNORE = (ignored) -> {};
+    public static final Callback IGNORE = (ignored) -> {
+    };
+    public final Callback callback;
+
     public AsyncDownloader(Callback callback) {
         this.callback = callback;
     }
@@ -26,45 +29,20 @@ public class AsyncDownloader {
         callback = IGNORE;
     }
 
-    @FunctionalInterface
-    public interface Callback
-    {
-        void update(long diff);
-    }
-    public final Callback callback;
-    public static class SizedFile
-    {
-        public final String urlPath, filePath;
-        public final long size;
-
-        public SizedFile(String path, long size) {
-            this.urlPath = path;
-            this.filePath = path;
-            this.size = size;
-        }
-        
-        public SizedFile(String urlPath, String filePath, long size) {
-            this.urlPath = urlPath;
-            this.filePath = filePath;
-            this.size = size;
-        }
-    }
-    public void downloadFile(URL url, Path target, long size) throws IOException
-    {
+    public void downloadFile(URL url, Path target, long size) throws IOException {
         URLConnection connection = url.openConnection();
-        try(InputStream input = connection.getInputStream())
-        {
+        try (InputStream input = connection.getInputStream()) {
             transfer(input, target, size);
         }
     }
-    public void downloadFile(URL url, Path target) throws IOException
-    {
+
+    public void downloadFile(URL url, Path target) throws IOException {
         URLConnection connection = url.openConnection();
-        try(InputStream input = connection.getInputStream())
-        {
+        try (InputStream input = connection.getInputStream()) {
             IOHelper.transfer(input, target);
         }
     }
+
     public void downloadListInOneThread(List<SizedFile> files, String baseURL, Path targetDir) throws URISyntaxException, IOException {
         URI baseUri = new URI(baseURL);
         String scheme = baseUri.getScheme();
@@ -73,44 +51,44 @@ public class AsyncDownloader {
         if (port != -1)
             host = host + ":" + port;
         String path = baseUri.getPath();
-        for(AsyncDownloader.SizedFile currentFile : files)
-        {
+        for (AsyncDownloader.SizedFile currentFile : files) {
             URL url = new URI(scheme, host, path + currentFile.urlPath, "", "").toURL();
             downloadFile(url, targetDir.resolve(currentFile.filePath), currentFile.size);
         }
     }
+
     public void downloadListInOneThreadSimple(List<SizedFile> files, String baseURL, Path targetDir) throws URISyntaxException, IOException {
 
-        for(AsyncDownloader.SizedFile currentFile : files)
-        {
+        for (AsyncDownloader.SizedFile currentFile : files) {
             downloadFile(new URL(baseURL + currentFile.urlPath), targetDir.resolve(currentFile.filePath), currentFile.size);
         }
     }
-    public List<List<SizedFile>> sortFiles(List<SizedFile> files, int threads)
-    {
+
+    public List<List<SizedFile>> sortFiles(List<SizedFile> files, int threads) {
         files.sort(Comparator.comparingLong((f) -> -f.size));
         List<List<SizedFile>> result = new ArrayList<>();
-        for(int i=0;i<threads;++i) result.add(new LinkedList<>());
+        for (int i = 0; i < threads; ++i) result.add(new LinkedList<>());
         long[] sizes = new long[threads];
         Arrays.fill(sizes, 0);
-        for(SizedFile file : files)
-        {
+        for (SizedFile file : files) {
             long min = Long.MAX_VALUE;
             int minIndex = 0;
-            for(int i=0;i<threads;++i)
-                if(sizes[i] < min) { min = sizes[i]; minIndex = i;}
+            for (int i = 0; i < threads; ++i)
+                if (sizes[i] < min) {
+                    min = sizes[i];
+                    minIndex = i;
+                }
             result.get(minIndex).add(file);
-            sizes[minIndex]+=file.size;
+            sizes[minIndex] += file.size;
         }
         return result;
     }
 
     @SuppressWarnings("rawtypes")
-	public CompletableFuture[] runDownloadList(List<List<SizedFile>> files, String baseURL, Path targetDir, Executor executor) {
+    public CompletableFuture[] runDownloadList(List<List<SizedFile>> files, String baseURL, Path targetDir, Executor executor) {
         int threads = files.size();
         CompletableFuture[] futures = new CompletableFuture[threads];
-        for(int i=0;i<threads;++i)
-        {
+        for (int i = 0; i < threads; ++i) {
             List<SizedFile> currentTasks = files.get(i);
             futures[i] = CompletableFuture.runAsync(() -> {
                 try {
@@ -124,15 +102,14 @@ public class AsyncDownloader {
     }
 
     @SuppressWarnings("rawtypes")
-	public CompletableFuture[] runDownloadListSimple(List<List<SizedFile>> files, String baseURL, Path targetDir, Executor executor) {
+    public CompletableFuture[] runDownloadListSimple(List<List<SizedFile>> files, String baseURL, Path targetDir, Executor executor) {
         int threads = files.size();
         CompletableFuture[] futures = new CompletableFuture[threads];
-        for(int i=0;i<threads;++i)
-        {
+        for (int i = 0; i < threads; ++i) {
             List<SizedFile> currentTasks = files.get(i);
             futures[i] = CompletableFuture.runAsync(() -> {
                 try {
-                	downloadListInOneThreadSimple(currentTasks, baseURL, targetDir);
+                    downloadListInOneThreadSimple(currentTasks, baseURL, targetDir);
                 } catch (URISyntaxException | IOException e) {
                     throw new CompletionException(e);
                 }
@@ -140,7 +117,7 @@ public class AsyncDownloader {
         }
         return futures;
     }
-    
+
     public void transfer(InputStream input, Path file, long size) throws IOException {
         try (OutputStream fileOutput = IOHelper.newOutput(file)) {
             long downloaded = 0L;
@@ -161,6 +138,28 @@ public class AsyncDownloader {
                 //totalDownloaded += length;
                 callback.update(length);
             }
+        }
+    }
+
+    @FunctionalInterface
+    public interface Callback {
+        void update(long diff);
+    }
+
+    public static class SizedFile {
+        public final String urlPath, filePath;
+        public final long size;
+
+        public SizedFile(String path, long size) {
+            this.urlPath = path;
+            this.filePath = path;
+            this.size = size;
+        }
+
+        public SizedFile(String urlPath, String filePath, long size) {
+            this.urlPath = urlPath;
+            this.filePath = filePath;
+            this.size = size;
         }
     }
 }

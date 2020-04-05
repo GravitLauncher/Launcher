@@ -17,6 +17,8 @@ import static org.objectweb.asm.Opcodes.*;
 
 public final class NodeUtils {
 
+    public static final int MAX_SAFE_BYTE_COUNT = 65535 - Byte.MAX_VALUE;
+
     private NodeUtils() {
     }
 
@@ -186,8 +188,6 @@ public final class NodeUtils {
         return insnList;
     }
 
-    public static final int MAX_SAFE_BYTE_COUNT = 65535 - Byte.MAX_VALUE;
-
     public static String[] splitUtf8ToChunks(String text, int maxBytes) {
         List<String> parts = new ArrayList<>();
 
@@ -238,9 +238,9 @@ public final class NodeUtils {
     }
 
     public static InsnList makeValueEnumGetter(@SuppressWarnings("rawtypes") Enum u) {
-		InsnList ret = new InsnList();
-		Type e = Type.getType(u.getClass());
-		ret.add(new FieldInsnNode(Opcodes.GETSTATIC, e.getInternalName(), u.name(), e.getDescriptor()));
-		return ret;
-	}
+        InsnList ret = new InsnList();
+        Type e = Type.getType(u.getClass());
+        ret.add(new FieldInsnNode(Opcodes.GETSTATIC, e.getInternalName(), u.name(), e.getDescriptor()));
+        return ret;
+    }
 }
