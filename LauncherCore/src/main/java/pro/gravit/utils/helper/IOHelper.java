@@ -23,7 +23,7 @@ public final class IOHelper {
     public static final long MB32 = 1 << 25;
     public static final Charset UNICODE_CHARSET = StandardCharsets.UTF_8;
     public static final Charset ASCII_CHARSET = StandardCharsets.US_ASCII;
-
+    public static final int MAX_BATCH_SIZE = 128;
     // Charset
     public static final int SOCKET_TIMEOUT = VerifyHelper.verifyInt(
             Integer.parseUnsignedInt(System.getProperty("launcher.socketTimeout", Integer.toString(30000))),
