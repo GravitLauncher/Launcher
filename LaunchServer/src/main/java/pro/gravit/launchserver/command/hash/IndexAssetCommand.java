@@ -24,6 +24,7 @@ public final class IndexAssetCommand extends Command {
     public static final String OBJECTS_DIR = "objects";
     private static final Gson gson = new Gson();
     private static final String JSON_EXTENSION = ".json";
+
     public IndexAssetCommand(LaunchServer server) {
         super(server);
     }

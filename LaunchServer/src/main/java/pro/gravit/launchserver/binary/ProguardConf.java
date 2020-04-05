@@ -29,6 +29,7 @@ public class ProguardConf {
     public final Path mappings;
     public final Path words;
     public transient final LaunchServer srv;
+
     public ProguardConf(LaunchServer srv) {
         proguard = srv.dir.resolve("proguard");
         config = proguard.resolve("proguard.config");

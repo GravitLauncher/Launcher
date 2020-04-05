@@ -52,11 +52,13 @@ public final class JsonAuthProvider extends AuthProvider {
         final String password;
         final String ip;
         String apiKey;
+
         public authRequest(String username, String password, String ip) {
             this.username = username;
             this.password = password;
             this.ip = ip;
         }
+
         public authRequest(String username, String password, String ip, String apiKey) {
             this.username = username;
             this.password = password;

@@ -17,6 +17,7 @@ public class AuthRequestEvent extends RequestEvent {
     public String protectToken;
     @LauncherNetworkAPI
     public long session;
+
     public AuthRequestEvent() {
     }
 

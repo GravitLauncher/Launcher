@@ -36,6 +36,7 @@ public class CertificateAutogenTask implements LauncherBuildTask {
     public X509CertificateHolder bcCertificate;
     public CMSSignedDataGenerator signedDataGenerator;
     private LaunchServer server;
+
     public CertificateAutogenTask(LaunchServer server) {
         this.server = server;
     }

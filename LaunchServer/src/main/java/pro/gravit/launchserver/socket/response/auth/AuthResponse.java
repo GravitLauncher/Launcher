@@ -122,6 +122,7 @@ public class AuthResponse extends SimpleResponse {
         public final Client client;
         @Deprecated
         public int password_length; //Use AuthProvider for get password
+
         public AuthContext(Client client, String login, String profileName, String ip, ConnectTypes authType) {
             this.client = client;
             this.login = login;

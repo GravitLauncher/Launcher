@@ -69,6 +69,7 @@ public final class LogHelper {
             }
         }
     }
+
     private LogHelper() {
     }
 

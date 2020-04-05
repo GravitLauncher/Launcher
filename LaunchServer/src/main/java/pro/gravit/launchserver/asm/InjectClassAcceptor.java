@@ -146,7 +146,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
             @Override
             public InsnList serialize(Number value) {
                 InsnList ret = new InsnList();
-                ret.add(NodeUtils.push(((Number) value).intValue()));
+                ret.add(NodeUtils.push(value.intValue()));
                 ret.add(new InsnNode(opcode));
                 return ret;
             }

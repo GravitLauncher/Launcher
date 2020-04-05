@@ -7,6 +7,7 @@ public class ExceptionEvent extends RequestEvent {
     public final String message;
     @LauncherNetworkAPI
     public final String clazz;
+
     public ExceptionEvent(Exception e) {
         this.message = e.getMessage();
         this.clazz = e.getClass().getName();

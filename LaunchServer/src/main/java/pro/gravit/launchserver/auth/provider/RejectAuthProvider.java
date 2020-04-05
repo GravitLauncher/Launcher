@@ -19,6 +19,7 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
 
     public RejectAuthProvider() {
     }
+
     public RejectAuthProvider(String message) {
         this.message = message;
     }

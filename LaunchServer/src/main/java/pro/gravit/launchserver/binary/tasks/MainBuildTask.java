@@ -34,6 +34,7 @@ public class MainBuildTask implements LauncherBuildTask {
     public IOHookSet<BuildContext> preBuildHook = new IOHookSet<>();
     public IOHookSet<BuildContext> postBuildHook = new IOHookSet<>();
     public Map<String, Object> properties = new HashMap<>();
+
     public MainBuildTask(LaunchServer srv) {
         server = srv;
         reader = new ClassMetadataReader();

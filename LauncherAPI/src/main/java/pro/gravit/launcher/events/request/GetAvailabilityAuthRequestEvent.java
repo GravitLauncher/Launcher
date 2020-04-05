@@ -15,6 +15,7 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
         this.list = list;
         this.features = ServerFeature.FEATURE_SUPPORT.val;
     }
+
     public GetAvailabilityAuthRequestEvent(List<AuthAvailability> list, long features) {
         this.list = list;
         this.features = features;

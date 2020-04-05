@@ -9,6 +9,6 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Retention(CLASS)
 @Target(FIELD)
 public @interface LauncherInject {
-    public String value(); // target of inject
+    String value(); // target of inject
 
 }
