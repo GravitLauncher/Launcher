@@ -1,12 +1,12 @@
 package pro.gravit.launchserver.socket.response.secure;
 
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
 public class HardwareReportResponse extends SimpleResponse {
-    public String pathToJava;
-    public String javaVersion;
+    public HardwareReportRequest.HardwareInfo hardware;
 
     @Override
     public String getType() {

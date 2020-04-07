@@ -18,5 +18,7 @@ public class HardwareReportRequest extends Request<HardwareReportRequestEvent> {
         public long processorMaxFreq;
         public boolean battery;
         public String hwDiskId;
+        public byte[] displayId;
+        public String baseboardSerialNumber;
     }
 }

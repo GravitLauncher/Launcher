@@ -1,6 +1,7 @@
 package pro.gravit.launcher.utils;
 
 import oshi.SystemInfo;
+import oshi.hardware.Display;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.PowerSource;
@@ -63,6 +64,20 @@ public class HWIDProvider {
         }
         return null;
     }
+    public byte[] getDisplayID()
+    {
+        Display[] displays = hardware.getDisplays();
+        if(displays == null || displays.length == 0) return null;
+        for(Display display : displays)
+        {
+            return display.getEdid();
+        }
+        return null;
+    }
+    public String getBaseboardSerialNumber()
+    {
+        return hardware.getComputerSystem().getBaseboard().getSerialNumber();
+    }
     public HardwareReportRequest.HardwareInfo getHardwareInfo(boolean needSerial)
     {
         HardwareReportRequest.HardwareInfo info = new HardwareReportRequest.HardwareInfo();
@@ -75,6 +90,8 @@ public class HWIDProvider {
         if(needSerial)
         {
             info.hwDiskId = getHWDiskID();
+            info.displayId = getDisplayID();
+            info.baseboardSerialNumber = getBaseboardSerialNumber();
         }
         return info;
     }
