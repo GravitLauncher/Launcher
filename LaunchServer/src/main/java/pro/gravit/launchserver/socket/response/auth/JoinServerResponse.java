@@ -20,8 +20,7 @@ public class JoinServerResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if(!client.isAuth || client.type != AuthResponse.ConnectTypes.CLIENT)
-        {
+        if (!client.isAuth || client.type != AuthResponse.ConnectTypes.CLIENT) {
             sendError("Permissions denied");
             return;
         }

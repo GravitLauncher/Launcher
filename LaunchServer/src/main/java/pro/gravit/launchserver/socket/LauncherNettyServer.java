@@ -25,12 +25,12 @@ import pro.gravit.utils.helper.LogHelper;
 import java.net.InetSocketAddress;
 
 public class LauncherNettyServer implements AutoCloseable {
+    private static final String WEBSOCKET_PATH = "/api";
     public final ServerBootstrap serverBootstrap;
     public final EventLoopGroup bossGroup;
     public final EventLoopGroup workerGroup;
     public final WebSocketService service;
     public final BiHookSet<NettyConnectContext, SocketChannel> pipelineHook = new BiHookSet<>();
-    private static final String WEBSOCKET_PATH = "/api";
 
     public LauncherNettyServer(LaunchServer server) {
         LaunchServerConfig.NettyConfig config = server.config.netty;

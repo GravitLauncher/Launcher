@@ -1,5 +1,6 @@
 package pro.gravit.launchserver;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -28,7 +29,7 @@ public class StartLaunchServerTest {
     public static LaunchServer launchServer;
 
     @BeforeAll
-    public static void prepare() throws Exception {
+    public static void prepare() throws Throwable {
         LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(modulesDir, configDir, null);
         LaunchServerConfig config = LaunchServerConfig.getDefault(LaunchServer.LaunchServerEnv.TEST);
         Launcher.gsonManager = new LaunchServerGsonManager(modulesManager);
@@ -48,12 +49,14 @@ public class StartLaunchServerTest {
                 .setLaunchServerConfigManager(new LaunchServer.LaunchServerConfigManager() {
                     @Override
                     public LaunchServerConfig readConfig() {
-                        return null;
+                        return LaunchServerConfig.getDefault(LaunchServer.LaunchServerEnv.TEST);
                     }
 
                     @Override
                     public LaunchServerRuntimeConfig readRuntimeConfig() {
-                        return null;
+                        LaunchServerRuntimeConfig r = new LaunchServerRuntimeConfig();
+                        r.reset();
+                        return r;
                     }
 
                     @Override
@@ -69,6 +72,11 @@ public class StartLaunchServerTest {
                 .setModulesManager(modulesManager)
                 .setCommandHandler(new StdCommandHandler(false));
         launchServer = builder.build();
+    }
+
+    @AfterAll
+    public static void complete() throws Throwable {
+        launchServer.close();
     }
 
     @Test

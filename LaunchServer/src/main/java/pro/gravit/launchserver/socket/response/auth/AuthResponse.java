@@ -2,7 +2,6 @@ package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.AuthECPassword;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
@@ -22,7 +21,6 @@ import pro.gravit.utils.helper.VerifyHelper;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import java.security.SecureRandom;
-import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
 
@@ -36,13 +34,6 @@ public class AuthResponse extends SimpleResponse {
 
     public String auth_id;
     public ConnectTypes authType;
-
-    public enum ConnectTypes {
-        @Deprecated
-        SERVER,
-        CLIENT,
-        API
-    }
 
     @Override
     public String getType() {
@@ -68,8 +59,7 @@ public class AuthResponse extends SimpleResponse {
             AuthProviderPair pair;
             if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
             else pair = server.config.getAuthProviderPair(auth_id);
-            if(pair == null)
-            {
+            if (pair == null) {
                 sendError("auth_id incorrect");
                 return;
             }
@@ -117,7 +107,22 @@ public class AuthResponse extends SimpleResponse {
         }
     }
 
+    public enum ConnectTypes {
+        @Deprecated
+        SERVER,
+        CLIENT,
+        API
+    }
+
     public static class AuthContext {
+        public final String login;
+        public final String profileName;
+        public final String ip;
+        public final ConnectTypes authType;
+        public final Client client;
+        @Deprecated
+        public int password_length; //Use AuthProvider for get password
+
         public AuthContext(Client client, String login, String profileName, String ip, ConnectTypes authType) {
             this.client = client;
             this.login = login;
@@ -125,13 +130,5 @@ public class AuthResponse extends SimpleResponse {
             this.ip = ip;
             this.authType = authType;
         }
-
-        public final String login;
-        @Deprecated
-        public int password_length; //Use AuthProvider for get password
-        public final String profileName;
-        public final String ip;
-        public final ConnectTypes authType;
-        public final Client client;
     }
 }

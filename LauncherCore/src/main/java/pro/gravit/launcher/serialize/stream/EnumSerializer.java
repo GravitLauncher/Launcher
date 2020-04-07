@@ -10,17 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class EnumSerializer<E extends Enum<?> & Itf> {
-    @FunctionalInterface
-    public interface Itf {
-
-        int getNumber();
-    }
-
-
-    public static void write(HOutput output, Itf itf) throws IOException {
-        output.writeVarInt(itf.getNumber());
-    }
-
     private final Map<Integer, E> map = new HashMap<>(16);
 
 
@@ -29,9 +18,19 @@ public final class EnumSerializer<E extends Enum<?> & Itf> {
             VerifyHelper.putIfAbsent(map, e.getNumber(), e, "Duplicate number for enum constant " + e.name());
     }
 
+    public static void write(HOutput output, Itf itf) throws IOException {
+        output.writeVarInt(itf.getNumber());
+    }
 
     public E read(HInput input) throws IOException {
         int n = input.readVarInt();
         return VerifyHelper.getMapValue(map, n, "Unknown enum number: " + n);
+    }
+
+
+    @FunctionalInterface
+    public interface Itf {
+
+        int getNumber();
     }
 }

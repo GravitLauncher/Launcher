@@ -15,58 +15,20 @@ import java.util.Map;
 
 public final class JVMHelper {
 
-    public enum OS {
-        MUSTDIE("mustdie"), LINUX("linux"), MACOSX("macosx");
-
-        public static OS byName(String name) {
-            if (name.startsWith("Windows"))
-                return MUSTDIE;
-            if (name.startsWith("Linux"))
-                return LINUX;
-            if (name.startsWith("Mac OS X"))
-                return MACOSX;
-            throw new RuntimeException(String.format("This shit is not yet supported: '%s'", name));
-        }
-
-        public final String name;
-
-        OS(String name) {
-            this.name = name;
-        }
-    }
-
     // MXBeans exports
     public static final RuntimeMXBean RUNTIME_MXBEAN = ManagementFactory.getRuntimeMXBean();
-
     public static final OperatingSystemMXBean OPERATING_SYSTEM_MXBEAN =
             ManagementFactory.getOperatingSystemMXBean();
-    // System properties
-
     public static final OS OS_TYPE = OS.byName(OPERATING_SYSTEM_MXBEAN.getName());
-
+    // System properties
     public static final String OS_VERSION = OPERATING_SYSTEM_MXBEAN.getVersion();
-
     public static final int OS_BITS = getCorrectOSArch();
-
     public static final int JVM_BITS = Integer.parseInt(System.getProperty("sun.arch.data.model"));
-
-
     public static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
     // Public static fields
     public static final Runtime RUNTIME = Runtime.getRuntime();
-
     public static final ClassLoader LOADER = ClassLoader.getSystemClassLoader();
-
     public static final int JVM_VERSION = getVersion();
-    public static int getVersion() {
-        String version = System.getProperty("java.version");
-        if(version.startsWith("1.")) {
-            version = version.substring(2, 3);
-        } else {
-            int dot = version.indexOf(".");
-            if(dot != -1) { version = version.substring(0, dot); }
-        } return Integer.parseInt(version);
-    }
 
     static {
         try {
@@ -76,6 +38,21 @@ public final class JVMHelper {
         }
     }
 
+    private JVMHelper() {
+    }
+
+    public static int getVersion() {
+        String version = System.getProperty("java.version");
+        if (version.startsWith("1.")) {
+            version = version.substring(2, 3);
+        } else {
+            int dot = version.indexOf(".");
+            if (dot != -1) {
+                version = version.substring(0, dot);
+            }
+        }
+        return Integer.parseInt(version);
+    }
 
     public static void appendVars(ProcessBuilder builder, Map<String, String> vars) {
         builder.environment().putAll(vars);
@@ -187,7 +164,24 @@ public final class JVMHelper {
         }
     }
 
-    private JVMHelper() {
+    public enum OS {
+        MUSTDIE("mustdie"), LINUX("linux"), MACOSX("macosx");
+
+        public final String name;
+
+        OS(String name) {
+            this.name = name;
+        }
+
+        public static OS byName(String name) {
+            if (name.startsWith("Windows"))
+                return MUSTDIE;
+            if (name.startsWith("Linux"))
+                return LINUX;
+            if (name.startsWith("Mac OS X"))
+                return MACOSX;
+            throw new RuntimeException(String.format("This shit is not yet supported: '%s'", name));
+        }
     }
 
 }

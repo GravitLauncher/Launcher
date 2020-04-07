@@ -12,40 +12,21 @@ import pro.gravit.utils.helper.JarHelper;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ASMTransformersTest {
-    public static class ASMClassLoader extends ClassLoader
-    {
-        public ASMClassLoader(ClassLoader parent) {
-            super(parent);
-        }
-        public void rawDefineClass(String name, byte[] bytes, int offset, int length)
-        {
-            defineClass(name, bytes, offset, length);
-        }
-    }
     public static ASMClassLoader classLoader;
-    public static class TestClass
-    {
-        @LauncherInject(value = "testprop")
-        public int test;
-        @LauncherInject(value = "testprop2")
-        public List<String> s;
-        @LauncherInject(value = "testprop3")
-        public Map<String, String> map;
-    }
+
     @BeforeAll
     public static void prepare() throws Throwable {
         classLoader = new ASMClassLoader(ASMTransformersTest.class.getClassLoader());
     }
+
     @Test
-    void testASM() throws Throwable
-    {
+    void testASM() throws Throwable {
         ClassReader reader = new ClassReader(JarHelper.getClassBytes(TestClass.class));
         ClassNode node = new ClassNode();
         reader.accept(node, ClassReader.SKIP_DEBUG);
@@ -69,11 +50,30 @@ public class ASMTransformersTest {
         Class<?> clazz = classLoader.loadClass("ASMTestClass");
         Object instance = MethodHandles.publicLookup().findConstructor(clazz, MethodType.methodType(void.class)).invoke();
         Assertions.assertEquals(1234, (int)
-            MethodHandles.publicLookup().findGetter(clazz, "test", int.class).invoke(instance));
+                MethodHandles.publicLookup().findGetter(clazz, "test", int.class).invoke(instance));
         Assertions.assertEquals(strings, (List<String>)
                 MethodHandles.publicLookup().findGetter(clazz, "s", List.class).invoke(instance));
 
         Assertions.assertEquals(byteMap, (Map<String, Object>)
                 MethodHandles.publicLookup().findGetter(clazz, "map", Map.class).invoke(instance));
+    }
+
+    public static class ASMClassLoader extends ClassLoader {
+        public ASMClassLoader(ClassLoader parent) {
+            super(parent);
+        }
+
+        public void rawDefineClass(String name, byte[] bytes, int offset, int length) {
+            defineClass(name, bytes, offset, length);
+        }
+    }
+
+    public static class TestClass {
+        @LauncherInject(value = "testprop")
+        public int test;
+        @LauncherInject(value = "testprop2")
+        public List<String> s;
+        @LauncherInject(value = "testprop3")
+        public Map<String, String> map;
     }
 }

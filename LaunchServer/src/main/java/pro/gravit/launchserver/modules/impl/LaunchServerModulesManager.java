@@ -1,11 +1,11 @@
 package pro.gravit.launchserver.modules.impl;
 
+import pro.gravit.launcher.LauncherTrustManager;
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.LauncherModuleInfo;
 import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.launcher.LauncherTrustManager;
 
 import java.nio.file.Path;
 import java.util.Arrays;

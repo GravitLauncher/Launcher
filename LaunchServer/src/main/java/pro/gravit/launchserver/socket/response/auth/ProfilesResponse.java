@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
@@ -26,20 +25,15 @@ public class ProfilesResponse extends SimpleResponse {
 
         List<ClientProfile> profileList;
         List<ClientProfile> serverProfiles = server.getProfiles();
-        if (server.config.protectHandler instanceof ProfilesProtectHandler)
-        {
+        if (server.config.protectHandler instanceof ProfilesProtectHandler) {
             ProfilesProtectHandler protectHandler = (ProfilesProtectHandler) server.config.protectHandler;
             profileList = new ArrayList<>(4);
-            for(ClientProfile profile : serverProfiles)
-            {
-                if(protectHandler.canGetProfile(profile, client))
-                {
+            for (ClientProfile profile : serverProfiles) {
+                if (protectHandler.canGetProfile(profile, client)) {
                     profileList.add(profile);
                 }
             }
-        }
-        else
-        {
+        } else {
             profileList = serverProfiles;
         }
         sendResult(new ProfilesRequestEvent(profileList));

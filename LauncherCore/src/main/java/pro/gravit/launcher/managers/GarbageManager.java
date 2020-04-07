@@ -8,18 +8,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class GarbageManager {
-    static class Entry {
-        final NeedGarbageCollection invoke;
-        final long timer;
-
-        public Entry(NeedGarbageCollection invoke, long timer) {
-            this.invoke = invoke;
-            this.timer = timer;
-        }
-    }
-
     private static final Timer timer = new Timer("GarbageTimer");
-
     private static final Set<Entry> NEED_GARBARE_COLLECTION = new HashSet<>();
 
     public static void gc() {
@@ -44,5 +33,15 @@ public class GarbageManager {
 
     public static void unregisterNeedGC(NeedGarbageCollection gc) {
         NEED_GARBARE_COLLECTION.removeIf(e -> e.invoke == gc);
+    }
+
+    static class Entry {
+        final NeedGarbageCollection invoke;
+        final long timer;
+
+        public Entry(NeedGarbageCollection invoke, long timer) {
+            this.invoke = invoke;
+            this.timer = timer;
+        }
     }
 }

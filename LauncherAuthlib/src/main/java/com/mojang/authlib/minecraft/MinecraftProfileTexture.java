@@ -5,15 +5,20 @@ import java.util.EnumSet;
 import java.util.Set;
 
 public class MinecraftProfileTexture {
-    public enum Type {
-        SKIN,
-        CAPE,
-        ELYTRA
+    public static final Set<Type> PROFILE_TEXTURE_TYPES = Collections.unmodifiableSet(EnumSet.allOf(Type.class));
+    public static final int PROFILE_TEXTURE_COUNT = PROFILE_TEXTURE_TYPES.size();
+    // Instance
+    private final String url;
+    private final String hash;
+
+    public MinecraftProfileTexture(String url) {
+        this(url, baseName(url));
     }
 
-    public static final Set<Type> PROFILE_TEXTURE_TYPES = Collections.unmodifiableSet(EnumSet.allOf(Type.class));
-
-    public static final int PROFILE_TEXTURE_COUNT = PROFILE_TEXTURE_TYPES.size();
+    public MinecraftProfileTexture(String url, String hash) {
+        this.url = url;
+        this.hash = hash;
+    }
 
     private static String baseName(String url) {
         String name = url.substring(url.lastIndexOf('/') + 1);
@@ -25,20 +30,6 @@ public class MinecraftProfileTexture {
 
         // We're done
         return name;
-    }
-
-    // Instance
-    private final String url;
-
-    private final String hash;
-
-    public MinecraftProfileTexture(String url) {
-        this(url, baseName(url));
-    }
-
-    public MinecraftProfileTexture(String url, String hash) {
-        this.url = url;
-        this.hash = hash;
     }
 
     public String getHash() {
@@ -56,5 +47,11 @@ public class MinecraftProfileTexture {
     @Override
     public String toString() {
         return String.format("MinecraftProfileTexture{url='%s',hash=%s}", url, hash);
+    }
+
+    public enum Type {
+        SKIN,
+        CAPE,
+        ELYTRA
     }
 }

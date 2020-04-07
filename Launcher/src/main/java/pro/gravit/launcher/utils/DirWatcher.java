@@ -18,59 +18,19 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 public final class DirWatcher implements Runnable, AutoCloseable {
-    private final class RegisterFileVisitor extends SimpleFileVisitor<Path> {
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            FileVisitResult result = super.preVisitDirectory(dir, attrs);
-            if (DirWatcher.this.dir.equals(dir)) {
-                dir.register(service, KINDS);
-                return result;
-            }
-
-            // Maybe it's unnecessary to go deeper
-            //if (matcher != null && !matcher.shouldVerify(path)) {
-            //    return FileVisitResult.SKIP_SUBTREE;
-            //}
-
-            // Register
-            dir.register(service, KINDS);
-            return result;
-        }
-    }
-
     public static final boolean FILE_TREE_SUPPORTED = JVMHelper.OS_TYPE == OS.MUSTDIE;
-
+    public static final String IGN_OVERFLOW = "launcher.dirwatcher.ignoreOverflows";
     // Constants
     private static final Kind<?>[] KINDS = {
             StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE
     };
-
-    public static final String IGN_OVERFLOW = "launcher.dirwatcher.ignoreOverflows";
-	private static final boolean PROP_IGN_OVERFLOW = Boolean.parseBoolean(System.getProperty(IGN_OVERFLOW, "true"));
-
-    private static void handleError(Throwable e) {
-        LogHelper.error(e);
-        NativeJVMHalt.haltA(-123);
-    }
-
-    private static Deque<String> toPath(Iterable<Path> path) {
-        Deque<String> result = new LinkedList<>();
-        for (Path pe : path)
-            result.add(pe.toString());
-        return result;
-    }
-
+    private static final boolean PROP_IGN_OVERFLOW = Boolean.parseBoolean(System.getProperty(IGN_OVERFLOW, "true"));
     // Instance
     private final Path dir;
     private final HashedDir hdir;
-
     private final FileNameMatcher matcher;
-
     private final WatchService service;
-
     private final boolean digest;
-
 
     public DirWatcher(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) throws IOException {
         this.dir = Objects.requireNonNull(dir, "dir");
@@ -82,6 +42,18 @@ public final class DirWatcher implements Runnable, AutoCloseable {
         // Register dirs recursively
         IOHelper.walk(dir, new RegisterFileVisitor(), true);
         LogHelper.subInfo("DirWatcher %s", dir.toString());
+    }
+
+    private static void handleError(Throwable e) {
+        LogHelper.error(e);
+        NativeJVMHalt.haltA(-123);
+    }
+
+    private static Deque<String> toPath(Iterable<Path> path) {
+        Deque<String> result = new LinkedList<>();
+        for (Path pe : path)
+            result.add(pe.toString());
+        return result;
     }
 
     @Override
@@ -134,6 +106,27 @@ public final class DirWatcher implements Runnable, AutoCloseable {
             // Do nothing (closed etc)
         } catch (Throwable exc) {
             handleError(exc);
+        }
+    }
+
+    private final class RegisterFileVisitor extends SimpleFileVisitor<Path> {
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            FileVisitResult result = super.preVisitDirectory(dir, attrs);
+            if (DirWatcher.this.dir.equals(dir)) {
+                dir.register(service, KINDS);
+                return result;
+            }
+
+            // Maybe it's unnecessary to go deeper
+            //if (matcher != null && !matcher.shouldVerify(path)) {
+            //    return FileVisitResult.SKIP_SUBTREE;
+            //}
+
+            // Register
+            dir.register(service, KINDS);
+            return result;
         }
     }
 }

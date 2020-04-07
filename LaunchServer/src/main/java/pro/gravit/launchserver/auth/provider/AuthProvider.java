@@ -13,13 +13,6 @@ public abstract class AuthProvider implements AutoCloseable {
     private static boolean registredProv = false;
     protected transient LaunchServer srv = null;
 
-    public GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType getFirstAuthType() {
-        return GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType.PASSWORD;
-    }
-    public GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType getSecondAuthType() {
-        return GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType.NONE;
-    }
-
     public static AuthProviderResult authError(String message) throws AuthException {
         throw new AuthException(message);
     }
@@ -38,6 +31,13 @@ public abstract class AuthProvider implements AutoCloseable {
         }
     }
 
+    public GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType getFirstAuthType() {
+        return GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType.PASSWORD;
+    }
+
+    public GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType getSecondAuthType() {
+        return GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType.NONE;
+    }
 
     /**
      * Verifies the username and password

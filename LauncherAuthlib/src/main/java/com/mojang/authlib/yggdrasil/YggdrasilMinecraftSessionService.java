@@ -30,6 +30,11 @@ import java.util.UUID;
 public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionService {
     public static final boolean NO_TEXTURES = Boolean.parseBoolean("launcher.com.mojang.authlib.noTextures");
 
+    public YggdrasilMinecraftSessionService(AuthenticationService service) {
+        super(service);
+        LogHelper.debug("Patched MinecraftSessionService created");
+    }
+
     public static void fillTextureProperties(GameProfile profile, PlayerProfile pp) {
         boolean debug = LogHelper.isDebugEnabled();
         if (debug) {
@@ -86,11 +91,6 @@ public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionServic
         GameProfile profile = new GameProfile(pp.uuid, pp.username);
         fillTextureProperties(profile, pp);
         return profile;
-    }
-
-    public YggdrasilMinecraftSessionService(AuthenticationService service) {
-        super(service);
-        LogHelper.debug("Patched MinecraftSessionService created");
     }
 
     @Override

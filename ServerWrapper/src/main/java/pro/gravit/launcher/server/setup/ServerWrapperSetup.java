@@ -18,6 +18,10 @@ public class ServerWrapperSetup {
     public ServerWrapperCommands commands;
     public PublicURLClassLoader urlClassLoader;
 
+    public ServerWrapperSetup() throws IOException {
+        commands = new ServerWrapperCommands();
+    }
+
     public void run() throws IOException {
         ServerWrapper wrapper = ServerWrapper.wrapper;
         ServerWrapper.modulesManager.invokeEvent(new ServerWrapperPreSetupEvent(this));
@@ -101,9 +105,5 @@ public class ServerWrapperSetup {
             writer.append("\n");
         }
         ServerWrapper.modulesManager.invokeEvent(new ServerWrapperPostSetupEvent(this));
-    }
-
-    public ServerWrapperSetup() throws IOException {
-        commands = new ServerWrapperCommands();
     }
 }

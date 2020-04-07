@@ -29,13 +29,11 @@ public interface JsonConfigurableInterface<T> {
         }
     }
 
-    default String toJsonString(Gson gson)
-    {
+    default String toJsonString(Gson gson) {
         return gson.toJson(getConfig(), getType());
     }
 
-    default String toJsonString()
-    {
+    default String toJsonString() {
         return toJsonString(Launcher.gsonManager.configGson);
     }
 
@@ -91,12 +89,9 @@ public interface JsonConfigurableInterface<T> {
 
     T getConfig();
 
-
-    T getDefaultConfig();
-
-
     void setConfig(T config);
 
+    T getDefaultConfig();
 
     Path getPath();
 

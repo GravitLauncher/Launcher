@@ -21,8 +21,8 @@ public final class PostgreSQLSourceConfig implements AutoCloseable {
     private String poolName;
 
     // Config
-    private String address;
-    private int port;
+    private String[] addresses;
+    private int[] ports;
     private String username;
     private String password;
     private String database;
@@ -43,8 +43,8 @@ public final class PostgreSQLSourceConfig implements AutoCloseable {
             PGSimpleDataSource postgresqlSource = new PGSimpleDataSource();
 
             // Set credentials
-            postgresqlSource.setServerNames(new String[] {address}); //TODO support multinode PostgreSQL DB
-            postgresqlSource.setPortNumbers(new int[] {port});
+            postgresqlSource.setServerNames(addresses);
+            postgresqlSource.setPortNumbers(ports);
             postgresqlSource.setUser(username);
             postgresqlSource.setPassword(password);
             postgresqlSource.setDatabaseName(database);

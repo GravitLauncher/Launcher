@@ -33,6 +33,17 @@ public class SignJarTask implements LauncherBuildTask {
         this.srv = srv;
     }
 
+    public static CMSSignedDataGenerator gen(LaunchServerConfig.JarSignerConf config, KeyStore c) {
+        try {
+            return SignHelper.createSignedDataGenerator(c,
+                    config.keyAlias, config.signAlgo, config.keyPass);
+        } catch (CertificateEncodingException | UnrecoverableKeyException | KeyStoreException
+                | OperatorCreationException | NoSuchAlgorithmException | CMSException e) {
+            LogHelper.error(e);
+            return null;
+        }
+    }
+
     @Override
     public String getName() {
         return "SignJar";
@@ -46,7 +57,7 @@ public class SignJarTask implements LauncherBuildTask {
     }
 
     public void sign(LaunchServerConfig.JarSignerConf config, Path inputFile, Path signedFile) throws IOException {
-        if(config.enabled) stdSign(config, inputFile, signedFile);
+        if (config.enabled) stdSign(config, inputFile, signedFile);
         else autoSign(inputFile, signedFile);
     }
 
@@ -69,6 +80,7 @@ public class SignJarTask implements LauncherBuildTask {
             }
         }
     }
+
     private void autoSign(Path inputFile, Path signedFile) throws IOException {
         try (SignerJar output = new SignerJar(new ZipOutputStream(IOHelper.newOutput(signedFile)), () -> {
             CertificateAutogenTask task = srv.launcherBinary.getTaskByClass(CertificateAutogenTask.class).get();
@@ -94,16 +106,5 @@ public class SignJarTask implements LauncherBuildTask {
     @Override
     public boolean allowDelete() {
         return true;
-    }
-    
-    public static CMSSignedDataGenerator gen(LaunchServerConfig.JarSignerConf config, KeyStore c) {
-    	try {
-			return SignHelper.createSignedDataGenerator(c,
-			        config.keyAlias, config.signAlgo, config.keyPass);
-		} catch (CertificateEncodingException | UnrecoverableKeyException | KeyStoreException
-				| OperatorCreationException | NoSuchAlgorithmException | CMSException e) {
-			LogHelper.error(e);
-			return null;
-		}
     }
 }

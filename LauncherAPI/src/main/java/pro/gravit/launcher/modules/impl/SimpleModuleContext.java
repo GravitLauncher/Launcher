@@ -8,6 +8,11 @@ public class SimpleModuleContext implements LauncherModulesContext {
     public final LauncherModulesManager modulesManager;
     public final ModulesConfigManager configManager;
 
+    public SimpleModuleContext(LauncherModulesManager modulesManager, ModulesConfigManager configManager) {
+        this.modulesManager = modulesManager;
+        this.configManager = configManager;
+    }
+
     @Override
     public LauncherModulesManager getModulesManager() {
         return modulesManager;
@@ -16,10 +21,5 @@ public class SimpleModuleContext implements LauncherModulesContext {
     @Override
     public ModulesConfigManager getModulesConfigManager() {
         return configManager;
-    }
-
-    public SimpleModuleContext(LauncherModulesManager modulesManager, ModulesConfigManager configManager) {
-        this.modulesManager = modulesManager;
-        this.configManager = configManager;
     }
 }

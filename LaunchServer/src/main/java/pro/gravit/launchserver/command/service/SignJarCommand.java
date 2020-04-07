@@ -30,16 +30,15 @@ public class SignJarCommand extends Command {
         verifyArgs(args, 1);
         Path target = Paths.get(args[0]);
         Path tmpSign;
-        if(args.length > 1)
+        if (args.length > 1)
             tmpSign = Paths.get(args[1]);
         else
             tmpSign = server.dir.resolve("build").resolve(target.toFile().getName());
         LogHelper.info("Signing jar %s to %s", target.toString(), tmpSign.toString());
         Optional<SignJarTask> task = server.launcherBinary.getTaskByClass(SignJarTask.class);
-        if(!task.isPresent()) throw new IllegalStateException("SignJarTask not found");
+        if (!task.isPresent()) throw new IllegalStateException("SignJarTask not found");
         task.get().sign(server.config.sign, target, tmpSign);
-        if(args.length <= 1)
-        {
+        if (args.length <= 1) {
             LogHelper.info("Move temp jar %s to %s", tmpSign.toString(), target.toString());
             Files.deleteIfExists(target);
             Files.move(tmpSign, target);

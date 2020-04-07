@@ -14,21 +14,20 @@ public class GetSecureLevelInfoResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        if(!(server.config.protectHandler instanceof SecureProtectHandler))
-        {
+        if (!(server.config.protectHandler instanceof SecureProtectHandler)) {
             GetSecureLevelInfoRequestEvent response = new GetSecureLevelInfoRequestEvent(null);
             response.enabled = false;
             sendResult(response);
             return;
         }
         SecureProtectHandler secureProtectHandler = (SecureProtectHandler) server.config.protectHandler;
-        if(!secureProtectHandler.allowGetSecureLevelInfo(client))
-        {
+        if (!secureProtectHandler.allowGetSecureLevelInfo(client)) {
             sendError("Access denied");
             return;
         }
-        if(client.trustLevel == null) client.trustLevel = new Client.TrustLevel();
-        if(client.trustLevel.verifySecureKey == null) client.trustLevel.verifySecureKey = secureProtectHandler.generateSecureLevelKey();
+        if (client.trustLevel == null) client.trustLevel = new Client.TrustLevel();
+        if (client.trustLevel.verifySecureKey == null)
+            client.trustLevel.verifySecureKey = secureProtectHandler.generateSecureLevelKey();
         GetSecureLevelInfoRequestEvent response = new GetSecureLevelInfoRequestEvent(client.trustLevel.verifySecureKey);
         response.enabled = true;
         sendResult(secureProtectHandler.onGetSecureLevelInfo(response));

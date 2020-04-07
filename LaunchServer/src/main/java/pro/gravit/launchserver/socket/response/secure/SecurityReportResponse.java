@@ -13,6 +13,7 @@ public class SecurityReportResponse extends SimpleResponse {
     public String largeData;
     public byte[] smallBytes;
     public byte[] largeBytes;
+
     @Override
     public String getType() {
         return "securityReport";
@@ -20,8 +21,7 @@ public class SecurityReportResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        if(!(server.config.protectHandler instanceof SecureProtectHandler))
-        {
+        if (!(server.config.protectHandler instanceof SecureProtectHandler)) {
             sendError("Method not allowed");
         }
         SecureProtectHandler secureProtectHandler = (SecureProtectHandler) server.config.protectHandler;

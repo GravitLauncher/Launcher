@@ -16,16 +16,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.jar.JarFile;
 
 public class ServerAgent {
-    private static boolean isAgentStarted = false;
+    public static final Boolean isAutoloadLibraries = Boolean.getBoolean(System.getProperty("serverwrapper,agentlibrariesload", "false"));
+    public static final Boolean isAgentProxy = Boolean.getBoolean(System.getProperty("serverwrapper,agentproxy", "false"));
     public static Instrumentation inst = null;
-
-    private static final class StarterVisitor extends SimpleFileVisitor<Path> {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (file.toFile().getName().endsWith(".jar")) addJVMClassPath(new JarFile(file.toFile()));
-            return super.visitFile(file, attrs);
-        }
-    }
+    private static boolean isAgentStarted = false;
 
     public static void addJVMClassPath(String path) throws IOException {
         LogHelper.debug("Load %s", path);
@@ -44,9 +38,6 @@ public class ServerAgent {
     public static long getObjSize(Object obj) {
         return inst.getObjectSize(obj);
     }
-
-    public static final Boolean isAutoloadLibraries = Boolean.getBoolean(System.getProperty("serverwrapper,agentlibrariesload", "false"));
-    public static final Boolean isAgentProxy = Boolean.getBoolean(System.getProperty("serverwrapper,agentproxy", "false"));
 
     public static void premain(String agentArgument, Instrumentation instrumentation) {
         LogHelper.debug("Server Agent");
@@ -74,6 +65,14 @@ public class ServerAgent {
             IOHelper.walk(dir, new StarterVisitor(), true);
         } catch (IOException e) {
             LogHelper.error(e);
+        }
+    }
+
+    private static final class StarterVisitor extends SimpleFileVisitor<Path> {
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (file.toFile().getName().endsWith(".jar")) addJVMClassPath(new JarFile(file.toFile()));
+            return super.visitFile(file, attrs);
         }
     }
 }

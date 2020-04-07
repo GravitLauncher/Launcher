@@ -14,27 +14,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class ProguardConf {
+    public static final String[] JAVA9_OPTS = new String[]{
+            "-libraryjars '<java.home>/jmods/'"
+    };
+    public static final String[] JAVA8_OPTS = new String[]{
+            "-libraryjars '<java.home>/lib/rt.jar'",
+            "-libraryjars '<java.home>/lib/jce.jar'",
+            "-libraryjars '<java.home>/lib/ext/nashorn.jar'",
+            "-libraryjars '<java.home>/lib/ext/jfxrt.jar'"
+    };
     private static final char[] chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ".toCharArray();
-
-    public static final String[] JAVA9_OPTS = new String[] {
-    		"-libraryjars '<java.home>/jmods/'"
-    };
-    public static final String[] JAVA8_OPTS = new String[] {
-    		"-libraryjars '<java.home>/lib/rt.jar'",
-    		"-libraryjars '<java.home>/lib/jce.jar'",
-    		"-libraryjars '<java.home>/lib/ext/nashorn.jar'",
-    		"-libraryjars '<java.home>/lib/ext/jfxrt.jar'"
-    };
-    private static String generateString(SecureRandom rand, String lowString, String upString, int il) {
-        StringBuilder sb = new StringBuilder(Math.max(il, lowString.length()));
-        for (int i = 0; i < lowString.length(); ++i) {
-            sb.append(rand.nextBoolean() ? lowString.charAt(i) : upString.charAt(i));
-        }
-        int toI = il - lowString.length();
-        for (int i = 0; i < toI; i++) sb.append(chars[rand.nextInt(chars.length)]);
-        return sb.toString();
-    }
-
     public final Path proguard;
     public final Path config;
     public final Path mappings;
@@ -49,6 +38,16 @@ public class ProguardConf {
         this.srv = srv;
     }
 
+    private static String generateString(SecureRandom rand, String lowString, String upString, int il) {
+        StringBuilder sb = new StringBuilder(Math.max(il, lowString.length()));
+        for (int i = 0; i < lowString.length(); ++i) {
+            sb.append(rand.nextBoolean() ? lowString.charAt(i) : upString.charAt(i));
+        }
+        int toI = il - lowString.length();
+        for (int i = 0; i < toI; i++) sb.append(chars[rand.nextInt(chars.length)]);
+        return sb.toString();
+    }
+
     public String[] buildConfig(Path inputJar, Path outputJar) {
         List<String> confStrs = new ArrayList<>();
         prepare(false);
@@ -57,11 +56,11 @@ public class ProguardConf {
         confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
         confStrs.add("-injar \'" + inputJar.toAbsolutePath() + "\'");
         confStrs.add("-outjar \'" + outputJar.toAbsolutePath() + "\'");
-    	Collections.addAll(confStrs, JVMHelper.JVM_VERSION >= 9 ? JAVA9_OPTS : JAVA8_OPTS);
+        Collections.addAll(confStrs, JVMHelper.JVM_VERSION >= 9 ? JAVA9_OPTS : JAVA8_OPTS);
         srv.launcherBinary.coreLibs.stream()
                 .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
                 .forEach(confStrs::add);
-        
+
         srv.launcherBinary.addonLibs.stream()
                 .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
                 .forEach(confStrs::add);

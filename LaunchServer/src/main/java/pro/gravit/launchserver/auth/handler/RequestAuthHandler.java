@@ -10,14 +10,12 @@ import java.net.URL;
 import java.util.UUID;
 
 public final class RequestAuthHandler extends CachedAuthHandler {
-    private String usernameFetch;
-    private String uuidFetch;
-
-    private String updateAuth;
-    private String updateServerID;
-
     private final String splitSymbol = ":";
     private final String goodResponse = "OK";
+    private String usernameFetch;
+    private String uuidFetch;
+    private String updateAuth;
+    private String updateServerID;
 
     @Override
     public void init(LaunchServer srv) {

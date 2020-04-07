@@ -4,7 +4,6 @@ import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
-import pro.gravit.utils.helper.SecurityHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +13,7 @@ import java.util.Map;
 public class StdProtectHandler extends ProtectHandler implements ProfilesProtectHandler {
     public Map<String, List<String>> profileWhitelist = new HashMap<>();
     public List<String> allowUpdates = new ArrayList<>();
+
     @Override
     public boolean allowGetAccessToken(AuthResponse.AuthContext context) {
         return (context.authType == AuthResponse.ConnectTypes.CLIENT) && context.client.checkSign;
@@ -36,13 +36,12 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
 
     @Override
     public boolean canGetUpdates(String updatesDirName, Client client) {
-        return client.profile != null && ( client.profile.getDir().equals(updatesDirName) || client.profile.getAssetDir().equals(updatesDirName) || allowUpdates.contains(updatesDirName));
+        return client.profile != null && (client.profile.getDir().equals(updatesDirName) || client.profile.getAssetDir().equals(updatesDirName) || allowUpdates.contains(updatesDirName));
     }
 
-    public boolean isWhitelisted(String profileTitle, String username)
-    {
+    public boolean isWhitelisted(String profileTitle, String username) {
         List<String> allowedUsername = profileWhitelist.get(profileTitle);
-        if(allowedUsername == null) return true;
+        if (allowedUsername == null) return true;
         return allowedUsername.contains(username);
     }
 }
