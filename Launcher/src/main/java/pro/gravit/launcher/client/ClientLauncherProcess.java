@@ -34,6 +34,7 @@ public class ClientLauncherProcess {
     public Path executeFile;
     public Path workDir;
     public Path javaDir;
+    public boolean useLegacyJavaClassPathProperty;
     public boolean isStarted;
     private transient Process process;
 
@@ -103,9 +104,16 @@ public class ClientLauncherProcess {
         List<String> processArgs = new LinkedList<>();
         processArgs.add(executeFile.toString());
         processArgs.addAll(jvmArgs);
-        processArgs.add("-cp");
         //ADD CLASSPATH
-        processArgs.add(String.join(getPathSeparator(), systemClassPath));
+        if(useLegacyJavaClassPathProperty)
+        {
+            processArgs.add("-Djava.class.path".concat(String.join(getPathSeparator(), systemClassPath)));
+        }
+        else
+        {
+            processArgs.add("-cp");
+            processArgs.add(String.join(getPathSeparator(), systemClassPath));
+        }
         processArgs.add(mainClass);
         processArgs.addAll(systemClientArgs);
         synchronized (waitWriteParams) {
