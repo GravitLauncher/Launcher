@@ -107,7 +107,7 @@ public class ClientLauncherProcess {
         //ADD CLASSPATH
         if(useLegacyJavaClassPathProperty)
         {
-            processArgs.add("-Djava.class.path".concat(String.join(getPathSeparator(), systemClassPath)));
+            processArgs.add("-Djava.class.path=".concat(String.join(getPathSeparator(), systemClassPath)));
         }
         else
         {
