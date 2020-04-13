@@ -37,9 +37,6 @@ public final class Launcher {
     // Constants
     public static final String GUARD_DIR = "guard";
     public static final String CONFIG_FILE = "config.bin";
-    public static final String INIT_SCRIPT_FILE = "init.js";
-    public static final String API_SCRIPT_FILE = "engine/api.js";
-    public static final String CONFIG_SCRIPT_FILE = "config.js";
     private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
     public static ClientProfile profile;
