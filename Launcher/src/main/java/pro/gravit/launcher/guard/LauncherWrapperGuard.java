@@ -34,6 +34,7 @@ public class LauncherWrapperGuard implements LauncherGuardInterface {
             String projectName = Launcher.getConfig().projectName;
             String wrapperUnpackName = JVMHelper.JVM_BITS == 64 ? projectName.concat("64.exe") : projectName.concat("32.exe");
             process.executeFile = DirBridge.getGuardDir().resolve(wrapperUnpackName);
+            process.useLegacyJavaClassPathProperty = true;
         }
     }
 }

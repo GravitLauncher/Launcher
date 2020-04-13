@@ -7,7 +7,9 @@ import java.io.IOException;
 
 public class ClientPermissions {
     public static final ClientPermissions DEFAULT = new ClientPermissions();
+    @LauncherNetworkAPI
     public long permissions;
+    @LauncherNetworkAPI
     public long flags;
 
     public ClientPermissions(HInput input) throws IOException {
