@@ -13,6 +13,7 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.binary.*;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
+import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.MirrorManager;
 import pro.gravit.launchserver.manangers.ReconfigurableManager;
@@ -88,7 +89,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final CommandHandler commandHandler;
     public final NettyServerSocketHandler nettyServerSocketHandler;
     public final Timer taskPool;
-    private final AtomicBoolean started = new AtomicBoolean(false);
+    public final AtomicBoolean started = new AtomicBoolean(false);
+    public final LauncherModuleLoader launcherModuleLoader;
     public LaunchServerConfig config;
     public volatile Map<String, HashedDir> updatesDirMap;
     // Updates and profiles
@@ -198,7 +200,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherBinary.init();
         launcherEXEBinary.init();
         syncLauncherBinaries();
-
+        launcherModuleLoader = new LauncherModuleLoader(this);
         // Sync updates dir
         if (!IOHelper.isDir(updatesDir))
             Files.createDirectory(updatesDir);
@@ -208,7 +210,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         if (!IOHelper.isDir(profilesDir))
             Files.createDirectory(profilesDir);
         syncProfilesDir();
-
+        launcherModuleLoader.init();
         nettyServerSocketHandler = new NettyServerSocketHandler(this);
         // post init modules
         modulesManager.invokeEvent(new LaunchServerPostInitPhase(this));
