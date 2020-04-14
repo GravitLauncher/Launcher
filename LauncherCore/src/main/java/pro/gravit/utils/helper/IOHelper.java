@@ -41,9 +41,7 @@ public final class IOHelper {
     public static final String PLATFORM_SEPARATOR = FS.getSeparator();
     public static final boolean POSIX = FS.supportedFileAttributeViews().contains("posix") || FS.supportedFileAttributeViews().contains("Posix");
     public static final Path JVM_DIR = Paths.get(System.getProperty("java.home"));
-    // Увидел исключение на NetBSD beta добавил
     public static final Path HOME_DIR = Paths.get(System.getProperty("user.home"));
-    // Paths
     public static final Path WORKING_DIR = Paths.get(System.getProperty("user.dir"));
     public static final String USER_AGENT = System.getProperty("launcher.userAgentDefault", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
     // Open options - as arrays
@@ -188,8 +186,39 @@ public final class IOHelper {
     }
 
     public static void move(Path source, Path target) throws IOException {
-        createParentDirs(target);
-        Files.move(source, target, COPY_OPTIONS);
+        IOHelper.walk(source, new MoveFileVisitor(source, target), true);
+    }
+
+    private static class MoveFileVisitor implements FileVisitor<Path> {
+        private final Path from, to;
+
+        private MoveFileVisitor(Path from, Path to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            if (!IOHelper.isDir(dir)) Files.createDirectories(dir);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            IOHelper.move(file, to.resolve(from.relativize(file)));
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+            throw exc;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            Files.delete(dir);
+            return FileVisitResult.CONTINUE;
+        }
     }
 
     public static byte[] newBuffer() {

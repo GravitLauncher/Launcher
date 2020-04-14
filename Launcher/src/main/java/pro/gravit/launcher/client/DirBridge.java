@@ -52,9 +52,9 @@ public class DirBridge {
                 LogHelper.dev(LogHelper.toString(new Throwable("Check stack of call DirBridge with null path...")));
             return;
         }
+        dirUpdates = newDir;
         LogHelper.dev(newDir.toString());
         IOHelper.move(dirUpdates, newDir);
-        dirUpdates = newDir;
     }
 
     public static Path getAppDataDir() throws IOException {
@@ -74,6 +74,10 @@ public class DirBridge {
                 return local;
             }
         } else if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
+            if (System.getenv().containsKey("appdata"))
+                return Paths.get(System.getenv().get("appdata")).toAbsolutePath();
+            if (System.getenv().containsKey("APPDATA")) // Because it is windows
+                return Paths.get(System.getenv().get("APPDATA")).toAbsolutePath();
             Path appdata = IOHelper.HOME_DIR.resolve("AppData").resolve("Roaming");
             if (!IOHelper.isDir(appdata)) Files.createDirectories(appdata);
             return appdata;
