@@ -60,7 +60,6 @@ public class LauncherResponse extends SimpleResponse {
         byte[] normal_hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
                 server.runtime.clientCheckSecret.concat(".").concat(salt));
         byte[] launcher_hash = Base64.getDecoder().decode(hash);
-        //LogHelper.debug("[checkSecure] %s vs %s", Arrays.toString(normal_hash), Arrays.toString(launcher_hash));
         return Arrays.equals(normal_hash, launcher_hash);
     }
 

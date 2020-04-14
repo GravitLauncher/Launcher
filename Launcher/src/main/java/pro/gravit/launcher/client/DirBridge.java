@@ -46,6 +46,13 @@ public class DirBridge {
     }
 
     public static void move(Path newDir) throws IOException {
+        if (newDir == null) {
+            LogHelper.debug("Invalid dir (null)");
+            if (LogHelper.isDevEnabled())
+                LogHelper.dev(LogHelper.toString(new Throwable("Check stack of call DirBridge with null path...")));
+            return;
+        }
+        LogHelper.dev(newDir.toString());
         IOHelper.move(dirUpdates, newDir);
         dirUpdates = newDir;
     }
