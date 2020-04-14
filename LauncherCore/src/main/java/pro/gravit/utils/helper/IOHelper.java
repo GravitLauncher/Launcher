@@ -199,13 +199,14 @@ public final class IOHelper {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            if (!IOHelper.isDir(dir)) Files.createDirectories(dir);
+            Path toDir = to.resolve(from.relativize(dir));
+            if (!IOHelper.isDir(toDir)) Files.createDirectories(toDir);
             return FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            IOHelper.move(file, to.resolve(from.relativize(file)));
+            Files.move(file, to.resolve(from.relativize(file)), COPY_OPTIONS);
             return FileVisitResult.CONTINUE;
         }
 
