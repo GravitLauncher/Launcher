@@ -5,6 +5,7 @@ import pro.gravit.launcher.request.Request;
 
 public class HardwareReportRequest extends Request<HardwareReportRequestEvent> {
     public HardwareInfo hardware;
+
     @Override
     public String getType() {
         return "hardwareReport";

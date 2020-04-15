@@ -12,74 +12,70 @@ public class HWIDProvider {
     public SystemInfo systemInfo;
     public OperatingSystem system;
     public HardwareAbstractionLayer hardware;
-    public HWIDProvider()
-    {
+
+    public HWIDProvider() {
         systemInfo = new SystemInfo();
         system = systemInfo.getOperatingSystem();
         hardware = systemInfo.getHardware();
     }
+
     //Statistic information
-    public int getBitness()
-    {
+    public int getBitness() {
         return system.getBitness();
     }
-    public long getTotalMemory()
-    {
+
+    public long getTotalMemory() {
         return hardware.getMemory().getTotal();
     }
-    public long getProcessorMaxFreq()
-    {
+
+    public long getProcessorMaxFreq() {
         return hardware.getProcessor().getMaxFreq();
     }
-    public int getProcessorPhysicalCount()
-    {
-        return  hardware.getProcessor().getPhysicalProcessorCount();
+
+    public int getProcessorPhysicalCount() {
+        return hardware.getProcessor().getPhysicalProcessorCount();
     }
-    public int getProcessorLogicalCount()
-    {
-        return  hardware.getProcessor().getLogicalProcessorCount();
+
+    public int getProcessorLogicalCount() {
+        return hardware.getProcessor().getLogicalProcessorCount();
     }
-    public boolean isBattery()
-    {
+
+    public boolean isBattery() {
         PowerSource[] powerSources = hardware.getPowerSources();
         return powerSources != null && powerSources.length != 0;
     }
+
     //Hardware Information
-    public String getHWDiskID()
-    {
+    public String getHWDiskID() {
         HWDiskStore[] hwDiskStore = hardware.getDiskStores();
         long size = 0;
         HWDiskStore maxStore = null;
-        for(HWDiskStore store : hwDiskStore)
-        {
-            if(store.getSize() > size)
-            {
+        for (HWDiskStore store : hwDiskStore) {
+            if (store.getSize() > size) {
                 maxStore = store;
                 size = store.getSize();
             }
         }
-        if(maxStore != null)
-        {
+        if (maxStore != null) {
             return maxStore.getSerial();
         }
         return null;
     }
-    public byte[] getDisplayID()
-    {
+
+    public byte[] getDisplayID() {
         Display[] displays = hardware.getDisplays();
-        if(displays == null || displays.length == 0) return null;
-        for(Display display : displays)
-        {
+        if (displays == null || displays.length == 0) return null;
+        for (Display display : displays) {
             return display.getEdid();
         }
         return null;
     }
-    public String getBaseboardSerialNumber()
-    {
+
+    public String getBaseboardSerialNumber() {
         return hardware.getComputerSystem().getBaseboard().getSerialNumber();
     }
-    public HardwareReportRequest.HardwareInfo getHardwareInfo(boolean needSerial)
-    {
+
+    public HardwareReportRequest.HardwareInfo getHardwareInfo(boolean needSerial) {
         HardwareReportRequest.HardwareInfo info = new HardwareReportRequest.HardwareInfo();
         info.bitness = getBitness();
         info.logicalProcessors = getProcessorLogicalCount();
@@ -87,8 +83,7 @@ public class HWIDProvider {
         info.processorMaxFreq = getProcessorMaxFreq();
         info.totalMemory = getTotalMemory();
         info.battery = isBattery();
-        if(needSerial)
-        {
+        if (needSerial) {
             info.hwDiskId = getHWDiskID();
             info.displayId = getDisplayID();
             info.baseboardSerialNumber = getBaseboardSerialNumber();

@@ -28,7 +28,7 @@ public class PrintHardwareInfoCommand extends Command {
         long totalMemory = provider.getTotalMemory();
         boolean isBattery = provider.isBattery();
         currentTime = System.currentTimeMillis();
-        LogHelper.info("Bitness: %d, totalMemory: %d(%.3f GB), battery %s, TIME: %d ms", bitness, totalMemory, (double)totalMemory / (1024.0*1024.0*1024.0), Boolean.toString(isBattery), currentTime - startTime);
+        LogHelper.info("Bitness: %d, totalMemory: %d(%.3f GB), battery %s, TIME: %d ms", bitness, totalMemory, (double) totalMemory / (1024.0 * 1024.0 * 1024.0), Boolean.toString(isBattery), currentTime - startTime);
         startTime = System.currentTimeMillis();
         int logicalProcessors = provider.getProcessorLogicalCount();
         int physicalProcessors = provider.getProcessorPhysicalCount();
