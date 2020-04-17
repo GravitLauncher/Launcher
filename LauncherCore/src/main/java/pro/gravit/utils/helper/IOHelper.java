@@ -584,14 +584,13 @@ public final class IOHelper {
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
             return FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            IOHelper.copy(file, to.resolve(from.relativize(file)));
-            Files.delete(file);
+            Files.move(file, to.resolve(from.relativize(file)), COPY_OPTIONS);
             return FileVisitResult.CONTINUE;
         }
 
@@ -602,6 +601,7 @@ public final class IOHelper {
 
         @Override
         public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            if (exc != null) throw exc;
             if (!this.from.equals(dir)) Files.delete(dir);
             return FileVisitResult.CONTINUE;
         }
