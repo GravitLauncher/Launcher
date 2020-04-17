@@ -584,7 +584,9 @@ public final class IOHelper {
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            if (!isDir(dir))
+                Files.createDirectories(dir);
             return FileVisitResult.CONTINUE;
         }
 
