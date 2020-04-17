@@ -52,9 +52,10 @@ public class DirBridge {
                 LogHelper.dev(LogHelper.toString(new Throwable("Check stack of call DirBridge with null path...")));
             return;
         }
+        Path oldUpdates = dirUpdates;
         dirUpdates = newDir;
         LogHelper.dev(newDir.toString());
-        IOHelper.move(dirUpdates, newDir);
+        IOHelper.move(oldUpdates, dirUpdates);
     }
 
     public static Path getAppDataDir() throws IOException {

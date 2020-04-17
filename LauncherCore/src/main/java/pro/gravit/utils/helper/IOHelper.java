@@ -189,39 +189,6 @@ public final class IOHelper {
         IOHelper.walk(source, new MoveFileVisitor(source, target), true);
     }
 
-    private static class MoveFileVisitor implements FileVisitor<Path> {
-        private final Path from, to;
-
-        private MoveFileVisitor(Path from, Path to) {
-            this.from = from;
-            this.to = to;
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            Path toDir = to.resolve(from.relativize(dir));
-            if (!IOHelper.isDir(toDir)) Files.createDirectories(toDir);
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Files.move(file, to.resolve(from.relativize(file)), COPY_OPTIONS);
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-            throw exc;
-        }
-
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            Files.delete(dir);
-            return FileVisitResult.CONTINUE;
-        }
-    }
-
     public static byte[] newBuffer() {
         return new byte[BUFFER_SIZE];
     }
@@ -606,6 +573,40 @@ public final class IOHelper {
     public static void write(Path file, byte[] bytes) throws IOException {
         createParentDirs(file);
         Files.write(file, bytes, WRITE_OPTIONS);
+    }
+
+    private static class MoveFileVisitor implements FileVisitor<Path> {
+        private final Path from, to;
+
+        private MoveFileVisitor(Path from, Path to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            if (!isDir(dir))
+                Files.createDirectories(dir);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Files.move(file, to.resolve(from.relativize(file)), COPY_OPTIONS);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+            throw exc;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            if (exc != null) throw exc;
+            if (!this.from.equals(dir)) Files.delete(dir);
+            return FileVisitResult.CONTINUE;
+        }
     }
 
     private static final class DeleteDirVisitor extends SimpleFileVisitor<Path> {

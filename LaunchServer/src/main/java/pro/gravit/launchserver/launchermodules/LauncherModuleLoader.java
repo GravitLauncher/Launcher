@@ -1,16 +1,9 @@
 package pro.gravit.launchserver.launchermodules;
 
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.modules.LauncherInitContext;
-import pro.gravit.launcher.modules.LauncherModule;
-import pro.gravit.launcher.modules.LauncherModuleInfo;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
-import pro.gravit.launchserver.modules.events.LaunchServerInitPhase;
-import pro.gravit.launchserver.modules.events.LaunchServerPostInitPhase;
-import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JarHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
@@ -34,18 +27,17 @@ import java.util.jar.JarFile;
 
 public class LauncherModuleLoader {
     public final List<ModuleEntity> launcherModules = new ArrayList<>();
-    public Path modules_dir;
-    private transient LaunchServer server;
+    public final Path modulesDir;
+    private final LaunchServer server;
 
     public LauncherModuleLoader(LaunchServer server) {
-        this.server = server;
+        this.server = server; modulesDir = server.dir.resolve("launcher-modules");
     }
 
     public void init() {
-        modules_dir = server.dir.resolve("launcher-modules");
-        if (!IOHelper.isDir(modules_dir)) {
+        if (!IOHelper.isDir(modulesDir)) {
             try {
-                Files.createDirectories(modules_dir);
+                Files.createDirectories(modulesDir);
             } catch (IOException e) {
                 LogHelper.error(e);
             }
@@ -74,7 +66,7 @@ public class LauncherModuleLoader {
 
     public void syncModules() throws IOException {
         launcherModules.clear();
-        IOHelper.walk(modules_dir, new ModulesVisitor(), false);
+        IOHelper.walk(modulesDir, new ModulesVisitor(), false);
     }
 
     static class ModuleEntity {

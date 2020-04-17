@@ -105,12 +105,9 @@ public class ClientLauncherProcess {
         processArgs.add(executeFile.toString());
         processArgs.addAll(jvmArgs);
         //ADD CLASSPATH
-        if(useLegacyJavaClassPathProperty)
-        {
+        if (useLegacyJavaClassPathProperty) {
             processArgs.add("-Djava.class.path=".concat(String.join(getPathSeparator(), systemClassPath)));
-        }
-        else
-        {
+        } else {
             processArgs.add("-cp");
             processArgs.add(String.join(getPathSeparator(), systemClassPath));
         }
