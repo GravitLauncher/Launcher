@@ -13,6 +13,7 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.binary.*;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
+import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.MirrorManager;
 import pro.gravit.launchserver.manangers.ReconfigurableManager;
@@ -51,215 +52,49 @@ import java.util.stream.Stream;
 
 public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurable {
 
-    public enum ReloadType {
-        NO_AUTH,
-        NO_COMPONENTS,
-        FULL
-    }
-
-    public enum LaunchServerEnv {
-        TEST,
-        DEV,
-        DEBUG,
-        PRODUCTION
-    }
-
-    public interface LaunchServerConfigManager {
-        LaunchServerConfig readConfig() throws IOException;
-
-        LaunchServerRuntimeConfig readRuntimeConfig() throws IOException;
-
-        void writeConfig(LaunchServerConfig config) throws IOException;
-
-        void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException;
-    }
-
-    public void reload(ReloadType type) throws Exception {
-        config.close(type);
-        Map<String, AuthProviderPair> pairs = null;
-        if (type.equals(ReloadType.NO_AUTH)) {
-            pairs = config.auth;
-        }
-        LogHelper.info("Reading LaunchServer config file");
-        config = launchServerConfigManager.readConfig();
-        config.setLaunchServer(this);
-        if (type.equals(ReloadType.NO_AUTH)) {
-            config.auth = pairs;
-        }
-        config.verify();
-        config.init(type);
-        if (type.equals(ReloadType.FULL) && config.components != null) {
-            LogHelper.debug("PreInit components");
-            config.components.forEach((k, v) -> {
-                LogHelper.subDebug("PreInit component %s", k);
-                v.preInit(this);
-            });
-            LogHelper.debug("PreInit components successful");
-            LogHelper.debug("Init components");
-            config.components.forEach((k, v) -> {
-                LogHelper.subDebug("Init component %s", k);
-                v.init(this);
-            });
-            LogHelper.debug("Init components successful");
-            LogHelper.debug("PostInit components");
-            config.components.forEach((k, v) -> {
-                LogHelper.subDebug("PostInit component %s", k);
-                v.postInit(this);
-            });
-            LogHelper.debug("PostInit components successful");
-        }
-
-    }
-
-    @Override
-    public Map<String, Command> getCommands() {
-        Map<String, Command> commands = new HashMap<>();
-        SubCommand reload = new SubCommand() {
-            @Override
-            public void invoke(String... args) throws Exception {
-                if (args.length == 0) {
-                    reload(ReloadType.FULL);
-                    return;
-                }
-                switch (args[0]) {
-                    case "full":
-                        reload(ReloadType.FULL);
-                        break;
-                    case "no_auth":
-                        reload(ReloadType.NO_AUTH);
-                        break;
-                    case "no_components":
-                        reload(ReloadType.NO_COMPONENTS);
-                        break;
-                    default:
-                        reload(ReloadType.FULL);
-                        break;
-                }
-            }
-        };
-        commands.put("reload", reload);
-        return commands;
-    }
-
-
-    private static final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
-        private final Collection<ClientProfile> result;
-
-        private ProfilesFileVisitor(Collection<ClientProfile> result) {
-            this.result = result;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            LogHelper.info("Syncing '%s' profile", IOHelper.getFileName(file));
-
-            // Read profile
-            ClientProfile profile;
-            try (BufferedReader reader = IOHelper.newReader(file)) {
-                profile = Launcher.gsonManager.gson.fromJson(reader, ClientProfile.class);
-            }
-            profile.verify();
-
-            // Add SIGNED profile to result list
-            result.add(profile);
-            return super.visitFile(file, attrs);
-        }
-    }
-
-    // Constant paths
-
+    public static final Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
     public final Path dir;
-
     public final LaunchServerEnv env;
-
     public final Path launcherLibraries;
-
     public final Path launcherLibrariesCompile;
-
     public final Path caCertFile;
 
+    // Constant paths
     public final Path caKeyFile;
-
     public final Path serverCertFile;
-
     public final Path serverKeyFile;
-
     public final Path updatesDir;
-
     public final LaunchServerConfigManager launchServerConfigManager;
-
-    //public static LaunchServer server = null;
-
     public final Path profilesDir;
-    // Server config
-
-    public LaunchServerConfig config;
     public final LaunchServerRuntimeConfig runtime;
-
-
     public final ECPublicKey publicKey;
-
     public final ECPrivateKey privateKey;
-    // Launcher binary
-
     public final JARLauncherBinary launcherBinary;
 
+    //public static LaunchServer server = null;
     public final Class<? extends LauncherBinary> launcherEXEBinaryClass;
-
+    // Server config
     public final LauncherBinary launcherEXEBinary;
-    // HWID ban + anti-brutforce
-
     public final SessionManager sessionManager;
-
     public final AuthHookManager authHookManager;
-    // Server
-
     public final LaunchServerModulesManager modulesManager;
-
+    // Launcher binary
     public final MirrorManager mirrorManager;
-
     public final ReconfigurableManager reconfigurableManager;
-
     public final ConfigManager configManager;
-
+    // HWID ban + anti-brutforce
     public final CertificateManager certificateManager;
-
     public final ProguardConf proguardConf;
-
-
+    // Server
     public final CommandHandler commandHandler;
-
     public final NettyServerSocketHandler nettyServerSocketHandler;
-
-    private final AtomicBoolean started = new AtomicBoolean(false);
-
+    public final Timer taskPool;
+    public final AtomicBoolean started = new AtomicBoolean(false);
+    public final LauncherModuleLoader launcherModuleLoader;
+    public LaunchServerConfig config;
+    public volatile Map<String, HashedDir> updatesDirMap;
     // Updates and profiles
     private volatile List<ClientProfile> profilesList;
-    public volatile Map<String, HashedDir> updatesDirMap;
-
-    public final Timer taskPool;
-
-    public static final Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
-
-    public static class LaunchServerDirectories {
-    	public static final String UPDATES_NAME = "updates", PROFILES_NAME = "profiles",
-    			TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
-    			LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile";
-        public Path updatesDir;
-        public Path profilesDir;
-        public Path launcherLibrariesDir;
-        public Path launcherLibrariesCompileDir;
-        public Path dir;
-        public Path trustStore;
-
-        public void collect() {
-            if (updatesDir == null) updatesDir = dir.resolve(UPDATES_NAME);
-            if (profilesDir == null) profilesDir = dir.resolve(PROFILES_NAME);
-            if (trustStore == null) trustStore = dir.resolve(TRUSTSTORE_NAME);
-            if (launcherLibrariesDir == null) launcherLibrariesDir = dir.resolve(LAUNCHERLIBRARIES_NAME);
-            if (launcherLibrariesCompileDir == null) launcherLibrariesCompileDir = dir.resolve(LAUNCHERLIBRARIESCOMPILE_NAME);
-        }
-    }
 
     public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, ECPublicKey publicKey, ECPrivateKey privateKey, CommandHandler commandHandler, CertificateManager certificateManager) throws IOException {
         this.dir = directories.dir;
@@ -365,7 +200,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherBinary.init();
         launcherEXEBinary.init();
         syncLauncherBinaries();
-
+        launcherModuleLoader = new LauncherModuleLoader(this);
         // Sync updates dir
         if (!IOHelper.isDir(updatesDir))
             Files.createDirectory(updatesDir);
@@ -375,7 +210,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         if (!IOHelper.isDir(profilesDir))
             Files.createDirectory(profilesDir);
         syncProfilesDir();
-
+        launcherModuleLoader.init();
         nettyServerSocketHandler = new NettyServerSocketHandler(this);
         // post init modules
         modulesManager.invokeEvent(new LaunchServerPostInitPhase(this));
@@ -387,6 +222,73 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             });
             LogHelper.debug("PostInit components successful");
         }
+    }
+
+    public void reload(ReloadType type) throws Exception {
+        config.close(type);
+        Map<String, AuthProviderPair> pairs = null;
+        if (type.equals(ReloadType.NO_AUTH)) {
+            pairs = config.auth;
+        }
+        LogHelper.info("Reading LaunchServer config file");
+        config = launchServerConfigManager.readConfig();
+        config.setLaunchServer(this);
+        if (type.equals(ReloadType.NO_AUTH)) {
+            config.auth = pairs;
+        }
+        config.verify();
+        config.init(type);
+        if (type.equals(ReloadType.FULL) && config.components != null) {
+            LogHelper.debug("PreInit components");
+            config.components.forEach((k, v) -> {
+                LogHelper.subDebug("PreInit component %s", k);
+                v.preInit(this);
+            });
+            LogHelper.debug("PreInit components successful");
+            LogHelper.debug("Init components");
+            config.components.forEach((k, v) -> {
+                LogHelper.subDebug("Init component %s", k);
+                v.init(this);
+            });
+            LogHelper.debug("Init components successful");
+            LogHelper.debug("PostInit components");
+            config.components.forEach((k, v) -> {
+                LogHelper.subDebug("PostInit component %s", k);
+                v.postInit(this);
+            });
+            LogHelper.debug("PostInit components successful");
+        }
+
+    }
+
+    @Override
+    public Map<String, Command> getCommands() {
+        Map<String, Command> commands = new HashMap<>();
+        SubCommand reload = new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                if (args.length == 0) {
+                    reload(ReloadType.FULL);
+                    return;
+                }
+                switch (args[0]) {
+                    case "full":
+                        reload(ReloadType.FULL);
+                        break;
+                    case "no_auth":
+                        reload(ReloadType.NO_AUTH);
+                        break;
+                    case "no_components":
+                        reload(ReloadType.NO_COMPONENTS);
+                        break;
+                    default:
+                        reload(ReloadType.FULL);
+                        break;
+                }
+            }
+        };
+        commands.put("reload", reload);
+        return commands;
     }
 
     private LauncherBinary binary() {
@@ -405,7 +307,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
         return new EXELauncherBinary(this);
     }
-
 
     public void buildLauncherBinaries() throws IOException {
         launcherBinary.build();
@@ -434,7 +335,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public HashedDir getUpdateDir(String name) {
         return updatesDirMap.get(name);
     }
-
 
     public Set<Entry<String, HashedDir>> getUpdateDirs() {
         return updatesDirMap.entrySet();
@@ -467,7 +367,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
     }
 
-
     public void syncLauncherBinaries() throws IOException {
         LogHelper.info("Syncing launcher binaries");
 
@@ -482,7 +381,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     }
 
-
     public void syncProfilesDir() throws IOException {
         LogHelper.info("Syncing profiles dir");
         List<ClientProfile> newProfies = new LinkedList<>();
@@ -492,7 +390,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         newProfies.sort(Comparator.comparing(a -> a));
         profilesList = Collections.unmodifiableList(newProfies);
     }
-
 
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
         LogHelper.info("Syncing updates dir");
@@ -564,5 +461,74 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public void fullyRestart() {
         restart();
         JVMHelper.RUNTIME.exit(0);
+    }
+
+
+    public enum ReloadType {
+        NO_AUTH,
+        NO_COMPONENTS,
+        FULL
+    }
+
+    public enum LaunchServerEnv {
+        TEST,
+        DEV,
+        DEBUG,
+        PRODUCTION
+    }
+
+    public interface LaunchServerConfigManager {
+        LaunchServerConfig readConfig() throws IOException;
+
+        LaunchServerRuntimeConfig readRuntimeConfig() throws IOException;
+
+        void writeConfig(LaunchServerConfig config) throws IOException;
+
+        void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException;
+    }
+
+    private static final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
+        private final Collection<ClientProfile> result;
+
+        private ProfilesFileVisitor(Collection<ClientProfile> result) {
+            this.result = result;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            LogHelper.info("Syncing '%s' profile", IOHelper.getFileName(file));
+
+            // Read profile
+            ClientProfile profile;
+            try (BufferedReader reader = IOHelper.newReader(file)) {
+                profile = Launcher.gsonManager.gson.fromJson(reader, ClientProfile.class);
+            }
+            profile.verify();
+
+            // Add SIGNED profile to result list
+            result.add(profile);
+            return super.visitFile(file, attrs);
+        }
+    }
+
+    public static class LaunchServerDirectories {
+        public static final String UPDATES_NAME = "updates", PROFILES_NAME = "profiles",
+                TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
+                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile";
+        public Path updatesDir;
+        public Path profilesDir;
+        public Path launcherLibrariesDir;
+        public Path launcherLibrariesCompileDir;
+        public Path dir;
+        public Path trustStore;
+
+        public void collect() {
+            if (updatesDir == null) updatesDir = dir.resolve(UPDATES_NAME);
+            if (profilesDir == null) profilesDir = dir.resolve(PROFILES_NAME);
+            if (trustStore == null) trustStore = dir.resolve(TRUSTSTORE_NAME);
+            if (launcherLibrariesDir == null) launcherLibrariesDir = dir.resolve(LAUNCHERLIBRARIES_NAME);
+            if (launcherLibrariesCompileDir == null)
+                launcherLibrariesCompileDir = dir.resolve(LAUNCHERLIBRARIESCOMPILE_NAME);
+        }
     }
 }

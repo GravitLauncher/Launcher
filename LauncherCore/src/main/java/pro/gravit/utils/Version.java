@@ -4,20 +4,16 @@ import java.util.*;
 
 public final class Version {
 
-    public final int major;
-
-    public final int minor;
-
-    public final int patch;
-
-    public final int build;
-
-    public final Type release;
     public static final int MAJOR = 5;
     public static final int MINOR = 1;
-    public static final int PATCH = 3;
+    public static final int PATCH = 4;
     public static final int BUILD = 1;
     public static final Version.Type RELEASE = Type.STABLE;
+    public final int major;
+    public final int minor;
+    public final int patch;
+    public final int build;
+    public final Type release;
 
 
     public Version(int major, int minor, int patch) {

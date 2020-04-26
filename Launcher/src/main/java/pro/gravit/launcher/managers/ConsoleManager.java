@@ -4,6 +4,7 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.client.events.ClientUnlockConsoleEvent;
 import pro.gravit.launcher.console.UnlockCommand;
+import pro.gravit.launcher.console.test.PrintHardwareInfoCommand;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
@@ -44,6 +45,7 @@ public class ConsoleManager {
         handler.registerCommand("gc", new GCCommand());
         handler.registerCommand("clear", new ClearCommand(handler));
         handler.registerCommand("unlock", new UnlockCommand());
+        handler.registerCommand("printhardware", new PrintHardwareInfoCommand());
     }
 
     public static boolean checkUnlockKey(String key) {
@@ -51,10 +53,10 @@ public class ConsoleManager {
     }
 
     public static boolean unlock() {
-        if(isConsoleUnlock) return true;
+        if (isConsoleUnlock) return true;
         ClientUnlockConsoleEvent event = new ClientUnlockConsoleEvent(handler);
         LauncherEngine.modulesManager.invokeEvent(event);
-        if(event.isCancel()) return false;
+        if (event.isCancel()) return false;
         handler.registerCommand("debug", new DebugCommand());
         handler.unregisterCommand("unlock");
         isConsoleUnlock = true;

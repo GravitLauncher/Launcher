@@ -12,7 +12,7 @@ import java.util.UUID;
 public abstract class AuthHandler implements AutoCloseable {
     public static final ProviderMap<AuthHandler> providers = new ProviderMap<>("AuthHandler");
     private static boolean registredHandl = false;
-
+    protected transient LaunchServer srv;
 
     public static UUID authError(String message) throws AuthException {
         throw new AuthException(message);
@@ -30,8 +30,6 @@ public abstract class AuthHandler implements AutoCloseable {
             registredHandl = true;
         }
     }
-
-    protected transient LaunchServer srv;
 
     /**
      * Returns the UUID associated with the account

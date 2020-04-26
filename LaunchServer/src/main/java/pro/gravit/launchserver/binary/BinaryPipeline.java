@@ -55,7 +55,7 @@ public class BinaryPipeline {
     }
 
     public void replace(Predicate<LauncherBuildTask> pred, LauncherBuildTask taskRep) {
-        replaceCounted( 0, pred, taskRep);
+        replaceCounted(0, pred, taskRep);
     }
 
     public void replaceAfter(Predicate<LauncherBuildTask> pred, LauncherBuildTask taskRep) {

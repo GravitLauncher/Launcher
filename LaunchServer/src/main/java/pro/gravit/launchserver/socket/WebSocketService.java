@@ -22,6 +22,7 @@ import pro.gravit.launchserver.socket.response.profile.BatchProfileByUsername;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUsername;
 import pro.gravit.launchserver.socket.response.secure.GetSecureLevelInfoResponse;
+import pro.gravit.launchserver.socket.response.secure.HardwareReportResponse;
 import pro.gravit.launchserver.socket.response.secure.SecurityReportResponse;
 import pro.gravit.launchserver.socket.response.secure.VerifySecureLevelKeyResponse;
 import pro.gravit.launchserver.socket.response.update.LauncherResponse;
@@ -35,22 +36,11 @@ import pro.gravit.utils.helper.LogHelper;
 import java.lang.reflect.Type;
 
 public class WebSocketService {
-    public final ChannelGroup channels;
     public static final ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
-
-    public static class WebSocketRequestContext {
-        public final WebSocketServerResponse response;
-        public final Client client;
-        public final String ip;
-
-        public WebSocketRequestContext(WebSocketServerResponse response, Client client, String ip) {
-            this.response = response;
-            this.client = client;
-            this.ip = ip;
-        }
-    }
-
+    public final ChannelGroup channels;
     public final BiHookSet<WebSocketRequestContext, ChannelHandlerContext> hook = new BiHookSet<>();
+    private final LaunchServer server;
+    private final Gson gson;
 
     public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;
@@ -61,15 +51,36 @@ public class WebSocketService {
         this.gson = Launcher.gsonManager.gson;
     }
 
-    private final LaunchServer server;
-    private final Gson gson;
+    public static void registerResponses() {
+        providers.register("auth", AuthResponse.class);
+        providers.register("checkServer", CheckServerResponse.class);
+        providers.register("joinServer", JoinServerResponse.class);
+        providers.register("profiles", ProfilesResponse.class);
+        providers.register("launcher", LauncherResponse.class);
+        providers.register("updateList", UpdateListResponse.class);
+        providers.register("cmdExec", ExecCommandResponse.class);
+        providers.register("setProfile", SetProfileResponse.class);
+        providers.register("addLogListener", AddLogListenerResponse.class);
+        providers.register("update", UpdateResponse.class);
+        providers.register("restoreSession", RestoreSessionResponse.class);
+        providers.register("batchProfileByUsername", BatchProfileByUsername.class);
+        providers.register("profileByUsername", ProfileByUsername.class);
+        providers.register("profileByUUID", ProfileByUUIDResponse.class);
+        providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
+        providers.register("register", RegisterResponse.class);
+        providers.register("setPassword", SetPasswordResponse.class);
+        providers.register("exit", ExitResponse.class);
+        providers.register("getSecureLevelInfo", GetSecureLevelInfoResponse.class);
+        providers.register("verifySecureLevelKey", VerifySecureLevelKeyResponse.class);
+        providers.register("securityReport", SecurityReportResponse.class);
+        providers.register("hardwareReport", HardwareReportResponse.class);
+    }
 
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
         String request = frame.text();
         WebSocketServerResponse response = gson.fromJson(request, WebSocketServerResponse.class);
-        if(response == null)
-        {
-            RequestEvent event= new ErrorRequestEvent("This type of request is not supported");
+        if (response == null) {
+            RequestEvent event = new ErrorRequestEvent("This type of request is not supported");
             sendObject(ctx, event);
         }
         process(ctx, response, client, ip);
@@ -107,30 +118,6 @@ public class WebSocketService {
 
     public void registerClient(Channel channel) {
         channels.add(channel);
-    }
-
-    public static void registerResponses() {
-        providers.register("auth", AuthResponse.class);
-        providers.register("checkServer", CheckServerResponse.class);
-        providers.register("joinServer", JoinServerResponse.class);
-        providers.register("profiles", ProfilesResponse.class);
-        providers.register("launcher", LauncherResponse.class);
-        providers.register("updateList", UpdateListResponse.class);
-        providers.register("cmdExec", ExecCommandResponse.class);
-        providers.register("setProfile", SetProfileResponse.class);
-        providers.register("addLogListener", AddLogListenerResponse.class);
-        providers.register("update", UpdateResponse.class);
-        providers.register("restoreSession", RestoreSessionResponse.class);
-        providers.register("batchProfileByUsername", BatchProfileByUsername.class);
-        providers.register("profileByUsername", ProfileByUsername.class);
-        providers.register("profileByUUID", ProfileByUUIDResponse.class);
-        providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
-        providers.register("register", RegisterResponse.class);
-        providers.register("setPassword", SetPasswordResponse.class);
-        providers.register("exit", ExitResponse.class);
-        providers.register("getSecureLevelInfo", GetSecureLevelInfoResponse.class);
-        providers.register("verifySecureLevelKey", VerifySecureLevelKeyResponse.class);
-        providers.register("securityReport", SecurityReportResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {
@@ -171,6 +158,18 @@ public class WebSocketService {
 
     public void sendEvent(EventResult obj) {
         channels.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)), ChannelMatchers.all(), true);
+    }
+
+    public static class WebSocketRequestContext {
+        public final WebSocketServerResponse response;
+        public final Client client;
+        public final String ip;
+
+        public WebSocketRequestContext(WebSocketServerResponse response, Client client, String ip) {
+            this.response = response;
+            this.client = client;
+            this.ip = ip;
+        }
     }
 
     public static class EventResult implements WebSocketEvent {

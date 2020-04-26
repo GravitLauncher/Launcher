@@ -1,12 +1,12 @@
 package pro.gravit.launcher.modules.impl;
 
+import pro.gravit.launcher.LauncherTrustManager;
 import pro.gravit.launcher.managers.SimpleModulesConfigManager;
 import pro.gravit.launcher.modules.*;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.launcher.LauncherTrustManager;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -38,21 +38,29 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected final ModulesConfigManager modulesConfigManager;
     protected final Path modulesDir;
     protected final LauncherTrustManager trustManager;
+    protected final PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{});
     protected LauncherInitContext initContext;
     protected LauncherTrustManager.CheckMode checkMode = LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED;
 
-    protected final PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{});
+    public SimpleModuleManager(Path modulesDir, Path configDir) {
+        modulesConfigManager = new SimpleModulesConfigManager(configDir);
+        context = new SimpleModuleContext(this, modulesConfigManager);
+        this.modulesDir = modulesDir;
+        this.trustManager = null;
+    }
 
-    protected final class ModulesVisitor extends SimpleFileVisitor<Path> {
-        private ModulesVisitor() {
-        }
+    public SimpleModuleManager(Path modulesDir, Path configDir, LauncherTrustManager trustManager) {
+        modulesConfigManager = new SimpleModulesConfigManager(configDir);
+        context = new SimpleModuleContext(this, modulesConfigManager);
+        this.modulesDir = modulesDir;
+        this.trustManager = trustManager;
+    }
 
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (file.toFile().getName().endsWith(".jar"))
-                loadModule(file);
-            return super.visitFile(file, attrs);
-        }
+    //JVMHelper.getCertificates
+    private static X509Certificate[] getCertificates(Class<?> clazz) {
+        Object[] signers = clazz.getSigners();
+        if (signers == null) return null;
+        return Arrays.stream(signers).filter((c) -> c instanceof X509Certificate).map((c) -> (X509Certificate) c).toArray(X509Certificate[]::new);
     }
 
     public void autoload() throws IOException {
@@ -110,20 +118,6 @@ public class SimpleModuleManager implements LauncherModulesManager {
         return true;
     }
 
-    public SimpleModuleManager(Path modulesDir, Path configDir) {
-        modulesConfigManager = new SimpleModulesConfigManager(configDir);
-        context = new SimpleModuleContext(this, modulesConfigManager);
-        this.modulesDir = modulesDir;
-        this.trustManager = null;
-    }
-
-    public SimpleModuleManager(Path modulesDir, Path configDir, LauncherTrustManager trustManager) {
-        modulesConfigManager = new SimpleModulesConfigManager(configDir);
-        context = new SimpleModuleContext(this, modulesConfigManager);
-        this.modulesDir = modulesDir;
-        this.trustManager = trustManager;
-    }
-
     @Override
     public LauncherModule loadModule(LauncherModule module) {
         if (modules.contains(module)) return module;
@@ -153,12 +147,12 @@ public class SimpleModuleManager implements LauncherModulesManager {
             Class<? extends LauncherModule> clazz = (Class<? extends LauncherModule>) Class.forName(moduleClass, false, classLoader);
             checkModuleClass(clazz, checkMode);
             if (!LauncherModule.class.isAssignableFrom(clazz))
-            	throw new ClassNotFoundException("Invalid module class... Not contains LauncherModule in hierarchy.");
+                throw new ClassNotFoundException("Invalid module class... Not contains LauncherModule in hierarchy.");
             LauncherModule module;
             try {
-            	module = (LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invokeWithArguments(Collections.emptyList());
+                module = (LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invokeWithArguments(Collections.emptyList());
             } catch (Throwable e) {
-            	throw (InstantiationException) new InstantiationException("Error on instancing...").initCause(e);
+                throw (InstantiationException) new InstantiationException("Error on instancing...").initCause(e);
             }
             loadModule(module);
             return module;
@@ -167,12 +161,6 @@ public class SimpleModuleManager implements LauncherModulesManager {
             LogHelper.error("In module %s Module-Main-Class incorrect", file.toString());
             return null;
         }
-    }
-    //JVMHelper.getCertificates
-    private static X509Certificate[] getCertificates(Class<?> clazz) {
-        Object[] signers = clazz.getSigners();
-        if (signers == null) return null;
-        return Arrays.stream(signers).filter((c) -> c instanceof X509Certificate).map((c) -> (X509Certificate) c).toArray(X509Certificate[]::new);
     }
 
     public void checkModuleClass(Class<? extends LauncherModule> clazz, LauncherTrustManager.CheckMode mode) throws SecurityException {
@@ -262,5 +250,17 @@ public class SimpleModuleManager implements LauncherModulesManager {
     @Override
     public ModulesConfigManager getConfigManager() {
         return modulesConfigManager;
+    }
+
+    protected final class ModulesVisitor extends SimpleFileVisitor<Path> {
+        private ModulesVisitor() {
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (file.toFile().getName().endsWith(".jar"))
+                loadModule(file);
+            return super.visitFile(file, attrs);
+        }
     }
 }

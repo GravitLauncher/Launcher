@@ -11,7 +11,6 @@ import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedEntryAdapter;
 import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.secure.VerifySecureLevelKeyRequest;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.UniversalJsonAdapter;
 import pro.gravit.utils.helper.LogHelper;
@@ -23,12 +22,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public abstract class ClientWebSocketService extends ClientJSONPoint {
-    public final Gson gson;
-    public OnCloseCallback onCloseCallback;
-    public final Boolean onConnect;
-    public ReconnectCallback reconnectCallback;
     public static final ProviderMap<WebSocketEvent> results = new ProviderMap<>();
     public static final ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
+    public final Gson gson;
+    public final Boolean onConnect;
+    public OnCloseCallback onCloseCallback;
+    public ReconnectCallback reconnectCallback;
 
     public ClientWebSocketService(String address) throws SSLException {
         super(createURL(address));
@@ -56,7 +55,8 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         WebSocketEvent result = gson.fromJson(message, WebSocketEvent.class);
         eventHandle(result);
     }
-    public abstract<T extends WebSocketEvent> void eventHandle(T event);
+
+    public abstract <T extends WebSocketEvent> void eventHandle(T event);
 
     @Override
     void onDisconnect() {
@@ -69,15 +69,6 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         synchronized (onConnect) {
             onConnect.notifyAll();
         }
-    }
-
-    @FunctionalInterface
-    public interface OnCloseCallback {
-        void onClose(int code, String reason, boolean remote);
-    }
-
-    public interface ReconnectCallback {
-        void onReconnect() throws IOException;
     }
 
     public void registerRequests() {
@@ -110,6 +101,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("getSecureLevelInfo", GetSecureLevelInfoRequestEvent.class);
         results.register("verifySecureLevelKey", VerifySecureLevelKeyRequestEvent.class);
         results.register("securityReport", SecurityReportRequestEvent.class);
+        results.register("hardwareReport", HardwareReportRequestEvent.class);
     }
 
     public void waitIfNotConnected() {
@@ -144,10 +136,19 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
     }
 
     @FunctionalInterface
+    public interface OnCloseCallback {
+        void onClose(int code, String reason, boolean remote);
+    }
+
+    public interface ReconnectCallback {
+        void onReconnect() throws IOException;
+    }
+
+    @FunctionalInterface
     public interface EventHandler {
         /**
          * @param event processing event
-         * @param <T> event type
+         * @param <T>   event type
          * @return false - continue, true - stop
          */
         <T extends WebSocketEvent> boolean eventHandle(T event);

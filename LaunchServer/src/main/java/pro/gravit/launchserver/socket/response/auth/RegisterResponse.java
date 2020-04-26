@@ -19,6 +19,12 @@ public class RegisterResponse extends SimpleResponse {
     public String email;
     public byte[] verifyHash;
 
+    public static byte[] registerHash(String login, String secret) throws NoSuchAlgorithmException {
+        String text = login.concat("+").concat(secret);
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        return digest.digest(text.getBytes(StandardCharsets.UTF_8));
+    }
+
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         byte[] normalHash = registerHash(login, server.runtime.registerApiKey);
@@ -42,11 +48,5 @@ public class RegisterResponse extends SimpleResponse {
     @Override
     public String getType() {
         return "register";
-    }
-
-    public static byte[] registerHash(String login, String secret) throws NoSuchAlgorithmException {
-        String text = login.concat("+").concat(secret);
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        return digest.digest(text.getBytes(StandardCharsets.UTF_8));
     }
 }

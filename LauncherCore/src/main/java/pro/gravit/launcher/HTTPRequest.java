@@ -14,6 +14,9 @@ import java.nio.charset.StandardCharsets;
 public final class HTTPRequest {
     private static final int TIMEOUT = 10000;
 
+    private HTTPRequest() {
+    }
+
     public static JsonElement jsonRequest(JsonElement request, URL url) throws IOException {
         return jsonRequest(request, "POST", url);
     }
@@ -49,8 +52,5 @@ public final class HTTPRequest {
             }
             return null;
         }
-    }
-
-    private HTTPRequest() {
     }
 }

@@ -21,8 +21,7 @@ public class CheckServerResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client pClient) {
-        if(!pClient.isAuth || pClient.type == AuthResponse.ConnectTypes.CLIENT)
-        {
+        if (!pClient.isAuth || pClient.type == AuthResponse.ConnectTypes.CLIENT) {
             sendError("Permissions denied");
             return;
         }

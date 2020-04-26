@@ -10,16 +10,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class JarHelper {
-    @FunctionalInterface
-    public interface ZipWalkCallback {
-        void process(ZipInputStream input, ZipEntry e) throws IOException;
-    }
-
-    @FunctionalInterface
-    public interface JarWalkCallback {
-        void process(ZipInputStream input, ZipEntry e, String fullClassName, String clazz);
-    }
-
     public static void zipWalk(ZipInputStream input, ZipWalkCallback callback) throws IOException {
         ZipEntry e = input.getNextEntry();
         while (e != null) {
@@ -77,45 +67,51 @@ public class JarHelper {
         jarMap(file, map, overwrite);
     }
 
-    public static String getClassFile(Class<?> clazz)
-    {
+    public static String getClassFile(Class<?> clazz) {
         return getClassFile(clazz.getName());
     }
-    public static String getClassFile(String classname)
-    {
+
+    public static String getClassFile(String classname) {
         return classname.replace('.', '/').concat(".class");
     }
-    public static byte[] getClassBytes(Class<?> clazz) throws IOException
-    {
+
+    public static byte[] getClassBytes(Class<?> clazz) throws IOException {
         return getClassBytes(clazz, clazz.getClassLoader());
     }
-    public static byte[] getClassBytes(Class<?> clazz, ClassLoader classLoader) throws IOException
-    {
+
+    public static byte[] getClassBytes(Class<?> clazz, ClassLoader classLoader) throws IOException {
         return IOHelper.read(classLoader.getResourceAsStream(getClassFile(clazz)));
     }
-    public static InputStream getClassBytesStream(Class<?> clazz) throws IOException
-    {
+
+    public static InputStream getClassBytesStream(Class<?> clazz) throws IOException {
         return getClassBytesStream(clazz, clazz.getClassLoader());
     }
-    public static InputStream getClassBytesStream(Class<?> clazz, ClassLoader classLoader) throws IOException
-    {
+
+    public static InputStream getClassBytesStream(Class<?> clazz, ClassLoader classLoader) throws IOException {
         return classLoader.getResourceAsStream(getClassFile(clazz));
     }
-    public static byte[] getClassFromJar(String name, Path file) throws IOException
-    {
+
+    public static byte[] getClassFromJar(String name, Path file) throws IOException {
         String filename = getClassFile(name);
-        try(ZipInputStream inputStream = IOHelper.newZipInput(file))
-        {
+        try (ZipInputStream inputStream = IOHelper.newZipInput(file)) {
             ZipEntry entry = inputStream.getNextEntry();
-            while(entry != null)
-            {
-                if(entry.getName().equals(filename))
-                {
+            while (entry != null) {
+                if (entry.getName().equals(filename)) {
                     return IOHelper.read(inputStream);
                 }
                 entry = inputStream.getNextEntry();
             }
         }
         throw new FileNotFoundException(filename);
+    }
+
+    @FunctionalInterface
+    public interface ZipWalkCallback {
+        void process(ZipInputStream input, ZipEntry e) throws IOException;
+    }
+
+    @FunctionalInterface
+    public interface JarWalkCallback {
+        void process(ZipInputStream input, ZipEntry e, String fullClassName, String clazz);
     }
 }

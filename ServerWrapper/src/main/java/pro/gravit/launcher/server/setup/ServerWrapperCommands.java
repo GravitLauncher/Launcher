@@ -10,10 +10,6 @@ import java.io.IOException;
 public class ServerWrapperCommands {
     public final CommandHandler commandHandler;
 
-    public void registerCommands() {
-        //FUTURE
-    }
-
     public ServerWrapperCommands(CommandHandler commandHandler) {
         this.commandHandler = commandHandler;
     }
@@ -32,5 +28,9 @@ public class ServerWrapperCommands {
             LogHelper.warning("JLine2 isn't in classpath, using std");
         }
         commandHandler = localCommandHandler;
+    }
+
+    public void registerCommands() {
+        //FUTURE
     }
 }

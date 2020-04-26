@@ -24,18 +24,19 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class ClientLauncherProcess {
-    private transient Process process;
-    private final transient Boolean[] waitWriteParams = new Boolean[] {false};
-    public Path executeFile;
-    public Path workDir;
-    public Path javaDir;
     public final ClientParams params = new ClientParams();
     public final List<String> jvmArgs = new LinkedList<>();
     public final List<String> systemClientArgs = new LinkedList<>();
     public final List<String> systemClassPath = new LinkedList<>();
     public final Map<String, String> systemEnv = new HashMap<>();
     public final String mainClass;
+    private final transient Boolean[] waitWriteParams = new Boolean[]{false};
+    public Path executeFile;
+    public Path workDir;
+    public Path javaDir;
+    public boolean useLegacyJavaClassPathProperty;
     public boolean isStarted;
+    private transient Process process;
 
     public ClientLauncherProcess(Path executeFile, Path workDir, Path javaDir, String mainClass) {
         this.executeFile = executeFile;
@@ -74,8 +75,15 @@ public class ClientLauncherProcess {
         this.params.javaHDir = jvmHDir;
         applyClientProfile();
     }
-    private void applyClientProfile()
-    {
+
+    public static String getPathSeparator() {
+        if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
+            return ";";
+        else
+            return ":";
+    }
+
+    private void applyClientProfile() {
         this.systemClassPath.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString());
         Collections.addAll(this.jvmArgs, this.params.profile.getJvmArgs());
         this.params.profile.pushOptionalJvmArgs(this.jvmArgs);
@@ -89,9 +97,68 @@ public class ClientLauncherProcess {
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));
     }
 
+    public void start(boolean pipeOutput) throws IOException, InterruptedException {
+        if (isStarted) throw new IllegalStateException("Process already started");
+        if (LauncherEngine.guard != null) LauncherEngine.guard.applyGuardParams(this);
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderPreLaunchEvent(this));
+        List<String> processArgs = new LinkedList<>();
+        processArgs.add(executeFile.toString());
+        processArgs.addAll(jvmArgs);
+        //ADD CLASSPATH
+        if (useLegacyJavaClassPathProperty) {
+            processArgs.add("-Djava.class.path=".concat(String.join(getPathSeparator(), systemClassPath)));
+        } else {
+            processArgs.add("-cp");
+            processArgs.add(String.join(getPathSeparator(), systemClassPath));
+        }
+        processArgs.add(mainClass);
+        processArgs.addAll(systemClientArgs);
+        synchronized (waitWriteParams) {
+            if (!waitWriteParams[0]) {
+                waitWriteParams.wait(1000);
+            }
+        }
+        if (LogHelper.isDebugEnabled())
+            LogHelper.debug("Commandline: %s", Arrays.toString(processArgs.toArray()));
+        ProcessBuilder processBuilder = new ProcessBuilder(processArgs);
+        EnvHelper.addEnv(processBuilder);
+        processBuilder.environment().put("JAVA_HOME", javaDir.toAbsolutePath().toString());
+        processBuilder.environment().putAll(systemEnv);
+        processBuilder.directory(workDir.toFile());
+        processBuilder.inheritIO();
+        if (pipeOutput) {
+            processBuilder.redirectErrorStream(true);
+            processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
+        }
+        process = processBuilder.start();
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderLaunchedEvent(this));
+        isStarted = true;
+    }
 
-    public static class ClientParams
-    {
+    public void runWriteParams(SocketAddress address) throws IOException {
+        try (ServerSocket serverSocket = new ServerSocket()) {
+            serverSocket.bind(address);
+            synchronized (waitWriteParams) {
+                waitWriteParams[0] = true;
+                waitWriteParams.notifyAll();
+            }
+            Socket socket = serverSocket.accept();
+            try (HOutput output = new HOutput(socket.getOutputStream())) {
+                byte[] serializedMainParams = Launcher.gsonManager.gson.toJson(params).getBytes(IOHelper.UNICODE_CHARSET);
+                output.writeByteArray(serializedMainParams, 0);
+                params.clientHDir.write(output);
+                params.assetHDir.write(output);
+                params.javaHDir.write(output);
+            }
+        }
+        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderParamsWrittedEvent(this));
+    }
+
+    public Process getProcess() {
+        return process;
+    }
+
+    public static class ClientParams {
         public String assetDir;
 
         public String clientDir;
@@ -128,26 +195,12 @@ public class ClientLauncherProcess {
 
         public transient HashedDir javaHDir;
 
-        public void addClientArgs(Collection<String> args)
-        {
+        public void addClientArgs(Collection<String> args) {
             if (profile.getVersion().compareTo(ClientProfile.Version.MC164) >= 0)
                 addModernClientArgs(args);
             else
                 addClientLegacyArgs(args);
         }
-
-
-        public static class ClientUserProperties {
-            @LauncherNetworkAPI
-            public String[] skinURL;
-            @LauncherNetworkAPI
-            public String[] skinDigest;
-            @LauncherNetworkAPI
-            public String[] cloakURL;
-            @LauncherNetworkAPI
-            public String[] cloakDigest;
-        }
-
 
         public void addClientLegacyArgs(Collection<String> args) {
             args.add(playerProfile.username);
@@ -211,74 +264,16 @@ public class ClientLauncherProcess {
                 Collections.addAll(args, "--height", Integer.toString(height));
             }
         }
-    }
-    public void start(boolean pipeOutput) throws IOException, InterruptedException {
-        if(isStarted) throw new IllegalStateException("Process already started");
-        if(LauncherEngine.guard != null) LauncherEngine.guard.applyGuardParams(this);
-        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderPreLaunchEvent(this));
-        List<String> processArgs = new LinkedList<>();
-        processArgs.add(executeFile.toString());
-        processArgs.addAll(jvmArgs);
-        processArgs.add("-cp");
-        //ADD CLASSPATH
-        processArgs.add(String.join(getPathSeparator(), systemClassPath));
-        processArgs.add(mainClass);
-        processArgs.addAll(systemClientArgs);
-        synchronized (waitWriteParams)
-        {
-            if(!waitWriteParams[0])
-            {
-                waitWriteParams.wait(1000);
-            }
-        }
-        if(LogHelper.isDebugEnabled())
-        LogHelper.debug("Commandline: %s", Arrays.toString(processArgs.toArray()));
-        ProcessBuilder processBuilder = new ProcessBuilder(processArgs);
-        EnvHelper.addEnv(processBuilder);
-        processBuilder.environment().put("JAVA_HOME", javaDir.toAbsolutePath().toString());
-        processBuilder.environment().putAll(systemEnv);
-        processBuilder.directory(workDir.toFile());
-        processBuilder.inheritIO();
-        if (pipeOutput) {
-            processBuilder.redirectErrorStream(true);
-            processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
-        }
-        process = processBuilder.start();
-        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderLaunchedEvent(this));
-        isStarted = true;
-    }
-    public void runWriteParams(SocketAddress address) throws IOException
-    {
-        try(ServerSocket serverSocket = new ServerSocket())
-        {
-            serverSocket.bind(address);
-            synchronized (waitWriteParams)
-            {
-                waitWriteParams[0] = true;
-                waitWriteParams.notifyAll();
-            }
-            Socket socket = serverSocket.accept();
-            try(HOutput output = new HOutput(socket.getOutputStream()))
-            {
-                byte[] serializedMainParams = Launcher.gsonManager.gson.toJson(params).getBytes(IOHelper.UNICODE_CHARSET);
-                output.writeByteArray(serializedMainParams, 0);
-                params.clientHDir.write(output);
-                params.assetHDir.write(output);
-                params.javaHDir.write(output);
-            }
-        }
-        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderParamsWrittedEvent(this));
-    }
 
-    public Process getProcess() {
-        return process;
-    }
-
-    public static String getPathSeparator()
-    {
-        if(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
-            return ";";
-        else
-            return ":";
+        public static class ClientUserProperties {
+            @LauncherNetworkAPI
+            public String[] skinURL;
+            @LauncherNetworkAPI
+            public String[] skinDigest;
+            @LauncherNetworkAPI
+            public String[] cloakURL;
+            @LauncherNetworkAPI
+            public String[] cloakDigest;
+        }
     }
 }

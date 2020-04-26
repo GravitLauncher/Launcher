@@ -24,20 +24,6 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
         this.server = server;
     }
 
-    @Override
-    public String getName() {
-        return "AdditionalFixesApply";
-    }
-
-    @Override
-    public Path process(Path inputFile) throws IOException {
-        Path out = server.launcherBinary.nextPath("post-fixed");
-        try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
-            apply(inputFile, inputFile, output, server, (e) -> false, true);
-        }
-        return out;
-    }
-
     public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServer srv, Predicate<ZipEntry> excluder, boolean needFixes) throws IOException {
         try (ClassMetadataReader reader = new ClassMetadataReader()) {
             reader.getCp().add(new JarFile(inputFile.toFile()));
@@ -52,11 +38,10 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                     output.putNextEntry(IOHelper.newZipEntry(e));
                     if (filename.endsWith(".class")) {
                         byte[] bytes;
-                        if(needFixes) {
+                        if (needFixes) {
                             bytes = classFix(input, reader, srv.config.launcher.stripLineNumbers);
                             output.write(bytes);
-                        }
-                        else
+                        } else
                             IOHelper.transfer(input, output);
                     } else
                         IOHelper.transfer(input, output);
@@ -73,6 +58,20 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
         ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         cn.accept(cw);
         return cw.toByteArray();
+    }
+
+    @Override
+    public String getName() {
+        return "AdditionalFixesApply";
+    }
+
+    @Override
+    public Path process(Path inputFile) throws IOException {
+        Path out = server.launcherBinary.nextPath("post-fixed");
+        try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
+            apply(inputFile, inputFile, output, server, (e) -> false, true);
+        }
+        return out;
     }
 
     @Override

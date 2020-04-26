@@ -20,6 +20,9 @@ public final class CommonHelper {
 
     public static final ScriptEngineFactory nashornFactory = getEngineFactories(scriptManager);
 
+    private CommonHelper() {
+    }
+
     private static ScriptEngineFactory getEngineFactories(ScriptEngineManager manager) {
         // Метод похож на костыль но таковым не является, ибо единоразовое получение фактории быстрее, чем её переполучение на ходу.
         for (ScriptEngineFactory fact : manager.getEngineFactories())
@@ -27,18 +30,15 @@ public final class CommonHelper {
         return null;
     }
 
-
     public static String low(String s) {
         return s.toLowerCase(Locale.US);
     }
-
 
     public static boolean multiMatches(Pattern[] pattern, String from) {
         for (Pattern p : pattern)
             if (p.matcher(from).matches()) return true;
         return false;
     }
-
 
     public static String multiReplace(Pattern[] pattern, String from, String replace) {
         Matcher m;
@@ -50,11 +50,9 @@ public final class CommonHelper {
         return tmp != null ? tmp : from;
     }
 
-
     public static ScriptEngine newScriptEngine() {
         return nashornFactory.getScriptEngine();
     }
-
 
     public static Thread newThread(String name, boolean daemon, Runnable runnable) {
         Thread thread = new Thread(runnable);
@@ -64,14 +62,10 @@ public final class CommonHelper {
         return thread;
     }
 
-
     public static String replace(String source, String... params) {
         for (int i = 0; i < params.length; i += 2)
             source = source.replace('%' + params[i] + '%', params[i + 1]);
         return source;
-    }
-
-    private CommonHelper() {
     }
 
     public static String[] parseCommand(CharSequence line) throws CommandException {

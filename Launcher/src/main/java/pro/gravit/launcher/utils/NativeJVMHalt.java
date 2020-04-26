@@ -8,18 +8,11 @@ import javax.swing.*;
 import java.awt.event.WindowEvent;
 
 public final class NativeJVMHalt {
+    public final int haltCode;
+
     public NativeJVMHalt(int haltCode) {
         this.haltCode = haltCode;
         System.out.println("JVM exit code " + haltCode);
-    }
-
-    public final int haltCode;
-
-    public native void aaabbb38C_D();
-
-    @SuppressWarnings("null")
-    private boolean aaabBooleanC_D() {
-        return (boolean) (Boolean) null;
     }
 
     public static void haltA(int code) {
@@ -40,9 +33,8 @@ public final class NativeJVMHalt {
         } catch (Throwable fmlExc) {
             th[2] = fmlExc;
         }
-        for(Throwable t : th)
-        {
-            if(t != null) LogHelper.error(t);
+        for (Throwable t : th) {
+            if (t != null) LogHelper.error(t);
         }
         boolean a = halt.aaabBooleanC_D();
         System.out.println(a);
@@ -52,6 +44,13 @@ public final class NativeJVMHalt {
 
     public static boolean initFunc() {
         return true;
+    }
+
+    public native void aaabbb38C_D();
+
+    @SuppressWarnings("null")
+    private boolean aaabBooleanC_D() {
+        return (boolean) (Boolean) null;
     }
 
     public static class WindowShutdown extends JFrame {

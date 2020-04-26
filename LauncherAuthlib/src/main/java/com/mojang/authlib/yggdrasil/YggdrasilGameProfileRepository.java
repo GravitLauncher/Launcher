@@ -20,16 +20,16 @@ public class YggdrasilGameProfileRepository implements GameProfileRepository {
             Long.parseLong(System.getProperty("launcher.com.mojang.authlib.errorBusyWait", Long.toString(500L))),
             VerifyHelper.L_NOT_NEGATIVE, "launcher.com.mojang.authlib.errorBusyWait can't be < 0");
 
+    public YggdrasilGameProfileRepository() {
+        LogHelper.debug("Patched GameProfileRepository created");
+    }
+
     private static void busyWait(long ms) {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
             LogHelper.error(e);
         }
-    }
-
-    public YggdrasilGameProfileRepository() {
-        LogHelper.debug("Patched GameProfileRepository created");
     }
 
     @Override

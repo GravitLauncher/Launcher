@@ -10,27 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ReconfigurableManager {
-    private static class ReconfigurableVirtualCommand extends Command {
-        public ReconfigurableVirtualCommand(Map<String, Command> childs) {
-            super(childs);
-        }
-
-        @Override
-        public String getArgsDescription() {
-            return null;
-        }
-
-        @Override
-        public String getUsageDescription() {
-            return null;
-        }
-
-        @Override
-        public void invoke(String... args) throws Exception {
-            invokeSubcommands(args);
-        }
-    }
-
     private final HashMap<String, Command> RECONFIGURABLE = new HashMap<>();
 
     public void registerReconfigurable(String name, Reconfigurable reconfigurable) {
@@ -58,5 +37,26 @@ public class ReconfigurableManager {
 
     public Map<String, Command> getCommands() {
         return RECONFIGURABLE;
+    }
+
+    private static class ReconfigurableVirtualCommand extends Command {
+        public ReconfigurableVirtualCommand(Map<String, Command> childs) {
+            super(childs);
+        }
+
+        @Override
+        public String getArgsDescription() {
+            return null;
+        }
+
+        @Override
+        public String getUsageDescription() {
+            return null;
+        }
+
+        @Override
+        public void invoke(String... args) throws Exception {
+            invokeSubcommands(args);
+        }
     }
 }

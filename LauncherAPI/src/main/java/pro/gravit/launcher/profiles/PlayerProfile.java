@@ -12,22 +12,8 @@ import java.util.UUID;
 
 public final class PlayerProfile extends StreamObject {
 
-    public static PlayerProfile newOfflineProfile(String username) {
-        return new PlayerProfile(offlineUUID(username), username, null, null);
-    }
-
-
-    public static UUID offlineUUID(String username) {
-        return UUID.nameUUIDFromBytes(IOHelper.encodeASCII("OfflinePlayer:" + username));
-    }
-
-
     public final UUID uuid;
-
-
     public final String username;
-
-
     public final Texture skin, cloak;
 
 
@@ -44,6 +30,14 @@ public final class PlayerProfile extends StreamObject {
         this.username = VerifyHelper.verifyUsername(username);
         this.skin = skin;
         this.cloak = cloak;
+    }
+
+    public static PlayerProfile newOfflineProfile(String username) {
+        return new PlayerProfile(offlineUUID(username), username, null, null);
+    }
+
+    public static UUID offlineUUID(String username) {
+        return UUID.nameUUIDFromBytes(IOHelper.encodeASCII("OfflinePlayer:" + username));
     }
 
     @Override

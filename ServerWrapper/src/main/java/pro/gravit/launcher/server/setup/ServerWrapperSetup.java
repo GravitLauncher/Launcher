@@ -18,17 +18,21 @@ public class ServerWrapperSetup {
     public ServerWrapperCommands commands;
     public PublicURLClassLoader urlClassLoader;
 
+    public ServerWrapperSetup() throws IOException {
+        commands = new ServerWrapperCommands();
+    }
+
     public void run() throws IOException {
         ServerWrapper wrapper = ServerWrapper.wrapper;
         ServerWrapper.modulesManager.invokeEvent(new ServerWrapperPreSetupEvent(this));
-        System.out.println("Print jar filename:");
+        System.out.println("Print server jar filename:");
         String jarName = commands.commandHandler.readLine();
         Path jarPath = Paths.get(jarName);
         String mainClassName;
         try (JarFile file = new JarFile(jarPath.toFile())) {
             URL jarURL = jarPath.toUri().toURL();
             urlClassLoader = new PublicURLClassLoader(new URL[]{jarURL});
-            LogHelper.info("Check jar MainClass");
+            LogHelper.info("Check server jar MainClass");
             mainClassName = file.getManifest().getMainAttributes().getValue("Main-Class");
             if (mainClassName == null) {
                 LogHelper.error("Main-Class not found in MANIFEST");
@@ -101,9 +105,5 @@ public class ServerWrapperSetup {
             writer.append("\n");
         }
         ServerWrapper.modulesManager.invokeEvent(new ServerWrapperPostSetupEvent(this));
-    }
-
-    public ServerWrapperSetup() throws IOException {
-        commands = new ServerWrapperCommands();
     }
 }

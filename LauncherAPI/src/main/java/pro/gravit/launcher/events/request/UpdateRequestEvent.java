@@ -8,16 +8,11 @@ public class UpdateRequestEvent extends RequestEvent {
     @LauncherNetworkAPI
     public final HashedDir hdir;
     @LauncherNetworkAPI
-    public String url;
-    @LauncherNetworkAPI
     public final boolean zip;
     @LauncherNetworkAPI
+    public String url;
+    @LauncherNetworkAPI
     public boolean fullDownload;
-
-    @Override
-    public String getType() {
-        return "update";
-    }
 
     public UpdateRequestEvent(HashedDir hdir) {
         this.hdir = hdir;
@@ -34,5 +29,10 @@ public class UpdateRequestEvent extends RequestEvent {
         this.hdir = hdir;
         this.url = url;
         this.zip = zip;
+    }
+
+    @Override
+    public String getType() {
+        return "update";
     }
 }

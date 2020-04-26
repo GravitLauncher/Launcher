@@ -7,6 +7,7 @@ import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.HookException;
 
 public class AuthLimiterComponent extends IPLimiter implements NeedGarbageCollection, AutoCloseable {
+    public String message;
     private transient LaunchServer srv;
 
     @Override
@@ -30,8 +31,6 @@ public class AuthLimiterComponent extends IPLimiter implements NeedGarbageCollec
         }
         return false;
     }
-
-    public String message;
 
     @Override
     public void close() {

@@ -8,16 +8,16 @@ public class SystemService {
     private SystemService() {
         throw new UnsupportedOperationException();
     }
-    public static void exit(int code)
-    {
+
+    public static void exit(int code) {
         LauncherEngine.exitLauncher(code);
     }
-    public static void setSecurityManager(SecurityManager s)
-    {
+
+    public static void setSecurityManager(SecurityManager s) {
         LogHelper.debug("Try set security manager %s", s == null ? "null" : s.getClass().getName());
-        if(AuthService.profile == null || AuthService.profile.securityManagerConfig == ClientProfile.SecurityManagerConfig.NONE) return;
-        if(AuthService.profile.securityManagerConfig == ClientProfile.SecurityManagerConfig.CLIENT)
-        {
+        if (AuthService.profile == null || AuthService.profile.securityManagerConfig == ClientProfile.SecurityManagerConfig.NONE)
+            return;
+        if (AuthService.profile.securityManagerConfig == ClientProfile.SecurityManagerConfig.CLIENT) {
             System.setSecurityManager(s);
         }
         //TODO NEXT

@@ -4,14 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class LauncherModule {
-    private LauncherModulesContext context;
-
+    protected final LauncherModuleInfo moduleInfo;
     @SuppressWarnings("rawtypes")
     private final Map<Class<? extends Event>, EventHandler> eventMap = new HashMap<>();
     protected LauncherModulesManager modulesManager;
-    protected final LauncherModuleInfo moduleInfo;
     protected ModulesConfigManager modulesConfigManager;
     protected InitStatus initStatus = InitStatus.CREATED;
+    private LauncherModulesContext context;
 
     protected LauncherModule() {
         moduleInfo = new LauncherModuleInfo("UnknownModule");
@@ -23,62 +22,6 @@ public abstract class LauncherModule {
 
     public LauncherModuleInfo getModuleInfo() {
         return moduleInfo;
-    }
-
-
-    /**
-     * Module initialization status at the current time
-     */
-    public enum InitStatus {
-        /**
-         * When creating an object
-         */
-        CREATED(false),
-        /**
-         * After setting the context
-         */
-        PRE_INIT_WAIT(true),
-        /**
-         * During the pre-initialization phase
-         */
-        PRE_INIT(false),
-        /**
-         * Awaiting initialization phase
-         */
-        INIT_WAIT(true),
-        /**
-         * During the initialization phase
-         */
-        INIT(false),
-        FINISH(true);
-
-        InitStatus(boolean b) {
-            isAvailable = b;
-        }
-
-        public boolean isAvailable() {
-            return isAvailable;
-        }
-
-        private final boolean isAvailable;
-    }
-
-    @FunctionalInterface
-    public interface EventHandler<T extends Event> {
-        void event(T e);
-    }
-
-    public static class Event {
-        public boolean isCancel() {
-            return cancel;
-        }
-
-        public Event cancel() {
-            this.cancel = true;
-            return this;
-        }
-
-        protected boolean cancel = false;
     }
 
     public InitStatus getInitStatus() {
@@ -145,7 +88,6 @@ public abstract class LauncherModule {
      */
     public abstract void init(LauncherInitContext initContext);
 
-
     /**
      * Registers an event handler for the current module
      *
@@ -174,6 +116,62 @@ public abstract class LauncherModule {
                 e.getValue().event(event);
                 if (event.isCancel()) return;
             }
+        }
+    }
+
+    /**
+     * Module initialization status at the current time
+     */
+    public enum InitStatus {
+        /**
+         * When creating an object
+         */
+        CREATED(false),
+        /**
+         * After setting the context
+         */
+        PRE_INIT_WAIT(true),
+        /**
+         * During the pre-initialization phase
+         */
+        PRE_INIT(false),
+        /**
+         * Awaiting initialization phase
+         */
+        INIT_WAIT(true),
+        /**
+         * During the initialization phase
+         */
+        INIT(false),
+        FINISH(true);
+
+        private final boolean isAvailable;
+
+        InitStatus(boolean b) {
+            isAvailable = b;
+        }
+
+        public boolean isAvailable() {
+            return isAvailable;
+        }
+    }
+
+
+    @FunctionalInterface
+    public interface EventHandler<T extends Event> {
+        void event(T e);
+    }
+
+    public static class Event {
+        protected boolean cancel = false;
+
+        public boolean isCancel() {
+            return cancel;
+        }
+
+        public Event cancel() {
+            this.cancel = true;
+            return this;
         }
     }
 }

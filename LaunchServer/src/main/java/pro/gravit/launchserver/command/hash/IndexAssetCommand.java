@@ -20,63 +20,21 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 
 public final class IndexAssetCommand extends Command {
-    private static final Gson gson = new Gson();
-
-    public static class IndexObject {
-        final long size;
-
-        public IndexObject(long size, String hash) {
-            this.size = size;
-            this.hash = hash;
-        }
-
-        final String hash;
-    }
-
-    private static final class IndexAssetVisitor extends SimpleFileVisitor<Path> {
-        private final JsonObject objects;
-        private final Path inputAssetDir;
-        private final Path outputAssetDir;
-
-        private IndexAssetVisitor(JsonObject objects, Path inputAssetDir, Path outputAssetDir) {
-            this.objects = objects;
-            this.inputAssetDir = inputAssetDir;
-            this.outputAssetDir = outputAssetDir;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            String name = IOHelper.toString(inputAssetDir.relativize(file));
-            LogHelper.subInfo("Indexing: '%s'", name);
-
-            // Add to index and copy file
-            String digest = SecurityHelper.toHex(SecurityHelper.digest(DigestAlgorithm.SHA1, file));
-            IndexObject obj = new IndexObject(attrs.size(), digest);
-            objects.add(name, gson.toJsonTree(obj));
-            IOHelper.copy(file, resolveObjectFile(outputAssetDir, digest));
-
-            // Continue visiting
-            return super.visitFile(file, attrs);
-        }
-    }
-
     public static final String INDEXES_DIR = "indexes";
     public static final String OBJECTS_DIR = "objects";
-
+    private static final Gson gson = new Gson();
     private static final String JSON_EXTENSION = ".json";
 
+    public IndexAssetCommand(LaunchServer server) {
+        super(server);
+    }
 
     public static Path resolveIndexFile(Path assetDir, String name) {
         return assetDir.resolve(INDEXES_DIR).resolve(name + JSON_EXTENSION);
     }
 
-
     public static Path resolveObjectFile(Path assetDir, String hash) {
         return assetDir.resolve(OBJECTS_DIR).resolve(hash.substring(0, 2)).resolve(hash);
-    }
-
-    public IndexAssetCommand(LaunchServer server) {
-        super(server);
     }
 
     @Override
@@ -121,5 +79,42 @@ public final class IndexAssetCommand extends Command {
         // Finished
         server.syncUpdatesDir(Collections.singleton(outputAssetDirName));
         LogHelper.subInfo("Asset successfully indexed: '%s'", inputAssetDirName);
+    }
+
+    public static class IndexObject {
+        final long size;
+        final String hash;
+
+        public IndexObject(long size, String hash) {
+            this.size = size;
+            this.hash = hash;
+        }
+    }
+
+    private static final class IndexAssetVisitor extends SimpleFileVisitor<Path> {
+        private final JsonObject objects;
+        private final Path inputAssetDir;
+        private final Path outputAssetDir;
+
+        private IndexAssetVisitor(JsonObject objects, Path inputAssetDir, Path outputAssetDir) {
+            this.objects = objects;
+            this.inputAssetDir = inputAssetDir;
+            this.outputAssetDir = outputAssetDir;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            String name = IOHelper.toString(inputAssetDir.relativize(file));
+            LogHelper.subInfo("Indexing: '%s'", name);
+
+            // Add to index and copy file
+            String digest = SecurityHelper.toHex(SecurityHelper.digest(DigestAlgorithm.SHA1, file));
+            IndexObject obj = new IndexObject(attrs.size(), digest);
+            objects.add(name, gson.toJsonTree(obj));
+            IOHelper.copy(file, resolveObjectFile(outputAssetDir, digest));
+
+            // Continue visiting
+            return super.visitFile(file, attrs);
+        }
     }
 }

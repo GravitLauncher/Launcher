@@ -36,7 +36,7 @@ public final class JARLauncherBinary extends LauncherBinary {
     @Override
     public void init() {
         tasks.add(new PrepareBuildTask(server));
-        if(!server.config.sign.enabled) tasks.add(new CertificateAutogenTask(server));
+        if (!server.config.sign.enabled) tasks.add(new CertificateAutogenTask(server));
         tasks.add(new MainBuildTask(server));
         if (server.config.launcher.attachLibraryBeforeProGuard) tasks.add(new AttachJarsTask(server));
         tasks.add(new ProGuardBuildTask(server));
