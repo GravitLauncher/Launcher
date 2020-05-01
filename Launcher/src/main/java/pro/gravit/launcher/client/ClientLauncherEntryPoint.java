@@ -67,6 +67,7 @@ public class ClientLauncherEntryPoint {
         LauncherEngine.checkClass(LauncherAgent.class);
         LauncherEngine.checkClass(ClientLauncherEntryPoint.class);
         LauncherEngine.modulesManager = new ClientModuleManager();
+        LauncherEngine.modulesManager.loadModule(new ClientLauncherCoreModule());
         LauncherConfig.initModules(LauncherEngine.modulesManager); //INIT
         LauncherEngine.modulesManager.initModules(null);
         initGson(LauncherEngine.modulesManager);
