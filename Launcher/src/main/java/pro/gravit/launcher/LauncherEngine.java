@@ -1,9 +1,6 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.client.ClientLauncherEntryPoint;
-import pro.gravit.launcher.client.ClientLauncherProcess;
-import pro.gravit.launcher.client.ClientModuleManager;
-import pro.gravit.launcher.client.DirBridge;
+import pro.gravit.launcher.client.*;
 import pro.gravit.launcher.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientExitPhase;
 import pro.gravit.launcher.client.events.ClientPreGuiPhase;
@@ -93,6 +90,7 @@ public class LauncherEngine {
         LauncherEngine.checkClass(LauncherAgent.class);
         LauncherEngine.checkClass(ClientLauncherEntryPoint.class);
         LauncherEngine.modulesManager = new ClientModuleManager();
+        LauncherEngine.modulesManager.loadModule(new ClientLauncherCoreModule());
         LauncherConfig.initModules(LauncherEngine.modulesManager);
         LauncherEngine.modulesManager.initModules(null);
         // Start Launcher
