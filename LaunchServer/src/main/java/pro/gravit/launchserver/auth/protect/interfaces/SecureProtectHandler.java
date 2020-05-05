@@ -2,6 +2,7 @@ package pro.gravit.launchserver.auth.protect.interfaces;
 
 import pro.gravit.launcher.events.request.GetSecureLevelInfoRequestEvent;
 import pro.gravit.launcher.events.request.SecurityReportRequestEvent;
+import pro.gravit.launcher.events.request.VerifySecureLevelKeyRequestEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.secure.SecurityReportResponse;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -30,5 +31,9 @@ public interface SecureProtectHandler {
 
     default SecurityReportRequestEvent onSecurityReport(SecurityReportResponse report, Client client) {
         return new SecurityReportRequestEvent();
+    }
+    default VerifySecureLevelKeyRequestEvent onSuccessVerify(Client client)
+    {
+        return new VerifySecureLevelKeyRequestEvent();
     }
 }
