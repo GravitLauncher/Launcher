@@ -42,9 +42,9 @@ jobs:
           cd ../../../LauncherAuthlib/build/libs
           cp LauncherAuthlib.jar ../../../artifacts/LauncherAuthlib.jar
           cd ../../../
-          cp modules/*_module/build/libs/*.jar artifacts/modules
-          cp modules/*_swmodule/build/libs/*.jar artifacts/modules
-          cp modules/*_lmodule/build/libs/*.jar artifacts/modules
+          cp modules/*_module/build/libs/*.jar artifacts/modules || true
+          cp modules/*_swmodule/build/libs/*.jar artifacts/modules || true
+          cp modules/*_lmodule/build/libs/*.jar artifacts/modules || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v1

@@ -39,6 +39,6 @@ public class VerifySecureLevelKeyResponse extends SimpleResponse {
         }
         client.trustLevel.keyChecked = true;
         client.trustLevel.publicKey = publicKey;
-        sendResult(new VerifySecureLevelKeyRequestEvent());
+        sendResult(secureProtectHandler.onSuccessVerify(client));
     }
 }

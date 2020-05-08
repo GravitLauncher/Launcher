@@ -8,6 +8,8 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.launchserver.socket.WebSocketService;
+import pro.gravit.utils.BiHookSet;
+import pro.gravit.utils.HookSet;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -22,6 +24,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     public final WebSocketService service;
     private final UUID connectUUID = UUID.randomUUID();
     public NettyConnectContext context;
+    public BiHookSet<ChannelHandlerContext, WebSocketFrame> hooks = new BiHookSet<>();
     private Client client;
 
     public WebSocketFrameHandler(NettyConnectContext context, LaunchServer srv, WebSocketService service) {
@@ -58,6 +61,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) {
         // ping and pong frames already handled
+        if(hooks.hook(ctx, frame)) return;
         if (frame instanceof TextWebSocketFrame) {
             service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
         } else if ((frame instanceof PingWebSocketFrame)) {

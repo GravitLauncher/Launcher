@@ -2,6 +2,7 @@ package pro.gravit.launchserver.binary.tasks;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import proguard.Configuration;
 import proguard.ConfigurationParser;
@@ -10,6 +11,7 @@ import proguard.ProGuard;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class ProGuardBuildTask implements LauncherBuildTask {
     private final LaunchServer server;
@@ -30,6 +32,21 @@ public class ProGuardBuildTask implements LauncherBuildTask {
             Configuration proguard_cfg = new Configuration();
             ConfigurationParser parser = new ConfigurationParser(server.proguardConf.buildConfig(inputFile, outputJar),
                     server.proguardConf.proguard.toFile(), System.getProperties());
+            if (JVMHelper.JVM_VERSION >= 9)
+            {
+                Path javaJModsPath = Paths.get(System.getProperty("java.home")).resolve("jmods");
+                if(!IOHelper.exists(javaJModsPath))
+                {
+                    LogHelper.warning("Directory %s not found. It is not good", javaJModsPath);
+                }
+                else
+                {
+                    //Find javaFX libraries
+                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.base.jmod"))) LogHelper.warning("javafx.base.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
+                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.graphics.jmod"))) LogHelper.warning("javafx.graphics.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
+                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.controls.jmod"))) LogHelper.warning("javafx.controls.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
+                }
+            }
             try {
                 parser.parse(proguard_cfg);
                 ProGuard proGuard = new ProGuard(proguard_cfg);
