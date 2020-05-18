@@ -8,6 +8,7 @@ import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDException;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
 import pro.gravit.launchserver.auth.protect.interfaces.HardwareProtectHandler;
+import pro.gravit.launchserver.auth.protect.interfaces.JoinServerProtectHandler;
 import pro.gravit.launchserver.auth.protect.interfaces.SecureProtectHandler;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
@@ -18,7 +19,7 @@ import pro.gravit.utils.helper.LogHelper;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, HardwareProtectHandler, Reconfigurable {
+public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, HardwareProtectHandler, JoinServerProtectHandler, Reconfigurable {
     public boolean enableHardwareFeature;
     public HWIDProvider provider;
 
@@ -56,6 +57,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
             LogHelper.debug("[HardwareInfo] HardwareInfo needCreate: %s", needCreate ? "true" : "false");
             if(needCreate)
                 provider.createHardwareInfo(response.hardware, client.trustLevel.publicKey);
+            client.trustLevel.hardwareInfo = response.hardware;
         } catch (HWIDException e) {
             throw new SecurityException(e.getMessage());
         }
@@ -93,5 +95,10 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
             commands.putAll(((Reconfigurable) provider).getCommands());
         }
         return commands;
+    }
+
+    @Override
+    public boolean onJoinServer(String serverID, String username, Client client) {
+        return !enableHardwareFeature || client.trustLevel.hardwareInfo != null;
     }
 }
