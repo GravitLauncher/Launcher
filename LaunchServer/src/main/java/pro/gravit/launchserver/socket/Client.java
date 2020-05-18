@@ -2,6 +2,7 @@ package pro.gravit.launchserver.socket;
 
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
@@ -52,5 +53,6 @@ public class Client {
         public byte[] verifySecureKey;
         public boolean keyChecked;
         public byte[] publicKey;
+        public HardwareReportRequest.HardwareInfo hardwareInfo;
     }
 }
