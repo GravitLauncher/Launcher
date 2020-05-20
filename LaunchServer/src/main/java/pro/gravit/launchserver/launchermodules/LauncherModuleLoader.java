@@ -2,6 +2,7 @@ package pro.gravit.launchserver.launchermodules;
 
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -120,15 +121,17 @@ public class LauncherModuleLoader {
                                             targetConfig = Launcher.gsonManager.configGson.fromJson(reader, clazz);
                                         }
                                     }
-                                    Field[] fields = clazz.getFields();
-                                    for (Field field : fields) {
-                                        if ((field.getModifiers() & Modifier.STATIC) != 0) continue;
-                                        Object obj = field.get(targetConfig);
-                                        String configPropertyName = "modules.".concat(entity.moduleConfigName.toLowerCase()).concat(".").concat(field.getName().toLowerCase());
-                                        if (entity.propertyMap == null) entity.propertyMap = new HashMap<>();
-                                        LogHelper.dev("Property name %s", configPropertyName);
-                                        entity.propertyMap.put(configPropertyName, obj);
-                                    }
+                                    //Field[] fields = clazz.getFields();
+                                    //for (Field field : fields) {
+                                    //    if ((field.getModifiers() & Modifier.STATIC) != 0) continue;
+                                    //    Object obj = field.get(targetConfig);
+                                    //    String configPropertyName = "modules.".concat(entity.moduleConfigName.toLowerCase()).concat(".").concat(field.getName().toLowerCase());
+                                    //    if (entity.propertyMap == null) entity.propertyMap = new HashMap<>();
+                                    //    LogHelper.dev("Property name %s", configPropertyName);
+                                    //    entity.propertyMap.put(configPropertyName, obj);
+                                    //}
+                                    if (entity.propertyMap == null) entity.propertyMap = new HashMap<>();
+                                    addClassFieldsToProperties(entity.propertyMap, "modules.".concat(entity.moduleConfigName.toLowerCase()), targetConfig, clazz);
                                 } catch (Throwable e) {
                                     LogHelper.error(e);
                                 }
@@ -138,6 +141,23 @@ public class LauncherModuleLoader {
                     }
                 }
             return super.visitFile(file, attrs);
+        }
+    }
+    public void addClassFieldsToProperties(Map<String, Object> propertyMap, String prefix, Object object, Class<?> classOfObject) throws IllegalAccessException {
+        Field[] fields = classOfObject.getFields();
+        for (Field field : fields) {
+            if ((field.getModifiers() & Modifier.STATIC) != 0) continue;
+            Object obj = field.get(object);
+            String propertyName = prefix.concat(".").concat(field.getName());
+            if(InjectClassAcceptor.isSerializableValue(obj))
+            {
+                propertyMap.put(propertyName, obj);
+            }
+            else
+            {
+                //Try recursive add fields
+                addClassFieldsToProperties(propertyMap, propertyName, obj, obj.getClass());
+            }
         }
     }
 }
