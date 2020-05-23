@@ -16,6 +16,7 @@ public abstract class HWIDProvider {
         if(!registredProv)
         {
             providers.register("memory", MemoryHWIDProvider.class);
+            providers.register("mysql", MysqlHWIDProvider.class);
             registredProv = true;
         }
     }
@@ -103,5 +104,15 @@ public abstract class HWIDProvider {
         LogHelper.log(logLevel, String.format("[HardwareInfo] Processor: logical %d | physical %d | freq %d | bitness %d", info.logicalProcessors, info.physicalProcessors, info.processorMaxFreq, info.bitness) , false);
         LogHelper.log(logLevel, String.format("[HardwareInfo] Memory max: %d | battery %s", info.totalMemory, info.battery ? "true" : "false") , false);
         LogHelper.log(logLevel, String.format("[HardwareInfo] HWDiskID %s | baseboardSerialNumber %s | displayId hash: %s", info.hwDiskId, info.baseboardSerialNumber, SecurityHelper.toHex(SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, info.displayId))) , false);
+    }
+
+    public void init()
+    {
+
+    }
+
+    public void close()
+    {
+
     }
 }

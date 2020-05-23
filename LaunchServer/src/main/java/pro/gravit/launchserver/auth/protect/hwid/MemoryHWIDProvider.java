@@ -94,6 +94,7 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
             if(result.compareLevel > criticalCompareLevel)
             {
                 LogHelper.debug("HardwareInfo publicKey change: compareLevel %d", result.compareLevel);
+                if(e.banned) throw new HWIDException("You HWID banned");
                 e.publicKey = publicKey;
                 return true;
             }
