@@ -5,6 +5,7 @@ import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
+import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -22,6 +23,8 @@ public class Client {
     public transient LogHelper.OutputEnity logOutput;
 
     public transient AuthProviderPair auth;
+
+    public transient User daoObject;
 
     public Client(long session) {
         this.session = session;

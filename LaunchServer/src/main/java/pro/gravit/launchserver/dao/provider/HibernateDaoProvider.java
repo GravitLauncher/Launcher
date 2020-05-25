@@ -6,8 +6,7 @@ import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.dao.User;
-import pro.gravit.launchserver.dao.impl.HibernateUserDAOImpl;
-import pro.gravit.launchserver.dao.impl.UserHibernateImpl;
+import pro.gravit.launchserver.dao.UserDAO;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.CommonHelper;
@@ -17,7 +16,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HibernateDaoProvider extends DaoProvider implements Reconfigurable, AutoCloseable {
+public abstract class HibernateDaoProvider extends DaoProvider implements Reconfigurable, AutoCloseable {
     public String driver;
     public String url;
     public String username;
@@ -26,13 +25,13 @@ public class HibernateDaoProvider extends DaoProvider implements Reconfigurable,
     public String pool_size;
     public String hibernateConfig;
     public boolean parallelHibernateInit;
-    private transient SessionFactory sessionFactory;
+    protected transient SessionFactory sessionFactory;
 
     @Override
     public void init(LaunchServer server) {
         Runnable init = () -> {
             Configuration cfg = new Configuration()
-                    .addAnnotatedClass(UserHibernateImpl.class)
+                    //.addAnnotatedClass(UserHibernateImpl.class)
                     .setProperty("hibernate.connection.driver_class", driver)
                     .setProperty("hibernate.connection.url", url)
                     .setProperty("hibernate.connection.username", username)
@@ -42,14 +41,19 @@ public class HibernateDaoProvider extends DaoProvider implements Reconfigurable,
                 cfg.setProperty("hibernate.dialect", dialect);
             if (hibernateConfig != null)
                 cfg.configure(Paths.get(hibernateConfig).toFile());
+            onConfigure(cfg);
             sessionFactory = cfg.buildSessionFactory();
-            userDAO = new HibernateUserDAOImpl(sessionFactory);
+            userDAO = newUserDAO();
         };
         if (parallelHibernateInit)
             CommonHelper.newThread("Hibernate Thread", true, init);
         else
             init.run();
     }
+
+    protected abstract void onConfigure(Configuration configuration);
+
+    protected abstract UserDAO newUserDAO();
 
     @Override
     public Map<String, Command> getCommands() {
