@@ -8,6 +8,7 @@ import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
+import pro.gravit.launchserver.auth.provider.AuthProviderDAOResult;
 import pro.gravit.launchserver.auth.provider.AuthProviderResult;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -84,6 +85,10 @@ public class AuthResponse extends SimpleResponse {
                 clientData.username = result.playerProfile.username;
             else
                 clientData.username = login;
+            if(aresult instanceof AuthProviderDAOResult)
+            {
+                clientData.daoObject = ((AuthProviderDAOResult) aresult).daoObject;
+            }
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
             if (getSession) {
