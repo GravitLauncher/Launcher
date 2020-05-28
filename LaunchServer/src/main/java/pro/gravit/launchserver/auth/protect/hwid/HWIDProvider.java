@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.auth.protect.hwid;
 
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
-import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.helper.DamerauHelper;
+import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -20,9 +20,9 @@ public abstract class HWIDProvider {
             registredProv = true;
         }
     }
-    public abstract HardwareReportRequest.HardwareInfo findHardwareInfoByPublicKey(byte[] publicKey) throws HWIDException;
-    public abstract void createHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey) throws HWIDException;
-    public abstract boolean addPublicKeyToHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey) throws HWIDException;
+    public abstract HardwareReportRequest.HardwareInfo findHardwareInfoByPublicKey(byte[] publicKey, Client client) throws HWIDException;
+    public abstract void createHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, Client client) throws HWIDException;
+    public abstract boolean addPublicKeyToHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, Client client) throws HWIDException;
 
     public void normalizeHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo)
     {

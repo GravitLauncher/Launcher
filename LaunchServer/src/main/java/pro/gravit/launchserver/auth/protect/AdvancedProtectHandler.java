@@ -3,7 +3,6 @@ package pro.gravit.launchserver.auth.protect;
 import pro.gravit.launcher.events.request.GetSecureLevelInfoRequestEvent;
 import pro.gravit.launcher.events.request.HardwareReportRequestEvent;
 import pro.gravit.launcher.events.request.VerifySecureLevelKeyRequestEvent;
-import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDException;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
@@ -51,12 +50,17 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
             return;
         }
         try {
+            if(!client.isAuth || client.trustLevel == null || client.trustLevel.publicKey == null)
+            {
+                response.sendError("Access denied");
+                return;
+            }
             provider.normalizeHardwareInfo(response.hardware);
             LogHelper.debug("[HardwareInfo] HardwareInfo received");
-            boolean needCreate = !provider.addPublicKeyToHardwareInfo(response.hardware, client.trustLevel.publicKey);
+            boolean needCreate = !provider.addPublicKeyToHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
             LogHelper.debug("[HardwareInfo] HardwareInfo needCreate: %s", needCreate ? "true" : "false");
             if(needCreate)
-                provider.createHardwareInfo(response.hardware, client.trustLevel.publicKey);
+                provider.createHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
             client.trustLevel.hardwareInfo = response.hardware;
         } catch (HWIDException e) {
             throw new SecurityException(e.getMessage());
@@ -75,7 +79,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
             else
             {
                 try {
-                    client.trustLevel.hardwareInfo = provider.findHardwareInfoByPublicKey(client.trustLevel.publicKey);
+                    client.trustLevel.hardwareInfo = provider.findHardwareInfoByPublicKey(client.trustLevel.publicKey, client);
                     if(client.trustLevel.hardwareInfo == null) //HWID not found?
                         return new VerifySecureLevelKeyRequestEvent(true);
                 } catch (HWIDException e) {

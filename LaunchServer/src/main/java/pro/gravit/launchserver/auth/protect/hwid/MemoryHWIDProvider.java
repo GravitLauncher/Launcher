@@ -2,6 +2,7 @@ package pro.gravit.launchserver.auth.protect.hwid;
 
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.Reconfigurable;
+import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.LogHelper;
@@ -65,7 +66,7 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
     public Set<MemoryHWIDEntity> db = ConcurrentHashMap.newKeySet();
 
     @Override
-    public HardwareReportRequest.HardwareInfo findHardwareInfoByPublicKey(byte[] publicKey) throws HWIDException {
+    public HardwareReportRequest.HardwareInfo findHardwareInfoByPublicKey(byte[] publicKey, Client client) throws HWIDException {
         for(MemoryHWIDEntity e : db) {
             if(Arrays.equals(e.publicKey, publicKey))
             {
@@ -77,12 +78,12 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
     }
 
     @Override
-    public void createHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey) throws HWIDException {
+    public void createHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, Client client) throws HWIDException {
         db.add(new MemoryHWIDEntity(hardwareInfo, publicKey));
     }
 
     @Override
-    public boolean addPublicKeyToHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey) throws HWIDException {
+    public boolean addPublicKeyToHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, Client client) throws HWIDException {
         boolean isAlreadyWarning = false;
         for(MemoryHWIDEntity e : db) {
             HardwareInfoCompareResult result = compareHardwareInfo(e.hardware, hardwareInfo);
