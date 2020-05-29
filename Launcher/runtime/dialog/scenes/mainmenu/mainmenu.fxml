@@ -94,7 +94,7 @@
                      </image>
                   </ImageView>
                </graphic></Button>
-                <Button id="link_discord" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" minHeight="-Infinity" minWidth="-Infinity" text="" textAlignment="CENTER">
+                <Button id="link_discord" alignment="CENTER" contentDisplay="CENTER" layoutY="405.0" minHeight="-Infinity" minWidth="-Infinity" text="" textAlignment="CENTER">
                <graphic>
                   <ImageView>
                      <image>
