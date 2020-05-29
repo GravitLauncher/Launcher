@@ -3,7 +3,6 @@ package pro.gravit.launchserver.socket.response.auth;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launchserver.dao.User;
-import pro.gravit.launchserver.dao.impl.UserHibernateImpl;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
@@ -11,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.UUID;
 
 public class RegisterResponse extends SimpleResponse {
     public String login;
@@ -37,12 +35,6 @@ public class RegisterResponse extends SimpleResponse {
             sendError("User already register");
             return;
         }
-        UserHibernateImpl user = new UserHibernateImpl();
-        user.username = login;
-        user.email = email;
-        user.setPassword(password);
-        user.uuid = UUID.randomUUID();
-        server.config.dao.userDAO.save(user);
     }
 
     @Override

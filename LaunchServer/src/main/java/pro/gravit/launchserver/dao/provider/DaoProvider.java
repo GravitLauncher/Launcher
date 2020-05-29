@@ -9,7 +9,7 @@ public abstract class DaoProvider {
     public UserDAO userDAO;
 
     public static void registerProviders() {
-        providers.register("hibernate", HibernateDaoProvider.class);
+        // None
     }
 
     public abstract void init(LaunchServer server);

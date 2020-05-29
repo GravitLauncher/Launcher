@@ -19,7 +19,12 @@ public class HardwareReportResponse extends SimpleResponse {
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         if(server.config.protectHandler instanceof HardwareProtectHandler)
         {
-            ((HardwareProtectHandler) server.config.protectHandler).onHardwareReport(this, client);
+            try {
+                ((HardwareProtectHandler) server.config.protectHandler).onHardwareReport(this, client);
+            } catch (SecurityException e)
+            {
+                sendError(e.getMessage());
+            }
         }
         else
         {

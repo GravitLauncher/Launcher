@@ -5,10 +5,6 @@ import pro.gravit.launchserver.command.auth.AuthCommand;
 import pro.gravit.launchserver.command.auth.UUIDToUsernameCommand;
 import pro.gravit.launchserver.command.auth.UsernameToUUIDCommand;
 import pro.gravit.launchserver.command.basic.*;
-import pro.gravit.launchserver.command.dao.GetAllUsersCommand;
-import pro.gravit.launchserver.command.dao.GetUserCommand;
-import pro.gravit.launchserver.command.dao.RegisterCommand;
-import pro.gravit.launchserver.command.dao.SetUserPasswordCommand;
 import pro.gravit.launchserver.command.dump.DumpSessionsCommand;
 import pro.gravit.launchserver.command.hash.*;
 import pro.gravit.launchserver.command.install.CheckInstallCommand;
@@ -55,15 +51,6 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         updates.registerCommand("saveProfiles", new SaveProfilesCommand(server));
         Category updatesCategory = new Category(updates, "updates", "Update and Sync Management");
         handler.registerCategory(updatesCategory);
-
-        //Register dao commands
-        BaseCommandCategory dao = new BaseCommandCategory();
-        dao.registerCommand("register", new RegisterCommand(server));
-        dao.registerCommand("setUserPassword", new SetUserPasswordCommand(server));
-        dao.registerCommand("getUser", new GetUserCommand(server));
-        dao.registerCommand("getAllUsers", new GetAllUsersCommand(server));
-        Category daoCategory = new Category(dao, "DAO", "Data Management");
-        handler.registerCategory(daoCategory);
 
         // Register auth commands
         BaseCommandCategory auth = new BaseCommandCategory();

@@ -20,5 +20,15 @@ public abstract class ProtectHandler {
     public abstract boolean allowGetAccessToken(AuthResponse.AuthContext context);
 
     public abstract void checkLaunchServerLicense(); //Выдает SecurityException при ошибке проверки лицензии
+
+    public void init()
+    {
+
+    }
+
+    public void close()
+    {
+
+    }
     //public abstract
 }

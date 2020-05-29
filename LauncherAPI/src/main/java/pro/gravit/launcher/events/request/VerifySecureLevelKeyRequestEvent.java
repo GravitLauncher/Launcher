@@ -4,6 +4,7 @@ import pro.gravit.launcher.events.RequestEvent;
 
 public class VerifySecureLevelKeyRequestEvent extends RequestEvent {
     public boolean needHardwareInfo;
+    public boolean onlyStatisticInfo;
 
     public VerifySecureLevelKeyRequestEvent() {
     }

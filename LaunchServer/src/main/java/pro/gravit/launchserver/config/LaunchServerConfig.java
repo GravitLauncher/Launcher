@@ -183,6 +183,8 @@ public final class LaunchServerConfig {
             dao.init(server);
         }
         if (protectHandler != null) {
+            server.registerObject("protectHandler", protectHandler);
+            protectHandler.init();
             protectHandler.checkLaunchServerLicense();
         }
         if (components != null) {
@@ -222,6 +224,10 @@ public final class LaunchServerConfig {
             }
         } catch (Exception e) {
             LogHelper.error(e);
+        }
+        if (protectHandler != null) {
+            server.unregisterObject("protectHandler", protectHandler);
+            protectHandler.close();
         }
         if (dao != null) {
             server.unregisterObject("dao", dao);

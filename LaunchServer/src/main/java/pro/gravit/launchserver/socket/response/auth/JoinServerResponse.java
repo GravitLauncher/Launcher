@@ -3,6 +3,7 @@ package pro.gravit.launchserver.socket.response.auth;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.JoinServerRequestEvent;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.protect.interfaces.JoinServerProtectHandler;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.HookException;
@@ -27,6 +28,15 @@ public class JoinServerResponse extends SimpleResponse {
         boolean success;
         try {
             server.authHookManager.joinServerHook.hook(this, client);
+            if(server.config.protectHandler instanceof JoinServerProtectHandler)
+            {
+                success = ((JoinServerProtectHandler) server.config.protectHandler).onJoinServer(serverID, username, client);
+                if(!success)
+                {
+                    sendResult(new JoinServerRequestEvent(false));
+                    return;
+                }
+            }
             if (client.auth == null) {
                 LogHelper.warning("Client auth is null. Using default.");
                 success = server.config.getAuthProviderPair().handler.joinServer(username, accessToken, serverID);
@@ -34,7 +44,7 @@ public class JoinServerResponse extends SimpleResponse {
             if (LogHelper.isDebugEnabled()) {
                 LogHelper.debug("joinServer: %s accessToken: %s serverID: %s", username, accessToken, serverID);
             }
-        } catch (AuthException | HookException e) {
+        } catch (AuthException | HookException | SecurityException e) {
             sendError(e.getMessage());
             return;
         } catch (Exception e) {
