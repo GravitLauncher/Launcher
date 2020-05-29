@@ -90,7 +90,6 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("update", UpdateRequestEvent.class);
         results.register("restoreSession", RestoreSessionRequestEvent.class);
         results.register("log", LogEvent.class);
-        results.register("cmdExec", ExecCommandRequestEvent.class);
         results.register("getAvailabilityAuth", GetAvailabilityAuthRequestEvent.class);
         results.register("exception", ExceptionEvent.class);
         results.register("register", RegisterRequestEvent.class);
