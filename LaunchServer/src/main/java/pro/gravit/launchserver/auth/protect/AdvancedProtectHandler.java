@@ -105,4 +105,16 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     public boolean onJoinServer(String serverID, String username, Client client) {
         return !enableHardwareFeature || (client.trustLevel != null && client.trustLevel.hardwareInfo != null);
     }
+
+    @Override
+    public void init() {
+        if(provider != null)
+            provider.init();
+    }
+
+    @Override
+    public void close() {
+        if(provider != null)
+            provider.close();
+    }
 }
