@@ -529,6 +529,8 @@ var serverHolder = {
 
     set: function(btn) {
         pingServer(btn);
+        serverEntrance.getStyleClass().clear();
+        serverEntrance.getStyleClass().add("server-bg-" + profilesList[btn]);
         serverLabel.setText(profilesList[btn]);
         serverDescription.setText(profilesList[btn].info);
         btn.setSelected(true);

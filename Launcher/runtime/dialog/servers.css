@@ -1,4 +1,3 @@
-/*-- DrLeonardo Design --*/
 /* Server buttons */
 
 .server-button {
@@ -27,4 +26,14 @@
     -fx-background-image: url('images/servers/example.png');
 }
 
-/*-- DrLeonardo Design --*/
+
+/* Раскоментить при использовании кастомных фонов */
+/*.serverentrance {
+    -fx-background-color: transparent;
+}*/
+
+/** server-bg-<your profile name> **/
+
+.server-bg-Example {
+    -fx-background-image: url('images/servers/bg-example.png');
+}
