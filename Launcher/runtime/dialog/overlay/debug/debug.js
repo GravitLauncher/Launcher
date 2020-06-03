@@ -75,7 +75,7 @@ var debug = {
         var alive = !forceClose &&
             process !== null && process.isAlive();
 
-        var text = alive ? "Убить" : "Закрыть";
+        var text = alive ? "Убить процесс" : "Закрыть окно";
         var addClass = alive ? "kill" : "close";
         var removeClass = alive ? "close" : "kill";
 

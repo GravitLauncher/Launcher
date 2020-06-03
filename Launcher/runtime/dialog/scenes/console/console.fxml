@@ -8,7 +8,6 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.shape.Line?>
 
 <!-- DrLeonardo Design -->
 
@@ -23,7 +22,8 @@
                         <Image url="@../../images/icons/hide.png" />
                      </image>
                   </ImageView>
-               </graphic></Button>
+               </graphic>
+            </Button>
                 <Button id="close" alignment="CENTER" contentDisplay="CENTER" minHeight="-Infinity" minWidth="-Infinity" text="" textAlignment="CENTER">
                <graphic>
                   <ImageView>
@@ -31,24 +31,28 @@
                         <Image url="@../../images/icons/close.png" />
                      </image>
                   </ImageView>
-               </graphic></Button>
+               </graphic>
+            </Button>
             </children>
         </Pane>
-        <TextArea fx:id="output" prefHeight="419.0" prefWidth="692.0">
+        <TextArea fx:id="output" prefHeight="405.0" prefWidth="693.0">
             <padding>
                 <Insets left="10.0" top="10.0" />
             </padding>
         </TextArea>
-        <TextField fx:id="textField" layoutY="420.0" prefHeight="30.0" prefWidth="543.0" promptText="Введите команду...">
-            <opaqueInsets>
-                <Insets />
-            </opaqueInsets>
-            <padding>
-                <Insets left="10.0" />
-            </padding>
-        </TextField>
-        <Button fx:id="send" defaultButton="true" layoutX="542.0" layoutY="420.0" prefHeight="30.0" prefWidth="147.0" text="Выполнить" />
-        <Line endX="594.0" layoutX="98.0" layoutY="420.0" startX="-100.0" stroke="#5b3636" styleClass="lineHead" />
+      <Pane layoutY="405.0" prefHeight="45.0" prefWidth="693.0" style="-fx-background-color: #222;">
+         <children>
+              <TextField fx:id="textField" layoutX="14.0" layoutY="8.0" prefHeight="30.0" prefWidth="500.0" promptText="Введите команду...">
+                  <opaqueInsets>
+                      <Insets />
+                  </opaqueInsets>
+                  <padding>
+                      <Insets left="10.0" />
+                  </padding>
+              </TextField>
+              <Button fx:id="send" defaultButton="true" layoutX="528.0" layoutY="8.0" prefHeight="30.0" prefWidth="147.0" text="Выполнить" />
+         </children>
+      </Pane>
     </children>
     <stylesheets>
         <URL value="@../../styles.css" />

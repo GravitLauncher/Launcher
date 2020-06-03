@@ -30,7 +30,7 @@
                    </VBox>
                </content>
            </ScrollPane>
-            <Text fill="#393939" layoutX="15.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ОПЦИОНАЛЬНЫЕ МОДИФИКАЦИИ" wrappingWidth="265.904296875">
+            <Text fill="WHITE" layoutX="15.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ОПЦИОНАЛЬНЫЕ МОДИФИКАЦИИ" wrappingWidth="265.904296875">
                <font>
                   <Font name="System Bold" size="13.0" />
                </font>
