@@ -3,7 +3,7 @@
 #overlay {
     -fx-background-color: transparent;
     -fx-background-size: cover;
-    -fx-background-image: url('../../images/downloader/blured.jpg');
+    -fx-background-image: url('../../images/downloader/blured.png');
 }
 
 #overlay>#utitle {

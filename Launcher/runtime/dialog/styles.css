@@ -70,7 +70,7 @@ RadioButton {
     -fx-background-size: cover;
     -fx-pref-width: 738px;
     -fx-pref-height: 450px;
-    -fx-background-image: url('images/background.jpg');
+    -fx-background-image: url('images/background.png');
 }
 
 #background {
