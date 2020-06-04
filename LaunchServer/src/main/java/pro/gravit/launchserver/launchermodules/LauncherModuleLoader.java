@@ -148,9 +148,10 @@ public class LauncherModuleLoader {
         for (Field field : fields) {
             if ((field.getModifiers() & Modifier.STATIC) != 0) continue;
             Object obj = field.get(object);
-            String propertyName = prefix.concat(".").concat(field.getName());
+            String propertyName = prefix.concat(".").concat(field.getName().toLowerCase());
             if(InjectClassAcceptor.isSerializableValue(obj))
             {
+                LogHelper.dev("Property name %s", propertyName);
                 propertyMap.put(propertyName, obj);
             }
             else
