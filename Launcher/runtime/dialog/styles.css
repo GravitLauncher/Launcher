@@ -19,15 +19,15 @@ CheckBox:indeterminate:selected .box {
     -fx-background-color: TRANSPARENT;
     -fx-background-radius: 2;
 
-    -fx-border-color: #909090;
+    -fx-border-color: #fff;
     -fx-border-style: solid;
     -fx-border-radius: 2;
     -fx-border-width: 2;
 }
 
 CheckBox:selected .box {
-    -fx-border-color: #5fd97a;
-    -fx-background-color: #5fd97a;
+    -fx-border-color: rgba(76, 175, 80, 0.75);
+    -fx-background-color: rgba(76, 175, 80, 0.75);
 }
 
 CheckBox .mark {
@@ -47,7 +47,7 @@ CheckBox:selected .mark {
 }
 
 CheckBox .indeterminate-mark {
-    -fx-background-color: #5fd97a;
+    -fx-background-color: rgba(76, 175, 80, 0.75);
     -fx-background-radius: 2;
     -fx-border-width: 0;
     -fx-max-width: 10;
@@ -55,7 +55,7 @@ CheckBox .indeterminate-mark {
 }
 
 
-/*-- DrLeonardo Design --*/
+/*-- JCat Design XD --*/
 Button,
 CheckBox,
 ComboBox,
@@ -70,11 +70,11 @@ RadioButton {
     -fx-background-size: cover;
     -fx-pref-width: 738px;
     -fx-pref-height: 450px;
-    -fx-background-image: url('images/background.jpg');
+    -fx-background-image: url('images/background.png');
 }
 
 #background {
-    -fx-background-color: #fff;
+    -fx-background-color: #222;
 }
 
 /** Labels **/
@@ -84,11 +84,11 @@ RadioButton {
 }
 
 #serverLabel {
-    -fx-text-fill: #323232;
+    -fx-text-fill: #fff;
 }
 
 #serverStatus {
-    -fx-text-fill: #323232;
+    -fx-text-fill: #fff;
     -fx-pref-width: 120px;
     -fx-pref-height: 25px;
 }
@@ -102,29 +102,22 @@ RadioButton {
 #errormessage {
     -fx-background-color: transparent;
     -fx-text-alignment: center;
-    -fx-text-fill: #CE5757;
+    -fx-text-fill: rgba(244, 67, 54, 0.75);
 }
 
 .error {
-    -fx-text-fill: #CE5757;
+    -fx-text-fill: rgba(244, 67, 54, 0.75);
 }
 
 /* bars */
 #bar {
-    -fx-background-color: #323232;
+    -fx-background-color: #111;
     -fx-pref-width: 46px;
     -fx-pref-height: 450px;
 }
 
 /** buttons in bar **/
-#close {
-    -fx-background-position: center;
-    -fx-background-radius: 0;
-    -fx-background-color: #CE5757;
-    -fx-pref-width: 46px;
-    -fx-pref-height: 45px;
-}
-
+#close,
 #hide,
 #back,
 #goConsole,
@@ -136,41 +129,45 @@ RadioButton {
     -fx-pref-height: 45px;
 }
 
+#close:hover {
+    -fx-background-color: rgba(244, 67, 54, 0.75);
+}
+#hide:hover {
+    -fx-background-color: rgba(33, 150, 243, 0.75);
+}
+
 #logout {
-    -fx-text-fill: #323232;
+    -fx-text-fill: #fff;
     -fx-font-size: 12;
     -fx-font-weight: normal;
-    -fx-border-color: #CE5757;
+    -fx-border-color: rgba(244, 67, 54, 0.75);
     -fx-border-width: 1;
     -fx-background-color: transparent;
     -fx-padding: 0;
 }
 
-#logout:hover,
-#logout:focus {
-    -fx-text-fill: #ff6a5e;
-}
-
-#logout:pressed {
-    -fx-border-color: #cb4d43;
+#logout:hover {
+    -fx-background-color: rgba(244, 67, 54, 0.75);
 }
 
 #send {
     -fx-background-radius: 0;
-    -fx-text-fill: black;
+    -fx-text-fill: #fff;
     -fx-background-position: center;
-    -fx-background-color: #ffffff;
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(33, 150, 243, 0.75);
     -fx-pref-width: 150px;
     -fx-pref-height: 30px;
 }
 
+#send:hover,
 #send:pressed {
-    -fx-background-color: #d8d8d8;
+    -fx-background-color: rgba(33, 150, 243, 0.75);
 }
 
 /* LoginMenu */
 #authPane {
-    -fx-background-color: rgba(255, 255, 255, 0.71);
+    -fx-background-color: rgba(0, 0, 0, 0.25);
     -fx-pref-width: 270px;
     -fx-pref-height: 450px;
 }
@@ -187,8 +184,10 @@ RadioButton {
     -fx-font-weight: bold;
     -fx-font-size: 13pt;
     -fx-background-radius: 0;
-    -fx-background-color: #5fd97a;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: transparent;
+    -fx-border-color: #fff;
+    -fx-border-width: 1;
+    -fx-text-fill: #fff;
     -fx-pref-width: 200px;
     -fx-pref-height: 45px;
     -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15, 0, 0, 3);
@@ -196,7 +195,8 @@ RadioButton {
 
 .auth:hover,
 .auth:pressed {
-    -fx-background-color: #75e18c;
+    -fx-border-color: rgba(76, 175, 80, 0.75);
+    -fx-background-color: rgba(76, 175, 80, 0.75);
 }
 
 #password,
@@ -209,8 +209,8 @@ RadioButton {
 .text-input {
     -fx-focus-color: transparent;
     -fx-background-repeat: no-repeat;
-    -fx-text-fill: #909090;
-    -fx-prompt-text-fill: #909090;
+    -fx-text-fill: #fff;
+    -fx-prompt-text-fill: #fff;
     -fx-background-color: transparent;
     -fx-font-family: "Segoe UI";
     -fx-font-size: 13px;
@@ -222,7 +222,7 @@ RadioButton {
     -fx-font-weight: bold;
     -fx-font-size: 7pt;
     -fx-opacity: 0.5;
-    -fx-text-fill: #323232;
+    -fx-text-fill: #fff;
     -fx-pref-width: 80px;
     -fx-pref-height: 17px;
 }
@@ -235,62 +235,49 @@ RadioButton {
 /** CheckBox & ComboBox**/
 #rememberchb {
     -fx-font-size: 13;
-    -fx-text-fill: #909090;
+    -fx-text-fill: #fff;
     -fx-pref-width: 145px;
     -fx-pref-height: 30px;
 }
 
 #combologin {
-    -fx-text-fill: #909090;
-    -fx-prompt-text-fill: #909090;
+    -fx-text-fill: #fff;
+    -fx-prompt-text-fill: #fff;
     -fx-pref-width: 200px;
     -fx-pref-height: 30px;
 }
 
-.combologin,
 .combologin {
     -fx-font-size: 13px;
-    -fx-prompt-text-fill: #909090;
-    -fx-text-fill: #909090;
+    -fx-prompt-text-fill: #fff;
+    -fx-text-fill: #fff;
     -fx-background-color: transparent;
 }
 
 .combologin .list-cell {
-    -fx-background: white;
     -fx-background-color: transparent;
-    -fx-text-fill: -fx-text-base-color;
+    -fx-text-fill: #fff;
+}
+
+.combologin .arrow {
+    -fx-background-color: rgba(76, 175, 80, 0.8);
 }
 
 .combologin-popup .list-view {
-    -fx-background-color: white, white;
-    -fx-background-insets: 0, 1;
+    -fx-background-color: rgba(0, 0, 0, 0.75);
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 8, 0.0, 0, 0);
 }
 
-.combologin .list-cell:filled:selected .text,
-.combologin .list-cell:filled:selected .text {
-    -fx-fill: #323232;
+.combologin-popup .list-view .list-cell:selected {
+    -fx-background-color: #fff;
+    -fx-text-fill: #111;
 }
 
-.combologin .arrow,
-.combologin .arrow {
-    -fx-background-color: #5fd97a;
-}
-
-.combologin-popup .list-view .list-cell {
-    -fx-background-color: white;
-}
-
-.combologin-popup .list-view .list-cell:filled:selected,
-.combologin-popup .list-view .list-cell:filled:selected:hover {
-    -fx-background: -fx-accent;
-    -fx-background-color: -fx-selection-bar;
-    -fx-text-fill: #909090;
-}
-
-.combologin-popup .list-view .list-cell:filled:hover {
-    -fx-background-color: white;
-    -fx-text-fill: #909090;
+.combologin-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.75);
+    -fx-text-fill: #333;
 }
 
 /** web**/
@@ -302,7 +289,7 @@ RadioButton {
 
 /* MenuPane */
 .serverentrance {
-    -fx-background-color: rgba(255, 255, 255, 0.71);
+    -fx-background-color: rgba(0, 0, 0, 0.5);
     -fx-pref-width: 386px;
     -fx-pref-height: 450px;
 }
@@ -310,21 +297,26 @@ RadioButton {
 /** buttons **/
 .clientLaunch {
     -fx-font-weight: bold;
-    -fx-font-size: 16pt;
-    -fx-background-radius: 0;
-    -fx-background-color: #5fd97a;
-    -fx-text-fill: #ffffff;
+    -fx-font-size: 14pt;
+    -fx-text-fill: #fff;
 }
 
 .clientSettings {
     -fx-background-position: center;
-    -fx-background-color: #5fd97a;
-    -fx-background-radius: 0;
+}
+
+.clientLaunch,
+.clientSettings {
+    -fx-border-color: #fff;
+    -fx-border-width: 1;
 }
 
 .clientLaunch:hover,
-.clientLaunch:pressed {
-    -fx-background-color: #75e18c;
+.clientLaunch:pressed,
+.clientSettings:hover,
+.clientSettings:pressed {
+    -fx-border-color: rgba(76, 175, 80, 0.75);
+    -fx-background-color: rgba(76, 175, 80, 0.75);
 }
 
 /* Scrolls */
@@ -376,16 +368,17 @@ RadioButton {
 
 .description-text {
     -fx-font-smoothing-type: lcd;
-    -fx-fill: #8c8c8c;
+    -fx-fill: #ccc;
     -fx-font-size: 12px;
 }
 
 .modname {
-    -fx-text-fill: #323232;
+    -fx-text-fill: #fff;
+    -fx-font-size: 13px;
 }
 
 .lineHead {
-    -fx-stroke: #d8d8d8;
+    -fx-stroke: #333;
     -fx-stroke-width: 1;
 }
 
@@ -429,7 +422,13 @@ RadioButton {
 }
 
 .heading {
-    -fx-text-fill: #555555;
+    -fx-text-fill: #555;
 }
 
-/*-- DrLeonardo Design --*/
+#textField {
+    -fx-font-size: 12px;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+}
+
+/*-- JCat Design XD --*/

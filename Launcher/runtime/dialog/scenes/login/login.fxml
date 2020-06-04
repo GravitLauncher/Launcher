@@ -32,7 +32,7 @@
                               <String fx:value="combologin-popup" />
                           </styleClass>
                       </ComboBox>
-                      <Hyperlink id="link_link" fx:id="link" layoutX="94.0" layoutY="422.0" prefHeight="19.0" prefWidth="81.0" textAlignment="CENTER" />
+                      <Hyperlink id="link_link" fx:id="link" alignment="CENTER" layoutX="94.0" layoutY="422.0" prefHeight="19.0" prefWidth="81.0" text="Ссылка" textAlignment="CENTER" />
                   </children>
               </Pane>
               <Pane fx:id="news" prefHeight="432.0" prefWidth="423.0" styleClass="news" />
@@ -57,7 +57,7 @@
                      </image>
                   </ImageView>
                </graphic></Button>
-              <Button id="link_discord" alignment="CENTER" contentDisplay="CENTER" layoutY="370.0" minHeight="-Infinity" minWidth="-Infinity" text="" textAlignment="CENTER">
+              <Button id="link_discord" alignment="CENTER" contentDisplay="CENTER" layoutY="405.0" minHeight="-Infinity" minWidth="-Infinity" text="" textAlignment="CENTER">
                <graphic>
                   <ImageView>
                      <image>

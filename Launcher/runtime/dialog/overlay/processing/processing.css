@@ -9,4 +9,8 @@
     -fx-text-fill: red;
 }
 
+.progress-indicator:indeterminate *.segment {
+    -fx-background-color: rgba(33, 150, 243, 0.8);
+}
+
 /*-- DrLeonardo Design --*/

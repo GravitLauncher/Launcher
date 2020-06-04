@@ -230,6 +230,10 @@ public final class ClientLauncher {
         if (version.compareTo(ClientProfile.Version.MC194) >= 0)
             Collections.addAll(args, "--versionType", "Launcher v" + Version.getVersion().getVersionString());
 
+        // Fix `-XstartOnFirstThread` in MacOS
+        if (version.compareTo(ClientProfile.Version.MC114) >= 0 && JVMHelper.OS_TYPE == OS.MACOSX)
+            Collections.addAll(args, "-XstartOnFirstThread");
+
         // Add server args
         if (params.autoEnter) {
             Collections.addAll(args, "--server", profile.getServerAddress());

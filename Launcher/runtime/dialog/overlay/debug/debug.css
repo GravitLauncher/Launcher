@@ -1,4 +1,4 @@
-/*-- DrLeonardo Design --*/
+/*-- JCat Design XD --*/
 Button {
     -fx-cursor: hand;
 }
@@ -6,7 +6,7 @@ Button {
 /* Outputs */
 #overlay>#output,
 #background>#output {
-    -fx-background-color: white;
+    -fx-background-color: #191919;
     -fx-background-radius: 0;
     -fx-font-family: monospace;
     -fx-font-size: 8pt;
@@ -14,7 +14,7 @@ Button {
 
 #overlay>#output .content,
 #background>#output .content {
-    -fx-background-color: white;
+    -fx-background-color: #191919;
     -fx-background-radius: 0;
 }
 
@@ -24,7 +24,8 @@ Button {
     -fx-background-radius: 0;
     -fx-text-fill: white;
     -fx-background-position: center;
-    -fx-background-color: #2d83ce;
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(33, 150, 243, 0.75);
     -fx-pref-width: 150px;
     -fx-pref-height: 25px;
 }
@@ -35,7 +36,7 @@ Button {
 #overlay>#action.close:focused,
 #overlay>#copy:pressed,
 #overlay>#action.close:pressed {
-    -fx-background-color: #1568ce;
+    -fx-background-color: rgba(33, 150, 243, 0.75);
 }
 
 /* Kill button */
@@ -43,7 +44,8 @@ Button {
     -fx-background-radius: 0;
     -fx-text-fill: white;
     -fx-background-position: center;
-    -fx-background-color: #CE5757;
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(244, 67, 54, 0.75);
     -fx-pref-width: 150px;
     -fx-pref-height: 25px;
 }
@@ -51,7 +53,7 @@ Button {
 #overlay>#action.kill:hover,
 #overlay>#action.kill:focused,
 #overlay>#action.kill:pressed {
-    -fx-background-color: #DB5252;
+    -fx-background-color: rgba(244, 67, 54, 0.75);
 }
 
-/*-- DrLeonardo Design --*/
+/*-- JCat Design XD --*/

@@ -1,22 +1,22 @@
-/*-- DrLeonardo Design --*/
 /* Server buttons */
 
 .server-button {
     -fx-font-weight: bold;
     -fx-font-size: 16pt;
-    -fx-background-color: transparent;
+    -fx-background-color: rgba(0, 0, 0, 0.4);
     -fx-background-size: cover;
     -fx-background-radius: 0;
+    -fx-background-insets: 0;
     -fx-alignment: CENTER-LEFT;
     -fx-padding: 0 0 0 75;
     -fx-font-family: "Segoe UI";
-    -fx-text-fill: #323232;
+    -fx-text-fill: #fff;
     -fx-pref-width: 282px;
     -fx-pref-height: 75px;
 }
 
 .server-button:selected {
-    -fx-effect: dropshadow(gaussian, rgba(23, 25, 29, 0.3), 15, 0, 0, 3);
+    -fx-background-color: rgba(0, 0, 0, 0.5);
 }
 
 
@@ -26,4 +26,14 @@
     -fx-background-image: url('images/servers/example.png');
 }
 
-/*-- DrLeonardo Design --*/
+
+/* Раскоментить при использовании кастомных фонов */
+/*.serverentrance {
+    -fx-background-color: transparent;
+}*/
+
+/** server-bg-<your profile name> **/
+
+.server-bg-Example {
+    -fx-background-image: url('images/servers/bg-example.png');
+}

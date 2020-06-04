@@ -1,7 +1,7 @@
-/*-- DrLeonardo Design --*/
+/*-- JCat Design XD --*/
 
 #holder {
-    -fx-background-color: #fff;
+    -fx-background-color: rgba(0, 0, 0, 0.8);
 }
 
 #holder>#transferDialog {
@@ -28,35 +28,31 @@
 /* RAM slider */
 
 #holder>#ramSlider>.track {
-    -fx-background-color: #909090;
+    -fx-background-color: #fff;
+}
+
+#holder>#ramSlider>.axis {
+    -fx-tick-label-fill: #fff;
 }
 
 #holder>#ramSlider>.thumb {
-    -fx-background-color: #5fd97a;
-}
-
-#holder>#ramSlider>.colored-track {
-    -fx-background-color: #5fd97a;
-}
-
-#holder>#ramSlider>.animated-thumb {
-    -fx-background-color: #5fd97a;
+    -fx-background-color: #4a5;
 }
 
 #holder>#ramSlider>.slider-value {
-    -fx-fill: white;
-    -fx-stroke: white;
+    -fx-fill: #fff;
+    -fx-stroke: #fff;
 }
-
 
 /* Dir options */
 
 #holder>#deleteDir,
 #cancelTransfer {
     -fx-background-radius: 0;
-    -fx-text-fill: white;
+    -fx-text-fill: #fff;
     -fx-background-position: center;
-    -fx-background-color: #CE5757;
+    -fx-border-color: rgba(244, 67, 54, 0.75);
+    -fx-background-color: transparent;
     -fx-pref-width: 150px;
     -fx-pref-height: 25px;
 }
@@ -65,12 +61,12 @@
 #cancelTransfer:hover,
 #holder>#deleteDir:focused,
 #cancelTransfer:focused {
-    -fx-background-color: #DB5252;
+    -fx-background-color: rgba(244, 67, 54, 0.75);
 }
 
 #holder>#changeDir {
     -fx-background-color: transparent;
-    -fx-text-fill: #909090;
+    -fx-text-fill: #fff;
     -fx-background-radius: 0;
 }
 
@@ -81,9 +77,10 @@
 
 #holder>#apply,
 #applyTransfer {
-    -fx-background-color: #5fd97a;
+    -fx-border-color: rgba(76, 175, 80, 0.75);
+    -fx-background-color: transparent;
     -fx-background-radius: 0;
-    -fx-text-fill: white;
+    -fx-text-fill: #fff;
     -fx-background-position: center;
     -fx-pref-width: 150px;
     -fx-pref-height: 25px;
@@ -93,8 +90,8 @@
 #applyTransfer:hover,
 #holder>#apply:focused,
 #applyTransfer:focused {
-    -fx-background-color: #75e18c;
+    -fx-background-color: rgba(76, 175, 80, 0.75);
 }
 
 
-/*-- DrLeonardo Design --*/
+/*-- JCat Design XD --*/

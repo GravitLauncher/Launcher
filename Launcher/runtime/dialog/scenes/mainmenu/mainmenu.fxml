@@ -41,12 +41,12 @@
                                                 <Insets bottom="10.0" left="15.0" top="7.0" />
                                             </padding>
                                             <children>
-                                                <Label id="serverDescription" alignment="TOP_LEFT" contentDisplay="LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="274.0" prefWidth="349.0" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla convallis magna tellus, in bibendum tortor dignissim non. Phasellus vel tincidunt nulla, eu convallis ligula. Suspendisse ut diam vestibulum, tincidunt neque ut, posuere risus. Pellentesque posuere molestie eros, quis laoreet ante ornare quis. Morbi eu tortor fermentum, iaculis risus sit amet, fringilla augue. Aenean nulla purus, rutrum non sapien et, convallis tincidunt purus. Vivamus a eros pulvinar, dignissim leo lacinia, sodales nulla. Aliquam tortor augue, cursus a rutrum viverra, consequat non tellus. Donec porta nisl sed quam dictum commodo. Sed et vulputate dolor. Morbi ultrices justo vitae convallis semper. Donec sodales velit vel velit faucibus, et scelerisque felis finibus. Sed rutrum lacinia mauris, porta cursus mauris tempor eu. Duis turpis nulla, dictum vitae commodo rhoncus, pretium in turpis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos." textAlignment="JUSTIFY" textFill="#141414" wrapText="true" />
+                                                <Label id="serverDescription" alignment="TOP_LEFT" contentDisplay="LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="274.0" prefWidth="349.0" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla convallis magna tellus, in bibendum tortor dignissim non. Phasellus vel tincidunt nulla, eu convallis ligula. Suspendisse ut diam vestibulum, tincidunt neque ut, posuere risus. Pellentesque posuere molestie eros, quis laoreet ante ornare quis. Morbi eu tortor fermentum, iaculis risus sit amet, fringilla augue. Aenean nulla purus, rutrum non sapien et, convallis tincidunt purus. Vivamus a eros pulvinar, dignissim leo lacinia, sodales nulla. Aliquam tortor augue, cursus a rutrum viverra, consequat non tellus. Donec porta nisl sed quam dictum commodo. Sed et vulputate dolor. Morbi ultrices justo vitae convallis semper. Donec sodales velit vel velit faucibus, et scelerisque felis finibus. Sed rutrum lacinia mauris, porta cursus mauris tempor eu. Duis turpis nulla, dictum vitae commodo rhoncus, pretium in turpis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos." textAlignment="JUSTIFY" textFill="WHITE" wrapText="true" />
                                             </children>
                                         </FlowPane>
                                     </content>
                                 </ScrollPane>
-                                <Button id="clientLaunch" layoutX="19.0" layoutY="380.0" prefHeight="51.0" prefWidth="285.0" styleClass="clientLaunch" text="ИГРАТЬ">
+                                <Button id="clientLaunch" layoutX="19.0" layoutY="380.0" prefHeight="51.0" prefWidth="275.0" styleClass="clientLaunch" text="ИГРАТЬ">
                                     <font>
                                         <Font size="22.0" />
                                     </font>
@@ -94,7 +94,7 @@
                      </image>
                   </ImageView>
                </graphic></Button>
-                <Button id="link_discord" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" minHeight="-Infinity" minWidth="-Infinity" text="" textAlignment="CENTER">
+                <Button id="link_discord" alignment="CENTER" contentDisplay="CENTER" layoutY="405.0" minHeight="-Infinity" minWidth="-Infinity" text="" textAlignment="CENTER">
                <graphic>
                   <ImageView>
                      <image>
