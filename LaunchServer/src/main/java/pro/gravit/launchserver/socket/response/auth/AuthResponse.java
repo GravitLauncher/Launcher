@@ -98,14 +98,20 @@ public class AuthResponse extends SimpleResponse {
                 }
                 result.session = clientData.session;
             }
-            UUID uuid = pair.handler.auth(aresult);
-            result.playerProfile = ProfileByUUIDResponse.getProfile(uuid, aresult.username, client, clientData.auth.textureProvider);
-            if (authType == ConnectTypes.API || !server.config.protectHandler.allowGetAccessToken(context)) {
+            UUID uuid;
+            if (authType == ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context)) {
+                uuid = pair.handler.auth(aresult);
+                if (LogHelper.isDebugEnabled()) {
+                    LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
+                }
+            }
+            else
+            {
+                uuid = pair.handler.usernameToUUID(aresult.username);
                 result.accessToken = null;
             }
-            else if (LogHelper.isDebugEnabled()) {
-                LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
-            }
+            result.playerProfile = ProfileByUUIDResponse.getProfile(uuid, aresult.username, client, clientData.auth.textureProvider);
+
             clientData.type = authType;
             sendResult(result);
         } catch (AuthException | HookException e) {
