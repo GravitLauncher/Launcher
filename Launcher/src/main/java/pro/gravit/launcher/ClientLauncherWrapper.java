@@ -14,12 +14,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 public class ClientLauncherWrapper {
     public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";
     public static final String WAIT_PROCESS_PROPERTY = "launcher.waitProcess";
     public static final String NO_JAVA9_CHECK_PROPERTY = "launcher.noJava9Check";
-    public static final boolean noJava9check = Boolean.getBoolean(NO_JAVA9_CHECK_PROPERTY);
+    public static boolean noJava9check = Boolean.getBoolean(NO_JAVA9_CHECK_PROPERTY);
     public static boolean waitProcess = Boolean.getBoolean(WAIT_PROCESS_PROPERTY);
 
     public static void main(String[] arguments) throws IOException, InterruptedException {
@@ -49,7 +50,18 @@ public class ClientLauncherWrapper {
         LogHelper.info("Restart Launcher with JavaAgent...");
         ProcessBuilder processBuilder = new ProcessBuilder();
         if (waitProcess) processBuilder.inheritIO();
-        Path javaBin = IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")));
+        Path currentJavaDirPath = Paths.get(System.getProperty("java.home"));
+        try {
+            Path nextJavaDirPath = findCorrectJava(currentJavaDirPath.getParent());
+            if(nextJavaDirPath != null)
+            {
+                currentJavaDirPath = nextJavaDirPath;
+            }
+        } catch (Throwable e)
+        {
+            LogHelper.error(e);
+        }
+        Path javaBin = IOHelper.resolveJavaBin(currentJavaDirPath);
         List<String> args = new LinkedList<>();
         args.add(javaBin.toString());
         String pathLauncher = IOHelper.getCodeSource(LauncherEngine.class).toString();
@@ -62,11 +74,10 @@ public class ClientLauncherWrapper {
         JVMHelper.addSystemPropertyToArgs(args, DirWatcher.IGN_OVERFLOW);
         if (!noJava9check && !System.getProperty("java.version").startsWith("1.8")) {
             LogHelper.debug("Found Java 9+ ( %s )", System.getProperty("java.version"));
-            Path jvmDir = Paths.get(System.getProperty("java.home"));
             String pathToFx = System.getenv("PATH_TO_FX");
             Path fxPath = pathToFx == null ? null : Paths.get(pathToFx);
             StringBuilder builder = new StringBuilder();
-            Path[] findPath = new Path[]{jvmDir, fxPath};
+            Path[] findPath = new Path[]{currentJavaDirPath, fxPath};
             tryAddModule(findPath, "javafx.base", builder);
             tryAddModule(findPath, "javafx.graphics", builder);
             tryAddModule(findPath, "javafx.fxml", builder);
@@ -132,5 +143,60 @@ public class ClientLauncherWrapper {
             }
         }
         return false;
+    }
+
+    public static Path findCorrectJava(Path javaContainerDir)
+    {
+        if(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
+        {
+            LogHelper.debug("Java container path: %s", javaContainerDir.toString());
+            File programFiles = javaContainerDir.toFile();
+            File[] candidates = programFiles.listFiles(File::isDirectory);
+            if(candidates == null) return null;
+            int resultJavaVersion = 0;
+            Path resultJavaPath = null;
+            for(File candidate : candidates)
+            {
+                //Try get version
+                LogHelper.debug("Java candidate: %s", candidate.toPath().toString());
+                try {
+                    Path releaseFile = candidate.toPath().resolve("release");
+                    if(!IOHelper.isFile(releaseFile)) continue;
+                    Properties properties = new Properties();
+                    properties.load(IOHelper.newReader(releaseFile));
+                    int javaVersion = getJavaVersion(properties.getProperty("JAVA_VERSION"));
+                    if(javaVersion >= 8 && (resultJavaVersion == 0 || javaVersion < resultJavaVersion))
+                    {
+                        if(javaVersion > 8)
+                        {
+                            //Try check correct javafx
+                            Path baseJavaFx = tryFindModule(candidate.toPath(), "javafx.base");
+                            if(baseJavaFx == null) continue;
+                        }
+                        resultJavaVersion = javaVersion;
+                        resultJavaPath = candidate.toPath();
+                    }
+                } catch (Throwable e)
+                {
+                    LogHelper.debug("Java candidate %s throws exception %s", candidate.toPath(), e.getClass().getName());
+                }
+            }
+            if(resultJavaVersion < 9) noJava9check = true;
+            return resultJavaPath;
+        }
+        return null;
+    }
+
+    public static int getJavaVersion(String version)
+    {
+        if (version.startsWith("1.")) {
+            version = version.substring(2, 3);
+        } else {
+            int dot = version.indexOf(".");
+            if (dot != -1) {
+                version = version.substring(0, dot);
+            }
+        }
+        return Integer.parseInt(version);
     }
 }
