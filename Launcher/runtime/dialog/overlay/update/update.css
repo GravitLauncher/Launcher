@@ -29,6 +29,14 @@
     -fx-background-color: transparent;
 }
 
+.progress-indicator {
+    -fx-background-color: transparent;
+}
+
+.progress-indicator .indicator {
+    -fx-background-color: transparent;
+}
+
 .progress-indicator:indeterminate *.segment {
     -fx-background-color: rgba(33, 150, 243, 0.8);
 }
