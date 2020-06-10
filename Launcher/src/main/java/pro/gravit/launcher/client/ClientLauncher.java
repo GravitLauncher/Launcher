@@ -231,7 +231,7 @@ public final class ClientLauncher {
             Collections.addAll(args, "--versionType", "Launcher v" + Version.getVersion().getVersionString());
 
         // Fix `-XstartOnFirstThread` in MacOS
-        if (version.compareTo(ClientProfile.Version.MC114) >= 0 && JVMHelper.OS_TYPE == OS.MACOSX)
+        if (version.compareTo(ClientProfile.Version.MC113) >= 0 && JVMHelper.OS_TYPE == OS.MACOSX)
             Collections.addAll(args, "-XstartOnFirstThread");
 
         // Add server args
