@@ -164,7 +164,7 @@ public class ClientLauncherWrapper {
                     if(!IOHelper.isFile(releaseFile)) continue;
                     Properties properties = new Properties();
                     properties.load(IOHelper.newReader(releaseFile));
-                    int javaVersion = getJavaVersion(properties.getProperty("JAVA_VERSION"));
+                    int javaVersion = getJavaVersion(properties.getProperty("JAVA_VERSION").replaceAll("\"", ""));
                     if(javaVersion >= 8 && (resultJavaVersion == 0 || javaVersion < resultJavaVersion))
                     {
                         if(javaVersion > 8)
