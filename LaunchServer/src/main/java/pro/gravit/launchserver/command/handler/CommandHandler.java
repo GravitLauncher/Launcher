@@ -48,6 +48,7 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         updates.registerCommand("syncBinaries", new SyncBinariesCommand(server));
         updates.registerCommand("syncUpdates", new SyncUpdatesCommand(server));
         updates.registerCommand("syncProfiles", new SyncProfilesCommand(server));
+        updates.registerCommand("syncAll", new SyncAll(server));
         updates.registerCommand("saveProfiles", new SaveProfilesCommand(server));
         Category updatesCategory = new Category(updates, "updates", "Update and Sync Management");
         handler.registerCategory(updatesCategory);
