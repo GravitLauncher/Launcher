@@ -6,8 +6,8 @@ import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 
-public final class SyncUP extends Command {
-    public SyncUP(LaunchServer server) {
+public final class SyncUPCommand extends Command {
+    public SyncUPCommand(LaunchServer server) {
         super(server);
     }
 
