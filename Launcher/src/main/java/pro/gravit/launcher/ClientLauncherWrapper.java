@@ -189,6 +189,7 @@ public class ClientLauncherWrapper {
 
     public static JavaVersion findJavaByProgramFiles(Path path)
     {
+        LogHelper.debug("Check Java in %s", path.toString());
         JavaVersion selectedJava = null;
         File[] candidates = path.toFile().listFiles(File::isDirectory);
         if(candidates == null) return null;
@@ -198,6 +199,7 @@ public class ClientLauncherWrapper {
             try {
                 JavaVersion javaVersion = JavaVersion.getByPath(javaPath);
                 if(javaVersion == null || javaVersion.version < 8) continue;
+                LogHelper.debug("Found Java %d in %s (javafx %s)", javaVersion.version, javaVersion.jvmDir.toString(), javaVersion.enabledJavaFX ? "true" : "false");
                 if(javaVersion.enabledJavaFX && (selectedJava == null || !selectedJava.enabledJavaFX))
                 {
                     selectedJava = javaVersion;
@@ -210,6 +212,10 @@ public class ClientLauncherWrapper {
             } catch (IOException e) {
                 LogHelper.error(e);
             }
+        }
+        if(selectedJava != null)
+        {
+            LogHelper.debug("Selected Java %d in %s (javafx %s)", selectedJava.version, selectedJava.jvmDir.toString(), selectedJava.enabledJavaFX ? "true" : "false");
         }
         return selectedJava;
     }
