@@ -101,6 +101,8 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("verifySecureLevelKey", VerifySecureLevelKeyRequestEvent.class);
         results.register("securityReport", SecurityReportRequestEvent.class);
         results.register("hardwareReport", HardwareReportRequestEvent.class);
+        results.register("serverStatus", ServerStatusRequestEvent.class);
+        results.register("pingServerReport", PingServerReportRequestEvent.class);
     }
 
     public void waitIfNotConnected() {

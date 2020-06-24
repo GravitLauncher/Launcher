@@ -16,6 +16,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.launchserver.socket.response.auth.*;
+import pro.gravit.launchserver.socket.response.management.PingServerReportResponse;
 import pro.gravit.launchserver.socket.response.management.ServerStatusResponse;
 import pro.gravit.launchserver.socket.response.profile.BatchProfileByUsername;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
@@ -85,6 +86,7 @@ public class WebSocketService {
         providers.register("securityReport", SecurityReportResponse.class);
         providers.register("hardwareReport", HardwareReportResponse.class);
         providers.register("serverStatus", ServerStatusResponse.class);
+        providers.register("pingServerReport", PingServerReportResponse.class);
     }
 
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
