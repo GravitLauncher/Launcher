@@ -19,8 +19,18 @@ public class SaveProfilesCommand extends Command {
         super(server);
     }
 
+    @SuppressWarnings("deprecated")
     public static void saveProfile(ClientProfile profile, Path path) throws IOException {
         if (profile.getUUID() == null) profile.setUUID(UUID.randomUUID());
+        if(profile.getServers().size() == 0)
+        {
+            ClientProfile.ServerProfile serverProfile = new ClientProfile.ServerProfile();
+            serverProfile.isDefault = true;
+            serverProfile.name = profile.getTitle();
+            serverProfile.serverAddress = profile.getServerAddress();
+            serverProfile.serverPort = profile.getServerPort();
+            profile.getServers().add(serverProfile);
+        }
         try (Writer w = IOHelper.newWriter(path)) {
             Launcher.gsonManager.configGson.toJson(profile, w);
         }
