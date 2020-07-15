@@ -60,8 +60,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private String title;
     @LauncherNetworkAPI
     private String info;
+    @Deprecated
     @LauncherNetworkAPI
     private String serverAddress;
+    @Deprecated
     @LauncherNetworkAPI
     private int serverPort;
     @LauncherNetworkAPI
@@ -69,6 +71,24 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     // Client launcher
     @LauncherNetworkAPI
     private String mainClass;
+
+    public static class ServerProfile
+    {
+        public String name;
+        public String serverAddress;
+        public int serverPort;
+        public boolean isDefault = true;
+    }
+    @LauncherNetworkAPI
+    private List<ServerProfile> servers = new ArrayList<>(1);
+    public ServerProfile getDefaultServerProfile()
+    {
+        for(ServerProfile profile : servers)
+        {
+            if(profile.isDefault) return profile;
+        }
+        return null;
+    }
 
     @Override
     public int compareTo(ClientProfile o) {
@@ -131,8 +151,13 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return mainClass;
     }
 
+    public List<ServerProfile> getServers() {
+        return servers;
+    }
+
     public String getServerAddress() {
-        return serverAddress;
+        ServerProfile profile = getDefaultServerProfile();
+        return profile == null ? "localhost" : profile.serverAddress;
     }
 
     public Set<OptionalFile> getOptional() {
@@ -245,9 +270,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public int getServerPort() {
-        return serverPort;
+        ServerProfile profile = getDefaultServerProfile();
+        return profile == null ? 25565 : profile.serverPort;
     }
-
+    @Deprecated
     public InetSocketAddress getServerSocketAddress() {
         return InetSocketAddress.createUnresolved(getServerAddress(), getServerPort());
     }
@@ -383,7 +409,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         MC1144("1.14.4", 498),
         MC115("1.15", 573),
         MC1151("1.15.1", 575),
-        MC1152("1.15.2", 578);
+        MC1152("1.15.2", 578),
+        MC1161("1.16.1", 736);
         private static final Map<String, Version> VERSIONS;
 
         static {

@@ -93,18 +93,6 @@ publishing {
                         url = 'https://www.gnu.org/licenses/gpl-3.0.html'
                     }
                 }
-                developers {
-                    developer {
-                        id = 'gravit'
-                        name = 'Gravit'
-                        email = 'gravit.min@ya.ru'
-                    }
-                    developer {
-                        id = 'zaxar163'
-                        name = 'Zaxar163'
-                        email = 'zahar.vcherachny@yandex.ru'
-                    }
-                }
                 scm {
                     connection = 'scm:git:https://github.com/GravitLauncher/Launcher.git'
                     developerConnection = 'scm:git:ssh://git@github.com:GravitLauncher/Launcher.git'

@@ -14,10 +14,7 @@ import pro.gravit.launchserver.binary.*;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
-import pro.gravit.launchserver.manangers.CertificateManager;
-import pro.gravit.launchserver.manangers.MirrorManager;
-import pro.gravit.launchserver.manangers.ReconfigurableManager;
-import pro.gravit.launchserver.manangers.SessionManager;
+import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.modules.events.LaunchServerFullInitEvent;
 import pro.gravit.launchserver.modules.events.LaunchServerInitPhase;
@@ -82,6 +79,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final MirrorManager mirrorManager;
     public final ReconfigurableManager reconfigurableManager;
     public final ConfigManager configManager;
+    public final PingServerManager pingServerManager;
     // HWID ban + anti-brutforce
     public final CertificateManager certificateManager;
     public final ProguardConf proguardConf;
@@ -146,6 +144,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         reconfigurableManager = new ReconfigurableManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
+        pingServerManager = new PingServerManager(this);
         //Generate or set new Certificate API
         certificateManager.orgName = config.projectName;
         if (config.certificate != null && config.certificate.enabled) {
@@ -389,6 +388,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         // Sort and set new profiles
         newProfies.sort(Comparator.comparing(a -> a));
         profilesList = Collections.unmodifiableList(newProfies);
+        if(pingServerManager != null)
+            pingServerManager.syncServers();
     }
 
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {

@@ -72,7 +72,8 @@ public class MysqlHWIDProvider extends HWIDProvider {
         HardwareReportRequest.HardwareInfo hardwareInfo = new HardwareReportRequest.HardwareInfo();
         hardwareInfo.hwDiskId = set.getString(1);
         hardwareInfo.baseboardSerialNumber = set.getString(2);
-        hardwareInfo.displayId = IOHelper.read(set.getBlob(3).getBinaryStream());
+        Blob displayId = set.getBlob(3);
+        hardwareInfo.displayId = displayId == null ? null : IOHelper.read(displayId.getBinaryStream());
         hardwareInfo.bitness = set.getInt(4);
         hardwareInfo.totalMemory = set.getLong(5);
         hardwareInfo.logicalProcessors = set.getInt(6);
@@ -90,7 +91,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
             s.setBlob(1, new ByteArrayInputStream(publicKey));
             s.setString(2, hardwareInfo.hwDiskId);
             s.setString(3, hardwareInfo.baseboardSerialNumber);
-            s.setBlob(4, new ByteArrayInputStream(hardwareInfo.displayId));
+            s.setBlob(4, hardwareInfo.displayId == null ? null : new ByteArrayInputStream(hardwareInfo.displayId));
             s.setInt(5, hardwareInfo.bitness);
             s.setLong(6, hardwareInfo.totalMemory);
             s.setInt(7, hardwareInfo.logicalProcessors);

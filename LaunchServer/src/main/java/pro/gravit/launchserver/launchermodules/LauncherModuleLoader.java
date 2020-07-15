@@ -19,10 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
@@ -148,9 +145,10 @@ public class LauncherModuleLoader {
         for (Field field : fields) {
             if ((field.getModifiers() & Modifier.STATIC) != 0) continue;
             Object obj = field.get(object);
-            String propertyName = prefix.concat(".").concat(field.getName());
+            String propertyName = prefix.concat(".").concat(field.getName().toLowerCase(Locale.US));
             if(InjectClassAcceptor.isSerializableValue(obj))
             {
+                LogHelper.dev("Property name %s", propertyName);
                 propertyMap.put(propertyName, obj);
             }
             else
