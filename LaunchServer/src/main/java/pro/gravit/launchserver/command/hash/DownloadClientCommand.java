@@ -63,6 +63,14 @@ public final class DownloadClientCommand extends Command {
         client.setTitle(dirName);
         client.setDir(dirName);
         client.setUUID(UUID.randomUUID());
+        if(client.getServers() != null)
+        {
+            ClientProfile.ServerProfile serverProfile =  client.getDefaultServerProfile();
+            if(serverProfile != null)
+            {
+                serverProfile.name = dirName;
+            }
+        }
         try (BufferedWriter writer = IOHelper.newWriter(IOHelper.resolveIncremental(server.profilesDir,
                 dirName, "json"))) {
             Launcher.gsonManager.configGson.toJson(client, writer);
