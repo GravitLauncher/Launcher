@@ -22,7 +22,6 @@ public class Client {
     public ClientPermissions permissions;
     public String username;
     public TrustLevel trustLevel;
-    public transient LogHelper.OutputEnity logOutput;
 
     public transient AuthProviderPair auth;
 
