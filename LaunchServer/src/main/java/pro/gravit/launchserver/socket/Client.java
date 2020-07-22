@@ -9,6 +9,8 @@ import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.util.Map;
+
 public class Client {
     public long session;
     public String auth_id;
@@ -25,6 +27,8 @@ public class Client {
     public transient AuthProviderPair auth;
 
     public transient User daoObject;
+
+    public transient Map<String, Object> properties;
 
     public Client(long session) {
         this.session = session;
