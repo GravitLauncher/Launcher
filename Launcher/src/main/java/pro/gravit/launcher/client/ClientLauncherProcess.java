@@ -34,6 +34,7 @@ public class ClientLauncherProcess {
     public Path executeFile;
     public Path workDir;
     public Path javaDir;
+    public int bits;
     public boolean useLegacyJavaClassPathProperty;
     public boolean isStarted;
     private transient Process process;
@@ -73,6 +74,7 @@ public class ClientLauncherProcess {
         this.params.assetHDir = assetHDir;
         this.params.clientHDir = clientHDir;
         this.params.javaHDir = jvmHDir;
+        this.bits = JVMHelper.JVM_BITS;
         applyClientProfile();
     }
 
