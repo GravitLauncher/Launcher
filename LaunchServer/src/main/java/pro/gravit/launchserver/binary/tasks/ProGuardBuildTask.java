@@ -42,9 +42,9 @@ public class ProGuardBuildTask implements LauncherBuildTask {
                 else
                 {
                     //Find javaFX libraries
-                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.base.jmod"))) LogHelper.warning("javafx.base.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
-                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.graphics.jmod"))) LogHelper.warning("javafx.graphics.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
-                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.controls.jmod"))) LogHelper.warning("javafx.controls.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
+                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.base.jmod"))) LogHelper.error("javafx.base.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
+                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.graphics.jmod"))) LogHelper.error("javafx.graphics.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
+                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.controls.jmod"))) LogHelper.error("javafx.controls.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
                 }
             }
             try {

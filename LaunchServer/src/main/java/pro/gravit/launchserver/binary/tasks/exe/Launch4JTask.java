@@ -12,7 +12,7 @@ import pro.gravit.utils.helper.LogHelper;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class Launch4JTask implements LauncherBuildTask {
+public class Launch4JTask implements LauncherBuildTask, BuildExeMainTask {
     public static final String DOWNLOAD_URL = "http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html"; // Oracle
     private static final String VERSION = Version.getVersion().getVersionString();
     private static final int BUILD = Version.getVersion().build;
