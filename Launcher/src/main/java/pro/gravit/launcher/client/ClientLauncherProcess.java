@@ -150,7 +150,13 @@ public class ClientLauncherProcess {
                 output.writeByteArray(serializedMainParams, 0);
                 params.clientHDir.write(output);
                 params.assetHDir.write(output);
-                params.javaHDir.write(output);
+                if(params.javaHDir == null || params.javaHDir == params.assetHDir) { //TODO: OLD RUNTIME USE params.assetHDir AS NULL IN java.javaHDir
+                    output.writeBoolean(false);
+                }
+                else {
+                    output.writeBoolean(true);
+                    params.javaHDir.write(output);
+                }
             }
         }
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderParamsWrittedEvent(this));

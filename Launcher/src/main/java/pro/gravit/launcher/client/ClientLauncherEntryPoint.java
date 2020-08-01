@@ -50,7 +50,9 @@ public class ClientLauncherEntryPoint {
                 ClientLauncherProcess.ClientParams params = Launcher.gsonManager.gson.fromJson(new String(serialized, IOHelper.UNICODE_CHARSET), ClientLauncherProcess.ClientParams.class);
                 params.clientHDir = new HashedDir(input);
                 params.assetHDir = new HashedDir(input);
-                params.javaHDir = new HashedDir(input);
+                boolean isNeedReadJavaDir = input.readBoolean();
+                if(isNeedReadJavaDir)
+                    params.javaHDir = new HashedDir(input);
                 return params;
             }
         }
@@ -133,8 +135,10 @@ public class ClientLauncherEntryPoint {
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
+        Path javaDir = Paths.get(System.getProperty("java.home"));
         try (DirWatcher assetWatcher = new DirWatcher(assetDir, params.assetHDir, assetMatcher, digest);
-             DirWatcher clientWatcher = new DirWatcher(clientDir, params.clientHDir, clientMatcher, digest)) {
+             DirWatcher clientWatcher = new DirWatcher(clientDir, params.clientHDir, clientMatcher, digest);
+             DirWatcher javaWatcher = params.javaHDir == null ? null : new DirWatcher(javaDir, params.javaHDir, null, digest)) {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
             //for (OptionalFile s : Launcher.profile.getOptional()) {
@@ -145,8 +149,13 @@ public class ClientLauncherEntryPoint {
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
+            if(javaWatcher != null)
+                CommonHelper.newThread("Java Directory Watcher", true, clientWatcher).start();
             verifyHDir(assetDir, params.assetHDir, assetMatcher, digest);
             verifyHDir(clientDir, params.clientHDir, clientMatcher, digest);
+            if(javaWatcher != null)
+                verifyHDir(javaDir, params.javaHDir, null, digest);
+            if(params.javaHDir != null)
             LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
             launch(profile, params);
         }
