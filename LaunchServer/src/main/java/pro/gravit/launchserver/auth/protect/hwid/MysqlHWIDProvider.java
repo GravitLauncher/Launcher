@@ -35,9 +35,11 @@ public class MysqlHWIDProvider extends HWIDProvider {
         sqlCreateHardware = String.format("INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `battery`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')", tableHWID);
         sqlCreateHWIDLog = String.format("INSERT INTO %s (`hwidId`, `newPublicKey`) VALUES (?, ?)", tableHWIDLog);
         sqlUpdateHardware = String.format("UPDATE %s SET `publicKey` = ? WHERE `id` = ?", tableHWID);
-        if(tableUsers != null && usersHWIDColumn != null && usersNameColumn != null)
-        {
+        if(tableUsers != null && usersHWIDColumn != null && usersNameColumn != null) {
             sqlUpdateUsers = String.format("UPDATE %s SET `%s` = ? WHERE `%s` = ?", tableUsers, usersHWIDColumn, usersNameColumn);
+        }
+        else {
+            LogHelper.warning("[MysqlHWIDProvider] Link to users table not configured");
         }
     }
 
