@@ -10,9 +10,10 @@ import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class Client {
-    public long session;
+    public UUID session;
     public String auth_id;
     public long timestamp;
     public AuthResponse.ConnectTypes type;
@@ -29,7 +30,7 @@ public class Client {
 
     public transient Map<String, Object> properties;
 
-    public Client(long session) {
+    public Client(UUID session) {
         this.session = session;
         timestamp = System.currentTimeMillis();
         type = null;

@@ -50,7 +50,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         if (LogHelper.isDevEnabled()) {
             LogHelper.dev("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));
         }
-        client = new Client(0);
+        client = new Client(null);
         Channel ch = ctx.channel();
         service.registerClient(ch);
         ctx.executor().schedule(() -> {

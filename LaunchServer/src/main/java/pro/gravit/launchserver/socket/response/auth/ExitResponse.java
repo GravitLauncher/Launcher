@@ -24,7 +24,7 @@ public class ExitResponse extends SimpleResponse {
             return;
         }
         if (username == null) {
-            if (client.session == 0 && exitAll) {
+            if (client.session == null && exitAll) {
                 sendError("Session invalid");
                 return;
             }
@@ -33,10 +33,10 @@ public class ExitResponse extends SimpleResponse {
                 sendError("Exit internal error");
                 return;
             }
-            Client newClient = new Client(0);
+            Client newClient = new Client(null);
             newClient.checkSign = client.checkSign;
             handler.setClient(newClient);
-            if (client.session != 0) server.sessionManager.removeClient(client.session);
+            if (client.session != null) server.sessionManager.removeClient(client.session);
             if (exitAll) {
                 service.channels.forEach((channel) -> {
                     if (channel == null || channel.pipeline() == null) return;
@@ -48,10 +48,10 @@ public class ExitResponse extends SimpleResponse {
                     } else {
                         if (chClient.session != client.session) return;
                     }
-                    Client newCusClient = new Client(0);
+                    Client newCusClient = new Client(null);
                     newCusClient.checkSign = chClient.checkSign;
                     wsHandler.setClient(newCusClient);
-                    if (chClient.session != 0) server.sessionManager.removeClient(chClient.session);
+                    if (chClient.session != null) server.sessionManager.removeClient(chClient.session);
                     ExitRequestEvent event = new ExitRequestEvent(ExitRequestEvent.ExitReason.SERVER);
                     event.requestUUID = RequestEvent.eventUUID;
                     wsHandler.service.sendObject(channel, event);
@@ -65,10 +65,10 @@ public class ExitResponse extends SimpleResponse {
                 if (wsHandler == null) return;
                 Client chClient = wsHandler.getClient();
                 if (!chClient.isAuth || !username.equals(chClient.username)) return;
-                Client newCusClient = new Client(0);
+                Client newCusClient = new Client(null);
                 newCusClient.checkSign = chClient.checkSign;
                 wsHandler.setClient(newCusClient);
-                if (chClient.session != 0) server.sessionManager.removeClient(chClient.session);
+                if (chClient.session != null) server.sessionManager.removeClient(chClient.session);
                 ExitRequestEvent event = new ExitRequestEvent(ExitRequestEvent.ExitReason.SERVER);
                 event.requestUUID = RequestEvent.eventUUID;
                 wsHandler.service.sendObject(channel, event);

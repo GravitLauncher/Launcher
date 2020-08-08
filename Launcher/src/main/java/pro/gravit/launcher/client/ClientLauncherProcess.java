@@ -195,7 +195,7 @@ public class ClientLauncherProcess {
 
         //========
 
-        public long session;
+        public UUID session;
 
         public transient HashedDir assetHDir;
 

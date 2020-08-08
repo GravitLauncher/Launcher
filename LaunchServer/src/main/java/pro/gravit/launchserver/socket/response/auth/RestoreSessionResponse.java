@@ -7,9 +7,11 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
+import java.util.UUID;
+
 public class RestoreSessionResponse extends SimpleResponse {
     @LauncherNetworkAPI
-    public long session;
+    public UUID session;
 
     @Override
     public String getType() {

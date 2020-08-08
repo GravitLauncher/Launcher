@@ -11,16 +11,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Request<R extends WebSocketEvent> implements WebSocketRequest {
     public static StdWebSocketService service;
-    private static long session = SecurityHelper.secureRandom.nextLong();
+    private static UUID session = UUID.randomUUID();
     @LauncherNetworkAPI
     public final UUID requestUUID = UUID.randomUUID();
     private transient final AtomicBoolean started = new AtomicBoolean(false);
 
-    public static long getSession() {
+    public static UUID getSession() {
         return Request.session;
     }
 
-    public static void setSession(long session) {
+    public static void setSession(UUID session) {
         Request.session = session;
     }
 

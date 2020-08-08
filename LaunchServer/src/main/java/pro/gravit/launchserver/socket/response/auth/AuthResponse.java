@@ -92,8 +92,8 @@ public class AuthResponse extends SimpleResponse {
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
             if (getSession) {
-                if (clientData.session == 0) {
-                    clientData.session = random.nextLong();
+                if (clientData.session == null) {
+                    clientData.session = UUID.randomUUID();
                     server.sessionManager.addClient(clientData);
                 }
                 result.session = clientData.session;
