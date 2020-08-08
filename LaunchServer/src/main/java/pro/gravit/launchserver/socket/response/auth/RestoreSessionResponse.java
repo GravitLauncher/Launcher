@@ -21,6 +21,7 @@ public class RestoreSessionResponse extends SimpleResponse {
         Client rClient = server.sessionManager.getClient(session);
         if (rClient == null) {
             sendError("Session invalid");
+            return;
         }
         WebSocketFrameHandler frameHandler = ctx.pipeline().get(WebSocketFrameHandler.class);
         frameHandler.setClient(rClient);

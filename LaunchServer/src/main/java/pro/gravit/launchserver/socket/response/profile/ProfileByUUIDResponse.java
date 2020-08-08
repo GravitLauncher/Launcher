@@ -50,7 +50,6 @@ public class ProfileByUUIDResponse extends SimpleResponse {
         String username;
         AuthProviderPair pair;
         if (client.auth == null) {
-            LogHelper.warning("Client auth is null. Using default.");
             pair = server.config.getAuthProviderPair();
         } else {
             pair = client.auth;
