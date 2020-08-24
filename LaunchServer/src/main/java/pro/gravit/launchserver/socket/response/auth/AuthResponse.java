@@ -81,8 +81,8 @@ public class AuthResponse extends SimpleResponse {
             clientData.permissions = aresult.permissions;
             clientData.auth_id = auth_id;
             clientData.updateAuth(server);
-            if (result.playerProfile != null)
-                clientData.username = result.playerProfile.username;
+            if (aresult.username != null)
+                clientData.username = aresult.username;
             else
                 clientData.username = login;
             if(aresult instanceof AuthProviderDAOResult)
