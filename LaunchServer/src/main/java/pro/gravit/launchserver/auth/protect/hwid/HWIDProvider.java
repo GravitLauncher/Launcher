@@ -17,6 +17,7 @@ public abstract class HWIDProvider {
         {
             providers.register("memory", MemoryHWIDProvider.class);
             providers.register("mysql", MysqlHWIDProvider.class);
+            providers.register("json", JsonHWIDProvider.class);
             registredProv = true;
         }
     }
