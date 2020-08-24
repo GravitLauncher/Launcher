@@ -5,8 +5,6 @@ import pro.gravit.launchserver.LaunchServer;
 import java.util.Map;
 
 public abstract class Command extends pro.gravit.utils.command.Command {
-
-
     protected final LaunchServer server;
 
 
