@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ExitRequestEvent;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -46,7 +47,7 @@ public class ExitResponse extends SimpleResponse {
                     } else {
                         if (client1.session != client.session) return;
                     }
-                    exit(webSocketFrameHandler, channel, ExitRequestEvent.ExitReason.SERVER);
+                    exit(server, webSocketFrameHandler, channel, ExitRequestEvent.ExitReason.SERVER);
                 }));
             }
             sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
@@ -55,17 +56,16 @@ public class ExitResponse extends SimpleResponse {
                 Client client1 = webSocketFrameHandler.getClient();
                 if(client1 != null && client.isAuth && client.username != null && client1.username.equals(username))
                 {
-                    exit(webSocketFrameHandler, channel, ExitRequestEvent.ExitReason.SERVER);
+                    exit(server, webSocketFrameHandler, channel, ExitRequestEvent.ExitReason.SERVER);
                 }
             }));
             sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.NO_EXIT));
         }
     }
-    public void exit(WebSocketFrameHandler wsHandler, Channel channel, ExitRequestEvent.ExitReason reason)
+    public static void exit(LaunchServer server, WebSocketFrameHandler wsHandler, Channel channel, ExitRequestEvent.ExitReason reason)
     {
 
         Client chClient = wsHandler.getClient();
-        if (!chClient.isAuth || !username.equals(chClient.username)) return;
         Client newCusClient = new Client(null);
         newCusClient.checkSign = chClient.checkSign;
         wsHandler.setClient(newCusClient);
