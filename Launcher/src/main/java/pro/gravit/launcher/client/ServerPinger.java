@@ -36,8 +36,16 @@ public final class ServerPinger {
     private Instant cacheTime = null;
 
     public ServerPinger(ClientProfile profile) {
-        this.address = Objects.requireNonNull(profile.getServerSocketAddress(), "address");
-        this.version = Objects.requireNonNull(profile.getVersion(), "version");
+        this(profile.getDefaultServerProfile(), profile.getVersion());
+    }
+    public ServerPinger(ClientProfile.ServerProfile profile, ClientProfile.Version version)
+    {
+        if(profile == null)
+        {
+            throw new NullPointerException("ServerProfile null");
+        }
+        this.address = profile.toSocketAddress();
+        this.version = Objects.requireNonNull(version, "version");
     }
 
     private static String readUTF16String(HInput input) throws IOException {

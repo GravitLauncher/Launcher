@@ -78,6 +78,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         public String serverAddress;
         public int serverPort;
         public boolean isDefault = true;
+        public InetSocketAddress toSocketAddress()
+        {
+            return InetSocketAddress.createUnresolved(serverAddress, serverPort);
+        }
     }
     @LauncherNetworkAPI
     private List<ServerProfile> servers = new ArrayList<>(1);

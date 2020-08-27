@@ -2,10 +2,8 @@ package pro.gravit.launcher.request.auth;
 
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.auth.password.AuthECPassword;
-import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
+import pro.gravit.launcher.request.auth.password.*;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.VerifyHelper;
@@ -23,8 +21,6 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
     private final boolean getSession;
     @LauncherNetworkAPI
     private final ConnectTypes authType;
-    @LauncherNetworkAPI
-    public boolean initProxy;
 
     public AuthRequest(String login, byte[] password) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
@@ -36,15 +32,6 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
 
 
     public AuthRequest(String login, byte[] password, String auth_id) {
-        this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
-        this.password = new AuthECPassword(password.clone());
-        this.auth_id = auth_id;
-        getSession = true;
-        authType = ConnectTypes.CLIENT;
-    }
-
-    @Deprecated
-    public AuthRequest(String login, byte[] password, HWID hwid, String auth_id) {
         this.login = VerifyHelper.verify(login, VerifyHelper.NOT_EMPTY, "Login can't be empty");
         this.password = new AuthECPassword(password.clone());
         this.auth_id = auth_id;
@@ -72,6 +59,9 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         if (!registerProviders) {
             providers.register("plain", AuthPlainPassword.class);
             providers.register("rsa", AuthECPassword.class);
+            providers.register("2fa", Auth2FAPassword.class);
+            providers.register("signature", AuthSignaturePassword.class);
+            providers.register("totp", AuthTOTPPassword.class);
             registerProviders = true;
         }
     }
