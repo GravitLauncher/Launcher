@@ -93,7 +93,6 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("getAvailabilityAuth", GetAvailabilityAuthRequestEvent.class);
         results.register("exception", ExceptionEvent.class);
         results.register("register", RegisterRequestEvent.class);
-        results.register("setpassword", SetPasswordRequestEvent.class);
         results.register("notification", NotificationEvent.class);
         results.register("signal", SignalEvent.class);
         results.register("exit", ExitRequestEvent.class);
@@ -104,6 +103,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("serverStatus", ServerStatusRequestEvent.class);
         results.register("pingServerReport", PingServerReportRequestEvent.class);
         results.register("pingServer", PingServerRequestEvent.class);
+        results.register("currentUser", CurrentUserRequestEvent.class);
     }
 
     public void waitIfNotConnected() {

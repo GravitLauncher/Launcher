@@ -20,6 +20,7 @@ public class PingServerReportResponse extends SimpleResponse {
         if(!client.isAuth || client.permissions == null || !client.permissions.isPermission(ClientPermissions.PermissionConsts.MANAGEMENT))
         {
             sendError("Access denied");
+            return;
         }
         server.pingServerManager.updateServer(name, data);
         sendResult(new PingServerReportRequestEvent());

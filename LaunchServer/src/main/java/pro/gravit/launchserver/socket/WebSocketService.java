@@ -93,7 +93,6 @@ public class WebSocketService {
         providers.register("profileByUUID", ProfileByUUIDResponse.class);
         providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
         providers.register("register", RegisterResponse.class);
-        providers.register("setPassword", SetPasswordResponse.class);
         providers.register("exit", ExitResponse.class);
         providers.register("getSecureLevelInfo", GetSecureLevelInfoResponse.class);
         providers.register("verifySecureLevelKey", VerifySecureLevelKeyResponse.class);
