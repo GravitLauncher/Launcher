@@ -3,6 +3,7 @@ package pro.gravit.launchserver.auth.protect;
 import pro.gravit.launcher.events.request.GetSecureLevelInfoRequestEvent;
 import pro.gravit.launcher.events.request.HardwareReportRequestEvent;
 import pro.gravit.launcher.events.request.VerifySecureLevelKeyRequestEvent;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDException;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, HardwareProtectHandler, JoinServerProtectHandler, Reconfigurable {
     public boolean enableHardwareFeature;
     public HWIDProvider provider;
+    private LaunchServer server;
 
     @Override
     public boolean allowGetAccessToken(AuthResponse.AuthContext context) {
@@ -107,9 +109,9 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     }
 
     @Override
-    public void init() {
+    public void init(LaunchServer server) {
         if(provider != null)
-            provider.init();
+            provider.init(server);
     }
 
     @Override

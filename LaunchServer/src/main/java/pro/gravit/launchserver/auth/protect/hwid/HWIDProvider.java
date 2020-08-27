@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.auth.protect.hwid;
 
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.helper.DamerauHelper;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.ProviderMap;
@@ -107,7 +108,7 @@ public abstract class HWIDProvider {
         LogHelper.log(logLevel, String.format("[HardwareInfo] HWDiskID %s | baseboardSerialNumber %s | displayId hash: %s", info.hwDiskId, info.baseboardSerialNumber, SecurityHelper.toHex(SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, info.displayId))) , false);
     }
 
-    public void init()
+    public void init(LaunchServer server)
     {
 
     }

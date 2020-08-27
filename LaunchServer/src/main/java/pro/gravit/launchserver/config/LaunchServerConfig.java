@@ -184,7 +184,7 @@ public final class LaunchServerConfig {
         }
         if (protectHandler != null) {
             server.registerObject("protectHandler", protectHandler);
-            protectHandler.init();
+            protectHandler.init(server);
             protectHandler.checkLaunchServerLicense();
         }
         if (components != null) {

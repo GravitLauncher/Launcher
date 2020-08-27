@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.auth.protect.hwid;
 
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.helper.IOHelper;
@@ -29,7 +30,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
     private String sqlUpdateUsers;
 
     @Override
-    public void init() {
+    public void init(LaunchServer server) {
         sqlFindByPublicKey = String.format("SELECT hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, banned FROM %s WHERE `publicKey` = ?", tableHWID);
         sqlFindByHardware = String.format("SELECT hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, banned FROM %s", tableHWID);
         sqlCreateHardware = String.format("INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `battery`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')", tableHWID);
