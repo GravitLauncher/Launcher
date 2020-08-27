@@ -13,6 +13,7 @@ import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.launchserver.socket.response.auth.*;
@@ -36,6 +37,8 @@ import pro.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 public class WebSocketService {
     public static final ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
@@ -65,6 +68,16 @@ public class WebSocketService {
         this.gson = Launcher.gsonManager.gson;
     }
 
+    public void forEachActiveChannels(BiConsumer<Channel, WebSocketFrameHandler> callback)
+    {
+        channels.forEach((channel) -> {
+            if (channel == null || channel.pipeline() == null) return;
+            WebSocketFrameHandler wsHandler = channel.pipeline().get(WebSocketFrameHandler.class);
+            if (wsHandler == null) return;
+            callback.accept(channel, wsHandler);
+        });
+    }
+
     public static void registerResponses() {
         providers.register("auth", AuthResponse.class);
         providers.register("checkServer", CheckServerResponse.class);
@@ -89,6 +102,7 @@ public class WebSocketService {
         providers.register("serverStatus", ServerStatusResponse.class);
         providers.register("pingServerReport", PingServerReportResponse.class);
         providers.register("pingServer", PingServerResponse.class);
+        providers.register("currentUser", CurrentUserResponse.class);
     }
 
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {

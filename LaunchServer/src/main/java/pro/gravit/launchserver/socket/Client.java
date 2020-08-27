@@ -9,6 +9,7 @@ import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -61,5 +62,17 @@ public class Client {
         public boolean keyChecked;
         public byte[] publicKey;
         public HardwareReportRequest.HardwareInfo hardwareInfo;
+    }
+    @SuppressWarnings("unchecked")
+    public<T> T getProperty(String name)
+    {
+        if(properties == null) properties = new HashMap<>();
+        return (T) properties.get(name);
+    }
+
+    public<T> void setProperty(String name, T object)
+    {
+        if(properties == null) properties = new HashMap<>();
+        properties.put(name, object);
     }
 }
