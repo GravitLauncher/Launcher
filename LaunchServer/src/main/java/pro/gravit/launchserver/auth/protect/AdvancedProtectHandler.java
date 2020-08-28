@@ -22,7 +22,7 @@ import java.util.Map;
 public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, HardwareProtectHandler, JoinServerProtectHandler, Reconfigurable {
     public boolean enableHardwareFeature;
     public HWIDProvider provider;
-    private LaunchServer server;
+    private transient LaunchServer server;
 
     @Override
     public boolean allowGetAccessToken(AuthResponse.AuthContext context) {
