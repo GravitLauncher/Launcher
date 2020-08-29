@@ -55,6 +55,14 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         this.getSession = false;
     }
 
+    public AuthRequest(String login, AuthPasswordInterface password, String auth_id, boolean getSession, ConnectTypes authType) {
+        this.login = login;
+        this.password = password;
+        this.auth_id = auth_id;
+        this.getSession = getSession;
+        this.authType = authType;
+    }
+
     public static void registerProviders() {
         if (!registerProviders) {
             providers.register("plain", AuthPlainPassword.class);
