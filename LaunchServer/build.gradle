@@ -80,6 +80,7 @@ dependencies {
     bundle group: 'org.slf4j', name: 'slf4j-simple', version: rootProject['verSlf4j']
     bundle group: 'org.slf4j', name: 'slf4j-api', version: rootProject['verSlf4j']
     bundle group: 'org.hibernate', name: 'hibernate-core', version: rootProject['verHibernate']
+    bundle group: 'org.hibernate', name: 'hibernate-hikaricp', version: rootProject['verHibernate']
     bundle group: 'mysql', name: 'mysql-connector-java', version: rootProject['verMySQLConn']
     bundle group: 'org.postgresql', name: 'postgresql', version: rootProject['verPostgreSQLConn']
     bundle group: 'net.sf.proguard', name: 'proguard-base', version: rootProject['verProguard']

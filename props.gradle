@@ -14,5 +14,5 @@ project.ext {
     verPostgreSQLConn = '42.2.11'
     verProguard = '6.2.2'
     verLaunch4j = '3.12'
-    verHibernate = '5.4.12.Final'
+    verHibernate = '5.4.21.Final'
 }
