@@ -111,4 +111,10 @@ public class OptionalView {
             if(f.mark) enable(f);
         }
     }
+    public OptionalView(OptionalView view)
+    {
+        this.enabled = new HashSet<>(view.enabled);
+        this.dependenciesCountMap = new HashMap<>(view.dependenciesCountMap);
+        this.all = view.all;
+    }
 }
