@@ -14,8 +14,11 @@ import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.patches.FMLPatcher;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.profiles.optional.actions.OptionalActionClassPath;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
+import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.RestoreSessionRequest;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.utils.DirWatcher;
@@ -95,9 +98,10 @@ public class ClientLauncherEntryPoint {
         List<URL> classpath = new LinkedList<>();
         resolveClassPathStream(clientDir, params.profile.getClassPath()).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
 
-        params.profile.pushOptionalClassPath((opt) -> {
-            resolveClassPathStream(clientDir, opt).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
-        });
+        for(OptionalAction a : params.actions) {
+            if(a instanceof OptionalActionClassPath)
+            resolveClassPathStream(clientDir, ((OptionalActionClassPath) a).args).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
+        }
         classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
         classLoader.nativePath = clientDir.resolve("natives").toString();
@@ -145,7 +149,6 @@ public class ClientLauncherEntryPoint {
             //    if (params.updateOptional.contains(s)) s.mark = true;
             //    else hdir.removeR(s.file);
             //}
-            Launcher.profile.pushOptionalFile(params.clientHDir, false);
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
@@ -162,6 +165,8 @@ public class ClientLauncherEntryPoint {
     }
 
     private static void initGson(ClientModuleManager moduleManager) {
+        AuthRequest.registerProviders();
+        OptionalAction.registerProviders();
         Launcher.gsonManager = new ClientGsonManager(moduleManager);
         Launcher.gsonManager.initGson();
     }

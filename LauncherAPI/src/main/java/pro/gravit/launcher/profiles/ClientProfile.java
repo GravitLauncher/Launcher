@@ -194,7 +194,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public Collection<String> getShared() {
         return updateShared;
     }
-
+    @Deprecated
     public void markOptional(OptionalFile file) {
 
         if (file.mark) return;
@@ -213,7 +213,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
-
+    @Deprecated
     public void unmarkOptional(OptionalFile file) {
         if (!file.mark) return;
         file.mark = false;
@@ -239,7 +239,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
-
+    @Deprecated
     public void pushOptionalFile(HashedDir dir, boolean digest) {
         for (OptionalFile opt : updateOptional) {
             if (opt.type.equals(OptionalType.FILE) && !opt.mark) {
@@ -248,7 +248,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
-
+    @Deprecated
     public void pushOptionalJvmArgs(Collection<String> jvmArgs1) {
         for (OptionalFile opt : updateOptional) {
             if (opt.type.equals(OptionalType.JVMARGS) && opt.mark) {
@@ -256,7 +256,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
-
+    @Deprecated
     public void pushOptionalClientArgs(Collection<String> clientArgs1) {
         for (OptionalFile opt : updateOptional) {
             if (opt.type.equals(OptionalType.CLIENTARGS) && opt.mark) {
@@ -264,7 +264,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
-
+    @Deprecated
     public void pushOptionalClassPath(pushOptionalClassPathCallback callback) throws IOException {
         for (OptionalFile opt : updateOptional) {
             if (opt.type.equals(OptionalType.CLASSPATH) && opt.mark) {

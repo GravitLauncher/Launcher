@@ -8,6 +8,7 @@ import pro.gravit.launcher.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.modules.events.PostInitPhase;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.AuthRequest;
@@ -115,6 +116,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public void run(String... args) throws Throwable {
         initGson(modulesManager);
         AuthRequest.registerProviders();
+        OptionalAction.registerProviders();
         if (args.length > 0 && args[0].equals("setup") && !disableSetup) {
             LogHelper.debug("Read ServerWrapperConfig.json");
             loadConfig();

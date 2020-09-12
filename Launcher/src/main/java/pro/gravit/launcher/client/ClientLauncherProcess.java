@@ -10,6 +10,10 @@ import pro.gravit.launcher.client.events.client.ClientProcessBuilderPreLaunchEve
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
+import pro.gravit.launcher.profiles.optional.OptionalView;
+import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.profiles.optional.actions.OptionalActionClientArgs;
+import pro.gravit.launcher.profiles.optional.actions.OptionalActionJvmArgs;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.Version;
@@ -49,17 +53,17 @@ public class ClientLauncherProcess {
     public ClientLauncherProcess(Path clientDir, Path assetDir, Path javaDir,
                                  ClientProfile profile, PlayerProfile playerProfile, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
-        this(clientDir, assetDir, javaDir, clientDir.resolve("resourcepacks"), profile, playerProfile, accessToken, clientHDir, assetHDir, jvmHDir);
+        this(clientDir, assetDir, javaDir, clientDir.resolve("resourcepacks"), profile, playerProfile, null, accessToken, clientHDir, assetHDir, jvmHDir);
     }
 
     public ClientLauncherProcess(Path clientDir, Path assetDir,
                                  ClientProfile profile, PlayerProfile playerProfile, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
-        this(clientDir, assetDir, Paths.get(System.getProperty("java.home")), clientDir.resolve("resourcepacks"), profile, playerProfile, accessToken, clientHDir, assetHDir, jvmHDir);
+        this(clientDir, assetDir, Paths.get(System.getProperty("java.home")), clientDir.resolve("resourcepacks"), profile, playerProfile, null, accessToken, clientHDir, assetHDir, jvmHDir);
     }
 
     public ClientLauncherProcess(Path clientDir, Path assetDir, Path javaDir, Path resourcePackDir,
-                                 ClientProfile profile, PlayerProfile playerProfile, String accessToken,
+                                 ClientProfile profile, PlayerProfile playerProfile, OptionalView view, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
         this.workDir = clientDir.toAbsolutePath();
         this.javaDir = javaDir;
@@ -74,6 +78,10 @@ public class ClientLauncherProcess {
         this.params.assetHDir = assetHDir;
         this.params.clientHDir = clientHDir;
         this.params.javaHDir = jvmHDir;
+        if(view != null)
+        {
+            this.params.actions = view.getEnabledActions();
+        }
         this.bits = JVMHelper.JVM_BITS;
         applyClientProfile();
     }
@@ -88,7 +96,13 @@ public class ClientLauncherProcess {
     private void applyClientProfile() {
         this.systemClassPath.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString());
         Collections.addAll(this.jvmArgs, this.params.profile.getJvmArgs());
-        this.params.profile.pushOptionalJvmArgs(this.jvmArgs);
+        for(OptionalAction a : this.params.actions)
+        {
+            if(a instanceof OptionalActionJvmArgs)
+            {
+                this.jvmArgs.addAll(((OptionalActionJvmArgs) a).args);
+            }
+        }
         this.systemEnv.put("JAVA_HOME", javaDir.toString());
         Collections.addAll(this.systemClassPath, this.params.profile.getAlternativeClassPath());
         if (params.ram > 0) {
@@ -193,6 +207,8 @@ public class ClientLauncherProcess {
 
         public int height;
 
+        public Set<OptionalAction> actions = new HashSet<>();
+
         //========
 
         public UUID session;
@@ -263,7 +279,13 @@ public class ClientLauncherProcess {
                 Collections.addAll(args, "--server", profile.getServerAddress());
                 Collections.addAll(args, "--port", Integer.toString(profile.getServerPort()));
             }
-            profile.pushOptionalClientArgs(args);
+            for(OptionalAction a : actions)
+            {
+                if(a instanceof OptionalActionClientArgs)
+                {
+                    args.addAll(((OptionalActionClientArgs) a).args);
+                }
+            }
             // Add window size args
             if (fullScreen)
                 Collections.addAll(args, "--fullscreen", Boolean.toString(true));
