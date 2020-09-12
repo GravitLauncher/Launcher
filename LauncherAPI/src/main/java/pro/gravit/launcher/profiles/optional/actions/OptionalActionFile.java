@@ -1,6 +1,7 @@
 package pro.gravit.launcher.profiles.optional.actions;
 
 import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.utils.helper.LogHelper;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,9 @@ public class OptionalActionFile extends OptionalAction {
         files.forEach((k,v) -> {
             HashedDir.FindRecursiveResult firstPath = dir.findRecursive(k);
             if (v != null && !v.isEmpty()) {
+                LogHelper.dev("Debug findRecursive: name %s, parent: ", firstPath.name, firstPath.parent == null ? "null" : "not null", firstPath.entry == null ? "null" : "not null");
                 HashedDir.FindRecursiveResult secondPath = dir.findRecursive(v);
+                LogHelper.dev("Debug findRecursive: name %s, parent: ", secondPath.name, secondPath.parent == null ? "null" : "not null", secondPath.entry == null ? "null" : "not null");
                 firstPath.parent.moveTo(firstPath.name, secondPath.parent, secondPath.name);
             }
         });

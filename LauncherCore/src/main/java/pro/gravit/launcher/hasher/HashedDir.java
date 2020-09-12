@@ -126,6 +126,10 @@ public final class HashedDir extends HashedEntry {
         while (t.hasMoreTokens()) {
             name = t.nextToken();
             HashedEntry e = current.map.get(name);
+            if(e == null && !t.hasMoreTokens())
+            {
+                break;
+            }
             if (e.getType() == Type.DIR) {
                 if(!t.hasMoreTokens()) {
                     entry = e;
