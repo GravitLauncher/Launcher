@@ -3,11 +3,14 @@ package pro.gravit.launcher.profiles.optional;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class OptionalView {
     public Set<OptionalFile> enabled = new HashSet<>();
+    public Map<OptionalFile, Set<OptionalFile>> dependenciesCountMap = new HashMap<>();
     public Set<OptionalFile> all;
 
     @SuppressWarnings("unchecked")
@@ -64,8 +67,8 @@ public class OptionalView {
         file.watchEvent(true);
         if (file.dependencies != null) {
             for (OptionalFile dep : file.dependencies) {
-                if (dep.dependenciesCount == null) dep.dependenciesCount = new HashSet<>();
-                dep.dependenciesCount.add(file);
+                Set<OptionalFile> dependenciesCount = dependenciesCountMap.computeIfAbsent(dep, k -> new HashSet<>());
+                dependenciesCount.add(file);
                 enable(dep);
             }
         }
@@ -79,22 +82,22 @@ public class OptionalView {
     {
         if(!enabled.remove(file)) return;
         file.watchEvent(false);
-        if (file.dependenciesCount != null) {
-            for (OptionalFile f : file.dependenciesCount) {
+        Set<OptionalFile> dependenciesCount = dependenciesCountMap.get(file);
+        if (dependenciesCount != null) {
+            for (OptionalFile f : dependenciesCount) {
                 if (f.isPreset) continue;
                 disable(f);
             }
-            file.dependenciesCount.clear();
-            file.dependenciesCount = null;
+            dependenciesCount.clear();
         }
         if (file.dependencies != null) {
             for (OptionalFile f : file.dependencies) {
                 if (!enabled.contains(f)) continue;
-                if (f.dependenciesCount == null) {
+                dependenciesCount = dependenciesCountMap.get(f);
+                if (dependenciesCount == null) {
                     disable(f);
-                } else if (f.dependenciesCount.size() <= 1) {
-                    f.dependenciesCount.clear();
-                    f.dependenciesCount = null;
+                } else if (dependenciesCount.size() <= 1) {
+                    dependenciesCount.clear();
                     disable(f);
                 }
             }

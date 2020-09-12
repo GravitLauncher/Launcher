@@ -47,6 +47,7 @@ public class OptionalFile {
     public int subTreeLevel = 1;
     @LauncherNetworkAPI
     public boolean isPreset;
+    @Deprecated
     public transient Set<OptionalFile> dependenciesCount;
     private volatile transient Collection<BiConsumer<OptionalFile, Boolean>> watchList = null;
 
