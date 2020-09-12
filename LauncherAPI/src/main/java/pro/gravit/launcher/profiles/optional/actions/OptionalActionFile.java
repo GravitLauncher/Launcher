@@ -29,4 +29,11 @@ public class OptionalActionFile extends OptionalAction {
             firstPath.parent.remove(firstPath.name);
         });
     }
+
+    public OptionalActionFile() {
+    }
+
+    public OptionalActionFile(Map<String, String> files) {
+        this.files = files;
+    }
 }

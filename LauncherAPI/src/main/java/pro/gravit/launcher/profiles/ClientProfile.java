@@ -184,16 +184,23 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
-
+    @Deprecated
     public OptionalFile getOptionalFile(String file, OptionalType type) {
         for (OptionalFile f : updateOptional)
             if (f.type.equals(type) && f.name.equals(file)) return f;
         return null;
     }
 
+    public OptionalFile getOptionalFile(String file) {
+        for (OptionalFile f : updateOptional)
+            if (f.name.equals(file)) return f;
+        return null;
+    }
+
     public Collection<String> getShared() {
         return updateShared;
     }
+
     @Deprecated
     public void markOptional(OptionalFile file) {
 
