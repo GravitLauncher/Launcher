@@ -422,7 +422,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         MC1151("1.15.1", 575),
         MC1152("1.15.2", 578),
         MC1161("1.16.1", 736),
-        MC1162("1.16.2", 751);
+        MC1162("1.16.2", 751),
+        MC1163("1.16.3", 753);
         private static final Map<String, Version> VERSIONS;
 
         static {
