@@ -53,9 +53,9 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         client = new Client(null);
         Channel ch = ctx.channel();
         service.registerClient(ch);
-        ctx.executor().schedule(() -> {
+        ctx.executor().scheduleAtFixedRate(() -> {
             ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise());
-        }, 30L, TimeUnit.SECONDS);
+        }, 30L , 30L, TimeUnit.SECONDS);
     }
 
     @Override
