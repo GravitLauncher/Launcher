@@ -17,6 +17,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.handlers.NettyIpForwardHandler;
+import pro.gravit.launchserver.socket.handlers.NettyWebAPIHandler;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.handlers.fileserver.FileServerHandler;
 import pro.gravit.utils.BiHookSet;
@@ -60,6 +61,8 @@ public class LauncherNettyServer implements AutoCloseable {
                             pipeline.addLast("forward-http", new NettyIpForwardHandler(context));
                         pipeline.addLast("websock-comp", new WebSocketServerCompressionHandler());
                         pipeline.addLast("websock-codec", new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
+                        if(!server.config.netty.disableWebApiInterface)
+                            pipeline.addLast("webapi", new NettyWebAPIHandler(context));
                         if (server.config.netty.fileServerEnabled)
                             pipeline.addLast("fileserver", new FileServerHandler(server.updatesDir, true, config.showHiddenFiles));
                         pipeline.addLast("launchserver", new WebSocketFrameHandler(context, server, service));

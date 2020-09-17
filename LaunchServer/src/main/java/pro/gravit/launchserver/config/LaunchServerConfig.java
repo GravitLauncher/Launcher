@@ -296,6 +296,7 @@ public final class LaunchServerConfig {
         public boolean fileServerEnabled;
         public boolean sendExceptionEnabled;
         public boolean ipForwarding;
+        public boolean disableWebApiInterface;
         public boolean showHiddenFiles;
         public String launcherURL;
         public String downloadURL;
