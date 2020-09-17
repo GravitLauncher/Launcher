@@ -38,19 +38,17 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
             this.callback = callback;
         }
     }
-    private static ArrayList<SeverletPathPair> severletList = new ArrayList<>();
+    private static TreeSet<SeverletPathPair> severletList = new TreeSet<>(Comparator.comparingInt((e) -> -e.key.length()));
     public static SeverletPathPair addNewSeverlet(String path, SimpleSeverletHandler callback)
     {
         SeverletPathPair pair = new SeverletPathPair("/webapi/".concat(path), callback);
         severletList.add(pair);
-        severletList.sort(Comparator.comparingInt((a) -> -a.key.length()));
         return pair;
     }
     public static SeverletPathPair addUnsafeSeverlet(String path, SimpleSeverletHandler callback)
     {
         SeverletPathPair pair = new SeverletPathPair(path, callback);
         severletList.add(pair);
-        severletList.sort(Comparator.comparingInt((a) -> -a.key.length()));
         return pair;
     }
     public static void removeSeverlet(SeverletPathPair pair)
