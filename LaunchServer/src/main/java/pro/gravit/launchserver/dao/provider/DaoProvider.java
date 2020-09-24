@@ -6,7 +6,7 @@ import pro.gravit.utils.ProviderMap;
 
 public abstract class DaoProvider {
     public static final ProviderMap<DaoProvider> providers = new ProviderMap<>("DaoProvider");
-    public UserDAO userDAO;
+    public transient UserDAO userDAO;
 
     public static void registerProviders() {
         // None
