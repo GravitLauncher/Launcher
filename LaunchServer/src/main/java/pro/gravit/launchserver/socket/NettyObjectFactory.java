@@ -17,9 +17,9 @@ public class NettyObjectFactory {
 
     public static EventLoopGroup newEventLoopGroup(int threads, String poolName) {
         if (epoll)
-            return new EpollEventLoopGroup(threads, new NettyThreadFactory(poolName));
+            return new EpollEventLoopGroup(threads);
         else
-            return new NioEventLoopGroup(threads, new NettyThreadFactory(poolName));
+            return new NioEventLoopGroup(threads);
     }
 
     public static ChannelFactory<? extends ServerChannel> getServerSocketChannelFactory() {
