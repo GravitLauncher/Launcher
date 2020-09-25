@@ -56,9 +56,29 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) {
         // ping and pong frames already handled
-        if (hooks.hook(ctx, frame)) return;
+        try {
+            if (hooks.hook(ctx, frame)) return;
+        } catch (Throwable ex)
+        {
+            LogHelper.error(ex);
+        }
         if (frame instanceof TextWebSocketFrame) {
-            service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
+            try {
+                service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
+            } catch (Throwable ex) {
+                if(LogHelper.isDebugEnabled()) {
+                    LogHelper.warning("Client %s send invalid request. Connection force closed.", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip);
+                    if(LogHelper.isDevEnabled())
+                    {
+                        LogHelper.dev("Client message: %s", ((TextWebSocketFrame) frame).text());
+                    }
+                    if(LogHelper.isStacktraceEnabled())
+                    {
+                        LogHelper.error(ex);
+                    }
+                }
+                ctx.channel().close();
+            }
         } else if ((frame instanceof PingWebSocketFrame)) {
             frame.content().retain();
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
