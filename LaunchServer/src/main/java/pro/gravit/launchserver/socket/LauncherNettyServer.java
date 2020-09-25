@@ -42,8 +42,8 @@ public class LauncherNettyServer implements AutoCloseable {
         if (config.performance.usingEpoll && !Epoll.isAvailable()) {
             LogHelper.error("Epoll is not available: (netty,perfomance.usingEpoll configured wrongly)", Epoll.unavailabilityCause());
         }
-        bossGroup = NettyObjectFactory.newEventLoopGroup(config.performance.bossThread);
-        workerGroup = NettyObjectFactory.newEventLoopGroup(config.performance.workerThread);
+        bossGroup = NettyObjectFactory.newEventLoopGroup(config.performance.bossThread, "LauncherNettyServer.bossGroup");
+        workerGroup = NettyObjectFactory.newEventLoopGroup(config.performance.workerThread, "LauncherNettyServer.workerGroup");
         serverBootstrap = new ServerBootstrap();
         service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), server);
         serverBootstrap.group(bossGroup, workerGroup)
