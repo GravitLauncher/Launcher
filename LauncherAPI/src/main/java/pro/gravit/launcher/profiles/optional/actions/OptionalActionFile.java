@@ -3,7 +3,6 @@ package pro.gravit.launcher.profiles.optional.actions;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.utils.helper.LogHelper;
 
-import java.util.List;
 import java.util.Map;
 
 public class OptionalActionFile extends OptionalAction {

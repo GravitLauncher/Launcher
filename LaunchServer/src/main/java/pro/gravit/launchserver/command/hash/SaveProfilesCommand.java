@@ -24,7 +24,7 @@ public class SaveProfilesCommand extends Command {
         super(server);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public static void saveProfile(ClientProfile profile, Path path) throws IOException {
         if (profile.getUUID() == null) profile.setUUID(UUID.randomUUID());
         if(profile.getServers().size() == 0)

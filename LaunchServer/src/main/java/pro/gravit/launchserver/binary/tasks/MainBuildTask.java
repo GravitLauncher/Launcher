@@ -29,11 +29,11 @@ import java.util.zip.ZipOutputStream;
 public class MainBuildTask implements LauncherBuildTask {
     public final ClassMetadataReader reader;
     private final LaunchServer server;
-    public Set<String> blacklist = new HashSet<>();
-    public List<Transformer> transformers = new ArrayList<>();
-    public IOHookSet<BuildContext> preBuildHook = new IOHookSet<>();
-    public IOHookSet<BuildContext> postBuildHook = new IOHookSet<>();
-    public Map<String, Object> properties = new HashMap<>();
+    public final Set<String> blacklist = new HashSet<>();
+    public final List<Transformer> transformers = new ArrayList<>();
+    public final IOHookSet<BuildContext> preBuildHook = new IOHookSet<>();
+    public final IOHookSet<BuildContext> postBuildHook = new IOHookSet<>();
+    public final Map<String, Object> properties = new HashMap<>();
 
     public MainBuildTask(LaunchServer srv) {
         server = srv;
@@ -123,14 +123,13 @@ public class MainBuildTask implements LauncherBuildTask {
 
     public byte[] transformClass(byte[] bytes, String classname, BuildContext context) {
         byte[] result = bytes;
-        ClassReader cr = null;
-        ClassWriter writer = null;
+        ClassWriter writer;
         ClassNode cn = null;
         for (Transformer t : transformers) {
             if (t instanceof ASMTransformer) {
                 ASMTransformer asmTransformer = (ASMTransformer) t;
                 if (cn == null) {
-                    cr = new ClassReader(result);
+                    ClassReader cr = new ClassReader(result);
                     cn = new ClassNode();
                     cr.accept(cn, 0);
                 }
@@ -144,7 +143,6 @@ public class MainBuildTask implements LauncherBuildTask {
             byte[] old_result = result;
             result = t.transform(result, classname, context);
             if (old_result != result) {
-                cr = null;
                 cn = null;
             }
         }

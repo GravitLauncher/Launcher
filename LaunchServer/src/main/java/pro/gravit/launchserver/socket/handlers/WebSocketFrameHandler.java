@@ -9,7 +9,6 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.utils.BiHookSet;
-import pro.gravit.utils.HookSet;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -17,14 +16,12 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
-    static {
-    }
 
     public final LaunchServer srv;
     public final WebSocketService service;
     private final UUID connectUUID = UUID.randomUUID();
     public NettyConnectContext context;
-    public BiHookSet<ChannelHandlerContext, WebSocketFrame> hooks = new BiHookSet<>();
+    public final BiHookSet<ChannelHandlerContext, WebSocketFrame> hooks = new BiHookSet<>();
     private Client client;
 
     public WebSocketFrameHandler(NettyConnectContext context, LaunchServer srv, WebSocketService service) {
@@ -53,9 +50,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         client = new Client(null);
         Channel ch = ctx.channel();
         service.registerClient(ch);
-        ctx.executor().scheduleAtFixedRate(() -> {
-            ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise());
-        }, 30L , 30L, TimeUnit.SECONDS);
+        ctx.executor().scheduleAtFixedRate(() -> ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise()), 30L , 30L, TimeUnit.SECONDS);
     }
 
     @Override

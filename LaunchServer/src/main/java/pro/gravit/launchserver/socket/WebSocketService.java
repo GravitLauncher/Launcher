@@ -38,7 +38,6 @@ import pro.gravit.utils.helper.LogHelper;
 import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 public class WebSocketService {
     public static final ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
@@ -48,16 +47,16 @@ public class WebSocketService {
     private final Gson gson;
 
     //Statistic data
-    public AtomicLong shortRequestLatency = new AtomicLong();
-    public AtomicLong shortRequestCounter = new AtomicLong();
+    public final AtomicLong shortRequestLatency = new AtomicLong();
+    public final AtomicLong shortRequestCounter = new AtomicLong();
 
-    public AtomicLong middleRequestLatency = new AtomicLong();
-    public AtomicLong middleRequestCounter = new AtomicLong();
+    public final AtomicLong middleRequestLatency = new AtomicLong();
+    public final AtomicLong middleRequestCounter = new AtomicLong();
 
-    public AtomicLong longRequestLatency = new AtomicLong();
-    public AtomicLong longRequestCounter = new AtomicLong();
+    public final AtomicLong longRequestLatency = new AtomicLong();
+    public final AtomicLong longRequestCounter = new AtomicLong();
 
-    public AtomicLong lastRequestTime = new AtomicLong();
+    public final AtomicLong lastRequestTime = new AtomicLong();
 
     public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;
@@ -92,7 +91,6 @@ public class WebSocketService {
         providers.register("profileByUsername", ProfileByUsername.class);
         providers.register("profileByUUID", ProfileByUUIDResponse.class);
         providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
-        providers.register("register", RegisterResponse.class);
         providers.register("exit", ExitResponse.class);
         providers.register("getSecureLevelInfo", GetSecureLevelInfoResponse.class);
         providers.register("verifySecureLevelKey", VerifySecureLevelKeyResponse.class);

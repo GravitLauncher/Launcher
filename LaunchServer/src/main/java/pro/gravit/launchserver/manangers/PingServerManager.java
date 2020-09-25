@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PingServerManager {
-    public static long REPORT_EXPIRED_TIME = 20*1000;
+    public static final long REPORT_EXPIRED_TIME = 20*1000;
 
     public static class ServerInfoEntry
     {

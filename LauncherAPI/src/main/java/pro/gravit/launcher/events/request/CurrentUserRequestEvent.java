@@ -10,7 +10,7 @@ public class CurrentUserRequestEvent extends RequestEvent {
         public String accessToken;
         public PlayerProfile playerProfile;
     }
-    public UserInfo userInfo;
+    public final UserInfo userInfo;
 
     public CurrentUserRequestEvent(UserInfo userInfo) {
         this.userInfo = userInfo;

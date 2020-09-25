@@ -66,7 +66,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
                 .append("<ul>")
                 .append("<li><a href=\"../\">..</a></li>\r\n");
 
-        for (File f : dir.listFiles()) {
+        for (File f : Objects.requireNonNull(dir.listFiles())) {
             if ((f.isHidden() && !showHidden) || !f.canRead()) {
                 continue;
             }

@@ -107,9 +107,9 @@ public final class HashedDir extends HashedEntry {
     }
     public static class FindRecursiveResult
     {
-        public HashedDir parent;
-        public HashedEntry entry;
-        public String name;
+        public final HashedDir parent;
+        public final HashedEntry entry;
+        public final String name;
 
         public FindRecursiveResult(HashedDir parent, HashedEntry entry, String name) {
             this.parent = parent;

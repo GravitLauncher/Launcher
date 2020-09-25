@@ -73,7 +73,7 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
                 if(e.banned) throw new HWIDException("You HWID banned");
                 return e.hardware;
             }
-        };
+        }
         return null;
     }
 

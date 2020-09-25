@@ -9,9 +9,9 @@ import oshi.software.os.OperatingSystem;
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 
 public class HWIDProvider {
-    public SystemInfo systemInfo;
-    public OperatingSystem system;
-    public HardwareAbstractionLayer hardware;
+    public final SystemInfo systemInfo;
+    public final OperatingSystem system;
+    public final HardwareAbstractionLayer hardware;
 
     public HWIDProvider() {
         systemInfo = new SystemInfo();

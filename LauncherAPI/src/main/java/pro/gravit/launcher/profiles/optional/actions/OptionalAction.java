@@ -3,7 +3,7 @@ package pro.gravit.launcher.profiles.optional.actions;
 import pro.gravit.utils.ProviderMap;
 
 public class OptionalAction {
-    public static ProviderMap<OptionalAction> providers = new ProviderMap<>();
+    public static final ProviderMap<OptionalAction> providers = new ProviderMap<>();
     private static boolean registerProviders = false;
     public static void registerProviders()
     {

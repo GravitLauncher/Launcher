@@ -1,7 +1,6 @@
 package pro.gravit.launcher.events.request;
 
 import pro.gravit.launcher.events.RequestEvent;
-import pro.gravit.utils.helper.JVMHelper;
 
 public class ServerStatusRequestEvent extends RequestEvent {
     public final String projectName;

@@ -39,7 +39,7 @@ public class SignDirCommand extends Command {
     }
 
     private class SignJarVisitor extends SimpleFileVisitor<Path> {
-        private SignJarTask task;
+        private final SignJarTask task;
 
         public SignJarVisitor(SignJarTask task) {
             this.task = task;

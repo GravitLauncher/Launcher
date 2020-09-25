@@ -173,13 +173,13 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             if (file.dependenciesFile != null) {
                 file.dependencies = new OptionalFile[file.dependenciesFile.length];
                 for (int i = 0; i < file.dependenciesFile.length; ++i) {
-                    file.dependencies[i] = getOptionalFile(file.dependenciesFile[i].name, file.dependenciesFile[i].type);
+                    file.dependencies[i] = getOptionalFile(file.dependenciesFile[i].name);
                 }
             }
             if (file.conflictFile != null) {
                 file.conflict = new OptionalFile[file.conflictFile.length];
                 for (int i = 0; i < file.conflictFile.length; ++i) {
-                    file.conflict[i] = getOptionalFile(file.conflictFile[i].name, file.conflictFile[i].type);
+                    file.conflict[i] = getOptionalFile(file.conflictFile[i].name);
                 }
             }
         }
@@ -369,11 +369,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         for (OptionalFile f : updateOptional) {
             if (f == null) throw new IllegalArgumentException("Found null entry in updateOptional");
             if (f.name == null) throw new IllegalArgumentException("Optional: name must not be null");
-            if (f.list == null) throw new IllegalArgumentException("Optional: list must not be null");
-            for (String s : f.list) {
-                if (s == null)
-                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.list", f.name));
-            }
             if (f.conflictFile != null) for (OptionalDepend s : f.conflictFile) {
                 if (s == null)
                     throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.conflictFile", f.name));

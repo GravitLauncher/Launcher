@@ -3,7 +3,6 @@ package pro.gravit.launchserver.socket.response.management;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.ServerStatusRequestEvent;
 import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.helper.JVMHelper;
 

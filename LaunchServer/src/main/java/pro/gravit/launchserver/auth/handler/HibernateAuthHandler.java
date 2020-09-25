@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.auth.handler;
 
 import pro.gravit.launchserver.dao.User;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.UUID;
 

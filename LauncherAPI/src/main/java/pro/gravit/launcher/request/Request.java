@@ -4,7 +4,6 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
-import pro.gravit.utils.helper.SecurityHelper;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;

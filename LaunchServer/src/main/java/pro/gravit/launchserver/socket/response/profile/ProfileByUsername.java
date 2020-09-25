@@ -5,7 +5,6 @@ import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.auth.AuthProviderPair;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.UUID;
 

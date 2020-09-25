@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.auth.provider;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.HTTPRequest;

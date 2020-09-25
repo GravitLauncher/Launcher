@@ -7,7 +7,6 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.HashMap;
 import java.util.Map;

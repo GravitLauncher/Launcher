@@ -9,7 +9,7 @@ public final class UpdateRequest extends Request<UpdateRequestEvent> implements 
 
     // Instance
     @LauncherNetworkAPI
-    private final String dirName;
+    public final String dirName;
 
     public UpdateRequest(String dirName) {
         this.dirName = dirName;

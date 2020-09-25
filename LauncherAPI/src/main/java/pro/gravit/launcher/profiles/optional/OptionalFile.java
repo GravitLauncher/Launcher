@@ -145,8 +145,6 @@ public class OptionalFile {
 
     public void watchEvent(boolean isMark) {
         if (watchList == null) return;
-        watchList.forEach((e) -> {
-            e.accept(this, isMark);
-        });
+        watchList.forEach((e) -> e.accept(this, isMark));
     }
 }

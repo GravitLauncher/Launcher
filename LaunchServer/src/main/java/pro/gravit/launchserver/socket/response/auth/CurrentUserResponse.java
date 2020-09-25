@@ -2,7 +2,6 @@ package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.CurrentUserRequestEvent;
-import pro.gravit.launcher.request.uuid.ProfileByUUIDRequest;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
