@@ -11,6 +11,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 
 public final class JsonAuthProvider extends AuthProvider {
     public URL url;
@@ -25,10 +26,7 @@ public final class JsonAuthProvider extends AuthProvider {
         authResult result = Launcher.gsonManager.gson.fromJson(content, authResult.class);
         if (result.username != null)
             return new AuthProviderResult(result.username, SecurityHelper.randomStringToken(), new ClientPermissions(result.permissions, result.flags));
-        else if (result.error != null)
-            return authError(result.error);
-        else
-            return authError("Authentication server response is malformed");
+        else return authError(Objects.requireNonNullElse(result.error, "Authentication server response is malformed"));
     }
 
     @Override
