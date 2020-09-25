@@ -38,10 +38,9 @@ public final class ServerPinger {
     public ServerPinger(ClientProfile profile) {
         this(profile.getDefaultServerProfile(), profile.getVersion());
     }
-    public ServerPinger(ClientProfile.ServerProfile profile, ClientProfile.Version version)
-    {
-        if(profile == null)
-        {
+
+    public ServerPinger(ClientProfile.ServerProfile profile, ClientProfile.Version version) {
+        if (profile == null) {
             throw new NullPointerException("ServerProfile null");
         }
         this.address = profile.toSocketAddress();

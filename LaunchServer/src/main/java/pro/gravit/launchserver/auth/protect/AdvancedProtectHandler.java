@@ -46,14 +46,12 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
 
     @Override
     public void onHardwareReport(HardwareReportResponse response, Client client) {
-        if(!enableHardwareFeature)
-        {
+        if (!enableHardwareFeature) {
             response.sendResult(new HardwareReportRequestEvent());
             return;
         }
         try {
-            if(!client.isAuth || client.trustLevel == null || client.trustLevel.publicKey == null)
-            {
+            if (!client.isAuth || client.trustLevel == null || client.trustLevel.publicKey == null) {
                 response.sendError("Access denied");
                 return;
             }
@@ -61,7 +59,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
             LogHelper.debug("[HardwareInfo] HardwareInfo received");
             boolean needCreate = !provider.addPublicKeyToHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
             LogHelper.debug("[HardwareInfo] HardwareInfo needCreate: %s", needCreate ? "true" : "false");
-            if(needCreate)
+            if (needCreate)
                 provider.createHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
             client.trustLevel.hardwareInfo = response.hardware;
         } catch (HWIDException e) {
@@ -72,17 +70,13 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
 
     @Override
     public VerifySecureLevelKeyRequestEvent onSuccessVerify(Client client) {
-        if(enableHardwareFeature)
-        {
-            if(provider == null)
-            {
+        if (enableHardwareFeature) {
+            if (provider == null) {
                 LogHelper.warning("HWIDProvider null. HardwareInfo not checked!");
-            }
-            else
-            {
+            } else {
                 try {
                     client.trustLevel.hardwareInfo = provider.findHardwareInfoByPublicKey(client.trustLevel.publicKey, client);
-                    if(client.trustLevel.hardwareInfo == null) //HWID not found?
+                    if (client.trustLevel.hardwareInfo == null) //HWID not found?
                         return new VerifySecureLevelKeyRequestEvent(true);
                 } catch (HWIDException e) {
                     throw new SecurityException(e.getMessage()); //Show banned message
@@ -96,8 +90,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     @Override
     public Map<String, Command> getCommands() {
         Map<String, Command> commands = new HashMap<>();
-        if(provider instanceof Reconfigurable)
-        {
+        if (provider instanceof Reconfigurable) {
             commands.putAll(((Reconfigurable) provider).getCommands());
         }
         return commands;
@@ -110,13 +103,13 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
 
     @Override
     public void init(LaunchServer server) {
-        if(provider != null)
+        if (provider != null)
             provider.init(server);
     }
 
     @Override
     public void close() {
-        if(provider != null)
+        if (provider != null)
             provider.close();
     }
 }

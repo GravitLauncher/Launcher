@@ -27,8 +27,7 @@ public class SaveProfilesCommand extends Command {
     @SuppressWarnings("deprecation")
     public static void saveProfile(ClientProfile profile, Path path) throws IOException {
         if (profile.getUUID() == null) profile.setUUID(UUID.randomUUID());
-        if(profile.getServers().size() == 0)
-        {
+        if (profile.getServers().size() == 0) {
             ClientProfile.ServerProfile serverProfile = new ClientProfile.ServerProfile();
             serverProfile.isDefault = true;
             serverProfile.name = profile.getTitle();
@@ -36,19 +35,16 @@ public class SaveProfilesCommand extends Command {
             serverProfile.serverPort = profile.getServerPort();
             profile.getServers().add(serverProfile);
         }
-        for(OptionalFile file : profile.getOptional())
-        {
-            if(file.list != null)
-            {
+        for (OptionalFile file : profile.getOptional()) {
+            if (file.list != null) {
                 String[] list = file.list;
                 file.list = null;
-                if(file.actions == null) file.actions = new ArrayList<>(2);
+                if (file.actions == null) file.actions = new ArrayList<>(2);
                 OptionalAction action;
-                switch (file.type)
-                {
+                switch (file.type) {
                     case FILE:
                         OptionalActionFile result = new OptionalActionFile(new HashMap<>());
-                        for(String s : list) result.files.put(s, "");
+                        for (String s : list) result.files.put(s, "");
                         action = result;
                         break;
                     case CLASSPATH:

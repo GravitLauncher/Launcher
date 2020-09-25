@@ -24,8 +24,7 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
         commands.put("hardwarelist", new SubCommand() {
             @Override
             public void invoke(String... args) throws Exception {
-                for(MemoryHWIDEntity e  : db)
-                {
+                for (MemoryHWIDEntity e : db) {
                     printHardwareInfo(LogHelper.Level.INFO, e.hardware);
                     LogHelper.info("ID %d banned %s", e.id, e.banned ? "true" : "false");
                     LogHelper.info("PublicKey Hash: %s", SecurityHelper.toHex(SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA1, e.publicKey)));
@@ -37,10 +36,8 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
             public void invoke(String... args) throws Exception {
                 verifyArgs(args, 1);
                 long id = Long.parseLong(args[0]);
-                for(MemoryHWIDEntity e  : db)
-                {
-                    if(e.id == id)
-                    {
+                for (MemoryHWIDEntity e : db) {
+                    if (e.id == id) {
                         e.banned = true;
                         LogHelper.info("HardwareID %d banned", e.id);
                     }
@@ -50,8 +47,7 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
         return commands;
     }
 
-    static class MemoryHWIDEntity
-    {
+    static class MemoryHWIDEntity {
         public HardwareReportRequest.HardwareInfo hardware;
         public byte[] publicKey;
         public boolean banned;
@@ -63,14 +59,14 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
             this.id = SecurityHelper.newRandom().nextLong();
         }
     }
+
     public Set<MemoryHWIDEntity> db = ConcurrentHashMap.newKeySet();
 
     @Override
     public HardwareReportRequest.HardwareInfo findHardwareInfoByPublicKey(byte[] publicKey, Client client) throws HWIDException {
-        for(MemoryHWIDEntity e : db) {
-            if(Arrays.equals(e.publicKey, publicKey))
-            {
-                if(e.banned) throw new HWIDException("You HWID banned");
+        for (MemoryHWIDEntity e : db) {
+            if (Arrays.equals(e.publicKey, publicKey)) {
+                if (e.banned) throw new HWIDException("You HWID banned");
                 return e.hardware;
             }
         }
@@ -85,17 +81,15 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
     @Override
     public boolean addPublicKeyToHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, Client client) throws HWIDException {
         boolean isAlreadyWarning = false;
-        for(MemoryHWIDEntity e : db) {
+        for (MemoryHWIDEntity e : db) {
             HardwareInfoCompareResult result = compareHardwareInfo(e.hardware, hardwareInfo);
-            if(warningSpoofingLevel > 0 && result.firstSpoofingLevel > warningSpoofingLevel && !isAlreadyWarning)
-            {
+            if (warningSpoofingLevel > 0 && result.firstSpoofingLevel > warningSpoofingLevel && !isAlreadyWarning) {
                 LogHelper.warning("HardwareInfo spoofing level too high: %d", result.firstSpoofingLevel);
                 isAlreadyWarning = true;
             }
-            if(result.compareLevel > criticalCompareLevel)
-            {
+            if (result.compareLevel > criticalCompareLevel) {
                 LogHelper.debug("HardwareInfo publicKey change: compareLevel %d", result.compareLevel);
-                if(e.banned) throw new HWIDException("You HWID banned");
+                if (e.banned) throw new HWIDException("You HWID banned");
                 e.publicKey = publicKey;
                 return true;
             }

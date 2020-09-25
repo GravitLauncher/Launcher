@@ -14,17 +14,12 @@ public class OptionalView {
     public Set<OptionalFile> all;
 
     @SuppressWarnings("unchecked")
-    public<T extends OptionalAction> Set<T> getActionsByClass(Class<T> clazz)
-    {
+    public <T extends OptionalAction> Set<T> getActionsByClass(Class<T> clazz) {
         Set<T> results = new HashSet<>();
-        for(OptionalFile e : enabled)
-        {
-            if(e.actions != null)
-            {
-                for(OptionalAction a : e.actions)
-                {
-                    if(clazz.isAssignableFrom(a.getClass()))
-                    {
+        for (OptionalFile e : enabled) {
+            if (e.actions != null) {
+                for (OptionalAction a : e.actions) {
+                    if (clazz.isAssignableFrom(a.getClass())) {
                         results.add((T) a);
                     }
                 }
@@ -33,36 +28,29 @@ public class OptionalView {
         return results;
     }
 
-    public Set<OptionalAction> getEnabledActions()
-    {
+    public Set<OptionalAction> getEnabledActions() {
         Set<OptionalAction> results = new HashSet<>();
-        for(OptionalFile e : enabled)
-        {
-            if(e.actions != null)
-            {
+        for (OptionalFile e : enabled) {
+            if (e.actions != null) {
                 results.addAll(e.actions);
             }
         }
         return results;
     }
 
-    public Set<OptionalAction> getDisabledActions()
-    {
+    public Set<OptionalAction> getDisabledActions() {
         Set<OptionalAction> results = new HashSet<>();
-        for(OptionalFile e : all)
-        {
-            if(enabled.contains(e)) continue;
-            if(e.actions != null)
-            {
+        for (OptionalFile e : all) {
+            if (enabled.contains(e)) continue;
+            if (e.actions != null) {
                 results.addAll(e.actions);
             }
         }
         return results;
     }
 
-    public void enable(OptionalFile file)
-    {
-        if(enabled.contains(file)) return;
+    public void enable(OptionalFile file) {
+        if (enabled.contains(file)) return;
         enabled.add(file);
         file.watchEvent(true);
         if (file.dependencies != null) {
@@ -78,9 +66,9 @@ public class OptionalView {
             }
         }
     }
-    public void disable(OptionalFile file)
-    {
-        if(!enabled.remove(file)) return;
+
+    public void disable(OptionalFile file) {
+        if (!enabled.remove(file)) return;
         file.watchEvent(false);
         Set<OptionalFile> dependenciesCount = dependenciesCountMap.get(file);
         if (dependenciesCount != null) {
@@ -103,16 +91,15 @@ public class OptionalView {
             }
         }
     }
-    public OptionalView(ClientProfile profile)
-    {
+
+    public OptionalView(ClientProfile profile) {
         this.all = profile.getOptional();
-        for(OptionalFile f : this.all)
-        {
-            if(f.mark) enable(f);
+        for (OptionalFile f : this.all) {
+            if (f.mark) enable(f);
         }
     }
-    public OptionalView(OptionalView view)
-    {
+
+    public OptionalView(OptionalView view) {
         this.enabled = new HashSet<>(view.enabled);
         this.dependenciesCountMap = new HashMap<>(view.dependenciesCountMap);
         this.all = view.all;

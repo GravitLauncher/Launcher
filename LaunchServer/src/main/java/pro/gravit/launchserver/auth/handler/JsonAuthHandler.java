@@ -51,6 +51,7 @@ public class JsonAuthHandler extends CachedAuthHandler {
     public static class EntryRequestByUUID {
         public final UUID uuid;
         public final String apiKey;
+
         public EntryRequestByUUID(UUID uuid, String apiKey) {
             this.uuid = uuid;
             this.apiKey = apiKey;

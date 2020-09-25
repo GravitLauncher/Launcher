@@ -12,15 +12,18 @@ public class JsonHWIDProvider extends HWIDProvider {
     public URL createHardwareInfoRequest;
     public URL addPublicKeyToHardwareInfoRequest;
     public String apiKey;
+
     public static class RequestFind {
         public byte[] publicKey;
         public Client client;
         public String apiKey;
     }
+
     public static class ResultFind {
         public String error;
         public HardwareReportRequest.HardwareInfo info;
     }
+
     @Override
     public HardwareReportRequest.HardwareInfo findHardwareInfoByPublicKey(byte[] publicKey, Client client) throws HWIDException {
         try {
@@ -33,19 +36,22 @@ public class JsonHWIDProvider extends HWIDProvider {
             return r.info;
         } catch (HWIDException t) {
             throw t;
-        } catch (Throwable  t) {
+        } catch (Throwable t) {
             throw new HWIDException(t);
         }
     }
+
     public static class RequestCreate {
         public byte[] publicKey;
         public Client client;
         public HardwareReportRequest.HardwareInfo hardwareInfo;
         public String apiKey;
     }
+
     public static class ResultCreate {
         public String error;
     }
+
     @Override
     public void createHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, Client client) throws HWIDException {
         try {
@@ -58,20 +64,23 @@ public class JsonHWIDProvider extends HWIDProvider {
             if (r.error != null) throw new HWIDException(r.error);
         } catch (HWIDException t) {
             throw t;
-        } catch (Throwable  t) {
+        } catch (Throwable t) {
             throw new HWIDException(t);
         }
     }
+
     public static class RequestAddKey {
         public byte[] publicKey;
         public Client client;
         public HardwareReportRequest.HardwareInfo hardwareInfo;
         public String apiKey;
     }
+
     public static class ResultAddKey {
         public String error;
         public boolean success;
     }
+
     @Override
     public boolean addPublicKeyToHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, Client client) throws HWIDException {
         try {
@@ -85,7 +94,7 @@ public class JsonHWIDProvider extends HWIDProvider {
             return r.success;
         } catch (HWIDException t) {
             throw t;
-        } catch (Throwable  t) {
+        } catch (Throwable t) {
             throw new HWIDException(t);
         }
     }

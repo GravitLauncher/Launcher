@@ -32,19 +32,18 @@ public class ProGuardBuildTask implements LauncherBuildTask {
             Configuration proguard_cfg = new Configuration();
             ConfigurationParser parser = new ConfigurationParser(server.proguardConf.buildConfig(inputFile, outputJar),
                     server.proguardConf.proguard.toFile(), System.getProperties());
-            if (JVMHelper.JVM_VERSION >= 9)
-            {
+            if (JVMHelper.JVM_VERSION >= 9) {
                 Path javaJModsPath = Paths.get(System.getProperty("java.home")).resolve("jmods");
-                if(!IOHelper.exists(javaJModsPath))
-                {
+                if (!IOHelper.exists(javaJModsPath)) {
                     LogHelper.warning("Directory %s not found. It is not good", javaJModsPath);
-                }
-                else
-                {
+                } else {
                     //Find javaFX libraries
-                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.base.jmod"))) LogHelper.error("javafx.base.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
-                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.graphics.jmod"))) LogHelper.error("javafx.graphics.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
-                    if(!IOHelper.exists(javaJModsPath.resolve("javafx.controls.jmod"))) LogHelper.error("javafx.controls.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
+                    if (!IOHelper.exists(javaJModsPath.resolve("javafx.base.jmod")))
+                        LogHelper.error("javafx.base.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
+                    if (!IOHelper.exists(javaJModsPath.resolve("javafx.graphics.jmod")))
+                        LogHelper.error("javafx.graphics.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
+                    if (!IOHelper.exists(javaJModsPath.resolve("javafx.controls.jmod")))
+                        LogHelper.error("javafx.controls.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
                 }
             }
             try {

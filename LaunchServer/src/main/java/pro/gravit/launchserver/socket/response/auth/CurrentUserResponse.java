@@ -20,13 +20,11 @@ public class CurrentUserResponse extends SimpleResponse {
         sendResult(new CurrentUserRequestEvent(collectUserInfoFromClient(client)));
     }
 
-    public static CurrentUserRequestEvent.UserInfo collectUserInfoFromClient(Client client) throws IOException
-    {
+    public static CurrentUserRequestEvent.UserInfo collectUserInfoFromClient(Client client) throws IOException {
         CurrentUserRequestEvent.UserInfo result = new CurrentUserRequestEvent.UserInfo();
-        if(client.auth != null && client.isAuth && client.username != null) {
+        if (client.auth != null && client.isAuth && client.username != null) {
             UUID uuid = client.auth.handler.usernameToUUID(client.username);
-            if(uuid != null)
-            {
+            if (uuid != null) {
                 result.playerProfile = ProfileByUUIDResponse.getProfile(uuid, client.username, client.profile == null ? null : client.profile.getTitle(), client.auth.textureProvider);
             }
         }

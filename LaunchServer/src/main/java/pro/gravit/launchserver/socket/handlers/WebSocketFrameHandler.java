@@ -50,13 +50,13 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         client = new Client(null);
         Channel ch = ctx.channel();
         service.registerClient(ch);
-        ctx.executor().scheduleAtFixedRate(() -> ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise()), 30L , 30L, TimeUnit.SECONDS);
+        ctx.executor().scheduleAtFixedRate(() -> ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise()), 30L, 30L, TimeUnit.SECONDS);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) {
         // ping and pong frames already handled
-        if(hooks.hook(ctx, frame)) return;
+        if (hooks.hook(ctx, frame)) return;
         if (frame instanceof TextWebSocketFrame) {
             service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
         } else if ((frame instanceof PingWebSocketFrame)) {

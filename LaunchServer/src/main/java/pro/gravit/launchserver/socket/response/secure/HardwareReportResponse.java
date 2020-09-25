@@ -17,17 +17,13 @@ public class HardwareReportResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        if(server.config.protectHandler instanceof HardwareProtectHandler)
-        {
+        if (server.config.protectHandler instanceof HardwareProtectHandler) {
             try {
                 ((HardwareProtectHandler) server.config.protectHandler).onHardwareReport(this, client);
-            } catch (SecurityException e)
-            {
+            } catch (SecurityException e) {
                 sendError(e.getMessage());
             }
-        }
-        else
-        {
+        } else {
             sendResult(new HardwareReportRequestEvent());
         }
     }

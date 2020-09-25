@@ -5,10 +5,9 @@ import pro.gravit.utils.ProviderMap;
 public class OptionalAction {
     public static final ProviderMap<OptionalAction> providers = new ProviderMap<>();
     private static boolean registerProviders = false;
-    public static void registerProviders()
-    {
-        if(!registerProviders)
-        {
+
+    public static void registerProviders() {
+        if (!registerProviders) {
             providers.register("file", OptionalActionFile.class);
             providers.register("clientArgs", OptionalActionClientArgs.class);
             providers.register("jvmArgs", OptionalActionJvmArgs.class);

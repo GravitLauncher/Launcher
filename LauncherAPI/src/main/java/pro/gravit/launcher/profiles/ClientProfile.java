@@ -72,24 +72,23 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private String mainClass;
 
-    public static class ServerProfile
-    {
+    public static class ServerProfile {
         public String name;
         public String serverAddress;
         public int serverPort;
         public boolean isDefault = true;
-        public InetSocketAddress toSocketAddress()
-        {
+
+        public InetSocketAddress toSocketAddress() {
             return InetSocketAddress.createUnresolved(serverAddress, serverPort);
         }
     }
+
     @LauncherNetworkAPI
     private List<ServerProfile> servers = new ArrayList<>(1);
-    public ServerProfile getDefaultServerProfile()
-    {
-        for(ServerProfile profile : servers)
-        {
-            if(profile.isDefault) return profile;
+
+    public ServerProfile getDefaultServerProfile() {
+        for (ServerProfile profile : servers) {
+            if (profile.isDefault) return profile;
         }
         return null;
     }
@@ -184,6 +183,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
+
     @Deprecated
     public OptionalFile getOptionalFile(String file, OptionalType type) {
         for (OptionalFile f : updateOptional)
@@ -220,6 +220,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
+
     @Deprecated
     public void unmarkOptional(OptionalFile file) {
         if (!file.mark) return;
@@ -246,6 +247,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
+
     @Deprecated
     public void pushOptionalFile(HashedDir dir, boolean digest) {
         for (OptionalFile opt : updateOptional) {
@@ -255,6 +257,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
+
     @Deprecated
     public void pushOptionalJvmArgs(Collection<String> jvmArgs1) {
         for (OptionalFile opt : updateOptional) {
@@ -263,6 +266,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
+
     @Deprecated
     public void pushOptionalClientArgs(Collection<String> clientArgs1) {
         for (OptionalFile opt : updateOptional) {
@@ -271,6 +275,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             }
         }
     }
+
     @Deprecated
     public void pushOptionalClassPath(pushOptionalClassPathCallback callback) throws IOException {
         for (OptionalFile opt : updateOptional) {
@@ -284,6 +289,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         ServerProfile profile = getDefaultServerProfile();
         return profile == null ? 25565 : profile.serverPort;
     }
+
     @Deprecated
     public InetSocketAddress getServerSocketAddress() {
         return InetSocketAddress.createUnresolved(getServerAddress(), getServerPort());

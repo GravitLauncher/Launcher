@@ -67,8 +67,7 @@ public class WebSocketService {
         this.gson = Launcher.gsonManager.gson;
     }
 
-    public void forEachActiveChannels(BiConsumer<Channel, WebSocketFrameHandler> callback)
-    {
+    public void forEachActiveChannels(BiConsumer<Channel, WebSocketFrameHandler> callback) {
         channels.forEach((channel) -> {
             if (channel == null || channel.pipeline() == null) return;
             WebSocketFrameHandler wsHandler = channel.pipeline().get(WebSocketFrameHandler.class);
@@ -113,32 +112,28 @@ public class WebSocketService {
         }
         process(ctx, response, client, ip);
         long executeTime = System.nanoTime() - startTimeNanos;
-        if(executeTime > 0)
-        {
+        if (executeTime > 0) {
             addRequestTimeToStats(executeTime);
         }
     }
 
-    public void addRequestTimeToStats(long nanos)
-    {
-        if(nanos < 100_000_000L) // < 100 millis
+    public void addRequestTimeToStats(long nanos) {
+        if (nanos < 100_000_000L) // < 100 millis
         {
             shortRequestCounter.getAndIncrement();
             shortRequestLatency.getAndAdd(nanos);
-        }
-        else if(nanos < 1_000_000_000L) // > 100 millis and < 1 second
+        } else if (nanos < 1_000_000_000L) // > 100 millis and < 1 second
         {
             middleRequestCounter.getAndIncrement();
             middleRequestLatency.getAndAdd(nanos);
-        }
-        else // > 1 second
+        } else // > 1 second
         {
             longRequestCounter.getAndIncrement();
             longRequestLatency.getAndAdd(nanos);
         }
         long lastTime = lastRequestTime.get();
         long currentTime = System.currentTimeMillis();
-        if(currentTime - lastTime > 60*1000) //1 minute
+        if (currentTime - lastTime > 60 * 1000) //1 minute
         {
             lastRequestTime.set(currentTime);
             shortRequestLatency.set(0);

@@ -54,7 +54,7 @@ public class ClientLauncherEntryPoint {
                 params.clientHDir = new HashedDir(input);
                 params.assetHDir = new HashedDir(input);
                 boolean isNeedReadJavaDir = input.readBoolean();
-                if(isNeedReadJavaDir)
+                if (isNeedReadJavaDir)
                     params.javaHDir = new HashedDir(input);
                 return params;
             }
@@ -98,9 +98,9 @@ public class ClientLauncherEntryPoint {
         List<URL> classpath = new LinkedList<>();
         resolveClassPathStream(clientDir, params.profile.getClassPath()).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
 
-        for(OptionalAction a : params.actions) {
-            if(a instanceof OptionalActionClassPath)
-            resolveClassPathStream(clientDir, ((OptionalActionClassPath) a).args).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
+        for (OptionalAction a : params.actions) {
+            if (a instanceof OptionalActionClassPath)
+                resolveClassPathStream(clientDir, ((OptionalActionClassPath) a).args).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
         }
         classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
@@ -152,14 +152,14 @@ public class ClientLauncherEntryPoint {
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
-            if(javaWatcher != null)
+            if (javaWatcher != null)
                 CommonHelper.newThread("Java Directory Watcher", true, clientWatcher).start();
             verifyHDir(assetDir, params.assetHDir, assetMatcher, digest);
             verifyHDir(clientDir, params.clientHDir, clientMatcher, digest);
-            if(javaWatcher != null)
+            if (javaWatcher != null)
                 verifyHDir(javaDir, params.javaHDir, null, digest);
-            if(params.javaHDir != null)
-            LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
+            if (params.javaHDir != null)
+                LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
             launch(profile, params);
         }
     }

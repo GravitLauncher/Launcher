@@ -85,8 +85,7 @@ public class AuthResponse extends SimpleResponse {
                 clientData.username = aresult.username;
             else
                 clientData.username = login;
-            if(aresult instanceof AuthProviderDAOResult)
-            {
+            if (aresult instanceof AuthProviderDAOResult) {
                 clientData.daoObject = ((AuthProviderDAOResult) aresult).daoObject;
             }
             result.accessToken = aresult.accessToken;
@@ -104,9 +103,7 @@ public class AuthResponse extends SimpleResponse {
                 if (LogHelper.isDebugEnabled()) {
                     LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
                 }
-            }
-            else
-            {
+            } else {
                 uuid = pair.handler.usernameToUUID(aresult.username);
                 result.accessToken = null;
             }

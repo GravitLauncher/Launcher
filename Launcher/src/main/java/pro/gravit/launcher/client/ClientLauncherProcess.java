@@ -78,8 +78,7 @@ public class ClientLauncherProcess {
         this.params.assetHDir = assetHDir;
         this.params.clientHDir = clientHDir;
         this.params.javaHDir = jvmHDir;
-        if(view != null)
-        {
+        if (view != null) {
             this.params.actions = view.getEnabledActions();
         }
         this.bits = JVMHelper.JVM_BITS;
@@ -96,10 +95,8 @@ public class ClientLauncherProcess {
     private void applyClientProfile() {
         this.systemClassPath.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString());
         Collections.addAll(this.jvmArgs, this.params.profile.getJvmArgs());
-        for(OptionalAction a : this.params.actions)
-        {
-            if(a instanceof OptionalActionJvmArgs)
-            {
+        for (OptionalAction a : this.params.actions) {
+            if (a instanceof OptionalActionJvmArgs) {
                 this.jvmArgs.addAll(((OptionalActionJvmArgs) a).args);
             }
         }
@@ -164,10 +161,9 @@ public class ClientLauncherProcess {
                 output.writeByteArray(serializedMainParams, 0);
                 params.clientHDir.write(output);
                 params.assetHDir.write(output);
-                if(params.javaHDir == null || params.javaHDir == params.assetHDir) { //TODO: OLD RUNTIME USE params.assetHDir AS NULL IN java.javaHDir
+                if (params.javaHDir == null || params.javaHDir == params.assetHDir) { //TODO: OLD RUNTIME USE params.assetHDir AS NULL IN java.javaHDir
                     output.writeBoolean(false);
-                }
-                else {
+                } else {
                     output.writeBoolean(true);
                     params.javaHDir.write(output);
                 }
@@ -279,10 +275,8 @@ public class ClientLauncherProcess {
                 Collections.addAll(args, "--server", profile.getServerAddress());
                 Collections.addAll(args, "--port", Integer.toString(profile.getServerPort()));
             }
-            for(OptionalAction a : actions)
-            {
-                if(a instanceof OptionalActionClientArgs)
-                {
+            for (OptionalAction a : actions) {
+                if (a instanceof OptionalActionClientArgs) {
                     args.addAll(((OptionalActionClientArgs) a).args);
                 }
             }

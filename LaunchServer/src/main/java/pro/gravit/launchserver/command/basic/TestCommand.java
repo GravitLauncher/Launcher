@@ -58,31 +58,26 @@ public class TestCommand extends Command {
             server.certificateManager.writePrivateKey(Paths.get(name.concat(".key")), pair.getPrivate());
             server.certificateManager.writeCertificate(Paths.get(name.concat(".crt")), cert);
         }
-        if(args[0].equals("authstresser"))
-        {
+        if (args[0].equals("authstresser")) {
             AuthProviderPair pair = server.config.getAuthProviderPair();
             AuthPlainPassword plainPassword = new AuthPlainPassword("test");
             Runnable runnable = () -> {
                 long startTime = System.currentTimeMillis();
-                for(int i=0;i<100000;++i)
-                {
+                for (int i = 0; i < 100000; ++i) {
                     try {
                         pair.provider.auth("Test", plainPassword, "127.0.0.1");
-                    } catch (AuthException ignored)
-                    {
+                    } catch (AuthException ignored) {
 
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                    if((i % 10000)  == 0)
-                    {
+                    if ((i % 10000) == 0) {
                         LogHelper.info("Completed %d requests", i);
                     }
                 }
                 LogHelper.info("Completed all requests. Time %d ms", System.currentTimeMillis() - startTime);
             };
-            for(int i=0;i<7;++i)
-            {
+            for (int i = 0; i < 7; ++i) {
                 CommonHelper.newThread(String.format("Stresser #%d", i), true, runnable).start();
             }
         }

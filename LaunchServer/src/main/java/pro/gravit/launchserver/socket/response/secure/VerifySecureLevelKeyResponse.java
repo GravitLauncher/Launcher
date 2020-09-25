@@ -40,8 +40,7 @@ public class VerifySecureLevelKeyResponse extends SimpleResponse {
         client.trustLevel.publicKey = publicKey;
         try {
             sendResult(secureProtectHandler.onSuccessVerify(client));
-        } catch (SecurityException e)
-        {
+        } catch (SecurityException e) {
             sendError(e.getMessage());
         }
 

@@ -7,10 +7,10 @@ import java.util.Map;
 
 public class OptionalActionFile extends OptionalAction {
     public Map<String, String> files;
-    public void injectToHashedDir(HashedDir dir)
-    {
-        if(files == null) return;
-        files.forEach((k,v) -> {
+
+    public void injectToHashedDir(HashedDir dir) {
+        if (files == null) return;
+        files.forEach((k, v) -> {
             HashedDir.FindRecursiveResult firstPath = dir.findRecursive(k);
             if (v != null && !v.isEmpty()) {
                 LogHelper.dev("Debug findRecursive: name %s, parent: ", firstPath.name, firstPath.parent == null ? "null" : "not null", firstPath.entry == null ? "null" : "not null");
@@ -20,10 +20,10 @@ public class OptionalActionFile extends OptionalAction {
             }
         });
     }
-    public void disableInHashedDir(HashedDir dir)
-    {
-        if(files == null) return;
-        files.forEach((k,v) -> {
+
+    public void disableInHashedDir(HashedDir dir) {
+        if (files == null) return;
+        files.forEach((k, v) -> {
             HashedDir.FindRecursiveResult firstPath = dir.findRecursive(k);
             firstPath.parent.remove(firstPath.name);
         });

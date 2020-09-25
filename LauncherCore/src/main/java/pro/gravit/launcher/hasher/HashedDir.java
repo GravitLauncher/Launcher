@@ -100,13 +100,13 @@ public final class HashedDir extends HashedEntry {
             }
         }
     }
-    public void moveTo(String elementName, HashedDir target, String targetElementName)
-    {
+
+    public void moveTo(String elementName, HashedDir target, String targetElementName) {
         HashedEntry entry = map.remove(elementName);
         target.map.put(targetElementName, entry);
     }
-    public static class FindRecursiveResult
-    {
+
+    public static class FindRecursiveResult {
         public final HashedDir parent;
         public final HashedEntry entry;
         public final String name;
@@ -117,8 +117,8 @@ public final class HashedDir extends HashedEntry {
             this.name = name;
         }
     }
-    public FindRecursiveResult findRecursive(String path)
-    {
+
+    public FindRecursiveResult findRecursive(String path) {
         StringTokenizer t = new StringTokenizer(path, "/");
         HashedDir current = this;
         HashedEntry entry = null;
@@ -126,16 +126,14 @@ public final class HashedDir extends HashedEntry {
         while (t.hasMoreTokens()) {
             name = t.nextToken();
             HashedEntry e = current.map.get(name);
-            if(e == null && !t.hasMoreTokens())
-            {
+            if (e == null && !t.hasMoreTokens()) {
                 break;
             }
             if (e.getType() == Type.DIR) {
-                if(!t.hasMoreTokens()) {
+                if (!t.hasMoreTokens()) {
                     entry = e;
                     break;
-                }
-                else {
+                } else {
                     current = ((HashedDir) e);
                 }
             } else {

@@ -10,6 +10,7 @@ public class CurrentUserRequestEvent extends RequestEvent {
         public String accessToken;
         public PlayerProfile playerProfile;
     }
+
     public final UserInfo userInfo;
 
     public CurrentUserRequestEvent(UserInfo userInfo) {

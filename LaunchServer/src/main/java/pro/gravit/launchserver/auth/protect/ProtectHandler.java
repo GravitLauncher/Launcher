@@ -22,13 +22,11 @@ public abstract class ProtectHandler {
 
     public abstract void checkLaunchServerLicense(); //Выдает SecurityException при ошибке проверки лицензии
 
-    public void init(LaunchServer server)
-    {
+    public void init(LaunchServer server) {
 
     }
 
-    public void close()
-    {
+    public void close() {
 
     }
     //public abstract

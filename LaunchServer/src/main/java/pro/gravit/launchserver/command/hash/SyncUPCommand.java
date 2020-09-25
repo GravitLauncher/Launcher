@@ -25,7 +25,7 @@ public final class SyncUPCommand extends Command {
     public void invoke(String... args) throws IOException {
         server.syncProfilesDir();
         LogHelper.subInfo("Profiles successfully resynced");
-        
+
         server.syncUpdatesDir(null);
         LogHelper.subInfo("Updates dir successfully resynced");
     }

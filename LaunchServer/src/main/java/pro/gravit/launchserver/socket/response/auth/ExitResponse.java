@@ -54,16 +54,15 @@ public class ExitResponse extends SimpleResponse {
         } else {
             service.forEachActiveChannels(((channel, webSocketFrameHandler) -> {
                 Client client1 = webSocketFrameHandler.getClient();
-                if(client1 != null && client.isAuth && client.username != null && client1.username.equals(username))
-                {
+                if (client1 != null && client.isAuth && client.username != null && client1.username.equals(username)) {
                     exit(server, webSocketFrameHandler, channel, ExitRequestEvent.ExitReason.SERVER);
                 }
             }));
             sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.NO_EXIT));
         }
     }
-    public static void exit(LaunchServer server, WebSocketFrameHandler wsHandler, Channel channel, ExitRequestEvent.ExitReason reason)
-    {
+
+    public static void exit(LaunchServer server, WebSocketFrameHandler wsHandler, Channel channel, ExitRequestEvent.ExitReason reason) {
 
         Client chClient = wsHandler.getClient();
         Client newCusClient = new Client(null);

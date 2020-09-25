@@ -32,8 +32,8 @@ public interface SecureProtectHandler {
     default SecurityReportRequestEvent onSecurityReport(SecurityReportResponse report, Client client) {
         return new SecurityReportRequestEvent();
     }
-    default VerifySecureLevelKeyRequestEvent onSuccessVerify(Client client)
-    {
+
+    default VerifySecureLevelKeyRequestEvent onSuccessVerify(Client client) {
         return new VerifySecureLevelKeyRequestEvent();
     }
 }

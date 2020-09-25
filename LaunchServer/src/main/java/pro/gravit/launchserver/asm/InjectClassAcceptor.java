@@ -171,9 +171,8 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
                 value.getClass()));
     }
 
-    public static boolean isSerializableValue(Object value)
-    {
-        if(value == null) return true;
+    public static boolean isSerializableValue(Object value) {
+        if (value == null) return true;
         if (primitiveLDCClasses.contains(value.getClass())) return true;
         for (Map.Entry<Class<?>, Serializer<?>> serializerEntry : serializers.entrySet()) {
             if (serializerEntry.getKey().isInstance(value)) {

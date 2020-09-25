@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class PingServerResponse extends SimpleResponse {
     public List<String> serverNames; //May be null
+
     @Override
     public String getType() {
         return "pingServer";
@@ -21,24 +22,18 @@ public class PingServerResponse extends SimpleResponse {
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         Map<String, PingServerReportRequest.PingServerReport> map = new HashMap<>();
-        if(serverNames == null)
-        {
+        if (serverNames == null) {
             server.pingServerManager.map.forEach((name, entity) -> {
-                if(server.config.protectHandler instanceof ProfilesProtectHandler)
-                {
-                    if(!((ProfilesProtectHandler) server.config.protectHandler).canGetProfile(entity.profile, client))
-                    {
+                if (server.config.protectHandler instanceof ProfilesProtectHandler) {
+                    if (!((ProfilesProtectHandler) server.config.protectHandler).canGetProfile(entity.profile, client)) {
                         return;
                     }
                 }
-                if(!entity.isExpired())
-                {
+                if (!entity.isExpired()) {
                     map.put(name, entity.lastReport);
                 }
             });
-        }
-        else
-        {
+        } else {
             sendError("Not implemented");
             return;
         }

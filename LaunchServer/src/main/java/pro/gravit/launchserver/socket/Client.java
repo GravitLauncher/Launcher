@@ -62,16 +62,15 @@ public class Client {
         public byte[] publicKey;
         public HardwareReportRequest.HardwareInfo hardwareInfo;
     }
+
     @SuppressWarnings("unchecked")
-    public<T> T getProperty(String name)
-    {
-        if(properties == null) properties = new HashMap<>();
+    public <T> T getProperty(String name) {
+        if (properties == null) properties = new HashMap<>();
         return (T) properties.get(name);
     }
 
-    public<T> void setProperty(String name, T object)
-    {
-        if(properties == null) properties = new HashMap<>();
+    public <T> void setProperty(String name, T object) {
+        if (properties == null) properties = new HashMap<>();
         properties.put(name, object);
     }
 }
