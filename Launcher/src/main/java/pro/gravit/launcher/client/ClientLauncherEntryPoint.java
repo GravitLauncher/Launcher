@@ -16,6 +16,7 @@ import pro.gravit.launcher.patches.FMLPatcher;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionClassPath;
+import pro.gravit.launcher.profiles.optional.actions.OptionalActionClientArgs;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.AuthRequest;
@@ -237,7 +238,12 @@ public class ClientLauncherEntryPoint {
             System.setProperty("minecraft.applet.TargetDirectory", params.clientDir);
         }
         Collections.addAll(args, profile.getClientArgs());
-        profile.pushOptionalClientArgs(args);
+        for(OptionalAction action : params.actions) {
+            if(action instanceof OptionalActionClientArgs)
+            {
+                args.addAll(((OptionalActionClientArgs) action).args);
+            }
+        }
         List<String> copy = new ArrayList<>(args);
         for (int i = 0, l = copy.size(); i < l; i++) {
             String s = copy.get(i);
