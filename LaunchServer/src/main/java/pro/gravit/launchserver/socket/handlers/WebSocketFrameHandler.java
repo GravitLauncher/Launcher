@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.*;
+import io.netty.util.concurrent.ScheduledFuture;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.NettyConnectContext;
@@ -23,6 +24,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     public NettyConnectContext context;
     public final BiHookSet<ChannelHandlerContext, WebSocketFrame> hooks = new BiHookSet<>();
     private Client client;
+    private ScheduledFuture<?> future;
 
     public WebSocketFrameHandler(NettyConnectContext context, LaunchServer srv, WebSocketService service) {
         this.context = context;
@@ -50,7 +52,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         client = new Client(null);
         Channel ch = ctx.channel();
         service.registerClient(ch);
-        ctx.executor().scheduleAtFixedRate(() -> ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise()), 30L, 30L, TimeUnit.SECONDS);
+        future = ctx.executor().scheduleAtFixedRate(() -> ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise()), 30L, 30L, TimeUnit.SECONDS);
     }
 
     @Override
@@ -91,5 +93,11 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             String message = "unsupported frame type: " + frame.getClass().getName();
             LogHelper.error(new UnsupportedOperationException(message)); // prevent strange crash here.
         }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if(future != null) future.cancel(true);
+        super.channelInactive(ctx);
     }
 }
