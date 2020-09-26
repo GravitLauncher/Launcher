@@ -23,7 +23,7 @@ public class UpdateResponse extends SimpleResponse {
             sendError("Access denied");
             return;
         }
-        if(dirName == null) {
+        if (dirName == null) {
             sendError("Invalid request");
             return;
         }

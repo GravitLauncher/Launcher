@@ -12,7 +12,7 @@ public class NettyThreadFactory extends DefaultThreadFactory {
     protected Thread newThread(Runnable r, String name) {
         Thread thread = super.newThread(r, name);
         thread.setUncaughtExceptionHandler((th, e) -> {
-            if(LogHelper.isDebugEnabled())
+            if (LogHelper.isDebugEnabled())
                 LogHelper.error(e);
         });
         return thread;

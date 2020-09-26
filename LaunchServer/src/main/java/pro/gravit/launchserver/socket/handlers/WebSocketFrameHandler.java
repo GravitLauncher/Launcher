@@ -60,22 +60,19 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         // ping and pong frames already handled
         try {
             if (hooks.hook(ctx, frame)) return;
-        } catch (Throwable ex)
-        {
+        } catch (Throwable ex) {
             LogHelper.error(ex);
         }
         if (frame instanceof TextWebSocketFrame) {
             try {
                 service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
             } catch (Throwable ex) {
-                if(LogHelper.isDebugEnabled()) {
+                if (LogHelper.isDebugEnabled()) {
                     LogHelper.warning("Client %s send invalid request. Connection force closed.", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip);
-                    if(LogHelper.isDevEnabled())
-                    {
+                    if (LogHelper.isDevEnabled()) {
                         LogHelper.dev("Client message: %s", ((TextWebSocketFrame) frame).text());
                     }
-                    if(LogHelper.isStacktraceEnabled())
-                    {
+                    if (LogHelper.isStacktraceEnabled()) {
                         LogHelper.error(ex);
                     }
                 }
@@ -97,7 +94,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if(future != null) future.cancel(true);
+        if (future != null) future.cancel(true);
         super.channelInactive(ctx);
     }
 }

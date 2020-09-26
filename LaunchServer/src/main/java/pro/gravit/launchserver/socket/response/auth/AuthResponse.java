@@ -57,8 +57,8 @@ public class AuthResponse extends SimpleResponse {
                     throw new AuthException("Password decryption error");
                 }
             }
-            if(clientData.isAuth) {
-                if(LogHelper.isDevEnabled()) {
+            if (clientData.isAuth) {
+                if (LogHelper.isDevEnabled()) {
                     LogHelper.warning("Client %s double auth", clientData.username == null ? ip : clientData.username);
                 }
                 sendError("You are already logged in");

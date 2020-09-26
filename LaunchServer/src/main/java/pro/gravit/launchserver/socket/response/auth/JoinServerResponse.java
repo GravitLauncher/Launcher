@@ -25,7 +25,7 @@ public class JoinServerResponse extends SimpleResponse {
             sendError("Permissions denied");
             return;
         }
-        if(username == null || accessToken == null || serverID == null) {
+        if (username == null || accessToken == null || serverID == null) {
             sendError("Invalid request");
             return;
         }

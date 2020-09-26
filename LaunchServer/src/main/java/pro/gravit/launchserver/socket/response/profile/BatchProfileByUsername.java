@@ -6,7 +6,6 @@ import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.UUID;
 
@@ -21,7 +20,7 @@ public class BatchProfileByUsername extends SimpleResponse {
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         BatchProfileByUsernameRequestEvent result = new BatchProfileByUsernameRequestEvent();
-        if(list == null) {
+        if (list == null) {
             sendError("Invalid request");
             return;
         }
