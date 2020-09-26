@@ -58,7 +58,7 @@ public class AuthResponse extends SimpleResponse {
                 }
             }
             AuthProviderPair pair;
-            if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
+            if (auth_id == null || auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
             else pair = server.config.getAuthProviderPair(auth_id);
             if (pair == null) {
                 sendError("auth_id incorrect");
