@@ -25,6 +25,10 @@ public class JoinServerResponse extends SimpleResponse {
             sendError("Permissions denied");
             return;
         }
+        if(username == null || accessToken == null || serverID == null) {
+            sendError("Invalid request");
+            return;
+        }
         boolean success;
         try {
             server.authHookManager.joinServerHook.hook(this, client);

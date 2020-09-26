@@ -23,6 +23,10 @@ public class UpdateResponse extends SimpleResponse {
             sendError("Access denied");
             return;
         }
+        if(dirName == null) {
+            sendError("Invalid request");
+            return;
+        }
         HashedDir dir = server.updatesDirMap.get(dirName);
         if (dir == null) {
             sendError(String.format("Directory %s not found", dirName));
