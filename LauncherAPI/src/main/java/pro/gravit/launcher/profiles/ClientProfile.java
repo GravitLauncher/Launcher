@@ -130,6 +130,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return assetDir;
     }
 
+    public List<String> getUpdateExclusions() {
+        return Collections.unmodifiableList(updateExclusions);
+    }
+
     public FileNameMatcher getClientUpdateMatcher(/*boolean excludeOptional*/) {
         String[] updateArray = update.toArray(new String[0]);
         String[] verifyArray = updateVerify.toArray(new String[0]);
