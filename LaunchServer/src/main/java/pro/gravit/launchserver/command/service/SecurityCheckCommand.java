@@ -149,19 +149,19 @@ public class SecurityCheckCommand extends Command {
             boolean bad = false;
             String profileModuleName = String.format("profiles.%s", profile.getTitle());
             for (String exc : profile.getUpdateExclusions()) {
-                StringTokenizer tokenizer = new StringTokenizer(exc, "\\/");
+                StringTokenizer tokenizer = new StringTokenizer(exc, "/");
                 if (exc.endsWith(".jar")) {
                     printCheckResult(LogHelper.Level.INFO, profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
                     bad = true;
                     continue;
                 }
                 if (tokenizer.hasMoreTokens() && tokenizer.nextToken().equals("mods")) {
+                    String nextToken = tokenizer.nextToken();
                     if (!tokenizer.hasMoreTokens()) {
                         printCheckResult(LogHelper.Level.INFO, profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
                         bad = true;
                     } else {
-                        String nextToken = tokenizer.nextToken();
-                        if (nextToken.equals("memory_repo") || nextToken.equals("1.12.2") || nextToken.equals("1.7.10")) {
+                        if (nextToken.equals("memory_repo") || nextToken.equals(profile.getVersion().name)) {
                             printCheckResult(LogHelper.Level.INFO, profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
                             bad = true;
                         }
