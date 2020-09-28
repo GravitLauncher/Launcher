@@ -388,7 +388,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         // Sort and set new profiles
         newProfies.sort(Comparator.comparing(a -> a));
         profilesList = Collections.unmodifiableList(newProfies);
-        if(pingServerManager != null)
+        if (pingServerManager != null)
             pingServerManager.syncServers();
     }
 

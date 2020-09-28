@@ -26,7 +26,7 @@ public final class SecurityHelper {
     public static final String EC_ALGO = "EC";
 
     // EC Algorithm constants
-    public static final String EC_CURVE = "secp256k1";
+    public static final String EC_CURVE = "secp256r1";
     public static final String EC_SIGN_ALGO = "SHA256withECDSA";
     public static final String EC_CIPHER_ALGO = "ECIES";
     public static final int TOKEN_LENGTH = 16;

@@ -75,6 +75,7 @@ public final class LaunchServerConfig {
 
         newConfig.netty = new NettyConfig();
         newConfig.netty.fileServerEnabled = true;
+        newConfig.netty.sendExceptionEnabled = false;
         newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
         newConfig.netty.performance = new NettyPerformanceConfig();
         try {
@@ -111,7 +112,6 @@ public final class LaunchServerConfig {
         regLimiterComponent.rateLimitMillis = 1000 * 60 * 60 * 10; //Блок на 10 часов
         regLimiterComponent.message = "Превышен лимит регистраций";
         newConfig.components.put("regLimiter", regLimiterComponent);
-        newConfig.netty.sendExceptionEnabled = true;
         return newConfig;
     }
 
@@ -184,7 +184,7 @@ public final class LaunchServerConfig {
         }
         if (protectHandler != null) {
             server.registerObject("protectHandler", protectHandler);
-            protectHandler.init();
+            protectHandler.init(server);
             protectHandler.checkLaunchServerLicense();
         }
         if (components != null) {
@@ -296,6 +296,7 @@ public final class LaunchServerConfig {
         public boolean fileServerEnabled;
         public boolean sendExceptionEnabled;
         public boolean ipForwarding;
+        public boolean disableWebApiInterface;
         public boolean showHiddenFiles;
         public String launcherURL;
         public String downloadURL;

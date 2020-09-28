@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.socket.response.secure;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.VerifySecureLevelKeyRequestEvent;
 import pro.gravit.launchserver.auth.protect.interfaces.SecureProtectHandler;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -41,8 +40,7 @@ public class VerifySecureLevelKeyResponse extends SimpleResponse {
         client.trustLevel.publicKey = publicKey;
         try {
             sendResult(secureProtectHandler.onSuccessVerify(client));
-        } catch (SecurityException e)
-        {
+        } catch (SecurityException e) {
             sendError(e.getMessage());
         }
 

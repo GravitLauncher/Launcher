@@ -21,7 +21,7 @@ public final class StarterAgent {
 
     public static void premain(String agentArgument, Instrumentation inst) {
         StarterAgent.inst = inst;
-        libraries = Paths.get(Optional.ofNullable(agentArgument).map(e -> e.trim()).filter(e -> !e.isEmpty()).orElse("libraries"));
+        libraries = Paths.get(Optional.ofNullable(agentArgument).map(String::trim).filter(e -> !e.isEmpty()).orElse("libraries"));
         isStarted = true;
         try {
             Files.walkFileTree(libraries, Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new StarterVisitor());
@@ -40,11 +40,10 @@ public final class StarterAgent {
             DPERMS = Collections.unmodifiableSet(perms);
         }
 
-        private final Path filef;
         private final boolean fixLib;
 
         private StarterVisitor() {
-            this.filef = StarterAgent.libraries.resolve(".libraries_chmoded");
+            Path filef = StarterAgent.libraries.resolve(".libraries_chmoded");
             this.fixLib = !Files.exists(filef) && !Boolean.getBoolean("launcher.noLibrariesPosixPermsFix");
             if (fixLib) {
                 try {

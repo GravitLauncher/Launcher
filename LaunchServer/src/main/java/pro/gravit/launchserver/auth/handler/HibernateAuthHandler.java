@@ -9,7 +9,7 @@ public class HibernateAuthHandler extends CachedAuthHandler {
     protected Entry fetchEntry(String username) {
         User user = srv.config.dao.userDAO.findByUsername(username);
         if (user == null) return null;
-        return new Entry(user.getUuid(), username, user.getAccessToken(), user.getServerID());
+        return new Entry(user.getUuid(), user.getUsername(), user.getAccessToken(), user.getServerID());
     }
 
     @Override

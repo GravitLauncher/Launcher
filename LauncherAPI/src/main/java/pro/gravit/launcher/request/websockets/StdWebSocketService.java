@@ -104,7 +104,7 @@ public class StdWebSocketService extends ClientWebSocketService {
     }
 
     public <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) throws IOException {
-        CompletableFuture<T> result = new CompletableFuture<T>();
+        CompletableFuture<T> result = new CompletableFuture<>();
         futureMap.put(request.requestUUID, result);
         sendObject(request, WebSocketRequest.class);
         return result;

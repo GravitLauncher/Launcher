@@ -26,7 +26,7 @@ public class HibernateAuthProvider extends AuthProvider {
             if (user == null) throw new AuthException("Username incorrect");
             else throw new AuthException("Username or password incorrect");
         }
-        return new AuthProviderDAOResult(login, SecurityHelper.randomStringToken(), user.getPermissions(), user);
+        return new AuthProviderDAOResult(user.getUsername(), SecurityHelper.randomStringToken(), user.getPermissions(), user);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package pro.gravit.launchserver.auth.protect;
 
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.ProviderMap;
 
@@ -21,13 +22,11 @@ public abstract class ProtectHandler {
 
     public abstract void checkLaunchServerLicense(); //Выдает SecurityException при ошибке проверки лицензии
 
-    public void init()
-    {
+    public void init(LaunchServer server) {
 
     }
 
-    public void close()
-    {
+    public void close() {
 
     }
     //public abstract

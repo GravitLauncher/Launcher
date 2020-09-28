@@ -1,7 +1,6 @@
 package pro.gravit.utils;
 
 import com.google.gson.*;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
 
@@ -55,8 +54,7 @@ public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeseriali
         Class<? extends R> cls = providerMap.getClass(typename);
         if (cls == null) {
             //if (printErrorIfUnknownType) LogHelper.error("%s %s not found", name, typename);
-            if(defaultClass != null)
-            {
+            if (defaultClass != null) {
                 return context.deserialize(json, defaultClass);
             }
             return null;

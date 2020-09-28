@@ -7,10 +7,13 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
-import pro.gravit.utils.helper.LogHelper;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class Client {
-    public long session;
+    public UUID session;
     public String auth_id;
     public long timestamp;
     public AuthResponse.ConnectTypes type;
@@ -20,13 +23,14 @@ public class Client {
     public ClientPermissions permissions;
     public String username;
     public TrustLevel trustLevel;
-    public transient LogHelper.OutputEnity logOutput;
 
     public transient AuthProviderPair auth;
 
     public transient User daoObject;
 
-    public Client(long session) {
+    public transient Map<String, Object> properties;
+
+    public Client(UUID session) {
         this.session = session;
         timestamp = System.currentTimeMillis();
         type = null;
@@ -57,5 +61,16 @@ public class Client {
         public boolean keyChecked;
         public byte[] publicKey;
         public HardwareReportRequest.HardwareInfo hardwareInfo;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getProperty(String name) {
+        if (properties == null) properties = new HashMap<>();
+        return (T) properties.get(name);
+    }
+
+    public <T> void setProperty(String name, T object) {
+        if (properties == null) properties = new HashMap<>();
+        properties.put(name, object);
     }
 }

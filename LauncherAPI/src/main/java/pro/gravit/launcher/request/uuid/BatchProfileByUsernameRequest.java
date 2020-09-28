@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public final class BatchProfileByUsernameRequest extends Request<BatchProfileByUsernameRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
-    private final Entry[] list;
+    public final Entry[] list;
 
     public BatchProfileByUsernameRequest(String... usernames) throws IOException {
         this.list = new Entry[usernames.length];

@@ -29,7 +29,7 @@ public class ClientsCommand extends Command {
         service.channels.forEach((channel -> {
             WebSocketFrameHandler frameHandler = channel.pipeline().get(WebSocketFrameHandler.class);
             Client client = frameHandler.getClient();
-            String ip = IOHelper.getIP(channel.remoteAddress());
+            String ip = frameHandler.context.ip != null ? frameHandler.context.ip : IOHelper.getIP(channel.remoteAddress());
             if (!client.isAuth)
                 LogHelper.info("Channel %s | connectUUID %s | checkSign %s", ip, frameHandler.getConnectUUID(), client.checkSign ? "true" : "false");
             else {

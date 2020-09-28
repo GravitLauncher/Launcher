@@ -27,6 +27,7 @@ jar {
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
             "Can-Redefine-Classes": "true",
+            "Multi-Release": "true",
             "Can-Retransform-Classes": "true",
             "Can-Set-Native-Method-Prefix": "true",
             "Multi-Release-Jar": "true")
@@ -91,6 +92,18 @@ publishing {
                     license {
                         name = 'GNU General Public License, Version 3.0'
                         url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gravita'
+                        name = 'Gravita'
+                        email = 'gravita@gravit.pro'
+                    }
+                    developer {
+                        id = 'zaxar163'
+                        name = 'Zaxar163'
+                        email = 'zahar.vcherachny@yandex.ru'
                     }
                 }
                 scm {

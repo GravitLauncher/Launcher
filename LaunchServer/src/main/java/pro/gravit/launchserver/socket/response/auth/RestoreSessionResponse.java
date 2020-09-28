@@ -7,9 +7,12 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
+import java.util.UUID;
+
 public class RestoreSessionResponse extends SimpleResponse {
     @LauncherNetworkAPI
-    public long session;
+    public UUID session;
+    public boolean needUserInfo;
 
     @Override
     public String getType() {
@@ -17,13 +20,18 @@ public class RestoreSessionResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) {
+    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
         Client rClient = server.sessionManager.getClient(session);
         if (rClient == null) {
             sendError("Session invalid");
+            return;
         }
         WebSocketFrameHandler frameHandler = ctx.pipeline().get(WebSocketFrameHandler.class);
         frameHandler.setClient(rClient);
-        sendResult(new RestoreSessionRequestEvent());
+        if (needUserInfo) {
+            sendResult(new RestoreSessionRequestEvent(CurrentUserResponse.collectUserInfoFromClient(rClient)));
+        } else {
+            sendResult(new RestoreSessionRequestEvent());
+        }
     }
 }

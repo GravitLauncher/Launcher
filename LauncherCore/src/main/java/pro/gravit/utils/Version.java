@@ -6,7 +6,7 @@ public final class Version {
 
     public static final int MAJOR = 5;
     public static final int MINOR = 1;
-    public static final int PATCH = 7;
+    public static final int PATCH = 8;
     public static final int BUILD = 1;
     public static final Version.Type RELEASE = Type.STABLE;
     public final int major;
@@ -95,7 +95,7 @@ public final class Version {
         public static final Map<String, Type> unModTypes = Collections.unmodifiableMap(types);
 
         static {
-            Arrays.asList(values()).forEach(type -> types.put(type.name().substring(0, type.name().length() < 3 ? type.name().length() : 3).toLowerCase(Locale.ENGLISH), type));
+            Arrays.asList(values()).forEach(type -> types.put(type.name().substring(0, Math.min(type.name().length(), 3)).toLowerCase(Locale.ENGLISH), type));
         }
     }
 }

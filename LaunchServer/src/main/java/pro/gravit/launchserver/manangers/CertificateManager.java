@@ -177,7 +177,7 @@ public class CertificateManager {
         }
         List<X509Certificate> certificates = new ArrayList<>();
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-        IOHelper.walk(dir, new SimpleFileVisitor<Path>() {
+        IOHelper.walk(dir, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 if (file.toFile().getName().endsWith(".crt")) {

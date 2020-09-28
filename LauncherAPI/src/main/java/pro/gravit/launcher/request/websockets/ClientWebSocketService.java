@@ -9,6 +9,7 @@ import pro.gravit.launcher.events.SignalEvent;
 import pro.gravit.launcher.events.request.*;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedEntryAdapter;
+import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.utils.ProviderMap;
@@ -40,6 +41,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         builder.registerTypeAdapter(WebSocketEvent.class, new UniversalJsonAdapter<>(ClientWebSocketService.results));
         builder.registerTypeAdapter(WebSocketRequest.class, new UniversalJsonAdapter<>(ClientWebSocketService.requests));
         builder.registerTypeAdapter(AuthRequest.AuthPasswordInterface.class, new UniversalJsonAdapter<>(AuthRequest.providers));
+        builder.registerTypeAdapter(OptionalAction.class, new UniversalJsonAdapter<>(OptionalAction.providers));
     }
 
     private static URI createURL(String address) {
@@ -93,7 +95,6 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("getAvailabilityAuth", GetAvailabilityAuthRequestEvent.class);
         results.register("exception", ExceptionEvent.class);
         results.register("register", RegisterRequestEvent.class);
-        results.register("setpassword", SetPasswordRequestEvent.class);
         results.register("notification", NotificationEvent.class);
         results.register("signal", SignalEvent.class);
         results.register("exit", ExitRequestEvent.class);
@@ -104,6 +105,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("serverStatus", ServerStatusRequestEvent.class);
         results.register("pingServerReport", PingServerReportRequestEvent.class);
         results.register("pingServer", PingServerRequestEvent.class);
+        results.register("currentUser", CurrentUserRequestEvent.class);
     }
 
     public void waitIfNotConnected() {

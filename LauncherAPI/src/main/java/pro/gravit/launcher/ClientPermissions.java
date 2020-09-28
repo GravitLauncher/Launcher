@@ -31,6 +31,7 @@ public class ClientPermissions {
 
     public static ClientPermissions getSuperuserAccount() {
         ClientPermissions perm = new ClientPermissions();
+        perm.setPermission(PermissionConsts.ADMIN, true);
         return perm;
     }
 

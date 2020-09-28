@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionService {
-    public static final boolean NO_TEXTURES = Boolean.parseBoolean("launcher.com.mojang.authlib.noTextures");
+    public static final boolean NO_TEXTURES = Boolean.getBoolean("launcher.com.mojang.authlib.noTextures");
 
     public YggdrasilMinecraftSessionService(AuthenticationService service) {
         super(service);

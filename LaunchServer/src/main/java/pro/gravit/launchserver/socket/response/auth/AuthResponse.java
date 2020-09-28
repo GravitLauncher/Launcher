@@ -57,8 +57,15 @@ public class AuthResponse extends SimpleResponse {
                     throw new AuthException("Password decryption error");
                 }
             }
+            if (clientData.isAuth) {
+                if (LogHelper.isDevEnabled()) {
+                    LogHelper.warning("Client %s double auth", clientData.username == null ? ip : clientData.username);
+                }
+                sendError("You are already logged in");
+                return;
+            }
             AuthProviderPair pair;
-            if (auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
+            if (auth_id == null || auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
             else pair = server.config.getAuthProviderPair(auth_id);
             if (pair == null) {
                 sendError("auth_id incorrect");
@@ -81,19 +88,18 @@ public class AuthResponse extends SimpleResponse {
             clientData.permissions = aresult.permissions;
             clientData.auth_id = auth_id;
             clientData.updateAuth(server);
-            if (result.playerProfile != null)
-                clientData.username = result.playerProfile.username;
+            if (aresult.username != null)
+                clientData.username = aresult.username;
             else
                 clientData.username = login;
-            if(aresult instanceof AuthProviderDAOResult)
-            {
+            if (aresult instanceof AuthProviderDAOResult) {
                 clientData.daoObject = ((AuthProviderDAOResult) aresult).daoObject;
             }
             result.accessToken = aresult.accessToken;
             result.permissions = clientData.permissions;
             if (getSession) {
-                if (clientData.session == 0) {
-                    clientData.session = random.nextLong();
+                if (clientData.session == null) {
+                    clientData.session = UUID.randomUUID();
                     server.sessionManager.addClient(clientData);
                 }
                 result.session = clientData.session;
@@ -104,9 +110,7 @@ public class AuthResponse extends SimpleResponse {
                 if (LogHelper.isDebugEnabled()) {
                     LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, uuid.toString());
                 }
-            }
-            else
-            {
+            } else {
                 uuid = pair.handler.usernameToUUID(aresult.username);
                 result.accessToken = null;
             }

@@ -10,11 +10,11 @@ public final class JoinServerRequest extends Request<JoinServerRequestEvent> imp
 
     // Instance
     @LauncherNetworkAPI
-    private final String username;
+    public final String username;
     @LauncherNetworkAPI
-    private final String accessToken;
+    public final String accessToken;
     @LauncherNetworkAPI
-    private final String serverID;
+    public final String serverID;
 
 
     public JoinServerRequest(String username, String accessToken, String serverID) {

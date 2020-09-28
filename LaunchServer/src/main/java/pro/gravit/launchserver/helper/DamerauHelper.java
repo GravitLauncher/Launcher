@@ -1,7 +1,5 @@
 package pro.gravit.launchserver.helper;
 
-import java.util.Arrays;
-
 public class DamerauHelper {
     //Расстояние Дамерау — Левенштейна. GitHub https://github.com/crwohlfeil/damerau-levenshtein
     public static int calculateDistance(CharSequence source, CharSequence target) {

@@ -79,7 +79,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
                 return;
             }
             field.invisibleAnnotations.remove(valueAnnotation);
-            AtomicReference<String> valueName = new AtomicReference<String>(null);
+            AtomicReference<String> valueName = new AtomicReference<>(null);
             valueAnnotation.accept(new AnnotationVisitor(Opcodes.ASM7) {
                 @Override
                 public void visit(final String name, final Object value) {
@@ -142,15 +142,11 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
     }
 
     private static Serializer<?> serializerClass(int opcode) {
-        return new Serializer<Number>() {
-            @Override
-            public InsnList serialize(Number value) {
-                InsnList ret = new InsnList();
-                ret.add(NodeUtils.push(value.intValue()));
-                ret.add(new InsnNode(opcode));
-                return ret;
-            }
-
+        return (Serializer<Number>) value -> {
+            InsnList ret = new InsnList();
+            ret.add(NodeUtils.push(value.intValue()));
+            ret.add(new InsnNode(opcode));
+            return ret;
         };
     }
 
@@ -175,9 +171,8 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
                 value.getClass()));
     }
 
-    public static boolean isSerializableValue(Object value)
-    {
-        if(value == null) return true;
+    public static boolean isSerializableValue(Object value) {
+        if (value == null) return true;
         if (primitiveLDCClasses.contains(value.getClass())) return true;
         for (Map.Entry<Class<?>, Serializer<?>> serializerEntry : serializers.entrySet()) {
             if (serializerEntry.getKey().isInstance(value)) {

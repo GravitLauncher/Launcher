@@ -12,8 +12,8 @@ repositories {
     }
 }
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = '11'
+targetCompatibility = '11'
 
 configurations {
     compileOnlyA
@@ -33,6 +33,7 @@ jar {
     from(parent.childProjects.Launcher.tasks.genRuntimeJS)
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
+            "Multi-Release": "true",
             "Can-Redefine-Classes": "true",
             "Can-Retransform-Classes": "true",
             "Can-Set-Native-Method-Prefix": "true"
@@ -80,6 +81,7 @@ dependencies {
     bundle group: 'org.slf4j', name: 'slf4j-simple', version: rootProject['verSlf4j']
     bundle group: 'org.slf4j', name: 'slf4j-api', version: rootProject['verSlf4j']
     bundle group: 'org.hibernate', name: 'hibernate-core', version: rootProject['verHibernate']
+    bundle group: 'org.hibernate', name: 'hibernate-hikaricp', version: rootProject['verHibernate']
     bundle group: 'mysql', name: 'mysql-connector-java', version: rootProject['verMySQLConn']
     bundle group: 'org.postgresql', name: 'postgresql', version: rootProject['verPostgreSQLConn']
     bundle group: 'net.sf.proguard', name: 'proguard-base', version: rootProject['verProguard']
@@ -182,6 +184,18 @@ publishing {
                     license {
                         name = 'GNU General Public License, Version 3.0'
                         url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gravita'
+                        name = 'Gravita'
+                        email = 'gravita@gravit.pro'
+                    }
+                    developer {
+                        id = 'zaxar163'
+                        name = 'Zaxar163'
+                        email = 'zahar.vcherachny@yandex.ru'
                     }
                 }
 

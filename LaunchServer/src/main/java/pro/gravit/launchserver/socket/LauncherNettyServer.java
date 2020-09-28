@@ -17,6 +17,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.handlers.NettyIpForwardHandler;
+import pro.gravit.launchserver.socket.handlers.NettyWebAPIHandler;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.handlers.fileserver.FileServerHandler;
 import pro.gravit.utils.BiHookSet;
@@ -41,8 +42,8 @@ public class LauncherNettyServer implements AutoCloseable {
         if (config.performance.usingEpoll && !Epoll.isAvailable()) {
             LogHelper.error("Epoll is not available: (netty,perfomance.usingEpoll configured wrongly)", Epoll.unavailabilityCause());
         }
-        bossGroup = NettyObjectFactory.newEventLoopGroup(config.performance.bossThread);
-        workerGroup = NettyObjectFactory.newEventLoopGroup(config.performance.workerThread);
+        bossGroup = NettyObjectFactory.newEventLoopGroup(config.performance.bossThread, "LauncherNettyServer.bossGroup");
+        workerGroup = NettyObjectFactory.newEventLoopGroup(config.performance.workerThread, "LauncherNettyServer.workerGroup");
         serverBootstrap = new ServerBootstrap();
         service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), server);
         serverBootstrap.group(bossGroup, workerGroup)
@@ -60,6 +61,8 @@ public class LauncherNettyServer implements AutoCloseable {
                             pipeline.addLast("forward-http", new NettyIpForwardHandler(context));
                         pipeline.addLast("websock-comp", new WebSocketServerCompressionHandler());
                         pipeline.addLast("websock-codec", new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
+                        if (!server.config.netty.disableWebApiInterface)
+                            pipeline.addLast("webapi", new NettyWebAPIHandler(context));
                         if (server.config.netty.fileServerEnabled)
                             pipeline.addLast("fileserver", new FileServerHandler(server.updatesDir, true, config.showHiddenFiles));
                         pipeline.addLast("launchserver", new WebSocketFrameHandler(context, server, service));

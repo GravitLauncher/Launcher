@@ -42,6 +42,21 @@ public final class MySQLSourceConfig implements AutoCloseable {
         this.poolName = poolName;
     }
 
+    public MySQLSourceConfig(String poolName, String address, int port, String username, String password, String database) {
+        this.poolName = poolName;
+        this.address = address;
+        this.port = port;
+        this.username = username;
+        this.password = password;
+        this.database = database;
+    }
+
+    public MySQLSourceConfig(String poolName, DataSource source, boolean hikari) {
+        this.poolName = poolName;
+        this.source = source;
+        this.hikari = hikari;
+    }
+
     @Override
     public synchronized void close() {
         if (hikari)

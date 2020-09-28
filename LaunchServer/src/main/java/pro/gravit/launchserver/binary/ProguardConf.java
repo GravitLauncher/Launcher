@@ -52,19 +52,19 @@ public class ProguardConf {
         List<String> confStrs = new ArrayList<>();
         prepare(false);
         if (srv.config.launcher.proguardGenMappings)
-            confStrs.add("-printmapping \'" + mappings.toFile().getName() + "\'");
-        confStrs.add("-obfuscationdictionary \'" + words.toFile().getName() + "\'");
-        confStrs.add("-injar \'" + inputJar.toAbsolutePath() + "\'");
-        confStrs.add("-outjar \'" + outputJar.toAbsolutePath() + "\'");
+            confStrs.add("-printmapping '" + mappings.toFile().getName() + "'");
+        confStrs.add("-obfuscationdictionary '" + words.toFile().getName() + "'");
+        confStrs.add("-injar '" + inputJar.toAbsolutePath() + "'");
+        confStrs.add("-outjar '" + outputJar.toAbsolutePath() + "'");
         Collections.addAll(confStrs, JVMHelper.JVM_VERSION >= 9 ? JAVA9_OPTS : JAVA8_OPTS);
         srv.launcherBinary.coreLibs.stream()
-                .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
+                .map(e -> "-libraryjars '" + e.toAbsolutePath().toString() + "'")
                 .forEach(confStrs::add);
 
         srv.launcherBinary.addonLibs.stream()
-                .map(e -> "-libraryjars \'" + e.toAbsolutePath().toString() + "\'")
+                .map(e -> "-libraryjars '" + e.toAbsolutePath().toString() + "'")
                 .forEach(confStrs::add);
-        confStrs.add("-classobfuscationdictionary \'" + words.toFile().getName() + "\'");
+        confStrs.add("-classobfuscationdictionary '" + words.toFile().getName() + "'");
         confStrs.add("@".concat(config.toFile().getName()));
         return confStrs.toArray(new String[0]);
     }

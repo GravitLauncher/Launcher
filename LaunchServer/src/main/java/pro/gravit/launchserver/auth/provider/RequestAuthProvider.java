@@ -11,15 +11,24 @@ import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class RequestAuthProvider extends AuthProvider {
-    private String url;
-    private transient Pattern pattern;
-    private String response;
-    private boolean flagsEnabled;
+    public String url;
+    public transient Pattern pattern;
+    public String response;
+    public boolean flagsEnabled;
+    public boolean usePermission = true;
+    public int timeout = 5000;
+    private final HttpClient client = HttpClient.newBuilder()
+            .build();
 
     @Override
     public void init(LaunchServer srv) {
@@ -30,15 +39,21 @@ public final class RequestAuthProvider extends AuthProvider {
     }
 
     @Override
-    public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws IOException {
+    public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws IOException, URISyntaxException, InterruptedException {
         if (!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
-        String currentResponse = IOHelper.request(new URL(getFormattedURL(login, ((AuthPlainPassword) password).password, ip)));
+        HttpResponse<String> response = client.send(HttpRequest.newBuilder()
+                .uri(new URI(getFormattedURL(login, ((AuthPlainPassword) password).password, ip)))
+                .header("User-Agent", IOHelper.USER_AGENT)
+                .timeout(Duration.ofMillis(timeout))
+                .GET()
+                .build(), HttpResponse.BodyHandlers.ofString());
 
         // Match username
+        String currentResponse = response.body();
         Matcher matcher = pattern.matcher(currentResponse);
         return matcher.matches() && matcher.groupCount() >= 1 ?
                 new AuthProviderResult(matcher.group("username"), SecurityHelper.randomStringToken(), new ClientPermissions(
-                        Long.parseLong(matcher.group("permissions")), flagsEnabled ? Long.parseLong(matcher.group("flags")) : 0)) :
+                        usePermission ? Long.parseLong(matcher.group("permissions")) : 0, flagsEnabled ? Long.parseLong(matcher.group("flags")) : 0)) :
                 authError(currentResponse);
     }
 

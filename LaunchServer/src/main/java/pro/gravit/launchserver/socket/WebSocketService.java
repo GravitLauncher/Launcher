@@ -13,6 +13,7 @@ import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.launchserver.socket.response.auth.*;
@@ -36,6 +37,7 @@ import pro.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 
 public class WebSocketService {
     public static final ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
@@ -45,16 +47,16 @@ public class WebSocketService {
     private final Gson gson;
 
     //Statistic data
-    public AtomicLong shortRequestLatency = new AtomicLong();
-    public AtomicLong shortRequestCounter = new AtomicLong();
+    public final AtomicLong shortRequestLatency = new AtomicLong();
+    public final AtomicLong shortRequestCounter = new AtomicLong();
 
-    public AtomicLong middleRequestLatency = new AtomicLong();
-    public AtomicLong middleRequestCounter = new AtomicLong();
+    public final AtomicLong middleRequestLatency = new AtomicLong();
+    public final AtomicLong middleRequestCounter = new AtomicLong();
 
-    public AtomicLong longRequestLatency = new AtomicLong();
-    public AtomicLong longRequestCounter = new AtomicLong();
+    public final AtomicLong longRequestLatency = new AtomicLong();
+    public final AtomicLong longRequestCounter = new AtomicLong();
 
-    public AtomicLong lastRequestTime = new AtomicLong();
+    public final AtomicLong lastRequestTime = new AtomicLong();
 
     public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;
@@ -63,6 +65,15 @@ public class WebSocketService {
         //this.gsonBuiler.registerTypeAdapter(WebSocketEvent.class, new JsonResultSerializeAdapter());
         //this.gsonBuiler.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = Launcher.gsonManager.gson;
+    }
+
+    public void forEachActiveChannels(BiConsumer<Channel, WebSocketFrameHandler> callback) {
+        channels.forEach((channel) -> {
+            if (channel == null || channel.pipeline() == null) return;
+            WebSocketFrameHandler wsHandler = channel.pipeline().get(WebSocketFrameHandler.class);
+            if (wsHandler == null) return;
+            callback.accept(channel, wsHandler);
+        });
     }
 
     public static void registerResponses() {
@@ -79,8 +90,6 @@ public class WebSocketService {
         providers.register("profileByUsername", ProfileByUsername.class);
         providers.register("profileByUUID", ProfileByUUIDResponse.class);
         providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
-        providers.register("register", RegisterResponse.class);
-        providers.register("setPassword", SetPasswordResponse.class);
         providers.register("exit", ExitResponse.class);
         providers.register("getSecureLevelInfo", GetSecureLevelInfoResponse.class);
         providers.register("verifySecureLevelKey", VerifySecureLevelKeyResponse.class);
@@ -89,6 +98,7 @@ public class WebSocketService {
         providers.register("serverStatus", ServerStatusResponse.class);
         providers.register("pingServerReport", PingServerReportResponse.class);
         providers.register("pingServer", PingServerResponse.class);
+        providers.register("currentUser", CurrentUserResponse.class);
     }
 
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
@@ -102,32 +112,28 @@ public class WebSocketService {
         }
         process(ctx, response, client, ip);
         long executeTime = System.nanoTime() - startTimeNanos;
-        if(executeTime > 0)
-        {
+        if (executeTime > 0) {
             addRequestTimeToStats(executeTime);
         }
     }
 
-    public void addRequestTimeToStats(long nanos)
-    {
-        if(nanos < 100_000_000L) // < 100 millis
+    public void addRequestTimeToStats(long nanos) {
+        if (nanos < 100_000_000L) // < 100 millis
         {
             shortRequestCounter.getAndIncrement();
             shortRequestLatency.getAndAdd(nanos);
-        }
-        else if(nanos < 1_000_000_000L) // > 100 millis and < 1 second
+        } else if (nanos < 1_000_000_000L) // > 100 millis and < 1 second
         {
             middleRequestCounter.getAndIncrement();
             middleRequestLatency.getAndAdd(nanos);
-        }
-        else // > 1 second
+        } else // > 1 second
         {
             longRequestCounter.getAndIncrement();
             longRequestLatency.getAndAdd(nanos);
         }
         long lastTime = lastRequestTime.get();
         long currentTime = System.currentTimeMillis();
-        if(currentTime - lastTime > 60*1000) //1 minute
+        if (currentTime - lastTime > 60 * 1000) //1 minute
         {
             lastRequestTime.set(currentTime);
             shortRequestLatency.set(0);

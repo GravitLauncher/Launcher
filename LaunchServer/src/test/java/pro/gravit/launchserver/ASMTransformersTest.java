@@ -25,6 +25,7 @@ public class ASMTransformersTest {
         classLoader = new ASMClassLoader(ASMTransformersTest.class.getClassLoader());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void testASM() throws Throwable {
         ClassReader reader = new ClassReader(JarHelper.getClassBytes(TestClass.class));

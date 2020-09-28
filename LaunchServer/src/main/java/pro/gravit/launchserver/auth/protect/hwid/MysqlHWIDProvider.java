@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.auth.protect.hwid;
 
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.helper.IOHelper;
@@ -29,37 +30,34 @@ public class MysqlHWIDProvider extends HWIDProvider {
     private String sqlUpdateUsers;
 
     @Override
-    public void init() {
+    public void init(LaunchServer server) {
         sqlFindByPublicKey = String.format("SELECT hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, banned FROM %s WHERE `publicKey` = ?", tableHWID);
         sqlFindByHardware = String.format("SELECT hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, banned FROM %s", tableHWID);
         sqlCreateHardware = String.format("INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `battery`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')", tableHWID);
         sqlCreateHWIDLog = String.format("INSERT INTO %s (`hwidId`, `newPublicKey`) VALUES (?, ?)", tableHWIDLog);
         sqlUpdateHardware = String.format("UPDATE %s SET `publicKey` = ? WHERE `id` = ?", tableHWID);
-        if(tableUsers != null && usersHWIDColumn != null && usersNameColumn != null)
-        {
+        if (tableUsers != null && usersHWIDColumn != null && usersNameColumn != null) {
             sqlUpdateUsers = String.format("UPDATE %s SET `%s` = ? WHERE `%s` = ?", tableUsers, usersHWIDColumn, usersNameColumn);
+        } else {
+            LogHelper.warning("[MysqlHWIDProvider] Link to users table not configured");
         }
     }
 
     @Override
     public HardwareReportRequest.HardwareInfo findHardwareInfoByPublicKey(byte[] publicKey, Client client) throws HWIDException {
-        try(Connection connection = mySQLHolder.getConnection())
-        {
+        try (Connection connection = mySQLHolder.getConnection()) {
             PreparedStatement s = connection.prepareStatement(sqlFindByPublicKey);
             s.setBlob(1, new ByteArrayInputStream(publicKey));
             ResultSet set = s.executeQuery();
-            if(set.next())
-            {
-                if(set.getBoolean(11)) //isBanned
+            if (set.next()) {
+                if (set.getBoolean(11)) //isBanned
                 {
                     throw new SecurityException("You HWID banned");
                 }
                 long id = set.getLong(10);
                 setUserHardwareId(connection, client.username, id);
                 return fetchHardwareInfo(set);
-            }
-            else
-            {
+            } else {
                 return null;
             }
         } catch (SQLException | IOException throwables) {
@@ -85,8 +83,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
 
     @Override
     public void createHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, Client client) throws HWIDException {
-        try(Connection connection = mySQLHolder.getConnection())
-        {
+        try (Connection connection = mySQLHolder.getConnection()) {
             PreparedStatement s = connection.prepareStatement(sqlCreateHardware, Statement.RETURN_GENERATED_KEYS);
             s.setBlob(1, new ByteArrayInputStream(publicKey));
             s.setString(2, hardwareInfo.hwDiskId);
@@ -113,18 +110,15 @@ public class MysqlHWIDProvider extends HWIDProvider {
 
     @Override
     public boolean addPublicKeyToHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, Client client) throws HWIDException {
-        try(Connection connection = mySQLHolder.getConnection())
-        {
+        try (Connection connection = mySQLHolder.getConnection()) {
             PreparedStatement s = connection.prepareStatement(sqlFindByHardware);
             ResultSet set = s.executeQuery();
-            while(set.next())
-            {
+            while (set.next()) {
                 HardwareReportRequest.HardwareInfo hw = fetchHardwareInfo(set);
                 long id = set.getLong(10);
                 HardwareInfoCompareResult result = compareHardwareInfo(hw, hardwareInfo);
-                if(result.compareLevel > criticalCompareLevel)
-                {
-                    if(set.getBoolean(11)) //isBanned
+                if (result.compareLevel > criticalCompareLevel) {
+                    if (set.getBoolean(11)) //isBanned
                     {
                         throw new SecurityException("You HWID banned");
                     }
@@ -134,27 +128,29 @@ public class MysqlHWIDProvider extends HWIDProvider {
                     return true;
                 }
             }
-        } catch (SQLException | IOException throwables)
-        {
+        } catch (SQLException | IOException throwables) {
             LogHelper.error(throwables);
             throw new SecurityException("SQL error. Please try again later");
         }
         return false;
     }
+
     private void changePublicKey(Connection connection, long id, byte[] publicKey) throws SQLException {
         PreparedStatement s = connection.prepareStatement(sqlUpdateHardware);
         s.setBlob(1, new ByteArrayInputStream(publicKey));
         s.setLong(2, id);
         s.executeUpdate();
     }
+
     private void writeHwidLog(Connection connection, long hwidId, byte[] newPublicKey) throws SQLException {
         PreparedStatement s = connection.prepareStatement(sqlCreateHWIDLog);
         s.setLong(1, hwidId);
         s.setBlob(2, new ByteArrayInputStream(newPublicKey));
         s.executeUpdate();
     }
+
     private void setUserHardwareId(Connection connection, String username, long hwidId) throws SQLException {
-        if(sqlUpdateUsers == null || username == null) return;
+        if (sqlUpdateUsers == null || username == null) return;
         PreparedStatement s = connection.prepareStatement(sqlUpdateUsers);
         s.setLong(1, hwidId);
         s.setString(2, username);

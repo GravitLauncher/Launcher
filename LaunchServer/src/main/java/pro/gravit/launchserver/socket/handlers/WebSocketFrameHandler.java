@@ -4,12 +4,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.*;
+import io.netty.util.concurrent.ScheduledFuture;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.utils.BiHookSet;
-import pro.gravit.utils.HookSet;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -17,15 +17,14 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
-    static {
-    }
 
     public final LaunchServer srv;
     public final WebSocketService service;
     private final UUID connectUUID = UUID.randomUUID();
     public NettyConnectContext context;
-    public BiHookSet<ChannelHandlerContext, WebSocketFrame> hooks = new BiHookSet<>();
+    public final BiHookSet<ChannelHandlerContext, WebSocketFrame> hooks = new BiHookSet<>();
     private Client client;
+    private ScheduledFuture<?> future;
 
     public WebSocketFrameHandler(NettyConnectContext context, LaunchServer srv, WebSocketService service) {
         this.context = context;
@@ -50,20 +49,35 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         if (LogHelper.isDevEnabled()) {
             LogHelper.dev("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));
         }
-        client = new Client(0);
+        client = new Client(null);
         Channel ch = ctx.channel();
         service.registerClient(ch);
-        ctx.executor().schedule(() -> {
-            ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise());
-        }, 30L, TimeUnit.SECONDS);
+        future = ctx.executor().scheduleAtFixedRate(() -> ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise()), 30L, 30L, TimeUnit.SECONDS);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) {
         // ping and pong frames already handled
-        if(hooks.hook(ctx, frame)) return;
+        try {
+            if (hooks.hook(ctx, frame)) return;
+        } catch (Throwable ex) {
+            LogHelper.error(ex);
+        }
         if (frame instanceof TextWebSocketFrame) {
-            service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
+            try {
+                service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
+            } catch (Throwable ex) {
+                if (LogHelper.isDebugEnabled()) {
+                    LogHelper.warning("Client %s send invalid request. Connection force closed.", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip);
+                    if (LogHelper.isDevEnabled()) {
+                        LogHelper.dev("Client message: %s", ((TextWebSocketFrame) frame).text());
+                    }
+                    if (LogHelper.isStacktraceEnabled()) {
+                        LogHelper.error(ex);
+                    }
+                }
+                ctx.channel().close();
+            }
         } else if ((frame instanceof PingWebSocketFrame)) {
             frame.content().retain();
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
@@ -76,5 +90,11 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             String message = "unsupported frame type: " + frame.getClass().getName();
             LogHelper.error(new UnsupportedOperationException(message)); // prevent strange crash here.
         }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if (future != null) future.cancel(true);
+        super.channelInactive(ctx);
     }
 }

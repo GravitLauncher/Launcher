@@ -14,8 +14,12 @@ import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.patches.FMLPatcher;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.profiles.optional.actions.OptionalActionClassPath;
+import pro.gravit.launcher.profiles.optional.actions.OptionalActionClientArgs;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
+import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.RestoreSessionRequest;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.utils.DirWatcher;
@@ -50,7 +54,9 @@ public class ClientLauncherEntryPoint {
                 ClientLauncherProcess.ClientParams params = Launcher.gsonManager.gson.fromJson(new String(serialized, IOHelper.UNICODE_CHARSET), ClientLauncherProcess.ClientParams.class);
                 params.clientHDir = new HashedDir(input);
                 params.assetHDir = new HashedDir(input);
-                params.javaHDir = new HashedDir(input);
+                boolean isNeedReadJavaDir = input.readBoolean();
+                if (isNeedReadJavaDir)
+                    params.javaHDir = new HashedDir(input);
                 return params;
             }
         }
@@ -93,9 +99,10 @@ public class ClientLauncherEntryPoint {
         List<URL> classpath = new LinkedList<>();
         resolveClassPathStream(clientDir, params.profile.getClassPath()).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
 
-        params.profile.pushOptionalClassPath((opt) -> {
-            resolveClassPathStream(clientDir, opt).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
-        });
+        for (OptionalAction a : params.actions) {
+            if (a instanceof OptionalActionClassPath)
+                resolveClassPathStream(clientDir, ((OptionalActionClassPath) a).args).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
+        }
         classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
         classLoader.nativePath = clientDir.resolve("natives").toString();
@@ -133,26 +140,34 @@ public class ClientLauncherEntryPoint {
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
+        Path javaDir = Paths.get(System.getProperty("java.home"));
         try (DirWatcher assetWatcher = new DirWatcher(assetDir, params.assetHDir, assetMatcher, digest);
-             DirWatcher clientWatcher = new DirWatcher(clientDir, params.clientHDir, clientMatcher, digest)) {
+             DirWatcher clientWatcher = new DirWatcher(clientDir, params.clientHDir, clientMatcher, digest);
+             DirWatcher javaWatcher = params.javaHDir == null ? null : new DirWatcher(javaDir, params.javaHDir, null, digest)) {
             // Verify current state of all dirs
             //verifyHDir(IOHelper.JVM_DIR, jvmHDir.object, null, digest);
             //for (OptionalFile s : Launcher.profile.getOptional()) {
             //    if (params.updateOptional.contains(s)) s.mark = true;
             //    else hdir.removeR(s.file);
             //}
-            Launcher.profile.pushOptionalFile(params.clientHDir, false);
             // Start WatchService, and only then client
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
+            if (javaWatcher != null)
+                CommonHelper.newThread("Java Directory Watcher", true, clientWatcher).start();
             verifyHDir(assetDir, params.assetHDir, assetMatcher, digest);
             verifyHDir(clientDir, params.clientHDir, clientMatcher, digest);
-            LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
+            if (javaWatcher != null)
+                verifyHDir(javaDir, params.javaHDir, null, digest);
+            if (params.javaHDir != null)
+                LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
             launch(profile, params);
         }
     }
 
     private static void initGson(ClientModuleManager moduleManager) {
+        AuthRequest.registerProviders();
+        OptionalAction.registerProviders();
         Launcher.gsonManager = new ClientGsonManager(moduleManager);
         Launcher.gsonManager.initGson();
     }
@@ -223,7 +238,12 @@ public class ClientLauncherEntryPoint {
             System.setProperty("minecraft.applet.TargetDirectory", params.clientDir);
         }
         Collections.addAll(args, profile.getClientArgs());
-        profile.pushOptionalClientArgs(args);
+        for(OptionalAction action : params.actions) {
+            if(action instanceof OptionalActionClientArgs)
+            {
+                args.addAll(((OptionalActionClientArgs) action).args);
+            }
+        }
         List<String> copy = new ArrayList<>(args);
         for (int i = 0, l = copy.size(); i < l; i++) {
             String s = copy.get(i);

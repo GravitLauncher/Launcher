@@ -4,6 +4,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherTrustManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
+import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
@@ -213,6 +214,7 @@ public class LaunchServerStarter {
         DaoProvider.registerProviders();
         AuthRequest.registerProviders();
         HWIDProvider.registerProviders();
+        OptionalAction.registerProviders();
     }
 
     public static void generateConfigIfNotExists(Path configFile, CommandHandler commandHandler, LaunchServer.LaunchServerEnv env) throws IOException {

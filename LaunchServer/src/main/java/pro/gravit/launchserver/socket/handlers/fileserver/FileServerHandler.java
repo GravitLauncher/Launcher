@@ -16,8 +16,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAccessor;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static io.netty.handler.codec.http.HttpMethod.GET;
@@ -26,7 +35,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-    public static final SimpleDateFormat dateFormatter;
+    public static final DateTimeFormatter dateFormatter;
     public static final String READ = "r";
     public static final int HTTP_CACHE_SECONDS = VerifyHelper.verifyInt(Integer.parseInt(System.getProperty("launcher.fileserver.cachesec", "60")), VerifyHelper.NOT_NEGATIVE, "HttpCache seconds should be positive");
     private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
@@ -34,8 +43,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
     private static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[^-\\._]?[^<>&\\\"]*");
 
     static {
-        dateFormatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
-        dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+        dateFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).withZone(ZoneId.of("UTC"));
     }
 
     private final Path base;
@@ -66,7 +74,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
                 .append("<ul>")
                 .append("<li><a href=\"../\">..</a></li>\r\n");
 
-        for (File f : dir.listFiles()) {
+        for (File f : Objects.requireNonNull(dir.listFiles())) {
             if ((f.isHidden() && !showHidden) || !f.canRead()) {
                 continue;
             }
@@ -128,7 +136,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
      * @param response HTTP response
      */
     private static void setDateHeader(FullHttpResponse response) {
-        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(new Date(System.currentTimeMillis())));
+        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(Instant.ofEpochMilli(System.currentTimeMillis())));
     }
 
     /**
@@ -139,15 +147,14 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
      */
     private static void setDateAndCacheHeaders(HttpResponse response, File fileToCache) {
         // Date header
-        Calendar time = new GregorianCalendar();
-        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(time.getTime()));
+        LocalDateTime time = LocalDateTime.now(Clock.systemUTC());
+        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(time));
 
         // Add cache headers
-        time.add(Calendar.SECOND, HTTP_CACHE_SECONDS);
-        response.headers().set(HttpHeaderNames.EXPIRES, dateFormatter.format(time.getTime()));
+        response.headers().set(HttpHeaderNames.EXPIRES, dateFormatter.format(time.plus(HTTP_CACHE_SECONDS, ChronoUnit.SECONDS)));
         response.headers().set(HttpHeaderNames.CACHE_CONTROL, "private, max-age=" + HTTP_CACHE_SECONDS);
         response.headers().set(
-                HttpHeaderNames.LAST_MODIFIED, dateFormatter.format(new Date(fileToCache.lastModified())));
+                HttpHeaderNames.LAST_MODIFIED, dateFormatter.format(Instant.ofEpochMilli(fileToCache.lastModified())));
     }
 
     /**
@@ -209,11 +216,11 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         // Cache Validation
         String ifModifiedSince = request.headers().get(HttpHeaderNames.IF_MODIFIED_SINCE);
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
-            Date ifModifiedSinceDate = dateFormatter.parse(ifModifiedSince);
+            TemporalAccessor ifModifiedSinceDate = dateFormatter.parse(ifModifiedSince);
 
             // Only compare up to the second because the datetime format we send to the client
             // does not have milliseconds
-            long ifModifiedSinceDateSeconds = ifModifiedSinceDate.getTime() / 1000;
+            long ifModifiedSinceDateSeconds = ifModifiedSinceDate.get(ChronoField.INSTANT_SECONDS);
             long fileLastModifiedSeconds = file.lastModified() / 1000;
             if (ifModifiedSinceDateSeconds == fileLastModifiedSeconds) {
                 sendNotModified(ctx);

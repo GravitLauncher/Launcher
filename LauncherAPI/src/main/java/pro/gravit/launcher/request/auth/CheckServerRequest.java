@@ -8,9 +8,9 @@ import pro.gravit.utils.helper.VerifyHelper;
 
 public final class CheckServerRequest extends Request<CheckServerRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
-    private final String username;
+    public final String username;
     @LauncherNetworkAPI
-    private final String serverID;
+    public final String serverID;
 
 
     public CheckServerRequest(String username, String serverID) {

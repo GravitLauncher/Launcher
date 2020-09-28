@@ -23,15 +23,13 @@ public class JLineCommandHandler extends CommandHandler {
     }*/
 
     private final Terminal terminal;
-    private final TerminalBuilder terminalBuilder;
-    private final Completer completer;
     private final LineReader reader;
 
     public JLineCommandHandler() throws IOException {
         super();
-        terminalBuilder = TerminalBuilder.builder();
+        TerminalBuilder terminalBuilder = TerminalBuilder.builder();
         terminal = terminalBuilder.build();
-        completer = new JLineConsoleCompleter();
+        Completer completer = new JLineConsoleCompleter();
         reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .completer(completer)

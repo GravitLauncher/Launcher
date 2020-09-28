@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class RejectAuthProvider extends AuthProvider implements Reconfigurable {
-    private String message;
-    private ArrayList<String> whitelist = new ArrayList<>();
+    public String message;
+    public ArrayList<String> whitelist = new ArrayList<>();
 
     public RejectAuthProvider() {
     }

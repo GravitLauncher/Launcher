@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public final class ProfileByUUIDRequest extends Request<ProfileByUUIDRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
-    private final UUID uuid;
+    public final UUID uuid;
 
 
     public ProfileByUUIDRequest(UUID uuid) {

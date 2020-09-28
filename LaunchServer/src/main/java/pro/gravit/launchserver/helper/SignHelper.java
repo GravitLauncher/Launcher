@@ -27,32 +27,7 @@ import java.util.List;
 
 public class SignHelper {
 
-    public static final OutputStream NULL = new OutputStream() {
-        @Override
-        public String toString() {
-            return "NullOutputStream";
-        }
-
-        /** Discards the specified byte array. */
-        @Override
-        public void write(byte[] b) {
-        }
-
-        /** Discards the specified byte array. */
-        @Override
-        public void write(byte[] b, int off, int len) {
-        }
-
-        /** Discards the specified byte. */
-        @Override
-        public void write(int b) {
-        }
-
-        /** Never closes */
-        @Override
-        public void close() {
-        }
-    };
+    public static final OutputStream NULL = OutputStream.nullOutputStream();
     public static final String hashFunctionName = "SHA-256";
 
     private SignHelper() {

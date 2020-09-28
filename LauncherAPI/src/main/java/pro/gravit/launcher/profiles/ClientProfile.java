@@ -72,20 +72,23 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private String mainClass;
 
-    public static class ServerProfile
-    {
+    public static class ServerProfile {
         public String name;
         public String serverAddress;
         public int serverPort;
         public boolean isDefault = true;
+
+        public InetSocketAddress toSocketAddress() {
+            return InetSocketAddress.createUnresolved(serverAddress, serverPort);
+        }
     }
+
     @LauncherNetworkAPI
     private List<ServerProfile> servers = new ArrayList<>(1);
-    public ServerProfile getDefaultServerProfile()
-    {
-        for(ServerProfile profile : servers)
-        {
-            if(profile.isDefault) return profile;
+
+    public ServerProfile getDefaultServerProfile() {
+        for (ServerProfile profile : servers) {
+            if (profile.isDefault) return profile;
         }
         return null;
     }
@@ -125,6 +128,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public String getAssetDir() {
         return assetDir;
+    }
+
+    public List<String> getUpdateExclusions() {
+        return Collections.unmodifiableList(updateExclusions);
     }
 
     public FileNameMatcher getClientUpdateMatcher(/*boolean excludeOptional*/) {
@@ -169,21 +176,28 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             if (file.dependenciesFile != null) {
                 file.dependencies = new OptionalFile[file.dependenciesFile.length];
                 for (int i = 0; i < file.dependenciesFile.length; ++i) {
-                    file.dependencies[i] = getOptionalFile(file.dependenciesFile[i].name, file.dependenciesFile[i].type);
+                    file.dependencies[i] = getOptionalFile(file.dependenciesFile[i].name);
                 }
             }
             if (file.conflictFile != null) {
                 file.conflict = new OptionalFile[file.conflictFile.length];
                 for (int i = 0; i < file.conflictFile.length; ++i) {
-                    file.conflict[i] = getOptionalFile(file.conflictFile[i].name, file.conflictFile[i].type);
+                    file.conflict[i] = getOptionalFile(file.conflictFile[i].name);
                 }
             }
         }
     }
 
+    @Deprecated
     public OptionalFile getOptionalFile(String file, OptionalType type) {
         for (OptionalFile f : updateOptional)
             if (f.type.equals(type) && f.name.equals(file)) return f;
+        return null;
+    }
+
+    public OptionalFile getOptionalFile(String file) {
+        for (OptionalFile f : updateOptional)
+            if (f.name.equals(file)) return f;
         return null;
     }
 
@@ -191,6 +205,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return updateShared;
     }
 
+    @Deprecated
     public void markOptional(OptionalFile file) {
 
         if (file.mark) return;
@@ -210,6 +225,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
+    @Deprecated
     public void unmarkOptional(OptionalFile file) {
         if (!file.mark) return;
         file.mark = false;
@@ -236,6 +252,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
+    @Deprecated
     public void pushOptionalFile(HashedDir dir, boolean digest) {
         for (OptionalFile opt : updateOptional) {
             if (opt.type.equals(OptionalType.FILE) && !opt.mark) {
@@ -245,6 +262,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
+    @Deprecated
     public void pushOptionalJvmArgs(Collection<String> jvmArgs1) {
         for (OptionalFile opt : updateOptional) {
             if (opt.type.equals(OptionalType.JVMARGS) && opt.mark) {
@@ -253,6 +271,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
+    @Deprecated
     public void pushOptionalClientArgs(Collection<String> clientArgs1) {
         for (OptionalFile opt : updateOptional) {
             if (opt.type.equals(OptionalType.CLIENTARGS) && opt.mark) {
@@ -261,6 +280,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
+    @Deprecated
     public void pushOptionalClassPath(pushOptionalClassPathCallback callback) throws IOException {
         for (OptionalFile opt : updateOptional) {
             if (opt.type.equals(OptionalType.CLASSPATH) && opt.mark) {
@@ -273,6 +293,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         ServerProfile profile = getDefaultServerProfile();
         return profile == null ? 25565 : profile.serverPort;
     }
+
     @Deprecated
     public InetSocketAddress getServerSocketAddress() {
         return InetSocketAddress.createUnresolved(getServerAddress(), getServerPort());
@@ -358,11 +379,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         for (OptionalFile f : updateOptional) {
             if (f == null) throw new IllegalArgumentException("Found null entry in updateOptional");
             if (f.name == null) throw new IllegalArgumentException("Optional: name must not be null");
-            if (f.list == null) throw new IllegalArgumentException("Optional: list must not be null");
-            for (String s : f.list) {
-                if (s == null)
-                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.list", f.name));
-            }
             if (f.conflictFile != null) for (OptionalDepend s : f.conflictFile) {
                 if (s == null)
                     throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.conflictFile", f.name));
@@ -410,7 +426,9 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         MC115("1.15", 573),
         MC1151("1.15.1", 575),
         MC1152("1.15.2", 578),
-        MC1161("1.16.1", 736);
+        MC1161("1.16.1", 736),
+        MC1162("1.16.2", 751),
+        MC1163("1.16.3", 753);
         private static final Map<String, Version> VERSIONS;
 
         static {

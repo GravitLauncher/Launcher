@@ -8,7 +8,7 @@ import pro.gravit.utils.helper.VerifyHelper;
 
 public final class ProfileByUsernameRequest extends Request<ProfileByUsernameRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
-    private final String username;
+    public final String username;
 
 
     public ProfileByUsernameRequest(String username) {

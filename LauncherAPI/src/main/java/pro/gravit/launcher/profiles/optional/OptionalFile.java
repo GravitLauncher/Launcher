@@ -1,12 +1,14 @@
 package pro.gravit.launcher.profiles.optional;
 
 import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,9 +18,13 @@ public class OptionalFile {
     @LauncherNetworkAPI
     public final long permissions = 0L;
     @LauncherNetworkAPI
+    @Deprecated
     public String[] list;
     @LauncherNetworkAPI
+    @Deprecated
     public OptionalType type;
+    @LauncherNetworkAPI
+    public List<OptionalAction> actions;
     @LauncherNetworkAPI
     public boolean mark;
     @LauncherNetworkAPI
@@ -41,6 +47,7 @@ public class OptionalFile {
     public int subTreeLevel = 1;
     @LauncherNetworkAPI
     public boolean isPreset;
+    @Deprecated
     public transient Set<OptionalFile> dependenciesCount;
     private volatile transient Collection<BiConsumer<OptionalFile, Boolean>> watchList = null;
 
@@ -138,8 +145,6 @@ public class OptionalFile {
 
     public void watchEvent(boolean isMark) {
         if (watchList == null) return;
-        watchList.forEach((e) -> {
-            e.accept(this, isMark);
-        });
+        watchList.forEach((e) -> e.accept(this, isMark));
     }
 }

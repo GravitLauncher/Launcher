@@ -10,6 +10,7 @@ import pro.gravit.launchserver.socket.response.SimpleResponse;
 public class PingServerReportResponse extends SimpleResponse {
     public PingServerReportRequest.PingServerReport data;
     public String name;
+
     @Override
     public String getType() {
         return "pingServerReport";
@@ -17,9 +18,9 @@ public class PingServerReportResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        if(!client.isAuth || client.permissions == null || !client.permissions.isPermission(ClientPermissions.PermissionConsts.MANAGEMENT))
-        {
+        if (!client.isAuth || client.permissions == null || !client.permissions.isPermission(ClientPermissions.PermissionConsts.MANAGEMENT)) {
             sendError("Access denied");
+            return;
         }
         server.pingServerManager.updateServer(name, data);
         sendResult(new PingServerReportRequestEvent());

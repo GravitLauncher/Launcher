@@ -14,8 +14,27 @@ test {
     }
 }
 
+sourceSets {
+    java11 {
+        java {
+            srcDirs = ['src/main/java11']
+        }
+        dependencies {
+            java11Implementation files(sourceSets.main.output.classesDirs) { builtBy compileJava }
+        }
+    }
+}
+
 jar {
+    into('META-INF/versions/11') {
+        from sourceSets.java11.output
+    }
     classifier = 'clean'
+}
+
+compileJava11Java {
+    sourceCompatibility = 11
+    targetCompatibility = 11
 }
 
 task sourcesJar(type: Jar) {
@@ -45,6 +64,18 @@ publishing {
                     license {
                         name = 'GNU General Public License, Version 3.0'
                         url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gravita'
+                        name = 'Gravita'
+                        email = 'gravita@gravit.pro'
+                    }
+                    developer {
+                        id = 'zaxar163'
+                        name = 'Zaxar163'
+                        email = 'zahar.vcherachny@yandex.ru'
                     }
                 }
                 scm {
