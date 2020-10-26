@@ -11,6 +11,7 @@ import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client {
     public UUID session;
@@ -29,6 +30,8 @@ public class Client {
     public transient User daoObject;
 
     public transient Map<String, Object> properties;
+
+    public transient AtomicInteger refCount = new AtomicInteger(1);
 
     public Client(UUID session) {
         this.session = session;

@@ -139,7 +139,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         // build hooks, anti-brutforce and other
         proguardConf = new ProguardConf(this);
-        sessionManager = new SessionManager();
+        sessionManager = new SessionManager(this);
         mirrorManager = new MirrorManager();
         reconfigurableManager = new ReconfigurableManager();
         authHookManager = new AuthHookManager();

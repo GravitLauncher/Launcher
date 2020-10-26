@@ -100,7 +100,7 @@ public class AuthResponse extends SimpleResponse {
             if (getSession) {
                 if (clientData.session == null) {
                     clientData.session = UUID.randomUUID();
-                    server.sessionManager.addClient(clientData);
+                    //server.sessionManager.addClient(clientData);
                 }
                 result.session = clientData.session;
             }

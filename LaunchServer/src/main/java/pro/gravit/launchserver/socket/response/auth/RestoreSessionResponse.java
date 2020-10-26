@@ -21,15 +21,28 @@ public class RestoreSessionResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        Client rClient = server.sessionManager.getClient(session);
-        if (rClient == null) {
+        if(session == null) {
+            sendError("Session invalid");
+            return;
+        }
+        final Client[] rClient = {null};
+        service.forEachActiveChannels((channel, handler) -> {
+            Client c = handler.getClient();
+            if(c != null && session.equals(c.session)) {
+                rClient[0] = c;
+            }
+        });
+        if(rClient[0] == null) {
+            rClient[0] = server.sessionManager.getClient(session);
+        }
+        if (rClient[0] == null) {
             sendError("Session invalid");
             return;
         }
         WebSocketFrameHandler frameHandler = ctx.pipeline().get(WebSocketFrameHandler.class);
-        frameHandler.setClient(rClient);
+        frameHandler.setClient(rClient[0]);
         if (needUserInfo) {
-            sendResult(new RestoreSessionRequestEvent(CurrentUserResponse.collectUserInfoFromClient(rClient)));
+            sendResult(new RestoreSessionRequestEvent(CurrentUserResponse.collectUserInfoFromClient(rClient[0])));
         } else {
             sendResult(new RestoreSessionRequestEvent());
         }
