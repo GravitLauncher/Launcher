@@ -9,6 +9,7 @@ import pro.gravit.utils.helper.LogHelper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,7 @@ public class SessionManager implements NeedGarbageCollection {
                 result.daoObject = server.config.dao.userDAO.findByUsername(result.username);
             }
         }
-
+        if(result.refCount == null) result.refCount = new AtomicInteger(1);
         return result;
     }
 
