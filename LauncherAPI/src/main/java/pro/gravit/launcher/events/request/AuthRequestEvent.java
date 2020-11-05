@@ -9,6 +9,8 @@ import java.util.UUID;
 
 public class AuthRequestEvent extends RequestEvent {
     public static final String TWO_FACTOR_NEED_ERROR_MESSAGE = "auth.require2fa";
+    public static final String TWO_FACTOR_BAD_MESSAGE = "auth.bad2fa";
+    public static final String TWO_FACTOR_NULL = "auth.null2fa";
     @LauncherNetworkAPI
     public ClientPermissions permissions;
     @LauncherNetworkAPI

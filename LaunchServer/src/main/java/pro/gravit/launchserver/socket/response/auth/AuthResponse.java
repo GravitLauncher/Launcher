@@ -1,8 +1,10 @@
 package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
+import net.sf.launch4j.Log;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
+import pro.gravit.launcher.request.auth.password.Auth2FAPassword;
 import pro.gravit.launcher.request.auth.password.AuthECPassword;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.auth.AuthException;
@@ -57,6 +59,15 @@ public class AuthResponse extends SimpleResponse {
                     throw new AuthException("Password decryption error");
                 }
             }
+            if (password instanceof Auth2FAPassword){
+                try {
+                    ((Auth2FAPassword) password).firstPassword = new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
+                            , ((AuthECPassword)(((Auth2FAPassword) password).firstPassword)).password)));
+                } catch (IllegalBlockSizeException | BadPaddingException ignored) {
+                    throw new AuthException("Password decryption error");
+                }
+            }
+
             if (clientData.isAuth) {
                 if (LogHelper.isDevEnabled()) {
                     LogHelper.warning("Client %s double auth", clientData.username == null ? ip : clientData.username);
@@ -64,6 +75,7 @@ public class AuthResponse extends SimpleResponse {
                 sendError("You are already logged in");
                 return;
             }
+
             AuthProviderPair pair;
             if (auth_id == null || auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
             else pair = server.config.getAuthProviderPair(auth_id);
@@ -71,6 +83,7 @@ public class AuthResponse extends SimpleResponse {
                 sendError("auth_id incorrect");
                 return;
             }
+
             AuthContext context = new AuthContext(clientData, login, client, ip, authType);
             AuthProvider provider = pair.provider;
             server.authHookManager.preHook.hook(context, clientData);
@@ -80,6 +93,7 @@ public class AuthResponse extends SimpleResponse {
                 AuthProvider.authError(String.format("Illegal result: '%s'", aresult.username));
                 return;
             }
+
             //if (clientData.profile == null) {
             //    throw new AuthException("You profile not found");
             //}
@@ -88,6 +102,7 @@ public class AuthResponse extends SimpleResponse {
             clientData.permissions = aresult.permissions;
             clientData.auth_id = auth_id;
             clientData.updateAuth(server);
+
             if (aresult.username != null)
                 clientData.username = aresult.username;
             else
@@ -104,6 +119,7 @@ public class AuthResponse extends SimpleResponse {
                 }
                 result.session = clientData.session;
             }
+
             UUID uuid;
             if (authType == ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context)) {
                 uuid = pair.handler.auth(aresult);
@@ -114,12 +130,14 @@ public class AuthResponse extends SimpleResponse {
                 uuid = pair.handler.usernameToUUID(aresult.username);
                 result.accessToken = null;
             }
+
             result.playerProfile = ProfileByUUIDResponse.getProfile(uuid, aresult.username, client, clientData.auth.textureProvider);
 
             clientData.type = authType;
             sendResult(result);
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());
+
         }
     }
 

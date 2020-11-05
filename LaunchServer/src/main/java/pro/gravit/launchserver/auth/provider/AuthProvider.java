@@ -36,7 +36,7 @@ public abstract class AuthProvider implements AutoCloseable {
     }
 
     public GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType getSecondAuthType() {
-        return GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType.NONE;
+        return GetAvailabilityAuthRequestEvent.AuthAvailability.AuthType.TOTP;
     }
 
     /**

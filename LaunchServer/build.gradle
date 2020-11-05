@@ -71,6 +71,7 @@ task cleanjar(type: Jar, dependsOn: jar) {
 
 dependencies {
     pack project(':LauncherAPI')
+    compile 'dev.samstevens.totp:totp:1.7'
     bundle group: 'org.fusesource.jansi', name: 'jansi', version: rootProject['verJansi']
     bundle group: 'org.jline', name: 'jline', version: rootProject['verJline']
     bundle group: 'org.jline', name: 'jline-reader', version: rootProject['verJline']
