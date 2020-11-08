@@ -1,10 +1,11 @@
 package pro.gravit.launchserver.auth.handler;
 
+import pro.gravit.launchserver.auth.RequiredDAO;
 import pro.gravit.launchserver.dao.User;
 
 import java.util.UUID;
 
-public class HibernateAuthHandler extends CachedAuthHandler {
+public class HibernateAuthHandler extends CachedAuthHandler implements RequiredDAO {
     @Override
     protected Entry fetchEntry(String username) {
         User user = srv.config.dao.userDAO.findByUsername(username);
