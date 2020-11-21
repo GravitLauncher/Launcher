@@ -23,7 +23,7 @@ public class CurrentUserResponse extends SimpleResponse {
     public static CurrentUserRequestEvent.UserInfo collectUserInfoFromClient(Client client) throws IOException {
         CurrentUserRequestEvent.UserInfo result = new CurrentUserRequestEvent.UserInfo();
         if (client.auth != null && client.isAuth && client.username != null) {
-            UUID uuid = client.auth.handler.usernameToUUID(client.username);
+            UUID uuid = client.uuid != null ? client.uuid : client.auth.handler.usernameToUUID(client.username);
             if (uuid != null) {
                 result.playerProfile = ProfileByUUIDResponse.getProfile(uuid, client.username, client.profile == null ? null : client.profile.getTitle(), client.auth.textureProvider);
             }

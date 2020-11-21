@@ -23,6 +23,7 @@ public class Client {
     public boolean checkSign;
     public ClientPermissions permissions;
     public String username;
+    public UUID uuid;
     public TrustLevel trustLevel;
 
     public transient AuthProviderPair auth;

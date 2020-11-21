@@ -5,19 +5,20 @@ import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.RequiredDAO;
 import pro.gravit.launchserver.socket.Client;
+import pro.gravit.utils.HookSet;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SessionManager implements NeedGarbageCollection {
 
-    public static final long SESSION_TIMEOUT = 3 * 60 * 60 * 1000; // 3 часа
     private final Map<UUID, Entry> clientSet = new ConcurrentHashMap<>(128);
+    private final Map<UUID, Set<Entry>> uuidIndex = new ConcurrentHashMap<>(32);
     private final LaunchServer server;
+    public HookSet<Client> clientRestoreHook = new HookSet<>();
 
     public SessionManager(LaunchServer server) {
         this.server = server;
@@ -25,9 +26,43 @@ public class SessionManager implements NeedGarbageCollection {
 
 
     public boolean addClient(Client client) {
-        if(client == null) return false;
-        clientSet.put(client.session, new Entry(compressClient(client)));
+        if(client == null || client.session == null) return false;
+        remove(client.session);
+        Entry e = new Entry(compressClient(client), client.session);
+        clientSet.put(client.session, e);
+        if(client.isAuth && client.uuid != null) {
+            Set<Entry> uuidSet = uuidIndex.computeIfAbsent(client.uuid, k -> ConcurrentHashMap.newKeySet());
+            uuidSet.add(e);
+        }
         return true;
+    }
+
+    public Stream<UUID> findSessionsByUUID(UUID uuid) {
+        Set<Entry> set = uuidIndex.get(uuid);
+        if(set != null) return set.stream().map((e) -> e.sessionUuid);
+        return null;
+    }
+
+    public boolean removeByUUID(UUID uuid) {
+        Set<Entry> set = uuidIndex.get(uuid);
+        if(set != null) {
+            for(Entry e : set) {
+                clientSet.remove(e.sessionUuid);
+            }
+            set.clear();
+            uuidIndex.remove(uuid);
+        }
+        return false;
+    }
+
+    public Set<UUID> getSavedUUIDs()
+    {
+        return uuidIndex.keySet();
+    }
+
+    public void clear() {
+        clientSet.clear();
+        uuidIndex.clear();
     }
 
     private String compressClient(Client client) {
@@ -46,16 +81,24 @@ public class SessionManager implements NeedGarbageCollection {
             }
         }
         if(result.refCount == null) result.refCount = new AtomicInteger(1);
+        clientRestoreHook.hook(result);
         return result;
     }
 
     @Override
     public void garbageCollection() {
         long time = System.currentTimeMillis();
-        clientSet.entrySet().removeIf(entry -> {
-            long timestamp = entry.getValue().timestamp;
-            return (timestamp + SESSION_TIMEOUT < time);
+        long session_timeout = server.config.netty.performance.sessionLifetimeMs;
+        Set<UUID> to_delete = new HashSet<>(32);
+        clientSet.forEach((uuid, entry) -> {
+            long timestamp = entry.timestamp;
+            if(timestamp + session_timeout < time)
+                to_delete.add(uuid);
         });
+        for(UUID session : to_delete) {
+            remove(session);
+        }
+        to_delete.clear();
     }
 
 
@@ -71,8 +114,27 @@ public class SessionManager implements NeedGarbageCollection {
         return client == null ? new Client(session) : client;
     }
 
+    public boolean remove(UUID session) {
+        Entry e =clientSet.remove(session);
+        if(e != null) {
+            Set<Entry> set = uuidIndex.get(session);
+            if(set != null) {
+                removeUuidFromIndexSet(set, e, session);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void removeUuidFromIndexSet(Set<Entry> set, Entry e, UUID session) {
+        set.remove(e);
+        if(set.isEmpty()) {
+            uuidIndex.remove(session);
+        }
+    }
+    @Deprecated
     public void removeClient(UUID session) {
-        clientSet.remove(session);
+        remove(session);
     }
 
 
@@ -92,10 +154,12 @@ public class SessionManager implements NeedGarbageCollection {
     }
     private static class Entry {
         public String data;
+        public UUID sessionUuid;
         public long timestamp;
 
-        public Entry(String data) {
+        public Entry(String data, UUID sessionUuid) {
             this.data = data;
+            this.sessionUuid = sessionUuid;
             this.timestamp = System.currentTimeMillis();
         }
     }

@@ -38,7 +38,7 @@ public class ExitResponse extends SimpleResponse {
             Client newClient = new Client(null);
             newClient.checkSign = client.checkSign;
             handler.setClient(newClient);
-            if (client.session != null) server.sessionManager.removeClient(client.session);
+            if (client.session != null) server.sessionManager.remove(client.session);
             if (exitAll) {
                 service.forEachActiveChannels(((channel, webSocketFrameHandler) -> {
                     Client client1 = webSocketFrameHandler.getClient();
@@ -68,7 +68,7 @@ public class ExitResponse extends SimpleResponse {
         Client newCusClient = new Client(null);
         newCusClient.checkSign = chClient.checkSign;
         wsHandler.setClient(newCusClient);
-        if (chClient.session != null) server.sessionManager.removeClient(chClient.session);
+        if (chClient.session != null) server.sessionManager.remove(chClient.session);
         ExitRequestEvent event = new ExitRequestEvent(reason);
         event.requestUUID = RequestEvent.eventUUID;
         wsHandler.service.sendObject(channel, event);

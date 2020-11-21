@@ -312,6 +312,7 @@ public final class LaunchServerConfig {
         public boolean usingEpoll;
         public int bossThread;
         public int workerThread;
+        public long sessionLifetimeMs = 24 * 60 * 60 * 1000;
     }
 
     public static class NettyBindAddress {
