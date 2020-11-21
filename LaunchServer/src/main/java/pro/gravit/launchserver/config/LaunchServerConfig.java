@@ -313,6 +313,7 @@ public final class LaunchServerConfig {
         public int bossThread;
         public int workerThread;
         public long sessionLifetimeMs = 24 * 60 * 60 * 1000;
+        public int maxWebSocketRequestBytes = 1024 * 1024;
     }
 
     public static class NettyBindAddress {
