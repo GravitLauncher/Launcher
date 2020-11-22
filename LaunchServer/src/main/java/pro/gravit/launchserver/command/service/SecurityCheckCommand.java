@@ -158,8 +158,10 @@ public class SecurityCheckCommand extends Command {
                 if (tokenizer.hasMoreTokens() && tokenizer.nextToken().equals("mods")) {
                     String nextToken = tokenizer.nextToken();
                     if (!tokenizer.hasMoreTokens()) {
-                        printCheckResult(LogHelper.Level.INFO, profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
-                        bad = true;
+                        if(!exc.endsWith("/")) {
+                            printCheckResult(LogHelper.Level.INFO, profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
+                            bad = true;
+                        }
                     } else {
                         if (nextToken.equals("memory_repo") || nextToken.equals(profile.getVersion().name)) {
                             printCheckResult(LogHelper.Level.INFO, profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
