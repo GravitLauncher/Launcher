@@ -73,9 +73,9 @@ public class WebSocketService {
 
     public void forEachActiveChannels(BiConsumer<Channel, WebSocketFrameHandler> callback) {
         for(Channel channel : channels) {
-            if (channel == null || channel.pipeline() == null) return;
+            if (channel == null || channel.pipeline() == null) continue;
             WebSocketFrameHandler wsHandler = channel.pipeline().get(WebSocketFrameHandler.class);
-            if (wsHandler == null) return;
+            if (wsHandler == null) continue;
             callback.accept(channel, wsHandler);
         };
     }
