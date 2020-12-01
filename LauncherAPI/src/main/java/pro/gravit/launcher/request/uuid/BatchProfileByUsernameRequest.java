@@ -16,6 +16,7 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
     public BatchProfileByUsernameRequest(String... usernames) throws IOException {
         this.list = new Entry[usernames.length];
         for (int i = 0; i < usernames.length; ++i) {
+            this.list[i] = new Entry();
             this.list[i].client = "";
             this.list[i].username = usernames[i];
         }
