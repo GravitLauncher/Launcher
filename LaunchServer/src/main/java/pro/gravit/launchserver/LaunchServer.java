@@ -10,6 +10,7 @@ import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
+import pro.gravit.launchserver.auth.session.MemorySessionStorage;
 import pro.gravit.launchserver.binary.*;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
@@ -128,6 +129,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         runtime.verify();
         config.verify();
+        if(config.sessions == null) config.sessions = new MemorySessionStorage();
         if (config.components != null) {
             LogHelper.debug("PreInit components");
             config.components.forEach((k, v) -> {
@@ -147,7 +149,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         pingServerManager = new PingServerManager(this);
         //Generate or set new Certificate API
         certificateManager.orgName = config.projectName;
-        if (config.certificate != null && config.certificate.enabled) {
+        /*
+        if (false) {
             if (IOHelper.isFile(caCertFile) && IOHelper.isFile(caKeyFile)) {
                 certificateManager.ca = certificateManager.readCertificate(caCertFile);
                 certificateManager.caKey = certificateManager.readPrivateKey(caKeyFile);
@@ -175,6 +178,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 }
             }
         }
+        */
         config.init(ReloadType.FULL);
         registerObject("launchServer", this);
         GarbageManager.registerNeedGC(sessionManager);
