@@ -10,6 +10,7 @@ import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
+import pro.gravit.launchserver.auth.session.SessionStorage;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerConfig;
@@ -215,6 +216,7 @@ public class LaunchServerStarter {
         AuthRequest.registerProviders();
         HWIDProvider.registerProviders();
         OptionalAction.registerProviders();
+        SessionStorage.registerProviders();
     }
 
     public static void generateConfigIfNotExists(Path configFile, CommandHandler commandHandler, LaunchServer.LaunchServerEnv env) throws IOException {
