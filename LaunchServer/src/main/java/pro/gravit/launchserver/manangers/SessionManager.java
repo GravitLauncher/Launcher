@@ -73,7 +73,10 @@ public class SessionManager implements NeedGarbageCollection {
 
 
     public Client getClient(UUID session) {
-        return restoreFromString(server.config.sessions.getSessionData(session));
+        if(session == null) return null;
+        byte[] data = server.config.sessions.getSessionData(session);
+        if(data == null) return null;
+        return restoreFromString(data);
     }
 
 
