@@ -4,10 +4,12 @@ import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.config.JsonConfigurable;
+import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.modules.events.PostInitPhase;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
@@ -46,6 +48,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public ClassLoader loader;
     public ClientPermissions permissions;
     public ClientProfile profile;
+    public PlayerProfile playerProfile;
+    public ClientProfile.ServerProfile serverProfile;
 
     public ServerWrapper(Type type, Path configPath) {
         super(type, configPath);
@@ -70,20 +74,28 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         try {
             Launcher.getConfig();
             AuthRequest request = new AuthRequest(config.login, config.password, config.auth_id, AuthRequest.ConnectTypes.API);
-            permissions = request.request().permissions;
+            AuthRequestEvent authResult = request.request();
+            permissions = authResult.permissions;
+            playerProfile = authResult.playerProfile;
             ProfilesRequestEvent result = new ProfilesRequest().request();
             for (ClientProfile p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.getTitle());
-                if (p.getTitle().equals(config.title)) {
-                    profile = p;
-                    Launcher.profile = p;
-                    LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
-                    break;
+                boolean isFound = false;
+                for(ClientProfile.ServerProfile srv : p.getServers())
+                {
+                    if(srv != null && srv.name.equals(config.serverName)) {
+                        this.serverProfile = srv;
+                        this.profile = p;
+                        Launcher.profile = p;
+                        LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
+                        isFound = true;
+                        break;
+                    }
                 }
+                if(isFound) break;
             }
             if (profile == null) {
-                LogHelper.error("Your profile not found");
-                if (config.stopOnError) System.exit(-1);
+                LogHelper.warning("Not connected to ServerProfile. May be serverName incorrect?");
             }
             return true;
         } catch (Throwable e) {
@@ -183,7 +195,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             }
             auth();
         };
-        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s. Title: %s", config.projectname, config.address, config.title);
+        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s. Title: %s", config.projectname, config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
@@ -228,7 +240,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     @Override
     public Config getDefaultConfig() {
         Config newConfig = new Config();
-        newConfig.title = "Your profile title";
+        newConfig.serverName = "your server name";
         newConfig.projectname = "MineCraft";
         newConfig.login = "login";
         newConfig.password = "password";
@@ -244,9 +256,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public static final class Config {
+        @Deprecated
         public String title;
         public String projectname;
         public String address;
+        public String serverName;
         public WebSocketConf websocket;
         public int reconnectCount;
         public int reconnectSleep;
