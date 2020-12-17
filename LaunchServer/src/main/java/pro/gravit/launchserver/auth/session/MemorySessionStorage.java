@@ -71,6 +71,26 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
         uuidIndex.clear();
     }
 
+    @Override
+    public void lockSession(UUID sessionUUID) {
+
+    }
+
+    @Override
+    public void lockUser(UUID userUUID) {
+
+    }
+
+    @Override
+    public void unlockSession(UUID sessionUUID) {
+
+    }
+
+    @Override
+    public void unlockUser(UUID userUUID) {
+
+    }
+
     private void removeUuidFromIndexSet(Set<Entry> set, Entry e, UUID session) {
         set.remove(e);
         if(set.isEmpty()) {

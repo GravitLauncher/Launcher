@@ -20,6 +20,10 @@ public abstract class SessionStorage {
         return true;
     }
     public abstract void clear();
+    public abstract void lockSession(UUID sessionUUID);
+    public abstract void lockUser(UUID userUUID);
+    public abstract void unlockSession(UUID sessionUUID);
+    public abstract void unlockUser(UUID userUUID);
     public void init(LaunchServer server)
     {
         this.server = server;
