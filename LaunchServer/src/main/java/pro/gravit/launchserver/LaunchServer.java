@@ -81,6 +81,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final ReconfigurableManager reconfigurableManager;
     public final ConfigManager configManager;
     public final PingServerManager pingServerManager;
+    public final FeaturesManager featuresManager;
     // HWID ban + anti-brutforce
     public final CertificateManager certificateManager;
     public final ProguardConf proguardConf;
@@ -147,6 +148,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
         pingServerManager = new PingServerManager(this);
+        featuresManager = new FeaturesManager(this);
         //Generate or set new Certificate API
         certificateManager.orgName = config.projectName;
         /*
