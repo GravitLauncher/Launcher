@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
 import pro.gravit.launchserver.socket.handlers.ContentType;
+import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
+import java.time.temporal.UnsupportedTemporalTypeException;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
@@ -220,11 +222,17 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 
             // Only compare up to the second because the datetime format we send to the client
             // does not have milliseconds
-            long ifModifiedSinceDateSeconds = ifModifiedSinceDate.get(ChronoField.INSTANT_SECONDS);
-            long fileLastModifiedSeconds = file.lastModified() / 1000;
-            if (ifModifiedSinceDateSeconds == fileLastModifiedSeconds) {
-                sendNotModified(ctx);
-                return;
+            try {
+                long ifModifiedSinceDateSeconds = ifModifiedSinceDate.getLong(ChronoField.INSTANT_SECONDS);
+                long fileLastModifiedSeconds = file.lastModified() / 1000;
+                if (ifModifiedSinceDateSeconds == fileLastModifiedSeconds) {
+                    sendNotModified(ctx);
+                    return;
+                }
+            } catch (UnsupportedTemporalTypeException e) {
+                if(LogHelper.isDebugEnabled()) {
+                    LogHelper.warning("Request access If-Modifed-Since: %s not parsed correctly", ifModifiedSince);
+                }
             }
         }
 
