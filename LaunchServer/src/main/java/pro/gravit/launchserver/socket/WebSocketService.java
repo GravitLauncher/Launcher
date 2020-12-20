@@ -19,6 +19,7 @@ import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.launchserver.socket.response.auth.*;
+import pro.gravit.launchserver.socket.response.management.FeaturesResponse;
 import pro.gravit.launchserver.socket.response.management.PingServerReportResponse;
 import pro.gravit.launchserver.socket.response.management.PingServerResponse;
 import pro.gravit.launchserver.socket.response.management.ServerStatusResponse;
@@ -103,6 +104,7 @@ public class WebSocketService {
         providers.register("pingServerReport", PingServerReportResponse.class);
         providers.register("pingServer", PingServerResponse.class);
         providers.register("currentUser", CurrentUserResponse.class);
+        providers.register("features", FeaturesResponse.class);
     }
 
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
