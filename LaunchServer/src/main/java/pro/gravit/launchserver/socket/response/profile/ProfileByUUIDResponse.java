@@ -63,6 +63,6 @@ public class ProfileByUUIDResponse extends SimpleResponse {
             sendError(String.format("ProfileByUUIDResponse: User with uuid %s not found or AuthProvider#uuidToUsername returned null", uuid));
             return;
         }
-        sendResult(new ProfileByUUIDRequestEvent(getProfile(uuid, username, this.client, client.auth.textureProvider)));
+        sendResult(new ProfileByUUIDRequestEvent(getProfile(uuid, username, this.client, pair.textureProvider)));
     }
 }
