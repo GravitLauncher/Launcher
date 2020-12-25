@@ -3,11 +3,12 @@ package pro.gravit.launchserver.auth.provider;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.RequiredDAO;
 import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.utils.helper.SecurityHelper;
 
-public class HibernateAuthProvider extends AuthProvider {
+public class HibernateAuthProvider extends AuthProvider implements RequiredDAO {
     public boolean autoReg;
 
     @Override

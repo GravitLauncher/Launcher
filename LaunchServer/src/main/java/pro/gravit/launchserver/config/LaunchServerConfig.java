@@ -10,6 +10,8 @@ import pro.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.provider.RejectAuthProvider;
+import pro.gravit.launchserver.auth.session.MemorySessionStorage;
+import pro.gravit.launchserver.auth.session.SessionStorage;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
 import pro.gravit.launchserver.binary.tasks.exe.Launch4JTask;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
@@ -33,6 +35,7 @@ public final class LaunchServerConfig {
     public LauncherConfig.LauncherEnvironment env;
     public Map<String, AuthProviderPair> auth;
     public DaoProvider dao;
+    public SessionStorage sessions;
 
     // Handlers & Providers
     public ProtectHandler protectHandler;
@@ -40,7 +43,6 @@ public final class LaunchServerConfig {
     public ExeConf launch4j;
     public NettyConfig netty;
     public LauncherConf launcher;
-    public CertificateConf certificate;
     public JarSignerConf sign;
     public String startScript;
     private transient LaunchServer server = null;
@@ -71,6 +73,7 @@ public final class LaunchServerConfig {
         a.displayName = "Default";
         newConfig.auth.put("std", a);
         newConfig.protectHandler = new StdProtectHandler();
+        newConfig.sessions = new MemorySessionStorage();
         newConfig.binaryName = "Launcher";
 
         newConfig.netty = new NettyConfig();
@@ -97,8 +100,6 @@ public final class LaunchServerConfig {
         newConfig.launcher.stripLineNumbers = true;
         newConfig.launcher.proguardGenMappings = true;
 
-        newConfig.certificate = new LaunchServerConfig.CertificateConf();
-        newConfig.certificate.enabled = false;
         newConfig.sign = new JarSignerConf();
 
         newConfig.components = new HashMap<>();
@@ -187,6 +188,10 @@ public final class LaunchServerConfig {
             protectHandler.init(server);
             protectHandler.checkLaunchServerLicense();
         }
+        if(sessions != null) {
+            sessions.init(server);
+            server.registerObject("sessions", sessions);
+        }
         if (components != null) {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
         }
@@ -229,6 +234,9 @@ public final class LaunchServerConfig {
             server.unregisterObject("protectHandler", protectHandler);
             protectHandler.close();
         }
+        if(sessions != null) {
+            server.unregisterObject("sessions", sessions);
+        }
         if (dao != null) {
             server.unregisterObject("dao", dao);
             if (dao instanceof AutoCloseable) {
@@ -258,10 +266,6 @@ public final class LaunchServerConfig {
 
         public String txtFileVersion;
         public String txtProductVersion;
-    }
-
-    public static class CertificateConf {
-        public boolean enabled;
     }
 
     public static class JarSignerConf {
@@ -312,6 +316,8 @@ public final class LaunchServerConfig {
         public boolean usingEpoll;
         public int bossThread;
         public int workerThread;
+        public long sessionLifetimeMs = 24 * 60 * 60 * 1000;
+        public int maxWebSocketRequestBytes = 1024 * 1024;
     }
 
     public static class NettyBindAddress {

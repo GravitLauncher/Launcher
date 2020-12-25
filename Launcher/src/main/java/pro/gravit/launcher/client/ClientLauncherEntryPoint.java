@@ -159,8 +159,7 @@ public class ClientLauncherEntryPoint {
             verifyHDir(clientDir, params.clientHDir, clientMatcher, digest);
             if (javaWatcher != null)
                 verifyHDir(javaDir, params.javaHDir, null, digest);
-            if (params.javaHDir != null)
-                LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
+            LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
             launch(profile, params);
         }
     }

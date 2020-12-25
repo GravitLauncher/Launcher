@@ -37,7 +37,9 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     }
 
     public void setClient(Client client) {
+        if(this.client != null) this.client.refCount.decrementAndGet();
         this.client = client;
+        if(client != null) client.refCount.incrementAndGet();
     }
 
     public final UUID getConnectUUID() {
@@ -85,6 +87,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         } else if ((frame instanceof PongWebSocketFrame)) {
             LogHelper.dev("WebSocket Client received pong");
         } else if ((frame instanceof CloseWebSocketFrame)) {
+            int statusCode = ((CloseWebSocketFrame) frame).statusCode();
             ctx.channel().close();
         } else {
             String message = "unsupported frame type: " + frame.getClass().getName();
@@ -95,6 +98,18 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (future != null) future.cancel(true);
+        if(LogHelper.isDevEnabled()) {
+            LogHelper.dev("Client %s disconnected", IOHelper.getIP(ctx.channel().remoteAddress()));
+        }
+        int refCount = client.refCount.decrementAndGet();
+        if(client.session != null) {
+            if(refCount == 0) {
+                srv.sessionManager.addClient(client);
+            }
+            else if(refCount < 0) {
+                LogHelper.warning("Client session %s reference counter invalid - %d", client.session, refCount);
+            }
+        }
         super.channelInactive(ctx);
     }
 }

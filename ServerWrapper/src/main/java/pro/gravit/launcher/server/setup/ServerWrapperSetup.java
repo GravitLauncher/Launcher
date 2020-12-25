@@ -46,6 +46,8 @@ public class ServerWrapperSetup {
             }
         }
         LogHelper.info("Found MainClass %s", mainClassName);
+        System.out.println("Print your server name:");
+        wrapper.config.serverName = commands.commandHandler.readLine();
         System.out.println("Print launchserver websocket host( ws://host:port/api ):");
         String address = commands.commandHandler.readLine();
         wrapper.config.mainclass = mainClassName;
@@ -56,14 +58,10 @@ public class ServerWrapperSetup {
             String login = commands.commandHandler.readLine();
             System.out.println("Print server account password:");
             String password = commands.commandHandler.readLine();
-            System.out.println("Print profile title:");
-            String title = commands.commandHandler.readLine();
             wrapper.config.login = login;
             wrapper.config.password = password;
-            wrapper.config.title = title;
             wrapper.config.stopOnError = false;
             wrapper.updateLauncherConfig();
-
             if (wrapper.auth()) {
                 break;
             } else {

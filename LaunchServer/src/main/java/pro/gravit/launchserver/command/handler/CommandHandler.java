@@ -5,7 +5,6 @@ import pro.gravit.launchserver.command.auth.AuthCommand;
 import pro.gravit.launchserver.command.auth.UUIDToUsernameCommand;
 import pro.gravit.launchserver.command.auth.UsernameToUUIDCommand;
 import pro.gravit.launchserver.command.basic.*;
-import pro.gravit.launchserver.command.dump.DumpSessionsCommand;
 import pro.gravit.launchserver.command.hash.*;
 import pro.gravit.launchserver.command.install.CheckInstallCommand;
 import pro.gravit.launchserver.command.install.MultiCommand;
@@ -61,12 +60,6 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         Category authCategory = new Category(auth, "auth", "User Management");
         handler.registerCategory(authCategory);
 
-        //Register dump commands
-        BaseCommandCategory dump = new BaseCommandCategory();
-        dump.registerCommand("dumpSessions", new DumpSessionsCommand(server));
-        Category dumpCategory = new Category(dump, "dump", "Dump runtime data");
-        handler.registerCategory(dumpCategory);
-
         //Register service commands
         BaseCommandCategory service = new BaseCommandCategory();
         service.registerCommand("config", new ConfigCommand(server));
@@ -78,6 +71,7 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         service.registerCommand("clients", new ClientsCommand(server));
         service.registerCommand("signJar", new SignJarCommand(server));
         service.registerCommand("signDir", new SignDirCommand(server));
+        service.registerCommand("pingServers", new PingServersCommand(server));
         service.registerCommand("securitycheck", new SecurityCheckCommand(server));
         Category serviceCategory = new Category(service, "service", "Managing LaunchServer Components");
         handler.registerCategory(serviceCategory);

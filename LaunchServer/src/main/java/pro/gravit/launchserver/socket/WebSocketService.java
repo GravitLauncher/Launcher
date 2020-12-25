@@ -11,12 +11,15 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
+import pro.gravit.launcher.events.request.ExitRequestEvent;
 import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.launchserver.socket.response.auth.*;
+import pro.gravit.launchserver.socket.response.management.FeaturesResponse;
 import pro.gravit.launchserver.socket.response.management.PingServerReportResponse;
 import pro.gravit.launchserver.socket.response.management.PingServerResponse;
 import pro.gravit.launchserver.socket.response.management.ServerStatusResponse;
@@ -36,8 +39,10 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class WebSocketService {
     public static final ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
@@ -68,12 +73,12 @@ public class WebSocketService {
     }
 
     public void forEachActiveChannels(BiConsumer<Channel, WebSocketFrameHandler> callback) {
-        channels.forEach((channel) -> {
-            if (channel == null || channel.pipeline() == null) return;
+        for(Channel channel : channels) {
+            if (channel == null || channel.pipeline() == null) continue;
             WebSocketFrameHandler wsHandler = channel.pipeline().get(WebSocketFrameHandler.class);
-            if (wsHandler == null) return;
+            if (wsHandler == null) continue;
             callback.accept(channel, wsHandler);
-        });
+        };
     }
 
     public static void registerResponses() {
@@ -99,6 +104,7 @@ public class WebSocketService {
         providers.register("pingServerReport", PingServerReportResponse.class);
         providers.register("pingServer", PingServerResponse.class);
         providers.register("currentUser", CurrentUserResponse.class);
+        providers.register("features", FeaturesResponse.class);
     }
 
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
@@ -206,6 +212,88 @@ public class WebSocketService {
         for (Channel ch : channels) {
             ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)), ch.voidPromise());
         }
+    }
+
+    public void sendObjectToUUID(UUID userUuid, Object obj, Type type) {
+        for (Channel ch : channels) {
+            if (ch == null || ch.pipeline() == null) continue;
+            WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
+            if (wsHandler == null) continue;
+            Client client = wsHandler.getClient();
+            if(client == null || !userUuid.equals(client.uuid)) continue;
+            ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)), ch.voidPromise());
+        }
+    }
+
+    public void updateDaoObject(UUID userUuid, User daoObject, Consumer<Channel> callback) {
+        for(Channel ch : channels) {
+            if (ch == null || ch.pipeline() == null) continue;
+            WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
+            if (wsHandler == null) continue;
+            Client client = wsHandler.getClient();
+            if(client == null || client.daoObject == null || !userUuid.equals(client.uuid)) continue;
+            client.daoObject = daoObject;
+            if(callback != null) callback.accept(ch);
+        }
+    }
+
+    public Channel getChannelFromConnectUUID(UUID connectUuid) {
+        for(Channel ch : channels) {
+            if (ch == null || ch.pipeline() == null) continue;
+            WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
+            if (wsHandler == null) continue;
+            if(connectUuid.equals(wsHandler.getConnectUUID())) {
+                return ch;
+            }
+        }
+        return null;
+    }
+
+    public boolean kickByUserUUID(UUID userUuid, boolean isClose) {
+        boolean result = false;
+        for(Channel ch : channels) {
+            if (ch == null || ch.pipeline() == null) continue;
+            WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
+            if (wsHandler == null) continue;
+            Client client = wsHandler.getClient();
+            if(client == null || client.daoObject == null || !userUuid.equals(client.uuid)) continue;
+            ExitResponse.exit(server, wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
+            if(isClose) ch.close();
+            result = true;
+        }
+        return result;
+    }
+
+    public boolean kickByConnectUUID(UUID connectUuid, boolean isClose) {
+        for(Channel ch : channels) {
+            if (ch == null || ch.pipeline() == null) continue;
+            WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
+            if (wsHandler == null) continue;
+            if(connectUuid.equals(wsHandler.getConnectUUID())) {
+                ExitResponse.exit(server, wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
+                if(isClose) ch.close();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean kickByIP(String ip, boolean isClose) {
+        boolean result = false;
+        for(Channel ch : channels) {
+            if (ch == null || ch.pipeline() == null) continue;
+            WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
+            if(wsHandler == null) continue;
+            String clientIp;
+            if(wsHandler.context != null && wsHandler.context.ip != null) clientIp = wsHandler.context.ip;
+            else clientIp = IOHelper.getIP(ch.remoteAddress());
+            if(ip.equals(clientIp)) {
+                ExitResponse.exit(server, wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
+                if(isClose) ch.close();
+                result = true;
+            }
+        }
+        return result;
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {

@@ -103,7 +103,6 @@ public class ClientLauncherProcess {
         this.systemEnv.put("JAVA_HOME", javaDir.toString());
         Collections.addAll(this.systemClassPath, this.params.profile.getAlternativeClassPath());
         if (params.ram > 0) {
-            this.jvmArgs.add("-Xms" + params.ram + 'M');
             this.jvmArgs.add("-Xmx" + params.ram + 'M');
         }
         this.params.session = Request.getSession();

@@ -10,6 +10,7 @@ import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
+import pro.gravit.launchserver.auth.session.MemorySessionStorage;
 import pro.gravit.launchserver.binary.*;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
@@ -80,6 +81,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final ReconfigurableManager reconfigurableManager;
     public final ConfigManager configManager;
     public final PingServerManager pingServerManager;
+    public final FeaturesManager featuresManager;
     // HWID ban + anti-brutforce
     public final CertificateManager certificateManager;
     public final ProguardConf proguardConf;
@@ -128,6 +130,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         runtime.verify();
         config.verify();
+        if(config.sessions == null) config.sessions = new MemorySessionStorage();
         if (config.components != null) {
             LogHelper.debug("PreInit components");
             config.components.forEach((k, v) -> {
@@ -139,15 +142,17 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         // build hooks, anti-brutforce and other
         proguardConf = new ProguardConf(this);
-        sessionManager = new SessionManager();
+        sessionManager = new SessionManager(this);
         mirrorManager = new MirrorManager();
         reconfigurableManager = new ReconfigurableManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
         pingServerManager = new PingServerManager(this);
+        featuresManager = new FeaturesManager(this);
         //Generate or set new Certificate API
         certificateManager.orgName = config.projectName;
-        if (config.certificate != null && config.certificate.enabled) {
+        /*
+        if (false) {
             if (IOHelper.isFile(caCertFile) && IOHelper.isFile(caKeyFile)) {
                 certificateManager.ca = certificateManager.readCertificate(caCertFile);
                 certificateManager.caKey = certificateManager.readPrivateKey(caKeyFile);
@@ -175,6 +180,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 }
             }
         }
+        */
         config.init(ReloadType.FULL);
         registerObject("launchServer", this);
         GarbageManager.registerNeedGC(sessionManager);

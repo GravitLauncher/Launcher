@@ -56,11 +56,11 @@ public class LauncherNettyServer implements AutoCloseable {
                         NettyConnectContext context = new NettyConnectContext();
                         //p.addLast(new LoggingHandler(LogLevel.INFO));
                         pipeline.addLast("http-codec", new HttpServerCodec());
-                        pipeline.addLast("http-codec-compressor", new HttpObjectAggregator(65536));
+                        pipeline.addLast("http-codec-compressor", new HttpObjectAggregator(server.config.netty.performance.maxWebSocketRequestBytes));
                         if (server.config.netty.ipForwarding)
                             pipeline.addLast("forward-http", new NettyIpForwardHandler(context));
                         pipeline.addLast("websock-comp", new WebSocketServerCompressionHandler());
-                        pipeline.addLast("websock-codec", new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
+                        pipeline.addLast("websock-codec", new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true, server.config.netty.performance.maxWebSocketRequestBytes));
                         if (!server.config.netty.disableWebApiInterface)
                             pipeline.addLast("webapi", new NettyWebAPIHandler(context));
                         if (server.config.netty.fileServerEnabled)

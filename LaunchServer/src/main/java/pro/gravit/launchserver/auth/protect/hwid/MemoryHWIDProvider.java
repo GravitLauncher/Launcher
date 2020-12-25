@@ -84,11 +84,11 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
         for (MemoryHWIDEntity e : db) {
             HardwareInfoCompareResult result = compareHardwareInfo(e.hardware, hardwareInfo);
             if (warningSpoofingLevel > 0 && result.firstSpoofingLevel > warningSpoofingLevel && !isAlreadyWarning) {
-                LogHelper.warning("HardwareInfo spoofing level too high: %d", result.firstSpoofingLevel);
+                LogHelper.warning("HardwareInfo spoofing level too high: %f", result.firstSpoofingLevel);
                 isAlreadyWarning = true;
             }
             if (result.compareLevel > criticalCompareLevel) {
-                LogHelper.debug("HardwareInfo publicKey change: compareLevel %d", result.compareLevel);
+                LogHelper.debug("HardwareInfo publicKey change: compareLevel %f", result.compareLevel);
                 if (e.banned) throw new HWIDException("You HWID banned");
                 e.publicKey = publicKey;
                 return true;
