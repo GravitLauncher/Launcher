@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 
 public class MemorySessionStorage extends SessionStorage implements NeedGarbageCollection {
 
-    private final Map<UUID, Entry> clientSet = new ConcurrentHashMap<>(128);
-    private final Map<UUID, Set<Entry>> uuidIndex = new ConcurrentHashMap<>(32);
+    private transient final Map<UUID, Entry> clientSet = new ConcurrentHashMap<>(128);
+    private transient final Map<UUID, Set<Entry>> uuidIndex = new ConcurrentHashMap<>(32);
 
     @Override
     public byte[] getSessionData(UUID session) {
