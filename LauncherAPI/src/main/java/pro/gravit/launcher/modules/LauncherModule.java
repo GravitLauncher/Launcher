@@ -1,5 +1,7 @@
 package pro.gravit.launcher.modules;
 
+import pro.gravit.launcher.LauncherTrustManager;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +13,7 @@ public abstract class LauncherModule {
     protected ModulesConfigManager modulesConfigManager;
     protected InitStatus initStatus = InitStatus.CREATED;
     private LauncherModulesContext context;
+    private LauncherTrustManager.CheckClassResult checkResult;
 
     protected LauncherModule() {
         moduleInfo = new LauncherModuleInfo("UnknownModule");
@@ -39,12 +42,32 @@ public abstract class LauncherModule {
      *
      * @param context Private context
      */
-    public void setContext(LauncherModulesContext context) {
+    public final void setContext(LauncherModulesContext context) {
         if (this.context != null) throw new IllegalStateException("Module already set context");
         this.context = context;
         this.modulesManager = context.getModulesManager();
         this.modulesConfigManager = context.getModulesConfigManager();
         this.setInitStatus(InitStatus.PRE_INIT_WAIT);
+    }
+    /**
+     * The internal method used by the ModuleManager
+     * DO NOT TOUCH
+     *
+     * @param result Check result
+     */
+    public final void setCheckResult(LauncherTrustManager.CheckClassResult result) {
+        if(this.checkResult != null) throw new IllegalStateException("Module already set check result");
+        this.checkResult = result;
+    }
+
+    public final LauncherTrustManager.CheckClassResultType getCheckStatus() {
+        if(this.checkResult == null) return null;
+        return this.checkResult.type;
+    }
+
+    public final LauncherTrustManager.CheckClassResult getCheckResult() {
+        if(this.checkResult == null) return null;
+        return new LauncherTrustManager.CheckClassResult(this.checkResult);
     }
 
     /**

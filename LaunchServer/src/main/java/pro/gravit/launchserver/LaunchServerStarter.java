@@ -72,7 +72,19 @@ public class LaunchServerStarter {
             //LauncherTrustManager.CheckMode mode = (Version.RELEASE == Version.Type.LTS || Version.RELEASE == Version.Type.STABLE) ?
             //        (allowUnsigned ? LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED : LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED) :
             //        (allowUnsigned ? LauncherTrustManager.CheckMode.NONE_IN_NOT_SIGNED : LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED);
-            certificateManager.checkClass(LaunchServer.class, LauncherTrustManager.CheckMode.NONE_IN_NOT_SIGNED);
+            LauncherTrustManager.CheckClassResult result = certificateManager.checkClass(LaunchServer.class);
+            if(result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
+                LogHelper.info("LaunchServer signed by %s", result.endCertificate.getSubjectDN().getName());
+            }
+            else if(result.type == LauncherTrustManager.CheckClassResultType.NOT_SIGNED) {
+                // None
+            }
+            else {
+                if(result.exception != null) {
+                    LogHelper.error(result.exception);
+                }
+                LogHelper.warning("LaunchServer signed incorrectly. Status: %s", result.type.name());
+            }
         }
 
         LaunchServerRuntimeConfig runtimeConfig;

@@ -40,6 +40,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected final LauncherTrustManager trustManager;
     protected final PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{});
     protected LauncherInitContext initContext;
+    @Deprecated
     protected LauncherTrustManager.CheckMode checkMode = LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED;
 
     public SimpleModuleManager(Path modulesDir, Path configDir) {
@@ -121,6 +122,11 @@ public class SimpleModuleManager implements LauncherModulesManager {
     @Override
     public LauncherModule loadModule(LauncherModule module) {
         if (modules.contains(module)) return module;
+        if(module.getCheckStatus() == null) {
+            LauncherTrustManager.CheckClassResult result = checkModuleClass(module.getClass());
+            verifyClassCheckResult(result);
+            module.setCheckResult(result);
+        }
         modules.add(module);
         LauncherModuleInfo info = module.getModuleInfo();
         moduleNames.add(info.name);
@@ -145,12 +151,20 @@ public class SimpleModuleManager implements LauncherModulesManager {
             classLoader.addURL(file.toUri().toURL());
             @SuppressWarnings("unchecked")
             Class<? extends LauncherModule> clazz = (Class<? extends LauncherModule>) Class.forName(moduleClass, false, classLoader);
-            checkModuleClass(clazz, checkMode);
+            LauncherTrustManager.CheckClassResult result = checkModuleClass(clazz);
+            try {
+                verifyClassCheckResultExceptional(result);
+            } catch (Exception e) {
+                LogHelper.error(e);
+                LogHelper.error("In module %s signature check failed", file.toString());
+                return null;
+            }
             if (!LauncherModule.class.isAssignableFrom(clazz))
                 throw new ClassNotFoundException("Invalid module class... Not contains LauncherModule in hierarchy.");
             LauncherModule module;
             try {
                 module = (LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invokeWithArguments(Collections.emptyList());
+                module.setCheckResult(result);
             } catch (Throwable e) {
                 throw (InstantiationException) new InstantiationException("Error on instancing...").initCause(e);
             }
@@ -163,6 +177,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
         }
     }
 
+    @Deprecated
     public void checkModuleClass(Class<? extends LauncherModule> clazz, LauncherTrustManager.CheckMode mode) throws SecurityException {
         if (trustManager == null) return;
         X509Certificate[] certificates = getCertificates(clazz);
@@ -174,10 +189,27 @@ public class SimpleModuleManager implements LauncherModulesManager {
             return;
         }
         try {
-            trustManager.checkCertificate(certificates, trustManager::stdCertificateChecker);
-        } catch (CertificateException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            trustManager.checkCertificatesSuccess(certificates, trustManager::stdCertificateChecker);
+        } catch (Exception e) {
             throw new SecurityException(e);
         }
+    }
+
+    public LauncherTrustManager.CheckClassResult checkModuleClass(Class<? extends LauncherModule> clazz) {
+        if (trustManager == null) return null;
+        X509Certificate[] certificates = getCertificates(clazz);
+        return trustManager.checkCertificates(certificates,trustManager::stdCertificateChecker);
+    }
+
+    public boolean verifyClassCheckResult(LauncherTrustManager.CheckClassResult result) {
+        if(result == null) return false;
+        return result.type == LauncherTrustManager.CheckClassResultType.SUCCESS;
+    }
+
+    public void verifyClassCheckResultExceptional(LauncherTrustManager.CheckClassResult result) throws Exception {
+        if(verifyClassCheckResult(result)) return;
+        if(result.exception != null) throw result.exception;
+        throw new SecurityException(result.type.name());
     }
 
     @Override
