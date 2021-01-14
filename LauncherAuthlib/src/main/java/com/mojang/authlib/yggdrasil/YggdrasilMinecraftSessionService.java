@@ -35,6 +35,11 @@ public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionServic
         LogHelper.debug("Patched MinecraftSessionService created");
     }
 
+    public YggdrasilMinecraftSessionService(YggdrasilAuthenticationService service) {
+        super(service);
+        LogHelper.debug("Patched MinecraftSessionService created");
+    }
+
     public static void fillTextureProperties(GameProfile profile, PlayerProfile pp) {
         boolean debug = LogHelper.isDebugEnabled();
         if (debug) {
