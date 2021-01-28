@@ -42,6 +42,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public SecurityManagerConfig securityManagerConfig = SecurityManagerConfig.CLIENT;
     @LauncherNetworkAPI
     public ClassLoaderConfig classLoaderConfig = ClassLoaderConfig.LAUNCHER;
+    @LauncherNetworkAPI
+    public SignedClientConfig signedClientConfig = SignedClientConfig.NONE;
     // Version
     @LauncherNetworkAPI
     private String version;
@@ -51,6 +53,14 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private String dir;
     @LauncherNetworkAPI
     private String assetDir;
+    @LauncherNetworkAPI
+    private int recommendJavaVersion = 8;
+    @LauncherNetworkAPI
+    private int minJavaVersion = 8;
+    @LauncherNetworkAPI
+    private int maxJavaVersion = 17;
+    @LauncherNetworkAPI
+    private boolean warnMissJavaVersion = true;
     // Client
     @LauncherNetworkAPI
     private int sortIndex;
@@ -71,6 +81,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     // Client launcher
     @LauncherNetworkAPI
     private String mainClass;
+    @LauncherNetworkAPI
+    private final List<String> compatClasses = new ArrayList<>();
     @LauncherNetworkAPI
     private final Map<String, String> properties = new HashMap<>();
 
@@ -171,6 +183,38 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public Set<OptionalFile> getOptional() {
         return updateOptional;
+    }
+
+    public int getRecommendJavaVersion() {
+        return recommendJavaVersion;
+    }
+
+    public void setRecommendJavaVersion(int recommendJavaVersion) {
+        this.recommendJavaVersion = recommendJavaVersion;
+    }
+
+    public int getMinJavaVersion() {
+        return minJavaVersion;
+    }
+
+    public void setMinJavaVersion(int minJavaVersion) {
+        this.minJavaVersion = minJavaVersion;
+    }
+
+    public int getMaxJavaVersion() {
+        return maxJavaVersion;
+    }
+
+    public void setMaxJavaVersion(int maxJavaVersion) {
+        this.maxJavaVersion = maxJavaVersion;
+    }
+
+    public boolean isWarnMissJavaVersion() {
+        return warnMissJavaVersion;
+    }
+
+    public void setWarnMissJavaVersion(boolean warnMissJavaVersion) {
+        this.warnMissJavaVersion = warnMissJavaVersion;
     }
 
     public void updateOptionalGraph() {
@@ -376,6 +420,9 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         for (String s : clientArgs) {
             if (s == null) throw new IllegalArgumentException("Found null entry in clientArgs");
         }
+        for(String s : compatClasses) {
+            if (s == null) throw new IllegalArgumentException("Found null entry in compatClasses");
+        }
         for (OptionalFile f : updateOptional) {
             if (f == null) throw new IllegalArgumentException("Found null entry in updateOptional");
             if (f.name == null) throw new IllegalArgumentException("Optional: name must not be null");
@@ -416,6 +463,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public Map<String, String> getProperties() {
         return Collections.unmodifiableMap(properties);
+    }
+
+    public List<String> getCompatClasses() {
+        return Collections.unmodifiableList(compatClasses);
     }
 
     public enum Version {
@@ -486,6 +537,9 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         AGENT, LAUNCHER
     }
 
+    public enum SignedClientConfig {
+        NONE, SIGNED
+    }
 
     @FunctionalInterface
     public interface pushOptionalClassPathCallback {

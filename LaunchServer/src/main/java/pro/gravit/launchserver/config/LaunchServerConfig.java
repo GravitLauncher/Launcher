@@ -93,7 +93,6 @@ public final class LaunchServerConfig {
         newConfig.launcher = new LauncherConf();
         newConfig.launcher.guardType = "no";
         newConfig.launcher.compress = true;
-        newConfig.launcher.warningMissArchJava = true;
         newConfig.launcher.attachLibraryBeforeProGuard = false;
         newConfig.launcher.deleteTempFiles = true;
         newConfig.launcher.enabledProGuard = true;
@@ -289,11 +288,14 @@ public final class LaunchServerConfig {
         public String guardType;
         public boolean attachLibraryBeforeProGuard;
         public boolean compress;
+        @Deprecated
         public boolean warningMissArchJava;
         public boolean enabledProGuard;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
         public boolean proguardGenMappings;
+        public boolean certificatePinning;
+        public int memoryLimit = 256;
     }
 
     public static class NettyConfig {

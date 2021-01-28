@@ -30,7 +30,7 @@ public final class LauncherConfig extends StreamObject {
     public final LauncherTrustManager trustManager;
     public final ECPublicKey publicKey;
     public final Map<String, byte[]> runtime;
-    @LauncherInject("launcher.isWarningMissArchJava")
+    @Deprecated
     public final boolean isWarningMissArchJava;
     @LauncherInject("launcher.guardType")
     public final String guardType;

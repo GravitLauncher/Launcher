@@ -107,8 +107,9 @@ public class MainBuildTask implements LauncherBuildTask {
         properties.put("runtimeconfig.secretKeyClient", SecurityHelper.randomStringAESKey());
         properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
         properties.put("launcher.guardType", server.config.launcher.guardType);
-        properties.put("launcher.isWarningMissArchJava", server.config.launcher.warningMissArchJava);
         properties.put("launchercore.env", server.config.env);
+        properties.put("launcher.memory", server.config.launcher.memoryLimit);
+        properties.put("launcher.certificatePinning", server.config.launcher.certificatePinning);
         properties.put("runtimeconfig.passwordEncryptKey", server.runtime.passwordEncryptKey);
         String launcherSalt = SecurityHelper.randomStringToken();
         byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,

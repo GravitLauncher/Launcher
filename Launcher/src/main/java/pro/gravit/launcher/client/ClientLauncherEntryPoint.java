@@ -10,6 +10,7 @@ import pro.gravit.launcher.client.events.client.*;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.patches.FMLPatcher;
@@ -26,25 +27,24 @@ import pro.gravit.launcher.utils.DirWatcher;
 import pro.gravit.utils.helper.*;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.URL;
+import java.net.*;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClientLauncherEntryPoint {
-    private static ClientClassLoader classLoader;
+    private static ClassLoader classLoader;
 
     private static ClientLauncherProcess.ClientParams readParams(SocketAddress address) throws IOException {
         try (Socket socket = IOHelper.newSocket()) {
@@ -77,18 +77,20 @@ public class ClientLauncherEntryPoint {
         LauncherConfig.initModules(LauncherEngine.modulesManager); //INIT
         LauncherEngine.modulesManager.initModules(null);
         initGson(LauncherEngine.modulesManager);
-        LauncherEngine.verifyNoAgent();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         engine.readKeys();
         LauncherGuardManager.initGuard(true);
         LogHelper.debug("Reading ClientLauncher params");
         ClientLauncherProcess.ClientParams params = readParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
+        if(params.profile.classLoaderConfig != ClientProfile.ClassLoaderConfig.AGENT) {
+            LauncherEngine.verifyNoAgent();
+        }
         ClientProfile profile = params.profile;
         Launcher.profile = profile;
         AuthService.profile = profile;
         LauncherEngine.clientParams = params;
         Request.setSession(params.session);
-        checkJVMBitsAndVersion();
+        checkJVMBitsAndVersion(params.profile.getMinJavaVersion(), params.profile.getRecommendJavaVersion(), params.profile.getMaxJavaVersion(), params.profile.isWarnMissJavaVersion());
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessInitPhase(engine, params));
 
         Path clientDir = Paths.get(params.clientDir);
@@ -103,10 +105,6 @@ public class ClientLauncherEntryPoint {
             if (a instanceof OptionalActionClassPath)
                 resolveClassPathStream(clientDir, ((OptionalActionClassPath) a).args).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
         }
-        classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
-        Thread.currentThread().setContextClassLoader(classLoader);
-        classLoader.nativePath = clientDir.resolve("natives").toString();
-        LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
         LogHelper.debug("Restore sessions");
@@ -129,13 +127,34 @@ public class ClientLauncherEntryPoint {
                 LogHelper.error(e);
             }
         };
-        AuthService.username = params.playerProfile.username;
-        AuthService.uuid = params.playerProfile.uuid;
-        ClientService.classLoader = classLoader;
-        ClientService.nativePath = classLoader.nativePath;
-        classLoader.addURL(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
-        //classForName(classLoader, "com.google.common.collect.ForwardingMultimap");
-        ClientService.baseURLs = classLoader.getURLs();
+        if(params.profile.classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
+            ClientClassLoader classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
+            ClientLauncherEntryPoint.classLoader = classLoader;
+            Thread.currentThread().setContextClassLoader(classLoader);
+            classLoader.nativePath = clientDir.resolve("natives").toString();
+            LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
+            AuthService.username = params.playerProfile.username;
+            AuthService.uuid = params.playerProfile.uuid;
+            ClientService.classLoader = classLoader;
+            ClientService.nativePath = classLoader.nativePath;
+            classLoader.addURL(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
+            ClientService.baseURLs = classLoader.getURLs();
+        }
+        else if(params.profile.classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
+            ClientLauncherEntryPoint.classLoader = ClassLoader.getSystemClassLoader();
+            classpath.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
+            for(URL url : classpath) {
+                LauncherAgent.addJVMClassPath(Paths.get(url.toURI()));
+            }
+            ClientService.instrumentation = LauncherAgent.inst;
+            ClientService.nativePath = clientDir.resolve("natives").toString();
+            LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
+            AuthService.username = params.playerProfile.username;
+            AuthService.uuid = params.playerProfile.uuid;
+            ClientService.classLoader = classLoader;
+            ClientService.baseURLs = classpath.toArray(new URL[0]);
+        }
+
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessReadyEvent(engine, params));
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
@@ -179,35 +198,42 @@ public class ClientLauncherEntryPoint {
         HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);
         HashedDir.Diff diff = hdir.diff(currentHDir, matcher);
         if (!diff.isSame()) {
-            /*AtomicBoolean isFoundFile = new AtomicBoolean(false);
-            diff.extra.walk(File.separator, (e,k,v) -> {
-                if(v.getType().equals(HashedEntry.Type.FILE)) { LogHelper.error("Extra file %s", e); isFoundFile.set(true); }
-                else LogHelper.error("Extra %s", e);
-            });
-            diff.mismatch.walk(File.separator, (e,k,v) -> {
-                if(v.getType().equals(HashedEntry.Type.FILE)) { LogHelper.error("Mismatch file %s", e); isFoundFile.set(true); }
-                else LogHelper.error("Mismatch %s", e);
-            });
-            if(isFoundFile.get())*/
+            if(LogHelper.isDebugEnabled()) {
+                diff.extra.walk(File.separator, (e, k, v) -> {
+                    if(v.getType().equals(HashedEntry.Type.FILE)) { LogHelper.error("Extra file %s", e); }
+                    else LogHelper.error("Extra %s", e);
+                    return HashedDir.WalkAction.CONTINUE;
+                });
+                diff.mismatch.walk(File.separator, (e,k,v) -> {
+                    if(v.getType().equals(HashedEntry.Type.FILE)) { LogHelper.error("Mismatch file %s", e); }
+                    else LogHelper.error("Mismatch %s", e);
+                    return HashedDir.WalkAction.CONTINUE;
+                });
+            }
             throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
         }
     }
 
-    public static void checkJVMBitsAndVersion() {
+    public static boolean checkJVMBitsAndVersion(int minVersion, int recommendVersion, int maxVersion, boolean showMessage) {
+        boolean ok = true;
         if (JVMHelper.JVM_BITS != JVMHelper.OS_BITS) {
             String error = String.format("У Вас установлена Java %d, но Ваша система определена как %d. Установите Java правильной разрядности", JVMHelper.JVM_BITS, JVMHelper.OS_BITS);
             LogHelper.error(error);
-            if (Launcher.getConfig().isWarningMissArchJava)
+            if (showMessage)
                 JOptionPane.showMessageDialog(null, error);
+            ok = false;
         }
         String jvmVersion = JVMHelper.RUNTIME_MXBEAN.getVmVersion();
         LogHelper.info(jvmVersion);
-        if (jvmVersion.startsWith("10.") || jvmVersion.startsWith("9.") || jvmVersion.startsWith("11.")) {
-            String error = String.format("У Вас установлена Java %s. Для правильной работы необходима Java 8", JVMHelper.RUNTIME_MXBEAN.getVmVersion());
+        int version = JVMHelper.getVersion();
+        if (version < minVersion || version > maxVersion) {
+            String error = String.format("У Вас установлена Java %s. Для правильной работы необходима Java %d", JVMHelper.RUNTIME_MXBEAN.getVmVersion(), recommendVersion);
             LogHelper.error(error);
-            if (Launcher.getConfig().isWarningMissArchJava)
+            if (showMessage)
                 JOptionPane.showMessageDialog(null, error);
+            ok = false;
         }
+        return ok;
     }
 
     private static LinkedList<Path> resolveClassPathList(Path clientDir, String... classPath) throws IOException {
@@ -253,11 +279,21 @@ public class ClientLauncherEntryPoint {
         LogHelper.debug("Args: " + copy);
         // Resolve main class and method
         Class<?> mainClass = classLoader.loadClass(profile.getMainClass());
-        for (URL u : classLoader.getURLs()) {
-            LogHelper.info("ClassLoader URL: %s", u.toString());
+        if(LogHelper.isDevEnabled() && classLoader instanceof URLClassLoader) {
+            for (URL u : ((URLClassLoader)classLoader).getURLs()) {
+                LogHelper.dev("ClassLoader URL: %s", u.toString());
+            }
         }
         FMLPatcher.apply();
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessPreInvokeMainClassEvent(params, profile, args));
+        {
+            List<String> compatClasses = profile.getCompatClasses();
+            for(String e : compatClasses) {
+                Class<?> clazz = classLoader.loadClass(e);
+                MethodHandle runMethod = MethodHandles.publicLookup().findStatic(clazz, "run", MethodType.methodType(void.class));
+                runMethod.invoke();
+            }
+        }
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
         Launcher.LAUNCHED.set(true);
         JVMHelper.fullGC();
