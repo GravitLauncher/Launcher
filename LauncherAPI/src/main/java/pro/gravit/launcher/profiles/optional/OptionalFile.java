@@ -16,7 +16,7 @@ import java.util.function.BiConsumer;
 
 public class OptionalFile {
     @LauncherNetworkAPI
-    public final long permissions = 0L;
+    public long permissions = 0L;
     @LauncherNetworkAPI
     @Deprecated
     public String[] list;
