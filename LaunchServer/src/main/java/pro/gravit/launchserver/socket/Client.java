@@ -32,6 +32,8 @@ public class Client {
 
     public transient Map<String, Object> properties;
 
+    public Map<String, String> serializableProperties;
+
     public transient AtomicInteger refCount = new AtomicInteger(1);
 
     public Client(UUID session) {
@@ -55,6 +57,7 @@ public class Client {
         else auth = server.config.getAuthProviderPair(auth_id);
     }
 
+    @Deprecated
     public enum Type {
         SERVER,
         USER
@@ -65,6 +68,9 @@ public class Client {
         public boolean keyChecked;
         public byte[] publicKey;
         public HardwareReportRequest.HardwareInfo hardwareInfo;
+        // May be used later
+        public double rating;
+        public long latestMillis;
     }
 
     @SuppressWarnings("unchecked")
@@ -76,5 +82,15 @@ public class Client {
     public <T> void setProperty(String name, T object) {
         if (properties == null) properties = new HashMap<>();
         properties.put(name, object);
+    }
+
+    public String getSerializableProperty(String name) {
+        if (serializableProperties == null) serializableProperties = new HashMap<>();
+        return serializableProperties.get(name);
+    }
+
+    public void setSerializableProperty(String name, String value) {
+        if (serializableProperties == null) serializableProperties = new HashMap<>();
+        properties.put(name, value);
     }
 }

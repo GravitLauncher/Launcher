@@ -14,7 +14,7 @@ public class FeaturesManager {
         this.server = server;
         map = new HashMap<>();
         addFeatureInfo("version", Version.getVersion().getVersionString());
-
+        addFeatureInfo("projectName", server.config.projectName);
     }
 
     public Map<String, String> getMap() {
