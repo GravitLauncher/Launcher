@@ -293,6 +293,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             }
         };
         commands.put("reload", reload);
+        SubCommand save = new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                launchServerConfigManager.writeConfig(config);
+                launchServerConfigManager.writeRuntimeConfig(runtime);
+                LogHelper.info("LaunchServerConfig saved");
+            }
+        };
+        commands.put("save", save);
         return commands;
     }
 
