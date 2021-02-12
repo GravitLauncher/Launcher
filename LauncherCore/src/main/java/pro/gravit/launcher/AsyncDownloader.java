@@ -1,7 +1,11 @@
 package pro.gravit.launcher;
 
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +15,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Path;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -20,6 +29,9 @@ public class AsyncDownloader {
     public static final Callback IGNORE = (ignored) -> {
     };
     public final Callback callback;
+    @LauncherInject("launcher.certificatePinning")
+    private static boolean isCertificatePinning;
+    private static volatile SSLSocketFactory sslSocketFactory;
 
     public AsyncDownloader(Callback callback) {
         this.callback = callback;
@@ -31,6 +43,14 @@ public class AsyncDownloader {
 
     public void downloadFile(URL url, Path target, long size) throws IOException {
         URLConnection connection = url.openConnection();
+        if(isCertificatePinning) {
+            HttpsURLConnection connection1 = (HttpsURLConnection) connection;
+            try {
+                connection1.setSSLSocketFactory(makeSSLSocketFactory());
+            } catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | KeyManagementException e) {
+                throw new IOException(e);
+            }
+        }
         try (InputStream input = connection.getInputStream()) {
             transfer(input, target, size);
         }
@@ -38,9 +58,25 @@ public class AsyncDownloader {
 
     public void downloadFile(URL url, Path target) throws IOException {
         URLConnection connection = url.openConnection();
+        if(isCertificatePinning) {
+            HttpsURLConnection connection1 = (HttpsURLConnection) connection;
+            try {
+                connection1.setSSLSocketFactory(makeSSLSocketFactory());
+            } catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | KeyManagementException e) {
+                throw new IOException(e);
+            }
+        }
         try (InputStream input = connection.getInputStream()) {
             IOHelper.transfer(input, target);
         }
+    }
+
+    public SSLSocketFactory makeSSLSocketFactory() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
+        if(sslSocketFactory != null) return sslSocketFactory;
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, CertificatePinningTrustManager.getTrustManager().getTrustManagers(), new SecureRandom());
+        sslSocketFactory = sslContext.getSocketFactory();
+        return sslSocketFactory;
     }
 
     public void downloadListInOneThread(List<SizedFile> files, String baseURL, Path targetDir) throws URISyntaxException, IOException {

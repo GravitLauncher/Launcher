@@ -96,17 +96,16 @@ public class SessionManager implements NeedGarbageCollection {
 
     @Deprecated
     public void updateClient(UUID session) {
-        LogHelper.warning("Using deprecated method: sessionManager.updateClient");
+        throw new UnsupportedOperationException();
     }
 
     @Deprecated
     public Set<Client> getSessions() {
-        LogHelper.warning("Using deprecated method: sessionManager.getSession");
-        return new HashSet<>();
+        throw new UnsupportedOperationException();
     }
     @Deprecated
     public void loadSessions(Set<Client> set) {
-        LogHelper.warning("Using deprecated method: sessionManager.loadSessions");
+        throw new UnsupportedOperationException();
         //clientSet.putAll(set.stream().collect(Collectors.toMap(c -> c.session, Function.identity())));
     }
 }

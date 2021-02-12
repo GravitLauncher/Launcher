@@ -11,7 +11,6 @@ import java.util.Collection;
 public class ClientModuleManager extends SimpleModuleManager {
     public ClientModuleManager() {
         super(null, null, Launcher.getConfig().trustManager);
-        checkMode = LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED;
     }
 
     @Override
@@ -31,8 +30,12 @@ public class ClientModuleManager extends SimpleModuleManager {
 
     @Override
     public LauncherModule loadModule(LauncherModule module) {
-        checkModuleClass(module.getClass(), LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED);
         return super.loadModule(module);
+    }
+
+    @Override
+    public final boolean verifyClassCheckResult(LauncherTrustManager.CheckClassResult result) {
+        return result.type == LauncherTrustManager.CheckClassResultType.SUCCESS;
     }
 
     public void callWrapper(ProcessBuilder processBuilder, Collection<String> jvmArgs) {

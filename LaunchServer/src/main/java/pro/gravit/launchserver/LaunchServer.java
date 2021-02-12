@@ -293,6 +293,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             }
         };
         commands.put("reload", reload);
+        SubCommand save = new SubCommand() {
+            @Override
+            public void invoke(String... args) throws Exception {
+                launchServerConfigManager.writeConfig(config);
+                launchServerConfigManager.writeRuntimeConfig(runtime);
+                LogHelper.info("LaunchServerConfig saved");
+            }
+        };
+        commands.put("save", save);
         return commands;
     }
 
@@ -319,7 +328,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
     public void close() throws Exception {
-
+        LogHelper.info("Close server socket");
+        nettyServerSocketHandler.close();
         // Close handlers & providers
         config.close(ReloadType.FULL);
         modulesManager.invokeEvent(new ClosePhase());
@@ -368,8 +378,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
         if (config.netty != null)
             rebindNettyServerSocket();
-        modulesManager.fullInitializedLaunchServer(this);
-        modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
+        try {
+            modulesManager.fullInitializedLaunchServer(this);
+            modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
+            LogHelper.info("LaunchServer started");
+        } catch (Throwable e) {
+            LogHelper.error(e);
+            JVMHelper.RUNTIME.exit(-1);
+        }
     }
 
     public void syncLauncherBinaries() throws IOException {

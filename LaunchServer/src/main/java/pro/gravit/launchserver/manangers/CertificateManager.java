@@ -193,6 +193,7 @@ public class CertificateManager {
         trustManager = new LauncherTrustManager(certificates.toArray(new X509Certificate[0]));
     }
 
+    @Deprecated
     public void checkClass(Class<?> clazz, LauncherTrustManager.CheckMode mode) throws SecurityException {
         if (trustManager == null) return;
         X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
@@ -204,9 +205,13 @@ public class CertificateManager {
             return;
         }
         try {
-            trustManager.checkCertificate(certificates, trustManager::stdCertificateChecker);
-        } catch (CertificateException | NoSuchProviderException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            trustManager.checkCertificatesSuccess(certificates, trustManager::stdCertificateChecker);
+        } catch (Exception e) {
             throw new SecurityException(e);
         }
+    }
+    public LauncherTrustManager.CheckClassResult checkClass(Class<?> clazz) {
+        X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
+        return trustManager.checkCertificates(certificates, trustManager::stdCertificateChecker);
     }
 }

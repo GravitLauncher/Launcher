@@ -61,7 +61,13 @@ public class LaunchServerStarter {
         Path privateKeyFile = dir.resolve("private.key");
         ECPublicKey publicKey;
         ECPrivateKey privateKey;
-        Security.addProvider(new BouncyCastleProvider());
+        try {
+            Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
+            Security.addProvider(new BouncyCastleProvider());
+        } catch (ClassNotFoundException ex) {
+            LogHelper.error("Library BouncyCastle not found! Is directory 'libraries' empty?");
+            return;
+        }
         CertificateManager certificateManager = new CertificateManager();
         try {
             certificateManager.readTrustStore(dir.resolve("truststore"));
@@ -72,7 +78,19 @@ public class LaunchServerStarter {
             //LauncherTrustManager.CheckMode mode = (Version.RELEASE == Version.Type.LTS || Version.RELEASE == Version.Type.STABLE) ?
             //        (allowUnsigned ? LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED : LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED) :
             //        (allowUnsigned ? LauncherTrustManager.CheckMode.NONE_IN_NOT_SIGNED : LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED);
-            certificateManager.checkClass(LaunchServer.class, LauncherTrustManager.CheckMode.NONE_IN_NOT_SIGNED);
+            LauncherTrustManager.CheckClassResult result = certificateManager.checkClass(LaunchServer.class);
+            if(result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
+                LogHelper.info("LaunchServer signed by %s", result.endCertificate.getSubjectDN().getName());
+            }
+            else if(result.type == LauncherTrustManager.CheckClassResultType.NOT_SIGNED) {
+                // None
+            }
+            else {
+                if(result.exception != null) {
+                    LogHelper.error(result.exception);
+                }
+                LogHelper.warning("LaunchServer signed incorrectly. Status: %s", result.type.name());
+            }
         }
 
         LaunchServerRuntimeConfig runtimeConfig;

@@ -117,6 +117,9 @@ public class ClientLauncherProcess {
         processArgs.add(executeFile.toString());
         processArgs.addAll(jvmArgs);
         //ADD CLASSPATH
+        if(params.profile.classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
+            processArgs.add("-javaagent:".concat(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString()));
+        }
         if (useLegacyJavaClassPathProperty) {
             processArgs.add("-Djava.class.path=".concat(String.join(getPathSeparator(), systemClassPath)));
         } else {
@@ -160,7 +163,7 @@ public class ClientLauncherProcess {
                 output.writeByteArray(serializedMainParams, 0);
                 params.clientHDir.write(output);
                 params.assetHDir.write(output);
-                if (params.javaHDir == null || params.javaHDir == params.assetHDir) { //TODO: OLD RUNTIME USE params.assetHDir AS NULL IN java.javaHDir
+                if (params.javaHDir == null || params.javaHDir == params.assetHDir) { //OLD RUNTIME USE params.assetHDir AS NULL IN java.javaHDir
                     output.writeBoolean(false);
                 } else {
                     output.writeBoolean(true);

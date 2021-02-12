@@ -26,11 +26,7 @@ jar {
     classifier = 'clean'
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
-            "Can-Redefine-Classes": "true",
-            "Multi-Release": "true",
-            "Can-Retransform-Classes": "true",
-            "Can-Set-Native-Method-Prefix": "true",
-            "Multi-Release-Jar": "true")
+            "Multi-Release": "true")
 }
 
 task sourcesJar(type: Jar) {

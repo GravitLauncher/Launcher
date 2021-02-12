@@ -22,6 +22,8 @@ public class ClientLauncherWrapper {
     public static final String NO_JAVA_CHECK_PROPERTY = "launcher.noJavaCheck";
     public static boolean noJavaCheck = Boolean.getBoolean(NO_JAVA_CHECK_PROPERTY);
     public static boolean waitProcess = Boolean.getBoolean(WAIT_PROCESS_PROPERTY);
+    @LauncherInject("launcher.memory")
+    public static int launcherMemoryLimit;
 
     public static class JavaVersion {
         public final Path jvmDir;

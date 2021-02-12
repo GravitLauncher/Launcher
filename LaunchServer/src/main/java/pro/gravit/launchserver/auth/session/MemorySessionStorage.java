@@ -1,16 +1,37 @@
 package pro.gravit.launchserver.auth.session;
 
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.manangers.SessionManager;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-public class MemorySessionStorage extends SessionStorage implements NeedGarbageCollection {
+public class MemorySessionStorage extends SessionStorage implements NeedGarbageCollection, AutoCloseable {
 
-    private final Map<UUID, Entry> clientSet = new ConcurrentHashMap<>(128);
-    private final Map<UUID, Set<Entry>> uuidIndex = new ConcurrentHashMap<>(32);
+    private transient final Map<UUID, Entry> clientSet = new ConcurrentHashMap<>(128);
+    private transient final Map<UUID, Set<Entry>> uuidIndex = new ConcurrentHashMap<>(32);
+    public boolean autoDump = false;
+    public String dumpFile = "sessions.json";
+
+    @Override
+    public void init(LaunchServer server) {
+        super.init(server);
+        if(autoDump) {
+            loadSessionsData();
+            garbageCollection();
+        }
+    }
 
     @Override
     public byte[] getSessionData(UUID session) {
@@ -71,6 +92,28 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
         uuidIndex.clear();
     }
 
+    public void dumpSessionsData() {
+        DumpedData dumpedData = new DumpedData(clientSet, uuidIndex);
+        Path path = Paths.get(dumpFile);
+        try(Writer writer = IOHelper.newWriter(path)) {
+            Launcher.gsonManager.gson.toJson(dumpedData, writer);
+        } catch (IOException e) {
+            LogHelper.error(e);
+        }
+    }
+
+    public void loadSessionsData() {
+        Path path = Paths.get(dumpFile);
+        if(!Files.exists(path)) return;
+        try(Reader reader = IOHelper.newReader(path)) {
+            DumpedData data = Launcher.gsonManager.gson.fromJson(reader, DumpedData.class);
+            clientSet.putAll(data.clientSet);
+            uuidIndex.putAll(data.uuidIndex);
+        } catch (IOException e) {
+            LogHelper.error(e);
+        }
+    }
+
     @Override
     public void lockSession(UUID sessionUUID) {
 
@@ -114,6 +157,14 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
         to_delete.clear();
     }
 
+    @Override
+    public void close() throws Exception {
+        if(autoDump) {
+            garbageCollection();
+            dumpSessionsData();
+        }
+    }
+
     private static class Entry {
         public byte[] data;
         public UUID sessionUuid;
@@ -123,6 +174,16 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
             this.data = data;
             this.sessionUuid = sessionUuid;
             this.timestamp = System.currentTimeMillis();
+        }
+    }
+
+    private static class DumpedData {
+        private final Map<UUID, Entry> clientSet;
+        private final Map<UUID, Set<Entry>> uuidIndex;
+
+        private DumpedData(Map<UUID, Entry> clientSet, Map<UUID, Set<Entry>> uuidIndex) {
+            this.clientSet = clientSet;
+            this.uuidIndex = uuidIndex;
         }
     }
 }
