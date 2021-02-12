@@ -21,6 +21,7 @@ public final class CertificatePinningTrustManager {
     @LauncherInject("launchercore.certificates")
     private static List<byte[]> secureConfigCertificates;
     private static X509Certificate[] certs = null;
+    private volatile static TrustManagerFactory INSTANCE;
     private static X509Certificate[] getInternalCertificates() {
         CertificateFactory certFactory = null;
         try {
@@ -45,6 +46,7 @@ public final class CertificatePinningTrustManager {
     }
 
     public static TrustManagerFactory getTrustManager() throws KeyStoreException, NoSuchAlgorithmException, IOException, CertificateException {
+        if(INSTANCE != null) return INSTANCE;
         if(certs == null) certs = getInternalCertificates();
         TrustManagerFactory factory = TrustManagerFactory.getInstance("X.509");
         KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -57,6 +59,7 @@ public final class CertificatePinningTrustManager {
             i++;
         }
         factory.init(keystore);
+        INSTANCE = factory;
         return factory;
     }
 }

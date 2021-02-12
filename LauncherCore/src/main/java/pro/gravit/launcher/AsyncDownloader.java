@@ -31,6 +31,7 @@ public class AsyncDownloader {
     public final Callback callback;
     @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
+    private static volatile SSLSocketFactory sslSocketFactory;
 
     public AsyncDownloader(Callback callback) {
         this.callback = callback;
@@ -71,9 +72,11 @@ public class AsyncDownloader {
     }
 
     public SSLSocketFactory makeSSLSocketFactory() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
+        if(sslSocketFactory != null) return sslSocketFactory;
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, CertificatePinningTrustManager.getTrustManager().getTrustManagers(), new SecureRandom());
-        return sslContext.getSocketFactory();
+        sslSocketFactory = sslContext.getSocketFactory();
+        return sslSocketFactory;
     }
 
     public void downloadListInOneThread(List<SizedFile> files, String baseURL, Path targetDir) throws URISyntaxException, IOException {

@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-public class MemorySessionStorage extends SessionStorage implements NeedGarbageCollection {
+public class MemorySessionStorage extends SessionStorage implements NeedGarbageCollection, AutoCloseable {
 
     private transient final Map<UUID, Entry> clientSet = new ConcurrentHashMap<>(128);
     private transient final Map<UUID, Set<Entry>> uuidIndex = new ConcurrentHashMap<>(32);
@@ -90,10 +90,6 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
     public void clear() {
         clientSet.clear();
         uuidIndex.clear();
-        if(autoDump) {
-            garbageCollection();
-            dumpSessionsData();
-        }
     }
 
     public void dumpSessionsData() {
@@ -161,6 +157,14 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
         to_delete.clear();
     }
 
+    @Override
+    public void close() throws Exception {
+        if(autoDump) {
+            garbageCollection();
+            dumpSessionsData();
+        }
+    }
+
     private static class Entry {
         public byte[] data;
         public UUID sessionUuid;
@@ -174,8 +178,8 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
     }
 
     private static class DumpedData {
-        private transient final Map<UUID, Entry> clientSet;
-        private transient final Map<UUID, Set<Entry>> uuidIndex;
+        private final Map<UUID, Entry> clientSet;
+        private final Map<UUID, Set<Entry>> uuidIndex;
 
         private DumpedData(Map<UUID, Entry> clientSet, Map<UUID, Set<Entry>> uuidIndex) {
             this.clientSet = clientSet;
