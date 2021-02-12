@@ -235,6 +235,13 @@ public final class LaunchServerConfig {
         }
         if(sessions != null) {
             server.unregisterObject("sessions", sessions);
+            if (sessions instanceof AutoCloseable) {
+                try {
+                    ((AutoCloseable) sessions).close();
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                }
+            }
         }
         if (dao != null) {
             server.unregisterObject("dao", dao);

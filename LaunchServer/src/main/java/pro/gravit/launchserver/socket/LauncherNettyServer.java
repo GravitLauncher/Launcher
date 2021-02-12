@@ -24,6 +24,7 @@ import pro.gravit.utils.BiHookSet;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 public class LauncherNettyServer implements AutoCloseable {
     private static final String WEBSOCKET_PATH = "/api";
@@ -77,7 +78,9 @@ public class LauncherNettyServer implements AutoCloseable {
 
     @Override
     public void close() {
-        workerGroup.shutdownGracefully();
-        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully(2, 5, TimeUnit.SECONDS);
+        bossGroup.shutdownGracefully(2, 5, TimeUnit.SECONDS);
+        //workerGroup.shutdownGracefully();
+        //bossGroup.shutdownGracefully();
     }
 }
