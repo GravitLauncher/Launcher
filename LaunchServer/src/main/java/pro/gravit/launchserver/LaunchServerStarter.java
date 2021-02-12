@@ -61,7 +61,13 @@ public class LaunchServerStarter {
         Path privateKeyFile = dir.resolve("private.key");
         ECPublicKey publicKey;
         ECPrivateKey privateKey;
-        Security.addProvider(new BouncyCastleProvider());
+        try {
+            Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
+            Security.addProvider(new BouncyCastleProvider());
+        } catch (ClassNotFoundException ex) {
+            LogHelper.error("Library BouncyCastle not found! Is directory 'libraries' empty?");
+            return;
+        }
         CertificateManager certificateManager = new CertificateManager();
         try {
             certificateManager.readTrustStore(dir.resolve("truststore"));
