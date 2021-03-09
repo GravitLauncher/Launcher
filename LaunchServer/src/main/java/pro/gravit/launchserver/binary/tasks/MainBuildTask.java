@@ -40,6 +40,7 @@ public class MainBuildTask implements LauncherBuildTask {
         reader = new ClassMetadataReader();
         InjectClassAcceptor injectClassAcceptor = new InjectClassAcceptor(properties);
         transformers.add(injectClassAcceptor);
+        blacklist.add("pro/gravit/launcher/debug/");
     }
 
     @Override

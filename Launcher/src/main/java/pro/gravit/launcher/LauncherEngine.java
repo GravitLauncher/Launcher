@@ -140,6 +140,10 @@ public class LauncherEngine {
         return new LauncherEngine();
     }
 
+    public static LauncherEngine newInstance() {
+        return new LauncherEngine();
+    }
+
     public void readKeys() throws IOException, InvalidKeySpecException {
         if (privateKey != null || publicKey != null) return;
         Path dir = DirBridge.dir;

@@ -8,7 +8,7 @@ import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 import java.nio.file.Path;
 import java.util.Collection;
 
-public class ClientModuleManager extends SimpleModuleManager {
+public final class ClientModuleManager extends SimpleModuleManager {
     public ClientModuleManager() {
         super(null, null, Launcher.getConfig().trustManager);
     }
@@ -20,11 +20,6 @@ public class ClientModuleManager extends SimpleModuleManager {
 
     @Override
     public void autoload(Path dir) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public LauncherModule loadModule(Path file) {
         throw new UnsupportedOperationException();
     }
 

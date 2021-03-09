@@ -98,6 +98,21 @@ public final class LauncherConfig extends StreamObject {
         trustManager = null;
     }
 
+    public LauncherConfig(String address, Map<String, byte[]> runtime, String projectName, LauncherEnvironment env, LauncherTrustManager trustManager) {
+        this.address = address;
+        this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
+        this.projectName = projectName;
+        this.clientPort = 32148;
+        this.publicKey = null;
+        this.trustManager = trustManager;
+        environment = env;
+        guardType = "no";
+        isWarningMissArchJava = true;
+        secureCheckSalt = null;
+        secureCheckHash = null;
+        passwordEncryptKey = null;
+    }
+
     public static void initModules(LauncherModulesManager modulesManager) {
         for (Class<?> clazz : modulesClasses)
             try {
