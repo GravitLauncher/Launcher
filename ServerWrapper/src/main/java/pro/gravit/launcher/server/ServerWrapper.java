@@ -249,7 +249,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         newConfig.stopOnError = true;
         newConfig.reconnectCount = 10;
         newConfig.reconnectSleep = 1000;
-        newConfig.websocket = new WebSocketConf();
         newConfig.address = "ws://localhost:9274/api";
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         return newConfig;
@@ -261,7 +260,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String projectname;
         public String address;
         public String serverName;
-        public WebSocketConf websocket;
         public int reconnectCount;
         public int reconnectSleep;
         public boolean customClassPath;

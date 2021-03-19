@@ -29,11 +29,13 @@ public class ServerWrapperSetup {
         String jarName = commands.commandHandler.readLine();
         Path jarPath = Paths.get(jarName);
         String mainClassName;
+        String agentClassName;
         try (JarFile file = new JarFile(jarPath.toFile())) {
             URL jarURL = jarPath.toUri().toURL();
             urlClassLoader = new PublicURLClassLoader(new URL[]{jarURL});
             LogHelper.info("Check server jar MainClass");
             mainClassName = file.getManifest().getMainAttributes().getValue("Main-Class");
+            agentClassName = file.getManifest().getMainAttributes().getValue("Premain-Class");
             if (mainClassName == null) {
                 LogHelper.error("Main-Class not found in MANIFEST");
                 return;
@@ -46,6 +48,9 @@ public class ServerWrapperSetup {
             }
         }
         LogHelper.info("Found MainClass %s", mainClassName);
+        if(agentClassName != null) {
+            LogHelper.info("Found PremainClass %s", agentClassName);
+        }
         System.out.println("Print your server name:");
         wrapper.config.serverName = commands.commandHandler.readLine();
         System.out.println("Print launchserver websocket host( ws://host:port/api ):");
@@ -82,12 +87,18 @@ public class ServerWrapperSetup {
         ServerWrapper.modulesManager.invokeEvent(new ServerWrapperSetupEvent(this));
         try (Writer writer = IOHelper.newWriter(startScript)) {
             if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
-                writer.append("#!/bin/sh\n\n");
+                writer.append("#!/bin/bash\n\n");
             }
-            writer.append("java ");
+            writer.append(IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home"))).toAbsolutePath().toString());
+            writer.append(" ");
             if (mainClassName.contains("bungee")) {
                 LogHelper.info("Found BungeeCord mainclass. Modules dir change to modules_srv");
                 writer.append(JVMHelper.jvmProperty("serverwrapper.modulesDir", "modules_srv"));
+                writer.append(" ");
+            }
+            if(agentClassName != null) {
+                writer.append("-javaagent:ServerWrapper.jar ");
+                writer.append("-Dserverwrapper.agentproxy=".concat(agentClassName));
                 writer.append(" ");
             }
             //More args

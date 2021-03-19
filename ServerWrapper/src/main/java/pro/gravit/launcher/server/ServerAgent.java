@@ -17,7 +17,6 @@ import java.util.jar.JarFile;
 
 public class ServerAgent {
     public static final Boolean isAutoloadLibraries = Boolean.getBoolean(System.getProperty("serverwrapper,agentlibrariesload", "false"));
-    public static final Boolean isAgentProxy = Boolean.getBoolean(System.getProperty("serverwrapper,agentproxy", "false"));
     public static Instrumentation inst = null;
     private static boolean isAgentStarted = false;
 
@@ -47,8 +46,8 @@ public class ServerAgent {
             Path libraries = Paths.get("libraries");
             if (IOHelper.exists(libraries)) loadLibraries(libraries);
         }
-        if (isAgentProxy) {
-            String proxyClassName = System.getProperty("serverwrapper.agentproxyclass");
+        String proxyClassName = System.getProperty("serverwrapper.agentproxy", null);
+        if (proxyClassName != null) {
             Class<?> proxyClass;
             try {
                 proxyClass = Class.forName(proxyClassName);
