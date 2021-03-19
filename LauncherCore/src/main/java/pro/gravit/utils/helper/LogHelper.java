@@ -2,7 +2,6 @@ package pro.gravit.utils.helper;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
-import org.fusesource.jansi.AnsiOutputStream;
 import pro.gravit.launcher.LauncherNetworkAPI;
 
 import java.io.*;
@@ -409,7 +408,7 @@ public final class LogHelper {
 
     private static final class JAnsiOutput extends WriterOutput {
         private JAnsiOutput(OutputStream output) {
-            super(IOHelper.newWriter(new AnsiOutputStream(output)));
+            super(IOHelper.newWriter(output));
         }
     }
 
