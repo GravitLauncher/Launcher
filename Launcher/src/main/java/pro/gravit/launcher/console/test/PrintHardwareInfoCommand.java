@@ -43,6 +43,11 @@ public class PrintHardwareInfoCommand extends Command {
         String baseboardSerial = provider.getBaseboardSerialNumber();
         currentTime = System.currentTimeMillis();
         LogHelper.info("BaseboardSerial %s, TIME: %d ms", baseboardSerial, currentTime - startTime);
+        startTime = System.currentTimeMillis();
+        String graphicCardName = provider.getGraphicCardName();
+        long graphicCardVRam = provider.getGraphicCardMemory();
+        currentTime = System.currentTimeMillis();
+        LogHelper.info("GraphicCard %s (%.3f vram), TIME: %d ms", graphicCardName, (double) graphicCardVRam, currentTime - startTime);
         LogHelper.info("Hardware ID end");
     }
 }

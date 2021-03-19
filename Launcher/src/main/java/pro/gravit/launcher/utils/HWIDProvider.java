@@ -1,10 +1,7 @@
 package pro.gravit.launcher.utils;
 
 import oshi.SystemInfo;
-import oshi.hardware.Display;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.PowerSource;
+import oshi.hardware.*;
 import oshi.software.os.OperatingSystem;
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 
@@ -62,6 +59,36 @@ public class HWIDProvider {
             return maxStore.getSerial();
         }
         return null;
+    }
+
+    public GraphicsCard getGraphicCard() {
+        List<GraphicsCard> graphicsCards = hardware.getGraphicsCards();
+        GraphicsCard result = null;
+        long size = 0;
+        for(GraphicsCard card : graphicsCards) {
+            long vram = card.getVRam();
+            if(vram > size) {
+                result = card;
+                size = vram;
+            }
+        }
+        return result;
+    }
+
+    public String getGraphicCardName() {
+        GraphicsCard card = getGraphicCard();
+        if(card == null) {
+            return null;
+        }
+        return card.getName();
+    }
+
+    public long getGraphicCardMemory() {
+        GraphicsCard card = getGraphicCard();
+        if(card == null) {
+            return 0;
+        }
+        return card.getVRam();
     }
 
     public byte[] getDisplayID() {
