@@ -5,8 +5,8 @@ import java.util.*;
 public final class Version {
 
     public static final int MAJOR = 5;
-    public static final int MINOR = 1;
-    public static final int PATCH = 11;
+    public static final int MINOR = 2;
+    public static final int PATCH = 0;
     public static final int BUILD = 1;
     public static final Version.Type RELEASE = Type.DEV;
     public final int major;

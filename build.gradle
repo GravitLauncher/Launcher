@@ -24,6 +24,9 @@ configure(subprojects.findAll { it.name != 'modules' }) {
         maven {
             url "https://clojars.org/repo/"
         }
+        maven {
+            url "https://jcenter.bintray.com/"
+        }
     }
 
     jar {

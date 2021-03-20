@@ -8,7 +8,7 @@ repositories {
         url "https://oss.sonatype.org/content/repositories/snapshots"
     }
     maven {
-        url "https://maven.geomajas.org/"
+        url "https://jcenter.bintray.com/"
     }
 }
 
@@ -84,11 +84,11 @@ dependencies {
     bundle group: 'org.hibernate', name: 'hibernate-hikaricp', version: rootProject['verHibernate']
     bundle group: 'mysql', name: 'mysql-connector-java', version: rootProject['verMySQLConn']
     bundle group: 'org.postgresql', name: 'postgresql', version: rootProject['verPostgreSQLConn']
-    bundle group: 'net.sf.proguard', name: 'proguard-base', version: rootProject['verProguard']
+    bundle group: 'com.guardsquare', name: 'proguard-base', version: rootProject['verProguard']
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 
-    hikari 'io.micrometer:micrometer-core:1.0.6'
-    hikari('com.zaxxer:HikariCP:3.4.1') {
+    hikari 'io.micrometer:micrometer-core:1.5.10'
+    hikari('com.zaxxer:HikariCP:4.0.3') {
         exclude group: 'javassist'
         exclude group: 'io.micrometer'
         exclude group: 'org.slf4j'

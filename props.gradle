@@ -12,7 +12,7 @@ project.ext {
     verSlf4j = '1.7.30'
     verMySQLConn = '8.0.23'
     verPostgreSQLConn = '42.2.19'
-    verProguard = '6.2.2'
+    verProguard = '7.1.0-beta1'
     verLaunch4j = '3.14'
     verHibernate = '5.4.29.Final'
 }
