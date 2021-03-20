@@ -68,6 +68,22 @@ public class LauncherModuleLoader {
         IOHelper.walk(modulesDir, new ModulesVisitor(), false);
     }
 
+    public void addClassFieldsToProperties(Map<String, Object> propertyMap, String prefix, Object object, Class<?> classOfObject) throws IllegalAccessException {
+        Field[] fields = classOfObject.getFields();
+        for (Field field : fields) {
+            if ((field.getModifiers() & Modifier.STATIC) != 0) continue;
+            Object obj = field.get(object);
+            String propertyName = prefix.concat(".").concat(field.getName().toLowerCase(Locale.US));
+            if (InjectClassAcceptor.isSerializableValue(obj)) {
+                LogHelper.dev("Property name %s", propertyName);
+                propertyMap.put(propertyName, obj);
+            } else {
+                //Try recursive add fields
+                addClassFieldsToProperties(propertyMap, propertyName, obj, obj.getClass());
+            }
+        }
+    }
+
     static class ModuleEntity {
         public Path path;
         public String moduleMainClass;
@@ -130,22 +146,6 @@ public class LauncherModuleLoader {
                     }
                 }
             return super.visitFile(file, attrs);
-        }
-    }
-
-    public void addClassFieldsToProperties(Map<String, Object> propertyMap, String prefix, Object object, Class<?> classOfObject) throws IllegalAccessException {
-        Field[] fields = classOfObject.getFields();
-        for (Field field : fields) {
-            if ((field.getModifiers() & Modifier.STATIC) != 0) continue;
-            Object obj = field.get(object);
-            String propertyName = prefix.concat(".").concat(field.getName().toLowerCase(Locale.US));
-            if (InjectClassAcceptor.isSerializableValue(obj)) {
-                LogHelper.dev("Property name %s", propertyName);
-                propertyMap.put(propertyName, obj);
-            } else {
-                //Try recursive add fields
-                addClassFieldsToProperties(propertyMap, propertyName, obj, obj.getClass());
-            }
         }
     }
 }

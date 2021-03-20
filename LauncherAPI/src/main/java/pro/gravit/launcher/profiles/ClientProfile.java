@@ -39,6 +39,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private final List<String> clientArgs = new ArrayList<>();
     @LauncherNetworkAPI
+    private final List<String> compatClasses = new ArrayList<>();
+    @LauncherNetworkAPI
+    private final Map<String, String> properties = new HashMap<>();
+    @LauncherNetworkAPI
+    private final List<ServerProfile> servers = new ArrayList<>(1);
+    @LauncherNetworkAPI
     public SecurityManagerConfig securityManagerConfig = SecurityManagerConfig.CLIENT;
     @LauncherNetworkAPI
     public ClassLoaderConfig classLoaderConfig = ClassLoaderConfig.LAUNCHER;
@@ -81,24 +87,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     // Client launcher
     @LauncherNetworkAPI
     private String mainClass;
-    @LauncherNetworkAPI
-    private final List<String> compatClasses = new ArrayList<>();
-    @LauncherNetworkAPI
-    private final Map<String, String> properties = new HashMap<>();
-
-    public static class ServerProfile {
-        public String name;
-        public String serverAddress;
-        public int serverPort;
-        public boolean isDefault = true;
-
-        public InetSocketAddress toSocketAddress() {
-            return InetSocketAddress.createUnresolved(serverAddress, serverPort);
-        }
-    }
-
-    @LauncherNetworkAPI
-    private final List<ServerProfile> servers = new ArrayList<>(1);
 
     public ServerProfile getDefaultServerProfile() {
         for (ServerProfile profile : servers) {
@@ -420,7 +408,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         for (String s : clientArgs) {
             if (s == null) throw new IllegalArgumentException("Found null entry in clientArgs");
         }
-        for(String s : compatClasses) {
+        for (String s : compatClasses) {
             if (s == null) throw new IllegalArgumentException("Found null entry in compatClasses");
         }
         for (OptionalFile f : updateOptional) {
@@ -544,6 +532,17 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @FunctionalInterface
     public interface pushOptionalClassPathCallback {
         void run(String[] opt) throws IOException;
+    }
+
+    public static class ServerProfile {
+        public String name;
+        public String serverAddress;
+        public int serverPort;
+        public boolean isDefault = true;
+
+        public InetSocketAddress toSocketAddress() {
+            return InetSocketAddress.createUnresolved(serverAddress, serverPort);
+        }
     }
 
 

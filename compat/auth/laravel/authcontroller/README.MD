@@ -1,6 +1,7 @@
-#Контроллер авторизации методом json
+# Контроллер авторизации методом json
 
 Route:
+
 ```php
 Route::put('launcher/auth', 'LauncherAuthController@json');
 ```

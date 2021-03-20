@@ -24,8 +24,8 @@ import pro.gravit.utils.helper.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.KeyPair;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;

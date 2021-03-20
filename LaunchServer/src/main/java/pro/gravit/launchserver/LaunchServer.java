@@ -125,7 +125,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         runtime.verify();
         config.verify();
-        if(config.sessions == null) config.sessions = new MemorySessionStorage();
+        if (config.sessions == null) config.sessions = new MemorySessionStorage();
         if (config.components != null) {
             LogHelper.debug("PreInit components");
             config.components.forEach((k, v) -> {

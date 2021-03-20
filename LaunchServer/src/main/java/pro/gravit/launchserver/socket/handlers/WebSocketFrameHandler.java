@@ -20,9 +20,9 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     public final LaunchServer srv;
     public final WebSocketService service;
+    public final BiHookSet<ChannelHandlerContext, WebSocketFrame> hooks = new BiHookSet<>();
     private final UUID connectUUID = UUID.randomUUID();
     public NettyConnectContext context;
-    public final BiHookSet<ChannelHandlerContext, WebSocketFrame> hooks = new BiHookSet<>();
     private Client client;
     private ScheduledFuture<?> future;
 
@@ -37,9 +37,9 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     }
 
     public void setClient(Client client) {
-        if(this.client != null) this.client.refCount.decrementAndGet();
+        if (this.client != null) this.client.refCount.decrementAndGet();
         this.client = client;
-        if(client != null) client.refCount.incrementAndGet();
+        if (client != null) client.refCount.incrementAndGet();
     }
 
     public final UUID getConnectUUID() {
@@ -98,15 +98,14 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (future != null) future.cancel(true);
-        if(LogHelper.isDevEnabled()) {
+        if (LogHelper.isDevEnabled()) {
             LogHelper.dev("Client %s disconnected", IOHelper.getIP(ctx.channel().remoteAddress()));
         }
         int refCount = client.refCount.decrementAndGet();
-        if(client.session != null) {
-            if(refCount == 0) {
+        if (client.session != null) {
+            if (refCount == 0) {
                 srv.sessionManager.addClient(client);
-            }
-            else if(refCount < 0) {
+            } else if (refCount < 0) {
                 LogHelper.warning("Client session %s reference counter invalid - %d", client.session, refCount);
             }
         }

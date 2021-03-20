@@ -57,22 +57,6 @@ public class Client {
         else auth = server.config.getAuthProviderPair(auth_id);
     }
 
-    @Deprecated
-    public enum Type {
-        SERVER,
-        USER
-    }
-
-    public static class TrustLevel {
-        public byte[] verifySecureKey;
-        public boolean keyChecked;
-        public byte[] publicKey;
-        public HardwareReportRequest.HardwareInfo hardwareInfo;
-        // May be used later
-        public double rating;
-        public long latestMillis;
-    }
-
     @SuppressWarnings("unchecked")
     public <T> T getProperty(String name) {
         if (properties == null) properties = new HashMap<>();
@@ -92,5 +76,21 @@ public class Client {
     public void setSerializableProperty(String name, String value) {
         if (serializableProperties == null) serializableProperties = new HashMap<>();
         properties.put(name, value);
+    }
+
+    @Deprecated
+    public enum Type {
+        SERVER,
+        USER
+    }
+
+    public static class TrustLevel {
+        public byte[] verifySecureKey;
+        public boolean keyChecked;
+        public byte[] publicKey;
+        public HardwareReportRequest.HardwareInfo hardwareInfo;
+        // May be used later
+        public double rating;
+        public long latestMillis;
     }
 }

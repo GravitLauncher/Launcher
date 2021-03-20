@@ -35,12 +35,6 @@ public abstract class HWIDProvider {
         if (hardwareInfo.hwDiskId != null) hardwareInfo.hwDiskId = hardwareInfo.hwDiskId.trim();
     }
 
-    public static class HardwareInfoCompareResult {
-        public double firstSpoofingLevel = 0.0;
-        public double secondSpoofingLevel = 0.0;
-        public double compareLevel;
-    }
-
     //Required normalize HardwareInfo
     public HardwareInfoCompareResult compareHardwareInfo(HardwareReportRequest.HardwareInfo first, HardwareReportRequest.HardwareInfo second) {
         HardwareInfoCompareResult result = new HardwareInfoCompareResult();
@@ -110,5 +104,11 @@ public abstract class HWIDProvider {
 
     public void close() {
 
+    }
+
+    public static class HardwareInfoCompareResult {
+        public double firstSpoofingLevel = 0.0;
+        public double secondSpoofingLevel = 0.0;
+        public double compareLevel;
     }
 }

@@ -10,6 +10,7 @@ public class ApiBridgeService {
         LauncherTrustManager trustManager = Launcher.getConfig().trustManager;
         return trustManager.checkCertificates(certs, trustManager::stdCertificateChecker);
     }
+
     public static void checkCertificatesSuccess(X509Certificate[] certs) throws Exception {
         LauncherTrustManager trustManager = Launcher.getConfig().trustManager;
         trustManager.checkCertificatesSuccess(certs, trustManager::stdCertificateChecker);

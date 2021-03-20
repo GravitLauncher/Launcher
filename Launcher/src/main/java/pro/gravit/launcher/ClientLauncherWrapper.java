@@ -25,45 +25,6 @@ public class ClientLauncherWrapper {
     @LauncherInject("launcher.memory")
     public static int launcherMemoryLimit;
 
-    public static class JavaVersion {
-        public final Path jvmDir;
-        public final int version;
-        public boolean enabledJavaFX;
-
-        public JavaVersion(Path jvmDir, int version) {
-            this.jvmDir = jvmDir;
-            this.version = version;
-            this.enabledJavaFX = true;
-        }
-
-        public static JavaVersion getCurrentJavaVersion() {
-            return new JavaVersion(Paths.get(System.getProperty("java.home")), JVMHelper.getVersion());
-        }
-
-        public static JavaVersion getByPath(Path jvmDir) throws IOException {
-            Path releaseFile = jvmDir.resolve("release");
-            if (!IOHelper.isFile(releaseFile)) return null;
-            Properties properties = new Properties();
-            properties.load(IOHelper.newReader(releaseFile));
-            int javaVersion = getJavaVersion(properties.getProperty("JAVA_VERSION").replaceAll("\"", ""));
-            JavaVersion resultJavaVersion = new JavaVersion(jvmDir, javaVersion);
-            if (javaVersion <= 8) {
-                resultJavaVersion.enabledJavaFX = isExistExtJavaLibrary(jvmDir, "jfxrt");
-            } else {
-                resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir, "javafx.base") != null;
-                if (!resultJavaVersion.enabledJavaFX)
-                    resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir.resolve("jre"), "javafx.base") != null;
-            }
-            return resultJavaVersion;
-        }
-
-        public static boolean isExistExtJavaLibrary(Path jvmDir, String name) {
-            Path jrePath = jvmDir.resolve("lib").resolve("ext").resolve(name.concat(".jar"));
-            Path jdkPath = jvmDir.resolve("jre").resolve("lib").resolve("ext").resolve(name.concat(".jar"));
-            return IOHelper.isFile(jrePath) || IOHelper.isFile(jdkPath);
-        }
-    }
-
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
@@ -136,7 +97,7 @@ public class ClientLauncherWrapper {
         }
         args.add(MAGIC_ARG);
         args.add("-XX:+DisableAttachMechanism");
-        if(launcherMemoryLimit != 0) {
+        if (launcherMemoryLimit != 0) {
             args.add(String.format("-Xmx%dM", launcherMemoryLimit));
         }
         //Collections.addAll(args, "-javaagent:".concat(pathLauncher));
@@ -245,5 +206,44 @@ public class ClientLauncherWrapper {
             }
         }
         return Integer.parseInt(version);
+    }
+
+    public static class JavaVersion {
+        public final Path jvmDir;
+        public final int version;
+        public boolean enabledJavaFX;
+
+        public JavaVersion(Path jvmDir, int version) {
+            this.jvmDir = jvmDir;
+            this.version = version;
+            this.enabledJavaFX = true;
+        }
+
+        public static JavaVersion getCurrentJavaVersion() {
+            return new JavaVersion(Paths.get(System.getProperty("java.home")), JVMHelper.getVersion());
+        }
+
+        public static JavaVersion getByPath(Path jvmDir) throws IOException {
+            Path releaseFile = jvmDir.resolve("release");
+            if (!IOHelper.isFile(releaseFile)) return null;
+            Properties properties = new Properties();
+            properties.load(IOHelper.newReader(releaseFile));
+            int javaVersion = getJavaVersion(properties.getProperty("JAVA_VERSION").replaceAll("\"", ""));
+            JavaVersion resultJavaVersion = new JavaVersion(jvmDir, javaVersion);
+            if (javaVersion <= 8) {
+                resultJavaVersion.enabledJavaFX = isExistExtJavaLibrary(jvmDir, "jfxrt");
+            } else {
+                resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir, "javafx.base") != null;
+                if (!resultJavaVersion.enabledJavaFX)
+                    resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir.resolve("jre"), "javafx.base") != null;
+            }
+            return resultJavaVersion;
+        }
+
+        public static boolean isExistExtJavaLibrary(Path jvmDir, String name) {
+            Path jrePath = jvmDir.resolve("lib").resolve("ext").resolve(name.concat(".jar"));
+            Path jdkPath = jvmDir.resolve("jre").resolve("lib").resolve("ext").resolve(name.concat(".jar"));
+            return IOHelper.isFile(jrePath) || IOHelper.isFile(jdkPath);
+        }
     }
 }

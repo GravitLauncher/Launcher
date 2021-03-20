@@ -16,7 +16,6 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import pro.gravit.launcher.CertificatePinningTrustManager;
 import pro.gravit.launcher.LauncherInject;
-import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.utils.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
@@ -25,11 +24,12 @@ import java.net.URI;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 public abstract class ClientJSONPoint {
 
     private static final EventLoopGroup group = new NioEventLoopGroup();
+    @LauncherInject("launcher.certificatePinning")
+    private static boolean isCertificatePinning;
     protected final Bootstrap bootstrap = new Bootstrap();
     private final URI uri;
     public boolean isClosed;
@@ -37,8 +37,6 @@ public abstract class ClientJSONPoint {
     protected WebSocketClientHandler webSocketClientHandler;
     protected boolean ssl = false;
     protected int port;
-    @LauncherInject("launcher.certificatePinning")
-    private static boolean isCertificatePinning;
 
     public ClientJSONPoint(final String uri) throws SSLException {
         this(URI.create(uri));
@@ -60,7 +58,7 @@ public abstract class ClientJSONPoint {
         final SslContext sslCtx;
         if (ssl) {
             SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
-            if(isCertificatePinning) {
+            if (isCertificatePinning) {
                 try {
                     sslContextBuilder.trustManager(CertificatePinningTrustManager.getTrustManager());
                 } catch (KeyStoreException | NoSuchAlgorithmException | IOException | CertificateException e) {

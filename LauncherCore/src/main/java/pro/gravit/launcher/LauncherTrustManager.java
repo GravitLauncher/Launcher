@@ -1,6 +1,5 @@
 package pro.gravit.launcher;
 
-import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.ByteArrayInputStream;
@@ -20,43 +19,25 @@ public class LauncherTrustManager {
     private final X509Certificate[] trustSigners;
     private final List<X509Certificate> trustCache = new ArrayList<>();
 
-    public enum CheckClassResultType {
-        NOT_SIGNED,
-        SUCCESS,
-        UNTRUSTED,
-        UNVERIFED,
-        UNCOMPAT
+    public LauncherTrustManager(X509Certificate[] trustSigners) {
+        this.trustSigners = trustSigners;
     }
-    public static class CheckClassResult {
-        public final CheckClassResultType type;
-        public final X509Certificate endCertificate;
-        public final X509Certificate rootCertificate;
-        public final Exception exception;
 
-        public CheckClassResult(CheckClassResultType type, X509Certificate endCertificate, X509Certificate rootCertificate) {
-            this.type = type;
-            this.endCertificate = endCertificate;
-            this.rootCertificate = rootCertificate;
-            exception = null;
-        }
-
-        public CheckClassResult(CheckClassResultType type, X509Certificate endCertificate, X509Certificate rootCertificate, Exception exception) {
-            this.type = type;
-            this.endCertificate = endCertificate;
-            this.rootCertificate = rootCertificate;
-            this.exception = exception;
-        }
-
-        public CheckClassResult(CheckClassResult orig) {
-            this.type = orig.type;
-            this.exception = orig.exception;
-            this.rootCertificate = orig.rootCertificate;
-            this.endCertificate = orig.endCertificate;
-        }
+    public LauncherTrustManager(List<byte[]> encodedCertificate) throws CertificateException {
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        trustSigners = encodedCertificate.stream().map((cert) -> {
+            try (InputStream input = new ByteArrayInputStream(cert)) {
+                return (X509Certificate) certFactory.generateCertificate(input);
+            } catch (IOException | CertificateException e) {
+                LogHelper.error(e);
+                return null;
+            }
+        }).toArray(X509Certificate[]::new);
     }
-    public CheckClassResult checkCertificates( X509Certificate[] certs, CertificateChecker checker) {
-        if(certs == null) return new CheckClassResult(CheckClassResultType.NOT_SIGNED, null, null);
-        X509Certificate rootCert = certs[certs.length-1];
+
+    public CheckClassResult checkCertificates(X509Certificate[] certs, CertificateChecker checker) {
+        if (certs == null) return new CheckClassResult(CheckClassResultType.NOT_SIGNED, null, null);
+        X509Certificate rootCert = certs[certs.length - 1];
         X509Certificate endCert = certs[0];
         for (int i = 0; i < certs.length; ++i) {
             X509Certificate cert = certs[i];
@@ -80,7 +61,7 @@ public class LauncherTrustManager {
                 }
             } else {
                 try {
-                    if(isTrusted(cert)) {
+                    if (isTrusted(cert)) {
                         continue;
                     } else {
                         return new CheckClassResult(CheckClassResultType.UNTRUSTED, endCert, rootCert);
@@ -99,27 +80,11 @@ public class LauncherTrustManager {
         return new CheckClassResult(CheckClassResultType.SUCCESS, endCert, rootCert);
     }
 
-    public void checkCertificatesSuccess( X509Certificate[] certs, CertificateChecker checker) throws Exception {
+    public void checkCertificatesSuccess(X509Certificate[] certs, CertificateChecker checker) throws Exception {
         CheckClassResult result = checkCertificates(certs, checker);
-        if(result.type == CheckClassResultType.SUCCESS) return;
-        if(result.exception != null) throw result.exception;
+        if (result.type == CheckClassResultType.SUCCESS) return;
+        if (result.exception != null) throw result.exception;
         throw new SecurityException(result.type.name());
-    }
-
-    public LauncherTrustManager(X509Certificate[] trustSigners) {
-        this.trustSigners = trustSigners;
-    }
-
-    public LauncherTrustManager(List<byte[]> encodedCertificate) throws CertificateException {
-        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-        trustSigners = encodedCertificate.stream().map((cert) -> {
-            try (InputStream input = new ByteArrayInputStream(cert)) {
-                return (X509Certificate) certFactory.generateCertificate(input);
-            } catch (IOException | CertificateException e) {
-                LogHelper.error(e);
-                return null;
-            }
-        }).toArray(X509Certificate[]::new);
     }
 
     @Deprecated
@@ -193,6 +158,15 @@ public class LauncherTrustManager {
         else
             isCertificateCA(cert);
     }
+
+    public enum CheckClassResultType {
+        NOT_SIGNED,
+        SUCCESS,
+        UNTRUSTED,
+        UNVERIFED,
+        UNCOMPAT
+    }
+
     @Deprecated
     public enum CheckMode {
         EXCEPTION_IN_NOT_SIGNED, WARN_IN_NOT_SIGNED, NONE_IN_NOT_SIGNED
@@ -200,5 +174,33 @@ public class LauncherTrustManager {
 
     public interface CertificateChecker {
         void check(X509Certificate cert, X509Certificate signer, int number) throws SecurityException;
+    }
+
+    public static class CheckClassResult {
+        public final CheckClassResultType type;
+        public final X509Certificate endCertificate;
+        public final X509Certificate rootCertificate;
+        public final Exception exception;
+
+        public CheckClassResult(CheckClassResultType type, X509Certificate endCertificate, X509Certificate rootCertificate) {
+            this.type = type;
+            this.endCertificate = endCertificate;
+            this.rootCertificate = rootCertificate;
+            exception = null;
+        }
+
+        public CheckClassResult(CheckClassResultType type, X509Certificate endCertificate, X509Certificate rootCertificate, Exception exception) {
+            this.type = type;
+            this.endCertificate = endCertificate;
+            this.rootCertificate = rootCertificate;
+            this.exception = exception;
+        }
+
+        public CheckClassResult(CheckClassResult orig) {
+            this.type = orig.type;
+            this.exception = orig.exception;
+            this.rootCertificate = orig.rootCertificate;
+            this.endCertificate = orig.endCertificate;
+        }
     }
 }

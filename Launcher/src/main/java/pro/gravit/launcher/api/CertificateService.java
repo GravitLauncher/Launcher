@@ -1,6 +1,5 @@
 package pro.gravit.launcher.api;
 
-import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherTrustManager;
 import pro.gravit.launcher.utils.ApiBridgeService;
 
@@ -45,6 +44,7 @@ public class CertificateService {
         UNCOMPAT,
         UNKNOWN
     }
+
     public static class CheckClassResultApi {
         public final CheckClassResultTypeApi type;
         public final X509Certificate endCertificate;
@@ -71,12 +71,14 @@ public class CertificateService {
             this.rootCertificate = orig.rootCertificate;
             this.endCertificate = orig.endCertificate;
         }
+
         private static CheckClassResultApi fromCheckClassResult(LauncherTrustManager.CheckClassResult result) {
-            if(result == null) return null;
+            if (result == null) return null;
             return new CheckClassResultApi(fromType(result.type), result.endCertificate, result.rootCertificate, result.exception);
         }
+
         private static CheckClassResultTypeApi fromType(LauncherTrustManager.CheckClassResultType type) {
-            if(type == null) return null;
+            if (type == null) return null;
             switch (type) {
                 case NOT_SIGNED:
                     return CheckClassResultTypeApi.NOT_SIGNED;

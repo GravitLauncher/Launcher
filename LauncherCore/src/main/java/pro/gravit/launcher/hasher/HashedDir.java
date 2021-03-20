@@ -106,18 +106,6 @@ public final class HashedDir extends HashedEntry {
         target.map.put(targetElementName, entry);
     }
 
-    public static class FindRecursiveResult {
-        public final HashedDir parent;
-        public final HashedEntry entry;
-        public final String name;
-
-        public FindRecursiveResult(HashedDir parent, HashedEntry entry, String name) {
-            this.parent = parent;
-            this.entry = entry;
-            this.name = name;
-        }
-    }
-
     public FindRecursiveResult findRecursive(String path) {
         StringTokenizer t = new StringTokenizer(path, "/");
         HashedDir current = this;
@@ -332,6 +320,18 @@ public final class HashedDir extends HashedEntry {
     @FunctionalInterface
     public interface WalkCallback {
         WalkAction walked(String path, String name, HashedEntry entry) throws IOException;
+    }
+
+    public static class FindRecursiveResult {
+        public final HashedDir parent;
+        public final HashedEntry entry;
+        public final String name;
+
+        public FindRecursiveResult(HashedDir parent, HashedEntry entry, String name) {
+            this.parent = parent;
+            this.entry = entry;
+            this.name = name;
+        }
     }
 
     public static final class Diff {

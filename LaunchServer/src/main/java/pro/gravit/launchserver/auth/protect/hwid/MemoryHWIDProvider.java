@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
     public double warningSpoofingLevel = -1.0;
     public double criticalCompareLevel = 1.0;
+    public Set<MemoryHWIDEntity> db = ConcurrentHashMap.newKeySet();
 
     @Override
     public Map<String, Command> getCommands() {
@@ -46,21 +47,6 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
         });
         return commands;
     }
-
-    static class MemoryHWIDEntity {
-        public HardwareReportRequest.HardwareInfo hardware;
-        public byte[] publicKey;
-        public boolean banned;
-        public long id;
-
-        public MemoryHWIDEntity(HardwareReportRequest.HardwareInfo hardware, byte[] publicKey) {
-            this.hardware = hardware;
-            this.publicKey = publicKey;
-            this.id = SecurityHelper.newRandom().nextLong();
-        }
-    }
-
-    public Set<MemoryHWIDEntity> db = ConcurrentHashMap.newKeySet();
 
     @Override
     public HardwareReportRequest.HardwareInfo findHardwareInfoByPublicKey(byte[] publicKey, Client client) throws HWIDException {
@@ -95,5 +81,18 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
             }
         }
         return false;
+    }
+
+    static class MemoryHWIDEntity {
+        public HardwareReportRequest.HardwareInfo hardware;
+        public byte[] publicKey;
+        public boolean banned;
+        public long id;
+
+        public MemoryHWIDEntity(HardwareReportRequest.HardwareInfo hardware, byte[] publicKey) {
+            this.hardware = hardware;
+            this.publicKey = publicKey;
+            this.id = SecurityHelper.newRandom().nextLong();
+        }
     }
 }

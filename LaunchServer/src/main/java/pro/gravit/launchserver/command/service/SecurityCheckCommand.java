@@ -20,6 +20,20 @@ public class SecurityCheckCommand extends Command {
         super(server);
     }
 
+    public static void printCheckResult(LogHelper.Level level, String module, String comment, Boolean status) {
+        LogHelper.rawLog(() -> FormatHelper.rawFormat(level, LogHelper.getDataTime(), false).concat(String.format("[%s] %s - %s", module, comment, status == null ? "WARN" : (status ? "OK" : "FAIL"))),
+                () -> FormatHelper.rawAnsiFormat(level, LogHelper.getDataTime(), false)
+                        .fgBright(Ansi.Color.WHITE)
+                        .a("[")
+                        .fgBright(Ansi.Color.BLUE)
+                        .a(module)
+                        .fgBright(Ansi.Color.WHITE)
+                        .a("] ".concat(comment).concat(" - "))
+                        .fgBright(status == null ? Ansi.Color.YELLOW : (status ? Ansi.Color.GREEN : Ansi.Color.RED))
+                        .a(status == null ? "WARN" : (status ? "OK" : "FAIL"))
+                        .reset().toString());
+    }
+
     @Override
     public String getArgsDescription() {
         return "[]";
@@ -158,7 +172,7 @@ public class SecurityCheckCommand extends Command {
                 if (tokenizer.hasMoreTokens() && tokenizer.nextToken().equals("mods")) {
                     String nextToken = tokenizer.nextToken();
                     if (!tokenizer.hasMoreTokens()) {
-                        if(!exc.endsWith("/")) {
+                        if (!exc.endsWith("/")) {
                             printCheckResult(LogHelper.Level.INFO, profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
                             bad = true;
                         }
@@ -174,19 +188,5 @@ public class SecurityCheckCommand extends Command {
                 printCheckResult(LogHelper.Level.INFO, profileModuleName, "", true);
         }
         LogHelper.info("Check completed");
-    }
-
-    public static void printCheckResult(LogHelper.Level level, String module, String comment, Boolean status) {
-        LogHelper.rawLog(() -> FormatHelper.rawFormat(level, LogHelper.getDataTime(), false).concat(String.format("[%s] %s - %s", module, comment, status == null ? "WARN" : (status ? "OK" : "FAIL"))),
-                () -> FormatHelper.rawAnsiFormat(level, LogHelper.getDataTime(), false)
-                        .fgBright(Ansi.Color.WHITE)
-                        .a("[")
-                        .fgBright(Ansi.Color.BLUE)
-                        .a(module)
-                        .fgBright(Ansi.Color.WHITE)
-                        .a("] ".concat(comment).concat(" - "))
-                        .fgBright(status == null ? Ansi.Color.YELLOW : (status ? Ansi.Color.GREEN : Ansi.Color.RED))
-                        .a(status == null ? "WARN" : (status ? "OK" : "FAIL"))
-                        .reset().toString());
     }
 }

@@ -21,14 +21,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class RequestAuthProvider extends AuthProvider {
+    private final HttpClient client = HttpClient.newBuilder()
+            .build();
     public String url;
     public transient Pattern pattern;
     public String response;
     public boolean flagsEnabled;
     public boolean usePermission = true;
     public int timeout = 5000;
-    private final HttpClient client = HttpClient.newBuilder()
-            .build();
 
     @Override
     public void init(LaunchServer srv) {

@@ -14,6 +14,18 @@ public class ExitResponse extends SimpleResponse {
     public boolean exitAll;
     public String username;
 
+    public static void exit(LaunchServer server, WebSocketFrameHandler wsHandler, Channel channel, ExitRequestEvent.ExitReason reason) {
+
+        Client chClient = wsHandler.getClient();
+        Client newCusClient = new Client(null);
+        newCusClient.checkSign = chClient.checkSign;
+        wsHandler.setClient(newCusClient);
+        if (chClient.session != null) server.sessionManager.remove(chClient.session);
+        ExitRequestEvent event = new ExitRequestEvent(reason);
+        event.requestUUID = RequestEvent.eventUUID;
+        wsHandler.service.sendObject(channel, event);
+    }
+
     @Override
     public String getType() {
         return "exit";
@@ -60,17 +72,5 @@ public class ExitResponse extends SimpleResponse {
             }));
             sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.NO_EXIT));
         }
-    }
-
-    public static void exit(LaunchServer server, WebSocketFrameHandler wsHandler, Channel channel, ExitRequestEvent.ExitReason reason) {
-
-        Client chClient = wsHandler.getClient();
-        Client newCusClient = new Client(null);
-        newCusClient.checkSign = chClient.checkSign;
-        wsHandler.setClient(newCusClient);
-        if (chClient.session != null) server.sessionManager.remove(chClient.session);
-        ExitRequestEvent event = new ExitRequestEvent(reason);
-        event.requestUUID = RequestEvent.eventUUID;
-        wsHandler.service.sendObject(channel, event);
     }
 }

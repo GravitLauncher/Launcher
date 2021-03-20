@@ -28,12 +28,12 @@ import java.util.zip.ZipOutputStream;
 
 public class MainBuildTask implements LauncherBuildTask {
     public final ClassMetadataReader reader;
-    private final LaunchServer server;
     public final Set<String> blacklist = new HashSet<>();
     public final List<Transformer> transformers = new ArrayList<>();
     public final IOHookSet<BuildContext> preBuildHook = new IOHookSet<>();
     public final IOHookSet<BuildContext> postBuildHook = new IOHookSet<>();
     public final Map<String, Object> properties = new HashMap<>();
+    private final LaunchServer server;
 
     public MainBuildTask(LaunchServer srv) {
         server = srv;

@@ -65,9 +65,9 @@ public class HWIDProvider {
         List<GraphicsCard> graphicsCards = hardware.getGraphicsCards();
         GraphicsCard result = null;
         long size = 0;
-        for(GraphicsCard card : graphicsCards) {
+        for (GraphicsCard card : graphicsCards) {
             long vram = card.getVRam();
-            if(vram > size) {
+            if (vram > size) {
                 result = card;
                 size = vram;
             }
@@ -77,7 +77,7 @@ public class HWIDProvider {
 
     public String getGraphicCardName() {
         GraphicsCard card = getGraphicCard();
-        if(card == null) {
+        if (card == null) {
             return null;
         }
         return card.getName();
@@ -85,7 +85,7 @@ public class HWIDProvider {
 
     public long getGraphicCardMemory() {
         GraphicsCard card = getGraphicCard();
-        if(card == null) {
+        if (card == null) {
             return 0;
         }
         return card.getVRam();

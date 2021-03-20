@@ -24,6 +24,7 @@ public class DebugMain {
     public static String[] moduleClasses = System.getProperty("launcherdebug.modules", "").split(",");
     public static String[] moduleFiles = System.getProperty("launcherdebug.modulefiles", "").split(",");
     public static LauncherConfig.LauncherEnvironment environment = LauncherConfig.LauncherEnvironment.valueOf(System.getProperty("launcherdebug.env", "STD"));
+
     public static void main(String[] args) throws Throwable {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
@@ -35,12 +36,12 @@ public class DebugMain {
         Launcher.applyLauncherEnv(environment);
         LauncherEngine.modulesManager = new ClientModuleManager();
         LauncherEngine.modulesManager.loadModule(new ClientLauncherCoreModule());
-        for(String moduleClassName : moduleClasses) {
-            if(moduleClassName.isEmpty()) continue;
+        for (String moduleClassName : moduleClasses) {
+            if (moduleClassName.isEmpty()) continue;
             LauncherEngine.modulesManager.loadModule(newModule(moduleClassName));
         }
-        for(String moduleFileName : moduleFiles) {
-            if(moduleFileName.isEmpty()) continue;
+        for (String moduleFileName : moduleFiles) {
+            if (moduleFileName.isEmpty()) continue;
             LauncherEngine.modulesManager.loadModule(Paths.get(moduleFileName));
         }
         LauncherEngine.modulesManager.initModules(null);

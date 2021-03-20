@@ -8,6 +8,13 @@ import java.util.Map;
 public class OptionalActionFile extends OptionalAction {
     public Map<String, String> files;
 
+    public OptionalActionFile() {
+    }
+
+    public OptionalActionFile(Map<String, String> files) {
+        this.files = files;
+    }
+
     public void injectToHashedDir(HashedDir dir) {
         if (files == null) return;
         files.forEach((k, v) -> {
@@ -27,12 +34,5 @@ public class OptionalActionFile extends OptionalAction {
             HashedDir.FindRecursiveResult firstPath = dir.findRecursive(k);
             firstPath.parent.remove(firstPath.name);
         });
-    }
-
-    public OptionalActionFile() {
-    }
-
-    public OptionalActionFile(Map<String, String> files) {
-        this.files = files;
     }
 }

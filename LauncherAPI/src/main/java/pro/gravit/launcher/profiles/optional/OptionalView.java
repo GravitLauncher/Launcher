@@ -13,6 +13,19 @@ public class OptionalView {
     public Map<OptionalFile, Set<OptionalFile>> dependenciesCountMap = new HashMap<>();
     public Set<OptionalFile> all;
 
+    public OptionalView(ClientProfile profile) {
+        this.all = profile.getOptional();
+        for (OptionalFile f : this.all) {
+            if (f.mark) enable(f);
+        }
+    }
+
+    public OptionalView(OptionalView view) {
+        this.enabled = new HashSet<>(view.enabled);
+        this.dependenciesCountMap = new HashMap<>(view.dependenciesCountMap);
+        this.all = view.all;
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends OptionalAction> Set<T> getActionsByClass(Class<T> clazz) {
         Set<T> results = new HashSet<>();
@@ -90,18 +103,5 @@ public class OptionalView {
                 }
             }
         }
-    }
-
-    public OptionalView(ClientProfile profile) {
-        this.all = profile.getOptional();
-        for (OptionalFile f : this.all) {
-            if (f.mark) enable(f);
-        }
-    }
-
-    public OptionalView(OptionalView view) {
-        this.enabled = new HashSet<>(view.enabled);
-        this.dependenciesCountMap = new HashMap<>(view.dependenciesCountMap);
-        this.all = view.all;
     }
 }

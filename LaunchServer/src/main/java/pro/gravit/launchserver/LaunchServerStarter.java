@@ -76,14 +76,12 @@ public class LaunchServerStarter {
         }
         {
             LauncherTrustManager.CheckClassResult result = certificateManager.checkClass(LaunchServer.class);
-            if(result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
+            if (result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
                 LogHelper.info("LaunchServer signed by %s", result.endCertificate.getSubjectDN().getName());
-            }
-            else if(result.type == LauncherTrustManager.CheckClassResultType.NOT_SIGNED) {
+            } else if (result.type == LauncherTrustManager.CheckClassResultType.NOT_SIGNED) {
                 // None
-            }
-            else {
-                if(result.exception != null) {
+            } else {
+                if (result.exception != null) {
                     LogHelper.error(result.exception);
                 }
                 LogHelper.warning("LaunchServer signed incorrectly. Status: %s", result.type.name());

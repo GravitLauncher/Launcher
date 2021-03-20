@@ -210,6 +210,7 @@ public class CertificateManager {
             throw new SecurityException(e);
         }
     }
+
     public LauncherTrustManager.CheckClassResult checkClass(Class<?> clazz) {
         X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
         return trustManager.checkCertificates(certificates, trustManager::stdCertificateChecker);

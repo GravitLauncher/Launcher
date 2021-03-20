@@ -39,7 +39,7 @@ public class ClientsCommand extends Command {
                 LogHelper.subInfo("userUUID: %s | session %s", client.uuid == null ? "null" : client.uuid.toString(), client.session == null ? "null" : client.session);
                 LogHelper.subInfo("Data: checkSign %s | auth_id %s", client.checkSign ? "true" : "false",
                         client.auth_id);
-                if(client.trustLevel != null) {
+                if (client.trustLevel != null) {
                     LogHelper.subInfo("trustLevel | key %s | pubkey %s", client.trustLevel.keyChecked ? "checked" : "unchecked", client.trustLevel.publicKey == null ? "null" : Base64.getEncoder().encode(client.trustLevel.publicKey));
                 }
                 LogHelper.subInfo("Permissions: %s (permissions %d | flags %d)", client.permissions == null ? "null" : client.permissions.toString(), client.permissions == null ? 0 : client.permissions.permissions, client.permissions == null ? 0 : client.permissions.flags);

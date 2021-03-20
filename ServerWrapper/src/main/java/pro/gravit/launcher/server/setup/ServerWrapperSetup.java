@@ -48,7 +48,7 @@ public class ServerWrapperSetup {
             }
         }
         LogHelper.info("Found MainClass %s", mainClassName);
-        if(agentClassName != null) {
+        if (agentClassName != null) {
             LogHelper.info("Found PremainClass %s", agentClassName);
         }
         System.out.println("Print your server name:");
@@ -96,7 +96,7 @@ public class ServerWrapperSetup {
                 writer.append(JVMHelper.jvmProperty("serverwrapper.modulesDir", "modules_srv"));
                 writer.append(" ");
             }
-            if(agentClassName != null) {
+            if (agentClassName != null) {
                 writer.append("-javaagent:ServerWrapper.jar ");
                 writer.append("-Dserverwrapper.agentproxy=".concat(agentClassName));
                 writer.append(" ");

@@ -49,6 +49,17 @@ public abstract class LauncherModule {
         this.modulesConfigManager = context.getModulesConfigManager();
         this.setInitStatus(InitStatus.PRE_INIT_WAIT);
     }
+
+    public final LauncherTrustManager.CheckClassResultType getCheckStatus() {
+        if (this.checkResult == null) return null;
+        return this.checkResult.type;
+    }
+
+    public final LauncherTrustManager.CheckClassResult getCheckResult() {
+        if (this.checkResult == null) return null;
+        return new LauncherTrustManager.CheckClassResult(this.checkResult);
+    }
+
     /**
      * The internal method used by the ModuleManager
      * DO NOT TOUCH
@@ -56,18 +67,8 @@ public abstract class LauncherModule {
      * @param result Check result
      */
     public final void setCheckResult(LauncherTrustManager.CheckClassResult result) {
-        if(this.checkResult != null) throw new IllegalStateException("Module already set check result");
+        if (this.checkResult != null) throw new IllegalStateException("Module already set check result");
         this.checkResult = result;
-    }
-
-    public final LauncherTrustManager.CheckClassResultType getCheckStatus() {
-        if(this.checkResult == null) return null;
-        return this.checkResult.type;
-    }
-
-    public final LauncherTrustManager.CheckClassResult getCheckResult() {
-        if(this.checkResult == null) return null;
-        return new LauncherTrustManager.CheckClassResult(this.checkResult);
     }
 
     /**

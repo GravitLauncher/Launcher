@@ -117,7 +117,7 @@ public class ClientLauncherProcess {
         processArgs.add(executeFile.toString());
         processArgs.addAll(jvmArgs);
         //ADD CLASSPATH
-        if(params.profile.classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
+        if (params.profile.classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
             processArgs.add("-javaagent:".concat(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString()));
         }
         if (useLegacyJavaClassPathProperty) {

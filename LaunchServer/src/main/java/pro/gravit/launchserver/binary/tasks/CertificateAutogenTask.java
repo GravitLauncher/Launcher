@@ -32,10 +32,10 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class CertificateAutogenTask implements LauncherBuildTask {
+    private final LaunchServer server;
     public X509Certificate certificate;
     public X509CertificateHolder bcCertificate;
     public CMSSignedDataGenerator signedDataGenerator;
-    private final LaunchServer server;
 
     public CertificateAutogenTask(LaunchServer server) {
         this.server = server;

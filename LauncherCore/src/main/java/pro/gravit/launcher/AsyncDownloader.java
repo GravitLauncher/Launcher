@@ -1,7 +1,6 @@
 package pro.gravit.launcher;
 
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -28,10 +27,10 @@ import java.util.concurrent.Executor;
 public class AsyncDownloader {
     public static final Callback IGNORE = (ignored) -> {
     };
-    public final Callback callback;
     @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
     private static volatile SSLSocketFactory sslSocketFactory;
+    public final Callback callback;
 
     public AsyncDownloader(Callback callback) {
         this.callback = callback;
@@ -43,7 +42,7 @@ public class AsyncDownloader {
 
     public void downloadFile(URL url, Path target, long size) throws IOException {
         URLConnection connection = url.openConnection();
-        if(isCertificatePinning) {
+        if (isCertificatePinning) {
             HttpsURLConnection connection1 = (HttpsURLConnection) connection;
             try {
                 connection1.setSSLSocketFactory(makeSSLSocketFactory());
@@ -58,7 +57,7 @@ public class AsyncDownloader {
 
     public void downloadFile(URL url, Path target) throws IOException {
         URLConnection connection = url.openConnection();
-        if(isCertificatePinning) {
+        if (isCertificatePinning) {
             HttpsURLConnection connection1 = (HttpsURLConnection) connection;
             try {
                 connection1.setSSLSocketFactory(makeSSLSocketFactory());
@@ -72,7 +71,7 @@ public class AsyncDownloader {
     }
 
     public SSLSocketFactory makeSSLSocketFactory() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
-        if(sslSocketFactory != null) return sslSocketFactory;
+        if (sslSocketFactory != null) return sslSocketFactory;
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, CertificatePinningTrustManager.getTrustManager().getTrustManagers(), new SecureRandom());
         sslSocketFactory = sslContext.getSocketFactory();

@@ -187,7 +187,7 @@ public final class LaunchServerConfig {
             protectHandler.init(server);
             protectHandler.checkLaunchServerLicense();
         }
-        if(sessions != null) {
+        if (sessions != null) {
             sessions.init(server);
             server.registerObject("sessions", sessions);
         }
@@ -233,7 +233,7 @@ public final class LaunchServerConfig {
             server.unregisterObject("protectHandler", protectHandler);
             protectHandler.close();
         }
-        if(sessions != null) {
+        if (sessions != null) {
             server.unregisterObject("sessions", sessions);
             if (sessions instanceof AutoCloseable) {
                 try {
