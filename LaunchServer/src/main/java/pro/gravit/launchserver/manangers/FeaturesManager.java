@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FeaturesManager {
-    private transient LaunchServer server;
-    private Map<String, String> map;
+    private final transient LaunchServer server;
+    private final Map<String, String> map;
 
     public FeaturesManager(LaunchServer server) {
         this.server = server;

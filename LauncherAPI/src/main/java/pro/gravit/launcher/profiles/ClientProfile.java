@@ -98,7 +98,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     @LauncherNetworkAPI
-    private List<ServerProfile> servers = new ArrayList<>(1);
+    private final List<ServerProfile> servers = new ArrayList<>(1);
 
     public ServerProfile getDefaultServerProfile() {
         for (ServerProfile profile : servers) {
