@@ -12,7 +12,7 @@ public class FeaturesResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         sendResult(new FeaturesRequestEvent(server.featuresManager.getMap()));
     }
 }

@@ -16,7 +16,7 @@ public class HardwareReportResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (server.config.protectHandler instanceof HardwareProtectHandler) {
             try {
                 ((HardwareProtectHandler) server.config.protectHandler).onHardwareReport(this, client);

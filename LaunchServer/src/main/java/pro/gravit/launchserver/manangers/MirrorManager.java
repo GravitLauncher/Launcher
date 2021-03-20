@@ -104,8 +104,6 @@ public class MirrorManager {
         boolean enabled;
 
         Mirror(String url) {
-            //assetsURLMask = url.concat("assets/%s.zip");
-            //clientsURLMask = url.concat("clients/%s.zip");
             baseUrl = url;
         }
 

@@ -75,9 +75,6 @@ public class LaunchServerStarter {
             throw new IOException(e);
         }
         {
-            //LauncherTrustManager.CheckMode mode = (Version.RELEASE == Version.Type.LTS || Version.RELEASE == Version.Type.STABLE) ?
-            //        (allowUnsigned ? LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED : LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED) :
-            //        (allowUnsigned ? LauncherTrustManager.CheckMode.NONE_IN_NOT_SIGNED : LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED);
             LauncherTrustManager.CheckClassResult result = certificateManager.checkClass(LaunchServer.class);
             if(result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
                 LogHelper.info("LaunchServer signed by %s", result.endCertificate.getSubjectDN().getName());

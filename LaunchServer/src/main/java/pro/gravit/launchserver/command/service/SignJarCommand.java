@@ -36,7 +36,7 @@ public class SignJarCommand extends Command {
             tmpSign = server.dir.resolve("build").resolve(target.toFile().getName());
         LogHelper.info("Signing jar %s to %s", target.toString(), tmpSign.toString());
         Optional<SignJarTask> task = server.launcherBinary.getTaskByClass(SignJarTask.class);
-        if (!task.isPresent()) throw new IllegalStateException("SignJarTask not found");
+        if (task.isEmpty()) throw new IllegalStateException("SignJarTask not found");
         task.get().sign(server.config.sign, target, tmpSign);
         if (args.length <= 1) {
             LogHelper.info("Move temp jar %s to %s", tmpSign.toString(), target.toString());

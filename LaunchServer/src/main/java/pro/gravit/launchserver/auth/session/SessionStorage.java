@@ -3,7 +3,6 @@ package pro.gravit.launchserver.auth.session;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.ProviderMap;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 

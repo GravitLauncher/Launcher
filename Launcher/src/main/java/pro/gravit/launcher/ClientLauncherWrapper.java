@@ -136,7 +136,9 @@ public class ClientLauncherWrapper {
         }
         args.add(MAGIC_ARG);
         args.add("-XX:+DisableAttachMechanism");
-        args.add("-Xmx256M");
+        if(launcherMemoryLimit != 0) {
+            args.add(String.format("-Xmx%dM", launcherMemoryLimit));
+        }
         //Collections.addAll(args, "-javaagent:".concat(pathLauncher));
         args.add("-cp");
         args.add(pathLauncher);

@@ -18,7 +18,7 @@ public class VerifySecureLevelKeyResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (!(server.config.protectHandler instanceof SecureProtectHandler) || client.trustLevel == null || client.trustLevel.verifySecureKey == null) {
             sendError("This method not allowed");
             return;

@@ -138,7 +138,7 @@ public class SignHelper {
         }
 
         @Override
-        public void close() throws IOException {
+        public void close() {
             // Do nothing
         }
     }

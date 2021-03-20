@@ -20,7 +20,7 @@ public class ExitResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (username != null && (!client.isAuth || client.permissions == null || !client.permissions.isPermission(ClientPermissions.PermissionConsts.ADMIN))) {
             sendError("Permissions denied");
             return;

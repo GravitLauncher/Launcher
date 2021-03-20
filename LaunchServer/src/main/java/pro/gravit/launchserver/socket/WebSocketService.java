@@ -66,9 +66,6 @@ public class WebSocketService {
     public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;
         this.server = server;
-        //this.gsonBuiler.registerTypeAdapter(WebSocketServerResponse.class, new JsonResponseAdapter(this));
-        //this.gsonBuiler.registerTypeAdapter(WebSocketEvent.class, new JsonResultSerializeAdapter());
-        //this.gsonBuiler.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         this.gson = Launcher.gsonManager.gson;
     }
 
@@ -78,7 +75,7 @@ public class WebSocketService {
             WebSocketFrameHandler wsHandler = channel.pipeline().get(WebSocketFrameHandler.class);
             if (wsHandler == null) continue;
             callback.accept(channel, wsHandler);
-        };
+        }
     }
 
     public static void registerResponses() {

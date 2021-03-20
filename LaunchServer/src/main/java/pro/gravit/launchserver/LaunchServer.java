@@ -1,7 +1,5 @@
 package pro.gravit.launchserver;
 
-import org.bouncycastle.crypto.util.PrivateKeyFactory;
-import org.bouncycastle.operator.OperatorCreationException;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launcher.hasher.HashedDir;
@@ -38,9 +36,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.*;
@@ -151,36 +146,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         featuresManager = new FeaturesManager(this);
         //Generate or set new Certificate API
         certificateManager.orgName = config.projectName;
-        /*
-        if (false) {
-            if (IOHelper.isFile(caCertFile) && IOHelper.isFile(caKeyFile)) {
-                certificateManager.ca = certificateManager.readCertificate(caCertFile);
-                certificateManager.caKey = certificateManager.readPrivateKey(caKeyFile);
-            } else {
-                try {
-                    certificateManager.generateCA();
-                    certificateManager.writeCertificate(caCertFile, certificateManager.ca);
-                    certificateManager.writePrivateKey(caKeyFile, certificateManager.caKey);
-                } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException | OperatorCreationException e) {
-                    LogHelper.error(e);
-                }
-            }
-            if (IOHelper.isFile(serverCertFile) && IOHelper.isFile(serverKeyFile)) {
-                certificateManager.server = certificateManager.readCertificate(serverCertFile);
-                certificateManager.serverKey = certificateManager.readPrivateKey(serverKeyFile);
-            } else {
-                try {
-                    KeyPair pair = certificateManager.generateKeyPair();
-                    certificateManager.server = certificateManager.generateCertificate(config.projectName.concat(" Server"), pair.getPublic());
-                    certificateManager.serverKey = PrivateKeyFactory.createKey(pair.getPrivate().getEncoded());
-                    certificateManager.writePrivateKey(serverKeyFile, pair.getPrivate());
-                    certificateManager.writeCertificate(serverCertFile, certificateManager.server);
-                } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | OperatorCreationException e) {
-                    LogHelper.error(e);
-                }
-            }
-        }
-        */
         config.init(ReloadType.FULL);
         registerObject("launchServer", this);
         GarbageManager.registerNeedGC(sessionManager);

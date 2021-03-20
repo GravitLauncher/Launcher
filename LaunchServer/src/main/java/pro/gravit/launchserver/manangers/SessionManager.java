@@ -6,11 +6,9 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.RequiredDAO;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.HookSet;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 

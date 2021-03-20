@@ -23,7 +23,7 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
         Map<String, Command> commands = new HashMap<>();
         commands.put("hardwarelist", new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 for (MemoryHWIDEntity e : db) {
                     printHardwareInfo(LogHelper.Level.INFO, e.hardware);
                     LogHelper.info("ID %d banned %s", e.id, e.banned ? "true" : "false");
@@ -74,7 +74,7 @@ public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
     }
 
     @Override
-    public void createHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, Client client) throws HWIDException {
+    public void createHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, Client client) {
         db.add(new MemoryHWIDEntity(hardwareInfo, publicKey));
     }
 

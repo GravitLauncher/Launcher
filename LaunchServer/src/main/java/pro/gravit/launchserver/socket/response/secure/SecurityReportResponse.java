@@ -20,7 +20,7 @@ public class SecurityReportResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (!(server.config.protectHandler instanceof SecureProtectHandler)) {
             sendError("Method not allowed");
         }

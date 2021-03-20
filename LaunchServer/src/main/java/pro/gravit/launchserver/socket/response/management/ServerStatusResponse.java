@@ -13,7 +13,7 @@ public class ServerStatusResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         ServerStatusRequestEvent event = new ServerStatusRequestEvent(server.config.projectName);
         event.totalJavaMemory = JVMHelper.RUNTIME.totalMemory();
         event.freeJavaMemory = JVMHelper.RUNTIME.freeMemory();

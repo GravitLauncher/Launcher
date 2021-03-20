@@ -80,7 +80,5 @@ public class LauncherNettyServer implements AutoCloseable {
     public void close() {
         workerGroup.shutdownGracefully(2, 5, TimeUnit.SECONDS);
         bossGroup.shutdownGracefully(2, 5, TimeUnit.SECONDS);
-        //workerGroup.shutdownGracefully();
-        //bossGroup.shutdownGracefully();
     }
 }

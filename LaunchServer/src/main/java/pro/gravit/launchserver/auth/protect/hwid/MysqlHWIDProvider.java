@@ -52,7 +52,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
             if (set.next()) {
                 if (set.getBoolean(11)) //isBanned
                 {
-                    throw new SecurityException("You HWID banned");
+                    throw new HWIDException("You HWID banned");
                 }
                 long id = set.getLong(10);
                 setUserHardwareId(connection, client.username, id);
@@ -62,7 +62,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
             }
         } catch (SQLException | IOException throwables) {
             LogHelper.error(throwables);
-            throw new SecurityException("SQL error. Please try again later");
+            throw new HWIDException("SQL error. Please try again later");
         }
     }
 
@@ -104,7 +104,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
             }
         } catch (SQLException throwables) {
             LogHelper.error(throwables);
-            throw new SecurityException("SQL error. Please try again later");
+            throw new HWIDException("SQL error. Please try again later");
         }
     }
 
@@ -120,7 +120,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
                 if (result.compareLevel > criticalCompareLevel) {
                     if (set.getBoolean(11)) //isBanned
                     {
-                        throw new SecurityException("You HWID banned");
+                        throw new HWIDException("You HWID banned");
                     }
                     writeHwidLog(connection, id, publicKey);
                     changePublicKey(connection, id, publicKey);
@@ -130,7 +130,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
             }
         } catch (SQLException | IOException throwables) {
             LogHelper.error(throwables);
-            throw new SecurityException("SQL error. Please try again later");
+            throw new HWIDException("SQL error. Please try again later");
         }
         return false;
     }

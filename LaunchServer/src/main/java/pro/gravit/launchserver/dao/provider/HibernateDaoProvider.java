@@ -60,7 +60,7 @@ public abstract class HibernateDaoProvider extends DaoProvider implements Reconf
         Map<String, Command> commands = new HashMap<>();
         commands.put("getallusers", new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 int count = 0;
                 for (User user : userDAO.findAll()) {
                     LogHelper.subInfo("[%s] UUID: %s", user.getUsername(), user.getUuid().toString());
@@ -119,7 +119,7 @@ public abstract class HibernateDaoProvider extends DaoProvider implements Reconf
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         sessionFactory.close();
     }
 }

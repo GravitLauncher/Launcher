@@ -21,7 +21,7 @@ public class PingServersCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         server.pingServerManager.map.forEach((name, data) -> {
             LogHelper.info("[%s] online %d / %d", name, data.lastReport == null ? -1 : data.lastReport.playersOnline, data.lastReport == null ? -1 : data.lastReport.maxPlayers);
             if(data.lastReport != null && data.lastReport.users != null)

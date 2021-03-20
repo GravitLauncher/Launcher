@@ -31,7 +31,7 @@ public class SecurityCheckCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         LaunchServerConfig config = server.config;
         config.auth.forEach((name, pair) -> {
             if (pair.provider instanceof AcceptAuthProvider) {

@@ -73,8 +73,6 @@ public class LaunchServerBuilder {
     }
 
     public LaunchServer build() throws Exception {
-        //if(updatesDir == null) updatesDir = dir.resolve("updates");
-        //if(profilesDir == null) profilesDir = dir.resolve("profiles");
         directories.collect();
         if (launchServerConfigManager == null) {
             launchServerConfigManager = new LaunchServer.LaunchServerConfigManager() {

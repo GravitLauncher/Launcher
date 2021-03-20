@@ -3,7 +3,6 @@ package pro.gravit.launchserver.auth.session;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.manangers.SessionManager;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -158,7 +157,7 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if(autoDump) {
             garbageCollection();
             dumpSessionsData();

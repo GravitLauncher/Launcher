@@ -119,15 +119,6 @@ public class LauncherModuleLoader {
                                             targetConfig = Launcher.gsonManager.configGson.fromJson(reader, clazz);
                                         }
                                     }
-                                    //Field[] fields = clazz.getFields();
-                                    //for (Field field : fields) {
-                                    //    if ((field.getModifiers() & Modifier.STATIC) != 0) continue;
-                                    //    Object obj = field.get(targetConfig);
-                                    //    String configPropertyName = "modules.".concat(entity.moduleConfigName.toLowerCase()).concat(".").concat(field.getName().toLowerCase());
-                                    //    if (entity.propertyMap == null) entity.propertyMap = new HashMap<>();
-                                    //    LogHelper.dev("Property name %s", configPropertyName);
-                                    //    entity.propertyMap.put(configPropertyName, obj);
-                                    //}
                                     if (entity.propertyMap == null) entity.propertyMap = new HashMap<>();
                                     addClassFieldsToProperties(entity.propertyMap, "modules.".concat(entity.moduleConfigName.toLowerCase()), targetConfig, clazz);
                                 } catch (Throwable e) {

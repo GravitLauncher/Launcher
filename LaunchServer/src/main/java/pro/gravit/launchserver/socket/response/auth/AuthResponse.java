@@ -80,9 +80,6 @@ public class AuthResponse extends SimpleResponse {
                 AuthProvider.authError(String.format("Illegal result: '%s'", aresult.username));
                 return;
             }
-            //if (clientData.profile == null) {
-            //    throw new AuthException("You profile not found");
-            //}
             server.authHookManager.postHook.hook(context, clientData);
             clientData.isAuth = true;
             clientData.permissions = aresult.permissions;
