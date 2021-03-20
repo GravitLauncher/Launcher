@@ -13,9 +13,16 @@ import java.util.regex.Pattern;
 
 public final class CommonHelper {
 
-    public static final ScriptEngineManager scriptManager = new ScriptEngineManager();
+    private static ScriptEngineFactory nashornFactory;
 
-    public static final ScriptEngineFactory nashornFactory = getEngineFactories(scriptManager);
+    static {
+        try {
+            ScriptEngineManager scriptManager = new ScriptEngineManager();
+            nashornFactory = getEngineFactories(scriptManager);
+        } catch (Throwable e) {
+            nashornFactory = null;
+        }
+    }
 
     private CommonHelper() {
     }
@@ -48,7 +55,10 @@ public final class CommonHelper {
     }
 
     public static ScriptEngine newScriptEngine() {
-        return Objects.requireNonNull(nashornFactory).getScriptEngine();
+        if(nashornFactory == null) {
+            throw new UnsupportedOperationException("ScriptEngine not supported");
+        }
+        return nashornFactory.getScriptEngine();
     }
 
     public static Thread newThread(String name, boolean daemon, Runnable runnable) {
