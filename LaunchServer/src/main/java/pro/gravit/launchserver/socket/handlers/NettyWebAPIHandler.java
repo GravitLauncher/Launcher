@@ -1,12 +1,10 @@
 package pro.gravit.launchserver.socket.handlers;
 
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.*;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.utils.helper.LogHelper;
@@ -86,7 +84,7 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
                     continue;
                 }
                 String key = c.substring(0, index);
-                String value = c.substring(index);
+                String value = c.substring(index+1);
                 map.put(key, value);
             }
             return map;
@@ -97,11 +95,13 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
         }
 
         default FullHttpResponse simpleJsonResponse(HttpResponseStatus status, Object body) {
-            return new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(Launcher.gsonManager.gson.toJson(body).getBytes()) : Unpooled.buffer());
+            DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(Launcher.gsonManager.gson.toJson(body).getBytes()) : Unpooled.buffer());
+            httpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+            return httpResponse;
         }
 
         default void sendHttpResponse(ChannelHandlerContext ctx, FullHttpResponse response) {
-            ctx.writeAndFlush(response, ctx.voidPromise());
+            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         }
     }
 
