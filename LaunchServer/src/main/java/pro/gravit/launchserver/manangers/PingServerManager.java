@@ -11,6 +11,7 @@ public class PingServerManager {
     public static final long REPORT_EXPIRED_TIME = 20 * 1000;
     public final Map<String, ServerInfoEntry> map = new HashMap<>();
     private final LaunchServer server;
+
     public PingServerManager(LaunchServer server) {
         this.server = server;
     }

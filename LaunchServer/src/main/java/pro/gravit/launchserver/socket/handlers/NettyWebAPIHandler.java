@@ -1,12 +1,25 @@
 package pro.gravit.launchserver.socket.handlers;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.socket.NettyConnectContext;
+import pro.gravit.utils.helper.LogHelper;
 
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeSet;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static final TreeSet<SeverletPathPair> severletList = new TreeSet<>(Comparator.comparingInt((e) -> -e.key.length()));
@@ -38,7 +51,12 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
         boolean isNext = true;
         for (SeverletPathPair pair : severletList) {
             if (msg.uri().startsWith(pair.key)) {
-                pair.callback.handle(ctx, msg, context);
+                try {
+                    pair.callback.handle(ctx, msg, context);
+                } catch (Throwable e) {
+                    LogHelper.error(e);
+                    ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.wrappedBuffer("Internal Server Error 500".getBytes())), ctx.voidPromise());
+                }
                 isNext = false;
                 break;
             }
@@ -52,6 +70,39 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
     @FunctionalInterface
     public interface SimpleSeverletHandler {
         void handle(ChannelHandlerContext ctx, FullHttpRequest msg, NettyConnectContext context) throws Exception;
+
+        default Map<String, String> getParamsFromUri(String uri) {
+            int ind = uri.indexOf("?");
+            if (ind <= 0) {
+                return Map.of();
+            }
+            String sub = uri.substring(ind + 1);
+            String[] result = sub.split("&");
+            Map<String, String> map = new HashMap<>();
+            for (int i = 0; i < result.length; ++i) {
+                String c = URLDecoder.decode(result[i], Charset.defaultCharset());
+                int index = c.indexOf("=");
+                if (index <= 0) {
+                    continue;
+                }
+                String key = c.substring(0, index);
+                String value = c.substring(index);
+                map.put(key, value);
+            }
+            return map;
+        }
+
+        default FullHttpResponse simpleResponse(HttpResponseStatus status, String body) {
+            return new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(body.getBytes()) : Unpooled.buffer());
+        }
+
+        default FullHttpResponse simpleJsonResponse(HttpResponseStatus status, Object body) {
+            return new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(Launcher.gsonManager.gson.toJson(body).getBytes()) : Unpooled.buffer());
+        }
+
+        default void sendHttpResponse(ChannelHandlerContext ctx, FullHttpResponse response) {
+            ctx.writeAndFlush(response, ctx.voidPromise());
+        }
     }
 
     public static class SeverletPathPair {

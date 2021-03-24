@@ -81,9 +81,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             for (ClientProfile p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.getTitle());
                 boolean isFound = false;
-                for(ClientProfile.ServerProfile srv : p.getServers())
-                {
-                    if(srv != null && srv.name.equals(config.serverName)) {
+                for (ClientProfile.ServerProfile srv : p.getServers()) {
+                    if (srv != null && srv.name.equals(config.serverName)) {
                         this.serverProfile = srv;
                         this.profile = p;
                         Launcher.profile = p;
@@ -92,7 +91,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                         break;
                     }
                 }
-                if(isFound) break;
+                if (isFound) break;
             }
             if (profile == null) {
                 LogHelper.warning("Not connected to ServerProfile. May be serverName incorrect?");

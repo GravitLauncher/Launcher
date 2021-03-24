@@ -55,7 +55,7 @@ public final class CommonHelper {
     }
 
     public static ScriptEngine newScriptEngine() {
-        if(nashornFactory == null) {
+        if (nashornFactory == null) {
             throw new UnsupportedOperationException("ScriptEngine not supported");
         }
         return nashornFactory.getScriptEngine();

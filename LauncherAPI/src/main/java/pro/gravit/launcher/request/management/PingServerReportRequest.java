@@ -26,6 +26,7 @@ public class PingServerReportRequest extends Request<PingServerReportRequestEven
         //Server addional info
         public double tps; //Server tps
         public List<UsernameInfo> users;
+
         public PingServerReport(String name, int maxPlayers, int playersOnline) {
             this.name = name;
             this.maxPlayers = maxPlayers;
