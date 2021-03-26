@@ -15,10 +15,7 @@ import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
 import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
-import pro.gravit.launchserver.modules.events.LaunchServerFullInitEvent;
-import pro.gravit.launchserver.modules.events.LaunchServerInitPhase;
-import pro.gravit.launchserver.modules.events.LaunchServerPostInitPhase;
-import pro.gravit.launchserver.modules.events.NewLaunchServerInstanceEvent;
+import pro.gravit.launchserver.modules.events.*;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.utils.command.Command;
@@ -163,14 +160,23 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             LogHelper.debug("Init components successful");
         }
         // Sync updates dir
-        if (!IOHelper.isDir(updatesDir))
-            Files.createDirectory(updatesDir);
-        syncUpdatesDir(null);
+        CommonHelper.newThread("Profiles and updates sync", true, () -> {
+            try {
+                if (!IOHelper.isDir(updatesDir))
+                    Files.createDirectory(updatesDir);
+                syncUpdatesDir(null);
+                modulesManager.invokeEvent(new LaunchServerUpdatesSyncEvent(this));
 
-        // Sync profiles dir
-        if (!IOHelper.isDir(profilesDir))
-            Files.createDirectory(profilesDir);
-        syncProfilesDir();
+                // Sync profiles dir
+                if (!IOHelper.isDir(profilesDir))
+                    Files.createDirectory(profilesDir);
+                syncProfilesDir();
+                modulesManager.invokeEvent(new LaunchServerProfilesSyncEvent(this));
+            } catch (IOException e) {
+                LogHelper.error(e);
+                LogHelper.error("Updates/Profiles not synced");
+            }
+        });
         launcherModuleLoader.init();
         nettyServerSocketHandler = new NettyServerSocketHandler(this);
         // post init modules
