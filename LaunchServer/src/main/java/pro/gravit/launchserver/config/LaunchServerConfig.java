@@ -16,6 +16,7 @@ import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
 import pro.gravit.launchserver.binary.tasks.exe.Launch4JTask;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
+import pro.gravit.launchserver.components.ProGuardComponent;
 import pro.gravit.launchserver.components.RegLimiterComponent;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
 import pro.gravit.utils.Version;
@@ -93,11 +94,8 @@ public final class LaunchServerConfig {
         newConfig.launcher = new LauncherConf();
         newConfig.launcher.guardType = "no";
         newConfig.launcher.compress = true;
-        newConfig.launcher.attachLibraryBeforeProGuard = false;
         newConfig.launcher.deleteTempFiles = true;
-        newConfig.launcher.enabledProGuard = true;
         newConfig.launcher.stripLineNumbers = true;
-        newConfig.launcher.proguardGenMappings = true;
 
         newConfig.sign = new JarSignerConf();
 
@@ -112,6 +110,8 @@ public final class LaunchServerConfig {
         regLimiterComponent.rateLimitMillis = 1000 * 60 * 60 * 10; //Блок на 10 часов
         regLimiterComponent.message = "Превышен лимит регистраций";
         newConfig.components.put("regLimiter", regLimiterComponent);
+        ProGuardComponent proGuardComponent = new ProGuardComponent();
+        newConfig.components.put("proguard", proGuardComponent);
         return newConfig;
     }
 
@@ -293,14 +293,11 @@ public final class LaunchServerConfig {
 
     public static class LauncherConf {
         public String guardType;
-        public boolean attachLibraryBeforeProGuard;
         public boolean compress;
         @Deprecated
         public boolean warningMissArchJava;
-        public boolean enabledProGuard;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
-        public boolean proguardGenMappings;
         public boolean certificatePinning;
         public int memoryLimit = 256;
     }

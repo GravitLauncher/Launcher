@@ -75,9 +75,8 @@ public class ComponentCommand extends Command {
                 String fileName = args[2];
                 try (Reader reader = IOHelper.newReader(Paths.get(fileName))) {
                     Component component = Launcher.gsonManager.configGson.fromJson(reader, Component.class);
-                    component.preInit(server);
+                    component.setComponentName(componentName);
                     component.init(server);
-                    component.postInit(server);
                     LogHelper.info("Component %s(%s) loaded", componentName, component.getClass().getName());
                 }
             }

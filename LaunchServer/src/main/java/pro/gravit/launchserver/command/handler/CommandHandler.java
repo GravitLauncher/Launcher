@@ -27,9 +27,6 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         basic.registerCommand("debug", new DebugCommand());
         basic.registerCommand("clear", new ClearCommand(handler));
         basic.registerCommand("gc", new GCCommand());
-        basic.registerCommand("proguardClean", new ProguardCleanCommand(server));
-        basic.registerCommand("proguardDictRegen", new RegenProguardDictCommand(server));
-        basic.registerCommand("proguardMappingsRemove", new RemoveMappingsProguardCommand(server));
         basic.registerCommand("loadModule", new LoadModuleCommand(server));
         basic.registerCommand("modules", new ModulesCommand(server));
         basic.registerCommand("test", new TestCommand(server));

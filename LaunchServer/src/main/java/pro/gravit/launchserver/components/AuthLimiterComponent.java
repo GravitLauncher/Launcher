@@ -11,18 +11,9 @@ public class AuthLimiterComponent extends IPLimiter implements NeedGarbageCollec
     private transient LaunchServer srv;
 
     @Override
-    public void preInit(LaunchServer launchServer) {
-        srv = launchServer;
-    }
-
-    @Override
     public void init(LaunchServer launchServer) {
+        srv = launchServer;
         launchServer.authHookManager.preHook.registerHook(this::preAuthHook);
-    }
-
-    @Override
-    public void postInit(LaunchServer launchServer) {
-
     }
 
     public boolean preAuthHook(AuthResponse.AuthContext context, Client client) {

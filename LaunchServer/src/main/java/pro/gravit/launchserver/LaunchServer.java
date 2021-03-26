@@ -79,7 +79,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final FeaturesManager featuresManager;
     // HWID ban + anti-brutforce
     public final CertificateManager certificateManager;
-    public final ProguardConf proguardConf;
     // Server
     public final CommandHandler commandHandler;
     public final NettyServerSocketHandler nettyServerSocketHandler;
@@ -126,17 +125,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         runtime.verify();
         config.verify();
         if (config.sessions == null) config.sessions = new MemorySessionStorage();
-        if (config.components != null) {
-            LogHelper.debug("PreInit components");
-            config.components.forEach((k, v) -> {
-                LogHelper.subDebug("PreInit component %s", k);
-                v.preInit(this);
-            });
-            LogHelper.debug("PreInit components successful");
-        }
 
         // build hooks, anti-brutforce and other
-        proguardConf = new ProguardConf(this);
         sessionManager = new SessionManager(this);
         mirrorManager = new MirrorManager();
         reconfigurableManager = new ReconfigurableManager();
@@ -154,14 +144,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         // init modules
         modulesManager.invokeEvent(new LaunchServerInitPhase(this));
-        if (config.components != null) {
-            LogHelper.debug("Init components");
-            config.components.forEach((k, v) -> {
-                LogHelper.subDebug("Init component %s", k);
-                v.init(this);
-            });
-            LogHelper.debug("Init components successful");
-        }
 
         // Set launcher EXE binary
         launcherBinary = new JARLauncherBinary(this);
@@ -171,6 +153,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherEXEBinary.init();
         syncLauncherBinaries();
         launcherModuleLoader = new LauncherModuleLoader(this);
+        if (config.components != null) {
+            LogHelper.debug("Init components");
+            config.components.forEach((k, v) -> {
+                LogHelper.subDebug("Init component %s", k);
+                v.setComponentName(k);
+                v.init(this);
+            });
+            LogHelper.debug("Init components successful");
+        }
         // Sync updates dir
         if (!IOHelper.isDir(updatesDir))
             Files.createDirectory(updatesDir);
@@ -184,14 +175,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         nettyServerSocketHandler = new NettyServerSocketHandler(this);
         // post init modules
         modulesManager.invokeEvent(new LaunchServerPostInitPhase(this));
-        if (config.components != null) {
-            LogHelper.debug("PostInit components");
-            config.components.forEach((k, v) -> {
-                LogHelper.subDebug("PostInit component %s", k);
-                v.postInit(this);
-            });
-            LogHelper.debug("PostInit components successful");
-        }
     }
 
     public void reload(ReloadType type) throws Exception {
@@ -209,24 +192,13 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         config.verify();
         config.init(type);
         if (type.equals(ReloadType.FULL) && config.components != null) {
-            LogHelper.debug("PreInit components");
-            config.components.forEach((k, v) -> {
-                LogHelper.subDebug("PreInit component %s", k);
-                v.preInit(this);
-            });
-            LogHelper.debug("PreInit components successful");
             LogHelper.debug("Init components");
             config.components.forEach((k, v) -> {
                 LogHelper.subDebug("Init component %s", k);
+                v.setComponentName(k);
                 v.init(this);
             });
             LogHelper.debug("Init components successful");
-            LogHelper.debug("PostInit components");
-            config.components.forEach((k, v) -> {
-                LogHelper.subDebug("PostInit component %s", k);
-                v.postInit(this);
-            });
-            LogHelper.debug("PostInit components successful");
         }
 
     }

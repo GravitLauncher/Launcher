@@ -2,6 +2,7 @@ package pro.gravit.launchserver;
 
 import pro.gravit.utils.command.Command;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -15,4 +16,8 @@ public interface Reconfigurable {
      * Value is a command object
      */
     Map<String, Command> getCommands();
+
+    default Map<String, Command> defaultCommandsMap() {
+        return new HashMap<>();
+    }
 }

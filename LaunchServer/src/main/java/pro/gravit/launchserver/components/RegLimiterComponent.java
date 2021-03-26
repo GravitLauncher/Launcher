@@ -16,17 +16,8 @@ public class RegLimiterComponent extends IPLimiter implements NeedGarbageCollect
     public List<String> excludeIps = new ArrayList<>();
 
     @Override
-    public void preInit(LaunchServer launchServer) {
-        this.launchServer = launchServer;
-    }
-
-    @Override
     public void init(LaunchServer launchServer) {
-
-    }
-
-    @Override
-    public void postInit(LaunchServer launchServer) {
+        this.launchServer = launchServer;
         launchServer.authHookManager.registraion.registerHook(this::registerHook);
     }
 

@@ -12,17 +12,8 @@ public class CommandRemoverComponent extends Component implements AutoCloseable 
     private transient LaunchServer server = null;
 
     @Override
-    public void preInit(LaunchServer launchServer) {
-        server = launchServer;
-    }
-
-    @Override
     public void init(LaunchServer launchServer) {
-
-    }
-
-    @Override
-    public void postInit(LaunchServer launchServer) {
+        server = launchServer;
         for (String cmd : removeList) {
             Command removedCmd = launchServer.commandHandler.unregisterCommand(cmd);
             if (removedCmd != null)
