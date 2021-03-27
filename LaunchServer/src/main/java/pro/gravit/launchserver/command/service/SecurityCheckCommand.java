@@ -9,6 +9,7 @@ import pro.gravit.launchserver.auth.protect.NoProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.provider.AcceptAuthProvider;
 import pro.gravit.launchserver.command.Command;
+import pro.gravit.launchserver.components.ProGuardComponent;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.utils.helper.FormatHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -131,7 +132,7 @@ public class SecurityCheckCommand extends Command {
             printCheckResult(LogHelper.Level.INFO, "sign", "", true);
         }
 
-        if (!config.launcher.enabledProGuard) {
+        if (config.components.values().stream().noneMatch(c -> c instanceof ProGuardComponent)) {
             printCheckResult(LogHelper.Level.INFO, "launcher.enabledProGuard", "proguard not enabled", false);
         } else {
             printCheckResult(LogHelper.Level.INFO, "launcher.enabledProGuard", "", true);
