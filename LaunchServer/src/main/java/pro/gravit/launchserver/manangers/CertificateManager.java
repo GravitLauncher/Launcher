@@ -170,9 +170,16 @@ public class CertificateManager {
     public void readTrustStore(Path dir) throws IOException, CertificateException {
         if (!IOHelper.isDir(dir)) {
             Files.createDirectories(dir);
-            try (OutputStream outputStream = IOHelper.newOutput(dir.resolve("GravitCentralRootCA.crt"));
-                 InputStream inputStream = IOHelper.newInput(IOHelper.getResourceURL("pro/gravit/launchserver/defaults/GravitCentralRootCA.crt"))) {
+            try (OutputStream outputStream = IOHelper.newOutput(dir.resolve("BuildCertificate.crt"));
+                 InputStream inputStream = IOHelper.newInput(IOHelper.getResourceURL("pro/gravit/launchserver/defaults/BuildCertificate.crt"))) {
                 IOHelper.transfer(inputStream, outputStream);
+            } catch (Exception ignored) {
+
+            }
+        } else {
+            if(IOHelper.exists(dir.resolve("GravitCentralRootCA.crt"))) {
+                LogHelper.warning("Found old default certificate - 'GravitCentralRootCA.crt'. Delete...");
+                Files.delete(dir.resolve("GravitCentralRootCA.crt"));
             }
         }
         List<X509Certificate> certificates = new ArrayList<>();
