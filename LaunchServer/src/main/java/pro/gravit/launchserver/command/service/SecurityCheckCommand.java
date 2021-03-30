@@ -12,8 +12,17 @@ import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.components.ProGuardComponent;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.utils.helper.FormatHelper;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 public class SecurityCheckCommand extends Command {
@@ -188,6 +197,54 @@ public class SecurityCheckCommand extends Command {
             if (!bad)
                 printCheckResult(LogHelper.Level.INFO, profileModuleName, "", true);
         }
+
+        //Linux permissions check
+        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
+            try {
+                int uid = 0, gid = 0;
+                String[] status = new String(IOHelper.read(Paths.get("/proc/self/status"))).split("\n");
+                for(String line : status) {
+                    String[] parts = line.split(":");
+                    if(parts.length == 0) continue;
+                    if(parts[0].trim().equalsIgnoreCase("Uid")) {
+                        String[] words = parts[1].trim().split(" ");
+                        uid = Integer.parseInt(words[0]);
+                        if(Integer.parseInt(words[0]) == 0 || Integer.parseInt(words[0]) == 0) {
+                            LogHelper.error("The process is started as root! It is not recommended");
+                        }
+                    }
+                    if(parts[0].trim().equalsIgnoreCase("Gid")) {
+                        String[] words = parts[1].trim().split(" ");
+                        gid = Integer.parseInt(words[0]);
+                        if(Integer.parseInt(words[0]) == 0 || Integer.parseInt(words[0]) == 0) {
+                            LogHelper.error("The process is started as root group! It is not recommended");
+                        }
+                    }
+                }
+                if(checkOtherWriteAccess(IOHelper.getCodeSource(LaunchServer.class))) {
+                    LogHelper.warning("Write access to LaunchServer.jar. Please use 'chmod 755 LaunchServer.jar'");
+                }
+                if(Files.exists(server.dir.resolve("private.key")) && checkOtherReadOrWriteAccess(server.dir.resolve("private.key"))) {
+                    LogHelper.warning("Write or read access to private.key. Please use 'chmod 600 private.key'");
+                }
+                if(Files.exists(server.dir.resolve("LaunchServerConfig.json")) && checkOtherReadOrWriteAccess(server.dir.resolve("LaunchServerConfig.json"))) {
+                    LogHelper.warning("Write or read access to LaunchServerConfig.json. Please use 'chmod 600 LaunchServerConfig.json'");
+                }
+                if(Files.exists(server.dir.resolve("LaunchServerRuntimeConfig.json")) && checkOtherReadOrWriteAccess(server.dir.resolve("LaunchServerRuntimeConfig.json"))) {
+                    LogHelper.warning("Write or read access to LaunchServerRuntimeConfig.json. Please use 'chmod 600 LaunchServerRuntimeConfig.json'");
+                }
+            } catch (IOException e) {
+                LogHelper.error(e);
+            }
+        }
         LogHelper.info("Check completed");
+    }
+    public boolean checkOtherWriteAccess(Path file) throws IOException {
+        Set<PosixFilePermission> permissionSet = Files.getPosixFilePermissions(file);
+        return permissionSet.contains(PosixFilePermission.OTHERS_WRITE);
+    }
+    public boolean checkOtherReadOrWriteAccess(Path file) throws IOException {
+        Set<PosixFilePermission> permissionSet = Files.getPosixFilePermissions(file);
+        return permissionSet.contains(PosixFilePermission.OTHERS_WRITE) || permissionSet.contains(PosixFilePermission.OTHERS_READ);
     }
 }

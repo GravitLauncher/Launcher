@@ -159,24 +159,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             });
             LogHelper.debug("Init components successful");
         }
-        // Sync updates dir
-        CommonHelper.newThread("Profiles and updates sync", true, () -> {
-            try {
-                if (!IOHelper.isDir(updatesDir))
-                    Files.createDirectory(updatesDir);
-                syncUpdatesDir(null);
-                modulesManager.invokeEvent(new LaunchServerUpdatesSyncEvent(this));
-
-                // Sync profiles dir
-                if (!IOHelper.isDir(profilesDir))
-                    Files.createDirectory(profilesDir);
-                syncProfilesDir();
-                modulesManager.invokeEvent(new LaunchServerProfilesSyncEvent(this));
-            } catch (IOException e) {
-                LogHelper.error(e);
-                LogHelper.error("Updates/Profiles not synced");
-            }
-        });
         launcherModuleLoader.init();
         nettyServerSocketHandler = new NettyServerSocketHandler(this);
         // post init modules
@@ -318,6 +300,24 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 }
             }));
             CommonHelper.newThread("Command Thread", true, commandHandler).start();
+            // Sync updates dir
+            CommonHelper.newThread("Profiles and updates sync", true, () -> {
+                try {
+                    if (!IOHelper.isDir(updatesDir))
+                        Files.createDirectory(updatesDir);
+                    syncUpdatesDir(null);
+                    modulesManager.invokeEvent(new LaunchServerUpdatesSyncEvent(this));
+
+                    // Sync profiles dir
+                    if (!IOHelper.isDir(profilesDir))
+                        Files.createDirectory(profilesDir);
+                    syncProfilesDir();
+                    modulesManager.invokeEvent(new LaunchServerProfilesSyncEvent(this));
+                } catch (IOException e) {
+                    LogHelper.error(e);
+                    LogHelper.error("Updates/Profiles not synced");
+                }
+            });
         }
         if (config.netty != null)
             rebindNettyServerSocket();

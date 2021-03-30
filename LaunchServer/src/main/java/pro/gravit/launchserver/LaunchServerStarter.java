@@ -44,6 +44,7 @@ import java.security.interfaces.ECPublicKey;
 public class LaunchServerStarter {
     public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
     public static final boolean inDocker = Boolean.getBoolean("launchserver.dockered");
+    public static final boolean prepareMode = Boolean.getBoolean("launchserver.prepareMode");
 
     public static void main(String[] args) throws Exception {
         JVMHelper.checkStackTrace(LaunchServerStarter.class);
@@ -209,7 +210,11 @@ public class LaunchServerStarter {
                 .setLaunchServerConfigManager(launchServerConfigManager)
                 .setCertificateManager(certificateManager)
                 .build();
-        server.run();
+        if(!prepareMode) {
+            server.run();
+        } else {
+            server.close();
+        }
     }
 
     public static void initGson(LaunchServerModulesManager modulesManager) {
