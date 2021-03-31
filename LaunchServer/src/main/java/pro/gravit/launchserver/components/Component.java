@@ -13,6 +13,7 @@ public abstract class Component {
             providers.register("authLimiter", AuthLimiterComponent.class);
             providers.register("regLimiter", RegLimiterComponent.class);
             providers.register("commandRemover", CommandRemoverComponent.class);
+            providers.register("proguard", ProGuardComponent.class);
             registredComp = true;
         }
     }

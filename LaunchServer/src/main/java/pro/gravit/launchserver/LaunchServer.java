@@ -317,7 +317,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                     LogHelper.error(e);
                     LogHelper.error("Updates/Profiles not synced");
                 }
-            });
+            }).start();
         }
         if (config.netty != null)
             rebindNettyServerSocket();

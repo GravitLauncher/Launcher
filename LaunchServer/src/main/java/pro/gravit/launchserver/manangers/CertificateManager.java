@@ -28,10 +28,8 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.net.URL;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -170,12 +168,16 @@ public class CertificateManager {
     public void readTrustStore(Path dir) throws IOException, CertificateException {
         if (!IOHelper.isDir(dir)) {
             Files.createDirectories(dir);
-            try (OutputStream outputStream = IOHelper.newOutput(dir.resolve("BuildCertificate.crt"));
-                 InputStream inputStream = IOHelper.newInput(IOHelper.getResourceURL("pro/gravit/launchserver/defaults/BuildCertificate.crt"))) {
-                IOHelper.transfer(inputStream, outputStream);
-            } catch (Exception ignored) {
+            try {
+                URL inBuildCert = IOHelper.getResourceURL("pro/gravit/launchserver/defaults/BuildCertificate.crt");
+                try (OutputStream outputStream = IOHelper.newOutput(dir.resolve("BuildCertificate.crt"));
+                     InputStream inputStream = IOHelper.newInput(inBuildCert)) {
+                    IOHelper.transfer(inputStream, outputStream);
+                }
+            } catch (NoSuchFileException ignored) {
 
             }
+
         } else {
             if(IOHelper.exists(dir.resolve("GravitCentralRootCA.crt"))) {
                 LogHelper.warning("Found old default certificate - 'GravitCentralRootCA.crt'. Delete...");
