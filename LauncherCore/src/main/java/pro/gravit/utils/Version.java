@@ -2,7 +2,7 @@ package pro.gravit.utils;
 
 import java.util.*;
 
-public final class Version {
+public final class Version implements Comparable<Version> {
 
     public static final int MAJOR = 5;
     public static final int MINOR = 2;
@@ -22,6 +22,18 @@ public final class Version {
         this.patch = patch;
         build = 0;
         release = Type.UNKNOWN;
+    }
+
+    public static Version of(int major, int minor, int patch) {
+        return new Version(major, minor, patch);
+    }
+
+    public static Version of(int major, int minor, int patch, int build) {
+        return new Version(major, minor, patch, build);
+    }
+
+    public static Version of(int major, int minor, int patch, int build, Type release) {
+        return new Version(major, minor, patch, build, release);
     }
 
 
@@ -79,6 +91,22 @@ public final class Version {
 
     public String toString() {
         return String.format("%d.%d.%d-%d %s", major, minor, patch, build, getReleaseStatus());
+    }
+
+    @Override
+    public int compareTo(Version version) {
+        if(version.major != major) return Integer.compare(major, version.major);
+        if(version.minor != minor) return Integer.compare(minor, version.minor);
+        if(version.patch != patch) return Integer.compare(patch, version.patch);
+        return 0;
+    }
+
+    public boolean isUpperThan(Version version) {
+        return this.compareTo(version) > 0;
+    }
+
+    public boolean isLowerThan(Version version) {
+        return this.compareTo(version) < 0;
     }
 
 

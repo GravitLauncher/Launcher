@@ -267,6 +267,16 @@ public class SimpleModuleManager implements LauncherModulesManager {
     }
 
     @Override
+    public LauncherModule findModule(String name, Predicate<Version> versionPredicate) {
+        for (LauncherModule module : modules) {
+            LauncherModuleInfo info = module.getModuleInfo();
+            if (!versionPredicate.test(info.version)) continue;
+            if (name.equals(info.name)) return module;
+        }
+        return null;
+    }
+
+    @Override
     public <T extends LauncherModule.Event> void invokeEvent(T event) {
         for (LauncherModule module : modules) {
             module.callEvent(event);

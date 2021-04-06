@@ -1,14 +1,24 @@
 package pro.gravit.launcher.modules;
 
 import pro.gravit.launcher.LauncherTrustManager;
+import pro.gravit.utils.Version;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public abstract class LauncherModule {
     protected final LauncherModuleInfo moduleInfo;
-    @SuppressWarnings("rawtypes")
-    private final Map<Class<? extends Event>, EventHandler> eventMap = new HashMap<>();
+    private final static class EventEntity<T extends Event> {
+        final Class<T> clazz;
+        final EventHandler<T> handler;
+
+        private EventEntity(EventHandler<T> handler, Class<T> clazz) {
+            this.clazz = clazz;
+            this.handler = handler;
+        }
+    }
+    private final List<EventEntity<? extends Event>> eventList = new ArrayList<>(4);
     protected LauncherModulesManager modulesManager;
     protected ModulesConfigManager modulesConfigManager;
     protected InitStatus initStatus = InitStatus.CREATED;
@@ -23,7 +33,7 @@ public abstract class LauncherModule {
         moduleInfo = info;
     }
 
-    public LauncherModuleInfo getModuleInfo() {
+    public final LauncherModuleInfo getModuleInfo() {
         return moduleInfo;
     }
 
@@ -60,6 +70,27 @@ public abstract class LauncherModule {
         return new LauncherTrustManager.CheckClassResult(this.checkResult);
     }
 
+    protected final LauncherModule requireModule(String name, Version minVersion) {
+        if(context == null) throw new IllegalStateException("requireModule must be used in init() phase");
+        LauncherModule module = context.getModulesManager().getModule(name);
+        requireModule(module, minVersion, name);
+        return module;
+    }
+
+    protected final  <T extends LauncherModule> T requireModule(Class<? extends T> clazz, Version minVersion) {
+        if(context == null) throw new IllegalStateException("requireModule must be used in init() phase");
+        T module = context.getModulesManager().getModule(clazz);
+        requireModule(module, minVersion, clazz.getName());
+        return module;
+    }
+
+    private void requireModule(LauncherModule module, Version minVersion, String requiredModuleName) {
+        if(module == null)
+            throw new RuntimeException(String.format("Module %s required %s v%s or higher", moduleInfo.name, requiredModuleName, minVersion.getVersionString()));
+        else if(module.moduleInfo.version.isLowerThan(minVersion))
+            throw new RuntimeException(String.format("Module %s required %s v%s or higher (current version %s)", moduleInfo.name, requiredModuleName, minVersion.getVersionString(), module.moduleInfo.version.getVersionString()));
+    }
+
     /**
      * The internal method used by the ModuleManager
      * DO NOT TOUCH
@@ -86,7 +117,7 @@ public abstract class LauncherModule {
         //NOP
     }
 
-    public LauncherModule preInit() {
+    public final LauncherModule preInit() {
         if (!initStatus.equals(InitStatus.PRE_INIT_WAIT))
             throw new IllegalStateException("PreInit not allowed in current state");
         initStatus = InitStatus.PRE_INIT;
@@ -121,7 +152,8 @@ public abstract class LauncherModule {
      * @return true if adding a handler was successful
      */
     protected <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass) {
-        eventMap.put(tClass, handle);
+        EventEntity<T> eventEntity = new EventEntity<T>(handle, tClass);
+        eventList.add(eventEntity);
         return true;
     }
 
@@ -134,10 +166,11 @@ public abstract class LauncherModule {
     @SuppressWarnings("unchecked")
     public final <T extends Event> void callEvent(T event) {
         Class<? extends Event> tClass = event.getClass();
-        for (@SuppressWarnings("rawtypes") Map.Entry<Class<? extends Event>, EventHandler> e : eventMap.entrySet()) {
+        for (EventEntity<? extends Event> entity : eventList) {
 
-            if (e.getKey().isAssignableFrom(tClass)) {
-                e.getValue().event(event);
+            if (entity.clazz.isAssignableFrom(tClass)) {
+                //noinspection RedundantCast
+                ((EventEntity<T>)entity).handler.event(event);
                 if (event.isCancel()) return;
             }
         }

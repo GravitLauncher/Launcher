@@ -64,7 +64,7 @@ public class ConfigurationTest {
         launchServer = builder.build();
     }
     @Test
-    public static void reloadTest() throws Exception {
+    public void reloadTest() throws Exception {
         AuthProvider provider = new AuthProvider() {
             @Override
             public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws Exception {

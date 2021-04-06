@@ -37,6 +37,8 @@ public interface LauncherModulesManager {
 
     <T extends LauncherModule> T findModule(Class<? extends T> clazz, Predicate<Version> versionPredicate);
 
+    LauncherModule findModule(String name, Predicate<Version> versionPredicate);
+
     /**
      * Invoke event processing for all modules.
      * Event processing is carried out in the order of the modules in the list (sorted by priority)
