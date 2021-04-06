@@ -72,73 +72,79 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
         classNode.fields.forEach(field -> {
             // Notice that fields that will be used with this algo should not have default
             // value by = ...;
-            AnnotationNode valueAnnotation = field.invisibleAnnotations != null ? field.invisibleAnnotations.stream()
-                    .filter(annotation -> INJECTED_FIELD_DESC.equals(annotation.desc)).findFirst()
-                    .orElse(null) : null;
-            if (valueAnnotation == null) {
-                return;
-            }
-            field.invisibleAnnotations.remove(valueAnnotation);
-            AtomicReference<String> valueName = new AtomicReference<>(null);
-            valueAnnotation.accept(new AnnotationVisitor(Opcodes.ASM7) {
-                @Override
-                public void visit(final String name, final Object value) {
-                    if ("value".equals(name)) {
-                        if (value.getClass() != String.class)
-                            throw new IllegalArgumentException(
-                                    String.format("Invalid annotation with value class %s", field.getClass().getName()));
-                        valueName.set(value.toString());
-                    }
-                }
-            });
-            if (valueName.get() == null) {
-                throw new IllegalArgumentException("Annotation should always contains 'value' key");
-            }
-            if (!values.containsKey(valueName.get())) {
-                return;
-            }
-            Object value = values.get(valueName.get());
-            if ((field.access & Opcodes.ACC_STATIC) != 0) {
-                if (primitiveLDCDescriptors.contains(field.desc) && primitiveLDCClasses.contains(value.getClass())) {
-                    field.value = value;
-                    return;
-                }
-                List<FieldInsnNode> putStaticNodes = Arrays.stream(clinitMethod.instructions.toArray())
-                        .filter(node -> node instanceof FieldInsnNode && node.getOpcode() == Opcodes.PUTSTATIC).map(p -> (FieldInsnNode) p)
-                        .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).collect(Collectors.toList());
-                InsnList setter = serializeValue(value);
-                if (putStaticNodes.isEmpty()) {
-                    setter.add(new FieldInsnNode(Opcodes.PUTSTATIC, classNode.name, field.name, field.desc));
-                    Arrays.stream(clinitMethod.instructions.toArray()).filter(node -> node.getOpcode() == Opcodes.RETURN)
-                            .forEach(node -> clinitMethod.instructions.insertBefore(node, setter));
-                } else {
-                    setter.insert(new InsnNode(Type.getType(field.desc).getSize() == 1 ? Opcodes.POP : Opcodes.POP2));
-                    for (FieldInsnNode fieldInsnNode : putStaticNodes) {
-                        clinitMethod.instructions.insertBefore(fieldInsnNode, setter);
-                    }
-                }
-            } else {
-                if (initMethod == null) {
-                    throw new IllegalArgumentException(String.format("Not found init in target: %s", classNode.name));
-                }
-                List<FieldInsnNode> putFieldNodes = Arrays.stream(initMethod.instructions.toArray())
-                        .filter(node -> node instanceof FieldInsnNode && node.getOpcode() == Opcodes.PUTFIELD).map(p -> (FieldInsnNode) p)
-                        .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).collect(Collectors.toList());
-                InsnList setter = serializeValue(value);
-                if (putFieldNodes.isEmpty()) {
-                    setter.insert(new VarInsnNode(Opcodes.ALOAD, 0));
-                    setter.add(new FieldInsnNode(Opcodes.PUTFIELD, classNode.name, field.name, field.desc));
-                    Arrays.stream(initMethod.instructions.toArray())
-                            .filter(node -> node.getOpcode() == Opcodes.RETURN)
-                            .forEach(node -> initMethod.instructions.insertBefore(node, setter));
-                } else {
-                    setter.insert(new InsnNode(Type.getType(field.desc).getSize() == 1 ? Opcodes.POP : Opcodes.POP2));
-                    for (FieldInsnNode fieldInsnNode : putFieldNodes) {
-                        initMethod.instructions.insertBefore(fieldInsnNode, setter);
-                    }
+            boolean isStatic = (field.access & Opcodes.ACC_STATIC) != 0;
+            injectTo(isStatic ? clinitMethod : initMethod, classNode, field, isStatic, values);
+        });
+    }
+
+    public static void injectTo(MethodNode initMethod, ClassNode classNode, FieldNode field, boolean isStatic, Map<String, Object> values) {
+        AnnotationNode valueAnnotation = field.invisibleAnnotations != null ? field.invisibleAnnotations.stream()
+                .filter(annotation -> INJECTED_FIELD_DESC.equals(annotation.desc)).findFirst()
+                .orElse(null) : null;
+        if (valueAnnotation == null) {
+            return;
+        }
+        field.invisibleAnnotations.remove(valueAnnotation);
+        AtomicReference<String> valueName = new AtomicReference<>(null);
+        valueAnnotation.accept(new AnnotationVisitor(Opcodes.ASM7) {
+            @Override
+            public void visit(final String name, final Object value) {
+                if ("value".equals(name)) {
+                    if (value.getClass() != String.class)
+                        throw new IllegalArgumentException(
+                                String.format("Invalid annotation with value class %s", field.getClass().getName()));
+                    valueName.set(value.toString());
                 }
             }
         });
+        if (valueName.get() == null) {
+            throw new IllegalArgumentException("Annotation should always contains 'value' key");
+        }
+        if (!values.containsKey(valueName.get())) {
+            return;
+        }
+        Object value = values.get(valueName.get());
+        //if ((field.access & Opcodes.ACC_STATIC) != 0) {
+        if (isStatic) {
+            if (primitiveLDCDescriptors.contains(field.desc) && primitiveLDCClasses.contains(value.getClass())) {
+                field.value = value;
+                return;
+            }
+            List<FieldInsnNode> putStaticNodes = Arrays.stream(initMethod.instructions.toArray())
+                    .filter(node -> node instanceof FieldInsnNode && node.getOpcode() == Opcodes.PUTSTATIC).map(p -> (FieldInsnNode) p)
+                    .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).collect(Collectors.toList());
+            InsnList setter = serializeValue(value);
+            if (putStaticNodes.isEmpty()) {
+                setter.add(new FieldInsnNode(Opcodes.PUTSTATIC, classNode.name, field.name, field.desc));
+                Arrays.stream(initMethod.instructions.toArray()).filter(node -> node.getOpcode() == Opcodes.RETURN)
+                        .forEach(node -> initMethod.instructions.insertBefore(node, setter));
+            } else {
+                setter.insert(new InsnNode(Type.getType(field.desc).getSize() == 1 ? Opcodes.POP : Opcodes.POP2));
+                for (FieldInsnNode fieldInsnNode : putStaticNodes) {
+                    initMethod.instructions.insertBefore(fieldInsnNode, setter);
+                }
+            }
+        } else {
+            if (initMethod == null) {
+                throw new IllegalArgumentException(String.format("Not found init in target: %s", classNode.name));
+            }
+            List<FieldInsnNode> putFieldNodes = Arrays.stream(initMethod.instructions.toArray())
+                    .filter(node -> node instanceof FieldInsnNode && node.getOpcode() == Opcodes.PUTFIELD).map(p -> (FieldInsnNode) p)
+                    .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).collect(Collectors.toList());
+            InsnList setter = serializeValue(value);
+            if (putFieldNodes.isEmpty()) {
+                setter.insert(new VarInsnNode(Opcodes.ALOAD, 0));
+                setter.add(new FieldInsnNode(Opcodes.PUTFIELD, classNode.name, field.name, field.desc));
+                Arrays.stream(initMethod.instructions.toArray())
+                        .filter(node -> node.getOpcode() == Opcodes.RETURN)
+                        .forEach(node -> initMethod.instructions.insertBefore(node, setter));
+            } else {
+                setter.insert(new InsnNode(Type.getType(field.desc).getSize() == 1 ? Opcodes.POP : Opcodes.POP2));
+                for (FieldInsnNode fieldInsnNode : putFieldNodes) {
+                    initMethod.instructions.insertBefore(fieldInsnNode, setter);
+                }
+            }
+        }
     }
 
     private static Serializer<?> serializerClass(int opcode) {

@@ -40,31 +40,67 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+/**
+ * The main LaunchServer class. Contains links to all necessary objects
+ * Not a singletron
+ */
 public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurable {
 
     public static final Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
+    /**
+     * Working folder path
+     */
     public final Path dir;
+    /**
+     * Environment type (test / production)
+     */
     public final LaunchServerEnv env;
+    /**
+     * The path to the folder with libraries for the launcher
+     */
     public final Path launcherLibraries;
+    /**
+     * The path to the folder with compile-only libraries for the launcher
+     */
     public final Path launcherLibrariesCompile;
-    public final Path caCertFile;
 
     // Constant paths
-    public final Path caKeyFile;
-    public final Path serverCertFile;
-    public final Path serverKeyFile;
+    /**
+     * The path to the folder with updates/webroot
+     */
     public final Path updatesDir;
+    /**
+     * Save/Reload LaunchServer config
+     */
     public final LaunchServerConfigManager launchServerConfigManager;
+    /**
+     * The path to the folder with profiles
+     */
     public final Path profilesDir;
+    /**
+     * This object contains runtime configuration
+     */
     public final LaunchServerRuntimeConfig runtime;
+    /**
+     * Public ECDSA LaunchServer key
+     */
     public final ECPublicKey publicKey;
+    /**
+     * Private ECDSA LaunchServer key
+     */
     public final ECPrivateKey privateKey;
+    /**
+     * Pipeline for building JAR
+     */
     public final JARLauncherBinary launcherBinary;
+    /**
+     * Pipeline for building EXE
+     */
+    public final LauncherBinary launcherEXEBinary;
 
     //public static LaunchServer server = null;
     public final Class<? extends LauncherBinary> launcherEXEBinaryClass;
     // Server config
-    public final LauncherBinary launcherEXEBinary;
     public final SessionManager sessionManager;
     public final AuthHookManager authHookManager;
     public final LaunchServerModulesManager modulesManager;
@@ -105,12 +141,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherLibrariesCompile = directories.launcherLibrariesCompileDir;
 
         config.setLaunchServer(this);
-
-        caCertFile = dir.resolve("ca.crt");
-        caKeyFile = dir.resolve("ca.key");
-
-        serverCertFile = dir.resolve("server.crt");
-        serverKeyFile = dir.resolve("server.key");
 
         modulesManager.invokeEvent(new NewLaunchServerInstanceEvent(this));
 
