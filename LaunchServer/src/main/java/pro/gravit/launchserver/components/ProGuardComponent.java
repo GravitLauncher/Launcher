@@ -29,7 +29,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     @Override
     public void init(LaunchServer launchServer) {
         proguardConf = new ProguardConf(launchServer, this);
-        launchServer.launcherBinary.add((v) -> v.getName().startsWith(modeAfter), new ProGuardBuildTask(launchServer, proguardConf, this));
+        launchServer.launcherBinary.addAfter((v) -> v.getName().startsWith(modeAfter), new ProGuardBuildTask(launchServer, proguardConf, this));
     }
 
     @Override
