@@ -3,8 +3,8 @@ package pro.gravit.launchserver.socket.response.auth;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.password.AuthECPassword;
-import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
+import pro.gravit.launcher.request.auth.password.*;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
@@ -20,6 +20,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -49,14 +50,7 @@ public class AuthResponse extends SimpleResponse {
                 AuthProvider.authError("Don't skip Launcher Update");
                 return;
             }
-            if (password instanceof AuthECPassword) {
-                try {
-                    password = new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
-                            , ((AuthECPassword) password).password)));
-                } catch (IllegalBlockSizeException | BadPaddingException ignored) {
-                    throw new AuthException("Password decryption error");
-                }
-            }
+
             if (clientData.isAuth) {
                 if (LogHelper.isDevEnabled()) {
                     LogHelper.warning("Client %s double auth", clientData.username == null ? ip : clientData.username);
@@ -75,6 +69,22 @@ public class AuthResponse extends SimpleResponse {
             AuthProvider provider = pair.provider;
             server.authHookManager.preHook.hook(context, clientData);
             provider.preAuth(login, password, ip);
+            if(password instanceof Auth2FAPassword) {
+                AuthPlainPassword first = decryptPassword(server, ((Auth2FAPassword) password).firstPassword);
+                AuthPlainPassword second = decryptPassword(server, ((Auth2FAPassword) password).secondPassword);
+                if(first != null) {
+                    ((Auth2FAPassword) password).firstPassword = first;
+                }
+                if(second != null) {
+                    ((Auth2FAPassword) password).secondPassword = second;
+                }
+            }
+            else {
+                AuthPlainPassword passwd = decryptPassword(server, password);
+                if(passwd != null) {
+                    password = passwd;
+                }
+            }
             AuthProviderResult aresult = provider.auth(login, password, ip);
             if (!VerifyHelper.isValidUsername(aresult.username)) {
                 AuthProvider.authError(String.format("Illegal result: '%s'", aresult.username));
@@ -118,6 +128,37 @@ public class AuthResponse extends SimpleResponse {
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    public static AuthPlainPassword decryptPassword(LaunchServer server, AuthRequest.AuthPasswordInterface password) throws Exception {
+        if (password instanceof AuthECPassword) {
+            try {
+                return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
+                        , ((AuthECPassword) password).password)));
+            } catch (IllegalBlockSizeException | BadPaddingException ignored) {
+                throw new AuthException("Password decryption error");
+            }
+        }
+        if (password instanceof AuthAESPassword) {
+            try {
+                return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
+                        , ((AuthAESPassword) password).password)));
+            } catch (IllegalBlockSizeException | BadPaddingException ignored) {
+                throw new AuthException("Password decryption error");
+            }
+        }
+        if(password instanceof AuthRSAPassword) {
+            try {
+                Cipher cipher = SecurityHelper.newRSADecryptCipher(server.keyAgreementManager.rsaPrivateKey);
+                return new AuthPlainPassword(
+                        IOHelper.decode(cipher.doFinal(((AuthRSAPassword) password).password))
+                );
+            } catch (IllegalBlockSizeException | BadPaddingException ignored) {
+                throw new AuthException("Password decryption error");
+            }
+        }
+        return null;
     }
 
     public enum ConnectTypes {
