@@ -120,11 +120,11 @@ public class LaunchServerStarter {
         }
         if (IOHelper.isFile(publicKeyFile) && IOHelper.isFile(privateKeyFile)) {
             LogHelper.info("Reading EC keypair");
-            publicKey = SecurityHelper.toPublicECKey(IOHelper.read(publicKeyFile));
-            privateKey = SecurityHelper.toPrivateECKey(IOHelper.read(privateKeyFile));
+            publicKey = SecurityHelper.toPublicECDSAKey(IOHelper.read(publicKeyFile));
+            privateKey = SecurityHelper.toPrivateECDSAKey(IOHelper.read(privateKeyFile));
         } else {
             LogHelper.info("Generating EC keypair");
-            KeyPair pair = SecurityHelper.genECKeyPair(new SecureRandom());
+            KeyPair pair = SecurityHelper.genECDSAKeyPair(new SecureRandom());
             publicKey = (ECPublicKey) pair.getPublic();
             privateKey = (ECPrivateKey) pair.getPrivate();
 
@@ -202,8 +202,6 @@ public class LaunchServerStarter {
                 .setDirectories(directories)
                 .setEnv(env)
                 .setCommandHandler(localCommandHandler)
-                .setPrivateKey(privateKey)
-                .setPublicKey(publicKey)
                 .setRuntimeConfig(runtimeConfig)
                 .setConfig(config)
                 .setModulesManager(modulesManager)

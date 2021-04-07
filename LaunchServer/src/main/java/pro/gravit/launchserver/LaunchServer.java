@@ -81,13 +81,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      * This object contains runtime configuration
      */
     public final LaunchServerRuntimeConfig runtime;
-    /**
-     * Public ECDSA LaunchServer key
-     */
+    @Deprecated
     public final ECPublicKey publicKey;
-    /**
-     * Private ECDSA LaunchServer key
-     */
+    @Deprecated
     public final ECPrivateKey privateKey;
     /**
      * Pipeline for building JAR
@@ -110,6 +106,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final ConfigManager configManager;
     public final PingServerManager pingServerManager;
     public final FeaturesManager featuresManager;
+    public final KeyAgreementManager keyAgreementManager;
     // HWID ban + anti-brutforce
     public final CertificateManager certificateManager;
     // Server
@@ -123,7 +120,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     // Updates and profiles
     private volatile List<ClientProfile> profilesList;
 
-    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, ECPublicKey publicKey, ECPrivateKey privateKey, CommandHandler commandHandler, CertificateManager certificateManager) throws IOException {
+    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager) throws IOException {
         this.dir = directories.dir;
         this.env = env;
         this.config = config;
@@ -131,8 +128,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.modulesManager = modulesManager;
         this.profilesDir = directories.profilesDir;
         this.updatesDir = directories.updatesDir;
-        this.publicKey = publicKey;
-        this.privateKey = privateKey;
+        this.keyAgreementManager = keyAgreementManager;
+        this.publicKey = keyAgreementManager.ecdsaPublicKey;
+        this.privateKey = keyAgreementManager.ecdsaPrivateKey;
         this.commandHandler = commandHandler;
         this.runtime = runtimeConfig;
         this.certificateManager = certificateManager;
@@ -510,11 +508,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public static class LaunchServerDirectories {
         public static final String UPDATES_NAME = "updates", PROFILES_NAME = "profiles",
                 TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
-                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile";
+                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", KEY_NAME = ".keys";
         public Path updatesDir;
         public Path profilesDir;
         public Path launcherLibrariesDir;
         public Path launcherLibrariesCompileDir;
+        public Path keyDirectory;
         public Path dir;
         public Path trustStore;
 
@@ -525,6 +524,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (launcherLibrariesDir == null) launcherLibrariesDir = dir.resolve(LAUNCHERLIBRARIES_NAME);
             if (launcherLibrariesCompileDir == null)
                 launcherLibrariesCompileDir = dir.resolve(LAUNCHERLIBRARIESCOMPILE_NAME);
+            if(keyDirectory == null) keyDirectory = dir.resolve(KEY_NAME);
         }
     }
 }

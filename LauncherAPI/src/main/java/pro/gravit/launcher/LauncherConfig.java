@@ -52,7 +52,7 @@ public final class LauncherConfig extends StreamObject {
 
     @LauncherInjectionConstructor
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
-        publicKey = SecurityHelper.toPublicECKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
+        publicKey = SecurityHelper.toPublicECDSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
         secureCheckHash = null;
         secureCheckSalt = null;
         passwordEncryptKey = null;

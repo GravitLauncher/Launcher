@@ -19,7 +19,7 @@ public interface SecureProtectHandler {
 
     default void verifySecureLevelKey(byte[] publicKey, byte[] data, byte[] signature) throws InvalidKeySpecException, SignatureException {
         if (publicKey == null || signature == null) throw new InvalidKeySpecException();
-        ECPublicKey pubKey = SecurityHelper.toPublicECKey(publicKey);
+        ECPublicKey pubKey = SecurityHelper.toPublicECDSAKey(publicKey);
         Signature sign = SecurityHelper.newECVerifySignature(pubKey);
         sign.update(data);
         sign.verify(signature);

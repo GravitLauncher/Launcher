@@ -1,5 +1,6 @@
 package pro.gravit.launchserver;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 
@@ -31,21 +33,17 @@ public class StartLaunchServerTest {
 
     @BeforeAll
     public static void prepare() throws Throwable {
+        if(Security.getProvider("BC") == null) Security.addProvider(new BouncyCastleProvider());
         LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(modulesDir, configDir, null);
         LaunchServerConfig config = LaunchServerConfig.getDefault(LaunchServer.LaunchServerEnv.TEST);
         Launcher.gsonManager = new LaunchServerGsonManager(modulesManager);
         Launcher.gsonManager.initGson();
         LaunchServerRuntimeConfig runtimeConfig = new LaunchServerRuntimeConfig();
         LaunchServerBuilder builder = new LaunchServerBuilder();
-        KeyPair pair = SecurityHelper.genECKeyPair(new SecureRandom());
-        ECPublicKey publicKey = (ECPublicKey) pair.getPublic();
-        ECPrivateKey privateKey = (ECPrivateKey) pair.getPrivate();
         builder.setDir(dir)
                 .setEnv(LaunchServer.LaunchServerEnv.TEST)
                 .setConfig(config)
                 .setRuntimeConfig(runtimeConfig)
-                .setPublicKey(publicKey)
-                .setPrivateKey(privateKey)
                 .setCertificateManager(new CertificateManager())
                 .setLaunchServerConfigManager(new TestLaunchServerConfigManager())
                 .setModulesManager(modulesManager)
