@@ -53,7 +53,7 @@ public class FormatHelper {
         return ansi;
     }
 
-    static String ansiFormatVersion(String product) {
+    public static String ansiFormatVersion(String product) {
         return new Ansi().bold(). // Setup
                 fgBright(Ansi.Color.MAGENTA).a("GravitLauncher "). // sashok724's
                 fgBright(Ansi.Color.BLUE).a("(fork sashok724's Launcher) ").
@@ -63,7 +63,7 @@ public class FormatHelper {
                 reset().toString(); // To file
     }
 
-    static String ansiFormatLicense(String product) {
+    public static String ansiFormatLicense(String product) {
         return new Ansi().bold(). // Setup
                 fgBright(Ansi.Color.MAGENTA).a("License for "). // sashok724's
                 fgBright(Ansi.Color.CYAN).a(product). // Product
@@ -76,11 +76,11 @@ public class FormatHelper {
         return dateTime + " [" + level.name + (sub ? "]  " : "] ");
     }
 
-    static String formatVersion(String product) {
+    public static String formatVersion(String product) {
         return String.format("GravitLauncher (fork sashok724's Launcher) %s v%s", product, Version.getVersion().toString());
     }
 
-    static String formatLicense(String product) {
+    public static String formatLicense(String product) {
         return String.format("License for %s GPLv3. SourceCode: https://github.com/GravitLauncher/Launcher", product);
     }
 }

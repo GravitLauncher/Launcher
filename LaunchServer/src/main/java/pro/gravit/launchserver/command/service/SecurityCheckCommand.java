@@ -31,17 +31,8 @@ public class SecurityCheckCommand extends Command {
     }
 
     public static void printCheckResult(LogHelper.Level level, String module, String comment, Boolean status) {
-        LogHelper.rawLog(() -> FormatHelper.rawFormat(level, LogHelper.getDataTime(), false).concat(String.format("[%s] %s - %s", module, comment, status == null ? "WARN" : (status ? "OK" : "FAIL"))),
-                () -> FormatHelper.rawAnsiFormat(level, LogHelper.getDataTime(), false)
-                        .fgBright(Ansi.Color.WHITE)
-                        .a("[")
-                        .fgBright(Ansi.Color.BLUE)
-                        .a(module)
-                        .fgBright(Ansi.Color.WHITE)
-                        .a("] ".concat(comment).concat(" - "))
-                        .fgBright(status == null ? Ansi.Color.YELLOW : (status ? Ansi.Color.GREEN : Ansi.Color.RED))
-                        .a(status == null ? "WARN" : (status ? "OK" : "FAIL"))
-                        .reset().toString());
+        LogHelper.log(level, String.format("[%s] %s - %s", module, comment, status == null ? "WARN" : (status ? "OK" : "FAIL")), false);
+
     }
 
     @Override

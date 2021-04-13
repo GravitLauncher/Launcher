@@ -9,6 +9,7 @@ import pro.gravit.utils.helper.LogHelper;
 
 import java.util.Arrays;
 import java.util.Map.Entry;
+import java.util.function.Supplier;
 
 public final class HelpCommand extends Command {
     private final CommandHandler handler;
@@ -19,9 +20,9 @@ public final class HelpCommand extends Command {
 
     public static void printCommand(String name, Command command) {
         String args = command.getArgsDescription();
-        //LogHelper.subInfo("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());
-        LogHelper.rawLog(() -> FormatHelper.rawFormat(LogHelper.Level.INFO, LogHelper.getDataTime(), true) + String.format("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription()), () -> {
-            Ansi ansi = FormatHelper.rawAnsiFormat(LogHelper.Level.INFO, LogHelper.getDataTime(), true);
+        Supplier<String> plaintext = () -> String.format("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());
+        Supplier<String> jansitext = () -> {
+            Ansi ansi = new Ansi();
             ansi.fgBright(Ansi.Color.GREEN);
             ansi.a(name + " ");
             ansi.fgBright(Ansi.Color.CYAN);
@@ -32,7 +33,8 @@ public final class HelpCommand extends Command {
             ansi.a(command.getUsageDescription());
             ansi.reset();
             return ansi.toString();
-        }, () -> LogHelper.htmlFormatLog(LogHelper.Level.INFO, LogHelper.getDataTime(), String.format("<font color=\"green\">%s</font> <font color=\"cyan\">%s</font> - <font color=\"yellow\">%s</font>", name, args == null ? "[nothing]" : args, command.getUsageDescription()), true));
+        };
+        LogHelper.logJAnsi(LogHelper.Level.INFO, plaintext, jansitext, true);
     }
 
     public static void printSubCommandsHelp(String base, Command command) {

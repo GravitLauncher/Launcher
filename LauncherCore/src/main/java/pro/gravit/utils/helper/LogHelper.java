@@ -1,8 +1,9 @@
 package pro.gravit.utils.helper;
 
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.AnsiConsole;
 import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.utils.logging.LogHelperAppender;
+import pro.gravit.utils.logging.SimpleLogHelperImpl;
+import pro.gravit.utils.logging.Slf4jLogHelperImpl;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -13,12 +14,12 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class LogHelper {
 
+    private static LogHelperAppender impl;
     public static final String DEBUG_PROPERTY = "launcher.debug";
 
     public static final String DEV_PROPERTY = "launcher.dev";
@@ -27,45 +28,21 @@ public final class LogHelper {
 
     public static final String NO_JANSI_PROPERTY = "launcher.noJAnsi";
 
-    public static final boolean JANSI;
+    public static final String NO_SLF4J_PROPERTY = "launcher.noSlf4j";
 
-    // Output settings
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US);
-    private static final AtomicBoolean DEBUG_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEBUG_PROPERTY));
-    private static final AtomicBoolean STACKTRACE_ENABLED = new AtomicBoolean(Boolean.getBoolean(STACKTRACE_PROPERTY));
-    private static final AtomicBoolean DEV_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEV_PROPERTY));
-    private static final Set<OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
     private static final Set<Consumer<Throwable>> EXCEPTIONS_CALLBACKS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
-    private static final OutputEnity STD_OUTPUT;
 
     static {
-        // Use JAnsi if available
-        boolean jansi;
+        boolean useSlf4j = false;
         try {
-            if (Boolean.getBoolean(NO_JANSI_PROPERTY)) {
-                jansi = false;
-            } else {
-                Class.forName("org.fusesource.jansi.Ansi");
-                AnsiConsole.systemInstall();
-                jansi = true;
-            }
+            Class.forName("org.slf4j.Logger");
+            useSlf4j = !Boolean.getBoolean(NO_SLF4J_PROPERTY);
         } catch (ClassNotFoundException ignored) {
-            jansi = false;
         }
-        JANSI = jansi;
-
-        // Add std writer
-        STD_OUTPUT = new OutputEnity(System.out::println, JANSI ? OutputTypes.JANSI : OutputTypes.PLAIN);
-        addOutput(STD_OUTPUT);
-
-        // Add file log writer
-        String logFile = System.getProperty("launcher.logFile");
-        if (logFile != null) {
-            try {
-                addOutput(IOHelper.toPath(logFile));
-            } catch (IOException e) {
-                error(e);
-            }
+        if(useSlf4j) {
+            impl = new Slf4jLogHelperImpl();
+        } else {
+            impl = new SimpleLogHelperImpl();
         }
     }
 
@@ -73,7 +50,7 @@ public final class LogHelper {
     }
 
     public static void addOutput(OutputEnity output) {
-        OUTPUTS.add(Objects.requireNonNull(output, "output"));
+        impl.addOutput(output);
     }
 
     public static void addExcCallback(Consumer<Throwable> output) {
@@ -81,19 +58,15 @@ public final class LogHelper {
     }
 
     public static void addOutput(Output output, OutputTypes type) {
-        OUTPUTS.add(new OutputEnity(Objects.requireNonNull(output, "output"), type));
+        addOutput(new OutputEnity(Objects.requireNonNull(output, "output"), type));
     }
 
     public static void addOutput(Path file) throws IOException {
-        if (JANSI) {
-            addOutput(new JAnsiOutput(IOHelper.newOutput(file, true)), OutputTypes.JANSI);
-        } else {
-            addOutput(IOHelper.newWriter(file, true));
-        }
+        addOutput(IOHelper.newWriter(file, true));
     }
 
     public static void addOutput(Writer writer) {
-        addOutput(new WriterOutput(writer), OutputTypes.PLAIN);
+        addOutput(new SimpleLogHelperImpl.WriterOutput(writer), OutputTypes.PLAIN);
     }
 
     public static void debug(String message) {
@@ -140,152 +113,51 @@ public final class LogHelper {
     }
 
     public static boolean isDebugEnabled() {
-        return DEBUG_ENABLED.get();
+        return impl.isDebugEnabled();
     }
 
     public static void setDebugEnabled(boolean debugEnabled) {
-        DEBUG_ENABLED.set(debugEnabled);
+        impl.setDebugEnabled(debugEnabled);
     }
 
     public static boolean isStacktraceEnabled() {
-        return STACKTRACE_ENABLED.get();
+        return impl.isStacktraceEnabled();
     }
 
     public static void setStacktraceEnabled(boolean stacktraceEnabled) {
-        STACKTRACE_ENABLED.set(stacktraceEnabled);
+        impl.setStacktraceEnabled(stacktraceEnabled);
     }
 
     public static boolean isDevEnabled() {
-        return DEV_ENABLED.get();
+        return impl.isDevEnabled();
     }
 
     public static void setDevEnabled(boolean stacktraceEnabled) {
-        DEV_ENABLED.set(stacktraceEnabled);
+        impl.setDevEnabled(stacktraceEnabled);
     }
-
+    @Deprecated
     public static String getDataTime() {
-        return DATE_TIME_FORMATTER.format(LocalDateTime.now());
+        return DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US).format(LocalDateTime.now());
     }
 
     public static void log(Level level, String message, boolean sub) {
-        String dateTime = DATE_TIME_FORMATTER.format(LocalDateTime.now());
-        String jansiString = null, plainString = null, htmlString = null;
-        for (OutputEnity output : OUTPUTS) {
-            if (output.type == OutputTypes.JANSI && JANSI) {
-                if (jansiString != null) {
-                    output.output.println(jansiString);
-                    continue;
-                }
-
-                jansiString = ansiFormatLog(level, dateTime, message, sub);
-                output.output.println(jansiString);
-            } else if (output.type == OutputTypes.HTML) {
-                if (htmlString != null) {
-                    output.output.println(htmlString);
-                    continue;
-                }
-
-                htmlString = htmlFormatLog(level, dateTime, message, sub);
-                output.output.println(htmlString);
-            } else {
-                if (plainString != null) {
-                    output.output.println(plainString);
-                    continue;
-                }
-
-                plainString = formatLog(level, message, dateTime, sub);
-                output.output.println(plainString);
-            }
-        }
+        impl.log(level, message, sub);
     }
 
-    public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr) {
-        rawLog(plainStr, jansiStr, null);
-    }
-
-    public static void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr, Supplier<String> htmlStr) {
-        String jansiString = null, plainString = null, htmlString = null;
-        for (OutputEnity output : OUTPUTS) {
-            if (output.type == OutputTypes.JANSI && JANSI) {
-                if (jansiString != null) {
-                    output.output.println(jansiString);
-                    continue;
-                }
-
-                jansiString = jansiStr.get();
-                output.output.println(jansiString);
-            } else if (output.type == OutputTypes.HTML) {
-                if (htmlString != null) {
-                    output.output.println(htmlString);
-                    continue;
-                }
-
-                htmlString = htmlStr.get();
-                output.output.println(htmlString);
-            } else {
-                if (plainString != null) {
-                    output.output.println(plainString);
-                    continue;
-                }
-
-                plainString = plainStr.get();
-                output.output.println(plainString);
-            }
-        }
+    public static void logJAnsi(LogHelper.Level level, Supplier<String> plaintext, Supplier<String> jansitext, boolean sub) {
+        impl.logJAnsi(level, plaintext, jansitext, sub);
     }
 
     public static void printVersion(String product) {
-        String jansiString = null, plainString = null;
-        for (OutputEnity output : OUTPUTS) {
-            if (output.type == OutputTypes.JANSI && JANSI) {
-                if (jansiString != null) {
-                    output.output.println(jansiString);
-                    continue;
-                }
-
-                jansiString = FormatHelper.ansiFormatVersion(product);
-                output.output.println(jansiString);
-            } else {
-                if (plainString != null) {
-                    output.output.println(plainString);
-                    continue;
-                }
-
-                plainString = FormatHelper.formatVersion(product);
-                output.output.println(plainString);
-            }
-        }
+        impl.printVersion(product);
     }
 
     public static void printLicense(String product) {
-        String jansiString = null, plainString = null;
-        for (OutputEnity output : OUTPUTS) {
-            if (output.type == OutputTypes.JANSI && JANSI) {
-                if (jansiString != null) {
-                    output.output.println(jansiString);
-                    continue;
-                }
-
-                jansiString = FormatHelper.ansiFormatLicense(product);
-                output.output.println(jansiString);
-            } else {
-                if (plainString != null) {
-                    output.output.println(plainString);
-                    continue;
-                }
-
-                plainString = FormatHelper.formatLicense(product);
-                output.output.println(plainString);
-            }
-        }
+        impl.printLicense(product);
     }
 
     public static boolean removeOutput(OutputEnity output) {
-        return OUTPUTS.remove(output);
-    }
-
-    public static boolean removeStdOutput() {
-        return removeOutput(STD_OUTPUT);
+        return impl.removeOutput(output);
     }
 
     public static void subDebug(String message) {
@@ -328,51 +200,13 @@ public final class LogHelper {
         warning(String.format(format, args));
     }
 
-    private static String ansiFormatLog(Level level, String dateTime, String message, boolean sub) {
-
-        Ansi ansi = FormatHelper.rawAnsiFormat(level, dateTime, sub);
-        ansi.a(message);
-
-        // Finish with reset code
-        return ansi.reset().toString();
-    }
-
-    public static String htmlFormatLog(Level level, String dateTime, String message, boolean sub) {
-        String levelColor;
-        switch (level) {
-            case WARNING:
-                levelColor = "gravitlauncher-log-warning";
-                break;
-            case ERROR:
-                levelColor = "gravitlauncher-log-error";
-                break;
-            case INFO:
-                levelColor = "gravitlauncher-log-info";
-                break;
-            case DEBUG:
-                levelColor = "gravitlauncher-log-debug";
-                break;
-            case DEV:
-                levelColor = "gravitlauncher-log-dev";
-                break;
-            default:
-                levelColor = "gravitlauncher-log-unknown";
-                break;
-        }
-        if (sub) levelColor += " gravitlauncher-log-sub";
-        return String.format("%s <span class=\"gravitlauncher-log %s\">[%s] %s</span>", dateTime, levelColor, level.toString(), sub ? ' ' + message : message);
-    }
-
-    private static String formatLog(Level level, String message, String dateTime, boolean sub) {
-        return FormatHelper.rawFormat(level, dateTime, sub) + message;
-    }
-
     public enum OutputTypes {
         @LauncherNetworkAPI
         PLAIN,
         @LauncherNetworkAPI
         JANSI,
         @LauncherNetworkAPI
+        @Deprecated
         HTML
     }
 
@@ -403,35 +237,6 @@ public final class LogHelper {
         public OutputEnity(Output output, OutputTypes type) {
             this.output = output;
             this.type = type;
-        }
-    }
-
-    private static final class JAnsiOutput extends WriterOutput {
-        private JAnsiOutput(OutputStream output) {
-            super(IOHelper.newWriter(output));
-        }
-    }
-
-    private static class WriterOutput implements Output, AutoCloseable {
-        private final Writer writer;
-
-        private WriterOutput(Writer writer) {
-            this.writer = writer;
-        }
-
-        @Override
-        public void close() throws IOException {
-            writer.close();
-        }
-
-        @Override
-        public void println(String message) {
-            try {
-                writer.write(message + System.lineSeparator());
-                writer.flush();
-            } catch (IOException ignored) {
-                // Do nothing?
-            }
         }
     }
 }
