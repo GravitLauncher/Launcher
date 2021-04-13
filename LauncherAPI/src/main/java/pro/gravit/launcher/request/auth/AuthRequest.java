@@ -75,6 +75,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
             providers.register("2fa", Auth2FAPassword.class);
             providers.register("signature", AuthSignaturePassword.class);
             providers.register("totp", AuthTOTPPassword.class);
+            providers.register("oauth", AuthOAuthPassword.class);
             registerProviders = true;
         }
     }
