@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.auth.protect;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.events.request.GetSecureLevelInfoRequestEvent;
 import pro.gravit.launcher.events.request.HardwareReportRequestEvent;
 import pro.gravit.launcher.events.request.VerifySecureLevelKeyRequestEvent;
@@ -20,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, HardwareProtectHandler, JoinServerProtectHandler, Reconfigurable {
+    private transient final Logger logger = LogManager.getLogger();
     public boolean enableHardwareFeature;
     public HWIDProvider provider;
     private transient LaunchServer server;
@@ -56,9 +59,9 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 return;
             }
             provider.normalizeHardwareInfo(response.hardware);
-            LogHelper.debug("[HardwareInfo] HardwareInfo received");
+            logger.debug("HardwareInfo received");
             boolean needCreate = !provider.addPublicKeyToHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
-            LogHelper.debug("[HardwareInfo] HardwareInfo needCreate: %s", needCreate ? "true" : "false");
+            logger.debug("HardwareInfo needCreate: {}", needCreate ? "true" : "false");
             if (needCreate)
                 provider.createHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
             client.trustLevel.hardwareInfo = response.hardware;
@@ -72,7 +75,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     public VerifySecureLevelKeyRequestEvent onSuccessVerify(Client client) {
         if (enableHardwareFeature) {
             if (provider == null) {
-                LogHelper.warning("HWIDProvider null. HardwareInfo not checked!");
+                logger.warn("HWIDProvider null. HardwareInfo not checked!");
             } else {
                 try {
                     client.trustLevel.hardwareInfo = provider.findHardwareInfoByPublicKey(client.trustLevel.publicKey, client);

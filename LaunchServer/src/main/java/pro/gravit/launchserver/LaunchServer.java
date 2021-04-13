@@ -1,5 +1,7 @@
 package pro.gravit.launchserver;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launcher.hasher.HashedDir;
@@ -24,7 +26,6 @@ import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +46,7 @@ import java.util.stream.Stream;
  * Not a singletron
  */
 public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurable {
+    private final Logger logger = LogManager.getLogger();
 
     public static final Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
     /**
@@ -179,13 +181,13 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         syncLauncherBinaries();
         launcherModuleLoader = new LauncherModuleLoader(this);
         if (config.components != null) {
-            LogHelper.debug("Init components");
+            logger.debug("Init components");
             config.components.forEach((k, v) -> {
-                LogHelper.subDebug("Init component %s", k);
+                logger.debug("Init component {}", k);
                 v.setComponentName(k);
                 v.init(this);
             });
-            LogHelper.debug("Init components successful");
+            logger.debug("Init components successful");
         }
         launcherModuleLoader.init();
         nettyServerSocketHandler = new NettyServerSocketHandler(this);
@@ -199,7 +201,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         if (type.equals(ReloadType.NO_AUTH)) {
             pairs = config.auth;
         }
-        LogHelper.info("Reading LaunchServer config file");
+        logger.info("Reading LaunchServer config file");
         config = launchServerConfigManager.readConfig();
         config.setLaunchServer(this);
         if (type.equals(ReloadType.NO_AUTH)) {
@@ -208,13 +210,13 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         config.verify();
         config.init(type);
         if (type.equals(ReloadType.FULL) && config.components != null) {
-            LogHelper.debug("Init components");
+            logger.debug("Init components");
             config.components.forEach((k, v) -> {
-                LogHelper.subDebug("Init component %s", k);
+                logger.debug("Init component {}", k);
                 v.setComponentName(k);
                 v.init(this);
             });
-            LogHelper.debug("Init components successful");
+            logger.debug("Init components successful");
         }
 
     }
@@ -251,7 +253,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             public void invoke(String... args) throws Exception {
                 launchServerConfigManager.writeConfig(config);
                 launchServerConfigManager.writeRuntimeConfig(runtime);
-                LogHelper.info("LaunchServerConfig saved");
+                logger.info("LaunchServerConfig saved");
             }
         };
         commands.put("save", save);
@@ -263,14 +265,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             try {
                 return (LauncherBinary) MethodHandles.publicLookup().findConstructor(launcherEXEBinaryClass, MethodType.methodType(void.class, LaunchServer.class)).invoke(this);
             } catch (Throwable e) {
-                LogHelper.error(e);
+                logger.error(e);
             }
         }
         try {
             Class.forName("net.sf.launch4j.Builder");
             if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
         } catch (ClassNotFoundException ignored) {
-            LogHelper.warning("Launch4J isn't in classpath.");
+            logger.warn("Launch4J isn't in classpath.");
         }
         return new EXELauncherBinary(this);
     }
@@ -281,15 +283,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
     public void close() throws Exception {
-        LogHelper.info("Close server socket");
+        logger.info("Close server socket");
         nettyServerSocketHandler.close();
         // Close handlers & providers
         config.close(ReloadType.FULL);
         modulesManager.invokeEvent(new ClosePhase());
-        LogHelper.info("Save LaunchServer runtime config");
+        logger.info("Save LaunchServer runtime config");
         launchServerConfigManager.writeRuntimeConfig(runtime);
         // Print last message before death :(
-        LogHelper.info("LaunchServer stopped");
+        logger.info("LaunchServer stopped");
     }
 
     public List<ClientProfile> getProfiles() {
@@ -324,7 +326,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 try {
                     close();
                 } catch (Exception e) {
-                    LogHelper.error(e);
+                    logger.error(e);
                 }
             }));
             CommonHelper.newThread("Command Thread", true, commandHandler).start();
@@ -342,8 +344,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                     syncProfilesDir();
                     modulesManager.invokeEvent(new LaunchServerProfilesSyncEvent(this));
                 } catch (IOException e) {
-                    LogHelper.error(e);
-                    LogHelper.error("Updates/Profiles not synced");
+                    logger.error(e);
+                    logger.error("Updates/Profiles not synced");
                 }
             }).start();
         }
@@ -352,29 +354,29 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         try {
             modulesManager.fullInitializedLaunchServer(this);
             modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
-            LogHelper.info("LaunchServer started");
+            logger.info("LaunchServer started");
         } catch (Throwable e) {
-            LogHelper.error(e);
+            logger.error(e);
             JVMHelper.RUNTIME.exit(-1);
         }
     }
 
     public void syncLauncherBinaries() throws IOException {
-        LogHelper.info("Syncing launcher binaries");
+        logger.info("Syncing launcher binaries");
 
         // Syncing launcher binary
-        LogHelper.info("Syncing launcher binary file");
-        if (!launcherBinary.sync()) LogHelper.warning("Missing launcher binary file");
+        logger.info("Syncing launcher binary file");
+        if (!launcherBinary.sync()) logger.warn("Missing launcher binary file");
 
         // Syncing launcher EXE binary
-        LogHelper.info("Syncing launcher EXE binary file");
+        logger.info("Syncing launcher EXE binary file");
         if (!launcherEXEBinary.sync() && config.launch4j.enabled)
-            LogHelper.warning("Missing launcher EXE binary file");
+            logger.warn("Missing launcher EXE binary file");
 
     }
 
     public void syncProfilesDir() throws IOException {
-        LogHelper.info("Syncing profiles dir");
+        logger.info("Syncing profiles dir");
         List<ClientProfile> newProfies = new LinkedList<>();
         IOHelper.walk(profilesDir, new ProfilesFileVisitor(newProfies), false);
 
@@ -386,7 +388,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
-        LogHelper.info("Syncing updates dir");
+        logger.info("Syncing updates dir");
         Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(updatesDir)) {
             for (final Path updateDir : dirStream) {
@@ -397,7 +399,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 String name = IOHelper.getFileName(updateDir);
                 if (!IOHelper.isDir(updateDir)) {
                     if (!IOHelper.isFile(updateDir) && Stream.of(".jar", ".exe", ".hash").noneMatch(e -> updateDir.toString().endsWith(e)))
-                        LogHelper.warning("Not update dir: '%s'", name);
+                        logger.warn("Not update dir: '{}'", name);
                     continue;
                 }
 
@@ -411,7 +413,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 }
 
                 // Sync and sign update dir
-                LogHelper.info("Syncing '%s' update dir", name);
+                logger.info("Syncing '{}' update dir", name);
                 HashedDir updateHDir = new HashedDir(updateDir, null, true, true);
                 newUpdatesDirMap.put(name, updateHDir);
             }
@@ -430,7 +432,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         try {
             builder.start();
         } catch (IOException e) {
-            LogHelper.error(e);
+            logger.error(e);
         }
     }
 
@@ -483,6 +485,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     private static final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
         private final Collection<ClientProfile> result;
+        private final Logger logger = LogManager.getLogger();
 
         private ProfilesFileVisitor(Collection<ClientProfile> result) {
             this.result = result;
@@ -490,7 +493,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            LogHelper.info("Syncing '%s' profile", IOHelper.getFileName(file));
+            logger.info("Syncing '{}' profile", IOHelper.getFileName(file));
 
             // Read profile
             ClientProfile profile;

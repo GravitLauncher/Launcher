@@ -1,15 +1,17 @@
 package pro.gravit.launchserver.auth.handler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.UUID;
 
 public final class RequestAuthHandler extends CachedAuthHandler {
+    private transient final Logger logger = LogManager.getLogger();
     private final String splitSymbol = ":";
     private final String goodResponse = "OK";
     private String usernameFetch;
@@ -21,13 +23,13 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     public void init(LaunchServer srv) {
         super.init(srv);
         if (usernameFetch == null)
-            LogHelper.error("[Verify][AuthHandler] usernameFetch cannot be null");
+            logger.error("usernameFetch cannot be null");
         if (uuidFetch == null)
-            LogHelper.error("[Verify][AuthHandler] uuidFetch cannot be null");
+            logger.error("uuidFetch cannot be null");
         if (updateAuth == null)
-            LogHelper.error("[Verify][AuthHandler] updateAuth cannot be null");
+            logger.error("updateAuth cannot be null");
         if (updateServerID == null)
-            LogHelper.error("[Verify][AuthHandler] updateServerID cannot be null");
+            logger.error("updateServerID cannot be null");
     }
 
     @Override
@@ -37,11 +39,11 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         String username = parts[0];
         String accessToken = parts[1];
         String serverID = parts[2];
-        if (LogHelper.isDebugEnabled()) {
-            LogHelper.debug("[AuthHandler] Got username: " + username);
-            LogHelper.debug("[AuthHandler] Got accessToken: " + accessToken);
-            LogHelper.debug("[AuthHandler] Got serverID: " + serverID);
-            LogHelper.debug("[AuthHandler] Got UUID: " + uuid);
+        if (logger.isDebugEnabled()) {
+            logger.debug("[AuthHandler] Got username: " + username);
+            logger.debug("[AuthHandler] Got accessToken: " + accessToken);
+            logger.debug("[AuthHandler] Got serverID: " + serverID);
+            logger.debug("[AuthHandler] Got UUID: " + uuid);
         }
         return new Entry(uuid, username, accessToken, serverID);
     }
@@ -53,11 +55,11 @@ public final class RequestAuthHandler extends CachedAuthHandler {
         UUID uuid = UUID.fromString(parts[0]);
         String accessToken = parts[1];
         String serverID = parts[2];
-        if (LogHelper.isDebugEnabled()) {
-            LogHelper.debug("[AuthHandler] Got username: " + username);
-            LogHelper.debug("[AuthHandler] Got accessToken: " + accessToken);
-            LogHelper.debug("[AuthHandler] Got serverID: " + serverID);
-            LogHelper.debug("[AuthHandler] Got UUID: " + uuid);
+        if (logger.isDebugEnabled()) {
+            logger.debug("[AuthHandler] Got username: " + username);
+            logger.debug("[AuthHandler] Got accessToken: " + accessToken);
+            logger.debug("[AuthHandler] Got serverID: " + serverID);
+            logger.debug("[AuthHandler] Got UUID: " + uuid);
         }
         return new Entry(uuid, username, accessToken, serverID);
     }
@@ -65,10 +67,10 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     @Override
     protected boolean updateAuth(UUID uuid, String username, String accessToken) throws IOException {
         String response = IOHelper.request(new URL(CommonHelper.replace(updateAuth, "user", IOHelper.urlEncode(username), "uuid", IOHelper.urlEncode(uuid.toString()), "token", IOHelper.urlEncode(accessToken))));
-        if (LogHelper.isDebugEnabled()) {
-            LogHelper.debug("[AuthHandler] Set accessToken: " + accessToken);
-            LogHelper.debug("[AuthHandler] Set UUID: " + uuid);
-            LogHelper.debug("[AuthHandler] For this username: " + username);
+        if (logger.isDebugEnabled()) {
+            logger.debug("[AuthHandler] Set accessToken: " + accessToken);
+            logger.debug("[AuthHandler] Set UUID: " + uuid);
+            logger.debug("[AuthHandler] For this username: " + username);
         }
         return goodResponse.equals(response);
     }
@@ -76,9 +78,9 @@ public final class RequestAuthHandler extends CachedAuthHandler {
     @Override
     protected boolean updateServerID(UUID uuid, String serverID) throws IOException {
         String response = IOHelper.request(new URL(CommonHelper.replace(updateAuth, "serverid", IOHelper.urlEncode(serverID), "uuid", IOHelper.urlEncode(uuid.toString()))));
-        if (LogHelper.isDebugEnabled()) {
-            LogHelper.debug("[AuthHandler] Set serverID: " + serverID);
-            LogHelper.debug("[AuthHandler] For this UUID: " + uuid);
+        if (logger.isDebugEnabled()) {
+            logger.debug("[AuthHandler] Set serverID: " + serverID);
+            logger.debug("[AuthHandler] For this UUID: " + uuid);
         }
         return goodResponse.equals(response);
     }

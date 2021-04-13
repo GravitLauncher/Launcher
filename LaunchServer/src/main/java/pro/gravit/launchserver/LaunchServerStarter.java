@@ -1,5 +1,7 @@
 package pro.gravit.launchserver;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherTrustManager;
@@ -45,11 +47,12 @@ public class LaunchServerStarter {
     public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
     public static final boolean inDocker = Boolean.getBoolean("launchserver.dockered");
     public static final boolean prepareMode = Boolean.getBoolean("launchserver.prepareMode");
+    private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
         JVMHelper.checkStackTrace(LaunchServerStarter.class);
         JVMHelper.verifySystemProperties(LaunchServer.class, true);
-        LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
+        //LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");
         LogHelper.printLicense("LaunchServer");
         if (!StarterAgent.isAgentStarted()) {
@@ -78,14 +81,14 @@ public class LaunchServerStarter {
         {
             LauncherTrustManager.CheckClassResult result = certificateManager.checkClass(LaunchServer.class);
             if (result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
-                LogHelper.info("LaunchServer signed by %s", result.endCertificate.getSubjectDN().getName());
+                logger.info("LaunchServer signed by {}", result.endCertificate.getSubjectDN().getName());
             } else if (result.type == LauncherTrustManager.CheckClassResultType.NOT_SIGNED) {
                 // None
             } else {
                 if (result.exception != null) {
-                    LogHelper.error(result.exception);
+                    logger.error(result.exception);
                 }
-                LogHelper.warning("LaunchServer signed incorrectly. Status: %s", result.type.name());
+                logger.warn("LaunchServer signed incorrectly. Status: {}", result.type.name());
             }
         }
 
@@ -113,38 +116,38 @@ public class LaunchServerStarter {
 
             // JLine2 available
             localCommandHandler = new JLineCommandHandler();
-            LogHelper.info("JLine2 terminal enabled");
+            logger.info("JLine2 terminal enabled");
         } catch (ClassNotFoundException ignored) {
             localCommandHandler = new StdCommandHandler(true);
-            LogHelper.warning("JLine2 isn't in classpath, using std");
+            logger.warn("JLine2 isn't in classpath, using std");
         }
         if (IOHelper.isFile(publicKeyFile) && IOHelper.isFile(privateKeyFile)) {
-            LogHelper.info("Reading EC keypair");
+            logger.info("Reading EC keypair");
             publicKey = SecurityHelper.toPublicECDSAKey(IOHelper.read(publicKeyFile));
             privateKey = SecurityHelper.toPrivateECDSAKey(IOHelper.read(privateKeyFile));
         } else {
-            LogHelper.info("Generating EC keypair");
+            logger.info("Generating EC keypair");
             KeyPair pair = SecurityHelper.genECDSAKeyPair(new SecureRandom());
             publicKey = (ECPublicKey) pair.getPublic();
             privateKey = (ECPrivateKey) pair.getPrivate();
 
             // Write key pair list
-            LogHelper.info("Writing EC keypair list");
+            logger.info("Writing EC keypair list");
             IOHelper.write(publicKeyFile, publicKey.getEncoded());
             IOHelper.write(privateKeyFile, privateKey.getEncoded());
         }
         modulesManager.invokeEvent(new PreConfigPhase());
         generateConfigIfNotExists(configFile, localCommandHandler, env);
-        LogHelper.info("Reading LaunchServer config file");
+        logger.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
         }
         if (!Files.exists(runtimeConfigFile)) {
-            LogHelper.info("Reset LaunchServer runtime config file");
+            logger.info("Reset LaunchServer runtime config file");
             runtimeConfig = new LaunchServerRuntimeConfig();
             runtimeConfig.reset();
         } else {
-            LogHelper.info("Reading LaunchServer runtime config file");
+            logger.info("Reading LaunchServer runtime config file");
             try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
                 runtimeConfig = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
             }
@@ -175,7 +178,7 @@ public class LaunchServerStarter {
                     if (Launcher.gsonManager.configGson != null) {
                         Launcher.gsonManager.configGson.toJson(config, writer);
                     } else {
-                        LogHelper.error("Error writing LaunchServer runtime config file. Gson is null");
+                        logger.error("Error writing LaunchServer runtime config file. Gson is null");
                     }
                 }
             }
@@ -186,7 +189,7 @@ public class LaunchServerStarter {
                     if (Launcher.gsonManager.configGson != null) {
                         Launcher.gsonManager.configGson.toJson(config, writer);
                     } else {
-                        LogHelper.error("Error writing LaunchServer runtime config file. Gson is null");
+                        logger.error("Error writing LaunchServer runtime config file. Gson is null");
                     }
                 }
             }
@@ -240,7 +243,7 @@ public class LaunchServerStarter {
             return;
 
         // Create new config
-        LogHelper.info("Creating LaunchServer config");
+        logger.info("Creating LaunchServer config");
 
 
         LaunchServerConfig newConfig = LaunchServerConfig.getDefault(env);
@@ -256,11 +259,11 @@ public class LaunchServerStarter {
             newConfig.setProjectName(commandHandler.readLine());
         }
         if (address == null || address.isEmpty()) {
-            LogHelper.error("Address null. Using localhost");
+            logger.error("Address null. Using localhost");
             address = "localhost";
         }
         if (newConfig.projectName == null || newConfig.projectName.isEmpty()) {
-            LogHelper.error("ProjectName null. Using MineCraft");
+            logger.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
 
@@ -270,7 +273,7 @@ public class LaunchServerStarter {
         newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
 
         // Write LaunchServer config
-        LogHelper.info("Writing LaunchServer config file");
+        logger.info("Writing LaunchServer config file");
         try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
             Launcher.gsonManager.configGson.toJson(newConfig, writer);
         }

@@ -121,13 +121,7 @@ public class BuildContext {
                     e = input.getNextEntry();
                     continue;
                 }
-                try {
-                    output.putNextEntry(IOHelper.newZipEntry(e));
-                } catch (ZipException ex) {
-                    LogHelper.warning("Write %s failed: %s", filename, ex.getMessage() == null ? "null" : ex.getMessage());
-                    e = input.getNextEntry();
-                    continue;
-                }
+                output.putNextEntry(IOHelper.newZipEntry(e));
                 if (filename.endsWith(".class")) {
                     String classname = filename.replace('/', '.').substring(0,
                             filename.length() - ".class".length());

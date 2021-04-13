@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.auth.handler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.Reconfigurable;
@@ -20,6 +22,7 @@ import java.util.UUID;
 public abstract class CachedAuthHandler extends AuthHandler implements NeedGarbageCollection, Reconfigurable {
     private transient final Map<UUID, Entry> entryCache = new HashMap<>(1024);
     private transient final Map<String, UUID> usernamesCache = new HashMap<>(1024);
+    private transient final Logger logger = LogManager.getLogger();
 
     @Override
     public Map<String, Command> getCommands() {
@@ -31,7 +34,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
                 long usernamesCacheSize = usernamesCache.size();
                 entryCache.clear();
                 usernamesCache.clear();
-                LogHelper.info("Cleared cache: %d Entry %d Usernames", entryCacheSize, usernamesCacheSize);
+                logger.info("Cleared cache: {} Entry {} Usernames", entryCacheSize, usernamesCacheSize);
             }
         });
         commands.put("load", new SubCommand() {
@@ -39,7 +42,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
             public void invoke(String... args) throws Exception {
                 verifyArgs(args, 2);
 
-                LogHelper.info("CachedAuthHandler read from %s", args[0]);
+                logger.info("CachedAuthHandler read from {}", args[0]);
                 int size_entry;
                 int size_username;
                 try (Reader reader = IOHelper.newReader(Paths.get(args[1]))) {
@@ -50,7 +53,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
                     loadUsernameCache(entryAndUsername.usernameCache);
 
                 }
-                LogHelper.subInfo("Readed %d entryCache %d usernameCache", size_entry, size_username);
+                logger.info("Read {} entryCache {} usernameCache", size_entry, size_username);
             }
         });
         commands.put("unload", new SubCommand() {
@@ -58,7 +61,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
             public void invoke(String... args) throws Exception {
                 verifyArgs(args, 2);
 
-                LogHelper.info("CachedAuthHandler write to %s", args[1]);
+                logger.info("CachedAuthHandler write to {}", args[1]);
                 Map<UUID, CachedAuthHandler.Entry> entryCache = getEntryCache();
                 Map<String, UUID> usernamesCache = getUsernamesCache();
                 EntryAndUsername serializable = new EntryAndUsername();
@@ -67,7 +70,7 @@ public abstract class CachedAuthHandler extends AuthHandler implements NeedGarba
                 try (Writer writer = IOHelper.newWriter(Paths.get(args[1]))) {
                     Launcher.gsonManager.configGson.toJson(serializable, writer);
                 }
-                LogHelper.subInfo("Write %d entryCache, %d usernameCache", entryCache.size(), usernamesCache.size());
+                logger.info("Write {} entryCache, {} usernameCache", entryCache.size(), usernamesCache.size());
             }
         });
         return commands;

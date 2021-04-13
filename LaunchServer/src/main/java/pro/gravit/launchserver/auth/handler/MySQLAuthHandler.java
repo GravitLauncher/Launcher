@@ -1,8 +1,9 @@
 package pro.gravit.launchserver.auth.handler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -12,6 +13,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 public final class MySQLAuthHandler extends CachedAuthHandler {
+    private transient final Logger logger = LogManager.getLogger();
     private MySQLSourceConfig mySQLHolder;
     private String uuidColumn;
     private String usernameColumn;
@@ -29,12 +31,12 @@ public final class MySQLAuthHandler extends CachedAuthHandler {
     public void init(LaunchServer srv) {
         super.init(srv);
         //Verify
-        if (mySQLHolder == null) LogHelper.error("[Verify][AuthHandler] mySQLHolder cannot be null");
-        if (uuidColumn == null) LogHelper.error("[Verify][AuthHandler] uuidColumn cannot be null");
-        if (usernameColumn == null) LogHelper.error("[Verify][AuthHandler] usernameColumn cannot be null");
-        if (accessTokenColumn == null) LogHelper.error("[Verify][AuthHandler] accessTokenColumn cannot be null");
-        if (serverIDColumn == null) LogHelper.error("[Verify][AuthHandler] serverIDColumn cannot be null");
-        if (table == null) LogHelper.error("[Verify][AuthHandler] table cannot be null");
+        if (mySQLHolder == null) logger.error("mySQLHolder cannot be null");
+        if (uuidColumn == null) logger.error("uuidColumn cannot be null");
+        if (usernameColumn == null) logger.error("usernameColumn cannot be null");
+        if (accessTokenColumn == null) logger.error("accessTokenColumn cannot be null");
+        if (serverIDColumn == null) logger.error("serverIDColumn cannot be null");
+        if (table == null) logger.error("table cannot be null");
         // Prepare SQL queries
         queryByUUIDSQL = String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s=? LIMIT 1",
                 uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, table, uuidColumn);

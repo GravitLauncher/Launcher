@@ -4,7 +4,6 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.profiles.Texture;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,13 +23,9 @@ public final class RequestTextureProvider extends TextureProvider {
     }
 
     private static Texture getTexture(String url, boolean cloak) throws IOException {
-        if (LogHelper.isDebugEnabled()) {
-            LogHelper.debug("Getting texture: '%s'", url);
-        }
         try {
             return new Texture(url, cloak);
         } catch (FileNotFoundException ignored) {
-            LogHelper.subDebug("Texture not found :(");
             return null; // Simply not found
         }
     }

@@ -1,6 +1,8 @@
 package pro.gravit.launchserver.auth;
 
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.postgresql.ds.PGSimpleDataSource;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
@@ -19,6 +21,7 @@ public final class PostgreSQLSourceConfig implements AutoCloseable {
 
     // Instance
     private String poolName;
+    private transient final Logger logger = LogManager.getLogger();
 
     // Config
     private String[] addresses;
@@ -69,9 +72,9 @@ public final class PostgreSQLSourceConfig implements AutoCloseable {
 
                 // Replace source with hds
                 source = hikariSource;
-                LogHelper.info("HikariCP pooling enabled for '%s'", poolName);
+                logger.info("HikariCP pooling enabled for '{}'", poolName);
             } catch (ClassNotFoundException ignored) {
-                LogHelper.warning("HikariCP isn't in classpath for '%s'", poolName);
+                logger.warn("HikariCP isn't in classpath for '{}'", poolName);
             }
         }
         return source.getConnection();

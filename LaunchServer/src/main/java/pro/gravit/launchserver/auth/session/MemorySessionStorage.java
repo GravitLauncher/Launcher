@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.auth.session;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
@@ -23,6 +25,7 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
 
     private transient final Map<UUID, Entry> clientSet = new ConcurrentHashMap<>(128);
     private transient final Map<UUID, Set<Entry>> uuidIndex = new ConcurrentHashMap<>(32);
+    private transient final Logger logger = LogManager.getLogger();
     public boolean autoDump = false;
     public String dumpFile = "sessions.json";
 
@@ -100,7 +103,7 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
         try (Writer writer = IOHelper.newWriter(path)) {
             Launcher.gsonManager.gson.toJson(dumpedData, writer);
         } catch (IOException e) {
-            LogHelper.error(e);
+            logger.error(e);
         }
     }
 
@@ -112,7 +115,7 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
             clientSet.putAll(data.clientSet);
             uuidIndex.putAll(data.uuidIndex);
         } catch (IOException e) {
-            LogHelper.error(e);
+            logger.error(e);
         }
     }
 

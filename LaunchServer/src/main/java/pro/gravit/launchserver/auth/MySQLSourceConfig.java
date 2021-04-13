@@ -3,6 +3,8 @@ package pro.gravit.launchserver.auth;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
@@ -21,6 +23,7 @@ public final class MySQLSourceConfig implements AutoCloseable {
 
     // Instance
     private transient final String poolName;
+    private transient final Logger logger = LogManager.getLogger();
 
     // Config
     private String address;
@@ -106,9 +109,9 @@ public final class MySQLSourceConfig implements AutoCloseable {
                     // Set HikariCP pool
                     // Replace source with hds
                     source = new HikariDataSource(cfg);
-                    LogHelper.warning("HikariCP pooling enabled for '%s'", poolName);
+                    logger.warn("HikariCP pooling enabled for '{}'", poolName);
                 } catch (ClassNotFoundException ignored) {
-                    LogHelper.debug("HikariCP isn't in classpath for '%s'", poolName);
+                    logger.debug("HikariCP isn't in classpath for '{}'", poolName);
                 }
             }
 

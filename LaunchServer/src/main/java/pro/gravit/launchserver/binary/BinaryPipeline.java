@@ -1,9 +1,10 @@
 package pro.gravit.launchserver.binary;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,6 +17,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class BinaryPipeline {
+    private transient final Logger logger = LogManager.getLogger();
     public final List<LauncherBuildTask> tasks = new ArrayList<>();
     public final AtomicLong count = new AtomicLong(0);
     public final Path buildDir;
@@ -71,14 +73,14 @@ public class BinaryPipeline {
     }
 
     public void build(Path target, boolean deleteTempFiles) throws IOException {
-        LogHelper.info("Building launcher binary file");
+        logger.info("Building launcher binary file");
         count.set(0); // set jar number
         Path thisPath = null;
         boolean isNeedDelete = false;
         long time_start = System.currentTimeMillis();
         long time_this = time_start;
         for (LauncherBuildTask task : tasks) {
-            LogHelper.subInfo("Task %s", task.getName());
+            logger.info("Task {}", task.getName());
             Path oldPath = thisPath;
             thisPath = task.process(oldPath);
             long time_task_end = System.currentTimeMillis();
@@ -86,12 +88,12 @@ public class BinaryPipeline {
             time_this = time_task_end;
             if (isNeedDelete && deleteTempFiles) Files.deleteIfExists(oldPath);
             isNeedDelete = task.allowDelete();
-            LogHelper.subInfo("Task %s processed from %d millis", task.getName(), time_task);
+            logger.info("Task {} processed from {} millis", task.getName(), time_task);
         }
         long time_end = System.currentTimeMillis();
         if (isNeedDelete && deleteTempFiles) IOHelper.move(thisPath, target);
         else IOHelper.copy(thisPath, target);
-        LogHelper.info("Build successful from %d millis", time_end - time_start);
+        logger.info("Build successful from {} millis", time_end - time_start);
     }
 
     public String nextName(String taskName) {
