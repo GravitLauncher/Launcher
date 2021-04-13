@@ -93,6 +93,7 @@ public class BinaryPipeline {
         long time_end = System.currentTimeMillis();
         if (isNeedDelete && deleteTempFiles) IOHelper.move(thisPath, target);
         else IOHelper.copy(thisPath, target);
+        IOHelper.deleteDir(buildDir, false);
         logger.info("Build successful from {} millis", time_end - time_start);
     }
 

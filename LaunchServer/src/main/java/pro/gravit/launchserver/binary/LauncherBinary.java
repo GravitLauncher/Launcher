@@ -13,7 +13,7 @@ public abstract class LauncherBinary extends BinaryPipeline {
     private volatile byte[] digest;
 
     protected LauncherBinary(LaunchServer server, Path binaryFile, String nameFormat) {
-        super(server.dir.resolve("build"), nameFormat);
+        super(server.tmpDir.resolve("build"), nameFormat);
         this.server = server;
         syncBinaryFile = binaryFile;
     }

@@ -26,6 +26,7 @@ import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -79,6 +80,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      * The path to the folder with profiles
      */
     public final Path profilesDir;
+    public final Path tmpDir;
     /**
      * This object contains runtime configuration
      */
@@ -124,6 +126,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager) throws IOException {
         this.dir = directories.dir;
+        this.tmpDir = directories.tmpDir;
         this.env = env;
         this.config = config;
         this.launchServerConfigManager = launchServerConfigManager;
@@ -519,6 +522,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         public Path keyDirectory;
         public Path dir;
         public Path trustStore;
+        public Path tmpDir;
 
         public void collect() {
             if (updatesDir == null) updatesDir = dir.resolve(UPDATES_NAME);
@@ -528,6 +532,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (launcherLibrariesCompileDir == null)
                 launcherLibrariesCompileDir = dir.resolve(LAUNCHERLIBRARIESCOMPILE_NAME);
             if(keyDirectory == null) keyDirectory = dir.resolve(KEY_NAME);
+            if(tmpDir ==null) tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve(String.format("launchserver-%s", SecurityHelper.randomStringToken()));
         }
     }
 }
