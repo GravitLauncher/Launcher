@@ -26,6 +26,7 @@ public class ClientLauncherWrapper {
     public static int launcherMemoryLimit;
 
     public static void main(String[] arguments) throws IOException, InterruptedException {
+        System.setProperty("launcher.noSlf4j", "true"); //TODO: Normal fix
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
         JVMHelper.checkStackTrace(ClientLauncherWrapper.class);
@@ -70,6 +71,7 @@ public class ClientLauncherWrapper {
         args.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled())));
         args.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled())));
         args.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, Boolean.toString(LogHelper.isDevEnabled())));
+        args.add(JVMHelper.jvmProperty("launcher.noSlf4j", "true")); //TODO: Normal fix
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_CUSTOMDIR_PROPERTY);
         JVMHelper.addSystemPropertyToArgs(args, DirBridge.USE_OPTDIR_PROPERTY);
