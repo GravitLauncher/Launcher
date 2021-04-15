@@ -1,5 +1,6 @@
 package pro.gravit.launcher.client;
 
+import pro.gravit.launcher.ClientLauncherWrapper;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherTrustManager;
 import pro.gravit.launcher.modules.LauncherModule;
@@ -33,10 +34,10 @@ public final class ClientModuleManager extends SimpleModuleManager {
         return result.type == LauncherTrustManager.CheckClassResultType.SUCCESS;
     }
 
-    public void callWrapper(ProcessBuilder processBuilder, Collection<String> jvmArgs) {
+    public void callWrapper(ClientLauncherWrapper.ClientLauncherWrapperContext context) {
         for (LauncherModule module : modules) {
             if (module instanceof ClientWrapperModule) {
-                ((ClientWrapperModule) module).wrapperPhase(processBuilder, jvmArgs);
+                ((ClientWrapperModule) module).wrapperPhase(context);
             }
         }
     }
