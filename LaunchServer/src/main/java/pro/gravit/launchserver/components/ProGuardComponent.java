@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.components;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
@@ -26,6 +28,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     public boolean enabled = true;
     public boolean mappings = true;
     public transient ProguardConf proguardConf;
+    private transient static final Logger logger = LogManager.getLogger();
     @Override
     public void init(LaunchServer launchServer) {
         proguardConf = new ProguardConf(launchServer, this);
@@ -84,22 +87,21 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             Path outputJar = server.launcherBinary.nextLowerPath(this);
             if (component.enabled) {
                 Configuration proguard_cfg = new Configuration();
-                ConfigurationParser parser = new ConfigurationParser(proguardConf.buildConfig(inputFile, outputJar),
-                        proguardConf.proguard.toFile(), System.getProperties());
-                if (JVMHelper.JVM_VERSION >= 9) {
-                    Path javaJModsPath = Paths.get(System.getProperty("java.home")).resolve("jmods");
-                    if (!IOHelper.exists(javaJModsPath)) {
-                        LogHelper.warning("Directory %s not found. It is not good", javaJModsPath);
-                    } else {
-                        //Find javaFX libraries
-                        if (!IOHelper.exists(javaJModsPath.resolve("javafx.base.jmod")))
-                            LogHelper.error("javafx.base.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
-                        if (!IOHelper.exists(javaJModsPath.resolve("javafx.graphics.jmod")))
-                            LogHelper.error("javafx.graphics.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
-                        if (!IOHelper.exists(javaJModsPath.resolve("javafx.controls.jmod")))
-                            LogHelper.error("javafx.controls.jmod not found. Launcher can be assembled incorrectly. Maybe you need to install OpenJFX?");
-                    }
+                if(!checkJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
+                    logger.error("Java path: {} is not JDK! Please install JDK", IOHelper.JVM_DIR);
                 }
+                Path jfxPath = tryFindOpenJFXPath(IOHelper.JVM_DIR);
+                if(checkFXJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
+                    logger.debug("JavaFX jmods resolved in JDK path");
+                    jfxPath = null;
+                }
+                else if(jfxPath != null && checkFXJMods(jfxPath)) {
+                    logger.debug("JMods resolved in {}", jfxPath.toString());
+                } else {
+                    logger.error("JavaFX jmods not found. May be install OpenJFX?");
+                }
+                ConfigurationParser parser = new ConfigurationParser(proguardConf.buildConfig(inputFile, outputJar, jfxPath == null ? new Path[0] : new Path[]{jfxPath}),
+                        proguardConf.proguard.toFile(), System.getProperties());
                 try {
                     parser.parse(proguard_cfg);
                     ProGuard proGuard = new ProGuard(proguard_cfg);
@@ -116,6 +118,39 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         public boolean allowDelete() {
             return true;
         }
+    }
+
+    public static boolean checkFXJMods(Path path) {
+        if (!IOHelper.exists(path.resolve("javafx.base.jmod")))
+            return false;
+        if (!IOHelper.exists(path.resolve("javafx.graphics.jmod")))
+            return false;
+        return IOHelper.exists(path.resolve("javafx.controls.jmod"));
+    }
+
+    public static boolean checkJMods(Path path) {
+        return IOHelper.exists(path.resolve("java.base.jmod"));
+    }
+
+    public static Path tryFindOpenJFXPath(Path jvmDir) {
+        String dirName = jvmDir.getFileName().toString();
+        Path parent = jvmDir.getParent();
+        if(parent == null) return null;
+        Path archJFXPath = parent.resolve(dirName.replace("openjdk", "openjfx")).resolve("jmods");
+        if(Files.isDirectory(archJFXPath)) {
+            return archJFXPath;
+        }
+        Path arch2JFXPath = parent.resolve(dirName.replace("jdk", "openjfx")).resolve("jmods");
+        if(Files.isDirectory(arch2JFXPath)) {
+            return arch2JFXPath;
+        }
+        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
+            Path debianJfxPath = Paths.get("/usr/share/openjfx/jmods");
+            if(Files.isDirectory(debianJfxPath)) {
+                return debianJfxPath;
+            }
+        }
+        return null;
     }
 
     public static class ProguardConf {
@@ -155,7 +190,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             return sb.toString();
         }
 
-        public String[] buildConfig(Path inputJar, Path outputJar) {
+        public String[] buildConfig(Path inputJar, Path outputJar, Path[] jfxPath) {
             List<String> confStrs = new ArrayList<>();
             prepare(false);
             if (component.mappings)
@@ -163,13 +198,18 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             confStrs.add("-obfuscationdictionary '" + words.toFile().getName() + "'");
             confStrs.add("-injar '" + inputJar.toAbsolutePath() + "'");
             confStrs.add("-outjar '" + outputJar.toAbsolutePath() + "'");
-            Collections.addAll(confStrs, JVMHelper.JVM_VERSION >= 9 ? JAVA9_OPTS : JAVA8_OPTS);
+            Collections.addAll(confStrs, JAVA9_OPTS);
+            if(jfxPath != null) {
+                for(Path path : jfxPath) {
+                    confStrs.add(String.format("-libraryjars '%s'", path.toAbsolutePath()));
+                }
+            }
             srv.launcherBinary.coreLibs.stream()
-                    .map(e -> "-libraryjars '" + e.toAbsolutePath().toString() + "'")
+                    .map(e -> "-libraryjars '" + e.toAbsolutePath() + "'")
                     .forEach(confStrs::add);
 
             srv.launcherBinary.addonLibs.stream()
-                    .map(e -> "-libraryjars '" + e.toAbsolutePath().toString() + "'")
+                    .map(e -> "-libraryjars '" + e.toAbsolutePath() + "'")
                     .forEach(confStrs::add);
             confStrs.add("-classobfuscationdictionary '" + words.toFile().getName() + "'");
             confStrs.add("@".concat(config.toFile().getName()));
