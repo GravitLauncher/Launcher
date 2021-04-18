@@ -2,14 +2,22 @@ package pro.gravit.launcher;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 public final class HTTPRequest {
     private static final int TIMEOUT = 10000;
@@ -22,35 +30,35 @@ public final class HTTPRequest {
     }
 
     public static JsonElement jsonRequest(JsonElement request, String method, URL url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoInput(true);
-        if (request != null) connection.setDoOutput(true);
-        connection.setRequestMethod(method);
-        if (request != null) connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        connection.setRequestProperty("Accept", "application/json");
-        if (TIMEOUT > 0)
-            connection.setConnectTimeout(TIMEOUT);
-        if (request != null)
-            try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8)) {
-                writer.write(request.toString());
-                writer.flush();
-            }
-
-        InputStreamReader reader;
-        int statusCode = connection.getResponseCode();
-
-        if (200 <= statusCode && statusCode < 300)
-            reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
-        else
-            reader = new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8);
+        HttpClient client = HttpClient.newBuilder()
+                .build();
+        HttpRequest.BodyPublisher publisher;
+        if(request != null) {
+            publisher = HttpRequest.BodyPublishers.ofString(request.toString());
+        } else {
+            publisher = HttpRequest.BodyPublishers.noBody();
+        }
         try {
-            return JsonParser.parseReader(reader);
-        } catch (Exception e) {
-            if (200 > statusCode || statusCode > 300) {
-                LogHelper.error("JsonRequest failed. Server response code %d", statusCode);
-                throw new IOException(e);
+            HttpRequest request1 = HttpRequest.newBuilder()
+                    .method(method, publisher)
+                    .uri(url.toURI())
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .header("Accept", "application/json")
+                    .timeout(Duration.ofMillis(TIMEOUT))
+                    .build();
+            HttpResponse<InputStream> response = client.send(request1, HttpResponse.BodyHandlers.ofInputStream());
+            int statusCode = response.statusCode();
+            try {
+                return JsonParser.parseReader(IOHelper.newReader(response.body()));
+            } catch (Exception e) {
+                if (200 > statusCode || statusCode > 300) {
+                    LogHelper.error("JsonRequest failed. Server response code %d", statusCode);
+                    throw new IOException(e);
+                }
+                return null;
             }
-            return null;
+        } catch (URISyntaxException | InterruptedException e) {
+            throw new IOException(e);
         }
     }
 }
