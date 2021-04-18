@@ -33,8 +33,8 @@ public final class RequestAuthProvider extends AuthProvider {
     @Override
     public void init(LaunchServer srv) {
         super.init(srv);
-        if (url == null) LogHelper.error("[Verify][AuthProvider] url cannot be null");
-        if (response == null) LogHelper.error("[Verify][AuthProvider] response cannot be null");
+        if (url == null) throw new RuntimeException("[Verify][AuthProvider] url cannot be null");
+        if (response == null) throw new RuntimeException("[Verify][AuthProvider] response cannot be null");
         pattern = Pattern.compile(response);
     }
 

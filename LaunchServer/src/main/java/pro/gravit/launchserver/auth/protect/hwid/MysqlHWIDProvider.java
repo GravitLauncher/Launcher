@@ -1,11 +1,12 @@
 package pro.gravit.launchserver.auth.protect.hwid;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,6 +29,8 @@ public class MysqlHWIDProvider extends HWIDProvider {
     private String sqlCreateHWIDLog;
     private String sqlUpdateHardware;
     private String sqlUpdateUsers;
+    
+    private transient final Logger logger = LogManager.getLogger();
 
     @Override
     public void init(LaunchServer server) {
@@ -39,7 +42,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
         if (tableUsers != null && usersHWIDColumn != null && usersNameColumn != null) {
             sqlUpdateUsers = String.format("UPDATE %s SET `%s` = ? WHERE `%s` = ?", tableUsers, usersHWIDColumn, usersNameColumn);
         } else {
-            LogHelper.warning("[MysqlHWIDProvider] Link to users table not configured");
+            logger.warn("[MysqlHWIDProvider] Link to users table not configured");
         }
     }
 
@@ -61,7 +64,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
                 return null;
             }
         } catch (SQLException | IOException throwables) {
-            LogHelper.error(throwables);
+            logger.error(throwables);
             throw new HWIDException("SQL error. Please try again later");
         }
     }
@@ -103,7 +106,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
                 }
             }
         } catch (SQLException throwables) {
-            LogHelper.error(throwables);
+            logger.error(throwables);
             throw new HWIDException("SQL error. Please try again later");
         }
     }
@@ -129,7 +132,7 @@ public class MysqlHWIDProvider extends HWIDProvider {
                 }
             }
         } catch (SQLException | IOException throwables) {
-            LogHelper.error(throwables);
+            logger.error(throwables);
             throw new HWIDException("SQL error. Please try again later");
         }
         return false;

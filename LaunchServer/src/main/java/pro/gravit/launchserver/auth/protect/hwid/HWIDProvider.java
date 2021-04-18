@@ -1,11 +1,12 @@
 package pro.gravit.launchserver.auth.protect.hwid;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.helper.DamerauHelper;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.ProviderMap;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.Arrays;
 public abstract class HWIDProvider {
     public static final ProviderMap<HWIDProvider> providers = new ProviderMap<>("HWIDProvider");
     private static boolean registredProv = false;
+    private final Logger logger = LogManager.getLogger();
 
     public static void registerProviders() {
         if (!registredProv) {
@@ -92,10 +94,10 @@ public abstract class HWIDProvider {
         return result;
     }
 
-    protected void printHardwareInfo(LogHelper.Level logLevel, HardwareReportRequest.HardwareInfo info) {
-        LogHelper.log(logLevel, String.format("[HardwareInfo] Processor: logical %d | physical %d | freq %d | bitness %d", info.logicalProcessors, info.physicalProcessors, info.processorMaxFreq, info.bitness), false);
-        LogHelper.log(logLevel, String.format("[HardwareInfo] Memory max: %d | battery %s", info.totalMemory, info.battery ? "true" : "false"), false);
-        LogHelper.log(logLevel, String.format("[HardwareInfo] HWDiskID %s | baseboardSerialNumber %s | displayId hash: %s", info.hwDiskId, info.baseboardSerialNumber, SecurityHelper.toHex(SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, info.displayId))), false);
+    protected void printHardwareInfo(HardwareReportRequest.HardwareInfo info) {
+        logger.info("[HardwareInfo] Processor: logical {} | physical {} | freq {} | bitness {}", info.logicalProcessors, info.physicalProcessors, info.processorMaxFreq, info.bitness);
+        logger.info("[HardwareInfo] Memory max: {} | battery {}", info.totalMemory, info.battery ? "true" : "false");
+        logger.info("[HardwareInfo] HWDiskID {} | baseboardSerialNumber {} | displayId hash: {}", info.hwDiskId, info.baseboardSerialNumber, SecurityHelper.toHex(SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, info.displayId)));
     }
 
     public void init(LaunchServer server) {

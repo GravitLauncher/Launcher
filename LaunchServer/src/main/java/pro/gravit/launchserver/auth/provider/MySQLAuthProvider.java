@@ -7,7 +7,6 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.sql.Connection;
@@ -25,9 +24,9 @@ public final class MySQLAuthProvider extends AuthProvider {
     @Override
     public void init(LaunchServer srv) {
         super.init(srv);
-        if (query == null) LogHelper.error("[Verify][AuthProvider] query cannot be null");
-        if (message == null) LogHelper.error("[Verify][AuthProvider] message cannot be null");
-        if (mySQLHolder == null) LogHelper.error("[Verify][AuthProvider] mySQLHolder cannot be null");
+        if (query == null) throw new RuntimeException("[Verify][AuthProvider] query cannot be null");
+        if (message == null) throw new RuntimeException("[Verify][AuthProvider] message cannot be null");
+        if (mySQLHolder == null) throw new RuntimeException("[Verify][AuthProvider] mySQLHolder cannot be null");
     }
 
     @Override

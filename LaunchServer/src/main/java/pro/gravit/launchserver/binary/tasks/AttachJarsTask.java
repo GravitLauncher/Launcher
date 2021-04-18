@@ -55,7 +55,6 @@ public class AttachJarsTask implements LauncherBuildTask {
 
     private void attach(ZipOutputStream output, Path inputFile, List<Path> lst) throws IOException {
         for (Path p : lst) {
-            LogHelper.debug("Attaching: " + p);
             AdditionalFixesApplyTask.apply(inputFile, p, output, srv, (e) -> exclusions.stream().anyMatch(e.getName()::startsWith), false);
         }
     }

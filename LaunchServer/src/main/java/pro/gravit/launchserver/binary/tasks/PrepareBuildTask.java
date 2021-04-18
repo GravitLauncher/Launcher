@@ -1,8 +1,9 @@
 package pro.gravit.launchserver.binary.tasks;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.UnpackHelper;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.List;
 public class PrepareBuildTask implements LauncherBuildTask {
     private final LaunchServer server;
     private final Path result;
+    private transient final Logger logger = LogManager.getLogger();
 
     public PrepareBuildTask(LaunchServer server) {
         this.server = server;
@@ -44,7 +46,7 @@ public class PrepareBuildTask implements LauncherBuildTask {
     }
 
     public void tryUnpack() throws IOException {
-        LogHelper.info("Unpacking launcher native guard list and runtime");
+        logger.info("Unpacking launcher native guard list and runtime");
         UnpackHelper.unpackZipNoCheck("guard.zip", server.launcherBinary.guardDir);
         UnpackHelper.unpackZipNoCheck("runtime.zip", server.launcherBinary.runtimeDir);
     }

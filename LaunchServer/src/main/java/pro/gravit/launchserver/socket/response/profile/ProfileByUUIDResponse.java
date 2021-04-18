@@ -8,7 +8,6 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -23,7 +22,6 @@ public class ProfileByUUIDResponse extends SimpleResponse {
         try {
             skin = textureProvider.getSkinTexture(uuid, username, client);
         } catch (IOException e) {
-            LogHelper.error(new IOException(String.format("Can't get skin texture: '%s'", username), e));
             skin = null;
         }
 
@@ -32,7 +30,6 @@ public class ProfileByUUIDResponse extends SimpleResponse {
         try {
             cloak = textureProvider.getCloakTexture(uuid, username, client);
         } catch (IOException e) {
-            LogHelper.error(new IOException(String.format("Can't get cloak texture: '%s'", username), e));
             cloak = null;
         }
 

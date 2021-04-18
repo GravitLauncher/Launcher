@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.binary.tasks;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -34,6 +36,7 @@ public class MainBuildTask implements LauncherBuildTask {
     public final IOHookSet<BuildContext> postBuildHook = new IOHookSet<>();
     public final Map<String, Object> properties = new HashMap<>();
     private final LaunchServer server;
+    private transient final Logger logger = LogManager.getLogger();
 
     public MainBuildTask(LaunchServer srv) {
         server = srv;
@@ -58,13 +61,9 @@ public class MainBuildTask implements LauncherBuildTask {
             properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             postInitProps();
             reader.getCp().add(new JarFile(inputJar.toFile()));
-            server.launcherBinary.coreLibs.forEach(e -> {
-                try {
-                    reader.getCp().add(new JarFile(e.toFile()));
-                } catch (IOException e1) {
-                    LogHelper.error(e1);
-                }
-            });
+            for(Path e :  server.launcherBinary.coreLibs) {
+                reader.getCp().add(new JarFile(e.toFile()));
+            };
             context.pushJarFile(inputJar, (e) -> blacklist.contains(e.getName()), (e) -> true);
 
             // map for guard
@@ -86,7 +85,7 @@ public class MainBuildTask implements LauncherBuildTask {
             try {
                 return e.getEncoded();
             } catch (CertificateEncodingException e2) {
-                LogHelper.error(e2);
+                logger.error(e2);
                 return new byte[0];
             }
         }).collect(Collectors.toList());
