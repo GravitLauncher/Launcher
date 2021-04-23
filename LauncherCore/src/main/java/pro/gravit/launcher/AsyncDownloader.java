@@ -116,6 +116,9 @@ public class AsyncDownloader {
             result.get(minIndex).add(file);
             sizes[minIndex] += file.size;
         }
+        for(List<SizedFile> l : result) {
+            Collections.shuffle(l);
+        }
         return result;
     }
 
