@@ -5,6 +5,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 public class LaunchServerRuntimeConfig {
     public String passwordEncryptKey;
+    public String runtimeEncryptKey;
     public String oemUnlockKey;
     public String registerApiKey;
     public String clientCheckSecret;
@@ -19,6 +20,7 @@ public class LaunchServerRuntimeConfig {
 
     public void reset() {
         passwordEncryptKey = SecurityHelper.randomStringToken();
+        runtimeEncryptKey = SecurityHelper.randomStringAESKey();
         registerApiKey = SecurityHelper.randomStringToken();
         clientCheckSecret = SecurityHelper.randomStringToken();
     }

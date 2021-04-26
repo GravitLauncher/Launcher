@@ -69,10 +69,14 @@ public class MainBuildTask implements LauncherBuildTask {
             // map for guard
             Map<String, byte[]> runtime = new HashMap<>(256);
             // Write launcher guard dir
-            context.pushDir(server.launcherBinary.runtimeDir, Launcher.RUNTIME_DIR, runtime, false);
+            if(server.config.launcher.encryptRuntime) {
+                context.pushEncryptedDir(server.launcherBinary.runtimeDir, Launcher.RUNTIME_DIR, server.runtime.runtimeEncryptKey, runtime, false);
+            } else {
+                context.pushDir(server.launcherBinary.runtimeDir, Launcher.RUNTIME_DIR, runtime, false);
+            }
             context.pushDir(server.launcherBinary.guardDir, Launcher.GUARD_DIR, runtime, false);
 
-            LauncherConfig launcherConfig = new LauncherConfig(server.config.netty.address, server.publicKey, runtime, server.config.projectName);
+            LauncherConfig launcherConfig = new LauncherConfig(server.config.netty.address, server.keyAgreementManager.ecdsaPublicKey, server.keyAgreementManager.rsaPublicKey, runtime, server.config.projectName);
             context.pushFile(Launcher.CONFIG_FILE, launcherConfig);
             postBuildHook.hook(context);
         }
@@ -109,6 +113,8 @@ public class MainBuildTask implements LauncherBuildTask {
         properties.put("launcher.guardType", server.config.launcher.guardType);
         properties.put("launchercore.env", server.config.env);
         properties.put("launcher.memory", server.config.launcher.memoryLimit);
+        if (server.runtime.runtimeEncryptKey == null) server.runtime.runtimeEncryptKey= SecurityHelper.randomStringAESKey();
+        properties.put("launcher.runtimeEncryptKey", server.runtime.runtimeEncryptKey);
         properties.put("launcher.certificatePinning", server.config.launcher.certificatePinning);
         properties.put("runtimeconfig.passwordEncryptKey", server.runtime.passwordEncryptKey);
         String launcherSalt = SecurityHelper.randomStringToken();

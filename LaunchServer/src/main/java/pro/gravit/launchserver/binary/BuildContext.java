@@ -8,6 +8,10 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -16,6 +20,8 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +74,10 @@ public class BuildContext {
 
     public void pushDir(Path dir, String targetDir, Map<String, byte[]> hashMap, boolean hidden) throws IOException {
         IOHelper.walk(dir, new RuntimeDirVisitor(output, hashMap, dir, targetDir), hidden);
+    }
+
+    public void pushEncryptedDir(Path dir, String targetDir, String aesHexKey, Map<String, byte[]> hashMap, boolean hidden) throws IOException {
+        IOHelper.walk(dir, new EncryptedRuntimeDirVisitor(output, aesHexKey, hashMap, dir, targetDir), hidden);
     }
 
     public void pushBytes(String filename, byte[] bytes) throws IOException {
@@ -169,6 +179,57 @@ public class BuildContext {
             // Create zip entry and transfer contents
             output.putNextEntry(newEntry(fileName));
             IOHelper.transfer(file, output);
+
+            // Return result
+            return super.visitFile(file, attrs);
+        }
+
+        private ZipEntry newEntry(String fileName) {
+            return newZipEntry(targetDir + IOHelper.CROSS_SEPARATOR + fileName);
+        }
+    }
+
+    private final static class EncryptedRuntimeDirVisitor extends SimpleFileVisitor<Path> {
+        private final ZipOutputStream output;
+        private final Map<String, byte[]> hashs;
+        private final Path sourceDir;
+        private final String targetDir;
+        private final SecretKeySpec sKeySpec;
+
+        private EncryptedRuntimeDirVisitor(ZipOutputStream output, String aesKey, Map<String, byte[]> hashs, Path sourceDir, String targetDir) {
+            this.output = output;
+            this.hashs = hashs;
+            this.sourceDir = sourceDir;
+            this.targetDir = targetDir;
+            try {
+                byte[] key = SecurityHelper.fromHex(aesKey);
+                byte[] compatKey = SecurityHelper.getAESKey(key);
+                sKeySpec = new SecretKeySpec(compatKey, "AES");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            byte[] digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, file);
+            String fileName = IOHelper.toString(sourceDir.relativize(file));
+            if (hashs != null)
+                hashs.put(fileName, digest);
+
+            // Create zip entry and transfer contents
+            output.putNextEntry(newEntry(SecurityHelper.toHex(digest)));
+
+
+            Cipher cipher = null;
+            try {
+                cipher = Cipher.getInstance("AES");
+                cipher.init(Cipher.ENCRYPT_MODE, sKeySpec);
+            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
+                throw new RuntimeException(e);
+            }
+
+            IOHelper.transfer(file, new CipherOutputStream(output, cipher));
 
             // Return result
             return super.visitFile(file, attrs);

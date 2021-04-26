@@ -215,16 +215,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
     public void updateLauncherConfig() {
 
-        LauncherConfig cfg = null;
-        try {
-            ECPublicKey publicKey = null;
-            if (IOHelper.isFile(publicKeyFile))
-                publicKey = SecurityHelper.toPublicECKey(IOHelper.read(publicKeyFile));
-            cfg = new LauncherConfig(config.address, publicKey, new HashMap<>(), config.projectname);
-            cfg.address = config.address;
-        } catch (InvalidKeySpecException | IOException e) {
-            LogHelper.error(e);
-        }
+        LauncherConfig cfg = new LauncherConfig(config.address, null, null, new HashMap<>(), config.projectname);
         Launcher.setConfig(cfg);
     }
 

@@ -299,6 +299,7 @@ public final class LaunchServerConfig {
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
         public boolean certificatePinning;
+        public boolean encryptRuntime;
         public int memoryLimit = 256;
     }
 

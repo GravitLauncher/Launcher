@@ -1,7 +1,5 @@
 package pro.gravit.utils.helper;
 
-import org.bouncycastle.jcajce.provider.asymmetric.RSA;
-
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
@@ -489,7 +487,7 @@ public final class SecurityHelper {
 
     //AES
     public static byte[] encrypt(String seed, byte[] cleartext) throws Exception {
-        byte[] rawKey = getRawKey(seed.getBytes());
+        byte[] rawKey = getAESKey(seed.getBytes());
         return encrypt(rawKey, cleartext);
     }
 
@@ -497,7 +495,7 @@ public final class SecurityHelper {
         return encrypt(seed, cleartext.getBytes());
     }
 
-    private static byte[] getRawKey(byte[] seed) throws Exception {
+    public static byte[] getAESKey(byte[] seed) throws Exception {
         KeyGenerator kGen = KeyGenerator.getInstance("AES");
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         sr.setSeed(seed);
@@ -521,7 +519,7 @@ public final class SecurityHelper {
     }
 
     public static byte[] decrypt(String seed, byte[] encrypted) throws Exception {
-        return decrypt(getRawKey(seed.getBytes()), encrypted);
+        return decrypt(getAESKey(seed.getBytes()), encrypted);
     }
 
     public static byte[] fromHex(String hexString) {
