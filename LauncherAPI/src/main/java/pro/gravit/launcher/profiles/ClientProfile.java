@@ -64,9 +64,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private int minJavaVersion = 8;
     @LauncherNetworkAPI
-    private int maxJavaVersion = 17;
+    private int maxJavaVersion = 999;
     @LauncherNetworkAPI
     private boolean warnMissJavaVersion = true;
+    @LauncherNetworkAPI
+    private ProfileDefaultSettings settings = new ProfileDefaultSettings();
     // Client
     @LauncherNetworkAPI
     private int sortIndex;
@@ -203,6 +205,14 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public void setWarnMissJavaVersion(boolean warnMissJavaVersion) {
         this.warnMissJavaVersion = warnMissJavaVersion;
+    }
+
+    public ProfileDefaultSettings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(ProfileDefaultSettings settings) {
+        this.settings = settings;
     }
 
     public void updateOptionalGraph() {
@@ -545,5 +555,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
+    public static class ProfileDefaultSettings {
+        public int ram;
+        public boolean autoEnter;
+        public boolean fullScreen;
+    }
 
 }
