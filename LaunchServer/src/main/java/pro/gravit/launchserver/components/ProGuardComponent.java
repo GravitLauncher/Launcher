@@ -28,16 +28,22 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     public boolean enabled = true;
     public boolean mappings = true;
     public transient ProguardConf proguardConf;
+    private transient LaunchServer launchServer;
+    private transient ProGuardBuildTask buildTask;
     private transient static final Logger logger = LogManager.getLogger();
     @Override
     public void init(LaunchServer launchServer) {
+        this.launchServer = launchServer;
         proguardConf = new ProguardConf(launchServer, this);
-        launchServer.launcherBinary.addAfter((v) -> v.getName().startsWith(modeAfter), new ProGuardBuildTask(launchServer, proguardConf, this));
+        this.buildTask = new ProGuardBuildTask(launchServer, proguardConf, this);
+        launchServer.launcherBinary.addAfter((v) -> v.getName().startsWith(modeAfter), buildTask);
     }
 
     @Override
     public void close() throws Exception {
-
+        if(launchServer != null && buildTask != null) {
+            launchServer.launcherBinary.tasks.remove(buildTask);
+        }
     }
 
     @Override
