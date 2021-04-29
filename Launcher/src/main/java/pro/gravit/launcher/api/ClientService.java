@@ -8,4 +8,8 @@ public class ClientService {
     public static ClassLoader classLoader;
     public static String nativePath;
     public static URL[] baseURLs;
+
+    public static ClassLoader getClassLoader() {
+        return classLoader;
+    }
 }
