@@ -9,10 +9,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -35,7 +32,8 @@ public final class LogHelper {
     static {
         boolean useSlf4j = false;
         try {
-            Class.forName("org.slf4j.Logger");
+            Class.forName("org.slf4j.Logger", false, LogHelper.class.getClassLoader());
+            Class.forName("org.slf4j.impl.StaticLoggerBinder", false, LogHelper.class.getClassLoader());
             useSlf4j = !Boolean.getBoolean(NO_SLF4J_PROPERTY);
         } catch (ClassNotFoundException ignored) {
         }
