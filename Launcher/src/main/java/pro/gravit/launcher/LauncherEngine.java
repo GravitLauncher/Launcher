@@ -45,9 +45,11 @@ public class LauncherEngine {
     public RuntimeProvider runtimeProvider;
     public ECPublicKey publicKey;
     public ECPrivateKey privateKey;
+    public final boolean clientInstance;
 
-    private LauncherEngine() {
+    private LauncherEngine(boolean clientInstance) {
 
+        this.clientInstance = clientInstance;
     }
 
     //JVMHelper.getCertificates
@@ -103,7 +105,7 @@ public class LauncherEngine {
         Launcher.getConfig(); // init config
         long startTime = System.currentTimeMillis();
         try {
-            new LauncherEngine().start(args);
+            new LauncherEngine(false).start(args);
         } catch (Exception e) {
             LogHelper.error(e);
             return;
@@ -139,11 +141,11 @@ public class LauncherEngine {
     }
 
     public static LauncherEngine clientInstance() {
-        return new LauncherEngine();
+        return new LauncherEngine(true);
     }
 
-    public static LauncherEngine newInstance() {
-        return new LauncherEngine();
+    public static LauncherEngine newInstance(boolean clientInstance) {
+        return new LauncherEngine(clientInstance);
     }
 
     public void readKeys() throws IOException, InvalidKeySpecException {
@@ -175,7 +177,7 @@ public class LauncherEngine {
         LauncherEngine.modulesManager.invokeEvent(event);
         runtimeProvider = event.runtimeProvider;
         if (runtimeProvider == null) runtimeProvider = new NoRuntimeProvider();
-        runtimeProvider.init(false);
+        runtimeProvider.init(clientInstance);
         //runtimeProvider.preLoad();
         if (Request.service == null) {
             String address = Launcher.getConfig().address;
@@ -205,7 +207,7 @@ public class LauncherEngine {
         readKeys();
         LauncherEngine.modulesManager.invokeEvent(new ClientEngineInitPhase(this));
         runtimeProvider.preLoad();
-        LauncherGuardManager.initGuard(false);
+        LauncherGuardManager.initGuard(clientInstance);
         LogHelper.debug("Dir: %s", DirBridge.dir);
         runtimeProvider.run(args);
     }

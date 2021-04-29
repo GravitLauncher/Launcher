@@ -49,7 +49,7 @@ public class DebugMain {
         ConsoleManager.initConsole();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         LogHelper.debug("Initialization LauncherEngine");
-        LauncherEngine instance = LauncherEngine.newInstance();
+        LauncherEngine instance = LauncherEngine.newInstance(false);
         instance.start(args);
     }
 

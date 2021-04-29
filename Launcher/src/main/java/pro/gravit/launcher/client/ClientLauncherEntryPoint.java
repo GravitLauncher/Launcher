@@ -12,6 +12,7 @@ import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.managers.ClientGsonManager;
+import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.patches.FMLPatcher;
 import pro.gravit.launcher.profiles.ClientProfile;
@@ -77,6 +78,7 @@ public class ClientLauncherEntryPoint {
         LauncherConfig.initModules(LauncherEngine.modulesManager); //INIT
         LauncherEngine.modulesManager.initModules(null);
         initGson(LauncherEngine.modulesManager);
+        ConsoleManager.initConsole();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         engine.readKeys();
         LauncherGuardManager.initGuard(true);
@@ -153,7 +155,15 @@ public class ClientLauncherEntryPoint {
             ClientService.classLoader = classLoader;
             ClientService.baseURLs = classpath.toArray(new URL[0]);
         }
-
+        if(params.profile.runtimeInClientConfig != ClientProfile.RuntimeInClientConfig.NONE) {
+            CommonHelper.newThread("Client Launcher Thread", true, () -> {
+                try {
+                    engine.start(args);
+                } catch (Throwable throwable) {
+                    LogHelper.error(throwable);
+                }
+            }).start();
+        }
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessReadyEvent(engine, params));
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();

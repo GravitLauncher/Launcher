@@ -50,6 +50,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public ClassLoaderConfig classLoaderConfig = ClassLoaderConfig.LAUNCHER;
     @LauncherNetworkAPI
     public SignedClientConfig signedClientConfig = SignedClientConfig.NONE;
+    @LauncherNetworkAPI
+    public RuntimeInClientConfig runtimeInClientConfig = RuntimeInClientConfig.NONE;
     // Version
     @LauncherNetworkAPI
     private String version;
@@ -540,6 +542,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public enum SignedClientConfig {
         NONE, SIGNED
+    }
+
+    public enum RuntimeInClientConfig {
+        NONE, BASIC, FULL
     }
 
     @FunctionalInterface
