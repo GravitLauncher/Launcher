@@ -116,6 +116,7 @@ public class OptionalView {
 
     public void enable(OptionalFile file, boolean manual, BiConsumer<OptionalFile, Boolean> callback) {
         if(enabled.contains(file)) return;
+        enabled.add(file);
         if(callback != null) callback.accept(file, true);
         OptionalFileInstallInfo installInfo = this.installInfo.get(file);
         if(installInfo == null) {
