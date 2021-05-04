@@ -14,7 +14,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 public class ModulesCommand extends Command {
-    private transient Logger logger = LogManager.getLogger();
+    private transient final Logger logger = LogManager.getLogger();
     public ModulesCommand(LaunchServer server) {
         super(server);
     }
