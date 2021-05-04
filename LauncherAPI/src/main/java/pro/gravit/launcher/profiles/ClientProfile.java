@@ -379,7 +379,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     @Override
     public String toString() {
-        return title;
+        return String.format("%s (%s)", title, uuid);
     }
 
     public UUID getUUID() {
@@ -470,6 +470,19 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public List<String> getCompatClasses() {
         return Collections.unmodifiableList(compatClasses);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClientProfile profile = (ClientProfile) o;
+        return Objects.equals(uuid, profile.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
     }
 
     public enum Version {

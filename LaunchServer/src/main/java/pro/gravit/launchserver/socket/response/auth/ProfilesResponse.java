@@ -9,6 +9,7 @@ import pro.gravit.launchserver.socket.response.SimpleResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ProfilesResponse extends SimpleResponse {
     @Override
@@ -24,7 +25,7 @@ public class ProfilesResponse extends SimpleResponse {
         }
 
         List<ClientProfile> profileList;
-        List<ClientProfile> serverProfiles = server.getProfiles();
+        Set<ClientProfile> serverProfiles = server.getProfiles();
         if (server.config.protectHandler instanceof ProfilesProtectHandler) {
             ProfilesProtectHandler protectHandler = (ProfilesProtectHandler) server.config.protectHandler;
             profileList = new ArrayList<>(4);
@@ -34,7 +35,7 @@ public class ProfilesResponse extends SimpleResponse {
                 }
             }
         } else {
-            profileList = serverProfiles;
+            profileList = List.copyOf(serverProfiles);
         }
         sendResult(new ProfilesRequestEvent(profileList));
     }

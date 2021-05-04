@@ -122,7 +122,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public LaunchServerConfig config;
     public volatile Map<String, HashedDir> updatesDirMap;
     // Updates and profiles
-    private volatile List<ClientProfile> profilesList;
+    private volatile Set<ClientProfile> profilesList;
 
     public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager) throws IOException {
         this.dir = directories.dir;
@@ -297,12 +297,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         logger.info("LaunchServer stopped");
     }
 
-    public List<ClientProfile> getProfiles() {
+    public Set<ClientProfile> getProfiles() {
         return profilesList;
     }
 
-    public void setProfiles(List<ClientProfile> profilesList) {
-        this.profilesList = Collections.unmodifiableList(profilesList);
+    public void setProfiles(Set<ClientProfile> profilesList) {
+        this.profilesList = Collections.unmodifiableSet(profilesList);
     }
 
     public HashedDir getUpdateDir(String name) {
@@ -385,7 +385,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         // Sort and set new profiles
         newProfies.sort(Comparator.comparing(a -> a));
-        profilesList = Collections.unmodifiableList(newProfies);
+        profilesList = Set.copyOf(newProfies);
         if (pingServerManager != null)
             pingServerManager.syncServers();
     }
