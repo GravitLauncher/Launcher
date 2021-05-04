@@ -102,8 +102,8 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
         Path path = Paths.get(dumpFile);
         try (Writer writer = IOHelper.newWriter(path)) {
             Launcher.gsonManager.gson.toJson(dumpedData, writer);
-        } catch (IOException e) {
-            logger.error(e);
+        } catch (Throwable e) {
+            logger.error("Sessions can't be saved", e);
         }
     }
 
@@ -114,8 +114,8 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
             DumpedData data = Launcher.gsonManager.gson.fromJson(reader, DumpedData.class);
             clientSet.putAll(data.clientSet);
             uuidIndex.putAll(data.uuidIndex);
-        } catch (IOException e) {
-            logger.error(e);
+        } catch (Throwable e) {
+            logger.error("Sessions can't be loaded", e);
         }
     }
 
