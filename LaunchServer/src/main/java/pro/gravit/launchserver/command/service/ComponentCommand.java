@@ -5,15 +5,75 @@ import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.components.Component;
+import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.Reader;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.nio.file.Paths;
 
 public class ComponentCommand extends Command {
     public ComponentCommand(LaunchServer server) {
         super(server);
+        childCommands.put("unload", new UnloadCommand());
+        childCommands.put("load", new LoadCommand());
+    }
+
+    private class UnloadCommand extends SubCommand {
+        public UnloadCommand() {
+            super("[componentName]", "Unload component");
+        }
+
+        @Override
+        public void invoke(String... args) throws Exception {
+            verifyArgs(args, 1);
+            String componentName = args[0];
+            if (componentName == null) throw new IllegalArgumentException("Must set componentName");
+            Component component = server.config.components.get(componentName);
+            if (component == null) {
+                LogHelper.error("Component %s not found", componentName);
+                return;
+            }
+            if (component instanceof AutoCloseable) {
+                ((AutoCloseable) component).close();
+            }
+            server.config.components.remove(componentName);
+            LogHelper.info("Component %s unloaded. Use 'config launchserver save' to save changes");
+        }
+    }
+    private class LoadCommand extends SubCommand {
+        public LoadCommand() {
+            super("[componentName] [componentType] (json file)", "Load component");
+        }
+
+        @Override
+        public void invoke(String... args) throws Exception {
+            verifyArgs(args, 2);
+            String componentName = args[0];
+            Class<? extends Component> componentClass = Component.providers.getClass(args[1]);
+            if(componentClass == null) {
+                LogHelper.error("Component type %s not registered", componentName);
+                return;
+            }
+            try {
+                Component component;
+                if(args.length > 2) {
+                    try (Reader reader = IOHelper.newReader(Paths.get(args[2]))) {
+                        component = Launcher.gsonManager.configGson.fromJson(reader, componentClass);
+                    }
+                } else {
+                    component = (Component) MethodHandles.publicLookup().findConstructor(componentClass, MethodType.methodType(void.class)).invoke();
+                }
+                component.setComponentName(componentName);
+                server.config.components.put(componentName, component);
+                component.init(server);
+                LogHelper.info("Component %s ready. Use 'config launchserver save' to save changes");
+            } catch (Throwable throwable) {
+                LogHelper.error(throwable);
+            }
+        }
     }
 
     @Override
@@ -35,57 +95,6 @@ public class ComponentCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        verifyArgs(args, 1);
-        String componentName = null;
-        if (args.length > 1) componentName = args[1];
-        switch (args[0]) {
-            case "unload": {
-                if (componentName == null) throw new IllegalArgumentException("Must set componentName");
-                Component component = server.config.components.get(componentName);
-                if (component == null) {
-                    LogHelper.error("Component %s not found", componentName);
-                    return;
-                }
-                if (component instanceof AutoCloseable) {
-                    ((AutoCloseable) component).close();
-                } else {
-                    LogHelper.error("Component %s unload not supported", componentName);
-                    return;
-                }
-                break;
-            }
-            case "gc": {
-                if (componentName == null) throw new IllegalArgumentException("Must set componentName");
-                Component component = server.config.components.get(componentName);
-                if (component == null) {
-                    LogHelper.error("Component %s not found", componentName);
-                    return;
-                }
-                if (component instanceof NeedGarbageCollection) {
-                    ((NeedGarbageCollection) component).garbageCollection();
-                } else {
-                    LogHelper.error("Component %s gc not supported", componentName);
-                    return;
-                }
-                break;
-            }
-            case "load": {
-                if (componentName == null) throw new IllegalArgumentException("Must set componentName");
-                if (args.length <= 2) throw new IllegalArgumentException("Must set file");
-                String fileName = args[2];
-                try (Reader reader = IOHelper.newReader(Paths.get(fileName))) {
-                    Component component = Launcher.gsonManager.configGson.fromJson(reader, Component.class);
-                    component.setComponentName(componentName);
-                    component.init(server);
-                    LogHelper.info("Component %s(%s) loaded", componentName, component.getClass().getName());
-                }
-            }
-            case "help": {
-                printHelp();
-            }
-            default: {
-                printHelp();
-            }
-        }
+        invokeSubcommands(args);
     }
 }
