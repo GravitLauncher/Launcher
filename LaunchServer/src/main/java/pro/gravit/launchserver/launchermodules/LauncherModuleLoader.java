@@ -1,6 +1,8 @@
 package pro.gravit.launchserver.launchermodules;
 
 import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherTrustManager;
+import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
@@ -84,8 +86,9 @@ public class LauncherModuleLoader {
         }
     }
 
-    static class ModuleEntity {
+    public static class ModuleEntity {
         public Path path;
+        public LauncherTrustManager.CheckClassResult checkResult;
         public String moduleMainClass;
         public String moduleConfigClass;
         public String moduleConfigName;
@@ -99,6 +102,7 @@ public class LauncherModuleLoader {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toFile().getName().endsWith(".jar"))
                 try (JarFile f = new JarFile(file.toFile())) {
@@ -107,9 +111,23 @@ public class LauncherModuleLoader {
                     if (mainClass == null) {
                         LogHelper.error("In module %s MainClass not found", file.toString());
                     } else {
+                        if (classLoader == null)
+                            classLoader = new LauncherModuleClassLoader(server.modulesManager.getModuleClassLoader());
+                        classLoader.addURL(file.toUri().toURL());
                         ModuleEntity entity = new ModuleEntity();
                         entity.path = file;
                         entity.moduleMainClass = mainClass;
+                        try {
+                            Class<? extends LauncherModule> mainClazz = (Class<? extends LauncherModule>) classLoader.loadClass(entity.moduleMainClass);
+                            entity.checkResult = server.modulesManager.checkModuleClass(mainClazz);
+                        } catch (Throwable e) {
+                            if(e instanceof ClassNotFoundException || e instanceof NoClassDefFoundError) {
+                                LogHelper.error("Module-MainClass in module %s incorrect", file.toString());
+                            } else {
+                                LogHelper.error(e);
+                            }
+                            return super.visitFile(file, attrs);
+                        }
                         entity.moduleConfigClass = attributes.getValue("Module-Config-Class");
                         if (entity.moduleConfigClass != null) {
                             entity.moduleConfigName = attributes.getValue("Module-Config-Name");
@@ -117,9 +135,6 @@ public class LauncherModuleLoader {
                                 LogHelper.warning("Module-Config-Name in module %s null. Module not configured", file.toString());
                             } else {
                                 try {
-                                    if (classLoader == null)
-                                        classLoader = new LauncherModuleClassLoader(server.modulesManager.getModuleClassLoader());
-                                    classLoader.addURL(file.toUri().toURL());
                                     Class<?> clazz = classLoader.loadClass(entity.moduleConfigClass);
                                     Path configPath = server.modulesManager.getConfigManager().getModuleConfig(entity.moduleConfigName);
                                     Object defaultConfig = MethodHandles.publicLookup().findStatic(clazz, "getDefault", MethodType.methodType(Object.class)).invoke();
