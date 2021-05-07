@@ -15,52 +15,58 @@ import java.net.InetSocketAddress;
 import java.util.*;
 
 public final class ClientProfile implements Comparable<ClientProfile> {
-
-    public static final boolean profileCaseSensitive = Boolean.getBoolean("launcher.clientProfile.caseSensitive");
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
-    //  Updater and client watch service
+
     @LauncherNetworkAPI
-    private final List<String> update = new ArrayList<>();
+    private String title;
     @LauncherNetworkAPI
-    private final List<String> updateExclusions = new ArrayList<>();
-    @LauncherNetworkAPI
-    private final List<String> updateShared = new ArrayList<>();
-    @LauncherNetworkAPI
-    private final List<String> updateVerify = new ArrayList<>();
-    @LauncherNetworkAPI
-    private final Set<OptionalFile> updateOptional = new HashSet<>();
-    @LauncherNetworkAPI
-    private final List<String> jvmArgs = new ArrayList<>();
-    @LauncherNetworkAPI
-    private final List<String> classPath = new ArrayList<>();
-    @LauncherNetworkAPI
-    private final List<String> altClassPath = new ArrayList<>();
-    @LauncherNetworkAPI
-    private final List<String> clientArgs = new ArrayList<>();
-    @LauncherNetworkAPI
-    private final List<String> compatClasses = new ArrayList<>();
-    @LauncherNetworkAPI
-    private final Map<String, String> properties = new HashMap<>();
-    @LauncherNetworkAPI
-    private final List<ServerProfile> servers = new ArrayList<>(1);
-    @LauncherNetworkAPI
-    public SecurityManagerConfig securityManagerConfig = SecurityManagerConfig.CLIENT;
-    @LauncherNetworkAPI
-    public ClassLoaderConfig classLoaderConfig = ClassLoaderConfig.LAUNCHER;
-    @LauncherNetworkAPI
-    public SignedClientConfig signedClientConfig = SignedClientConfig.NONE;
-    @LauncherNetworkAPI
-    public RuntimeInClientConfig runtimeInClientConfig = RuntimeInClientConfig.NONE;
-    // Version
+    private UUID uuid;
     @LauncherNetworkAPI
     private String version;
     @LauncherNetworkAPI
-    private String assetIndex;
+    private String info;
     @LauncherNetworkAPI
     private String dir;
     @LauncherNetworkAPI
+    private int sortIndex;
+    @LauncherNetworkAPI
+    private String assetIndex;
+    @LauncherNetworkAPI
     private String assetDir;
+    //  Updater and client watch service
+    @LauncherNetworkAPI
+    private List<String> update;
+    @LauncherNetworkAPI
+    private List<String> updateExclusions;
+    @LauncherNetworkAPI
+    private List<String> updateShared;
+    @LauncherNetworkAPI
+    private List<String> updateVerify;
+    @LauncherNetworkAPI
+    private Set<OptionalFile> updateOptional;
+    @LauncherNetworkAPI
+    private List<String> jvmArgs;
+    @LauncherNetworkAPI
+    private List<String> classPath;
+    @LauncherNetworkAPI
+    private List<String> altClassPath;
+    @LauncherNetworkAPI
+    private List<String> clientArgs;
+    @LauncherNetworkAPI
+    private List<String> compatClasses;
+    @LauncherNetworkAPI
+    private Map<String, String> properties;
+    @LauncherNetworkAPI
+    private List<ServerProfile> servers;
+    @LauncherNetworkAPI
+    private SecurityManagerConfig securityManagerConfig;
+    @LauncherNetworkAPI
+    private ClassLoaderConfig classLoaderConfig;
+    @LauncherNetworkAPI
+    private SignedClientConfig signedClientConfig;
+    @LauncherNetworkAPI
+    private RuntimeInClientConfig runtimeInClientConfig;
     @LauncherNetworkAPI
     private int recommendJavaVersion = 8;
     @LauncherNetworkAPI
@@ -71,21 +77,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private boolean warnMissJavaVersion = true;
     @LauncherNetworkAPI
     private ProfileDefaultSettings settings = new ProfileDefaultSettings();
-    // Client
-    @LauncherNetworkAPI
-    private int sortIndex;
-    @LauncherNetworkAPI
-    private UUID uuid;
-    @LauncherNetworkAPI
-    private String title;
-    @LauncherNetworkAPI
-    private String info;
-    @Deprecated
-    @LauncherNetworkAPI
-    private String serverAddress;
-    @Deprecated
-    @LauncherNetworkAPI
-    private int serverPort;
     @LauncherNetworkAPI
     private boolean updateFastCheck;
     // Client launcher
@@ -181,40 +172,20 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return recommendJavaVersion;
     }
 
-    public void setRecommendJavaVersion(int recommendJavaVersion) {
-        this.recommendJavaVersion = recommendJavaVersion;
-    }
-
     public int getMinJavaVersion() {
         return minJavaVersion;
-    }
-
-    public void setMinJavaVersion(int minJavaVersion) {
-        this.minJavaVersion = minJavaVersion;
     }
 
     public int getMaxJavaVersion() {
         return maxJavaVersion;
     }
 
-    public void setMaxJavaVersion(int maxJavaVersion) {
-        this.maxJavaVersion = maxJavaVersion;
-    }
-
     public boolean isWarnMissJavaVersion() {
         return warnMissJavaVersion;
     }
 
-    public void setWarnMissJavaVersion(boolean warnMissJavaVersion) {
-        this.warnMissJavaVersion = warnMissJavaVersion;
-    }
-
     public ProfileDefaultSettings getSettings() {
         return settings;
-    }
-
-    public void setSettings(ProfileDefaultSettings settings) {
-        this.settings = settings;
     }
 
     public void updateOptionalGraph() {
@@ -234,6 +205,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
+
+
     @Deprecated
     public OptionalFile getOptionalFile(String file, OptionalType type) {
         for (OptionalFile f : updateOptional)
@@ -249,90 +222,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public Collection<String> getShared() {
         return updateShared;
-    }
-
-    @Deprecated
-    public void markOptional(OptionalFile file) {
-
-        if (file.mark) return;
-        file.mark = true;
-        file.watchEvent(true);
-        if (file.dependencies != null) {
-            for (OptionalFile dep : file.dependencies) {
-                if (dep.dependenciesCount == null) dep.dependenciesCount = new HashSet<>();
-                dep.dependenciesCount.add(file);
-                markOptional(dep);
-            }
-        }
-        if (file.conflict != null) {
-            for (OptionalFile conflict : file.conflict) {
-                unmarkOptional(conflict);
-            }
-        }
-    }
-
-    @Deprecated
-    public void unmarkOptional(OptionalFile file) {
-        if (!file.mark) return;
-        file.mark = false;
-        file.watchEvent(false);
-        if (file.dependenciesCount != null) {
-            for (OptionalFile f : file.dependenciesCount) {
-                if (f.isPreset) continue;
-                unmarkOptional(f);
-            }
-            file.dependenciesCount.clear();
-            file.dependenciesCount = null;
-        }
-        if (file.dependencies != null) {
-            for (OptionalFile f : file.dependencies) {
-                if (!f.mark) continue;
-                if (f.dependenciesCount == null) {
-                    unmarkOptional(f);
-                } else if (f.dependenciesCount.size() <= 1) {
-                    f.dependenciesCount.clear();
-                    f.dependenciesCount = null;
-                    unmarkOptional(f);
-                }
-            }
-        }
-    }
-
-    @Deprecated
-    public void pushOptionalFile(HashedDir dir, boolean digest) {
-        for (OptionalFile opt : updateOptional) {
-            if (opt.type.equals(OptionalType.FILE) && !opt.mark) {
-                for (String file : opt.list)
-                    dir.removeR(file);
-            }
-        }
-    }
-
-    @Deprecated
-    public void pushOptionalJvmArgs(Collection<String> jvmArgs1) {
-        for (OptionalFile opt : updateOptional) {
-            if (opt.type.equals(OptionalType.JVMARGS) && opt.mark) {
-                jvmArgs1.addAll(Arrays.asList(opt.list));
-            }
-        }
-    }
-
-    @Deprecated
-    public void pushOptionalClientArgs(Collection<String> clientArgs1) {
-        for (OptionalFile opt : updateOptional) {
-            if (opt.type.equals(OptionalType.CLIENTARGS) && opt.mark) {
-                clientArgs1.addAll(Arrays.asList(opt.list));
-            }
-        }
-    }
-
-    @Deprecated
-    public void pushOptionalClassPath(pushOptionalClassPathCallback callback) throws IOException {
-        for (OptionalFile opt : updateOptional) {
-            if (opt.type.equals(OptionalType.CLASSPATH) && opt.mark) {
-                callback.run(opt.list);
-            }
-        }
     }
 
     public int getServerPort() {
@@ -485,6 +374,40 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return Objects.hash(uuid);
     }
 
+    public SecurityManagerConfig getSecurityManagerConfig() {
+        return securityManagerConfig;
+    }
+
+    public void setSecurityManagerConfig(SecurityManagerConfig securityManagerConfig) {
+        this.securityManagerConfig = securityManagerConfig;
+    }
+
+    public ClassLoaderConfig getClassLoaderConfig() {
+        return classLoaderConfig;
+    }
+
+    public void setClassLoaderConfig(ClassLoaderConfig classLoaderConfig) {
+        this.classLoaderConfig = classLoaderConfig;
+    }
+
+    public SignedClientConfig getSignedClientConfig() {
+        return signedClientConfig;
+    }
+
+    public void setSignedClientConfig(SignedClientConfig signedClientConfig) {
+        this.signedClientConfig = signedClientConfig;
+    }
+
+    public RuntimeInClientConfig getRuntimeInClientConfig() {
+        return runtimeInClientConfig;
+    }
+
+    public void setRuntimeInClientConfig(RuntimeInClientConfig runtimeInClientConfig) {
+        this.runtimeInClientConfig = runtimeInClientConfig;
+    }
+
+
+
     public enum Version {
         MC125("1.2.5", 29),
         MC147("1.4.7", 51),
@@ -575,6 +498,22 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         public InetSocketAddress toSocketAddress() {
             return InetSocketAddress.createUnresolved(serverAddress, serverPort);
         }
+
+        public ServerProfile() {
+        }
+
+        public ServerProfile(String name, String serverAddress, int serverPort) {
+            this.name = name;
+            this.serverAddress = serverAddress;
+            this.serverPort = serverPort;
+        }
+
+        public ServerProfile(String name, String serverAddress, int serverPort, boolean isDefault) {
+            this.name = name;
+            this.serverAddress = serverAddress;
+            this.serverPort = serverPort;
+            this.isDefault = isDefault;
+        }
     }
 
     public static class ProfileDefaultSettings {
@@ -583,4 +522,56 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         public boolean fullScreen;
     }
 
+    public ClientProfile() {
+        update = new ArrayList<>();
+        updateExclusions = new ArrayList<>();
+        updateShared = new ArrayList<>();
+        updateVerify = new ArrayList<>();
+        updateOptional = new HashSet<>();
+        jvmArgs = new ArrayList<>();
+        classPath = new ArrayList<>();
+        altClassPath = new ArrayList<>();
+        clientArgs = new ArrayList<>();
+        compatClasses = new ArrayList<>();
+        properties = new HashMap<>();
+        servers = new ArrayList<>(1);
+        securityManagerConfig = SecurityManagerConfig.CLIENT;
+        classLoaderConfig = ClassLoaderConfig.LAUNCHER;
+        signedClientConfig = SignedClientConfig.NONE;
+        runtimeInClientConfig = RuntimeInClientConfig.NONE;
+    }
+
+    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, SecurityManagerConfig securityManagerConfig, ClassLoaderConfig classLoaderConfig, SignedClientConfig signedClientConfig, RuntimeInClientConfig runtimeInClientConfig, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, boolean warnMissJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, boolean updateFastCheck, String mainClass) {
+        this.update = update;
+        this.updateExclusions = updateExclusions;
+        this.updateShared = updateShared;
+        this.updateVerify = updateVerify;
+        this.updateOptional = updateOptional;
+        this.jvmArgs = jvmArgs;
+        this.classPath = classPath;
+        this.altClassPath = altClassPath;
+        this.clientArgs = clientArgs;
+        this.compatClasses = compatClasses;
+        this.properties = properties;
+        this.servers = servers;
+        this.securityManagerConfig = securityManagerConfig;
+        this.classLoaderConfig = classLoaderConfig;
+        this.signedClientConfig = signedClientConfig;
+        this.runtimeInClientConfig = runtimeInClientConfig;
+        this.version = version;
+        this.assetIndex = assetIndex;
+        this.dir = dir;
+        this.assetDir = assetDir;
+        this.recommendJavaVersion = recommendJavaVersion;
+        this.minJavaVersion = minJavaVersion;
+        this.maxJavaVersion = maxJavaVersion;
+        this.warnMissJavaVersion = warnMissJavaVersion;
+        this.settings = settings;
+        this.sortIndex = sortIndex;
+        this.uuid = uuid;
+        this.title = title;
+        this.info = info;
+        this.updateFastCheck = updateFastCheck;
+        this.mainClass = mainClass;
+    }
 }

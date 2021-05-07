@@ -8,6 +8,21 @@ public class OptionalTrigger {
     public long value;
     public long compareMode = 0;
 
+    public OptionalTrigger() {
+    }
+
+    public OptionalTrigger(TriggerType type, long value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    public OptionalTrigger(TriggerType type, boolean need, long value, long compareMode) {
+        this.type = type;
+        this.need = need;
+        this.value = value;
+        this.compareMode = compareMode;
+    }
+
     public boolean isTriggered() {
         long test;
         switch (type) {

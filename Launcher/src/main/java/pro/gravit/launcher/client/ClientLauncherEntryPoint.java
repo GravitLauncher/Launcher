@@ -84,7 +84,7 @@ public class ClientLauncherEntryPoint {
         LauncherGuardManager.initGuard(true);
         LogHelper.debug("Reading ClientLauncher params");
         ClientLauncherProcess.ClientParams params = readParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
-        if (params.profile.classLoaderConfig != ClientProfile.ClassLoaderConfig.AGENT) {
+        if (params.profile.getClassLoaderConfig() != ClientProfile.ClassLoaderConfig.AGENT) {
             LauncherEngine.verifyNoAgent();
         }
         ClientProfile profile = params.profile;
@@ -129,7 +129,7 @@ public class ClientLauncherEntryPoint {
                 LogHelper.error(e);
             }
         };
-        if (params.profile.classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
+        if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.LAUNCHER) {
             ClientClassLoader classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
             ClientLauncherEntryPoint.classLoader = classLoader;
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -141,7 +141,7 @@ public class ClientLauncherEntryPoint {
             ClientService.nativePath = classLoader.nativePath;
             classLoader.addURL(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
             ClientService.baseURLs = classLoader.getURLs();
-        } else if (params.profile.classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
+        } else if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.AGENT) {
             ClientLauncherEntryPoint.classLoader = ClassLoader.getSystemClassLoader();
             classpath.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
             for (URL url : classpath) {
@@ -155,7 +155,7 @@ public class ClientLauncherEntryPoint {
             ClientService.classLoader = classLoader;
             ClientService.baseURLs = classpath.toArray(new URL[0]);
         }
-        if(params.profile.runtimeInClientConfig != ClientProfile.RuntimeInClientConfig.NONE) {
+        if(params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
             CommonHelper.newThread("Client Launcher Thread", true, () -> {
                 try {
                     engine.start(args);

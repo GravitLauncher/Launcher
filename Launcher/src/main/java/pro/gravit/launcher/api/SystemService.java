@@ -15,9 +15,9 @@ public class SystemService {
 
     public static void setSecurityManager(SecurityManager s) {
         LogHelper.debug("Try set security manager %s", s == null ? "null" : s.getClass().getName());
-        if (AuthService.profile == null || AuthService.profile.securityManagerConfig == ClientProfile.SecurityManagerConfig.NONE)
+        if (AuthService.profile == null || AuthService.profile.getSecurityManagerConfig() == ClientProfile.SecurityManagerConfig.NONE)
             return;
-        if (AuthService.profile.securityManagerConfig == ClientProfile.SecurityManagerConfig.CLIENT) {
+        if (AuthService.profile.getSecurityManagerConfig() == ClientProfile.SecurityManagerConfig.CLIENT) {
             System.setSecurityManager(s);
         }
         //TODO NEXT
