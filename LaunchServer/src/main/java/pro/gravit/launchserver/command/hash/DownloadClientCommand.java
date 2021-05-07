@@ -29,7 +29,7 @@ public final class DownloadClientCommand extends Command {
 
     @Override
     public String getArgsDescription() {
-        return "[version] [dir]";
+        return "[version] [dir] (mirror/generate)";
     }
 
     @Override
@@ -45,6 +45,11 @@ public final class DownloadClientCommand extends Command {
         String dirName = IOHelper.verifyFileName(args[1]);
         Path clientDir = server.updatesDir.resolve(args[1]);
 
+        boolean isMirrorClientDownload = false;
+        if(args.length > 2) {
+            isMirrorClientDownload = args[2].equals("mirror");
+        }
+
         // Create client dir
         logger.info("Creating client dir: '{}'", dirName);
         Files.createDirectory(clientDir);
@@ -56,14 +61,21 @@ public final class DownloadClientCommand extends Command {
 
         // Create profile file
         logger.info("Creaing profile file: '{}'", dirName);
-        ClientProfile client;
+        ClientProfile client = null;
         try {
-            ClientProfile.Version version = ClientProfile.Version.byName(versionName);
+            String internalVersion = versionName;
+            if(internalVersion.contains("-")) {
+                internalVersion = internalVersion.substring(0, versionName.indexOf('-'));
+            }
+            ClientProfile.Version version = ClientProfile.Version.byName(internalVersion);
             if(version.compareTo(ClientProfile.Version.MC164) <= 0) {
                 logger.warn("Minecraft 1.6.4 and below not supported. Use at your own risk");
             }
             client = SaveProfilesCommand.makeProfile(version, dirName, SaveProfilesCommand.getMakeProfileOptionsFromDir(clientDir, version));
         } catch (Throwable e) {
+            isMirrorClientDownload = true;
+        }
+        if(isMirrorClientDownload) {
             JsonElement clientJson = server.mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
             client = Launcher.gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
             client.setTitle(dirName);
