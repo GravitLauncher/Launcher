@@ -39,6 +39,8 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
@@ -116,7 +118,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     // Server
     public final CommandHandler commandHandler;
     public final NettyServerSocketHandler nettyServerSocketHandler;
+    @Deprecated
     public final Timer taskPool;
+    public final ScheduledExecutorService service;
     public final AtomicBoolean started = new AtomicBoolean(false);
     public final LauncherModuleLoader launcherModuleLoader;
     public LaunchServerConfig config;
@@ -139,6 +143,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.commandHandler = commandHandler;
         this.runtime = runtimeConfig;
         this.certificateManager = certificateManager;
+        this.service = Executors.newScheduledThreadPool(config.netty.performance.schedulerThread);
         taskPool = new Timer("Timered task worker thread", true);
         launcherLibraries = directories.launcherLibrariesDir;
         launcherLibrariesCompile = directories.launcherLibrariesCompileDir;
@@ -286,6 +291,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
     public void close() throws Exception {
+        service.shutdownNow();
         logger.info("Close server socket");
         nettyServerSocketHandler.close();
         // Close handlers & providers

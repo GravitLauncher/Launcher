@@ -90,6 +90,7 @@ public final class LaunchServerConfig {
         } // such as on ARM
         newConfig.netty.performance.bossThread = 2;
         newConfig.netty.performance.workerThread = 8;
+        newConfig.netty.performance.schedulerThread = 2;
 
         newConfig.launcher = new LauncherConf();
         newConfig.launcher.guardType = "no";
@@ -323,6 +324,7 @@ public final class LaunchServerConfig {
         public boolean usingEpoll;
         public int bossThread;
         public int workerThread;
+        public int schedulerThread;
         public long sessionLifetimeMs = 24 * 60 * 60 * 1000;
         public int maxWebSocketRequestBytes = 1024 * 1024;
     }

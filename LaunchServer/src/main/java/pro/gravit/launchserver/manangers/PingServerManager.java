@@ -6,6 +6,7 @@ import pro.gravit.launchserver.LaunchServer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class PingServerManager {
     public static final long REPORT_EXPIRED_TIME = 20 * 1000;
@@ -36,6 +37,10 @@ public class PingServerManager {
             entry.lastReport = report;
             return true;
         }
+    }
+
+    public CompletableFuture<ServerInfoEntry> pingMinecraftServer(String hostname, int port) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     public static class ServerInfoEntry {

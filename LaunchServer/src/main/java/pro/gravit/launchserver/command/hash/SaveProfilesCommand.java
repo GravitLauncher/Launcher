@@ -48,7 +48,7 @@ public class SaveProfilesCommand extends Command {
         jvmArgs.add("-XX:+DisableAttachMechanism");
         // Official Mojang launcher java arguments
         jvmArgs.add("-XX:+UseG1GC");
-        jvmArgs.add("XX:+UnlockExperimentalVMOptions");
+        jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
         jvmArgs.add("-XX:G1NewSizePercent=20");
         jvmArgs.add("-XX:MaxGCPauseMillis=50");
         jvmArgs.add("-XX:G1HeapRegionSize=32M");
