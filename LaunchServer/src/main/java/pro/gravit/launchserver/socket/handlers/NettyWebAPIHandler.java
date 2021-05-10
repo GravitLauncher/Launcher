@@ -55,7 +55,7 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 try {
                     pair.callback.handle(ctx, msg, context);
                 } catch (Throwable e) {
-                    logger.error(e);
+                    logger.error("WebAPI Error", e);
                     ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.wrappedBuffer("Internal Server Error 500".getBytes())), ctx.voidPromise());
                 }
                 isNext = false;
