@@ -113,7 +113,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                     ProGuard proGuard = new ProGuard(proguard_cfg);
                     proGuard.execute();
                 } catch (ParseException e) {
-                    LogHelper.error(e);
+                    logger.error(e);
                 }
             } else
                 IOHelper.copy(inputFile, outputJar);
@@ -247,7 +247,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                 genWords(force);
                 genConfig(force);
             } catch (IOException e) {
-                LogHelper.error(e);
+                logger.error(e);
             }
         }
     }

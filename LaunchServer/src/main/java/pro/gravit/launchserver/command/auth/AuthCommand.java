@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.command.auth;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
@@ -11,6 +13,8 @@ import pro.gravit.utils.helper.LogHelper;
 import java.util.UUID;
 
 public final class AuthCommand extends Command {
+    private transient final Logger logger = LogManager.getLogger();
+
     public AuthCommand(LaunchServer server) {
         super(server);
     }
@@ -42,6 +46,6 @@ public final class AuthCommand extends Command {
         UUID uuid = pair.handler.auth(result);
 
         // Print auth successful message
-        LogHelper.subInfo("UUID: %s, Username: '%s', Access Token: '%s'", uuid, result.username, result.accessToken);
+        logger.info("UUID: {}, Username: '{}', Access Token: '{}'", uuid, result.username, result.accessToken);
     }
 }

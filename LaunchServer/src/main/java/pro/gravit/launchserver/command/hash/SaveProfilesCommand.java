@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.command.hash;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
@@ -20,6 +22,8 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class SaveProfilesCommand extends Command {
+    private transient final Logger logger = LogManager.getLogger();
+
     public SaveProfilesCommand(LaunchServer server) {
         super(server);
     }
@@ -147,7 +151,6 @@ public class SaveProfilesCommand extends Command {
                         action = new OptionalActionClientArgs(Arrays.asList(list));
                         break;
                     default:
-                        LogHelper.warning("Not converted optional %s with type %s. Type unknown", file.name, file.type.toString());
                         continue;
                 }
                 file.actions.add(action);
@@ -175,7 +178,7 @@ public class SaveProfilesCommand extends Command {
             for (String profileName : args) {
                 Path profilePath = server.profilesDir.resolve(profileName.concat(".json"));
                 if (!Files.exists(profilePath)) {
-                    LogHelper.error("Profile %s not found", profilePath.toString());
+                    logger.error("Profile {} not found", profilePath.toString());
                     return;
                 }
                 ClientProfile profile;
@@ -183,7 +186,7 @@ public class SaveProfilesCommand extends Command {
                     profile = Launcher.gsonManager.configGson.fromJson(reader, ClientProfile.class);
                 }
                 saveProfile(profile, profilePath);
-                LogHelper.info("Profile %s save successful", profilePath.toString());
+                logger.info("Profile {} save successful", profilePath.toString());
             }
             server.syncProfilesDir();
         }

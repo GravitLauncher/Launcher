@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.command.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.handler.CachedAuthHandler;
@@ -9,6 +11,8 @@ import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public class ServerStatusCommand extends Command {
+    private transient final Logger logger = LogManager.getLogger();
+
     public ServerStatusCommand(LaunchServer server) {
         super(server);
     }
@@ -25,23 +29,23 @@ public class ServerStatusCommand extends Command {
 
     @Override
     public void invoke(String... args) {
-        LogHelper.info("Show server status");
-        LogHelper.info("Memory: free %d | total: %d | max: %d", JVMHelper.RUNTIME.freeMemory(), JVMHelper.RUNTIME.totalMemory(), JVMHelper.RUNTIME.maxMemory());
+        logger.info("Show server status");
+        logger.info("Memory: free {} | total: {} | max: {}", JVMHelper.RUNTIME.freeMemory(), JVMHelper.RUNTIME.totalMemory(), JVMHelper.RUNTIME.maxMemory());
         long uptime = JVMHelper.RUNTIME_MXBEAN.getUptime() / 1000;
         long second = uptime % 60;
         long min = (uptime / 60) % 60;
         long hour = (uptime / 60 / 60) % 24;
         long days = (uptime / 60 / 60 / 24);
-        LogHelper.info("Uptime: %d days %d hours %d minutes %d seconds", days, hour, min, second);
-        LogHelper.info("Uptime (double): %f", (double) JVMHelper.RUNTIME_MXBEAN.getUptime() / 1000);
+        logger.info("Uptime: {} days {} hours {} minutes {} seconds", days, hour, min, second);
+        logger.info("Uptime (double): {}", (double) JVMHelper.RUNTIME_MXBEAN.getUptime() / 1000);
         int commands = server.commandHandler.getBaseCategory().commandsMap().size();
         for (CommandHandler.Category category : server.commandHandler.getCategories()) {
             commands += category.category.commandsMap().size();
         }
-        LogHelper.info("Commands: %d(%d categories)", commands, server.commandHandler.getCategories().size() + 1);
+        logger.info("Commands: {}({} categories)", commands, server.commandHandler.getCategories().size() + 1);
         for (AuthProviderPair pair : server.config.auth.values()) {
             if (pair.handler instanceof CachedAuthHandler) {
-                LogHelper.info("AuthHandler %s: EntryCache: %d | usernameCache: %d", pair.name, ((CachedAuthHandler) pair.handler).getEntryCache().size(), ((CachedAuthHandler) pair.handler).getUsernamesCache().size());
+                logger.info("AuthHandler {}: EntryCache: {} | usernameCache: {}", pair.name, ((CachedAuthHandler) pair.handler).getEntryCache().size(), ((CachedAuthHandler) pair.handler).getUsernamesCache().size());
             }
         }
 

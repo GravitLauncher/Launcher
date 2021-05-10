@@ -1,11 +1,15 @@
 package pro.gravit.launchserver.command.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.request.management.PingServerReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 
 public class PingServersCommand extends Command {
+    private transient final Logger logger = LogManager.getLogger();
+
     public PingServersCommand(LaunchServer server) {
         super(server);
     }
@@ -23,10 +27,10 @@ public class PingServersCommand extends Command {
     @Override
     public void invoke(String... args) {
         server.pingServerManager.map.forEach((name, data) -> {
-            LogHelper.info("[%s] online %d / %d", name, data.lastReport == null ? -1 : data.lastReport.playersOnline, data.lastReport == null ? -1 : data.lastReport.maxPlayers);
+            logger.info("[{}] online {} / {}", name, data.lastReport == null ? -1 : data.lastReport.playersOnline, data.lastReport == null ? -1 : data.lastReport.maxPlayers);
             if (data.lastReport != null && data.lastReport.users != null) {
                 for (PingServerReportRequest.PingServerReport.UsernameInfo user : data.lastReport.users) {
-                    LogHelper.subInfo("User %s", user.username == null ? "null" : user.username);
+                    logger.info("User {}", user.username == null ? "null" : user.username);
                 }
             }
         });

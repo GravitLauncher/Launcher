@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.launchermodules;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherTrustManager;
 import pro.gravit.launcher.modules.LauncherModule;
@@ -29,6 +31,7 @@ public class LauncherModuleLoader {
     public final List<ModuleEntity> launcherModules = new ArrayList<>();
     public final Path modulesDir;
     private final LaunchServer server;
+    private transient final Logger logger = LogManager.getLogger();
 
     public LauncherModuleLoader(LaunchServer server) {
         this.server = server;
@@ -40,7 +43,7 @@ public class LauncherModuleLoader {
             try {
                 Files.createDirectories(modulesDir);
             } catch (IOException e) {
-                LogHelper.error(e);
+                logger.error(e);
             }
         }
         server.commandHandler.registerCommand("syncLauncherModules", new SyncLauncherModulesCommand(this));
@@ -54,14 +57,14 @@ public class LauncherModuleLoader {
         });
         mainTask.postBuildHook.registerHook((buildContext) -> {
             for (ModuleEntity e : launcherModules) {
-                LogHelper.debug("Put %s launcher module", e.path.toString());
+                logger.debug("Put {} launcher module", e.path.toString());
                 buildContext.pushJarFile(e.path, (en) -> false, (en) -> true);
             }
         });
         try {
             syncModules();
         } catch (IOException e) {
-            LogHelper.error(e);
+            logger.error(e);
         }
     }
 
@@ -77,7 +80,7 @@ public class LauncherModuleLoader {
             Object obj = field.get(object);
             String propertyName = prefix.concat(".").concat(field.getName().toLowerCase(Locale.US));
             if (InjectClassAcceptor.isSerializableValue(obj)) {
-                LogHelper.dev("Property name %s", propertyName);
+                logger.trace("Property name {}", propertyName);
                 propertyMap.put(propertyName, obj);
             } else {
                 //Try recursive add fields
@@ -109,7 +112,7 @@ public class LauncherModuleLoader {
                     Attributes attributes = f.getManifest().getMainAttributes();
                     String mainClass = attributes.getValue("Module-Main-Class");
                     if (mainClass == null) {
-                        LogHelper.error("In module %s MainClass not found", file.toString());
+                        logger.error("In module {} MainClass not found", file.toString());
                     } else {
                         if (classLoader == null)
                             classLoader = new LauncherModuleClassLoader(server.modulesManager.getModuleClassLoader());
@@ -122,9 +125,9 @@ public class LauncherModuleLoader {
                             entity.checkResult = server.modulesManager.checkModuleClass(mainClazz);
                         } catch (Throwable e) {
                             if(e instanceof ClassNotFoundException || e instanceof NoClassDefFoundError) {
-                                LogHelper.error("Module-MainClass in module %s incorrect", file.toString());
+                                logger.error("Module-MainClass in module {} incorrect", file.toString());
                             } else {
-                                LogHelper.error(e);
+                                logger.error(e);
                             }
                             return super.visitFile(file, attrs);
                         }
@@ -132,7 +135,7 @@ public class LauncherModuleLoader {
                         if (entity.moduleConfigClass != null) {
                             entity.moduleConfigName = attributes.getValue("Module-Config-Name");
                             if (entity.moduleConfigName == null) {
-                                LogHelper.warning("Module-Config-Name in module %s null. Module not configured", file.toString());
+                                logger.warn("Module-Config-Name in module {} null. Module not configured", file.toString());
                             } else {
                                 try {
                                     Class<?> clazz = classLoader.loadClass(entity.moduleConfigClass);
@@ -140,7 +143,7 @@ public class LauncherModuleLoader {
                                     Object defaultConfig = MethodHandles.publicLookup().findStatic(clazz, "getDefault", MethodType.methodType(Object.class)).invoke();
                                     Object targetConfig;
                                     if (!Files.exists(configPath)) {
-                                        LogHelper.debug("Write default config for module %s to %s", file.toString(), configPath.toString());
+                                        logger.debug("Write default config for module {} to {}", file.toString(), configPath.toString());
                                         try (Writer writer = IOHelper.newWriter(configPath)) {
                                             Launcher.gsonManager.configGson.toJson(defaultConfig, writer);
                                         }
@@ -153,7 +156,7 @@ public class LauncherModuleLoader {
                                     if (entity.propertyMap == null) entity.propertyMap = new HashMap<>();
                                     addClassFieldsToProperties(entity.propertyMap, "modules.".concat(entity.moduleConfigName.toLowerCase()), targetConfig, clazz);
                                 } catch (Throwable e) {
-                                    LogHelper.error(e);
+                                    logger.error(e);
                                 }
                             }
                         }

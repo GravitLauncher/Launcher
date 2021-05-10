@@ -2,6 +2,9 @@ package pro.gravit.launchserver.command.hash;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.command.CommandException;
@@ -22,8 +25,8 @@ import java.util.Collections;
 public final class IndexAssetCommand extends Command {
     public static final String INDEXES_DIR = "indexes";
     public static final String OBJECTS_DIR = "objects";
-    private static final Gson gson = new Gson();
     private static final String JSON_EXTENSION = ".json";
+    private transient final Logger logger = LogManager.getLogger();
 
     public IndexAssetCommand(LaunchServer server) {
         super(server);
@@ -59,26 +62,26 @@ public final class IndexAssetCommand extends Command {
             throw new CommandException("Unindexed and indexed asset dirs can't be same");
 
         // Create new asset dir
-        LogHelper.subInfo("Creating indexed asset dir: '%s'", outputAssetDirName);
+        logger.info("Creating indexed asset dir: '{}'", outputAssetDirName);
         Files.createDirectory(outputAssetDir);
 
         // Index objects
         JsonObject objects = new JsonObject();
-        LogHelper.subInfo("Indexing objects");
+        logger.info("Indexing objects");
         IOHelper.walk(inputAssetDir, new IndexAssetVisitor(objects, inputAssetDir, outputAssetDir), false);
 
         // Write index file
-        LogHelper.subInfo("Writing asset index file: '%s'", indexFileName);
+        logger.info("Writing asset index file: '{}'", indexFileName);
 
         try (BufferedWriter writer = IOHelper.newWriter(resolveIndexFile(outputAssetDir, indexFileName))) {
             JsonObject result = new JsonObject();
             result.add("objects", objects);
-            writer.write(gson.toJson(result));
+            writer.write(Launcher.gsonManager.gson.toJson(result));
         }
 
         // Finished
         server.syncUpdatesDir(Collections.singleton(outputAssetDirName));
-        LogHelper.subInfo("Asset successfully indexed: '%s'", inputAssetDirName);
+        logger.info("Asset successfully indexed: '{}'", inputAssetDirName);
     }
 
     public static class IndexObject {
@@ -91,7 +94,7 @@ public final class IndexAssetCommand extends Command {
         }
     }
 
-    private static final class IndexAssetVisitor extends SimpleFileVisitor<Path> {
+    private final class IndexAssetVisitor extends SimpleFileVisitor<Path> {
         private final JsonObject objects;
         private final Path inputAssetDir;
         private final Path outputAssetDir;
@@ -105,12 +108,12 @@ public final class IndexAssetCommand extends Command {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             String name = IOHelper.toString(inputAssetDir.relativize(file));
-            LogHelper.subInfo("Indexing: '%s'", name);
+            logger.info("Indexing: '{}'", name);
 
             // Add to index and copy file
             String digest = SecurityHelper.toHex(SecurityHelper.digest(DigestAlgorithm.SHA1, file));
             IndexObject obj = new IndexObject(attrs.size(), digest);
-            objects.add(name, gson.toJsonTree(obj));
+            objects.add(name, Launcher.gsonManager.gson.toJsonTree(obj));
             IOHelper.copy(file, resolveObjectFile(outputAssetDir, digest));
 
             // Continue visiting

@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.command.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.socket.Client;
@@ -11,6 +13,8 @@ import pro.gravit.utils.helper.LogHelper;
 import java.util.Base64;
 
 public class ClientsCommand extends Command {
+    private transient final Logger logger = LogManager.getLogger();
+
     public ClientsCommand(LaunchServer server) {
         super(server);
     }
@@ -31,22 +35,22 @@ public class ClientsCommand extends Command {
         service.channels.forEach((channel -> {
             WebSocketFrameHandler frameHandler = channel.pipeline().get(WebSocketFrameHandler.class);
             if(frameHandler == null) {
-                LogHelper.info("Channel %s", IOHelper.getIP(channel.remoteAddress()));
+                logger.info("Channel {}", IOHelper.getIP(channel.remoteAddress()));
                 return;
             }
             Client client = frameHandler.getClient();
             String ip = frameHandler.context.ip != null ? frameHandler.context.ip : IOHelper.getIP(channel.remoteAddress());
             if (!client.isAuth)
-                LogHelper.info("Channel %s | connectUUID %s | checkSign %s", ip, frameHandler.getConnectUUID(), client.checkSign ? "true" : "false");
+                logger.info("Channel {} | connectUUID {} | checkSign {}", ip, frameHandler.getConnectUUID(), client.checkSign ? "true" : "false");
             else {
-                LogHelper.info("Client name %s | ip %s | connectUUID %s", client.username == null ? "null" : client.username, ip, frameHandler.getConnectUUID());
-                LogHelper.subInfo("userUUID: %s | session %s", client.uuid == null ? "null" : client.uuid.toString(), client.session == null ? "null" : client.session);
-                LogHelper.subInfo("Data: checkSign %s | auth_id %s", client.checkSign ? "true" : "false",
+                logger.info("Client name {} | ip {} | connectUUID {}", client.username == null ? "null" : client.username, ip, frameHandler.getConnectUUID());
+                logger.info("userUUID: {} | session {}", client.uuid == null ? "null" : client.uuid.toString(), client.session == null ? "null" : client.session);
+                logger.info("Data: checkSign {} | auth_id {}", client.checkSign ? "true" : "false",
                         client.auth_id);
                 if (client.trustLevel != null) {
-                    LogHelper.subInfo("trustLevel | key %s | pubkey %s", client.trustLevel.keyChecked ? "checked" : "unchecked", client.trustLevel.publicKey == null ? "null" : Base64.getEncoder().encode(client.trustLevel.publicKey));
+                    logger.info("trustLevel | key {} | pubkey {}", client.trustLevel.keyChecked ? "checked" : "unchecked", client.trustLevel.publicKey == null ? "null" : Base64.getEncoder().encode(client.trustLevel.publicKey));
                 }
-                LogHelper.subInfo("Permissions: %s (permissions %d | flags %d)", client.permissions == null ? "null" : client.permissions.toString(), client.permissions == null ? 0 : client.permissions.permissions, client.permissions == null ? 0 : client.permissions.flags);
+                logger.info("Permissions: {} (permissions {} | flags {})", client.permissions == null ? "null" : client.permissions.toString(), client.permissions == null ? 0 : client.permissions.permissions, client.permissions == null ? 0 : client.permissions.flags);
             }
         }));
     }

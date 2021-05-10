@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.command.auth;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.command.Command;
@@ -10,6 +12,8 @@ import java.io.IOException;
 import java.util.UUID;
 
 public final class UUIDToUsernameCommand extends Command {
+    private transient final Logger logger = LogManager.getLogger();
+
     public UUIDToUsernameCommand(LaunchServer server) {
         super(server);
     }
@@ -40,6 +44,6 @@ public final class UUIDToUsernameCommand extends Command {
             throw new CommandException("Unknown UUID: " + uuid);
 
         // Print username
-        LogHelper.subInfo("Username of player %s: '%s'", uuid, username);
+        logger.info("Username of player {}: '{}'", uuid, username);
     }
 }

@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.command.hash;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.IOHelper;
@@ -10,6 +12,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 
 public final class DownloadAssetCommand extends Command {
+    private transient final Logger logger = LogManager.getLogger();
 
     public DownloadAssetCommand(LaunchServer server) {
         super(server);
@@ -34,16 +37,16 @@ public final class DownloadAssetCommand extends Command {
         Path assetDir = server.updatesDir.resolve(dirName);
 
         // Create asset dir
-        LogHelper.subInfo("Creating asset dir: '%s'", dirName);
+        logger.info("Creating asset dir: '{}'", dirName);
         Files.createDirectory(assetDir);
 
         // Download required asset
-        LogHelper.subInfo("Downloading asset, it may take some time");
+        logger.info("Downloading asset, it may take some time");
         //HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getAssetsURL(version.name), assetDir);
         server.mirrorManager.downloadZip(assetDir, "assets/%s.zip", versionName);
 
         // Finished
         server.syncUpdatesDir(Collections.singleton(dirName));
-        LogHelper.subInfo("Asset successfully downloaded: '%s'", dirName);
+        logger.info("Asset successfully downloaded: '{}'", dirName);
     }
 }

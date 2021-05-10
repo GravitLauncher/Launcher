@@ -1,6 +1,8 @@
 package pro.gravit.launchserver.manangers;
 
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -54,6 +56,7 @@ public class CertificateManager {
     public AsymmetricKeyParameter serverKey;
     public LauncherTrustManager trustManager;
     public String orgName;
+    private transient final Logger logger = LogManager.getLogger();
 
     public X509CertificateHolder generateCertificate(String subjectName, PublicKey subjectPublicKey) throws OperatorCreationException {
         SubjectPublicKeyInfo subjectPubKeyInfo = SubjectPublicKeyInfo.getInstance(subjectPublicKey.getEncoded());
@@ -180,7 +183,7 @@ public class CertificateManager {
 
         } else {
             if(IOHelper.exists(dir.resolve("GravitCentralRootCA.crt"))) {
-                LogHelper.warning("Found old default certificate - 'GravitCentralRootCA.crt'. Delete...");
+                logger.warn("Found old default certificate - 'GravitCentralRootCA.crt'. Delete...");
                 Files.delete(dir.resolve("GravitCentralRootCA.crt"));
             }
         }
@@ -210,7 +213,7 @@ public class CertificateManager {
             if (mode == LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED)
                 throw new SecurityException(String.format("Class %s not signed", clazz.getName()));
             else if (mode == LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED)
-                LogHelper.warning("Class %s not signed", clazz.getName());
+                logger.warn("Class {} not signed", clazz.getName());
             return;
         }
         try {

@@ -7,6 +7,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelMatchers;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.RequestEvent;
@@ -58,6 +60,7 @@ public class WebSocketService {
     public final AtomicLong lastRequestTime = new AtomicLong();
     private final LaunchServer server;
     private final Gson gson;
+    private transient final Logger logger = LogManager.getLogger();
 
     public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;
@@ -161,7 +164,7 @@ public class WebSocketService {
         try {
             response.execute(ctx, client);
         } catch (Exception e) {
-            LogHelper.error(e);
+            logger.error(e);
             RequestEvent event;
             if (server.config.netty.sendExceptionEnabled) {
                 event = new ExceptionEvent(e);

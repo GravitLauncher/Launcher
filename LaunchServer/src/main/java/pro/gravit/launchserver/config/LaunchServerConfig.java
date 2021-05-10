@@ -2,6 +2,8 @@ package pro.gravit.launchserver.config;
 
 import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
@@ -48,6 +50,7 @@ public final class LaunchServerConfig {
     public String startScript;
     private transient LaunchServer server = null;
     private transient AuthProviderPair authDefault;
+    private transient final Logger logger = LogManager.getLogger();
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
@@ -222,13 +225,13 @@ public final class LaunchServerConfig {
                         try {
                             ((AutoCloseable) component).close();
                         } catch (Exception e) {
-                            LogHelper.error(e);
+                            logger.error(e);
                         }
                     }
                 });
             }
         } catch (Exception e) {
-            LogHelper.error(e);
+            logger.error(e);
         }
         if (protectHandler != null) {
             server.unregisterObject("protectHandler", protectHandler);
@@ -240,7 +243,7 @@ public final class LaunchServerConfig {
                 try {
                     ((AutoCloseable) sessions).close();
                 } catch (Exception e) {
-                    LogHelper.error(e);
+                    logger.error(e);
                 }
             }
         }
@@ -250,7 +253,7 @@ public final class LaunchServerConfig {
                 try {
                     ((AutoCloseable) dao).close();
                 } catch (Exception e) {
-                    LogHelper.error(e);
+                    logger.error(e);
                 }
             }
         }

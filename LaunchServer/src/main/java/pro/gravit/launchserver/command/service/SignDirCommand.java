@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.command.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.SignJarTask;
 import pro.gravit.launchserver.command.Command;
@@ -12,6 +14,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
 
 public class SignDirCommand extends Command {
+    private transient final Logger logger = LogManager.getLogger();
+
     public SignDirCommand(LaunchServer server) {
         super(server);
     }
@@ -35,7 +39,7 @@ public class SignDirCommand extends Command {
         Optional<SignJarTask> task = server.launcherBinary.getTaskByClass(SignJarTask.class);
         if (task.isEmpty()) throw new IllegalStateException("SignJarTask not found");
         IOHelper.walk(targetDir, new SignJarVisitor(task.get()), true);
-        LogHelper.info("Success signed");
+        logger.info("Success signed");
     }
 
     private class SignJarVisitor extends SimpleFileVisitor<Path> {
@@ -49,7 +53,7 @@ public class SignDirCommand extends Command {
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toFile().getName().endsWith(".jar")) {
                 Path tmpSign = server.dir.resolve("build").resolve(file.toFile().getName());
-                LogHelper.info("Signing jar %s", file.toString());
+                logger.info("Signing jar {}", file.toString());
                 task.sign(server.config.sign, file, tmpSign);
                 Files.deleteIfExists(file);
                 Files.move(tmpSign, file);

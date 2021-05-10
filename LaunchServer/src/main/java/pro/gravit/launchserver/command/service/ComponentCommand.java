@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.command.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
@@ -15,6 +17,8 @@ import java.lang.invoke.MethodType;
 import java.nio.file.Paths;
 
 public class ComponentCommand extends Command {
+    private transient final Logger logger = LogManager.getLogger();
+
     public ComponentCommand(LaunchServer server) {
         super(server);
         childCommands.put("unload", new UnloadCommand());
@@ -33,14 +37,14 @@ public class ComponentCommand extends Command {
             if (componentName == null) throw new IllegalArgumentException("Must set componentName");
             Component component = server.config.components.get(componentName);
             if (component == null) {
-                LogHelper.error("Component %s not found", componentName);
+                logger.error("Component {} not found", componentName);
                 return;
             }
             if (component instanceof AutoCloseable) {
                 ((AutoCloseable) component).close();
             }
             server.config.components.remove(componentName);
-            LogHelper.info("Component %s unloaded. Use 'config launchserver save' to save changes");
+            logger.info("Component %s unloaded. Use 'config launchserver save' to save changes");
         }
     }
     private class LoadCommand extends SubCommand {
@@ -54,7 +58,7 @@ public class ComponentCommand extends Command {
             String componentName = args[0];
             Class<? extends Component> componentClass = Component.providers.getClass(args[1]);
             if(componentClass == null) {
-                LogHelper.error("Component type %s not registered", componentName);
+                logger.error("Component type {} not registered", componentName);
                 return;
             }
             try {
@@ -69,9 +73,9 @@ public class ComponentCommand extends Command {
                 component.setComponentName(componentName);
                 server.config.components.put(componentName, component);
                 component.init(server);
-                LogHelper.info("Component %s ready. Use 'config launchserver save' to save changes");
+                logger.info("Component %s ready. Use 'config launchserver save' to save changes");
             } catch (Throwable throwable) {
-                LogHelper.error(throwable);
+                logger.error(throwable);
             }
         }
     }
@@ -87,10 +91,10 @@ public class ComponentCommand extends Command {
     }
 
     public void printHelp() {
-        LogHelper.info("Print help for component:");
-        LogHelper.subInfo("component unload [componentName]");
-        LogHelper.subInfo("component load [componentName] [filename]");
-        LogHelper.subInfo("component gc [componentName]");
+        logger.info("Print help for component:");
+        logger.info("component unload [componentName]");
+        logger.info("component load [componentName] [filename]");
+        logger.info("component gc [componentName]");
     }
 
     @Override

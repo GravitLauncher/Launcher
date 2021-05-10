@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.manangers;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -18,6 +20,7 @@ public class KeyAgreementManager {
     public final ECPrivateKey ecdsaPrivateKey;
     public final RSAPublicKey rsaPublicKey;
     public final RSAPrivateKey rsaPrivateKey;
+    private transient final Logger logger = LogManager.getLogger();
 
     public KeyAgreementManager(ECPublicKey ecdsaPublicKey, ECPrivateKey ecdsaPrivateKey, RSAPublicKey rsaPublicKey, RSAPrivateKey rsaPrivateKey) {
         this.ecdsaPublicKey = ecdsaPublicKey;
@@ -29,33 +32,33 @@ public class KeyAgreementManager {
     public KeyAgreementManager(Path keyDirectory) throws IOException, InvalidKeySpecException {
         Path ecdsaPublicKeyPath = keyDirectory.resolve("ecdsa_id.pub"), ecdsaPrivateKeyPath = keyDirectory.resolve("ecdsa_id");
         if (IOHelper.isFile(ecdsaPublicKeyPath) && IOHelper.isFile(ecdsaPrivateKeyPath)) {
-            LogHelper.info("Reading ECDSA keypair");
+            logger.info("Reading ECDSA keypair");
             ecdsaPublicKey = SecurityHelper.toPublicECDSAKey(IOHelper.read(ecdsaPublicKeyPath));
             ecdsaPrivateKey = SecurityHelper.toPrivateECDSAKey(IOHelper.read(ecdsaPrivateKeyPath));
         } else {
-            LogHelper.info("Generating ECDSA keypair");
+            logger.info("Generating ECDSA keypair");
             KeyPair pair = SecurityHelper.genECDSAKeyPair(new SecureRandom());
             ecdsaPublicKey = (ECPublicKey) pair.getPublic();
             ecdsaPrivateKey = (ECPrivateKey) pair.getPrivate();
 
             // Write key pair list
-            LogHelper.info("Writing ECDSA keypair list");
+            logger.info("Writing ECDSA keypair list");
             IOHelper.write(ecdsaPublicKeyPath, ecdsaPublicKey.getEncoded());
             IOHelper.write(ecdsaPrivateKeyPath, ecdsaPrivateKey.getEncoded());
         }
         Path rsaPublicKeyPath = keyDirectory.resolve("rsa_id.pub"), rsaPrivateKeyPath = keyDirectory.resolve("rsa_id");
         if (IOHelper.isFile(rsaPublicKeyPath) && IOHelper.isFile(rsaPrivateKeyPath)) {
-            LogHelper.info("Reading RSA keypair");
+            logger.info("Reading RSA keypair");
             rsaPublicKey = SecurityHelper.toPublicRSAKey(IOHelper.read(rsaPublicKeyPath));
             rsaPrivateKey = SecurityHelper.toPrivateRSAKey(IOHelper.read(rsaPrivateKeyPath));
         } else {
-            LogHelper.info("Generating RSA keypair");
+            logger.info("Generating RSA keypair");
             KeyPair pair = SecurityHelper.genRSAKeyPair(new SecureRandom());
             rsaPublicKey = (RSAPublicKey) pair.getPublic();
             rsaPrivateKey = (RSAPrivateKey) pair.getPrivate();
 
             // Write key pair list
-            LogHelper.info("Writing RSA keypair list");
+            logger.info("Writing RSA keypair list");
             IOHelper.write(rsaPublicKeyPath, rsaPublicKey.getEncoded());
             IOHelper.write(rsaPrivateKeyPath, rsaPrivateKey.getEncoded());
         }

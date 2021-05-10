@@ -1,10 +1,13 @@
 package pro.gravit.launchserver.launchermodules;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 
 public class SyncLauncherModulesCommand extends Command {
     private final LauncherModuleLoader mod;
+    private transient final Logger logger = LogManager.getLogger();
 
     public SyncLauncherModulesCommand(LauncherModuleLoader mod) {
         this.mod = mod;
@@ -24,6 +27,6 @@ public class SyncLauncherModulesCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         mod.syncModules();
-        LogHelper.info("Launcher Modules synced");
+        logger.info("Launcher Modules synced");
     }
 }

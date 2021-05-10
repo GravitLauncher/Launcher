@@ -1,6 +1,8 @@
 package pro.gravit.launchserver.manangers;
 
 import com.google.gson.JsonElement;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.HTTPRequest;
 import pro.gravit.utils.HttpDownloader;
 import pro.gravit.utils.helper.IOHelper;
@@ -16,6 +18,7 @@ import java.util.Arrays;
 public class MirrorManager {
     protected final ArrayList<Mirror> list = new ArrayList<>();
     private Mirror defaultMirror;
+    private transient final Logger logger = LogManager.getLogger();
 
     public void addMirror(String mirror) {
         Mirror m = new Mirror(mirror);
@@ -54,11 +57,11 @@ public class MirrorManager {
     public boolean downloadZip(Mirror mirror, Path path, String mask, Object... args) throws IOException {
         if (!mirror.enabled) return false;
         URL url = mirror.getURL(mask, args);
-        LogHelper.debug("Try download %s", url.toString());
+        logger.debug("Try download {}", url.toString());
         try {
             HttpDownloader.downloadZip(url, path);
         } catch (IOException e) {
-            LogHelper.error("Download %s failed(%s: %s)", url.toString(), e.getClass().getName(), e.getMessage());
+            logger.error("Download {} failed({}: {})", url.toString(), e.getClass().getName(), e.getMessage());
             return false;
         }
         return true;
@@ -82,7 +85,7 @@ public class MirrorManager {
         try {
             return HTTPRequest.jsonRequest(request, method, url);
         } catch (IOException e) {
-            LogHelper.error("JsonRequest %s failed(%s: %s)", url.toString(), e.getClass().getName(), e.getMessage());
+            logger.error("JsonRequest {} failed({}: {})", url.toString(), e.getClass().getName(), e.getMessage());
             return null;
         }
     }

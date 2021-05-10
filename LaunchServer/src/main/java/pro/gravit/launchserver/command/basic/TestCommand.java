@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.command.basic;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.cert.X509CertificateHolder;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.LaunchServer;
@@ -15,6 +17,7 @@ import java.security.KeyPair;
 
 public class TestCommand extends Command {
     private NettyServerSocketHandler handler = null;
+    private transient final Logger logger = LogManager.getLogger();
 
     public TestCommand(LaunchServer server) {
         super(server);
@@ -72,10 +75,10 @@ public class TestCommand extends Command {
                         throw new RuntimeException(e);
                     }
                     if ((i % 10000) == 0) {
-                        LogHelper.info("Completed %d requests", i);
+                        logger.info("Completed {} requests", i);
                     }
                 }
-                LogHelper.info("Completed all requests. Time %d ms", System.currentTimeMillis() - startTime);
+                logger.info("Completed all requests. Time {} ms", System.currentTimeMillis() - startTime);
             };
             for (int i = 0; i < 7; ++i) {
                 CommonHelper.newThread(String.format("Stresser #%d", i), true, runnable).start();

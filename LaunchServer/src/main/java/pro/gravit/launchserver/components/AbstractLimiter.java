@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.components;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.utils.command.Command;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractLimiter<T> extends Component implements NeedGarbageCollection, Reconfigurable {
+    private transient final Logger logger = LogManager.getLogger();
     public final List<T> exclude = new ArrayList<>();
     protected final transient Map<T, LimitEntry> map = new HashMap<>();
     public int rateLimit;
@@ -25,7 +28,7 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
             public void invoke(String... args) {
                 long size = map.size();
                 garbageCollection();
-                LogHelper.info("Cleared %d entity", size);
+                logger.info("Cleared {} entity", size);
             }
         });
         commands.put("clear", new SubCommand() {
@@ -33,7 +36,7 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
             public void invoke(String... args) {
                 long size = map.size();
                 map.clear();
-                LogHelper.info("Cleared %d entity", size);
+                logger.info("Cleared {} entity", size);
             }
         });
         commands.put("addExclude", new SubCommand() {

@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.command.hash;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.LogHelper;
@@ -7,6 +9,7 @@ import pro.gravit.utils.helper.LogHelper;
 import java.io.IOException;
 
 public final class SyncProfilesCommand extends Command {
+    private transient final Logger logger = LogManager.getLogger();
     public SyncProfilesCommand(LaunchServer server) {
         super(server);
     }
@@ -24,6 +27,6 @@ public final class SyncProfilesCommand extends Command {
     @Override
     public void invoke(String... args) throws IOException {
         server.syncProfilesDir();
-        LogHelper.subInfo("Profiles successfully resynced");
+        logger.info("Profiles successfully resynced");
     }
 }
