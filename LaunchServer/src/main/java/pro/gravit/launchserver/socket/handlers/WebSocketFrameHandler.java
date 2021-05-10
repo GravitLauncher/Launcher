@@ -5,6 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.concurrent.ScheduledFuture;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.NettyConnectContext;
@@ -22,6 +24,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     public final WebSocketService service;
     public final BiHookSet<ChannelHandlerContext, WebSocketFrame> hooks = new BiHookSet<>();
     private final UUID connectUUID = UUID.randomUUID();
+    private transient final Logger logger = LogManager.getLogger();
     public NettyConnectContext context;
     private Client client;
     private ScheduledFuture<?> future;
@@ -48,9 +51,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        if (LogHelper.isDevEnabled()) {
-            LogHelper.dev("New client %s", IOHelper.getIP(ctx.channel().remoteAddress()));
-        }
+        logger.trace("New client {}", IOHelper.getIP(ctx.channel().remoteAddress()));
         client = new Client(null);
         Channel ch = ctx.channel();
         service.registerClient(ch);
@@ -63,20 +64,16 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         try {
             if (hooks.hook(ctx, frame)) return;
         } catch (Throwable ex) {
-            LogHelper.error(ex);
+            logger.error(ex);
         }
         if (frame instanceof TextWebSocketFrame) {
             try {
                 service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
             } catch (Throwable ex) {
-                if (LogHelper.isDebugEnabled()) {
-                    LogHelper.warning("Client %s send invalid request. Connection force closed.", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip);
-                    if (LogHelper.isDevEnabled()) {
-                        LogHelper.dev("Client message: %s", ((TextWebSocketFrame) frame).text());
-                    }
-                    if (LogHelper.isStacktraceEnabled()) {
-                        LogHelper.error(ex);
-                    }
+                logger.warn("Client {} send invalid request. Connection force closed.", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip);
+                if(logger.isTraceEnabled()) {
+                    logger.trace("Client message: {}", ((TextWebSocketFrame) frame).text());
+                    logger.error(ex);
                 }
                 ctx.channel().close();
             }
@@ -85,28 +82,28 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
             //return;
         } else if ((frame instanceof PongWebSocketFrame)) {
-            LogHelper.dev("WebSocket Client received pong");
+            logger.trace("WebSocket Client received pong");
         } else if ((frame instanceof CloseWebSocketFrame)) {
             int statusCode = ((CloseWebSocketFrame) frame).statusCode();
             ctx.channel().close();
         } else {
             String message = "unsupported frame type: " + frame.getClass().getName();
-            LogHelper.error(new UnsupportedOperationException(message)); // prevent strange crash here.
+            logger.error(new UnsupportedOperationException(message)); // prevent strange crash here.
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (future != null) future.cancel(true);
-        if (LogHelper.isDevEnabled()) {
-            LogHelper.dev("Client %s disconnected", IOHelper.getIP(ctx.channel().remoteAddress()));
+        if(logger.isTraceEnabled()) {
+            logger.trace("Client {} disconnected", IOHelper.getIP(ctx.channel().remoteAddress()));
         }
         int refCount = client.refCount.decrementAndGet();
         if (client.session != null) {
             if (refCount == 0) {
                 srv.sessionManager.addClient(client);
             } else if (refCount < 0) {
-                LogHelper.warning("Client session %s reference counter invalid - %d", client.session, refCount);
+                logger.warn("Client session {} reference counter invalid - {}", client.session, refCount);
             }
         }
         super.channelInactive(ctx);

@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.socket.handlers;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.LauncherNettyServer;
@@ -8,11 +10,12 @@ import pro.gravit.utils.helper.LogHelper;
 import javax.net.ssl.SSLServerSocketFactory;
 import java.net.InetSocketAddress;
 
-// TODO refactor
 @SuppressWarnings("unused")
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private transient final LaunchServer server;
+    @Deprecated
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
+    private transient final Logger logger = LogManager.getLogger();
 
     public LauncherNettyServer nettyServer;
     private SSLServerSocketFactory ssf;
@@ -30,7 +33,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
 
     @Override
     public void run() {
-        LogHelper.info("Starting netty server socket thread");
+        logger.info("Starting netty server socket thread");
         nettyServer = new LauncherNettyServer(server);
         for (LaunchServerConfig.NettyBindAddress address : server.config.netty.binds) {
             nettyServer.bind(new InetSocketAddress(address.address, address.port));

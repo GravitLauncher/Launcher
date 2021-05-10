@@ -1,6 +1,8 @@
 package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.*;
@@ -27,7 +29,7 @@ import java.util.Random;
 import java.util.UUID;
 
 public class AuthResponse extends SimpleResponse {
-    public final transient static Random random = new SecureRandom();
+    private transient final Logger logger = LogManager.getLogger();
     public String login;
     public String client;
     public boolean getSession;
@@ -52,9 +54,6 @@ public class AuthResponse extends SimpleResponse {
             }
 
             if (clientData.isAuth) {
-                if (LogHelper.isDevEnabled()) {
-                    LogHelper.warning("Client %s double auth", clientData.username == null ? ip : clientData.username);
-                }
                 sendError("You are already logged in");
                 return;
             }
@@ -113,8 +112,8 @@ public class AuthResponse extends SimpleResponse {
             }
             if (authType == ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context)) {
                 clientData.uuid = pair.handler.auth(aresult);
-                if (LogHelper.isDebugEnabled()) {
-                    LogHelper.debug("Auth: %s accessToken %s uuid: %s", login, result.accessToken, clientData.uuid.toString());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Auth: {} accessToken {} uuid: {}", login, result.accessToken, clientData.uuid.toString());
                 }
             } else {
                 clientData.uuid = pair.handler.usernameToUUID(aresult.username);

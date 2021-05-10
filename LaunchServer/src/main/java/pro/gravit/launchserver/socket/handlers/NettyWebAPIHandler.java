@@ -5,6 +5,8 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.utils.helper.LogHelper;
@@ -22,6 +24,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static final TreeSet<SeverletPathPair> severletList = new TreeSet<>(Comparator.comparingInt((e) -> -e.key.length()));
     private final NettyConnectContext context;
+    private transient final Logger logger = LogManager.getLogger();
 
     public NettyWebAPIHandler(NettyConnectContext context) {
         super();
@@ -52,7 +55,7 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 try {
                     pair.callback.handle(ctx, msg, context);
                 } catch (Throwable e) {
-                    LogHelper.error(e);
+                    logger.error(e);
                     ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.wrappedBuffer("Internal Server Error 500".getBytes())), ctx.voidPromise());
                 }
                 isNext = false;

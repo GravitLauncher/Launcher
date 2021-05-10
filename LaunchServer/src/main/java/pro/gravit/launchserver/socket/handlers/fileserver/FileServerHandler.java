@@ -229,10 +229,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
                     sendNotModified(ctx);
                     return;
                 }
-            } catch (UnsupportedTemporalTypeException e) {
-                if (LogHelper.isDebugEnabled()) {
-                    LogHelper.warning("Request access If-Modifed-Since: %s not parsed correctly", ifModifiedSince);
-                }
+            } catch (UnsupportedTemporalTypeException ignored) {
             }
         }
 
