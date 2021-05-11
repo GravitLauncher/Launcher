@@ -1,5 +1,6 @@
 package pro.gravit.launchserver.binary;
 
+import org.jetbrains.annotations.NotNull;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
@@ -11,15 +12,18 @@ import pro.gravit.utils.helper.SecurityHelper;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
@@ -195,6 +199,7 @@ public class BuildContext {
         private final Path sourceDir;
         private final String targetDir;
         private final SecretKeySpec sKeySpec;
+        private final IvParameterSpec iKeySpec;
 
         private EncryptedRuntimeDirVisitor(ZipOutputStream output, String aesKey, Map<String, byte[]> hashs, Path sourceDir, String targetDir) {
             this.output = output;
@@ -204,7 +209,8 @@ public class BuildContext {
             try {
                 byte[] key = SecurityHelper.fromHex(aesKey);
                 byte[] compatKey = SecurityHelper.getAESKey(key);
-                sKeySpec = new SecretKeySpec(compatKey, "AES");
+                sKeySpec = new SecretKeySpec(compatKey, "AES/CBC/PKCS5Padding");
+                iKeySpec = new IvParameterSpec("8u3d90ikr7o67lsq".getBytes());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -223,13 +229,14 @@ public class BuildContext {
 
             Cipher cipher = null;
             try {
-                cipher = Cipher.getInstance("AES");
-                cipher.init(Cipher.ENCRYPT_MODE, sKeySpec);
-            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
+                cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, iKeySpec);
+            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
                 throw new RuntimeException(e);
             }
-
-            IOHelper.transfer(file, new CipherOutputStream(output, cipher));
+            try(OutputStream stream = new CipherOutputStream(new NoCloseOutputStream(output), cipher)) {
+                IOHelper.transfer(file, stream);
+            }
 
             // Return result
             return super.visitFile(file, attrs);
@@ -237,6 +244,34 @@ public class BuildContext {
 
         private ZipEntry newEntry(String fileName) {
             return newZipEntry(targetDir + IOHelper.CROSS_SEPARATOR + fileName);
+        }
+
+        private static class NoCloseOutputStream extends OutputStream {
+            private final OutputStream stream;
+
+            private NoCloseOutputStream(OutputStream stream) {
+                this.stream = stream;
+            }
+
+            @Override
+            public void write(int i) throws IOException {
+                stream.write(i);
+            }
+
+            @Override
+            public void write(byte[] b) throws IOException {
+                stream.write(b);
+            }
+
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                stream.write(b, off, len);
+            }
+
+            @Override
+            public void flush() throws IOException {
+                stream.flush();
+            }
         }
     }
 }

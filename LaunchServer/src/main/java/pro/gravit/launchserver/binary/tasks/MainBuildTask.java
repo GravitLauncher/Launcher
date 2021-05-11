@@ -113,8 +113,10 @@ public class MainBuildTask implements LauncherBuildTask {
         properties.put("launcher.guardType", server.config.launcher.guardType);
         properties.put("launchercore.env", server.config.env);
         properties.put("launcher.memory", server.config.launcher.memoryLimit);
-        if (server.runtime.runtimeEncryptKey == null) server.runtime.runtimeEncryptKey= SecurityHelper.randomStringAESKey();
-        properties.put("launcher.runtimeEncryptKey", server.runtime.runtimeEncryptKey);
+        if (server.config.launcher.encryptRuntime) {
+            if (server.runtime.runtimeEncryptKey == null) server.runtime.runtimeEncryptKey = SecurityHelper.randomStringToken();
+            properties.put("runtimeconfig.runtimeEncryptKey", server.runtime.runtimeEncryptKey);
+        }
         properties.put("launcher.certificatePinning", server.config.launcher.certificatePinning);
         properties.put("runtimeconfig.passwordEncryptKey", server.runtime.passwordEncryptKey);
         String launcherSalt = SecurityHelper.randomStringToken();
