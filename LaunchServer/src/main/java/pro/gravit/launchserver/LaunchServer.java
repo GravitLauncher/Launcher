@@ -531,14 +531,20 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         public Path tmpDir;
 
         public void collect() {
-            if (updatesDir == null) updatesDir = dir.resolve(UPDATES_NAME);
-            if (profilesDir == null) profilesDir = dir.resolve(PROFILES_NAME);
-            if (trustStore == null) trustStore = dir.resolve(TRUSTSTORE_NAME);
-            if (launcherLibrariesDir == null) launcherLibrariesDir = dir.resolve(LAUNCHERLIBRARIES_NAME);
+            if (updatesDir == null) updatesDir = getPath(UPDATES_NAME);
+            if (profilesDir == null) profilesDir = getPath(PROFILES_NAME);
+            if (trustStore == null) trustStore = getPath(TRUSTSTORE_NAME);
+            if (launcherLibrariesDir == null) launcherLibrariesDir = getPath(LAUNCHERLIBRARIES_NAME);
             if (launcherLibrariesCompileDir == null)
-                launcherLibrariesCompileDir = dir.resolve(LAUNCHERLIBRARIESCOMPILE_NAME);
-            if(keyDirectory == null) keyDirectory = dir.resolve(KEY_NAME);
+                launcherLibrariesCompileDir = getPath(LAUNCHERLIBRARIESCOMPILE_NAME);
+            if(keyDirectory == null) keyDirectory = getPath(KEY_NAME);
             if(tmpDir ==null) tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve(String.format("launchserver-%s", SecurityHelper.randomStringToken()));
+        }
+
+        private Path getPath(String dirName) {
+            String property = System.getProperty("launchserver.dir."+dirName, null);
+            if(property == null) return dir.resolve(dirName);
+            else return Paths.get(property);
         }
     }
 }

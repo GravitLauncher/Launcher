@@ -46,7 +46,6 @@ import java.security.interfaces.ECPublicKey;
 
 public class LaunchServerStarter {
     public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
-    public static final boolean inDocker = Boolean.getBoolean("launchserver.dockered");
     public static final boolean prepareMode = Boolean.getBoolean("launchserver.prepareMode");
     private static final Logger logger = LogManager.getLogger();
 
@@ -62,10 +61,6 @@ public class LaunchServerStarter {
         }
         Path dir = IOHelper.WORKING_DIR;
         Path configFile, runtimeConfigFile;
-        Path publicKeyFile = dir.resolve("public.key");
-        Path privateKeyFile = dir.resolve("private.key");
-        ECPublicKey publicKey;
-        ECPrivateKey privateKey;
         try {
             Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
             Security.addProvider(new BouncyCastleProvider());
@@ -121,21 +116,6 @@ public class LaunchServerStarter {
         } catch (ClassNotFoundException ignored) {
             localCommandHandler = new StdCommandHandler(true);
             logger.warn("JLine2 isn't in classpath, using std");
-        }
-        if (IOHelper.isFile(publicKeyFile) && IOHelper.isFile(privateKeyFile)) {
-            logger.info("Reading EC keypair");
-            publicKey = SecurityHelper.toPublicECDSAKey(IOHelper.read(publicKeyFile));
-            privateKey = SecurityHelper.toPrivateECDSAKey(IOHelper.read(privateKeyFile));
-        } else {
-            logger.info("Generating EC keypair");
-            KeyPair pair = SecurityHelper.genECDSAKeyPair(new SecureRandom());
-            publicKey = (ECPublicKey) pair.getPublic();
-            privateKey = (ECPrivateKey) pair.getPrivate();
-
-            // Write key pair list
-            logger.info("Writing EC keypair list");
-            IOHelper.write(publicKeyFile, publicKey.getEncoded());
-            IOHelper.write(privateKeyFile, privateKey.getEncoded());
         }
         modulesManager.invokeEvent(new PreConfigPhase());
         generateConfigIfNotExists(configFile, localCommandHandler, env);
@@ -197,11 +177,6 @@ public class LaunchServerStarter {
         };
         LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
         directories.dir = dir;
-        if (inDocker) {
-            Path parentLibraries = StarterAgent.libraries.toAbsolutePath().normalize().getParent();
-            directories.launcherLibrariesCompileDir = parentLibraries.resolve(LaunchServer.LaunchServerDirectories.LAUNCHERLIBRARIESCOMPILE_NAME);
-            directories.launcherLibrariesDir = parentLibraries.resolve(LaunchServer.LaunchServerDirectories.LAUNCHERLIBRARIES_NAME);
-        }
         LaunchServer server = new LaunchServerBuilder()
                 .setDirectories(directories)
                 .setEnv(env)
@@ -255,10 +230,23 @@ public class LaunchServerStarter {
             address = "localhost";
             newConfig.setProjectName("test");
         } else {
-            System.out.println("LaunchServer address(default: localhost): ");
-            address = commandHandler.readLine();
-            System.out.println("LaunchServer projectName: ");
-            newConfig.setProjectName(commandHandler.readLine());
+            address = System.getenv("ADDRESS");
+            if(address == null) {
+                address = System.getProperty("launchserver.address", null);
+            }
+            if(address == null) {
+                System.out.println("LaunchServer address(default: localhost): ");
+                address = commandHandler.readLine();
+            }
+            String projectName = System.getenv("PROJECTNAME");
+            if(projectName == null) {
+                projectName = System.getProperty("launchserver.projectname", null);
+            }
+            if(projectName == null) {
+                System.out.println("LaunchServer projectName: ");
+                projectName = commandHandler.readLine();
+            }
+            newConfig.setProjectName(projectName);
         }
         if (address == null || address.isEmpty()) {
             logger.error("Address null. Using localhost");
