@@ -112,7 +112,7 @@ public class SaveProfilesCommand extends Command {
         if(Files.exists(dir.resolve("liteloader.jar"))) {
             options.add(MakeProfileOption.LITELOADER);
         }
-        if(version.compareTo(ClientProfile.Version.MC112) <= 0) {
+        if(version.compareTo(ClientProfile.Version.MC1122) <= 0) {
             options.add(MakeProfileOption.LAUNCHWRAPPER);
         }
         return options.toArray(new MakeProfileOption[0]);
