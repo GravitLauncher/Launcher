@@ -156,6 +156,10 @@ public final class LaunchServerConfig {
             throw new NullPointerException("AuthProviderPair`s count should be at least one");
         }
 
+        if(dao != null) {
+            logger.warn("DAO deprecated and may be remove in future release");
+        }
+
         boolean isOneDefault = false;
         for (AuthProviderPair pair : auth.values()) {
             if (pair.isDefault) {

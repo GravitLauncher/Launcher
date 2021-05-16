@@ -18,6 +18,7 @@ public abstract class AuthHandler implements AutoCloseable {
         throw new AuthException(message);
     }
 
+    @SuppressWarnings("deprecation")
     public static void registerHandlers() {
         if (!registredHandl) {
             providers.register("null", NullAuthHandler.class);

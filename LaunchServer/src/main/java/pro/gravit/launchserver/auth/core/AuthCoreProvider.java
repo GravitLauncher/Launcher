@@ -23,6 +23,7 @@ public abstract class AuthCoreProvider implements AutoCloseable {
     private static boolean registredProviders = false;
     public static void registerProviders() {
         if (!registredProviders) {
+            providers.register("reject", RejectAuthCoreProvider.class);
             registredProviders = true;
         }
     }
