@@ -8,6 +8,7 @@ import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.utils.helper.SecurityHelper;
 
+@Deprecated
 public class HibernateAuthProvider extends AuthProvider implements RequiredDAO {
     public boolean autoReg;
 

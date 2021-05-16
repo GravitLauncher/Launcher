@@ -37,6 +37,7 @@ public final class LaunchServerConfig {
     public boolean copyBinaries = true;
     public LauncherConfig.LauncherEnvironment env;
     public Map<String, AuthProviderPair> auth;
+    @Deprecated
     public DaoProvider dao;
     public SessionStorage sessions;
 

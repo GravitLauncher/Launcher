@@ -20,6 +20,7 @@ public abstract class AuthProvider implements AutoCloseable {
         throw new AuthException(message);
     }
 
+    @SuppressWarnings("deprecation")
     public static void registerProviders() {
         if (!registredProv) {
             providers.register("null", NullAuthProvider.class);
