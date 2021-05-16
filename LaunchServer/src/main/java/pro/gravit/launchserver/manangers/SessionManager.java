@@ -53,12 +53,17 @@ public class SessionManager implements NeedGarbageCollection {
         return Launcher.gsonManager.gson.fromJson(new String(client, StandardCharsets.UTF_8), Client.class); //Compress using later
     }
 
+    @SuppressWarnings("deprecation")
     private Client restoreFromString(byte[] data) {
         Client result = decompressClient(data);
         result.updateAuth(server);
         if (result.auth != null && (result.username != null)) {
-            if (result.auth.handler instanceof RequiredDAO || result.auth.provider instanceof RequiredDAO || result.auth.textureProvider instanceof RequiredDAO) {
-                result.daoObject = server.config.dao.userDAO.findByUsername(result.username);
+            if(result.auth.isUseCore()) {
+                result.coreObject = result.auth.core.getUserByUUID(result.uuid);
+            } else {
+                if (result.auth.handler instanceof RequiredDAO || result.auth.provider instanceof RequiredDAO || result.auth.textureProvider instanceof RequiredDAO) {
+                    result.daoObject = server.config.dao.userDAO.findByUsername(result.username);
+                }
             }
         }
         if (result.refCount == null) result.refCount = new AtomicInteger(1);

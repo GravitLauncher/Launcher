@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.auth;
 
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
@@ -13,6 +14,7 @@ public class AuthProviderPair {
     public AuthProvider provider;
     public AuthHandler handler;
     public TextureProvider textureProvider;
+    public AuthCoreProvider core;
     public Map<String, String> links;
     public transient String name;
     public String displayName;
@@ -26,12 +28,18 @@ public class AuthProviderPair {
     public void init(LaunchServer srv, String name) {
         this.name = name;
         if (links != null) link(srv);
-        if (provider == null) throw new NullPointerException(String.format("Auth %s provider null", name));
-        if (handler == null) throw new NullPointerException(String.format("Auth %s handler null", name));
+        if(core == null) {
+            if (provider == null) throw new NullPointerException(String.format("Auth %s provider null", name));
+            if (handler == null) throw new NullPointerException(String.format("Auth %s handler null", name));
+            provider.init(srv);
+            handler.init(srv);
+        } else {
+            if (provider != null) throw new IllegalArgumentException(String.format("Auth %s provider not null", name));
+            if (handler != null) throw new IllegalArgumentException(String.format("Auth %s handler not null", name));
+            core.init(srv);
+        }
         if (textureProvider == null)
             throw new NullPointerException(String.format("Auth %s textureProvider null", name));
-        provider.init(srv);
-        handler.init(srv);
     }
 
     public void link(LaunchServer srv) {
@@ -57,8 +65,20 @@ public class AuthProviderPair {
     }
 
     public void close() throws IOException {
-        provider.close();
-        handler.close();
+        if(core == null) {
+            provider.close();
+            handler.close();
+        } else {
+            core.close();
+        }
         textureProvider.close();
+    }
+
+    public boolean isUseCore() {
+        return core != null;
+    }
+
+    public boolean isUseProviderAndHandler() {
+        return !isUseCore();
     }
 }

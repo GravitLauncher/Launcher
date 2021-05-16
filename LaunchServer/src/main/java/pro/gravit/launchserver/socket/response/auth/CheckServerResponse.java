@@ -31,10 +31,11 @@ public class CheckServerResponse extends SimpleResponse {
         CheckServerRequestEvent result = new CheckServerRequestEvent();
         try {
             server.authHookManager.checkServerHook.hook(this, pClient);
-            result.uuid = pClient.auth.handler.checkServer(username, serverID);
-            if (result.uuid != null)
+            result.uuid = server.authManager.checkServer(pClient, username, serverID);
+            if (result.uuid != null) {
                 result.playerProfile = ProfileByUUIDResponse.getProfile(result.uuid, username, client, pClient.auth.textureProvider);
-            logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile.username, result.uuid, serverID);
+                logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile.username, result.uuid, serverID);
+            }
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());
             return;

@@ -42,11 +42,10 @@ public class JoinServerResponse extends SimpleResponse {
                     return;
                 }
             }
-            if (client.auth == null) {
-                logger.warn("Client auth is null. Using default.");
-                success = server.config.getAuthProviderPair().handler.joinServer(username, accessToken, serverID);
-            } else success = client.auth.handler.joinServer(username, accessToken, serverID);
-            logger.debug("joinServer: {} accessToken: {} serverID: {}", username, accessToken, serverID);
+            success = server.authManager.joinServer(client, username, accessToken, serverID);
+            if(success) {
+                logger.debug("joinServer: {} accessToken: {} serverID: {}", username, accessToken, serverID);
+            }
         } catch (AuthException | HookException | SecurityException e) {
             sendError(e.getMessage());
             return;

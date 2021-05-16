@@ -108,6 +108,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final LaunchServerModulesManager modulesManager;
     // Launcher binary
     public final MirrorManager mirrorManager;
+    public final AuthManager authManager;
     public final ReconfigurableManager reconfigurableManager;
     public final ConfigManager configManager;
     public final PingServerManager pingServerManager;
@@ -169,6 +170,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         configManager = new ConfigManager();
         pingServerManager = new PingServerManager(this);
         featuresManager = new FeaturesManager(this);
+        authManager = new AuthManager(this);
         //Generate or set new Certificate API
         certificateManager.orgName = config.projectName;
         config.init(ReloadType.FULL);

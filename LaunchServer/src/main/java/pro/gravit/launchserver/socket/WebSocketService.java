@@ -221,6 +221,7 @@ public class WebSocketService {
         }
     }
 
+    @Deprecated
     public void updateDaoObject(UUID userUuid, User daoObject, Consumer<Channel> callback) {
         for (Channel ch : channels) {
             if (ch == null || ch.pipeline() == null) continue;
@@ -252,7 +253,7 @@ public class WebSocketService {
             WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
             if (wsHandler == null) continue;
             Client client = wsHandler.getClient();
-            if (client == null || client.daoObject == null || !userUuid.equals(client.uuid)) continue;
+            if (client == null || !userUuid.equals(client.uuid)) continue;
             ExitResponse.exit(server, wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
             if (isClose) ch.close();
             result = true;

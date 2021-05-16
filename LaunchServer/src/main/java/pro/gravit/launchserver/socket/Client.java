@@ -28,7 +28,10 @@ public class Client {
 
     public transient AuthProviderPair auth;
 
+    @Deprecated
     public transient User daoObject;
+
+    public transient pro.gravit.launchserver.auth.core.User coreObject;
 
     public transient Map<String, Object> properties;
 
@@ -76,6 +79,14 @@ public class Client {
     public void setSerializableProperty(String name, String value) {
         if (serializableProperties == null) serializableProperties = new HashMap<>();
         properties.put(name, value);
+    }
+
+    public pro.gravit.launchserver.auth.core.User getUser() {
+        if(coreObject != null) return coreObject;
+        if(auth != null && uuid != null && auth.isUseCore()) {
+            coreObject = auth.core.getUserByUUID(uuid);
+        }
+        return coreObject;
     }
 
     @Deprecated

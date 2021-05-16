@@ -9,6 +9,7 @@ import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
+import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
@@ -199,8 +200,9 @@ public class LaunchServerStarter {
         Launcher.gsonManager.initGson();
     }
 
+    @SuppressWarnings("deprecation")
     public static void registerAll() {
-
+        AuthCoreProvider.registerProviders();
         AuthHandler.registerHandlers();
         AuthProvider.registerProviders();
         TextureProvider.registerProviders();
