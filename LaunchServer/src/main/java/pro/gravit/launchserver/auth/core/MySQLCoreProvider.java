@@ -8,8 +8,7 @@ import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
-import pro.gravit.launchserver.auth.handler.CachedAuthHandler;
-import pro.gravit.launchserver.auth.password.DigestPasswordVerifier;
+import pro.gravit.launchserver.auth.password.PasswordVerifier;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class MySQLCoreProvider extends AuthCoreProvider {
     public String passwordColumn;
     public String serverIDColumn;
     public String table;
-    public DigestPasswordVerifier passwordVerifier;
+    public PasswordVerifier passwordVerifier;
 
     // Prepared SQL queries
     private transient String queryByUUIDSQL;
