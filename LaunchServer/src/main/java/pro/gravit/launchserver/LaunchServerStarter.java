@@ -11,6 +11,7 @@ import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.handler.AuthHandler;
+import pro.gravit.launchserver.auth.password.PasswordVerifier;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
@@ -203,6 +204,7 @@ public class LaunchServerStarter {
     @SuppressWarnings("deprecation")
     public static void registerAll() {
         AuthCoreProvider.registerProviders();
+        PasswordVerifier.registerProviders();
         AuthHandler.registerHandlers();
         AuthProvider.registerProviders();
         TextureProvider.registerProviders();

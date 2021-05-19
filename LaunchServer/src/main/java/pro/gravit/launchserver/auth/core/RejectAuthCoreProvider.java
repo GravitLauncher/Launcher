@@ -35,7 +35,7 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    protected boolean updateAuth(User user) throws IOException {
+    protected boolean updateAuth(User user, String accessToken) throws IOException {
         return false;
     }
 

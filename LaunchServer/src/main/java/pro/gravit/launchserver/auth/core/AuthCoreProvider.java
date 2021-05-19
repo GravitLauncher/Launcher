@@ -24,6 +24,7 @@ public abstract class AuthCoreProvider implements AutoCloseable {
     public static void registerProviders() {
         if (!registredProviders) {
             providers.register("reject", RejectAuthCoreProvider.class);
+            providers.register("mysql", MySQLCoreProvider.class);
             registredProviders = true;
         }
     }
@@ -33,7 +34,7 @@ public abstract class AuthCoreProvider implements AutoCloseable {
     public abstract PasswordVerifyReport verifyPassword(User user, AuthRequest.AuthPasswordInterface password);
     public abstract void init(LaunchServer server);
     // Auth Handler methods
-    protected abstract boolean updateAuth(User user) throws IOException;
+    protected abstract boolean updateAuth(User user, String accessToken) throws IOException;
     protected abstract boolean updateServerID(User user, String serverID) throws IOException;
 
     public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
