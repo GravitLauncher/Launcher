@@ -1,26 +1,37 @@
 package pro.gravit.launchserver.auth.core;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.details.AuthPasswordDetails;
+import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportGetAllUsers;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.ProviderMap;
+import pro.gravit.utils.command.Command;
+import pro.gravit.utils.command.CommandException;
+import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /*
 All-In-One provider
  */
-public abstract class AuthCoreProvider implements AutoCloseable {
+public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable {
     public static final ProviderMap<AuthCoreProvider> providers = new ProviderMap<>("AuthCoreProvider");
     private static boolean registredProviders = false;
+    private static final Logger logger = LogManager.getLogger();
     public static void registerProviders() {
         if (!registredProviders) {
             providers.register("reject", RejectAuthCoreProvider.class);
@@ -39,6 +50,58 @@ public abstract class AuthCoreProvider implements AutoCloseable {
 
     public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
         return List.of(new AuthPasswordDetails());
+    }
+
+    @Override
+    public Map<String, Command> getCommands() {
+        Map<String, Command> map = defaultCommandsMap();
+        map.put("checkpassword", new SubCommand("[username] [json/plain password data]", "check password") {
+            @Override
+            public void invoke(String... args) throws Exception {
+                verifyArgs(args, 2);
+                User user = getUserByUsername(args[0]);
+                if(user == null) throw new CommandException("User not found");
+                AuthRequest.AuthPasswordInterface password;
+                if(args[1].startsWith("{")) {
+                    password = Launcher.gsonManager.gson.fromJson(args[1], AuthRequest.AuthPasswordInterface.class);
+                } else {
+                    password = new AuthPlainPassword(args[1]);
+                }
+                PasswordVerifyReport report = verifyPassword(user, password);
+                if(report.success) {
+                    logger.info("Password correct");
+                } else {
+                    if(report.needMoreFactor) {
+                        if(report.factors.size() == 1 && report.factors.get(0) == -1) {
+                            logger.info("Password not correct: Required 2FA");
+                        } else {
+                            logger.info("Password not correct: Required more factors: {}", report.factors.toString());
+                        }
+                    } else {
+                        logger.info("Password incorrect");
+                    }
+                }
+            }
+        });
+        if(this instanceof AuthSupportGetAllUsers) {
+            AuthSupportGetAllUsers instance = (AuthSupportGetAllUsers) this;
+            map.put("getallusers", new SubCommand("(limit)", "print all users information") {
+                @Override
+                public void invoke(String... args) throws Exception {
+                    int max = Integer.MAX_VALUE;
+                    if(args.length > 0) max = Integer.parseInt(args[0]);
+                    List<User> users = instance.getAllUsers();
+                    int counter = 0;
+                    for(User u : users) {
+                        logger.info("User {}", u.toString());
+                        counter++;
+                        if(counter == max) break;
+                    }
+                    logger.info("Found {} users", counter);
+                }
+            });
+        }
+        return map;
     }
 
     public UUID checkServer(Client client, String username, String serverID) throws IOException {
