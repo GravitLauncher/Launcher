@@ -59,7 +59,7 @@ public class AuthResponse extends SimpleResponse {
             server.authManager.check(context);
             password = server.authManager.decryptPassword(password);
             server.authHookManager.preHook.hook(context, clientData);
-            server.authManager.auth(context, password);
+            result.accessToken = server.authManager.auth(context, password);
             server.authHookManager.postHook.hook(context, clientData);
             if (getSession) {
                 if (clientData.session == null) {
