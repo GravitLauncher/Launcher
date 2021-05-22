@@ -12,6 +12,7 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.provider.AuthProviderDAOResult;
 import pro.gravit.launchserver.auth.provider.AuthProviderResult;
+import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
@@ -59,14 +60,19 @@ public class AuthResponse extends SimpleResponse {
             server.authManager.check(context);
             password = server.authManager.decryptPassword(password);
             server.authHookManager.preHook.hook(context, clientData);
-            result.accessToken = server.authManager.auth(context, password);
+            context.report = server.authManager.auth(context, password);
             server.authHookManager.postHook.hook(context, clientData);
-            if (getSession) {
+            if(context.report.isUsingOAuth()) {
+                result.oauth = new AuthRequestEvent.OAuthRequestEvent(context.report.oauthAccessToken, context.report.oauthRefreshToken, context.report.oauthExpire);
+            } else if (getSession) {
                 if (clientData.session == null) {
                     clientData.session = UUID.randomUUID();
                     //server.sessionManager.addClient(clientData);
                 }
                 result.session = clientData.session;
+            }
+            if(context.report.minecraftAccessToken != null) {
+                result.accessToken = context.report.minecraftAccessToken;
             }
             result.playerProfile = ProfileByUUIDResponse.getProfile(clientData.uuid, clientData.username, client, clientData.auth.textureProvider);
             sendResult(result);
@@ -89,6 +95,7 @@ public class AuthResponse extends SimpleResponse {
         public final ConnectTypes authType;
         public final Client client;
         public final AuthProviderPair pair;
+        public AuthManager.AuthReport report;
         @Deprecated
         public int password_length; //Use AuthProvider for get password
 

@@ -39,6 +39,10 @@ public class RestoreSessionResponse extends SimpleResponse {
             sendError("Session invalid");
             return;
         }
+        if(rClient[0].useOAuth) {
+            sendError("This session using OAuth. Session restoration not safety");
+            return;
+        }
         WebSocketFrameHandler frameHandler = ctx.pipeline().get(WebSocketFrameHandler.class);
         frameHandler.setClient(rClient[0]);
         if (needUserInfo) {

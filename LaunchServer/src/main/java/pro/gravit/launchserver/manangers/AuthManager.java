@@ -86,6 +86,10 @@ public class AuthManager {
         public static AuthReport ofMinecraftAccessToken(String minecraftAccessToken) {
             return new AuthReport(minecraftAccessToken, null, null, 0);
         }
+
+        public boolean isUsingOAuth() {
+            return oauthAccessToken != null || oauthRefreshToken != null;
+        }
     }
 
     /**
@@ -127,7 +131,7 @@ public class AuthManager {
             uuid = context.pair.handler.usernameToUUID(aresult.username);
             accessToken = null;
         }
-        internalAuth(context.client, context.authType, context.pair, username, uuid, aresult.permissions);
+        internalAuth(context.client, context.authType, context.pair, username, uuid, aresult.permissions, false);
         return accessToken;
     }
 
@@ -149,7 +153,7 @@ public class AuthManager {
                 throw new AuthException("Internal Auth Error");
             }
             context.client.coreObject = user;
-            internalAuth(context.client, context.authType, context.pair, user.getUsername(), uuid, user.getPermissions());
+            internalAuth(context.client, context.authType, context.pair, user.getUsername(), uuid, user.getPermissions(), result.isUsingOAuth());
             return result;
         }
         else {
@@ -168,7 +172,7 @@ public class AuthManager {
     /**
      * Writing authorization information to the Client object
      */
-    public void internalAuth(Client client, AuthResponse.ConnectTypes authType, AuthProviderPair pair, String username, UUID uuid, ClientPermissions permissions) {
+    public void internalAuth(Client client, AuthResponse.ConnectTypes authType, AuthProviderPair pair, String username, UUID uuid, ClientPermissions permissions, boolean oauth) {
         client.isAuth = true;
         client.permissions = permissions;
         client.auth_id = pair.name;
@@ -176,6 +180,7 @@ public class AuthManager {
         client.username = username;
         client.type = authType;
         client.uuid = uuid;
+        client.useOAuth = oauth;
         if(pair.isUseCore() && client.coreObject == null) {
             client.coreObject = pair.core.getUserByUUID(uuid);
         }

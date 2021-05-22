@@ -59,7 +59,7 @@ public class MySQLCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public User getUserByOAuthAccessToken(String accessToken) {
+    public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
         return null;
     }
 

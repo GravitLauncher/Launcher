@@ -23,6 +23,8 @@ public class AuthRequestEvent extends RequestEvent {
     public String protectToken;
     @LauncherNetworkAPI
     public UUID session;
+    @LauncherNetworkAPI
+    public OAuthRequestEvent oauth;
 
     public AuthRequestEvent() {
     }
@@ -46,6 +48,27 @@ public class AuthRequestEvent extends RequestEvent {
         this.accessToken = accessToken;
         this.protectToken = protectToken;
         this.session = session;
+    }
+
+    public AuthRequestEvent(ClientPermissions permissions, PlayerProfile playerProfile, String accessToken, String protectToken, UUID session, OAuthRequestEvent oauth) {
+        this.permissions = permissions;
+        this.playerProfile = playerProfile;
+        this.accessToken = accessToken;
+        this.protectToken = protectToken;
+        this.session = session;
+        this.oauth = oauth;
+    }
+
+    public static class OAuthRequestEvent {
+        public final String accessToken;
+        public final String refreshToken;
+        public final long expire;
+
+        public OAuthRequestEvent(String accessToken, String refreshToken, long expire) {
+            this.accessToken = accessToken;
+            this.refreshToken = refreshToken;
+            this.expire = expire;
+        }
     }
 
     @Override

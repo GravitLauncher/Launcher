@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client {
     public UUID session;
+    public boolean useOAuth;
     public String auth_id;
     public long timestamp;
     public AuthResponse.ConnectTypes type;

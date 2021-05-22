@@ -42,7 +42,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
     }
     public abstract User getUserByUsername(String username);
     public abstract User getUserByUUID(UUID uuid);
-    public abstract User getUserByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired;
+    public abstract UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired;
     public abstract AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context /* may be null */);
     public abstract void verifyAuth(AuthResponse.AuthContext context) throws AuthException;
     public abstract PasswordVerifyReport verifyPassword(User user, AuthRequest.AuthPasswordInterface password);
