@@ -249,12 +249,21 @@ public class ClientLauncherWrapper {
     public static class JavaVersion {
         public final Path jvmDir;
         public final int version;
+        public final int build;
         public boolean enabledJavaFX;
 
         public JavaVersion(Path jvmDir, int version) {
             this.jvmDir = jvmDir;
             this.version = version;
+            this.build = 0;
             this.enabledJavaFX = true;
+        }
+
+        public JavaVersion(Path jvmDir, int version, int build, boolean enabledJavaFX) {
+            this.jvmDir = jvmDir;
+            this.version = version;
+            this.build = build;
+            this.enabledJavaFX = enabledJavaFX;
         }
 
         public static JavaVersion getCurrentJavaVersion() {
