@@ -9,7 +9,9 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
+import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
+import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -57,6 +59,16 @@ public class MySQLCoreProvider extends AuthCoreProvider {
     }
 
     @Override
+    public User getUserByOAuthAccessToken(String accessToken) {
+        return null;
+    }
+
+    @Override
+    public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context) {
+        return null;
+    }
+
+    @Override
     public void verifyAuth(AuthResponse.AuthContext context) throws AuthException {
 
     }
@@ -67,6 +79,17 @@ public class MySQLCoreProvider extends AuthCoreProvider {
             return new PasswordVerifyReport(true);
         } else {
             return PasswordVerifyReport.FAILED;
+        }
+    }
+
+    @Override
+    public AuthManager.AuthReport createOAuthSession(User user, AuthResponse.AuthContext context, PasswordVerifyReport report, boolean minecraftAccess) throws IOException {
+        if(minecraftAccess) {
+            String minecraftAccessToken = SecurityHelper.randomStringToken();
+            updateAuth(user, minecraftAccessToken);
+            return AuthManager.AuthReport.ofMinecraftAccessToken(minecraftAccessToken);
+        } else {
+            return AuthManager.AuthReport.ofMinecraftAccessToken(null);
         }
     }
 
@@ -90,7 +113,6 @@ public class MySQLCoreProvider extends AuthCoreProvider {
                 table, serverIDColumn, uuidColumn);
     }
 
-    @Override
     protected boolean updateAuth(User user, String accessToken) throws IOException {
         try (Connection c = mySQLHolder.getConnection()) {
             PreparedStatement s = c.prepareStatement(updateAuthSQL);

@@ -3,6 +3,7 @@ package pro.gravit.launchserver.auth.core;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 
 import java.io.IOException;
@@ -20,6 +21,16 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
+    public User getUserByOAuthAccessToken(String accessToken) {
+        return null;
+    }
+
+    @Override
+    public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context) {
+        return null;
+    }
+
+    @Override
     public void verifyAuth(AuthResponse.AuthContext context) throws AuthException {
         throw new AuthException("Please configure AuthCoreProvider");
     }
@@ -30,13 +41,13 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void init(LaunchServer server) {
-
+    public AuthManager.AuthReport createOAuthSession(User user, AuthResponse.AuthContext context, PasswordVerifyReport report, boolean minecraftAccess) throws IOException {
+        return null;
     }
 
     @Override
-    protected boolean updateAuth(User user, String accessToken) throws IOException {
-        return false;
+    public void init(LaunchServer server) {
+
     }
 
     @Override

@@ -16,7 +16,6 @@ import pro.gravit.launchserver.auth.provider.AuthProviderDAOResult;
 import pro.gravit.launchserver.auth.provider.AuthProviderResult;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
-import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -63,26 +62,52 @@ public class AuthManager {
         }
     }
 
+    public static class AuthReport {
+        public final String minecraftAccessToken;
+        public final String oauthAccessToken;
+        public final String oauthRefreshToken;
+        public final long oauthExpire;
+
+        private AuthReport(String minecraftAccessToken, String oauthAccessToken, String oauthRefreshToken, long oauthExpire) {
+            this.minecraftAccessToken = minecraftAccessToken;
+            this.oauthAccessToken = oauthAccessToken;
+            this.oauthRefreshToken = oauthRefreshToken;
+            this.oauthExpire = oauthExpire;
+        }
+
+        public static AuthReport ofOAuth(String oauthAccessToken, String oauthRefreshToken, long oauthExpire) {
+            return new AuthReport(null, oauthAccessToken, oauthRefreshToken, oauthExpire);
+        }
+
+        public static AuthReport ofOAuthWithMinecraft(String minecraftAccessToken, String oauthAccessToken, String oauthRefreshToken, long oauthExpire) {
+            return new AuthReport(minecraftAccessToken, oauthAccessToken, oauthRefreshToken, oauthExpire);
+        }
+
+        public static AuthReport ofMinecraftAccessToken(String minecraftAccessToken) {
+            return new AuthReport(minecraftAccessToken, null, null, 0);
+        }
+    }
+
     /**
      * Full client authorization with password verification
      * @param context AuthContext
      * @param password User password
      * @return Access token
      */
-    public String auth(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException {
+    public AuthReport auth(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException {
         AuthProviderPair pair = context.pair;
-        String accessToken;
+        AuthReport report;
         if(pair.core == null) {
             try {
-                accessToken = authWithProviderAndHandler(context, password);
+                report = AuthReport.ofMinecraftAccessToken(authWithProviderAndHandler(context, password));
             } catch (Exception e) {
                 if(e instanceof AuthException) throw (AuthException) e;
                 throw new AuthException("Internal Auth Error. Please contact administrator");
             }
         } else {
-            accessToken = authWithCore(context, password);
+            report = authWithCore(context, password);
         }
-        return accessToken;
+        return report;
     }
 
     @SuppressWarnings("deprecation")
@@ -106,7 +131,7 @@ public class AuthManager {
         return accessToken;
     }
 
-    private String authWithCore(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException {
+    private AuthReport authWithCore(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException {
         AuthCoreProvider provider = context.pair.core;
         provider.verifyAuth(context);
         User user = provider.getUserByUsername(context.login);
@@ -115,17 +140,17 @@ public class AuthManager {
         }
         AuthCoreProvider.PasswordVerifyReport report = provider.verifyPassword(user, password);
         if(report.success) {
-            String accessToken;
             UUID uuid = user.getUUID();
-            if(context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context)) {
-                provider.verifyAuth(context);
-                accessToken = report.accessToken;
-            } else {
-                accessToken = null;
+            AuthReport result;
+            try {
+                result = provider.createOAuthSession(user, context, report, context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context));
+            } catch (IOException e) {
+                logger.error(e);
+                throw new AuthException("Internal Auth Error");
             }
             context.client.coreObject = user;
             internalAuth(context.client, context.authType, context.pair, user.getUsername(), uuid, user.getPermissions());
-            return accessToken;
+            return result;
         }
         else {
             if(report.needMoreFactor) {

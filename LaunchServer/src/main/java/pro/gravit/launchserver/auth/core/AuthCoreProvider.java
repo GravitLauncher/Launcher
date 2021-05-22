@@ -11,6 +11,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportGetAllUsers;
+import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.ProviderMap;
@@ -41,11 +42,13 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
     }
     public abstract User getUserByUsername(String username);
     public abstract User getUserByUUID(UUID uuid);
+    public abstract User getUserByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired;
+    public abstract AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context /* may be null */);
     public abstract void verifyAuth(AuthResponse.AuthContext context) throws AuthException;
     public abstract PasswordVerifyReport verifyPassword(User user, AuthRequest.AuthPasswordInterface password);
+    public abstract AuthManager.AuthReport createOAuthSession(User user, AuthResponse.AuthContext context /* may be null */, PasswordVerifyReport report /* may be null */, boolean minecraftAccess) throws IOException;
     public abstract void init(LaunchServer server);
     // Auth Handler methods
-    protected abstract boolean updateAuth(User user, String accessToken) throws IOException;
     protected abstract boolean updateServerID(User user, String serverID) throws IOException;
 
     public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
@@ -125,7 +128,6 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         public final boolean success;
         public final boolean needMoreFactor;
         public final List<Integer> factors;
-        public final String accessToken;
         public static final PasswordVerifyReport REQUIRED_2FA = new PasswordVerifyReport(-1);
         public static final PasswordVerifyReport FAILED = new PasswordVerifyReport(false);
 
@@ -133,28 +135,37 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
             this.success = success;
             this.needMoreFactor = false;
             this.factors = List.of();
-            this.accessToken = SecurityHelper.randomStringToken();
-        }
-
-        public PasswordVerifyReport(String accessToken) {
-            this.success = true;
-            this.needMoreFactor = false;
-            this.factors = List.of();
-            this.accessToken = accessToken;
         }
 
         public PasswordVerifyReport(int nextFactor) {
             this.success = false;
             this.needMoreFactor = true;
             this.factors = List.of(nextFactor);
-            this.accessToken = null;
         }
 
         public PasswordVerifyReport(List<Integer> factors) {
             this.success = false;
             this.needMoreFactor = false;
             this.factors = Collections.unmodifiableList(factors);
-            this.accessToken = null;
+        }
+
+        private PasswordVerifyReport(boolean success, boolean needMoreFactor, List<Integer> factors) {
+            this.success = success;
+            this.needMoreFactor = needMoreFactor;
+            this.factors = factors;
+        }
+    }
+
+    public static class OAuthAccessTokenExpired extends Exception {
+        public OAuthAccessTokenExpired() {
+        }
+
+        public OAuthAccessTokenExpired(String message) {
+            super(message);
+        }
+
+        public OAuthAccessTokenExpired(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 }
