@@ -91,9 +91,8 @@ public class ClientLauncherEntryPoint {
         Launcher.profile = profile;
         AuthService.profile = profile;
         LauncherEngine.clientParams = params;
-        if(params.session != null) {
-            Request.setSession(params.session);
-        } else if(params.oauth != null) {
+        if(params.oauth != null) {
+            LogHelper.info("Using OAuth");
             if(params.oauthExpiredTime != 0) {
                 Request.setOAuth(params.authId, params.oauth, params.oauthExpiredTime);
             } else {
@@ -102,6 +101,9 @@ public class ClientLauncherEntryPoint {
             if(params.extendedTokens != null) {
                 Request.addAllExtendedToken(params.extendedTokens);
             }
+        } else if(params.session != null) {
+            LogHelper.info("Using Sessions");
+            Request.setSession(params.session);
         }
         checkJVMBitsAndVersion(params.profile.getMinJavaVersion(), params.profile.getRecommendJavaVersion(), params.profile.getMaxJavaVersion(), params.profile.isWarnMissJavaVersion());
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessInitPhase(engine, params));

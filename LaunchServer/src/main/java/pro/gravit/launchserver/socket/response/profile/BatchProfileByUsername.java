@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.BatchProfileByUsernameRequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
+import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
@@ -31,7 +32,13 @@ public class BatchProfileByUsername extends SimpleResponse {
             if (pair == null) {
                 pair = server.config.getAuthProviderPair();
             }
-            uuid = pair.handler.usernameToUUID(list[i].username);
+            if(pair.isUseCore()) {
+                User user = pair.core.getUserByUsername(list[i].username);
+                if(user == null) uuid = null;
+                else uuid = user.getUUID();
+            } else {
+                uuid = pair.handler.usernameToUUID(list[i].username);
+            }
             result.playerProfiles[i] = ProfileByUUIDResponse.getProfile(uuid, list[i].username, list[i].client, pair.textureProvider);
         }
         sendResult(result);

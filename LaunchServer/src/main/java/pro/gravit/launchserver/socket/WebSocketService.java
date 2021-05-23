@@ -166,7 +166,7 @@ public class WebSocketService {
         try {
             response.execute(ctx, client);
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("WebSocket request processing failed", e);
             RequestEvent event;
             if (server.config.netty.sendExceptionEnabled) {
                 event = new ExceptionEvent(e);

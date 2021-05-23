@@ -90,6 +90,9 @@ public class ClientLauncherProcess {
             javaVersion = ClientLauncherWrapper.JavaVersion.getByPath(javaDir);
         } catch (IOException e) {
             LogHelper.error(e);
+            javaVersion = null;
+        }
+        if(javaVersion == null) {
             javaVersion = ClientLauncherWrapper.JavaVersion.getCurrentJavaVersion();
         }
         this.bits = JVMHelper.JVM_BITS;
@@ -120,6 +123,7 @@ public class ClientLauncherProcess {
         if(this.params.oauth == null) {
             this.params.session = Request.getSession();
         } else {
+            this.params.authId = Request.getAuthId();
             this.params.oauthExpiredTime = Request.getTokenExpiredTime();
             this.params.extendedTokens = Request.getExtendedTokens();
         }

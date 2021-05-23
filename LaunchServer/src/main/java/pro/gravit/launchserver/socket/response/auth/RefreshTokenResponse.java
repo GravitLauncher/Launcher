@@ -25,13 +25,13 @@ public class RefreshTokenResponse extends SimpleResponse {
         }
         AuthProviderPair pair;
         if(!client.isAuth) {
-            if(authId == null || !client.useOAuth) {
+            if(authId == null) {
                 pair = server.config.getAuthProviderPair();
             } else {
-                pair = client.auth;
+                pair = server.config.getAuthProviderPair(authId);
             }
         } else {
-            pair = server.config.getAuthProviderPair(authId);
+            pair = client.auth;
         }
         if(pair == null || !pair.isUseCore()) {
             sendError("Invalid request");

@@ -3,6 +3,7 @@ package pro.gravit.launchserver.socket.response.profile;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
 import pro.gravit.launchserver.auth.AuthProviderPair;
+import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
@@ -22,7 +23,13 @@ public class ProfileByUsername extends SimpleResponse {
         UUID uuid;
         AuthProviderPair pair = client.auth;
         if (pair == null) pair = server.config.getAuthProviderPair();
-        uuid = pair.handler.usernameToUUID(username);
+        if(pair.isUseCore()) {
+            User user = pair.core.getUserByUsername(username);
+            if(user == null) uuid = null;
+            else uuid = user.getUUID();
+        } else {
+            uuid = pair.handler.usernameToUUID(username);
+        }
         if (uuid == null) {
             sendError("User not found");
             return;

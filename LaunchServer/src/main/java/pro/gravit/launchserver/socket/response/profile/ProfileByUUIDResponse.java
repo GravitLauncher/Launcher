@@ -5,6 +5,7 @@ import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.Texture;
 import pro.gravit.launchserver.auth.AuthProviderPair;
+import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -55,10 +56,19 @@ public class ProfileByUUIDResponse extends SimpleResponse {
             sendError("ProfileByUUIDResponse: AuthProviderPair is null");
             return;
         }
-        username = pair.handler.uuidToUsername(uuid);
-        if (username == null) {
-            sendError(String.format("ProfileByUUIDResponse: User with uuid %s not found or AuthProvider#uuidToUsername returned null", uuid));
-            return;
+        if(pair.isUseCore()) {
+            User user = pair.core.getUserByUUID(uuid);
+            if(user == null) {
+                sendError("User not found");
+                return;
+            }
+            else username = user.getUsername();
+        } else {
+            username = pair.handler.uuidToUsername(uuid);
+            if (username == null) {
+                sendError(String.format("ProfileByUUIDResponse: User with uuid %s not found or AuthProvider#uuidToUsername returned null", uuid));
+                return;
+            }
         }
         sendResult(new ProfileByUUIDRequestEvent(getProfile(uuid, username, this.client, pair.textureProvider)));
     }

@@ -2,23 +2,35 @@ package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
+import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.launcher.events.request.RestoreRequestEvent;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
+import pro.gravit.launchserver.socket.response.update.LauncherResponse;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RestoreResponse extends SimpleResponse {
     @FunctionalInterface
     public interface ExtendedTokenProvider {
-        void accept(Client client, AuthProviderPair pair, String extendedToken);
+        boolean accept(Client client, AuthProviderPair pair, String extendedToken);
     }
     public static Map<String, ExtendedTokenProvider> providers = new HashMap<>();
+    private static boolean registeredProviders = false;
+    public static void registerProviders(LaunchServer server) {
+        if(!registeredProviders) {
+            providers.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponse.LauncherTokenVerifier(server));
+            registeredProviders = true;
+        }
+    }
     public String authId;
     public String accessToken;
     public Map<String, String> extended;
@@ -37,16 +49,16 @@ public class RestoreResponse extends SimpleResponse {
         }
         AuthProviderPair pair;
         if(!client.isAuth) {
-            if(authId == null || !client.useOAuth) {
+            if(authId == null) {
                 pair = server.config.getAuthProviderPair();
             } else {
-                pair = client.auth;
+                pair = server.config.getAuthProviderPair(authId);
             }
         } else {
-            pair = server.config.getAuthProviderPair(authId);
+            pair = client.auth;
         }
         if(pair == null || !pair.isUseCore()) {
-            sendError("Invalid request");
+            sendError("Invalid authId");
             return;
         }
         if(accessToken != null) {
@@ -66,17 +78,20 @@ public class RestoreResponse extends SimpleResponse {
             client.sessionObject = session;
             server.authManager.internalAuth(client, client.type == null ? AuthResponse.ConnectTypes.API : client.type, pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
         }
+        List<String> invalidTokens = new ArrayList<>(4);
         if(extended != null) {
             extended.forEach((k,v) -> {
                 ExtendedTokenProvider provider = providers.get(k);
                 if(provider == null) return;
-                provider.accept(client, pair, v);
+                if(!provider.accept(client, pair, v)) {
+                    invalidTokens.add(k);
+                }
             });
         }
         if(needUserInfo && client.isAuth) {
-            sendResult(new RestoreRequestEvent(CurrentUserResponse.collectUserInfoFromClient(client)));
+            sendResult(new RestoreRequestEvent(CurrentUserResponse.collectUserInfoFromClient(client), invalidTokens));
         } else {
-            sendResult(new RestoreRequestEvent());
+            sendResult(new RestoreRequestEvent(invalidTokens));
         }
     }
 }

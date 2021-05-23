@@ -20,6 +20,7 @@ import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.modules.events.*;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
+import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.SubCommand;
@@ -171,6 +172,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         pingServerManager = new PingServerManager(this);
         featuresManager = new FeaturesManager(this);
         authManager = new AuthManager(this);
+        RestoreResponse.registerProviders(this);
         //Generate or set new Certificate API
         certificateManager.orgName = config.projectName;
         config.init(ReloadType.FULL);

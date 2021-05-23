@@ -6,6 +6,7 @@ project.ext {
     verGuavaC = '30.1-jre'
     verJansi = '2.3.2'
     verJline = '3.19.0'
+    verJwt = '0.11.2'
     verBcprov = '1.68'
     verGson = '2.8.6'
     verBcpkix = '1.68'

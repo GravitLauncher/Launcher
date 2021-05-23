@@ -10,12 +10,12 @@ import pro.gravit.launcher.request.auth.RestoreRequest;
 import pro.gravit.launcher.request.auth.RestoreSessionRequest;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
+import pro.gravit.utils.helper.LogHelper;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public abstract class Request<R extends WebSocketEvent> implements WebSocketRequest {
     public static StdWebSocketService service;
@@ -24,6 +24,10 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     private static Map<String, String> extendedTokens;
     private static String authId;
     private static long tokenExpiredTime;
+    private static List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
+    public interface ExtendedTokenCallback {
+        String tryGetNewToken(String name);
+    }
     @LauncherNetworkAPI
     public final UUID requestUUID = UUID.randomUUID();
     private transient final AtomicBoolean started = new AtomicBoolean(false);
@@ -46,8 +50,16 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         }
     }
 
+    public void addExtendedTokenCallback(ExtendedTokenCallback cb) {
+        extendedTokenCallbacks.add(cb);
+    }
+
     public static AuthRequestEvent.OAuthRequestEvent getOAuth() {
         return oauth;
+    }
+
+    public static String getAuthId() {
+        return authId;
     }
 
     public static Map<String, String> getExtendedTokens() {
@@ -108,17 +120,37 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     }
 
     public static void restore() throws Exception {
-        if(session != null) {
-            RestoreSessionRequest request = new RestoreSessionRequest(session);
-            request.request();
-        }
-        else if(oauth != null) {
+        if(oauth != null) {
             if(isTokenExpired() || oauth.accessToken == null) {
                 RefreshTokenRequest request = new RefreshTokenRequest(authId, oauth.refreshToken);
                 RefreshTokenRequestEvent event = request.request();
                 setOAuth(authId, event.oauth);
             }
             RestoreRequest request = new RestoreRequest(authId, oauth.accessToken, extendedTokens, false);
+            RestoreRequestEvent event = request.request();
+            if(event.invalidTokens != null && event.invalidTokens.size() > 0) {
+                boolean needRequest = false;
+                Map<String, String> tokens = new HashMap<>();
+                for(ExtendedTokenCallback cb : extendedTokenCallbacks) {
+                    for(String tokenName : event.invalidTokens) {
+                        String newToken = cb.tryGetNewToken(tokenName);
+                        if(newToken != null) {
+                            needRequest = true;
+                            tokens.put(tokenName, newToken);
+                            addExtendedToken(tokenName, newToken);
+                        }
+                    }
+                }
+                if(needRequest) {
+                    request = new RestoreRequest(authId, null, tokens, false);
+                    event = request.request();
+                    if(event.invalidTokens != null && event.invalidTokens.size() > 0) {
+                        LogHelper.warning("Tokens %s not restored", String.join(",", event.invalidTokens));
+                    }
+                }
+            }
+        } else if(session != null) {
+            RestoreSessionRequest request = new RestoreSessionRequest(session);
             request.request();
         }
     }
