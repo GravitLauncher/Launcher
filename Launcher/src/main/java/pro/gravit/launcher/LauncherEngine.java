@@ -187,17 +187,10 @@ public class LauncherEngine {
             {
                 LogHelper.debug("WebSocket connect closed. Try reconnect");
                 try {
-                    Request.service.open();
-                    LogHelper.debug("Connect to %s", Launcher.getConfig().address);
+                    Request.reconnect();
                 } catch (Exception e) {
                     LogHelper.error(e);
-                    throw new RequestException(String.format("Connect error: %s", e.getMessage() != null ? e.getMessage() : "null"));
-                }
-                try {
-                    RestoreSessionRequest request1 = new RestoreSessionRequest(Request.getSession());
-                    request1.request();
-                } catch (Exception e) {
-                    LogHelper.error(e);
+                    throw new RequestException("Connection failed", e);
                 }
             };
         }

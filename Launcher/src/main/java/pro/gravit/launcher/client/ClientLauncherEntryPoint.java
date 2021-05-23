@@ -91,7 +91,18 @@ public class ClientLauncherEntryPoint {
         Launcher.profile = profile;
         AuthService.profile = profile;
         LauncherEngine.clientParams = params;
-        Request.setSession(params.session);
+        if(params.session != null) {
+            Request.setSession(params.session);
+        } else if(params.oauth != null) {
+            if(params.oauthExpiredTime != 0) {
+                Request.setOAuth(params.authId, params.oauth, params.oauthExpiredTime);
+            } else {
+                Request.setOAuth(params.authId, params.oauth);
+            }
+            if(params.extendedTokens != null) {
+                Request.addAllExtendedToken(params.extendedTokens);
+            }
+        }
         checkJVMBitsAndVersion(params.profile.getMinJavaVersion(), params.profile.getRecommendJavaVersion(), params.profile.getMaxJavaVersion(), params.profile.isWarnMissJavaVersion());
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessInitPhase(engine, params));
 
@@ -110,23 +121,15 @@ public class ClientLauncherEntryPoint {
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
         LogHelper.debug("Restore sessions");
-        RestoreSessionRequest request = new RestoreSessionRequest(Request.getSession());
-        request.request();
+        Request.restore();
         Request.service.reconnectCallback = () ->
         {
             LogHelper.debug("WebSocket connect closed. Try reconnect");
             try {
-                Request.service.open();
-                LogHelper.debug("Connect to %s", Launcher.getConfig().address);
+                Request.reconnect();
             } catch (Exception e) {
                 LogHelper.error(e);
-                throw new RequestException(String.format("Connect error: %s", e.getMessage() != null ? e.getMessage() : "null"));
-            }
-            try {
-                RestoreSessionRequest request1 = new RestoreSessionRequest(Request.getSession());
-                request1.request();
-            } catch (Exception e) {
-                LogHelper.error(e);
+                throw new RequestException("Connection failed", e);
             }
         };
         if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.LAUNCHER) {

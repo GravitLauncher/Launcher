@@ -35,12 +35,12 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static final Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
     public static final Path modulesConfigDir = Paths.get(System.getProperty("serverwrapper.modulesConfigDir", "modules-config"));
     public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
-    public static final Path publicKeyFile = Paths.get(System.getProperty("serverwrapper.publicKeyFile", "public.key"));
     public static final boolean disableSetup = Boolean.parseBoolean(System.getProperty("serverwrapper.disableSetup", "false"));
     public static ServerWrapperModulesManager modulesManager;
     public static ServerWrapper wrapper;
@@ -76,8 +76,28 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             Launcher.getConfig();
             AuthRequest request = new AuthRequest(config.login, config.password, config.auth_id, AuthRequest.ConnectTypes.API);
             AuthRequestEvent authResult = request.request();
+            if(config.saveSession) {
+                if(authResult.oauth != null) {
+                    Request.setOAuth(config.auth_id, authResult.oauth);
+                    config.oauth = authResult.oauth;
+                    config.oauthExpireTime = Request.getTokenExpiredTime();
+                } else {
+                    Request.setSession(authResult.session);
+                }
+                saveConfig();
+            }
             permissions = authResult.permissions;
             playerProfile = authResult.playerProfile;
+            return true;
+        } catch (Throwable e) {
+            LogHelper.error(e);
+            if (config.stopOnError) System.exit(-1);
+            return false;
+        }
+    }
+
+    public ProfilesRequestEvent getProfiles() {
+        try {
             ProfilesRequestEvent result = new ProfilesRequest().request();
             for (ClientProfile p : result.profiles) {
                 LogHelper.debug("Get profile: %s", p.getTitle());
@@ -97,32 +117,12 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             if (profile == null) {
                 LogHelper.warning("Not connected to ServerProfile. May be serverName incorrect?");
             }
-            return true;
+            return result;
         } catch (Throwable e) {
             LogHelper.error(e);
             if (config.stopOnError) System.exit(-1);
-            return false;
+            return null;
         }
-
-    }
-
-    public boolean loopAuth(int count, int sleeptime) {
-        if (count == 0) {
-            while (true) {
-                if (auth()) return true;
-            }
-        }
-        for (int i = 0; i < count; ++i) {
-            if (auth()) return true;
-            try {
-                Thread.sleep(sleeptime);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                LogHelper.error(e);
-                return false;
-            }
-        }
-        return false;
     }
 
     public void run(String... args) throws Throwable {
@@ -144,9 +144,24 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         if (config.env != null) Launcher.applyLauncherEnv(config.env);
         else Launcher.applyLauncherEnv(LauncherConfig.LauncherEnvironment.STD);
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
-        if (config.syncAuth) auth();
-        else
-            CommonHelper.newThread("Server Auth Thread", true, () -> loopAuth(config.reconnectCount, config.reconnectSleep));
+        {
+            if(config.saveSession) {
+                if(config.oauth != null) {
+                    Request.setOAuth(config.auth_id, config.oauth, config.oauthExpireTime);
+                } else {
+                    Request.setSession(config.session);
+                }
+                try {
+                    Request.restore();
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                    auth();
+                }
+            } else {
+                auth();
+            }
+            getProfiles();
+        }
         modulesManager.invokeEvent(new ServerWrapperInitPhase(this));
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
         if (classname.length() == 0) {
@@ -187,14 +202,16 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         Request.service.reconnectCallback = () ->
         {
             LogHelper.debug("WebSocket connect closed. Try reconnect");
-            try {
-                Request.service.open();
-                LogHelper.debug("Connect to %s", config.address);
-            } catch (Exception e) {
-                LogHelper.error(e);
-                throw new RequestException(String.format("Connect error: %s", e.getMessage() != null ? e.getMessage() : "null"));
+            if(config.saveSession) {
+                try {
+                    Request.restore();
+                } catch (Exception e) {
+                    auth();
+                }
+            } else {
+                auth();
             }
-            auth();
+            getProfiles();
         };
         LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s. Title: %s", config.projectname, config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
@@ -239,6 +256,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         newConfig.mainclass = "";
         newConfig.syncAuth = true;
         newConfig.stopOnError = true;
+        newConfig.saveSession = true;
         newConfig.reconnectCount = 10;
         newConfig.reconnectSleep = 1000;
         newConfig.address = "ws://localhost:9274/api";
@@ -266,6 +284,10 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String[] args;
         public String password;
         public String auth_id = "";
+        public boolean saveSession;
+        public AuthRequestEvent.OAuthRequestEvent oauth;
+        public long oauthExpireTime;
+        public UUID session;
         public LauncherConfig.LauncherEnvironment env;
     }
 

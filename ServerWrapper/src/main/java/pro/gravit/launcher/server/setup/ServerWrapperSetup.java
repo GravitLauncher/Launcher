@@ -67,7 +67,7 @@ public class ServerWrapperSetup {
             wrapper.config.password = password;
             wrapper.config.stopOnError = false;
             wrapper.updateLauncherConfig();
-            if (wrapper.auth()) {
+            if (wrapper.auth() && wrapper.getProfiles() != null) {
                 break;
             } else {
                 LogHelper.error("Auth error. Recheck account params");

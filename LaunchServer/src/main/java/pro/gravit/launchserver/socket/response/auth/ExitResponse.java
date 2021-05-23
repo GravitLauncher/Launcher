@@ -54,7 +54,6 @@ public class ExitResponse extends SimpleResponse {
                         support.clearSessionsByUser(client.getUser());
                     }
                 }
-                sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
             } else {
                 if (client.session == null && exitAll) {
                     sendError("Session invalid");
@@ -80,8 +79,8 @@ public class ExitResponse extends SimpleResponse {
                         exit(server, webSocketFrameHandler, channel, ExitRequestEvent.ExitReason.SERVER);
                     }));
                 }
-                sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
             }
+            sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
         } else {
             service.forEachActiveChannels(((channel, webSocketFrameHandler) -> {
                 Client client1 = webSocketFrameHandler.getClient();

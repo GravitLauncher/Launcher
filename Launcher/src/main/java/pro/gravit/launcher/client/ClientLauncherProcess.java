@@ -8,6 +8,7 @@ import pro.gravit.launcher.client.events.client.ClientProcessBuilderCreateEvent;
 import pro.gravit.launcher.client.events.client.ClientProcessBuilderLaunchedEvent;
 import pro.gravit.launcher.client.events.client.ClientProcessBuilderParamsWrittedEvent;
 import pro.gravit.launcher.client.events.client.ClientProcessBuilderPreLaunchEvent;
+import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
@@ -115,7 +116,13 @@ public class ClientLauncherProcess {
         if (params.ram > 0) {
             this.jvmArgs.add("-Xmx" + params.ram + 'M');
         }
-        this.params.session = Request.getSession();
+        this.params.oauth = Request.getOAuth();
+        if(this.params.oauth == null) {
+            this.params.session = Request.getSession();
+        } else {
+            this.params.oauthExpiredTime = Request.getTokenExpiredTime();
+            this.params.extendedTokens = Request.getExtendedTokens();
+        }
 
         if(this.params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
             jvmModules.add("javafx.base");
@@ -257,6 +264,14 @@ public class ClientLauncherProcess {
         //========
 
         public UUID session;
+
+        public AuthRequestEvent.OAuthRequestEvent oauth;
+
+        public String authId;
+
+        public long oauthExpiredTime;
+
+        public Map<String, String> extendedTokens;
 
         public transient HashedDir assetHDir;
 
