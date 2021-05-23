@@ -109,6 +109,8 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("pingServer", PingServerRequestEvent.class);
         results.register("currentUser", CurrentUserRequestEvent.class);
         results.register("features", FeaturesRequestEvent.class);
+        results.register("refreshToken", RefreshTokenRequestEvent.class);
+        results.register("restore", RestoreRequestEvent.class);
     }
 
     public void waitIfNotConnected() {

@@ -34,6 +34,8 @@ public class Client {
 
     public transient pro.gravit.launchserver.auth.core.User coreObject;
 
+    public transient pro.gravit.launchserver.auth.core.UserSession sessionObject;
+
     public transient Map<String, Object> properties;
 
     public Map<String, String> serializableProperties;

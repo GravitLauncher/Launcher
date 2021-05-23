@@ -92,6 +92,8 @@ public class WebSocketService {
         providers.register("pingServer", PingServerResponse.class);
         providers.register("currentUser", CurrentUserResponse.class);
         providers.register("features", FeaturesResponse.class);
+        providers.register("refreshToken", RefreshTokenResponse.class);
+        providers.register("restore", RestoreResponse.class);
     }
 
     public void forEachActiveChannels(BiConsumer<Channel, WebSocketFrameHandler> callback) {

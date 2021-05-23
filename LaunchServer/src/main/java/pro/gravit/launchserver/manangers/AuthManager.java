@@ -11,6 +11,7 @@ import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.core.User;
+import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.provider.AuthProviderDAOResult;
 import pro.gravit.launchserver.auth.provider.AuthProviderResult;
@@ -138,6 +139,26 @@ public class AuthManager {
     private AuthReport authWithCore(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException {
         AuthCoreProvider provider = context.pair.core;
         provider.verifyAuth(context);
+        if(password instanceof AuthOAuthPassword) {
+            AuthOAuthPassword password1 = (AuthOAuthPassword) password;
+            UserSession session;
+            try {
+                session = provider.getUserSessionByOAuthAccessToken(password1.accessToken);
+            } catch (AuthCoreProvider.OAuthAccessTokenExpired oAuthAccessTokenExpired) {
+                throw new AuthException(AuthRequestEvent.OAUTH_TOKEN_EXPIRE);
+            }
+            if(session == null) {
+                throw new AuthException(AuthRequestEvent.OAUTH_TOKEN_INVALID);
+            }
+            User user = session.getUser();
+            context.client.coreObject = user;
+            context.client.sessionObject = session;
+            internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
+            if(context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context)) {
+                return AuthReport.ofMinecraftAccessToken(user.getAccessToken());
+            }
+            return AuthReport.ofMinecraftAccessToken(null);
+        }
         User user = provider.getUserByUsername(context.login);
         if(user == null) {
             throw new AuthException(AuthRequestEvent.USER_NOT_FOUND_ERROR_MESSAGE);
