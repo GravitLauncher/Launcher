@@ -37,6 +37,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         if (!registredProviders) {
             providers.register("reject", RejectAuthCoreProvider.class);
             providers.register("mysql", MySQLCoreProvider.class);
+            providers.register("json", JsonCoreProvider.class);
             registredProviders = true;
         }
     }
@@ -136,6 +137,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
     public static class PasswordVerifyReport {
         public static final PasswordVerifyReport REQUIRED_2FA = new PasswordVerifyReport(-1);
         public static final PasswordVerifyReport FAILED = new PasswordVerifyReport(false);
+        public static final PasswordVerifyReport OK = new PasswordVerifyReport(true);
         public final boolean success;
         public final boolean needMoreFactor;
         public final List<Integer> factors;

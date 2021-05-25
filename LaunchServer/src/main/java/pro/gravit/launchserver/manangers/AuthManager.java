@@ -251,24 +251,34 @@ public class AuthManager {
         public final String oauthAccessToken;
         public final String oauthRefreshToken;
         public final long oauthExpire;
+        public final UserSession session;
 
-        private AuthReport(String minecraftAccessToken, String oauthAccessToken, String oauthRefreshToken, long oauthExpire) {
+        public AuthReport(String minecraftAccessToken, String oauthAccessToken, String oauthRefreshToken, long oauthExpire, UserSession session) {
             this.minecraftAccessToken = minecraftAccessToken;
             this.oauthAccessToken = oauthAccessToken;
             this.oauthRefreshToken = oauthRefreshToken;
             this.oauthExpire = oauthExpire;
+            this.session = session;
         }
 
         public static AuthReport ofOAuth(String oauthAccessToken, String oauthRefreshToken, long oauthExpire) {
-            return new AuthReport(null, oauthAccessToken, oauthRefreshToken, oauthExpire);
+            return new AuthReport(null, oauthAccessToken, oauthRefreshToken, oauthExpire, null);
+        }
+
+        public static AuthReport ofOAuth(String oauthAccessToken, String oauthRefreshToken, long oauthExpire, UserSession session) {
+            return new AuthReport(null, oauthAccessToken, oauthRefreshToken, oauthExpire, session);
         }
 
         public static AuthReport ofOAuthWithMinecraft(String minecraftAccessToken, String oauthAccessToken, String oauthRefreshToken, long oauthExpire) {
-            return new AuthReport(minecraftAccessToken, oauthAccessToken, oauthRefreshToken, oauthExpire);
+            return new AuthReport(minecraftAccessToken, oauthAccessToken, oauthRefreshToken, oauthExpire, null);
+        }
+
+        public static AuthReport ofOAuthWithMinecraft(String minecraftAccessToken, String oauthAccessToken, String oauthRefreshToken, long oauthExpire, UserSession session) {
+            return new AuthReport(minecraftAccessToken, oauthAccessToken, oauthRefreshToken, oauthExpire, session);
         }
 
         public static AuthReport ofMinecraftAccessToken(String minecraftAccessToken) {
-            return new AuthReport(minecraftAccessToken, null, null, 0);
+            return new AuthReport(minecraftAccessToken, null, null, 0, null);
         }
 
         public boolean isUsingOAuth() {
