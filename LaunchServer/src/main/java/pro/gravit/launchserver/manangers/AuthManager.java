@@ -132,22 +132,33 @@ public class AuthManager {
             }
             return AuthReport.ofMinecraftAccessToken(null);
         }
-        User user = provider.getUserByUsername(context.login);
-        if (user == null) {
-            throw new AuthException(AuthRequestEvent.USER_NOT_FOUND_ERROR_MESSAGE);
+        User user = null;
+        if (context.login != null) {
+            user = provider.getUserByLogin(context.login);
+            if (user == null) {
+                throw new AuthException(AuthRequestEvent.USER_NOT_FOUND_ERROR_MESSAGE);
+            }
         }
         AuthCoreProvider.PasswordVerifyReport report = provider.verifyPassword(user, password);
         if (report.success) {
-            UUID uuid = user.getUUID();
             AuthReport result;
             try {
                 result = provider.createOAuthSession(user, context, report, context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context));
             } catch (IOException e) {
+                if (e instanceof AuthException) throw (AuthException) e;
                 logger.error(e);
                 throw new AuthException("Internal Auth Error");
             }
+            if (user == null) {
+                if (result.session != null) {
+                    user = result.session.getUser();
+                } else {
+                    logger.error("AuthCoreProvider {} method createOAuthSession returns null session with login null", context.pair.name);
+                    throw new AuthException("Internal Auth Error");
+                }
+            }
             context.client.coreObject = user;
-            internalAuth(context.client, context.authType, context.pair, user.getUsername(), uuid, user.getPermissions(), result.isUsingOAuth());
+            internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), result.isUsingOAuth());
             return result;
         } else {
             if (report.needMoreFactor) {

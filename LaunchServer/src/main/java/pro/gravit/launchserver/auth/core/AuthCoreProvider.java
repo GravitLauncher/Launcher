@@ -44,6 +44,10 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
 
     public abstract User getUserByUsername(String username);
 
+    public User getUserByLogin(String login) {
+        return getUserByUsername(login);
+    }
+
     public abstract User getUserByUUID(UUID uuid);
 
     public abstract UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired;

@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.auth.core;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
@@ -25,7 +27,9 @@ import java.util.List;
 import java.util.UUID;
 
 public class JsonCoreProvider extends AuthCoreProvider {
+    private transient final Logger logger = LogManager.getLogger();
     public String getUserByUsernameUrl;
+    public String getUserByLoginUrl;
     public String getUserByUUIDUrl;
     public String getUserSessionByOAuthAccessTokenUrl;
     public String getAuthDetailsUrl;
@@ -77,6 +81,7 @@ public class JsonCoreProvider extends AuthCoreProvider {
         public String oauthRefreshToken;
         public long oauthExpire;
         public JsonUserSession session;
+        public String error;
 
         public AuthManager.AuthReport toAuthReport() {
             return new AuthManager.AuthReport(minecraftAccessToken, oauthAccessToken, oauthRefreshToken, oauthExpire, session);
@@ -123,7 +128,7 @@ public class JsonCoreProvider extends AuthCoreProvider {
 
     public static class JsonGetUserSessionByOAuthTokenResponse {
         public boolean expired;
-        public UserSession session;
+        public JsonUserSession session;
 
         public JsonGetUserSessionByOAuthTokenResponse() {
         }
@@ -143,12 +148,23 @@ public class JsonCoreProvider extends AuthCoreProvider {
     }
 
     @Override
+    public User getUserByLogin(String login) {
+        if (getUserByLoginUrl != null) {
+            return jsonRequest(new JsonGetUserByUsername(login), getUserByLoginUrl, JsonUser.class);
+        }
+        return super.getUserByLogin(login);
+    }
+
+    @Override
     public User getUserByUUID(UUID uuid) {
         return jsonRequest(new JsonGetUserByUUID(uuid), getUserByUUIDUrl, JsonUser.class);
     }
 
     @Override
     public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
+        if (getUserSessionByOAuthAccessTokenUrl == null) {
+            return null;
+        }
         JsonGetUserSessionByOAuthTokenResponse response = jsonRequest(new JsonGetUserSessionByAccessToken(accessToken), getUserSessionByOAuthAccessTokenUrl, JsonGetUserSessionByOAuthTokenResponse.class);
         if (response == null) return null;
         if (!response.expired) throw new OAuthAccessTokenExpired();
@@ -186,13 +202,17 @@ public class JsonCoreProvider extends AuthCoreProvider {
                 return PasswordVerifyReport.FAILED;
             }
         }
+        if (user == null) {
+            return jsonRequest(new JsonPasswordVerify(null, null), verifyPasswordUrl, PasswordVerifyReport.class);
+        }
         return jsonRequest(new JsonPasswordVerify(user.getUsername(), user.getUUID()), verifyPasswordUrl, PasswordVerifyReport.class);
     }
 
     @Override
     public AuthManager.AuthReport createOAuthSession(User user, AuthResponse.AuthContext context, PasswordVerifyReport report, boolean minecraftAccess) throws IOException {
-        JsonAuthReportResponse response = jsonRequest(new JsonCreateOAuthSession(user.getUsername(), user.getUUID(), minecraftAccess), createOAuthSessionUrl, JsonAuthReportResponse.class);
+        JsonAuthReportResponse response = jsonRequest(new JsonCreateOAuthSession(user == null ? null : user.getUsername(), user == null ? null : user.getUUID(), minecraftAccess), createOAuthSessionUrl, JsonAuthReportResponse.class);
         if (response == null) return null;
+        if (response.error != null) throw new AuthException(response.error);
         JsonUser user1 = (JsonUser) user;
         user1.accessToken = response.minecraftAccessToken;
         return response.toAuthReport();
@@ -291,17 +311,25 @@ public class JsonCoreProvider extends AuthCoreProvider {
             publisher = HttpRequest.BodyPublishers.noBody();
         }
         try {
-            HttpRequest request1 = HttpRequest.newBuilder()
+            HttpRequest.Builder request1 = HttpRequest.newBuilder()
                     .method("POST", publisher)
                     .uri(new URI(url))
-                    .header("Authentication", "Bearer ".concat(bearerToken))
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .header("Accept", "application/json")
-                    .timeout(Duration.ofMillis(10000))
-                    .build();
-            HttpResponse<InputStream> response = client.send(request1, HttpResponse.BodyHandlers.ofInputStream());
+                    .timeout(Duration.ofMillis(10000));
+            if (bearerToken != null) {
+                request1.header("Authentication", "Bearer ".concat(bearerToken));
+            }
+            HttpResponse<InputStream> response = client.send(request1.build(), HttpResponse.BodyHandlers.ofInputStream());
             int statusCode = response.statusCode();
             if (200 > statusCode || statusCode > 300) {
+                if (statusCode >= 500) {
+                    logger.error("JsonCoreProvider: {} return {}", url, statusCode);
+                } else if (statusCode >= 300 && statusCode <= 400) {
+                    logger.error("JsonCoreProvider: {} return {}, try redirect to {}. Redirects not supported!", url, statusCode, response.headers().firstValue("Location").orElse("Unknown"));
+                } else if (statusCode == 403 || statusCode == 401) {
+                    logger.error("JsonCoreProvider: {} return {}. Please set 'bearerToken'!", url, statusCode);
+                }
                 return null;
             }
             try (Reader reader = new InputStreamReader(response.body())) {
