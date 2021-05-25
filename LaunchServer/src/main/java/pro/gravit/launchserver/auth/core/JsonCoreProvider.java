@@ -2,12 +2,14 @@ package pro.gravit.launchserver.auth.core;
 
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
 import pro.gravit.launchserver.manangers.AuthManager;
+import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 
 import java.io.IOException;
@@ -19,12 +21,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 public class JsonCoreProvider extends AuthCoreProvider {
     public String getUserByUsernameUrl;
     public String getUserByUUIDUrl;
     public String getUserSessionByOAuthAccessTokenUrl;
+    public String getAuthDetailsUrl;
     public String refreshAccessTokenUrl;
     public String verifyPasswordUrl;
     public String createOAuthSessionUrl;
@@ -125,6 +129,14 @@ public class JsonCoreProvider extends AuthCoreProvider {
         }
     }
 
+    public static class JsonGetDetails {
+
+    }
+
+    public static class JsonGetDetailsResponse {
+        public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> details;
+    }
+
     @Override
     public User getUserByUsername(String username) {
         return jsonRequest(new JsonGetUserByUsername(username), getUserByUsernameUrl, JsonUser.class);
@@ -141,6 +153,16 @@ public class JsonCoreProvider extends AuthCoreProvider {
         if (response == null) return null;
         if (!response.expired) throw new OAuthAccessTokenExpired();
         return response.session;
+    }
+
+    @Override
+    public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
+        if (getAuthDetailsUrl != null) {
+            JsonGetDetailsResponse response = jsonRequest(new JsonGetDetails(), getAuthDetailsUrl, JsonGetDetailsResponse.class);
+            if (response == null) return super.getDetails(client);
+            return response.details;
+        }
+        return super.getDetails(client);
     }
 
     @Override
