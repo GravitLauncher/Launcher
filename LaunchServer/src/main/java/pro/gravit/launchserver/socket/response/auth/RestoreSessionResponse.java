@@ -39,7 +39,7 @@ public class RestoreSessionResponse extends SimpleResponse {
             sendError("Session invalid");
             return;
         }
-        if(rClient[0].useOAuth) {
+        if (rClient[0].useOAuth) {
             sendError("This session using OAuth. Session restoration not safety");
             return;
         }

@@ -6,9 +6,7 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;

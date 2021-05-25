@@ -11,7 +11,10 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.security.*;
 import java.security.interfaces.*;
-import java.security.spec.*;
+import java.security.spec.ECGenParameterSpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -104,8 +107,6 @@ public final class SecurityHelper {
             throw new InternalError(e);
         }
     }
-
-
 
 
     public static boolean isValidSign(byte[] bytes, byte[] sign, ECPublicKey publicKey) throws SignatureException {

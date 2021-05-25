@@ -13,14 +13,9 @@ import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.utils.command.StdCommandHandler;
-import pro.gravit.utils.helper.SecurityHelper;
 
 import java.nio.file.Path;
-import java.security.KeyPair;
-import java.security.SecureRandom;
 import java.security.Security;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
 
 public class StartLaunchServerTest {
     @TempDir
@@ -33,7 +28,7 @@ public class StartLaunchServerTest {
 
     @BeforeAll
     public static void prepare() throws Throwable {
-        if(Security.getProvider("BC") == null) Security.addProvider(new BouncyCastleProvider());
+        if (Security.getProvider("BC") == null) Security.addProvider(new BouncyCastleProvider());
         LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(modulesDir, configDir, null);
         LaunchServerConfig config = LaunchServerConfig.getDefault(LaunchServer.LaunchServerEnv.TEST);
         Launcher.gsonManager = new LaunchServerGsonManager(modulesManager);

@@ -2,10 +2,7 @@ package pro.gravit.launcher.request.auth;
 
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.auth.details.AuthPasswordDetails;
-import pro.gravit.launcher.request.auth.details.AuthWebViewDetails;
 import pro.gravit.launcher.request.auth.password.*;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.ProviderMap;

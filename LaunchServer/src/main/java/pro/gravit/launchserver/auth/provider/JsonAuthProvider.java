@@ -24,18 +24,20 @@ public final class JsonAuthProvider extends AuthProvider {
     public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws IOException {
         String firstPassword;
         String secondPassword;
-        if(!enable2FA) {
+        if (!enable2FA) {
             if (!(password instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
             firstPassword = ((AuthPlainPassword) password).password;
             secondPassword = null;
         } else {
-            if(password instanceof AuthPlainPassword) {
+            if (password instanceof AuthPlainPassword) {
                 firstPassword = ((AuthPlainPassword) password).password;
                 secondPassword = null;
-            } else if(password instanceof Auth2FAPassword) {
-                if (!(((Auth2FAPassword) password).firstPassword instanceof AuthPlainPassword)) throw new AuthException("This password type not supported");
+            } else if (password instanceof Auth2FAPassword) {
+                if (!(((Auth2FAPassword) password).firstPassword instanceof AuthPlainPassword))
+                    throw new AuthException("This password type not supported");
                 firstPassword = ((AuthPlainPassword) ((Auth2FAPassword) password).firstPassword).password;
-                if (!(((Auth2FAPassword) password).secondPassword instanceof AuthTOTPPassword)) throw new AuthException("This password type not supported");
+                if (!(((Auth2FAPassword) password).secondPassword instanceof AuthTOTPPassword))
+                    throw new AuthException("This password type not supported");
                 secondPassword = ((AuthTOTPPassword) ((Auth2FAPassword) password).secondPassword).totp;
             } else {
                 throw new AuthException("This password type not supported");

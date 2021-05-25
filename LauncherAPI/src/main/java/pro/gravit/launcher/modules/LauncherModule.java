@@ -5,26 +5,15 @@ import pro.gravit.utils.Version;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public abstract class LauncherModule {
     protected final LauncherModuleInfo moduleInfo;
-    private final static class EventEntity<T extends Event> {
-        final Class<T> clazz;
-        final EventHandler<T> handler;
-
-        private EventEntity(EventHandler<T> handler, Class<T> clazz) {
-            this.clazz = clazz;
-            this.handler = handler;
-        }
-    }
     private final List<EventEntity<? extends Event>> eventList = new ArrayList<>(4);
     protected LauncherModulesManager modulesManager;
     protected ModulesConfigManager modulesConfigManager;
     protected InitStatus initStatus = InitStatus.CREATED;
     private LauncherModulesContext context;
     private LauncherTrustManager.CheckClassResult checkResult;
-
     protected LauncherModule() {
         moduleInfo = new LauncherModuleInfo("UnknownModule");
     }
@@ -70,27 +59,6 @@ public abstract class LauncherModule {
         return new LauncherTrustManager.CheckClassResult(this.checkResult);
     }
 
-    protected final LauncherModule requireModule(String name, Version minVersion) {
-        if(context == null) throw new IllegalStateException("requireModule must be used in init() phase");
-        LauncherModule module = context.getModulesManager().getModule(name);
-        requireModule(module, minVersion, name);
-        return module;
-    }
-
-    protected final  <T extends LauncherModule> T requireModule(Class<? extends T> clazz, Version minVersion) {
-        if(context == null) throw new IllegalStateException("requireModule must be used in init() phase");
-        T module = context.getModulesManager().getModule(clazz);
-        requireModule(module, minVersion, clazz.getName());
-        return module;
-    }
-
-    private void requireModule(LauncherModule module, Version minVersion, String requiredModuleName) {
-        if(module == null)
-            throw new RuntimeException(String.format("Module %s required %s v%s or higher", moduleInfo.name, requiredModuleName, minVersion.getVersionString()));
-        else if(module.moduleInfo.version.isLowerThan(minVersion))
-            throw new RuntimeException(String.format("Module %s required %s v%s or higher (current version %s)", moduleInfo.name, requiredModuleName, minVersion.getVersionString(), module.moduleInfo.version.getVersionString()));
-    }
-
     /**
      * The internal method used by the ModuleManager
      * DO NOT TOUCH
@@ -100,6 +68,27 @@ public abstract class LauncherModule {
     public final void setCheckResult(LauncherTrustManager.CheckClassResult result) {
         if (this.checkResult != null) throw new IllegalStateException("Module already set check result");
         this.checkResult = result;
+    }
+
+    protected final LauncherModule requireModule(String name, Version minVersion) {
+        if (context == null) throw new IllegalStateException("requireModule must be used in init() phase");
+        LauncherModule module = context.getModulesManager().getModule(name);
+        requireModule(module, minVersion, name);
+        return module;
+    }
+
+    protected final <T extends LauncherModule> T requireModule(Class<? extends T> clazz, Version minVersion) {
+        if (context == null) throw new IllegalStateException("requireModule must be used in init() phase");
+        T module = context.getModulesManager().getModule(clazz);
+        requireModule(module, minVersion, clazz.getName());
+        return module;
+    }
+
+    private void requireModule(LauncherModule module, Version minVersion, String requiredModuleName) {
+        if (module == null)
+            throw new RuntimeException(String.format("Module %s required %s v%s or higher", moduleInfo.name, requiredModuleName, minVersion.getVersionString()));
+        else if (module.moduleInfo.version.isLowerThan(minVersion))
+            throw new RuntimeException(String.format("Module %s required %s v%s or higher (current version %s)", moduleInfo.name, requiredModuleName, minVersion.getVersionString(), module.moduleInfo.version.getVersionString()));
     }
 
     /**
@@ -170,7 +159,7 @@ public abstract class LauncherModule {
 
             if (entity.clazz.isAssignableFrom(tClass)) {
                 //noinspection RedundantCast
-                ((EventEntity<T>)entity).handler.event(event);
+                ((EventEntity<T>) entity).handler.event(event);
                 if (event.isCancel()) return;
             }
         }
@@ -213,10 +202,19 @@ public abstract class LauncherModule {
         }
     }
 
-
     @FunctionalInterface
     public interface EventHandler<T extends Event> {
         void event(T e);
+    }
+
+    private final static class EventEntity<T extends Event> {
+        final Class<T> clazz;
+        final EventHandler<T> handler;
+
+        private EventEntity(EventHandler<T> handler, Class<T> clazz) {
+            this.clazz = clazz;
+            this.handler = handler;
+        }
     }
 
     public static class Event {

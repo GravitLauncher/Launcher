@@ -25,7 +25,6 @@ import org.bouncycastle.util.io.pem.PemWriter;
 import pro.gravit.launcher.LauncherTrustManager;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.*;
@@ -50,13 +49,13 @@ import java.util.List;
 public class CertificateManager {
     public final int validDays = 60;
     public final int minusHours = 6;
+    private transient final Logger logger = LogManager.getLogger();
     public X509CertificateHolder ca;
     public AsymmetricKeyParameter caKey;
     public X509CertificateHolder server;
     public AsymmetricKeyParameter serverKey;
     public LauncherTrustManager trustManager;
     public String orgName;
-    private transient final Logger logger = LogManager.getLogger();
 
     public X509CertificateHolder generateCertificate(String subjectName, PublicKey subjectPublicKey) throws OperatorCreationException {
         SubjectPublicKeyInfo subjectPubKeyInfo = SubjectPublicKeyInfo.getInstance(subjectPublicKey.getEncoded());
@@ -182,7 +181,7 @@ public class CertificateManager {
             }
 
         } else {
-            if(IOHelper.exists(dir.resolve("GravitCentralRootCA.crt"))) {
+            if (IOHelper.exists(dir.resolve("GravitCentralRootCA.crt"))) {
                 logger.warn("Found old default certificate - 'GravitCentralRootCA.crt'. Delete...");
                 Files.delete(dir.resolve("GravitCentralRootCA.crt"));
             }

@@ -36,7 +36,11 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
         }
     }
 
+    public interface AuthAvailabilityDetails extends TypeSerializeInterface {
+    }
+
     public static class AuthAvailability {
+        public final List<AuthAvailabilityDetails> details;
         @LauncherNetworkAPI
         public String name;
         @LauncherNetworkAPI
@@ -47,8 +51,6 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
         @Deprecated
         @LauncherNetworkAPI
         public AuthType secondType;
-
-        public final List<AuthAvailabilityDetails> details;
 
         @Deprecated
         public AuthAvailability(String name, String displayName, AuthType firstType, AuthType secondType) {
@@ -80,7 +82,5 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
             @LauncherNetworkAPI
             OTHER
         }
-    }
-    public interface AuthAvailabilityDetails extends TypeSerializeInterface {
     }
 }

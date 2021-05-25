@@ -7,7 +7,6 @@ import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 
 import java.nio.file.Path;
-import java.util.Collection;
 
 public final class ClientModuleManager extends SimpleModuleManager {
     public ClientModuleManager() {

@@ -14,7 +14,7 @@ public class GetAvailabilityAuthRequest extends Request<GetAvailabilityAuthReque
     private static boolean registeredProviders = false;
 
     public static void registerProviders() {
-        if(!registeredProviders) {
+        if (!registeredProviders) {
             providers.register("password", AuthPasswordDetails.class);
             providers.register("webview", AuthWebViewDetails.class);
             providers.register("totp", AuthTotpDetails.class);

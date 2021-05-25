@@ -9,6 +9,13 @@ import java.io.IOException;
 public class TestLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
     public LaunchServerConfig config;
     public LaunchServerRuntimeConfig runtimeConfig;
+
+    public TestLaunchServerConfigManager() {
+        config = LaunchServerConfig.getDefault(LaunchServer.LaunchServerEnv.TEST);
+        runtimeConfig = new LaunchServerRuntimeConfig();
+        runtimeConfig.reset();
+    }
+
     @Override
     public LaunchServerConfig readConfig() throws IOException {
         return config;
@@ -27,11 +34,5 @@ public class TestLaunchServerConfigManager implements LaunchServer.LaunchServerC
     @Override
     public void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException {
 
-    }
-
-    public TestLaunchServerConfigManager() {
-        config = LaunchServerConfig.getDefault(LaunchServer.LaunchServerEnv.TEST);
-        runtimeConfig = new LaunchServerRuntimeConfig();
-        runtimeConfig.reset();
     }
 }

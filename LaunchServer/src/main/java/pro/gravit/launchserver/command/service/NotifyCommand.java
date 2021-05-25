@@ -25,7 +25,7 @@ public class NotifyCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
         NotificationEvent event;
-        if(args.length < 3) {
+        if (args.length < 3) {
             event = new NotificationEvent(args[0], args[1]);
         } else {
             event = new NotificationEvent(args[0], args[1], Enum.valueOf(NotificationEvent.NotificationType.class, args[2]));

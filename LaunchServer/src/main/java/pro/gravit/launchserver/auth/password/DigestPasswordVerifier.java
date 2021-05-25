@@ -12,6 +12,7 @@ import java.util.Arrays;
 public class DigestPasswordVerifier extends PasswordVerifier {
     private transient final Logger logger = LogManager.getLogger();
     public String algo;
+
     @Override
     public boolean check(String encryptedPassword, String password) {
         try {

@@ -92,7 +92,7 @@ public class ClientLauncherProcess {
             LogHelper.error(e);
             javaVersion = null;
         }
-        if(javaVersion == null) {
+        if (javaVersion == null) {
             javaVersion = ClientLauncherWrapper.JavaVersion.getCurrentJavaVersion();
         }
         this.bits = JVMHelper.JVM_BITS;
@@ -120,7 +120,7 @@ public class ClientLauncherProcess {
             this.jvmArgs.add("-Xmx" + params.ram + 'M');
         }
         this.params.oauth = Request.getOAuth();
-        if(this.params.oauth == null) {
+        if (this.params.oauth == null) {
             this.params.session = Request.getSession();
         } else {
             this.params.authId = Request.getAuthId();
@@ -128,7 +128,7 @@ public class ClientLauncherProcess {
             this.params.extendedTokens = Request.getExtendedTokens();
         }
 
-        if(this.params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
+        if (this.params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
             jvmModules.add("javafx.base");
             jvmModules.add("javafx.graphics");
             jvmModules.add("javafx.fxml");
@@ -145,7 +145,7 @@ public class ClientLauncherProcess {
         List<String> processArgs = new LinkedList<>();
         processArgs.add(executeFile.toString());
         processArgs.addAll(jvmArgs);
-        if(javaVersion.version >= 9) {
+        if (javaVersion.version >= 9) {
             applyJava9Params(processArgs);
         }
         //ADD CLASSPATH
@@ -186,23 +186,23 @@ public class ClientLauncherProcess {
         jvmModulesPaths.add(javaVersion.jvmDir);
         jvmModulesPaths.add(javaVersion.jvmDir.resolve("jre"));
         Path openjfxPath = ClientLauncherWrapper.tryGetOpenJFXPath(javaVersion.jvmDir);
-        if(openjfxPath != null) {
+        if (openjfxPath != null) {
             jvmModulesPaths.add(openjfxPath);
         }
         StringBuilder modulesPath = new StringBuilder();
         StringBuilder modulesAdd = new StringBuilder();
-        for(String moduleName : jvmModules) {
+        for (String moduleName : jvmModules) {
             boolean success = ClientLauncherWrapper.tryAddModule(jvmModulesPaths, moduleName, modulesPath);
-            if(success) {
-                if(modulesAdd.length() > 0) modulesAdd.append(",");
+            if (success) {
+                if (modulesAdd.length() > 0) modulesAdd.append(",");
                 modulesAdd.append(moduleName);
             }
         }
-        if(modulesAdd.length() > 0) {
+        if (modulesAdd.length() > 0) {
             processArgs.add("--add-modules");
             processArgs.add(modulesAdd.toString());
         }
-        if(modulesPath.length() > 0) {
+        if (modulesPath.length() > 0) {
             processArgs.add("--module-path");
             processArgs.add(modulesPath.toString());
         }

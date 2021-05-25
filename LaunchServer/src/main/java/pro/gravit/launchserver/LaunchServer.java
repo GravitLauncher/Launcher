@@ -11,7 +11,10 @@ import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.session.MemorySessionStorage;
-import pro.gravit.launchserver.binary.*;
+import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
+import pro.gravit.launchserver.binary.EXELauncherBinary;
+import pro.gravit.launchserver.binary.JARLauncherBinary;
+import pro.gravit.launchserver.binary.LauncherBinary;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
@@ -50,8 +53,6 @@ import java.util.stream.Stream;
  * Not a singletron
  */
 public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurable {
-    private final Logger logger = LogManager.getLogger();
-
     public static final Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
     /**
      * Working folder path
@@ -69,12 +70,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      * The path to the folder with compile-only libraries for the launcher
      */
     public final Path launcherLibrariesCompile;
-
-    // Constant paths
     /**
      * The path to the folder with updates/webroot
      */
     public final Path updatesDir;
+
+    // Constant paths
     /**
      * Save/Reload LaunchServer config
      */
@@ -100,7 +101,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      * Pipeline for building EXE
      */
     public final LauncherBinary launcherEXEBinary;
-
     //public static LaunchServer server = null;
     public final Class<? extends LauncherBinary> launcherEXEBinaryClass;
     // Server config
@@ -125,6 +125,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final ScheduledExecutorService service;
     public final AtomicBoolean started = new AtomicBoolean(false);
     public final LauncherModuleLoader launcherModuleLoader;
+    private final Logger logger = LogManager.getLogger();
     public LaunchServerConfig config;
     public volatile Map<String, HashedDir> updatesDirMap;
     // Updates and profiles
@@ -541,13 +542,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (launcherLibrariesDir == null) launcherLibrariesDir = getPath(LAUNCHERLIBRARIES_NAME);
             if (launcherLibrariesCompileDir == null)
                 launcherLibrariesCompileDir = getPath(LAUNCHERLIBRARIESCOMPILE_NAME);
-            if(keyDirectory == null) keyDirectory = getPath(KEY_NAME);
-            if(tmpDir ==null) tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve(String.format("launchserver-%s", SecurityHelper.randomStringToken()));
+            if (keyDirectory == null) keyDirectory = getPath(KEY_NAME);
+            if (tmpDir == null)
+                tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve(String.format("launchserver-%s", SecurityHelper.randomStringToken()));
         }
 
         private Path getPath(String dirName) {
-            String property = System.getProperty("launchserver.dir."+dirName, null);
-            if(property == null) return dir.resolve(dirName);
+            String property = System.getProperty("launchserver.dir." + dirName, null);
+            if (property == null) return dir.resolve(dirName);
             else return Paths.get(property);
         }
     }

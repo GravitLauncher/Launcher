@@ -6,8 +6,12 @@ import java.util.UUID;
 
 public interface User {
     String getUsername();
+
     UUID getUUID();
+
     String getServerId();
+
     String getAccessToken();
+
     ClientPermissions getPermissions();
 }

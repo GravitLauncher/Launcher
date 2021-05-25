@@ -8,7 +8,6 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.Base64;
 
@@ -34,7 +33,7 @@ public class ClientsCommand extends Command {
         WebSocketService service = server.nettyServerSocketHandler.nettyServer.service;
         service.channels.forEach((channel -> {
             WebSocketFrameHandler frameHandler = channel.pipeline().get(WebSocketFrameHandler.class);
-            if(frameHandler == null) {
+            if (frameHandler == null) {
                 logger.info("Channel {}", IOHelper.getIP(channel.remoteAddress()));
                 return;
             }

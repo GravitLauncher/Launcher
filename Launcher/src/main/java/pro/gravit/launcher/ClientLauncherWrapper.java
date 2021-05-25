@@ -90,28 +90,28 @@ public class ClientLauncherWrapper {
         List<String> args = new ArrayList<>(16);
         args.add(context.executePath.toAbsolutePath().toString());
         args.addAll(context.args);
-        context.jvmProperties.forEach((key,value) -> args.add(String.format("-D%s=%s", key, value)));
-        if(context.javaVersion.version >= 9) {
+        context.jvmProperties.forEach((key, value) -> args.add(String.format("-D%s=%s", key, value)));
+        if (context.javaVersion.version >= 9) {
             context.javaFXPaths.add(context.javaVersion.jvmDir);
             context.javaFXPaths.add(context.javaVersion.jvmDir.resolve("jre"));
             Path openjfxPath = tryGetOpenJFXPath(context.javaVersion.jvmDir);
-            if(openjfxPath != null) {
+            if (openjfxPath != null) {
                 context.javaFXPaths.add(openjfxPath);
             }
             StringBuilder modulesPath = new StringBuilder();
             StringBuilder modulesAdd = new StringBuilder();
-            for(String moduleName : context.jvmModules) {
+            for (String moduleName : context.jvmModules) {
                 boolean success = tryAddModule(context.javaFXPaths, moduleName, modulesPath);
-                if(success) {
-                    if(modulesAdd.length() > 0) modulesAdd.append(",");
+                if (success) {
+                    if (modulesAdd.length() > 0) modulesAdd.append(",");
                     modulesAdd.append(moduleName);
                 }
             }
-            if(modulesAdd.length() > 0) {
+            if (modulesAdd.length() > 0) {
                 args.add("--add-modules");
                 args.add(modulesAdd.toString());
             }
-            if(modulesPath.length() > 0) {
+            if (modulesPath.length() > 0) {
                 args.add("--module-path");
                 args.add(modulesPath.toString());
             }
@@ -145,18 +145,18 @@ public class ClientLauncherWrapper {
     public static Path tryGetOpenJFXPath(Path jvmDir) {
         String dirName = jvmDir.getFileName().toString();
         Path parent = jvmDir.getParent();
-        if(parent == null) return null;
+        if (parent == null) return null;
         Path archJFXPath = parent.resolve(dirName.replace("openjdk", "openjfx"));
-        if(Files.isDirectory(archJFXPath)) {
+        if (Files.isDirectory(archJFXPath)) {
             return archJFXPath;
         }
         Path arch2JFXPath = parent.resolve(dirName.replace("jdk", "openjfx"));
-        if(Files.isDirectory(arch2JFXPath)) {
+        if (Files.isDirectory(arch2JFXPath)) {
             return arch2JFXPath;
         }
-        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
+        if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
             Path debianJfxPath = Paths.get("/usr/share/openjfx");
-            if(Files.isDirectory(debianJfxPath)) {
+            if (Files.isDirectory(debianJfxPath)) {
                 return debianJfxPath;
             }
         }
@@ -293,6 +293,7 @@ public class ClientLauncherWrapper {
             return IOHelper.isFile(jrePath) || IOHelper.isFile(jdkPath);
         }
     }
+
     public static class ClientLauncherWrapperContext {
         public JavaVersion javaVersion;
         public Path executePath;
@@ -305,6 +306,7 @@ public class ClientLauncherWrapper {
         public List<String> jvmModules = new ArrayList<>();
         public List<String> clientArgs = new ArrayList<>();
         public List<Path> javaFXPaths = new ArrayList<>();
+
         public void addSystemProperty(String name) {
             String property = System.getProperty(name);
             if (property != null)

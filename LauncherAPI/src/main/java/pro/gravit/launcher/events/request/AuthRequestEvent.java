@@ -61,6 +61,11 @@ public class AuthRequestEvent extends RequestEvent {
         this.oauth = oauth;
     }
 
+    @Override
+    public String getType() {
+        return "auth";
+    }
+
     public static class OAuthRequestEvent {
         public final String accessToken;
         public final String refreshToken;
@@ -71,10 +76,5 @@ public class AuthRequestEvent extends RequestEvent {
             this.refreshToken = refreshToken;
             this.expire = expire;
         }
-    }
-
-    @Override
-    public String getType() {
-        return "auth";
     }
 }

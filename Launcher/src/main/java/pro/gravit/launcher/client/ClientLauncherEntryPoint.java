@@ -23,7 +23,6 @@ import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
-import pro.gravit.launcher.request.auth.RestoreSessionRequest;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.utils.DirWatcher;
 import pro.gravit.utils.helper.*;
@@ -91,17 +90,17 @@ public class ClientLauncherEntryPoint {
         Launcher.profile = profile;
         AuthService.profile = profile;
         LauncherEngine.clientParams = params;
-        if(params.oauth != null) {
+        if (params.oauth != null) {
             LogHelper.info("Using OAuth");
-            if(params.oauthExpiredTime != 0) {
+            if (params.oauthExpiredTime != 0) {
                 Request.setOAuth(params.authId, params.oauth, params.oauthExpiredTime);
             } else {
                 Request.setOAuth(params.authId, params.oauth);
             }
-            if(params.extendedTokens != null) {
+            if (params.extendedTokens != null) {
                 Request.addAllExtendedToken(params.extendedTokens);
             }
-        } else if(params.session != null) {
+        } else if (params.session != null) {
             LogHelper.info("Using Sessions");
             Request.setSession(params.session);
         }
@@ -160,7 +159,7 @@ public class ClientLauncherEntryPoint {
             ClientService.classLoader = classLoader;
             ClientService.baseURLs = classpath.toArray(new URL[0]);
         }
-        if(params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
+        if (params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
             CommonHelper.newThread("Client Launcher Thread", true, () -> {
                 try {
                     engine.start(args);

@@ -7,16 +7,11 @@ import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 public final class HTTPRequest {
@@ -33,7 +28,7 @@ public final class HTTPRequest {
         HttpClient client = HttpClient.newBuilder()
                 .build();
         HttpRequest.BodyPublisher publisher;
-        if(request != null) {
+        if (request != null) {
             publisher = HttpRequest.BodyPublishers.ofString(request.toString());
         } else {
             publisher = HttpRequest.BodyPublishers.noBody();

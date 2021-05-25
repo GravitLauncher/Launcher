@@ -9,7 +9,6 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.BufferedReader;
 import java.nio.file.Files;
@@ -19,7 +18,7 @@ import java.util.Map;
 
 public final class UnindexAssetCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
-    
+
     public UnindexAssetCommand(LaunchServer server) {
         super(server);
     }

@@ -9,13 +9,12 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
 import pro.gravit.utils.HookException;
-import pro.gravit.utils.helper.LogHelper;
 
 public class CheckServerResponse extends SimpleResponse {
+    private transient final Logger logger = LogManager.getLogger();
     public String serverID;
     public String username;
     public String client;
-    private transient final Logger logger = LogManager.getLogger();
 
     @Override
     public String getType() {

@@ -8,7 +8,6 @@ import pro.gravit.launchserver.auth.handler.CachedAuthHandler;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 public class ServerStatusCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();

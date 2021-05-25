@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.socket.NettyConnectContext;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
@@ -18,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
@@ -87,7 +85,7 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
                     continue;
                 }
                 String key = c.substring(0, index);
-                String value = c.substring(index+1);
+                String value = c.substring(index + 1);
                 map.put(key, value);
             }
             return map;

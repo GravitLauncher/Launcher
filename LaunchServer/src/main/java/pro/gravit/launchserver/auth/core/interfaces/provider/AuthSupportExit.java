@@ -5,5 +5,6 @@ import pro.gravit.launchserver.auth.core.UserSession;
 
 public interface AuthSupportExit {
     boolean deleteSession(UserSession session);
+
     boolean exitUser(User user);
 }

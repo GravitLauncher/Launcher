@@ -10,14 +10,13 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.nio.file.Paths;
 import java.security.KeyPair;
 
 public class TestCommand extends Command {
-    private NettyServerSocketHandler handler = null;
     private transient final Logger logger = LogManager.getLogger();
+    private NettyServerSocketHandler handler = null;
 
     public TestCommand(LaunchServer server) {
         super(server);

@@ -56,13 +56,12 @@ public class ProfileByUUIDResponse extends SimpleResponse {
             sendError("ProfileByUUIDResponse: AuthProviderPair is null");
             return;
         }
-        if(pair.isUseCore()) {
+        if (pair.isUseCore()) {
             User user = pair.core.getUserByUUID(uuid);
-            if(user == null) {
+            if (user == null) {
                 sendError("User not found");
                 return;
-            }
-            else username = user.getUsername();
+            } else username = user.getUsername();
         } else {
             username = pair.handler.uuidToUsername(uuid);
             if (username == null) {

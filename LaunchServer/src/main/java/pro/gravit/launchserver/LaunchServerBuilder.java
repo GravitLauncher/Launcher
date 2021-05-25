@@ -8,8 +8,6 @@ import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.utils.command.CommandHandler;
 
 import java.nio.file.Path;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
 
 public class LaunchServerBuilder {
     private LaunchServerConfig config;
@@ -87,7 +85,7 @@ public class LaunchServerBuilder {
                 }
             };
         }
-        if(keyAgreementManager == null) {
+        if (keyAgreementManager == null) {
             keyAgreementManager = new KeyAgreementManager(directories.keyDirectory);
         }
         return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, modulesManager, keyAgreementManager, commandHandler, certificateManager);

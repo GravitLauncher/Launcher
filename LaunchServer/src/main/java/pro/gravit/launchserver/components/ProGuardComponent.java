@@ -7,7 +7,10 @@ import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
-import pro.gravit.utils.helper.*;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.utils.helper.UnpackHelper;
 import proguard.Configuration;
 import proguard.ConfigurationParser;
 import proguard.ParseException;
@@ -20,9 +23,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class ProGuardComponent extends Component implements AutoCloseable, Reconfigurable {
+    private transient static final Logger logger = LogManager.getLogger();
     public String modeAfter = "MainBuild";
     public String dir = "proguard";
     public boolean enabled = true;
@@ -30,7 +37,40 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     public transient ProguardConf proguardConf;
     private transient LaunchServer launchServer;
     private transient ProGuardBuildTask buildTask;
-    private transient static final Logger logger = LogManager.getLogger();
+
+    public static boolean checkFXJMods(Path path) {
+        if (!IOHelper.exists(path.resolve("javafx.base.jmod")))
+            return false;
+        if (!IOHelper.exists(path.resolve("javafx.graphics.jmod")))
+            return false;
+        return IOHelper.exists(path.resolve("javafx.controls.jmod"));
+    }
+
+    public static boolean checkJMods(Path path) {
+        return IOHelper.exists(path.resolve("java.base.jmod"));
+    }
+
+    public static Path tryFindOpenJFXPath(Path jvmDir) {
+        String dirName = jvmDir.getFileName().toString();
+        Path parent = jvmDir.getParent();
+        if (parent == null) return null;
+        Path archJFXPath = parent.resolve(dirName.replace("openjdk", "openjfx")).resolve("jmods");
+        if (Files.isDirectory(archJFXPath)) {
+            return archJFXPath;
+        }
+        Path arch2JFXPath = parent.resolve(dirName.replace("jdk", "openjfx")).resolve("jmods");
+        if (Files.isDirectory(arch2JFXPath)) {
+            return arch2JFXPath;
+        }
+        if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
+            Path debianJfxPath = Paths.get("/usr/share/openjfx/jmods");
+            if (Files.isDirectory(debianJfxPath)) {
+                return debianJfxPath;
+            }
+        }
+        return null;
+    }
+
     @Override
     public void init(LaunchServer launchServer) {
         this.launchServer = launchServer;
@@ -41,7 +81,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
 
     @Override
     public void close() throws Exception {
-        if(launchServer != null && buildTask != null) {
+        if (launchServer != null && buildTask != null) {
             launchServer.launcherBinary.tasks.remove(buildTask);
         }
     }
@@ -93,15 +133,14 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             Path outputJar = server.launcherBinary.nextLowerPath(this);
             if (component.enabled) {
                 Configuration proguard_cfg = new Configuration();
-                if(!checkJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
+                if (!checkJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
                     logger.error("Java path: {} is not JDK! Please install JDK", IOHelper.JVM_DIR);
                 }
                 Path jfxPath = tryFindOpenJFXPath(IOHelper.JVM_DIR);
-                if(checkFXJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
+                if (checkFXJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
                     logger.debug("JavaFX jmods resolved in JDK path");
                     jfxPath = null;
-                }
-                else if(jfxPath != null && checkFXJMods(jfxPath)) {
+                } else if (jfxPath != null && checkFXJMods(jfxPath)) {
                     logger.debug("JMods resolved in {}", jfxPath.toString());
                 } else {
                     logger.error("JavaFX jmods not found. May be install OpenJFX?");
@@ -124,39 +163,6 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         public boolean allowDelete() {
             return true;
         }
-    }
-
-    public static boolean checkFXJMods(Path path) {
-        if (!IOHelper.exists(path.resolve("javafx.base.jmod")))
-            return false;
-        if (!IOHelper.exists(path.resolve("javafx.graphics.jmod")))
-            return false;
-        return IOHelper.exists(path.resolve("javafx.controls.jmod"));
-    }
-
-    public static boolean checkJMods(Path path) {
-        return IOHelper.exists(path.resolve("java.base.jmod"));
-    }
-
-    public static Path tryFindOpenJFXPath(Path jvmDir) {
-        String dirName = jvmDir.getFileName().toString();
-        Path parent = jvmDir.getParent();
-        if(parent == null) return null;
-        Path archJFXPath = parent.resolve(dirName.replace("openjdk", "openjfx")).resolve("jmods");
-        if(Files.isDirectory(archJFXPath)) {
-            return archJFXPath;
-        }
-        Path arch2JFXPath = parent.resolve(dirName.replace("jdk", "openjfx")).resolve("jmods");
-        if(Files.isDirectory(arch2JFXPath)) {
-            return arch2JFXPath;
-        }
-        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
-            Path debianJfxPath = Paths.get("/usr/share/openjfx/jmods");
-            if(Files.isDirectory(debianJfxPath)) {
-                return debianJfxPath;
-            }
-        }
-        return null;
     }
 
     public static class ProguardConf {
@@ -205,8 +211,8 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             confStrs.add("-injar '" + inputJar.toAbsolutePath() + "'");
             confStrs.add("-outjar '" + outputJar.toAbsolutePath() + "'");
             Collections.addAll(confStrs, JAVA9_OPTS);
-            if(jfxPath != null) {
-                for(Path path : jfxPath) {
+            if (jfxPath != null) {
+                for (Path path : jfxPath) {
                     confStrs.add(String.format("-libraryjars '%s'", path.toAbsolutePath()));
                 }
             }

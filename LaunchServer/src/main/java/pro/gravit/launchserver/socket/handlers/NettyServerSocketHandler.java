@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.LauncherNettyServer;
-import pro.gravit.utils.helper.LogHelper;
 
 import javax.net.ssl.SSLServerSocketFactory;
 import java.net.InetSocketAddress;
@@ -13,10 +12,9 @@ import java.net.InetSocketAddress;
 @SuppressWarnings("unused")
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private transient final LaunchServer server;
+    private transient final Logger logger = LogManager.getLogger();
     @Deprecated
     public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
-    private transient final Logger logger = LogManager.getLogger();
-
     public LauncherNettyServer nettyServer;
     private SSLServerSocketFactory ssf;
 

@@ -13,24 +13,21 @@ import java.io.IOException;
 import java.sql.*;
 
 public class MysqlHWIDProvider extends HWIDProvider {
+    private transient final Logger logger = LogManager.getLogger();
     public MySQLSourceConfig mySQLHolder;
     public double warningSpoofingLevel = -1.0;
     public double criticalCompareLevel = 1.0;
-
     public String tableHWID = "hwids";
     public String tableHWIDLog = "hwidLog";
     public String tableUsers;
     public String usersNameColumn;
     public String usersHWIDColumn;
-
     private String sqlFindByPublicKey;
     private String sqlFindByHardware;
     private String sqlCreateHardware;
     private String sqlCreateHWIDLog;
     private String sqlUpdateHardware;
     private String sqlUpdateUsers;
-    
-    private transient final Logger logger = LogManager.getLogger();
 
     @Override
     public void init(LaunchServer server) {

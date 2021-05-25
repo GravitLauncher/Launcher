@@ -7,7 +7,6 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;

@@ -17,7 +17,6 @@ import pro.gravit.launchserver.asm.SafeClassWriter;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.utils.HookException;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
@@ -61,15 +60,16 @@ public class MainBuildTask implements LauncherBuildTask {
             properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             postInitProps();
             reader.getCp().add(new JarFile(inputJar.toFile()));
-            for(Path e :  server.launcherBinary.coreLibs) {
+            for (Path e : server.launcherBinary.coreLibs) {
                 reader.getCp().add(new JarFile(e.toFile()));
-            };
+            }
+            ;
             context.pushJarFile(inputJar, (e) -> blacklist.contains(e.getName()), (e) -> true);
 
             // map for guard
             Map<String, byte[]> runtime = new HashMap<>(256);
             // Write launcher guard dir
-            if(server.config.launcher.encryptRuntime) {
+            if (server.config.launcher.encryptRuntime) {
                 context.pushEncryptedDir(server.launcherBinary.runtimeDir, Launcher.RUNTIME_DIR, server.runtime.runtimeEncryptKey, runtime, false);
             } else {
                 context.pushDir(server.launcherBinary.runtimeDir, Launcher.RUNTIME_DIR, runtime, false);
@@ -114,7 +114,8 @@ public class MainBuildTask implements LauncherBuildTask {
         properties.put("launchercore.env", server.config.env);
         properties.put("launcher.memory", server.config.launcher.memoryLimit);
         if (server.config.launcher.encryptRuntime) {
-            if (server.runtime.runtimeEncryptKey == null) server.runtime.runtimeEncryptKey = SecurityHelper.randomStringToken();
+            if (server.runtime.runtimeEncryptKey == null)
+                server.runtime.runtimeEncryptKey = SecurityHelper.randomStringToken();
             properties.put("runtimeconfig.runtimeEncryptKey", server.runtime.runtimeEncryptKey);
         }
         properties.put("launcher.certificatePinning", server.config.launcher.certificatePinning);

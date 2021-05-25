@@ -2,7 +2,8 @@
 <Configuration status="INFO" packages="pro.gravit.launchserver.config.log4j">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} %highlight{[%-5level]}{FATAL=red, ERROR=red, WARN=yellow, INFO=default, DEBUG=green, TRACE=blue} %highlight{%msg}{FATAL=red, ERROR=red, WARN=yellow, INFO=default, DEBUG=green, TRACE=blue}%n" />
+            <PatternLayout
+                    pattern="%d{HH:mm:ss.SSS} %highlight{[%-5level]}{FATAL=red, ERROR=red, WARN=yellow, INFO=default, DEBUG=green, TRACE=blue} %highlight{%msg}{FATAL=red, ERROR=red, WARN=yellow, INFO=default, DEBUG=green, TRACE=blue}%n"/>
             <Filters>
                 <MarkerFilter marker="JANSI" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
                 <MarkerFilter marker="NOJANSI" onMatch="DENY" onMismatch="NEUTRAL"/>
@@ -12,7 +13,7 @@
                      filePattern="logs/%d{yyyy-MM-dd}.log.gz">
             <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
             <Policies>
-                <TimeBasedTriggeringPolicy />
+                <TimeBasedTriggeringPolicy/>
             </Policies>
             <Filters>
                 <MarkerFilter marker="JANSI" onMatch="DENY" onMismatch="NEUTRAL"/>
@@ -36,7 +37,7 @@
             <AppenderRef ref="DebugFile" level="debug"/>
         </Root>
         <Logger name="pro.gravit" level="debug" additivity="false">
-            <AppenderRef ref="Console" />
+            <AppenderRef ref="Console"/>
             <AppenderRef ref="MainFile"/>
             <AppenderRef ref="logCollector"/>
             <AppenderRef ref="DebugFile"/>

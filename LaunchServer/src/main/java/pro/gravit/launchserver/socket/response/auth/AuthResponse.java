@@ -5,28 +5,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.password.*;
-import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
-import pro.gravit.launchserver.auth.provider.AuthProvider;
-import pro.gravit.launchserver.auth.provider.AuthProviderDAOResult;
-import pro.gravit.launchserver.auth.provider.AuthProviderResult;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
 import pro.gravit.utils.HookException;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
-import pro.gravit.utils.helper.VerifyHelper;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import java.security.SecureRandom;
-import java.util.Random;
 import java.util.UUID;
 
 public class AuthResponse extends SimpleResponse {
@@ -62,7 +48,7 @@ public class AuthResponse extends SimpleResponse {
             server.authHookManager.preHook.hook(context, clientData);
             context.report = server.authManager.auth(context, password);
             server.authHookManager.postHook.hook(context, clientData);
-            if(context.report.isUsingOAuth()) {
+            if (context.report.isUsingOAuth()) {
                 result.oauth = new AuthRequestEvent.OAuthRequestEvent(context.report.oauthAccessToken, context.report.oauthRefreshToken, context.report.oauthExpire);
             } else if (getSession) {
                 if (clientData.session == null) {
@@ -71,7 +57,7 @@ public class AuthResponse extends SimpleResponse {
                 }
                 result.session = clientData.session;
             }
-            if(context.report.minecraftAccessToken != null) {
+            if (context.report.minecraftAccessToken != null) {
                 result.accessToken = context.report.minecraftAccessToken;
             }
             result.playerProfile = ProfileByUUIDResponse.getProfile(clientData.uuid, clientData.username, client, clientData.auth.textureProvider);

@@ -2,16 +2,15 @@ package pro.gravit.launchserver.config;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 public class LaunchServerRuntimeConfig {
+    private transient final Logger logger = LogManager.getLogger();
     public String passwordEncryptKey;
     public String runtimeEncryptKey;
     public String oemUnlockKey;
     public String registerApiKey;
     public String clientCheckSecret;
-    private transient final Logger logger = LogManager.getLogger();
 
     public void verify() {
         if (passwordEncryptKey == null) logger.error("[RuntimeConfig] passwordEncryptKey must not be null");

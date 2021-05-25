@@ -19,15 +19,15 @@ public class Depend2Module extends LauncherModule {
 
     @Override
     public void init(LauncherInitContext initContext) {
-        requireModule("depend1", new Version(1,0,0));
+        requireModule("depend1", new Version(1, 0, 0));
         try {
-            requireModule("dependNotFound", new Version(1,0,0));
+            requireModule("dependNotFound", new Version(1, 0, 0));
             Assertions.fail("dependNotFound");
         } catch (RuntimeException ignored) {
 
         }
         try {
-            requireModule("depend1", new Version(10,0,0));
+            requireModule("depend1", new Version(10, 0, 0));
             Assertions.fail("depend1 high version");
         } catch (RuntimeException ignored) {
 

@@ -4,7 +4,6 @@ import org.fusesource.jansi.Ansi;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.command.CommandHandler;
-import pro.gravit.utils.helper.FormatHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.util.Arrays;

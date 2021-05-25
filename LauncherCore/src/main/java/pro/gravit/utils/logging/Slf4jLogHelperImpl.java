@@ -13,6 +13,7 @@ import static pro.gravit.utils.helper.LogHelper.NO_JANSI_PROPERTY;
 public class Slf4jLogHelperImpl implements LogHelperAppender {
     private final Logger logger = LoggerFactory.getLogger("LogHelper");
     private final boolean JANSI;
+
     public Slf4jLogHelperImpl() {
         boolean jansi;
         try {
@@ -52,7 +53,7 @@ public class Slf4jLogHelperImpl implements LogHelperAppender {
 
     @Override
     public void logJAnsi(LogHelper.Level level, Supplier<String> plaintext, Supplier<String> jansitext, boolean sub) {
-        if(JANSI) {
+        if (JANSI) {
             log(level, jansitext.get(), sub);
         } else {
             log(level, plaintext.get(), sub);
@@ -101,7 +102,7 @@ public class Slf4jLogHelperImpl implements LogHelperAppender {
 
     @Override
     public void printVersion(String product) {
-        if(JANSI) {
+        if (JANSI) {
             logger.info(FormatHelper.ansiFormatVersion(product));
         } else {
             logger.info(FormatHelper.formatVersion(product));
@@ -110,7 +111,7 @@ public class Slf4jLogHelperImpl implements LogHelperAppender {
 
     @Override
     public void printLicense(String product) {
-        if(JANSI) {
+        if (JANSI) {
             logger.info(FormatHelper.ansiFormatLicense(product));
         } else {
             logger.info(FormatHelper.formatLicense(product));

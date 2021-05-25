@@ -3,7 +3,6 @@ package pro.gravit.launchserver.binary;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.*;
-import pro.gravit.launchserver.components.ProGuardComponent;
 
 import java.io.IOException;
 import java.nio.file.Files;

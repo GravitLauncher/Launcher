@@ -24,15 +24,14 @@ import static pro.gravit.utils.helper.LogHelper.*;
 
 public class SimpleLogHelperImpl implements LogHelperAppender {
 
-    // Output settings
-    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US);
     private static final AtomicBoolean DEBUG_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEBUG_PROPERTY));
     private static final AtomicBoolean STACKTRACE_ENABLED = new AtomicBoolean(Boolean.getBoolean(STACKTRACE_PROPERTY));
     private static final AtomicBoolean DEV_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEV_PROPERTY));
+    public final boolean JANSI;
+    // Output settings
+    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US);
     private final Set<LogHelper.OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
     private final LogHelper.OutputEnity STD_OUTPUT;
-
-    public final boolean JANSI;
 
     public SimpleLogHelperImpl() {
         // Use JAnsi if available
@@ -96,7 +95,7 @@ public class SimpleLogHelperImpl implements LogHelperAppender {
 
     @Override
     public void logJAnsi(Level level, Supplier<String> plaintext, Supplier<String> jansitext, boolean sub) {
-        if(JANSI) {
+        if (JANSI) {
             log(level, jansitext.get(), sub);
         } else {
             log(level, plaintext.get(), sub);
@@ -243,7 +242,6 @@ public class SimpleLogHelperImpl implements LogHelperAppender {
             super(IOHelper.newWriter(output));
         }
     }
-
 
 
     public static class WriterOutput implements Output, AutoCloseable {

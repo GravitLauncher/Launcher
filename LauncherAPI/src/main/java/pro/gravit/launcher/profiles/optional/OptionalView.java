@@ -15,9 +15,6 @@ public class OptionalView {
     public Map<OptionalFile, Set<OptionalFile>> dependenciesCountMap = new HashMap<>();
     public Map<OptionalFile, OptionalFileInstallInfo> installInfo = new HashMap<>();
     public Set<OptionalFile> all;
-    public static class OptionalFileInstallInfo {
-        public boolean isManual;
-    }
 
     public OptionalView(ClientProfile profile) {
         this.all = profile.getOptional();
@@ -115,11 +112,11 @@ public class OptionalView {
     }
 
     public void enable(OptionalFile file, boolean manual, BiConsumer<OptionalFile, Boolean> callback) {
-        if(enabled.contains(file)) return;
+        if (enabled.contains(file)) return;
         enabled.add(file);
-        if(callback != null) callback.accept(file, true);
+        if (callback != null) callback.accept(file, true);
         OptionalFileInstallInfo installInfo = this.installInfo.get(file);
-        if(installInfo == null) {
+        if (installInfo == null) {
             installInfo = new OptionalFileInstallInfo();
             this.installInfo.put(file, installInfo);
         }
@@ -137,17 +134,17 @@ public class OptionalView {
     }
 
     public void disable(OptionalFile file, BiConsumer<OptionalFile, Boolean> callback) {
-        if(!enabled.remove(file)) return;
-        if(callback != null) callback.accept(file, false);
-        for(OptionalFile dep : all) {
-            if(dep.dependencies != null && contains(file, dep.dependencies)) {
+        if (!enabled.remove(file)) return;
+        if (callback != null) callback.accept(file, false);
+        for (OptionalFile dep : all) {
+            if (dep.dependencies != null && contains(file, dep.dependencies)) {
                 disable(dep, callback);
             }
         }
         if (file.dependencies != null) {
             for (OptionalFile dep : file.dependencies) {
                 OptionalFileInstallInfo installInfo = this.installInfo.get(dep);
-                if(installInfo != null && !installInfo.isManual) {
+                if (installInfo != null && !installInfo.isManual) {
                     disable(file, callback);
                 }
             }
@@ -155,11 +152,15 @@ public class OptionalView {
     }
 
     private boolean contains(OptionalFile file, OptionalFile[] array) {
-        for(OptionalFile e : array) {
-            if(e == file) {
+        for (OptionalFile e : array) {
+            if (e == file) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static class OptionalFileInstallInfo {
+        public boolean isManual;
     }
 }

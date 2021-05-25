@@ -19,22 +19,19 @@ import java.util.List;
 import java.util.Map;
 
 public class RestoreResponse extends SimpleResponse {
-    @FunctionalInterface
-    public interface ExtendedTokenProvider {
-        boolean accept(Client client, AuthProviderPair pair, String extendedToken);
-    }
     public static Map<String, ExtendedTokenProvider> providers = new HashMap<>();
     private static boolean registeredProviders = false;
-    public static void registerProviders(LaunchServer server) {
-        if(!registeredProviders) {
-            providers.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponse.LauncherTokenVerifier(server));
-            registeredProviders = true;
-        }
-    }
     public String authId;
     public String accessToken;
     public Map<String, String> extended;
     public boolean needUserInfo;
+
+    public static void registerProviders(LaunchServer server) {
+        if (!registeredProviders) {
+            providers.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponse.LauncherTokenVerifier(server));
+            registeredProviders = true;
+        }
+    }
 
     @Override
     public String getType() {
@@ -43,13 +40,13 @@ public class RestoreResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        if(accessToken == null && !client.isAuth && needUserInfo) {
+        if (accessToken == null && !client.isAuth && needUserInfo) {
             sendError("Invalid request");
             return;
         }
         AuthProviderPair pair;
-        if(!client.isAuth) {
-            if(authId == null) {
+        if (!client.isAuth) {
+            if (authId == null) {
                 pair = server.config.getAuthProviderPair();
             } else {
                 pair = server.config.getAuthProviderPair(authId);
@@ -57,11 +54,11 @@ public class RestoreResponse extends SimpleResponse {
         } else {
             pair = client.auth;
         }
-        if(pair == null || !pair.isUseCore()) {
+        if (pair == null || !pair.isUseCore()) {
             sendError("Invalid authId");
             return;
         }
-        if(accessToken != null) {
+        if (accessToken != null) {
             UserSession session;
             try {
                 session = pair.core.getUserSessionByOAuthAccessToken(accessToken);
@@ -69,7 +66,7 @@ public class RestoreResponse extends SimpleResponse {
                 sendError(AuthRequestEvent.OAUTH_TOKEN_EXPIRE);
                 return;
             }
-            if(session == null) {
+            if (session == null) {
                 sendError(AuthRequestEvent.OAUTH_TOKEN_INVALID);
                 return;
             }
@@ -79,19 +76,24 @@ public class RestoreResponse extends SimpleResponse {
             server.authManager.internalAuth(client, client.type == null ? AuthResponse.ConnectTypes.API : client.type, pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
         }
         List<String> invalidTokens = new ArrayList<>(4);
-        if(extended != null) {
-            extended.forEach((k,v) -> {
+        if (extended != null) {
+            extended.forEach((k, v) -> {
                 ExtendedTokenProvider provider = providers.get(k);
-                if(provider == null) return;
-                if(!provider.accept(client, pair, v)) {
+                if (provider == null) return;
+                if (!provider.accept(client, pair, v)) {
                     invalidTokens.add(k);
                 }
             });
         }
-        if(needUserInfo && client.isAuth) {
+        if (needUserInfo && client.isAuth) {
             sendResult(new RestoreRequestEvent(CurrentUserResponse.collectUserInfoFromClient(client), invalidTokens));
         } else {
             sendResult(new RestoreRequestEvent(invalidTokens));
         }
+    }
+
+    @FunctionalInterface
+    public interface ExtendedTokenProvider {
+        boolean accept(Client client, AuthProviderPair pair, String extendedToken);
     }
 }

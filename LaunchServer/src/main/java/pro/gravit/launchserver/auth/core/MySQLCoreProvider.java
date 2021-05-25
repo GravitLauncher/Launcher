@@ -75,7 +75,7 @@ public class MySQLCoreProvider extends AuthCoreProvider {
 
     @Override
     public PasswordVerifyReport verifyPassword(User user, AuthRequest.AuthPasswordInterface password) {
-        if(passwordVerifier.check(((MySQLUser)user).password, ((AuthPlainPassword)password).password)) {
+        if (passwordVerifier.check(((MySQLUser) user).password, ((AuthPlainPassword) password).password)) {
             return new PasswordVerifyReport(true);
         } else {
             return PasswordVerifyReport.FAILED;
@@ -84,7 +84,7 @@ public class MySQLCoreProvider extends AuthCoreProvider {
 
     @Override
     public AuthManager.AuthReport createOAuthSession(User user, AuthResponse.AuthContext context, PasswordVerifyReport report, boolean minecraftAccess) throws IOException {
-        if(minecraftAccess) {
+        if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();
             updateAuth(user, minecraftAccessToken);
             return AuthManager.AuthReport.ofMinecraftAccessToken(minecraftAccessToken);

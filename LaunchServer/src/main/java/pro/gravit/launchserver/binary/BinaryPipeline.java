@@ -17,11 +17,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class BinaryPipeline {
-    private transient final Logger logger = LogManager.getLogger();
     public final List<LauncherBuildTask> tasks = new ArrayList<>();
     public final AtomicLong count = new AtomicLong(0);
     public final Path buildDir;
     public final String nameFormat;
+    private transient final Logger logger = LogManager.getLogger();
 
     public BinaryPipeline(Path buildDir, String nameFormat) {
         this.buildDir = buildDir;

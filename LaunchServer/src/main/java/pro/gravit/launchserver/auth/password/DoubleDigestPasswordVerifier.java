@@ -13,6 +13,7 @@ public class DoubleDigestPasswordVerifier extends PasswordVerifier {
     private transient final Logger logger = LogManager.getLogger();
     public String algo;
     public boolean toHexMode;
+
     @Override
     public boolean check(String encryptedPassword, String password) {
         try {

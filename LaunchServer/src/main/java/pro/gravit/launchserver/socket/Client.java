@@ -85,8 +85,8 @@ public class Client {
     }
 
     public pro.gravit.launchserver.auth.core.User getUser() {
-        if(coreObject != null) return coreObject;
-        if(auth != null && uuid != null && auth.isUseCore()) {
+        if (coreObject != null) return coreObject;
+        if (auth != null && uuid != null && auth.isUseCore()) {
             coreObject = auth.core.getUserByUUID(uuid);
         }
         return coreObject;

@@ -28,7 +28,7 @@ public class AuthProviderPair {
     public void init(LaunchServer srv, String name) {
         this.name = name;
         if (links != null) link(srv);
-        if(core == null) {
+        if (core == null) {
             if (provider == null) throw new NullPointerException(String.format("Auth %s provider null", name));
             if (handler == null) throw new NullPointerException(String.format("Auth %s handler null", name));
             provider.init(srv);
@@ -65,7 +65,7 @@ public class AuthProviderPair {
     }
 
     public void close() throws IOException {
-        if(core == null) {
+        if (core == null) {
             provider.close();
             handler.close();
         } else {

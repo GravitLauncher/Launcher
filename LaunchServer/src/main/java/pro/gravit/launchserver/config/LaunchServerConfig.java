@@ -23,7 +23,6 @@ import pro.gravit.launchserver.components.RegLimiterComponent;
 import pro.gravit.launchserver.dao.provider.DaoProvider;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.File;
 import java.util.Arrays;
@@ -31,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class LaunchServerConfig {
+    private transient final Logger logger = LogManager.getLogger();
     public String projectName;
     public String[] mirrors;
     public String binaryName;
@@ -40,7 +40,6 @@ public final class LaunchServerConfig {
     @Deprecated
     public DaoProvider dao;
     public SessionStorage sessions;
-
     // Handlers & Providers
     public ProtectHandler protectHandler;
     public Map<String, Component> components;
@@ -51,7 +50,6 @@ public final class LaunchServerConfig {
     public String startScript;
     private transient LaunchServer server = null;
     private transient AuthProviderPair authDefault;
-    private transient final Logger logger = LogManager.getLogger();
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
@@ -157,7 +155,7 @@ public final class LaunchServerConfig {
             throw new NullPointerException("AuthProviderPair`s count should be at least one");
         }
 
-        if(dao != null) {
+        if (dao != null) {
             logger.warn("DAO deprecated and may be remove in future release");
         }
 

@@ -9,13 +9,12 @@ import pro.gravit.launchserver.auth.protect.interfaces.JoinServerProtectHandler;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.HookException;
-import pro.gravit.utils.helper.LogHelper;
 
 public class JoinServerResponse extends SimpleResponse {
+    private transient final Logger logger = LogManager.getLogger();
     public String serverID;
     public String accessToken;
     public String username;
-    private transient final Logger logger = LogManager.getLogger();
 
     @Override
     public String getType() {
@@ -43,7 +42,7 @@ public class JoinServerResponse extends SimpleResponse {
                 }
             }
             success = server.authManager.joinServer(client, username, accessToken, serverID);
-            if(success) {
+            if (success) {
                 logger.debug("joinServer: {} accessToken: {} serverID: {}", username, accessToken, serverID);
             }
         } catch (AuthException | HookException | SecurityException e) {

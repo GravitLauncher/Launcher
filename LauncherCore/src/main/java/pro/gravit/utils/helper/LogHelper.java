@@ -5,29 +5,30 @@ import pro.gravit.utils.logging.LogHelperAppender;
 import pro.gravit.utils.logging.SimpleLogHelperImpl;
 import pro.gravit.utils.logging.Slf4jLogHelperImpl;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class LogHelper {
 
-    private static LogHelperAppender impl;
     public static final String DEBUG_PROPERTY = "launcher.debug";
-
     public static final String DEV_PROPERTY = "launcher.dev";
-
     public static final String STACKTRACE_PROPERTY = "launcher.stacktrace";
-
     public static final String NO_JANSI_PROPERTY = "launcher.noJAnsi";
-
     public static final String NO_SLF4J_PROPERTY = "launcher.noSlf4j";
-
     private static final Set<Consumer<Throwable>> EXCEPTIONS_CALLBACKS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
+    private static LogHelperAppender impl;
 
     static {
         boolean useSlf4j = false;
@@ -37,7 +38,7 @@ public final class LogHelper {
             useSlf4j = !Boolean.getBoolean(NO_SLF4J_PROPERTY);
         } catch (ClassNotFoundException ignored) {
         }
-        if(useSlf4j) {
+        if (useSlf4j) {
             impl = new Slf4jLogHelperImpl();
         } else {
             impl = new SimpleLogHelperImpl();
@@ -133,6 +134,7 @@ public final class LogHelper {
     public static void setDevEnabled(boolean stacktraceEnabled) {
         impl.setDevEnabled(stacktraceEnabled);
     }
+
     @Deprecated
     public static String getDataTime() {
         return DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US).format(LocalDateTime.now());

@@ -14,8 +14,6 @@ import pro.gravit.utils.helper.LogHelper;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public abstract class Request<R extends WebSocketEvent> implements WebSocketRequest {
     public static StdWebSocketService service;
@@ -25,9 +23,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     private static String authId;
     private static long tokenExpiredTime;
     private static List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
-    public interface ExtendedTokenCallback {
-        String tryGetNewToken(String name);
-    }
     @LauncherNetworkAPI
     public final UUID requestUUID = UUID.randomUUID();
     private transient final AtomicBoolean started = new AtomicBoolean(false);
@@ -43,15 +38,11 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     public static void setOAuth(String authId, AuthRequestEvent.OAuthRequestEvent event) {
         oauth = event;
         Request.authId = authId;
-        if(oauth != null && oauth.expire != 0) {
+        if (oauth != null && oauth.expire != 0) {
             tokenExpiredTime = System.currentTimeMillis() + oauth.expire;
         } else {
             tokenExpiredTime = 0;
         }
-    }
-
-    public void addExtendedTokenCallback(ExtendedTokenCallback cb) {
-        extendedTokenCallbacks.add(cb);
     }
 
     public static AuthRequestEvent.OAuthRequestEvent getOAuth() {
@@ -63,7 +54,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     }
 
     public static Map<String, String> getExtendedTokens() {
-        if(extendedTokens != null) {
+        if (extendedTokens != null) {
             return Collections.unmodifiableMap(extendedTokens);
         } else {
             return null;
@@ -71,20 +62,20 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     }
 
     public static void clearExtendedTokens() {
-        if(extendedTokens != null) {
+        if (extendedTokens != null) {
             extendedTokens.clear();
         }
     }
 
     public static void addExtendedToken(String name, String token) {
-        if(extendedTokens == null) {
+        if (extendedTokens == null) {
             extendedTokens = new HashMap<>();
         }
         extendedTokens.put(name, token);
     }
 
     public static void addAllExtendedToken(Map<String, String> map) {
-        if(extendedTokens == null) {
+        if (extendedTokens == null) {
             extendedTokens = new HashMap<>();
         }
         extendedTokens.putAll(map);
@@ -97,8 +88,8 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     }
 
     public static boolean isTokenExpired() {
-        if(oauth == null) return true;
-        if(tokenExpiredTime == 0) return false;
+        if (oauth == null) return true;
+        if (tokenExpiredTime == 0) return false;
         return System.currentTimeMillis() > tokenExpiredTime;
     }
 
@@ -120,36 +111,36 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     }
 
     public static void restore() throws Exception {
-        if(oauth != null) {
-            if(isTokenExpired() || oauth.accessToken == null) {
+        if (oauth != null) {
+            if (isTokenExpired() || oauth.accessToken == null) {
                 RefreshTokenRequest request = new RefreshTokenRequest(authId, oauth.refreshToken);
                 RefreshTokenRequestEvent event = request.request();
                 setOAuth(authId, event.oauth);
             }
             RestoreRequest request = new RestoreRequest(authId, oauth.accessToken, extendedTokens, false);
             RestoreRequestEvent event = request.request();
-            if(event.invalidTokens != null && event.invalidTokens.size() > 0) {
+            if (event.invalidTokens != null && event.invalidTokens.size() > 0) {
                 boolean needRequest = false;
                 Map<String, String> tokens = new HashMap<>();
-                for(ExtendedTokenCallback cb : extendedTokenCallbacks) {
-                    for(String tokenName : event.invalidTokens) {
+                for (ExtendedTokenCallback cb : extendedTokenCallbacks) {
+                    for (String tokenName : event.invalidTokens) {
                         String newToken = cb.tryGetNewToken(tokenName);
-                        if(newToken != null) {
+                        if (newToken != null) {
                             needRequest = true;
                             tokens.put(tokenName, newToken);
                             addExtendedToken(tokenName, newToken);
                         }
                     }
                 }
-                if(needRequest) {
+                if (needRequest) {
                     request = new RestoreRequest(authId, null, tokens, false);
                     event = request.request();
-                    if(event.invalidTokens != null && event.invalidTokens.size() > 0) {
+                    if (event.invalidTokens != null && event.invalidTokens.size() > 0) {
                         LogHelper.warning("Tokens %s not restored", String.join(",", event.invalidTokens));
                     }
                 }
             }
-        } else if(session != null) {
+        } else if (session != null) {
             RestoreSessionRequest request = new RestoreSessionRequest(session);
             request.request();
         }
@@ -157,6 +148,10 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
 
     public static void requestError(String message) throws RequestException {
         throw new RequestException(message);
+    }
+
+    public void addExtendedTokenCallback(ExtendedTokenCallback cb) {
+        extendedTokenCallbacks.add(cb);
     }
 
     public R request() throws Exception {
@@ -167,7 +162,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         return requestDo(service);
     }
 
-
     public R request(StdWebSocketService service) throws Exception {
         if (!started.compareAndSet(false, true))
             throw new IllegalStateException("Request already started");
@@ -176,6 +170,10 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
 
     protected R requestDo(StdWebSocketService service) throws Exception {
         return service.requestSync(this);
+    }
+
+    public interface ExtendedTokenCallback {
+        String tryGetNewToken(String name);
     }
 
 }

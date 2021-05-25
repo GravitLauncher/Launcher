@@ -24,6 +24,22 @@ public final class Version implements Comparable<Version> {
         release = Type.UNKNOWN;
     }
 
+    public Version(int major, int minor, int patch, int build) {
+        this.major = major;
+        this.minor = minor;
+        this.patch = patch;
+        this.build = build;
+        release = Type.UNKNOWN;
+    }
+
+    public Version(int major, int minor, int patch, int build, Type release) {
+        this.major = major;
+        this.minor = minor;
+        this.patch = patch;
+        this.build = build;
+        this.release = release;
+    }
+
     public static Version of(int major, int minor, int patch) {
         return new Version(major, minor, patch);
     }
@@ -34,24 +50,6 @@ public final class Version implements Comparable<Version> {
 
     public static Version of(int major, int minor, int patch, int build, Type release) {
         return new Version(major, minor, patch, build, release);
-    }
-
-
-    public Version(int major, int minor, int patch, int build) {
-        this.major = major;
-        this.minor = minor;
-        this.patch = patch;
-        this.build = build;
-        release = Type.UNKNOWN;
-    }
-
-
-    public Version(int major, int minor, int patch, int build, Type release) {
-        this.major = major;
-        this.minor = minor;
-        this.patch = patch;
-        this.build = build;
-        this.release = release;
     }
 
     public static Version getVersion() {
@@ -95,9 +93,9 @@ public final class Version implements Comparable<Version> {
 
     @Override
     public int compareTo(Version version) {
-        if(version.major != major) return Integer.compare(major, version.major);
-        if(version.minor != minor) return Integer.compare(minor, version.minor);
-        if(version.patch != patch) return Integer.compare(patch, version.patch);
+        if (version.major != major) return Integer.compare(major, version.major);
+        if (version.minor != minor) return Integer.compare(minor, version.minor);
+        if (version.patch != patch) return Integer.compare(patch, version.patch);
         return 0;
     }
 

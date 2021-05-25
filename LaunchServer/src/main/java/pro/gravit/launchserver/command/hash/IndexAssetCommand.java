@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.command.hash;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,7 +8,6 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 

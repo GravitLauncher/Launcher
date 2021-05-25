@@ -1,12 +1,10 @@
 package pro.gravit.launchserver.binary;
 
-import org.jetbrains.annotations.NotNull;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import javax.crypto.Cipher;
@@ -33,7 +31,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -234,7 +231,7 @@ public class BuildContext {
             } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
                 throw new RuntimeException(e);
             }
-            try(OutputStream stream = new CipherOutputStream(new NoCloseOutputStream(output), cipher)) {
+            try (OutputStream stream = new CipherOutputStream(new NoCloseOutputStream(output), cipher)) {
                 IOHelper.transfer(file, stream);
             }
 

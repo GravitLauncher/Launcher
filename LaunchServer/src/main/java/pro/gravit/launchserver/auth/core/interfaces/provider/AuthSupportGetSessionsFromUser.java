@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface AuthSupportGetSessionsFromUser {
     List<UserSession> getSessionsByUser(User user);
+
     void clearSessionsByUser(User user);
 }

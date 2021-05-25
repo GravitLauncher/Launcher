@@ -32,9 +32,9 @@ public class BatchProfileByUsername extends SimpleResponse {
             if (pair == null) {
                 pair = server.config.getAuthProviderPair();
             }
-            if(pair.isUseCore()) {
+            if (pair.isUseCore()) {
                 User user = pair.core.getUserByUsername(list[i].username);
-                if(user == null) uuid = null;
+                if (user == null) uuid = null;
                 else uuid = user.getUUID();
             } else {
                 uuid = pair.handler.usernameToUUID(list[i].username);

@@ -29,8 +29,6 @@ public final class LauncherConfig extends StreamObject {
     @LauncherInject("launcher.port")
     public final int clientPort;
     public final LauncherTrustManager trustManager;
-    @Deprecated
-    public ECPublicKey publicKey = null;
     public final ECPublicKey ecdsaPublicKey;
     public final RSAPublicKey rsaPublicKey;
     public final Map<String, byte[]> runtime;
@@ -48,6 +46,8 @@ public final class LauncherConfig extends StreamObject {
     public final String runtimeEncryptKey;
     @LauncherInject("launcher.address")
     public final String address;
+    @Deprecated
+    public ECPublicKey publicKey = null;
     @LauncherInject("runtimeconfig.secretKeyClient")
     public String secretKeyClient;
     @LauncherInject("runtimeconfig.oemUnlockKey")

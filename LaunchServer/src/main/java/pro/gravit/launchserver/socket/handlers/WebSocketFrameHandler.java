@@ -13,7 +13,6 @@ import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.utils.BiHookSet;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -71,7 +70,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
                 service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
             } catch (Throwable ex) {
                 logger.warn("Client {} send invalid request. Connection force closed.", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip);
-                if(logger.isTraceEnabled()) {
+                if (logger.isTraceEnabled()) {
                     logger.trace("Client message: {}", ((TextWebSocketFrame) frame).text());
                     logger.error(ex);
                 }
@@ -95,7 +94,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (future != null) future.cancel(true);
-        if(logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("Client {} disconnected", IOHelper.getIP(ctx.channel().remoteAddress()));
         }
         int refCount = client.refCount.decrementAndGet();

@@ -8,13 +8,13 @@ import pro.gravit.launcher.modules.LauncherModuleInfo;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 public class ModulesCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
+
     public ModulesCommand(LaunchServer server) {
         super(server);
     }
@@ -37,7 +37,7 @@ public class ModulesCommand extends Command {
             logger.info("[MODULE] {} v: {} p: {} deps: {} sig: {}", info.name, info.version.getVersionString(), info.priority, Arrays.toString(info.dependencies), checkStatus == null ? "null" : checkStatus.type);
             printCheckStatusInfo(checkStatus);
         }
-        for(LauncherModuleLoader.ModuleEntity entity : server.launcherModuleLoader.launcherModules) {
+        for (LauncherModuleLoader.ModuleEntity entity : server.launcherModuleLoader.launcherModules) {
             LauncherTrustManager.CheckClassResult checkStatus = entity.checkResult;
             logger.info("[LAUNCHER MODULE] {} sig: {}", entity.path.getFileName().toString(), checkStatus == null ? "null" : checkStatus.type);
             printCheckStatusInfo(checkStatus);

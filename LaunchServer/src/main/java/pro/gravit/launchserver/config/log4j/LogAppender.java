@@ -17,35 +17,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
-@Plugin(name="LogCollect", category="Core", elementType="appender", printObject=true)
+@Plugin(name = "LogCollect", category = "Core", elementType = "appender", printObject = true)
 public class LogAppender extends AbstractAppender {
     private static volatile LogAppender INSTANCE;
     private final Set<Consumer<LogEvent>> set = new HashSet<>();
+
     public LogAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions, Property[] properties) {
         super(name, filter, layout, ignoreExceptions, properties);
         INSTANCE = this;
-    }
-
-    @Override
-    public void append(LogEvent event) {
-        try {
-            for(Consumer<LogEvent> consumer : set) {
-                consumer.accept(event);
-            }
-        } catch (Throwable e) {
-            if(!ignoreExceptions()) {
-                throw new AppenderLoggingException(e);
-            }
-        }
-
-    }
-
-    public void addListener(Consumer<LogEvent> consumer) {
-        set.add(consumer);
-    }
-
-    public void removeListener(Consumer<LogEvent> consumer) {
-        set.remove(consumer);
     }
 
     public static LogAppender getInstance() {
@@ -66,5 +45,27 @@ public class LogAppender extends AbstractAppender {
             layout = PatternLayout.createDefaultLayout();
         }
         return new LogAppender(name, filter, layout, true, Property.EMPTY_ARRAY);
+    }
+
+    @Override
+    public void append(LogEvent event) {
+        try {
+            for (Consumer<LogEvent> consumer : set) {
+                consumer.accept(event);
+            }
+        } catch (Throwable e) {
+            if (!ignoreExceptions()) {
+                throw new AppenderLoggingException(e);
+            }
+        }
+
+    }
+
+    public void addListener(Consumer<LogEvent> consumer) {
+        set.add(consumer);
+    }
+
+    public void removeListener(Consumer<LogEvent> consumer) {
+        set.remove(consumer);
     }
 }

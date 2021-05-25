@@ -25,11 +25,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.security.KeyPair;
-import java.security.SecureRandom;
 import java.security.Security;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
 
 public class ConfigurationTest {
     @TempDir
@@ -43,7 +39,7 @@ public class ConfigurationTest {
 
     @BeforeAll
     public static void prepare() throws Throwable {
-        if(Security.getProvider("BC") == null) Security.addProvider(new BouncyCastleProvider());
+        if (Security.getProvider("BC") == null) Security.addProvider(new BouncyCastleProvider());
         LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(modulesDir, configDir, null);
         LaunchServerConfig config = LaunchServerConfig.getDefault(LaunchServer.LaunchServerEnv.TEST);
         Launcher.gsonManager = new LaunchServerGsonManager(modulesManager);
@@ -61,13 +57,14 @@ public class ConfigurationTest {
                 .setCommandHandler(new StdCommandHandler(false));
         launchServer = builder.build();
     }
+
     @Test
     public void reloadTest() throws Exception {
         AuthProvider provider = new AuthProvider() {
             @Override
             public AuthProviderResult auth(String login, AuthRequest.AuthPasswordInterface password, String ip) throws Exception {
-                if(!(password instanceof AuthPlainPassword)) throw new UnsupportedOperationException();
-                if(login.equals("test") && ((AuthPlainPassword) password).password.equals("test")) {
+                if (!(password instanceof AuthPlainPassword)) throw new UnsupportedOperationException();
+                if (login.equals("test") && ((AuthPlainPassword) password).password.equals("test")) {
                     return new AuthProviderResult(login, SecurityHelper.randomStringToken(), new ClientPermissions());
                 }
                 throw new AuthException("Incorrect password");

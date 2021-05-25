@@ -38,7 +38,6 @@ import pro.gravit.launchserver.socket.response.update.UpdateResponse;
 import pro.gravit.utils.BiHookSet;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Type;
 import java.util.UUID;

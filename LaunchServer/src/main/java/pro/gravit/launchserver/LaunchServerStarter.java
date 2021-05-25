@@ -31,7 +31,6 @@ import pro.gravit.utils.command.StdCommandHandler;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -39,12 +38,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.KeyPair;
-import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.CertificateException;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
 
 public class LaunchServerStarter {
     public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
@@ -189,7 +184,7 @@ public class LaunchServerStarter {
                 .setLaunchServerConfigManager(launchServerConfigManager)
                 .setCertificateManager(certificateManager)
                 .build();
-        if(!prepareMode) {
+        if (!prepareMode) {
             server.run();
         } else {
             server.close();
@@ -235,18 +230,18 @@ public class LaunchServerStarter {
             newConfig.setProjectName("test");
         } else {
             address = System.getenv("ADDRESS");
-            if(address == null) {
+            if (address == null) {
                 address = System.getProperty("launchserver.address", null);
             }
-            if(address == null) {
+            if (address == null) {
                 System.out.println("LaunchServer address(default: localhost): ");
                 address = commandHandler.readLine();
             }
             String projectName = System.getenv("PROJECTNAME");
-            if(projectName == null) {
+            if (projectName == null) {
                 projectName = System.getProperty("launchserver.projectname", null);
             }
-            if(projectName == null) {
+            if (projectName == null) {
                 System.out.println("LaunchServer projectName: ");
                 projectName = commandHandler.readLine();
             }

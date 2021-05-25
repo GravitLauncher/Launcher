@@ -19,13 +19,13 @@ public class RefreshTokenResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        if(refreshToken == null) {
+        if (refreshToken == null) {
             sendError("Invalid request");
             return;
         }
         AuthProviderPair pair;
-        if(!client.isAuth) {
-            if(authId == null) {
+        if (!client.isAuth) {
+            if (authId == null) {
                 pair = server.config.getAuthProviderPair();
             } else {
                 pair = server.config.getAuthProviderPair(authId);
@@ -33,12 +33,12 @@ public class RefreshTokenResponse extends SimpleResponse {
         } else {
             pair = client.auth;
         }
-        if(pair == null || !pair.isUseCore()) {
+        if (pair == null || !pair.isUseCore()) {
             sendError("Invalid request");
             return;
         }
         AuthManager.AuthReport report = pair.core.refreshAccessToken(refreshToken, new AuthResponse.AuthContext(client, null, null, ip, AuthResponse.ConnectTypes.API, pair));
-        if(report == null || !report.isUsingOAuth()) {
+        if (report == null || !report.isUsingOAuth()) {
             sendError("Invalid RefreshToken");
             return;
         }

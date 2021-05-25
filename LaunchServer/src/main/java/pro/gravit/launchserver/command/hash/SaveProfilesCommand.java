@@ -3,7 +3,6 @@ package pro.gravit.launchserver.command.hash;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.profiles.optional.OptionalFile;
@@ -12,7 +11,6 @@ import pro.gravit.launcher.profiles.optional.actions.*;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -28,15 +26,11 @@ public class SaveProfilesCommand extends Command {
         super(server);
     }
 
-    public enum MakeProfileOption {
-        LAUNCHWRAPPER, VANILLA, FORGE, FABRIC, LITELOADER
-    }
-
     public static ClientProfile makeProfile(ClientProfile.Version version, String title, MakeProfileOption... options) {
         ClientProfileBuilder builder = new ClientProfileBuilder();
         builder.setVersion(version.name);
         builder.setDir(title);
-        builder.setAssetDir("asset"+version.name);
+        builder.setAssetDir("asset" + version.name);
         builder.setAssetIndex(version.name);
         builder.setInfo("Информация о сервере");
         builder.setTitle(title);
@@ -57,16 +51,16 @@ public class SaveProfilesCommand extends Command {
         jvmArgs.add("-XX:MaxGCPauseMillis=50");
         jvmArgs.add("-XX:G1HeapRegionSize=32M");
         // -----------
-        if(version.compareTo(ClientProfile.Version.MC1122) > 0) {
+        if (version.compareTo(ClientProfile.Version.MC1122) > 0) {
             jvmArgs.add("-Djava.library.path=natives");
-            if(optionContains(options, MakeProfileOption.FORGE)) {
+            if (optionContains(options, MakeProfileOption.FORGE)) {
                 builder.setClassLoaderConfig(ClientProfile.ClassLoaderConfig.AGENT);
             }
             OptionalFile optionalMacOs = new OptionalFile();
             optionalMacOs.name = "MacOSArgs";
             optionalMacOs.actions = new ArrayList<>(1);
             optionalMacOs.actions.add(new OptionalActionJvmArgs(List.of("-XstartOnFirstThread")));
-            optionalMacOs.triggers = new OptionalTrigger[]{ new OptionalTrigger(OptionalTrigger.TriggerType.OS_TYPE, 2) };
+            optionalMacOs.triggers = new OptionalTrigger[]{new OptionalTrigger(OptionalTrigger.TriggerType.OS_TYPE, 2)};
             optionals.add(optionalMacOs);
         }
         jvmArgs.add("-Dfml.ignorePatchDiscrepancies=true");
@@ -74,14 +68,14 @@ public class SaveProfilesCommand extends Command {
         builder.setJvmArgs(jvmArgs);
         builder.setUpdateOptional(optionals);
         List<String> clientArgs = new ArrayList<>();
-        if(optionContains(options, MakeProfileOption.LAUNCHWRAPPER)) {
-            if(optionContains(options, MakeProfileOption.LITELOADER)) {
+        if (optionContains(options, MakeProfileOption.LAUNCHWRAPPER)) {
+            if (optionContains(options, MakeProfileOption.LITELOADER)) {
                 clientArgs.add("--tweakClass");
                 clientArgs.add("com.mumfrey.liteloader.launch.LiteLoaderTweaker");
             }
-            if(optionContains(options, MakeProfileOption.FORGE)) {
+            if (optionContains(options, MakeProfileOption.FORGE)) {
                 clientArgs.add("--tweakClass");
-                if(version.compareTo(ClientProfile.Version.MC1710) > 0) {
+                if (version.compareTo(ClientProfile.Version.MC1710) > 0) {
                     clientArgs.add("net.minecraftforge.fml.common.launcher.FMLTweaker");
                 } else {
                     clientArgs.add("cpw.mods.fml.common.launcher.FMLTweaker");
@@ -98,7 +92,7 @@ public class SaveProfilesCommand extends Command {
     }
 
     public static String getMainClassByVersion(ClientProfile.Version version, MakeProfileOption... options) {
-        if(optionContains(options, MakeProfileOption.LAUNCHWRAPPER)) {
+        if (optionContains(options, MakeProfileOption.LAUNCHWRAPPER)) {
             return "net.minecraft.launchwrapper.Launch";
         }
         return "net.minecraft.client.main.Main";
@@ -106,13 +100,13 @@ public class SaveProfilesCommand extends Command {
 
     public static MakeProfileOption[] getMakeProfileOptionsFromDir(Path dir, ClientProfile.Version version) {
         List<MakeProfileOption> options = new ArrayList<>(2);
-        if(Files.exists(dir.resolve("forge.jar"))) {
+        if (Files.exists(dir.resolve("forge.jar"))) {
             options.add(MakeProfileOption.FORGE);
         }
-        if(Files.exists(dir.resolve("liteloader.jar"))) {
+        if (Files.exists(dir.resolve("liteloader.jar"))) {
             options.add(MakeProfileOption.LITELOADER);
         }
-        if(version.compareTo(ClientProfile.Version.MC1122) <= 0) {
+        if (version.compareTo(ClientProfile.Version.MC1122) <= 0) {
             options.add(MakeProfileOption.LAUNCHWRAPPER);
         }
         return options.toArray(new MakeProfileOption[0]);
@@ -190,5 +184,9 @@ public class SaveProfilesCommand extends Command {
             }
             server.syncProfilesDir();
         }
+    }
+
+    public enum MakeProfileOption {
+        LAUNCHWRAPPER, VANILLA, FORGE, FABRIC, LITELOADER
     }
 }

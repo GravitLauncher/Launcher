@@ -2,7 +2,6 @@ package pro.gravit.launcher.profiles;
 
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
-import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.optional.OptionalDepend;
 import pro.gravit.launcher.profiles.optional.OptionalFile;
 import pro.gravit.launcher.profiles.optional.OptionalTrigger;
@@ -82,6 +81,59 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     // Client launcher
     @LauncherNetworkAPI
     private String mainClass;
+
+    public ClientProfile() {
+        update = new ArrayList<>();
+        updateExclusions = new ArrayList<>();
+        updateShared = new ArrayList<>();
+        updateVerify = new ArrayList<>();
+        updateOptional = new HashSet<>();
+        jvmArgs = new ArrayList<>();
+        classPath = new ArrayList<>();
+        altClassPath = new ArrayList<>();
+        clientArgs = new ArrayList<>();
+        compatClasses = new ArrayList<>();
+        properties = new HashMap<>();
+        servers = new ArrayList<>(1);
+        securityManagerConfig = SecurityManagerConfig.CLIENT;
+        classLoaderConfig = ClassLoaderConfig.LAUNCHER;
+        signedClientConfig = SignedClientConfig.NONE;
+        runtimeInClientConfig = RuntimeInClientConfig.NONE;
+    }
+
+    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, SecurityManagerConfig securityManagerConfig, ClassLoaderConfig classLoaderConfig, SignedClientConfig signedClientConfig, RuntimeInClientConfig runtimeInClientConfig, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, boolean warnMissJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, boolean updateFastCheck, String mainClass) {
+        this.update = update;
+        this.updateExclusions = updateExclusions;
+        this.updateShared = updateShared;
+        this.updateVerify = updateVerify;
+        this.updateOptional = updateOptional;
+        this.jvmArgs = jvmArgs;
+        this.classPath = classPath;
+        this.altClassPath = altClassPath;
+        this.clientArgs = clientArgs;
+        this.compatClasses = compatClasses;
+        this.properties = properties;
+        this.servers = servers;
+        this.securityManagerConfig = securityManagerConfig;
+        this.classLoaderConfig = classLoaderConfig;
+        this.signedClientConfig = signedClientConfig;
+        this.runtimeInClientConfig = runtimeInClientConfig;
+        this.version = version;
+        this.assetIndex = assetIndex;
+        this.dir = dir;
+        this.assetDir = assetDir;
+        this.recommendJavaVersion = recommendJavaVersion;
+        this.minJavaVersion = minJavaVersion;
+        this.maxJavaVersion = maxJavaVersion;
+        this.warnMissJavaVersion = warnMissJavaVersion;
+        this.settings = settings;
+        this.sortIndex = sortIndex;
+        this.uuid = uuid;
+        this.title = title;
+        this.info = info;
+        this.updateFastCheck = updateFastCheck;
+        this.mainClass = mainClass;
+    }
 
     public ServerProfile getDefaultServerProfile() {
         for (ServerProfile profile : servers) {
@@ -205,8 +257,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-
-
     @Deprecated
     public OptionalFile getOptionalFile(String file, OptionalType type) {
         for (OptionalFile f : updateOptional)
@@ -290,7 +340,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
         // Client launcher
         VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Main class can't be empty");
-        if(getUUID() == null) {
+        if (getUUID() == null) {
             throw new IllegalArgumentException("Profile UUID can't be null");
         }
         for (String s : update) {
@@ -406,8 +456,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.runtimeInClientConfig = runtimeInClientConfig;
     }
 
-
-
     public enum Version {
         MC125("1.2.5", 29),
         MC147("1.4.7", 51),
@@ -495,10 +543,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         public int serverPort;
         public boolean isDefault = true;
 
-        public InetSocketAddress toSocketAddress() {
-            return InetSocketAddress.createUnresolved(serverAddress, serverPort);
-        }
-
         public ServerProfile() {
         }
 
@@ -514,64 +558,15 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             this.serverPort = serverPort;
             this.isDefault = isDefault;
         }
+
+        public InetSocketAddress toSocketAddress() {
+            return InetSocketAddress.createUnresolved(serverAddress, serverPort);
+        }
     }
 
     public static class ProfileDefaultSettings {
         public int ram;
         public boolean autoEnter;
         public boolean fullScreen;
-    }
-
-    public ClientProfile() {
-        update = new ArrayList<>();
-        updateExclusions = new ArrayList<>();
-        updateShared = new ArrayList<>();
-        updateVerify = new ArrayList<>();
-        updateOptional = new HashSet<>();
-        jvmArgs = new ArrayList<>();
-        classPath = new ArrayList<>();
-        altClassPath = new ArrayList<>();
-        clientArgs = new ArrayList<>();
-        compatClasses = new ArrayList<>();
-        properties = new HashMap<>();
-        servers = new ArrayList<>(1);
-        securityManagerConfig = SecurityManagerConfig.CLIENT;
-        classLoaderConfig = ClassLoaderConfig.LAUNCHER;
-        signedClientConfig = SignedClientConfig.NONE;
-        runtimeInClientConfig = RuntimeInClientConfig.NONE;
-    }
-
-    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, SecurityManagerConfig securityManagerConfig, ClassLoaderConfig classLoaderConfig, SignedClientConfig signedClientConfig, RuntimeInClientConfig runtimeInClientConfig, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, boolean warnMissJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, boolean updateFastCheck, String mainClass) {
-        this.update = update;
-        this.updateExclusions = updateExclusions;
-        this.updateShared = updateShared;
-        this.updateVerify = updateVerify;
-        this.updateOptional = updateOptional;
-        this.jvmArgs = jvmArgs;
-        this.classPath = classPath;
-        this.altClassPath = altClassPath;
-        this.clientArgs = clientArgs;
-        this.compatClasses = compatClasses;
-        this.properties = properties;
-        this.servers = servers;
-        this.securityManagerConfig = securityManagerConfig;
-        this.classLoaderConfig = classLoaderConfig;
-        this.signedClientConfig = signedClientConfig;
-        this.runtimeInClientConfig = runtimeInClientConfig;
-        this.version = version;
-        this.assetIndex = assetIndex;
-        this.dir = dir;
-        this.assetDir = assetDir;
-        this.recommendJavaVersion = recommendJavaVersion;
-        this.minJavaVersion = minJavaVersion;
-        this.maxJavaVersion = maxJavaVersion;
-        this.warnMissJavaVersion = warnMissJavaVersion;
-        this.settings = settings;
-        this.sortIndex = sortIndex;
-        this.uuid = uuid;
-        this.title = title;
-        this.info = info;
-        this.updateFastCheck = updateFastCheck;
-        this.mainClass = mainClass;
     }
 }

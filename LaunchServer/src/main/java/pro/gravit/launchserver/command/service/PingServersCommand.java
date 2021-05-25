@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.request.management.PingServerReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.utils.helper.LogHelper;
 
 public class PingServersCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();

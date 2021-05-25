@@ -18,7 +18,6 @@ import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
-import pro.gravit.launcher.request.auth.RestoreSessionRequest;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.helper.*;
@@ -40,12 +39,12 @@ public class LauncherEngine {
     public static ClientLauncherProcess.ClientParams clientParams;
     public static LauncherGuardInterface guard;
     public static ClientModuleManager modulesManager;
+    public final boolean clientInstance;
     // Instance
     private final AtomicBoolean started = new AtomicBoolean(false);
     public RuntimeProvider runtimeProvider;
     public ECPublicKey publicKey;
     public ECPrivateKey privateKey;
-    public final boolean clientInstance;
 
     private LauncherEngine(boolean clientInstance) {
 

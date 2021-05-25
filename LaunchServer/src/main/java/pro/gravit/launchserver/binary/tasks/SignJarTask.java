@@ -26,9 +26,9 @@ import java.util.zip.ZipOutputStream;
 
 public class SignJarTask implements LauncherBuildTask {
 
+    private transient static final Logger logger = LogManager.getLogger();
     private final LaunchServerConfig.JarSignerConf config;
     private final LaunchServer srv;
-    private transient static final Logger logger = LogManager.getLogger();
 
     public SignJarTask(LaunchServerConfig.JarSignerConf config, LaunchServer srv) {
         this.config = config;

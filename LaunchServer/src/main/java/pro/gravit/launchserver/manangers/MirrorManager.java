@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.HTTPRequest;
 import pro.gravit.utils.HttpDownloader;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -17,8 +16,8 @@ import java.util.Arrays;
 
 public class MirrorManager {
     protected final ArrayList<Mirror> list = new ArrayList<>();
-    private Mirror defaultMirror;
     private transient final Logger logger = LogManager.getLogger();
+    private Mirror defaultMirror;
 
     public void addMirror(String mirror) {
         Mirror m = new Mirror(mirror);

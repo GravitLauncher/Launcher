@@ -16,10 +16,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MemoryHWIDProvider extends HWIDProvider implements Reconfigurable {
+    private transient final Logger logger = LogManager.getLogger();
     public double warningSpoofingLevel = -1.0;
     public double criticalCompareLevel = 1.0;
     public transient Set<MemoryHWIDEntity> db = ConcurrentHashMap.newKeySet();
-    private transient final Logger logger = LogManager.getLogger();
 
     @Override
     public Map<String, Command> getCommands() {

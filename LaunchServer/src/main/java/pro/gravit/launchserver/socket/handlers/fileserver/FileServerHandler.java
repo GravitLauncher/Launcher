@@ -7,7 +7,6 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
 import pro.gravit.launchserver.socket.handlers.ContentType;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.File;

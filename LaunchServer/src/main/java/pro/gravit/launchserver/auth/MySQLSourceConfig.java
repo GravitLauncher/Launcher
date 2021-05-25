@@ -5,7 +5,6 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 import javax.sql.DataSource;

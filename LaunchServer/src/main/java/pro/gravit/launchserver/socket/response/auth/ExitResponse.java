@@ -39,7 +39,7 @@ public class ExitResponse extends SimpleResponse {
             return;
         }
         if (username == null) {
-            if(client.useOAuth) {
+            if (client.useOAuth) {
                 WebSocketFrameHandler handler = ctx.pipeline().get(WebSocketFrameHandler.class);
                 if (handler == null) {
                     sendError("Exit internal error");
@@ -48,8 +48,8 @@ public class ExitResponse extends SimpleResponse {
                 Client newClient = new Client(null);
                 newClient.checkSign = client.checkSign;
                 handler.setClient(newClient);
-                if(exitAll) {
-                    if(client.auth instanceof AuthSupportGetSessionsFromUser) {
+                if (exitAll) {
+                    if (client.auth instanceof AuthSupportGetSessionsFromUser) {
                         AuthSupportGetSessionsFromUser support = (AuthSupportGetSessionsFromUser) client.auth;
                         support.clearSessionsByUser(client.getUser());
                     }

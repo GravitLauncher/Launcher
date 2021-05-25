@@ -6,7 +6,6 @@ import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractLimiter<T> extends Component implements NeedGarbageCollection, Reconfigurable {
-    private transient final Logger logger = LogManager.getLogger();
     public final List<T> exclude = new ArrayList<>();
     protected final transient Map<T, LimitEntry> map = new HashMap<>();
+    private transient final Logger logger = LogManager.getLogger();
     public int rateLimit;
     public int rateLimitMillis;
 

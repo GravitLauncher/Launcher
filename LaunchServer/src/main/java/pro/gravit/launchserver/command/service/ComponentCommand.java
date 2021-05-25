@@ -3,13 +3,11 @@ package pro.gravit.launchserver.command.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.Reader;
 import java.lang.invoke.MethodHandles;
@@ -23,6 +21,28 @@ public class ComponentCommand extends Command {
         super(server);
         childCommands.put("unload", new UnloadCommand());
         childCommands.put("load", new LoadCommand());
+    }
+
+    @Override
+    public String getArgsDescription() {
+        return "[action] [component name] [more args]";
+    }
+
+    @Override
+    public String getUsageDescription() {
+        return "component manager";
+    }
+
+    public void printHelp() {
+        logger.info("Print help for component:");
+        logger.info("component unload [componentName]");
+        logger.info("component load [componentName] [filename]");
+        logger.info("component gc [componentName]");
+    }
+
+    @Override
+    public void invoke(String... args) throws Exception {
+        invokeSubcommands(args);
     }
 
     private class UnloadCommand extends SubCommand {
@@ -47,6 +67,7 @@ public class ComponentCommand extends Command {
             logger.info("Component %s unloaded. Use 'config launchserver save' to save changes");
         }
     }
+
     private class LoadCommand extends SubCommand {
         public LoadCommand() {
             super("[componentName] [componentType] (json file)", "Load component");
@@ -57,13 +78,13 @@ public class ComponentCommand extends Command {
             verifyArgs(args, 2);
             String componentName = args[0];
             Class<? extends Component> componentClass = Component.providers.getClass(args[1]);
-            if(componentClass == null) {
+            if (componentClass == null) {
                 logger.error("Component type {} not registered", componentName);
                 return;
             }
             try {
                 Component component;
-                if(args.length > 2) {
+                if (args.length > 2) {
                     try (Reader reader = IOHelper.newReader(Paths.get(args[2]))) {
                         component = Launcher.gsonManager.configGson.fromJson(reader, componentClass);
                     }
@@ -78,27 +99,5 @@ public class ComponentCommand extends Command {
                 logger.error(throwable);
             }
         }
-    }
-
-    @Override
-    public String getArgsDescription() {
-        return "[action] [component name] [more args]";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "component manager";
-    }
-
-    public void printHelp() {
-        logger.info("Print help for component:");
-        logger.info("component unload [componentName]");
-        logger.info("component load [componentName] [filename]");
-        logger.info("component gc [componentName]");
-    }
-
-    @Override
-    public void invoke(String... args) throws Exception {
-        invokeSubcommands(args);
     }
 }

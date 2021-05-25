@@ -8,7 +8,6 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.provider.AuthProviderResult;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.UUID;
 

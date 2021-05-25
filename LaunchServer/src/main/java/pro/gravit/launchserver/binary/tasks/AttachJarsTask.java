@@ -2,7 +2,6 @@ package pro.gravit.launchserver.binary.tasks;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -60,7 +59,7 @@ public class AttachJarsTask implements LauncherBuildTask {
     }
 
     private boolean filter(String name) {
-        if(name.startsWith("META-INF/services")) return false;
+        if (name.startsWith("META-INF/services")) return false;
         return exclusions.stream().anyMatch(name::startsWith);
     }
 

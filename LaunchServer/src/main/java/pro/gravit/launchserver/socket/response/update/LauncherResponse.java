@@ -1,6 +1,8 @@
 package pro.gravit.launchserver.socket.response.update;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -74,6 +76,14 @@ public class LauncherResponse extends SimpleResponse {
                 .compact();
     }
 
+    private boolean checkSecure(String hash, String salt) {
+        if (hash == null || salt == null) return false;
+        byte[] normal_hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
+                server.runtime.clientCheckSecret.concat(".").concat(salt));
+        byte[] launcher_hash = Base64.getDecoder().decode(hash);
+        return Arrays.equals(normal_hash, launcher_hash);
+    }
+
     public static class LauncherTokenVerifier implements RestoreResponse.ExtendedTokenProvider {
         private final LaunchServer server;
         private final JwtParser parser;
@@ -100,14 +110,6 @@ public class LauncherResponse extends SimpleResponse {
             }
 
         }
-    }
-
-    private boolean checkSecure(String hash, String salt) {
-        if (hash == null || salt == null) return false;
-        byte[] normal_hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
-                server.runtime.clientCheckSecret.concat(".").concat(salt));
-        byte[] launcher_hash = Base64.getDecoder().decode(hash);
-        return Arrays.equals(normal_hash, launcher_hash);
     }
 
 }

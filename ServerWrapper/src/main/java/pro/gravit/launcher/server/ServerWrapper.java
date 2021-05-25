@@ -12,18 +12,14 @@ import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.request.update.ProfilesRequest;
 import pro.gravit.launcher.server.setup.ServerWrapperSetup;
 import pro.gravit.utils.PublicURLClassLoader;
-import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
 
-import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -31,8 +27,6 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.interfaces.ECPublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
@@ -76,8 +70,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             Launcher.getConfig();
             AuthRequest request = new AuthRequest(config.login, config.password, config.auth_id, AuthRequest.ConnectTypes.API);
             AuthRequestEvent authResult = request.request();
-            if(config.saveSession) {
-                if(authResult.oauth != null) {
+            if (config.saveSession) {
+                if (authResult.oauth != null) {
                     Request.setOAuth(config.auth_id, authResult.oauth);
                     config.oauth = authResult.oauth;
                     config.oauthExpireTime = Request.getTokenExpiredTime();
@@ -145,8 +139,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         else Launcher.applyLauncherEnv(LauncherConfig.LauncherEnvironment.STD);
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
-            if(config.saveSession) {
-                if(config.oauth != null) {
+            if (config.saveSession) {
+                if (config.oauth != null) {
                     Request.setOAuth(config.auth_id, config.oauth, config.oauthExpireTime);
                 } else {
                     Request.setSession(config.session);
@@ -202,7 +196,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         Request.service.reconnectCallback = () ->
         {
             LogHelper.debug("WebSocket connect closed. Try reconnect");
-            if(config.saveSession) {
+            if (config.saveSession) {
                 try {
                     Request.restore();
                 } catch (Exception e) {

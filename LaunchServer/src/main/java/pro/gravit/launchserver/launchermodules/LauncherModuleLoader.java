@@ -9,7 +9,6 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -124,7 +123,7 @@ public class LauncherModuleLoader {
                             Class<? extends LauncherModule> mainClazz = (Class<? extends LauncherModule>) classLoader.loadClass(entity.moduleMainClass);
                             entity.checkResult = server.modulesManager.checkModuleClass(mainClazz);
                         } catch (Throwable e) {
-                            if(e instanceof ClassNotFoundException || e instanceof NoClassDefFoundError) {
+                            if (e instanceof ClassNotFoundException || e instanceof NoClassDefFoundError) {
                                 logger.error("Module-MainClass in module {} incorrect", file.toString());
                             } else {
                                 logger.error(e);

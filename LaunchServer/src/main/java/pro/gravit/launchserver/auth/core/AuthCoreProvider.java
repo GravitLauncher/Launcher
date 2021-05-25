@@ -18,7 +18,6 @@ import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.command.SubCommand;
-import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -31,8 +30,9 @@ All-In-One provider
  */
 public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable {
     public static final ProviderMap<AuthCoreProvider> providers = new ProviderMap<>("AuthCoreProvider");
-    private static boolean registredProviders = false;
     private static final Logger logger = LogManager.getLogger();
+    private static boolean registredProviders = false;
+
     public static void registerProviders() {
         if (!registredProviders) {
             providers.register("reject", RejectAuthCoreProvider.class);
@@ -40,14 +40,23 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
             registredProviders = true;
         }
     }
+
     public abstract User getUserByUsername(String username);
+
     public abstract User getUserByUUID(UUID uuid);
+
     public abstract UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired;
+
     public abstract AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context /* may be null */);
+
     public abstract void verifyAuth(AuthResponse.AuthContext context) throws AuthException;
+
     public abstract PasswordVerifyReport verifyPassword(User user, AuthRequest.AuthPasswordInterface password);
+
     public abstract AuthManager.AuthReport createOAuthSession(User user, AuthResponse.AuthContext context /* may be null */, PasswordVerifyReport report /* may be null */, boolean minecraftAccess) throws IOException;
+
     public abstract void init(LaunchServer server);
+
     // Auth Handler methods
     protected abstract boolean updateServerID(User user, String serverID) throws IOException;
 
@@ -63,19 +72,19 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
             public void invoke(String... args) throws Exception {
                 verifyArgs(args, 2);
                 User user = getUserByUsername(args[0]);
-                if(user == null) throw new CommandException("User not found");
+                if (user == null) throw new CommandException("User not found");
                 AuthRequest.AuthPasswordInterface password;
-                if(args[1].startsWith("{")) {
+                if (args[1].startsWith("{")) {
                     password = Launcher.gsonManager.gson.fromJson(args[1], AuthRequest.AuthPasswordInterface.class);
                 } else {
                     password = new AuthPlainPassword(args[1]);
                 }
                 PasswordVerifyReport report = verifyPassword(user, password);
-                if(report.success) {
+                if (report.success) {
                     logger.info("Password correct");
                 } else {
-                    if(report.needMoreFactor) {
-                        if(report.factors.size() == 1 && report.factors.get(0) == -1) {
+                    if (report.needMoreFactor) {
+                        if (report.factors.size() == 1 && report.factors.get(0) == -1) {
                             logger.info("Password not correct: Required 2FA");
                         } else {
                             logger.info("Password not correct: Required more factors: {}", report.factors.toString());
@@ -86,19 +95,19 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                 }
             }
         });
-        if(this instanceof AuthSupportGetAllUsers) {
+        if (this instanceof AuthSupportGetAllUsers) {
             AuthSupportGetAllUsers instance = (AuthSupportGetAllUsers) this;
             map.put("getallusers", new SubCommand("(limit)", "print all users information") {
                 @Override
                 public void invoke(String... args) throws Exception {
                     int max = Integer.MAX_VALUE;
-                    if(args.length > 0) max = Integer.parseInt(args[0]);
+                    if (args.length > 0) max = Integer.parseInt(args[0]);
                     List<User> users = instance.getAllUsers();
                     int counter = 0;
-                    for(User u : users) {
+                    for (User u : users) {
                         logger.info("User {}", u.toString());
                         counter++;
-                        if(counter == max) break;
+                        if (counter == max) break;
                     }
                     logger.info("Found {} users", counter);
                 }
@@ -109,7 +118,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
 
     public UUID checkServer(Client client, String username, String serverID) throws IOException {
         User user = getUserByUsername(username);
-        if(user.getUsername().equals(username) && user.getServerId().equals(serverID)) {
+        if (user.getUsername().equals(username) && user.getServerId().equals(serverID)) {
             return user.getUUID();
         }
         return null;
@@ -117,7 +126,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
 
     public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
         User user = client.getUser();
-        if(user == null) return false;
+        if (user == null) return false;
         return user.getUsername().equals(username) && user.getAccessToken().equals(accessToken) && updateServerID(user, serverID);
     }
 
@@ -125,11 +134,11 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
     public abstract void close() throws IOException;
 
     public static class PasswordVerifyReport {
+        public static final PasswordVerifyReport REQUIRED_2FA = new PasswordVerifyReport(-1);
+        public static final PasswordVerifyReport FAILED = new PasswordVerifyReport(false);
         public final boolean success;
         public final boolean needMoreFactor;
         public final List<Integer> factors;
-        public static final PasswordVerifyReport REQUIRED_2FA = new PasswordVerifyReport(-1);
-        public static final PasswordVerifyReport FAILED = new PasswordVerifyReport(false);
 
         public PasswordVerifyReport(boolean success) {
             this.success = success;

@@ -9,9 +9,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,7 +44,7 @@ public final class DownloadClientCommand extends Command {
         Path clientDir = server.updatesDir.resolve(args[1]);
 
         boolean isMirrorClientDownload = false;
-        if(args.length > 2) {
+        if (args.length > 2) {
             isMirrorClientDownload = args[2].equals("mirror");
         }
 
@@ -64,18 +62,18 @@ public final class DownloadClientCommand extends Command {
         ClientProfile client = null;
         try {
             String internalVersion = versionName;
-            if(internalVersion.contains("-")) {
+            if (internalVersion.contains("-")) {
                 internalVersion = internalVersion.substring(0, versionName.indexOf('-'));
             }
             ClientProfile.Version version = ClientProfile.Version.byName(internalVersion);
-            if(version.compareTo(ClientProfile.Version.MC164) <= 0) {
+            if (version.compareTo(ClientProfile.Version.MC164) <= 0) {
                 logger.warn("Minecraft 1.6.4 and below not supported. Use at your own risk");
             }
             client = SaveProfilesCommand.makeProfile(version, dirName, SaveProfilesCommand.getMakeProfileOptionsFromDir(clientDir, version));
         } catch (Throwable e) {
             isMirrorClientDownload = true;
         }
-        if(isMirrorClientDownload) {
+        if (isMirrorClientDownload) {
             JsonElement clientJson = server.mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
             client = Launcher.gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
             client.setTitle(dirName);

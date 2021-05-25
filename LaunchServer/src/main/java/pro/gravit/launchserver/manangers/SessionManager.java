@@ -58,7 +58,7 @@ public class SessionManager implements NeedGarbageCollection {
         Client result = decompressClient(data);
         result.updateAuth(server);
         if (result.auth != null && (result.username != null)) {
-            if(result.auth.isUseCore()) {
+            if (result.auth.isUseCore()) {
                 result.coreObject = result.auth.core.getUserByUUID(result.uuid);
             } else {
                 if (result.auth.handler instanceof RequiredDAO || result.auth.provider instanceof RequiredDAO || result.auth.textureProvider instanceof RequiredDAO) {
