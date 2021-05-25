@@ -192,7 +192,10 @@ public class JsonCoreProvider extends AuthCoreProvider {
     @Override
     public AuthManager.AuthReport createOAuthSession(User user, AuthResponse.AuthContext context, PasswordVerifyReport report, boolean minecraftAccess) throws IOException {
         JsonAuthReportResponse response = jsonRequest(new JsonCreateOAuthSession(user.getUsername(), user.getUUID(), minecraftAccess), createOAuthSessionUrl, JsonAuthReportResponse.class);
-        return response == null ? null : response.toAuthReport();
+        if (response == null) return null;
+        JsonUser user1 = (JsonUser) user;
+        user1.accessToken = response.minecraftAccessToken;
+        return response.toAuthReport();
     }
 
     @Override
