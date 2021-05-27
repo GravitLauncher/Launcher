@@ -35,6 +35,7 @@ public final class RequestAuthProvider extends AuthProvider {
         if (url == null) throw new RuntimeException("[Verify][AuthProvider] url cannot be null");
         if (response == null) throw new RuntimeException("[Verify][AuthProvider] response cannot be null");
         pattern = Pattern.compile(response);
+
     }
 
     @Override

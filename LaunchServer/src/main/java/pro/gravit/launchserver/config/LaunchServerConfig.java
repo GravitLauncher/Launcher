@@ -184,6 +184,9 @@ public final class LaunchServerConfig {
         Launcher.applyLauncherEnv(env);
         for (Map.Entry<String, AuthProviderPair> provider : auth.entrySet()) {
             provider.getValue().init(server, provider.getKey());
+            if (!provider.getValue().isUseCore()) {
+                logger.warn("Deprecated auth {}: legacy provider/handler auth may be removed in future release", provider.getKey());
+            }
         }
         if (dao != null) {
             server.registerObject("dao", dao);

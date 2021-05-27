@@ -3,6 +3,7 @@ package pro.gravit.launchserver.auth.provider;
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launchserver.dao.User;
 
+@Deprecated
 public class AuthProviderDAOResult extends AuthProviderResult {
     public User daoObject;
 
