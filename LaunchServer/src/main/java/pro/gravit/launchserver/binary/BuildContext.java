@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.binary;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
@@ -31,6 +33,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -197,6 +200,7 @@ public class BuildContext {
         private final String targetDir;
         private final SecretKeySpec sKeySpec;
         private final IvParameterSpec iKeySpec;
+        private final transient Logger logger = LogManager.getLogger();
 
         private EncryptedRuntimeDirVisitor(ZipOutputStream output, String aesKey, Map<String, byte[]> hashs, Path sourceDir, String targetDir) {
             this.output = output;
@@ -217,11 +221,15 @@ public class BuildContext {
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             byte[] digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, file);
             String fileName = IOHelper.toString(sourceDir.relativize(file));
-            if (hashs != null)
+            if (hashs != null) {
                 hashs.put(fileName, digest);
-
+            }
             // Create zip entry and transfer contents
-            output.putNextEntry(newEntry(SecurityHelper.toHex(digest)));
+            try {
+                output.putNextEntry(newEntry(SecurityHelper.toHex(digest)));
+            } catch (ZipException e) {
+                return super.visitFile(file, attrs); // fix duplicate files
+            }
 
 
             Cipher cipher = null;
