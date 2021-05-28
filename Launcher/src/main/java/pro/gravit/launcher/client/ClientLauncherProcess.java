@@ -134,6 +134,8 @@ public class ClientLauncherProcess {
             jvmModules.add("javafx.fxml");
             jvmModules.add("javafx.controls");
             jvmModules.add("javafx.swing");
+            jvmModules.add("javafx.media");
+            jvmModules.add("javafx.web");
         }
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));
     }

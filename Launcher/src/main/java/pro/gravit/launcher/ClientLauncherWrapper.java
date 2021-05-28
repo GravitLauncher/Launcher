@@ -98,6 +98,8 @@ public class ClientLauncherWrapper {
         context.jvmModules.add("javafx.fxml");
         context.jvmModules.add("javafx.controls");
         context.jvmModules.add("javafx.swing");
+        context.jvmModules.add("javafx.media");
+        context.jvmModules.add("javafx.web");
         context.args.add(MAGIC_ARG);
         context.args.add("-XX:+DisableAttachMechanism");
         EnvHelper.addEnv(context.processBuilder);
