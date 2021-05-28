@@ -53,14 +53,30 @@ public class ClientLauncherWrapper {
         context.processBuilder = new ProcessBuilder();
         if (waitProcess) context.processBuilder.inheritIO();
 
-        context.javaVersion = null;
+        context.javaVersion = JavaVersion.getCurrentJavaVersion();
         try {
-            if (!noJavaCheck) context.javaVersion = findJava();
+            if (!noJavaCheck) {
+                List<JavaVersion> javaVersions = findJava();
+                for (JavaVersion version : javaVersions) {
+                    if (context.javaVersion == null) {
+                        context.javaVersion = version;
+                        continue;
+                    }
+                    if (version.enabledJavaFX && !context.javaVersion.enabledJavaFX) {
+                        context.javaVersion = version;
+                        continue;
+                    }
+                    if (version.enabledJavaFX) {
+                        if (context.javaVersion.version < version.version) {
+                            context.javaVersion = version;
+                        } else if (context.javaVersion.version == version.version && context.javaVersion.build < version.build) {
+                            context.javaVersion = version;
+                        }
+                    }
+                }
+            }
         } catch (Throwable e) {
             LogHelper.error(e);
-        }
-        if (context.javaVersion == null) {
-            context.javaVersion = JavaVersion.getCurrentJavaVersion();
         }
 
         context.executePath = IOHelper.resolveJavaBin(context.javaVersion.jvmDir);
@@ -187,63 +203,100 @@ public class ClientLauncherWrapper {
         return false;
     }
 
-    public static JavaVersion findJavaByProgramFiles(Path path) {
-        LogHelper.debug("Check Java in %s", path.toString());
-        JavaVersion selectedJava = null;
-        File[] candidates = path.toFile().listFiles(File::isDirectory);
-        if (candidates == null) return null;
-        for (File candidate : candidates) {
-            Path javaPath = candidate.toPath();
+    public static List<JavaVersion> findJava() {
+        List<String> javaPaths = new ArrayList<>(4);
+        List<JavaVersion> result = new ArrayList<>(4);
+        try {
+            tryAddJava(javaPaths, result, ClientLauncherWrapper.JavaVersion.getCurrentJavaVersion());
+        } catch (IOException e) {
+            LogHelper.error(e);
+        }
+        String[] path = System.getenv("PATH").split(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? ";" : ":");
+        for (String p : path) {
             try {
-                JavaVersion javaVersion = JavaVersion.getByPath(javaPath);
-                if (javaVersion == null || javaVersion.version < 8) continue;
-                LogHelper.debug("Found Java %d in %s (javafx %s)", javaVersion.version, javaVersion.jvmDir.toString(), javaVersion.enabledJavaFX ? "true" : "false");
-                if (javaVersion.enabledJavaFX && (selectedJava == null || !selectedJava.enabledJavaFX)) {
-                    selectedJava = javaVersion;
-                    continue;
-                }
-                if (selectedJava != null && javaVersion.enabledJavaFX && javaVersion.version < selectedJava.version) {
-                    selectedJava = javaVersion;
+                Path p1 = Paths.get(p);
+                Path javaExecPath = JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? p1.resolve("java.exe") : p1.resolve("java");
+                if (Files.exists(javaExecPath)) {
+                    if (Files.isSymbolicLink(javaExecPath)) {
+                        javaExecPath = javaExecPath.toRealPath();
+                    }
+                    p1 = javaExecPath.getParent().getParent();
+                    tryAddJava(javaPaths, result, ClientLauncherWrapper.JavaVersion.getByPath(p1));
+                    trySearchJava(javaPaths, result, p1.getParent());
                 }
             } catch (IOException e) {
                 LogHelper.error(e);
             }
         }
-        if (selectedJava != null) {
-            LogHelper.debug("Selected Java %d in %s (javafx %s)", selectedJava.version, selectedJava.jvmDir.toString(), selectedJava.enabledJavaFX ? "true" : "false");
-        }
-        return selectedJava;
-    }
-
-    public static JavaVersion findJava() {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
-            JavaVersion result = null;
-            Path defaultJvmContainerDir = Paths.get(System.getProperty("java.home")).getParent();
-            if (defaultJvmContainerDir.getParent().getFileName().toString().contains("x86")) //Program Files (x86) ?
-            {
-                Path programFiles64 = defaultJvmContainerDir.getParent().getParent().resolve("Program Files").resolve("Java");
-                if (IOHelper.isDir(programFiles64)) {
-                    result = findJavaByProgramFiles(programFiles64);
-                }
+            Path rootDrive = Paths.get(System.getProperty("java.home"));
+            try {
+                trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("Java"));
+                trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("AdoptOpenJDK"));
+            } catch (IOException e) {
+                LogHelper.error(e);
             }
-            if (result == null) {
-                result = findJavaByProgramFiles(defaultJvmContainerDir);
+        } else if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
+            try {
+                trySearchJava(javaPaths, result, Paths.get("/usr/lib/jvm"));
+            } catch (IOException e) {
+                LogHelper.error(e);
             }
-            return result;
         }
-        return null;
+        return result;
     }
 
-    public static int getJavaVersion(String version) {
+    public static boolean tryAddJava(List<String> javaPaths, List<JavaVersion> result, ClientLauncherWrapper.JavaVersion version) throws IOException {
+        if (version == null) return false;
+        String path = version.jvmDir.toAbsolutePath().toString();
+        if (javaPaths.contains(path)) return false;
+        javaPaths.add(path);
+        result.add(version);
+        return true;
+    }
+
+    public static void trySearchJava(List<String> javaPaths, List<JavaVersion> result, Path path) throws IOException {
+        if (!Files.isDirectory(path)) return;
+        Files.list(path).filter(p -> Files.exists(p.resolve("bin").resolve(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? "java.exe" : "java"))).forEach(e -> {
+            try {
+                tryAddJava(javaPaths, result, JavaVersion.getByPath(e));
+                if (Files.exists(e.resolve("jre"))) {
+                    tryAddJava(javaPaths, result, JavaVersion.getByPath(e.resolve("jre")));
+                }
+            } catch (IOException ioException) {
+                LogHelper.error(ioException);
+            }
+        });
+    }
+
+
+    public static class JavaVersionAndBuild {
+        public int version;
+        public int build;
+
+        public JavaVersionAndBuild(int version, int build) {
+            this.version = version;
+            this.build = build;
+        }
+
+        public JavaVersionAndBuild() {
+        }
+    }
+
+    public static JavaVersionAndBuild getJavaVersion(String version) {
+        JavaVersionAndBuild result = new JavaVersionAndBuild();
         if (version.startsWith("1.")) {
-            version = version.substring(2, 3);
+            result.version = Integer.parseInt(version.substring(2, 3));
+            result.build = Integer.parseInt(version.substring(version.indexOf('_') + 1));
         } else {
             int dot = version.indexOf(".");
             if (dot != -1) {
-                version = version.substring(0, dot);
+                result.version = Integer.parseInt(version.substring(0, dot));
+                dot = version.lastIndexOf(".");
+                result.build = Integer.parseInt(version.substring(dot + 1));
             }
         }
-        return Integer.parseInt(version);
+        return result;
     }
 
     public static class JavaVersion {
@@ -272,12 +325,16 @@ public class ClientLauncherWrapper {
 
         public static JavaVersion getByPath(Path jvmDir) throws IOException {
             Path releaseFile = jvmDir.resolve("release");
-            if (!IOHelper.isFile(releaseFile)) return null;
-            Properties properties = new Properties();
-            properties.load(IOHelper.newReader(releaseFile));
-            int javaVersion = getJavaVersion(properties.getProperty("JAVA_VERSION").replaceAll("\"", ""));
-            JavaVersion resultJavaVersion = new JavaVersion(jvmDir, javaVersion);
-            if (javaVersion <= 8) {
+            JavaVersionAndBuild versionAndBuild;
+            if (IOHelper.isFile(releaseFile)) {
+                Properties properties = new Properties();
+                properties.load(IOHelper.newReader(releaseFile));
+                versionAndBuild = getJavaVersion(properties.getProperty("JAVA_VERSION").replaceAll("\"", ""));
+            } else {
+                versionAndBuild = new JavaVersionAndBuild(isExistExtJavaLibrary(jvmDir, "jfxrt") ? 8 : 9, 0);
+            }
+            JavaVersion resultJavaVersion = new JavaVersion(jvmDir, versionAndBuild.version, versionAndBuild.build, false);
+            if (versionAndBuild.version <= 8) {
                 resultJavaVersion.enabledJavaFX = isExistExtJavaLibrary(jvmDir, "jfxrt");
             } else {
                 resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir, "javafx.base") != null;
