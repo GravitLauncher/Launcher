@@ -102,8 +102,10 @@ public class AuthProviderPair {
 
     public static void getFeatures(Class<?> clazz, Set<String> list) {
         Features features = clazz.getAnnotation(Features.class);
-        for (Feature feature : features.value()) {
-            list.add(feature.value());
+        if (features != null) {
+            for (Feature feature : features.value()) {
+                list.add(feature.value());
+            }
         }
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != null && superClass != Object.class) {
