@@ -17,6 +17,10 @@ public class HardwareReportResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
+        if (client.trustLevel == null || client.trustLevel.publicKey == null) {
+            sendError("Invalid request");
+            return;
+        }
         if (server.config.protectHandler instanceof HardwareProtectHandler) {
             try {
                 ((HardwareProtectHandler) server.config.protectHandler).onHardwareReport(this, client);
