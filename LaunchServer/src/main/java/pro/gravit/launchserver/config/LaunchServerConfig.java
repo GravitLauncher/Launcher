@@ -209,6 +209,7 @@ public final class LaunchServerConfig {
                 server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                 server.registerObject("auth.".concat(pair.name).concat(".core"), pair.core);
+                server.registerObject("auth.".concat(pair.name).concat(".social"), pair.core);
                 server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
             }
         }
@@ -221,6 +222,7 @@ public final class LaunchServerConfig {
                 for (AuthProviderPair pair : auth.values()) {
                     server.unregisterObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                     server.unregisterObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
+                    server.unregisterObject("auth.".concat(pair.name).concat(".social"), pair.social);
                     server.unregisterObject("auth.".concat(pair.name).concat(".core"), pair.core);
                     server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
                     pair.close();

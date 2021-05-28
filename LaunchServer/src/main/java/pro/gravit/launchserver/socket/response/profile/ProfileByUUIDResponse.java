@@ -17,6 +17,7 @@ public class ProfileByUUIDResponse extends SimpleResponse {
     public UUID uuid;
     public String client;
 
+    @Deprecated
     public static PlayerProfile getProfile(UUID uuid, String username, String client, TextureProvider textureProvider) {
         // Get skin texture
         Texture skin;
@@ -69,6 +70,6 @@ public class ProfileByUUIDResponse extends SimpleResponse {
                 return;
             }
         }
-        sendResult(new ProfileByUUIDRequestEvent(getProfile(uuid, username, this.client, pair.textureProvider)));
+        sendResult(new ProfileByUUIDRequestEvent(server.authManager.getPlayerProfile(pair, uuid)));
     }
 }

@@ -10,7 +10,6 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
-import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
 import pro.gravit.utils.HookException;
 
 import java.util.UUID;
@@ -60,7 +59,7 @@ public class AuthResponse extends SimpleResponse {
             if (context.report.minecraftAccessToken != null) {
                 result.accessToken = context.report.minecraftAccessToken;
             }
-            result.playerProfile = ProfileByUUIDResponse.getProfile(clientData.uuid, clientData.username, client, clientData.auth.textureProvider);
+            result.playerProfile = server.authManager.getPlayerProfile(clientData);
             sendResult(result);
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());
