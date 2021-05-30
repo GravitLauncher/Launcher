@@ -53,7 +53,7 @@ public class ClientLauncherWrapper {
         context.processBuilder = new ProcessBuilder();
         if (waitProcess) context.processBuilder.inheritIO();
 
-        context.javaVersion = JavaVersion.getCurrentJavaVersion();
+        context.javaVersion = null;
         try {
             if (!noJavaCheck) {
                 List<JavaVersion> javaVersions = findJava();
