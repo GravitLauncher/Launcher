@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.events.request.CheckServerRequestEvent;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.HookException;
@@ -29,9 +30,10 @@ public class CheckServerResponse extends SimpleResponse {
         CheckServerRequestEvent result = new CheckServerRequestEvent();
         try {
             server.authHookManager.checkServerHook.hook(this, pClient);
-            result.uuid = server.authManager.checkServer(pClient, username, serverID);
-            if (result.uuid != null) {
-                result.playerProfile = server.authManager.getPlayerProfile(pClient);
+            AuthManager.CheckServerReport report = server.authManager.checkServer(pClient, username, serverID);
+            if (report != null) {
+                result.playerProfile = report.playerProfile;
+                result.uuid = report.uuid;
                 logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile.username, result.uuid, serverID);
             }
         } catch (AuthException | HookException e) {

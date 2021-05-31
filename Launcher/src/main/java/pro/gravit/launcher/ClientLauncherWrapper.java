@@ -58,6 +58,7 @@ public class ClientLauncherWrapper {
             if (!noJavaCheck) {
                 List<JavaVersion> javaVersions = findJava();
                 for (JavaVersion version : javaVersions) {
+                    LogHelper.debug("Found Java %d b%d in %s javafx %s", version.version, version.build, version.jvmDir.toString(), version.enabledJavaFX ? "supported" : "not supported");
                     if (context.javaVersion == null) {
                         context.javaVersion = version;
                         continue;
@@ -77,6 +78,9 @@ public class ClientLauncherWrapper {
             }
         } catch (Throwable e) {
             LogHelper.error(e);
+        }
+        if (context.javaVersion == null) {
+            context.javaVersion = JavaVersion.getCurrentJavaVersion();
         }
 
         context.executePath = IOHelper.resolveJavaBin(context.javaVersion.jvmDir);
@@ -322,7 +326,16 @@ public class ClientLauncherWrapper {
         }
 
         public static JavaVersion getCurrentJavaVersion() {
-            return new JavaVersion(Paths.get(System.getProperty("java.home")), JVMHelper.getVersion());
+            return new JavaVersion(Paths.get(System.getProperty("java.home")), JVMHelper.getVersion(), 0, isCurrentJavaSupportJavaFX());
+        }
+
+        private static boolean isCurrentJavaSupportJavaFX() {
+            try {
+                Class.forName("javafx.application.Application");
+                return true;
+            } catch (ClassNotFoundException e) {
+                return false;
+            }
         }
 
         public static JavaVersion getByPath(Path jvmDir) throws IOException {

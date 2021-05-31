@@ -121,10 +121,10 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         return map;
     }
 
-    public UUID checkServer(Client client, String username, String serverID) throws IOException {
+    public User checkServer(Client client, String username, String serverID) throws IOException {
         User user = getUserByUsername(username);
         if (user.getUsername().equals(username) && user.getServerId().equals(serverID)) {
-            return user.getUUID();
+            return user;
         }
         return null;
     }

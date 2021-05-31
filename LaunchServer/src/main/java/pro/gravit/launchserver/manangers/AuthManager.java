@@ -210,12 +210,34 @@ public class AuthManager {
         }
     }
 
-    public UUID checkServer(Client client, String username, String serverID) throws IOException {
+    public static class CheckServerReport {
+        public UUID uuid;
+        public User user;
+        public PlayerProfile playerProfile;
+
+        public CheckServerReport(UUID uuid, User user, PlayerProfile playerProfile) {
+            this.uuid = uuid;
+            this.user = user;
+            this.playerProfile = playerProfile;
+        }
+
+        public static CheckServerReport ofUser(User user, PlayerProfile playerProfile) {
+            return new CheckServerReport(user.getUUID(), user, playerProfile);
+        }
+
+        public static CheckServerReport ofUUID(UUID uuid, PlayerProfile playerProfile) {
+            return new CheckServerReport(uuid, null, playerProfile);
+        }
+    }
+
+    public CheckServerReport checkServer(Client client, String username, String serverID) throws IOException {
         if (client.auth == null) return null;
         if (client.auth.isUseCore()) {
-            return client.auth.core.checkServer(client, username, serverID);
+            User user = client.auth.core.checkServer(client, username, serverID);
+            return user == null ? null : CheckServerReport.ofUser(user, getPlayerProfile(user));
         } else {
-            return client.auth.handler.checkServer(username, serverID);
+            UUID uuid = client.auth.handler.checkServer(username, serverID);
+            return uuid == null ? null : CheckServerReport.ofUUID(uuid, getPlayerProfile(client.auth, uuid));
         }
     }
 
