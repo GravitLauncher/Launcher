@@ -187,7 +187,6 @@ public class ClientLauncherWrapper {
 
     public static Path tryFindModule(Path path, String moduleName) {
         Path result = path.resolve(moduleName.concat(".jar"));
-        LogHelper.dev("Try resolve %s", result.toString());
         if (!IOHelper.isFile(result))
             result = path.resolve("lib").resolve(moduleName.concat(".jar"));
         else return result;
@@ -334,6 +333,10 @@ public class ClientLauncherWrapper {
                 Class.forName("javafx.application.Application");
                 return true;
             } catch (ClassNotFoundException e) {
+                if (JVMHelper.getVersion() > 8) {
+                    Path jvmDir = Paths.get(System.getProperty("java.home"));
+                    return tryFindModule(jvmDir, "javafx.base") != null;
+                }
                 return false;
             }
         }
