@@ -46,7 +46,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 /**
  * The main LaunchServer class. Contains links to all necessary objects
@@ -115,6 +114,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final PingServerManager pingServerManager;
     public final FeaturesManager featuresManager;
     public final KeyAgreementManager keyAgreementManager;
+    public final UpdatesManager updatesManager;
     // HWID ban + anti-brutforce
     public final CertificateManager certificateManager;
     // Server
@@ -127,6 +127,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final LauncherModuleLoader launcherModuleLoader;
     private final Logger logger = LogManager.getLogger();
     public LaunchServerConfig config;
+    @Deprecated
     public volatile Map<String, HashedDir> updatesDirMap;
     // Updates and profiles
     private volatile Set<ClientProfile> profilesList;
@@ -173,6 +174,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         pingServerManager = new PingServerManager(this);
         featuresManager = new FeaturesManager(this);
         authManager = new AuthManager(this);
+        updatesManager = new UpdatesManager(this);
         RestoreResponse.registerProviders(this);
         //Generate or set new Certificate API
         certificateManager.orgName = config.projectName;
@@ -316,10 +318,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.profilesList = Collections.unmodifiableSet(profilesList);
     }
 
+    @Deprecated
     public HashedDir getUpdateDir(String name) {
         return updatesDirMap.get(name);
     }
 
+    @Deprecated
     public Set<Entry<String, HashedDir>> getUpdateDirs() {
         return updatesDirMap.entrySet();
     }
@@ -349,8 +353,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 try {
                     if (!IOHelper.isDir(updatesDir))
                         Files.createDirectory(updatesDir);
-                    syncUpdatesDir(null);
-                    modulesManager.invokeEvent(new LaunchServerUpdatesSyncEvent(this));
+                    updatesManager.readUpdatesDir();
 
                     // Sync profiles dir
                     if (!IOHelper.isDir(profilesDir))
@@ -402,37 +405,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
-        logger.info("Syncing updates dir");
-        Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(updatesDir)) {
-            for (final Path updateDir : dirStream) {
-                if (Files.isHidden(updateDir))
-                    continue; // Skip hidden
-
-                // Resolve name and verify is dir
-                String name = IOHelper.getFileName(updateDir);
-                if (!IOHelper.isDir(updateDir)) {
-                    if (!IOHelper.isFile(updateDir) && Stream.of(".jar", ".exe", ".hash").noneMatch(e -> updateDir.toString().endsWith(e)))
-                        logger.warn("Not update dir: '{}'", name);
-                    continue;
-                }
-
-                // Add from previous map (it's guaranteed to be non-null)
-                if (dirs != null && !dirs.contains(name)) {
-                    HashedDir hdir = updatesDirMap.get(name);
-                    if (hdir != null) {
-                        newUpdatesDirMap.put(name, hdir);
-                        continue;
-                    }
-                }
-
-                // Sync and sign update dir
-                logger.info("Syncing '{}' update dir", name);
-                HashedDir updateHDir = new HashedDir(updateDir, null, true, true);
-                newUpdatesDirMap.put(name, updateHDir);
-            }
-        }
-        updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
+        updatesManager.syncUpdatesDir(dirs);
     }
 
     public void restart() {

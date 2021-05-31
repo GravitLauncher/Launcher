@@ -27,7 +27,7 @@ public class UpdateResponse extends SimpleResponse {
             sendError("Invalid request");
             return;
         }
-        HashedDir dir = server.updatesDirMap.get(dirName);
+        HashedDir dir = server.updatesManager.getUpdate(dirName);
         if (dir == null) {
             sendError(String.format("Directory %s not found", dirName));
             return;

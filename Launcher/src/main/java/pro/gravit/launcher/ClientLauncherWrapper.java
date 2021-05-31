@@ -67,7 +67,7 @@ public class ClientLauncherWrapper {
                         context.javaVersion = version;
                         continue;
                     }
-                    if (version.enabledJavaFX) {
+                    if (version.enabledJavaFX == context.javaVersion.enabledJavaFX) {
                         if (context.javaVersion.version < version.version) {
                             context.javaVersion = version;
                         } else if (context.javaVersion.version == version.version && context.javaVersion.build < version.build) {

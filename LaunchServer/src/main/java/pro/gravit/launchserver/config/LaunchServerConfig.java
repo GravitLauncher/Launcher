@@ -35,6 +35,7 @@ public final class LaunchServerConfig {
     public String[] mirrors;
     public String binaryName;
     public boolean copyBinaries = true;
+    public boolean cacheUpdates = true;
     public LauncherConfig.LauncherEnvironment env;
     public Map<String, AuthProviderPair> auth;
     @Deprecated
