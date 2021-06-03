@@ -21,5 +21,6 @@ public class HardwareReportRequest extends Request<HardwareReportRequestEvent> {
         public String hwDiskId;
         public byte[] displayId;
         public String baseboardSerialNumber;
+        public String graphicCard;
     }
 }

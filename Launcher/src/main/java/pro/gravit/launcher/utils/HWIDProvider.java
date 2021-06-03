@@ -112,6 +112,7 @@ public class HWIDProvider {
         info.processorMaxFreq = getProcessorMaxFreq();
         info.totalMemory = getTotalMemory();
         info.battery = isBattery();
+        info.graphicCard = getGraphicCardName();
         if (needSerial) {
             info.hwDiskId = getHWDiskID();
             info.displayId = getDisplayID();

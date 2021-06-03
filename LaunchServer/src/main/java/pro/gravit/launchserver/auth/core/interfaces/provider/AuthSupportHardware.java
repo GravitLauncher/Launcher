@@ -18,6 +18,8 @@ public interface AuthSupportHardware {
 
     UserHardware createHardwareInfo(HardwareReportRequest.HardwareInfo info, byte[] publicKey);
 
+    void connectUserAndHardware(User user, UserHardware hardware);
+
     void addPublicKeyToHardwareInfo(UserHardware hardware, byte[] publicKey);
 
     Iterable<User> getUsersByHardwareInfo(UserHardware hardware);

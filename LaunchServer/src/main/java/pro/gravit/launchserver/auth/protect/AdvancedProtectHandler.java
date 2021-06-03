@@ -67,7 +67,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 return;
             }
             logger.debug("HardwareInfo received");
-            if (client.auth instanceof AuthSupportHardware) {
+            if (client.auth.core instanceof AuthSupportHardware) {
                 AuthSupportHardware authSupportHardware = (AuthSupportHardware) client.auth;
                 UserHardware hardware = authSupportHardware.getHardwareInfoByData(response.hardware);
                 if (hardware == null) {
@@ -75,6 +75,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 } else {
                     authSupportHardware.addPublicKeyToHardwareInfo(hardware, client.trustLevel.publicKey);
                 }
+                authSupportHardware.connectUserAndHardware(client.getUser(), hardware);
                 if (hardware.isBanned()) {
                     throw new SecurityException("Your hardware banned");
                 }
@@ -108,7 +109,16 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 logger.warn("HWIDProvider null. HardwareInfo not checked!");
             } else {
                 try {
-                    client.trustLevel.hardwareInfo = provider.findHardwareInfoByPublicKey(client.trustLevel.publicKey, client);
+                    if (client.auth.core instanceof AuthSupportHardware) {
+                        AuthSupportHardware authSupportHardware = (AuthSupportHardware) client.auth;
+                        UserHardware hardware = authSupportHardware.getHardwareInfoByPublicKey(client.trustLevel.publicKey);
+                        if (hardware != null) {
+                            client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
+                            authSupportHardware.connectUserAndHardware(client.getUser(), hardware);
+                        }
+                    } else {
+                        client.trustLevel.hardwareInfo = provider.findHardwareInfoByPublicKey(client.trustLevel.publicKey, client);
+                    }
                     if (client.trustLevel.hardwareInfo == null) //HWID not found?
                         return new VerifySecureLevelKeyRequestEvent(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
                 } catch (HWIDException e) {
