@@ -14,4 +14,8 @@ public interface User {
     String getAccessToken();
 
     ClientPermissions getPermissions();
+
+    default boolean isBanned() {
+        return false;
+    }
 }

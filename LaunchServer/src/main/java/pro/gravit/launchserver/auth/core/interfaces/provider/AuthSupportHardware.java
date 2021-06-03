@@ -8,7 +8,6 @@ import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
 import pro.gravit.launchserver.helper.DamerauHelper;
 
 import java.util.Arrays;
-import java.util.List;
 
 public interface AuthSupportHardware {
     UserHardware getHardwareInfoByPublicKey(byte[] publicKey);
@@ -21,7 +20,7 @@ public interface AuthSupportHardware {
 
     void addPublicKeyToHardwareInfo(UserHardware hardware, byte[] publicKey);
 
-    List<User> getUsersByHardwareInfo(UserHardware hardware);
+    Iterable<User> getUsersByHardwareInfo(UserHardware hardware);
 
     void banHardware(UserHardware hardware);
 
