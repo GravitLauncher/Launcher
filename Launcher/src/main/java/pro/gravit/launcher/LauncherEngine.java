@@ -192,6 +192,7 @@ public class LauncherEngine {
                     throw new RequestException("Connection failed", e);
                 }
             };
+            Request.service.registerEventHandler(new BasicLauncherEventHandler());
         }
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))

@@ -13,7 +13,27 @@ public class Downloader {
         void apply(long fullDiff);
     }
 
-    public CompletableFuture<Void> downloadList(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
+    private final CompletableFuture<Void> future;
+    private final AsyncDownloader asyncDownloader;
+
+    private Downloader(CompletableFuture<Void> future, AsyncDownloader downloader) {
+        this.future = future;
+        this.asyncDownloader = downloader;
+    }
+
+    public CompletableFuture<Void> getFuture() {
+        return future;
+    }
+
+    public void cancel() {
+        this.asyncDownloader.isClosed = true;
+    }
+
+    public boolean isCanceled() {
+        return this.asyncDownloader.isClosed;
+    }
+
+    public static Downloader downloadList(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
         final boolean closeExecutor;
         if (executor == null) {
             executor = Executors.newWorkStealingPool(4);
@@ -30,10 +50,10 @@ public class Downloader {
         CompletableFuture<Void> future = CompletableFuture.allOf(asyncDownloader.runDownloadList(list, baseURL, targetDir, executor));
 
         ExecutorService finalExecutor = executor;
-        return future.thenAccept(e -> {
+        return new Downloader(future.thenAccept(e -> {
             if (closeExecutor) {
                 finalExecutor.shutdownNow();
             }
-        });
+        }), asyncDownloader);
     }
 }

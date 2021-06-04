@@ -1,9 +1,6 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherAgent;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.*;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
 import pro.gravit.launcher.client.events.client.*;
@@ -104,6 +101,7 @@ public class ClientLauncherEntryPoint {
             LogHelper.info("Using Sessions");
             Request.setSession(params.session);
         }
+        Request.service.registerEventHandler(new BasicLauncherEventHandler());
         checkJVMBitsAndVersion(params.profile.getMinJavaVersion(), params.profile.getRecommendJavaVersion(), params.profile.getMaxJavaVersion(), params.profile.isWarnMissJavaVersion());
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessInitPhase(engine, params));
 

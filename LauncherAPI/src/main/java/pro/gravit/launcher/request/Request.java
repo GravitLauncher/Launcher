@@ -14,6 +14,7 @@ import pro.gravit.utils.helper.LogHelper;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 
 public abstract class Request<R extends WebSocketEvent> implements WebSocketRequest {
     public static StdWebSocketService service;
@@ -23,6 +24,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     private static String authId;
     private static long tokenExpiredTime;
     private static List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
+    private static List<BiConsumer<String, AuthRequestEvent.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
     @LauncherNetworkAPI
     public final UUID requestUUID = UUID.randomUUID();
     private transient final AtomicBoolean started = new AtomicBoolean(false);
@@ -42,6 +44,9 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
             tokenExpiredTime = System.currentTimeMillis() + oauth.expire;
         } else {
             tokenExpiredTime = 0;
+        }
+        for (BiConsumer<String, AuthRequestEvent.OAuthRequestEvent> handler : oauthChangeHandlers) {
+            handler.accept(authId, event);
         }
     }
 
@@ -152,6 +157,18 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
 
     public void addExtendedTokenCallback(ExtendedTokenCallback cb) {
         extendedTokenCallbacks.add(cb);
+    }
+
+    public void removeExtendedTokenCallback(ExtendedTokenCallback cb) {
+        extendedTokenCallbacks.remove(cb);
+    }
+
+    public void addOAuthChangeHandler(BiConsumer<String, AuthRequestEvent.OAuthRequestEvent> eventHandler) {
+        oauthChangeHandlers.add(eventHandler);
+    }
+
+    public void removeOAuthChangeHandler(BiConsumer<String, AuthRequestEvent.OAuthRequestEvent> eventHandler) {
+        oauthChangeHandlers.remove(eventHandler);
     }
 
     public R request() throws Exception {

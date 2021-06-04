@@ -32,6 +32,7 @@ public class AsyncDownloader {
     private static volatile SSLSocketFactory sslSocketFactory;
     private static volatile SSLContext sslContext;
     public final Callback callback;
+    public volatile boolean isClosed;
 
     public AsyncDownloader(Callback callback) {
         this.callback = callback;
@@ -170,6 +171,7 @@ public class AsyncDownloader {
             // Download with digest update
             byte[] bytes = IOHelper.newBuffer();
             while (downloaded < size) {
+                if (isClosed) throw new IOException("Download interrupted");
                 int remaining = (int) Math.min(size - downloaded, bytes.length);
                 int length = input.read(bytes, 0, remaining);
                 if (length < 0)

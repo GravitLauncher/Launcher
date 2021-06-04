@@ -3,11 +3,13 @@ package pro.gravit.launchserver.auth.core.interfaces.provider;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportBanInfo;
 
-public interface AuthSupportUserBan {
-    void banUser(User user, String reason);
+import java.time.LocalDateTime;
 
-    default void banUser(User user) {
-        banUser(user, null);
+public interface AuthSupportUserBan {
+    UserSupportBanInfo.UserBanInfo banUser(User user, String reason, String moderator, LocalDateTime startTime, LocalDateTime endTime);
+
+    default UserSupportBanInfo.UserBanInfo banUser(User user) {
+        return banUser(user, null, null, LocalDateTime.now(), null);
     }
 
     void unbanUser(User user);

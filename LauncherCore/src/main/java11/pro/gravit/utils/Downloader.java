@@ -11,6 +11,7 @@ import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.*;
@@ -29,11 +30,54 @@ public class Downloader {
         void onComplete(Path path);
     }
 
-    public static CompletableFuture<Void> downloadList(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
+    protected final HttpClient client;
+    protected final ExecutorService executor;
+    protected CompletableFuture<Void> future;
+    protected final LinkedList<DownloadTask> tasks = new LinkedList<>();
+
+    protected Downloader(HttpClient client, ExecutorService executor) {
+        this.client = client;
+        this.executor = executor;
+    }
+
+    public void cancel() {
+        for (DownloadTask task : tasks) {
+            if (!task.isCompleted()) {
+                task.cancel();
+            }
+        }
+        tasks.clear();
+        executor.shutdownNow();
+    }
+
+    public boolean isCanceled() {
+        return executor.isTerminated();
+    }
+
+    public CompletableFuture<Void> getFuture() {
+        return future;
+    }
+
+    public static Downloader downloadList(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
         boolean closeExecutor = false;
         if (executor == null) {
             executor = Executors.newWorkStealingPool(Math.min(3, threads));
             closeExecutor = true;
+        }
+        Downloader downloader = newDownloader(executor);
+        downloader.future = downloader.downloadFiles(files, baseURL, targetDir, callback, executor, threads);
+        if (closeExecutor) {
+            ExecutorService finalExecutor = executor;
+            downloader.future = downloader.future.thenAccept(e -> {
+                finalExecutor.shutdownNow();
+            });
+        }
+        return downloader;
+    }
+
+    public static Downloader newDownloader(ExecutorService executor) {
+        if (executor == null) {
+            throw new NullPointerException();
         }
         HttpClient.Builder builder = HttpClient.newBuilder()
                 .version(isNoHttp2 ? HttpClient.Version.HTTP_1_1 : HttpClient.Version.HTTP_2)
@@ -46,21 +90,15 @@ public class Downloader {
                 throw new SecurityException(e);
             }
         }
-        CompletableFuture<Void> future = downloadList(builder.build(), files, baseURL, targetDir, callback, executor, threads);
-        if (closeExecutor) {
-            ExecutorService finalExecutor = executor;
-            future = future.thenAccept(e -> {
-                finalExecutor.shutdownNow();
-            });
-        }
-        return future;
+        HttpClient client = builder.build();
+        return new Downloader(client, executor);
     }
 
     private static class ConsumerObject {
         Consumer<HttpResponse<Path>> next = null;
     }
 
-    public static CompletableFuture<Void> downloadList(HttpClient client, List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
+    public CompletableFuture<Void> downloadFiles(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
         // URI scheme
         URI baseUri = new URI(baseURL);
         Collections.shuffle(files);
@@ -79,7 +117,8 @@ public class Downloader {
                 return;
             }
             try {
-                sendAsync(client, file, baseUri, targetDir, callback).thenAccept(consumerObject.next);
+                DownloadTask task = sendAsync(file, baseUri, targetDir, callback);
+                task.completableFuture.thenAccept(consumerObject.next);
             } catch (Exception exception) {
                 future.completeExceptionally(exception);
             }
@@ -91,11 +130,39 @@ public class Downloader {
         return future;
     }
 
-    private static CompletableFuture<HttpResponse<Path>> sendAsync(HttpClient client, AsyncDownloader.SizedFile file, URI baseUri, Path targetDir, DownloadCallback callback) throws Exception {
-        return client.sendAsync(makeHttpRequest(baseUri, file.urlPath), makeBodyHandler(targetDir.resolve(file.filePath), callback));
+    public static class DownloadTask {
+        public final ProgressTrackingBodyHandler<Path> bodyHandler;
+        public final CompletableFuture<HttpResponse<Path>> completableFuture;
+
+        public DownloadTask(ProgressTrackingBodyHandler<Path> bodyHandler, CompletableFuture<HttpResponse<Path>> completableFuture) {
+            this.bodyHandler = bodyHandler;
+            this.completableFuture = completableFuture;
+        }
+
+        public boolean isCompleted() {
+            return completableFuture.isDone() | completableFuture.isCompletedExceptionally();
+        }
+
+        public void cancel() {
+            bodyHandler.cancel();
+        }
     }
 
-    private static HttpRequest makeHttpRequest(URI baseUri, String filePath) throws URISyntaxException {
+    protected DownloadTask sendAsync(AsyncDownloader.SizedFile file, URI baseUri, Path targetDir, DownloadCallback callback) throws Exception {
+        ProgressTrackingBodyHandler<Path> bodyHandler = makeBodyHandler(targetDir.resolve(file.filePath), callback);
+        CompletableFuture<HttpResponse<Path>> future = client.sendAsync(makeHttpRequest(baseUri, file.urlPath), bodyHandler);
+        var ref = new Object() {
+            DownloadTask task = null;
+        };
+        ref.task = new DownloadTask(bodyHandler, future.thenApply((e) -> {
+            tasks.remove(ref.task);
+            return e;
+        }));
+        tasks.add(ref.task);
+        return ref.task;
+    }
+
+    protected HttpRequest makeHttpRequest(URI baseUri, String filePath) throws URISyntaxException {
         String scheme = baseUri.getScheme();
         String host = baseUri.getHost();
         int port = baseUri.getPort();
@@ -109,13 +176,14 @@ public class Downloader {
                 .build();
     }
 
-    private static HttpResponse.BodyHandler<Path> makeBodyHandler(Path file, DownloadCallback callback) {
+    protected ProgressTrackingBodyHandler<Path> makeBodyHandler(Path file, DownloadCallback callback) {
         return new ProgressTrackingBodyHandler<>(HttpResponse.BodyHandlers.ofFile(file), callback);
     }
 
     public static class ProgressTrackingBodyHandler<T> implements HttpResponse.BodyHandler<T> {
         private final HttpResponse.BodyHandler<T> delegate;
         private final DownloadCallback callback;
+        private ProgressTrackingBodySubscriber subscriber;
 
         public ProgressTrackingBodyHandler(HttpResponse.BodyHandler<T> delegate, DownloadCallback callback) {
             this.delegate = delegate;
@@ -124,11 +192,19 @@ public class Downloader {
 
         @Override
         public HttpResponse.BodySubscriber<T> apply(HttpResponse.ResponseInfo responseInfo) {
-            return delegate.apply(responseInfo);
+            subscriber = new ProgressTrackingBodySubscriber(delegate.apply(responseInfo));
+            return subscriber;
+        }
+
+        public void cancel() {
+            if (subscriber != null) {
+                subscriber.cancel();
+            }
         }
 
         private class ProgressTrackingBodySubscriber implements HttpResponse.BodySubscriber<T> {
             private final HttpResponse.BodySubscriber<T> delegate;
+            private Flow.Subscription subscription;
 
             public ProgressTrackingBodySubscriber(HttpResponse.BodySubscriber<T> delegate) {
                 this.delegate = delegate;
@@ -141,6 +217,7 @@ public class Downloader {
 
             @Override
             public void onSubscribe(Flow.Subscription subscription) {
+                this.subscription = subscription;
                 delegate.onSubscribe(subscription);
             }
 
@@ -162,6 +239,12 @@ public class Downloader {
             @Override
             public void onComplete() {
                 delegate.onComplete();
+            }
+
+            public void cancel() {
+                if (subscription != null) {
+                    subscription.cancel();
+                }
             }
         }
     }
