@@ -11,6 +11,8 @@ import java.util.concurrent.Executors;
 public class Downloader {
     public interface DownloadCallback {
         void apply(long fullDiff);
+
+        void onComplete(Path path);
     }
 
     private final CompletableFuture<Void> future;
