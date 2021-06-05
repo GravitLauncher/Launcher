@@ -148,6 +148,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     public void init(LaunchServer server) {
         if (provider != null)
             provider.init(server);
+        this.server = server;
     }
 
     @Override
