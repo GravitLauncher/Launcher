@@ -158,21 +158,21 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
 
     public String createHardwareToken(String username, HardwareReportRequest.HardwareInfo info) {
         return Jwts.builder()
-                .setIssuer("LaunchSerer")
+                .setIssuer("LaunchServer")
                 .setSubject(username)
-                .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 8))
                 .claim("hardware", info)
+                .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
     }
 
     public String createPublicKeyToken(String username, byte[] publicKey) {
         return Jwts.builder()
-                .setIssuer("LaunchSerer")
+                .setIssuer("LaunchServer")
                 .setSubject(username)
-                .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 8))
                 .claim("publicKey", Base64.getEncoder().encode(publicKey))
+                .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
     }
 
