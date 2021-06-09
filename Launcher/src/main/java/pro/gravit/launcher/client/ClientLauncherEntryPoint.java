@@ -101,7 +101,6 @@ public class ClientLauncherEntryPoint {
             LogHelper.info("Using Sessions");
             Request.setSession(params.session);
         }
-        Request.service.registerEventHandler(new BasicLauncherEventHandler());
         checkJVMBitsAndVersion(params.profile.getMinJavaVersion(), params.profile.getRecommendJavaVersion(), params.profile.getMaxJavaVersion(), params.profile.isWarnMissJavaVersion());
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessInitPhase(engine, params));
 
@@ -121,6 +120,7 @@ public class ClientLauncherEntryPoint {
         boolean digest = !profile.isUpdateFastCheck();
         LogHelper.debug("Restore sessions");
         Request.restore();
+        Request.service.registerEventHandler(new BasicLauncherEventHandler());
         Request.service.reconnectCallback = () ->
         {
             LogHelper.debug("WebSocket connect closed. Try reconnect");

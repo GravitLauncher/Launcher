@@ -40,15 +40,15 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
 
     public String tableHWID = "hwids";
     public String tableHWIDLog = "hwidLog";
-    private String sqlFindHardwareByPublicKey;
-    private String sqlFindHardwareByData;
-    private String sqlFindHardwareById;
-    private String sqlCreateHardware;
-    private String sqlCreateHWIDLog;
-    private String sqlUpdateHardwarePublicKey;
-    private String sqlUpdateHardwareBanned;
-    private String sqlUpdateUsers;
-    private String sqlUsersByHwidId;
+    private transient String sqlFindHardwareByPublicKey;
+    private transient String sqlFindHardwareByData;
+    private transient String sqlFindHardwareById;
+    private transient String sqlCreateHardware;
+    private transient String sqlCreateHWIDLog;
+    private transient String sqlUpdateHardwarePublicKey;
+    private transient String sqlUpdateHardwareBanned;
+    private transient String sqlUpdateUsers;
+    private transient String sqlUsersByHwidId;
 
     public PasswordVerifier passwordVerifier;
     public double criticalCompareLevel = 1.0;
