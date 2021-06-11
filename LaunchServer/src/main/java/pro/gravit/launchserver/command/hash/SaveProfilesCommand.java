@@ -58,10 +58,45 @@ public class SaveProfilesCommand extends Command {
             }
             OptionalFile optionalMacOs = new OptionalFile();
             optionalMacOs.name = "MacOSArgs";
+            optionalMacOs.visible = false;
             optionalMacOs.actions = new ArrayList<>(1);
             optionalMacOs.actions.add(new OptionalActionJvmArgs(List.of("-XstartOnFirstThread")));
             optionalMacOs.triggers = new OptionalTrigger[]{new OptionalTrigger(OptionalTrigger.TriggerType.OS_TYPE, 2)};
             optionals.add(optionalMacOs);
+        }
+        if (optionContains(options, MakeProfileOption.LWJGLMAC)) {
+            OptionalFile optionalMac = new OptionalFile();
+            optionalMac.name = "MacLwjgl";
+            optionalMac.visible = false;
+            optionalMac.actions.add(new OptionalActionFile(Map.of(
+                    "libraries/libraries/org/lwjgl/lwjgl/3.2.1", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-glfw/3.2.1", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-openal/3.2.1", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-stb/3.2.1", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-tinyfd/3.2.1", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-opengl/3.2.1", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-jemalloc/3.2.1", ""
+            )));
+            optionalMac.triggers = new OptionalTrigger[]{new OptionalTrigger(OptionalTrigger.TriggerType.OS_TYPE, true, 2, 0)};
+            optionals.add(optionalMac);
+            OptionalFile optionalOther = new OptionalFile();
+            optionalOther.name = "NonMacLwjgl";
+            optionalOther.visible = false;
+            optionalOther.actions.add(new OptionalActionFile(Map.of(
+                    "libraries/libraries/org/lwjgl/lwjgl/3.2.2", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-glfw/3.2.2", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-openal/3.2.2", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-stb/3.2.2", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-tinyfd/3.2.2", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-opengl/3.2.2", "",
+                    "libraries/libraries/org/lwjgl/lwjgl-jemalloc/3.2.2", ""
+            )));
+            optionalOther.triggers = new OptionalTrigger[]{new OptionalTrigger(OptionalTrigger.TriggerType.OS_TYPE, true, 2, 0)};
+            optionals.add(optionalOther);
+        }
+        if (version.compareTo(ClientProfile.Version.MC117) >= 0) {
+            builder.setMinJavaVersion(16);
+            builder.setRecommendJavaVersion(16);
         }
         jvmArgs.add("-Dfml.ignorePatchDiscrepancies=true");
         jvmArgs.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
@@ -79,6 +114,11 @@ public class SaveProfilesCommand extends Command {
                     clientArgs.add("net.minecraftforge.fml.common.launcher.FMLTweaker");
                 } else {
                     clientArgs.add("cpw.mods.fml.common.launcher.FMLTweaker");
+                }
+                if (version.compareTo(ClientProfile.Version.MC1122) <= 0) {
+                    builder.setMinJavaVersion(8);
+                    builder.setRecommendJavaVersion(8);
+                    builder.setMaxJavaVersion(8);
                 }
             }
         }
@@ -105,6 +145,9 @@ public class SaveProfilesCommand extends Command {
         }
         if (Files.exists(dir.resolve("liteloader.jar"))) {
             options.add(MakeProfileOption.LITELOADER);
+        }
+        if (Files.exists(dir.resolve("libraries/libraries/org/lwjgl/lwjgl/3.2.2")) && Files.exists(dir.resolve("libraries/libraries/org/lwjgl/lwjgl/3.2.1"))) {
+            options.add(MakeProfileOption.LWJGLMAC);
         }
         if (version.compareTo(ClientProfile.Version.MC1122) <= 0) {
             options.add(MakeProfileOption.LAUNCHWRAPPER);
@@ -187,6 +230,6 @@ public class SaveProfilesCommand extends Command {
     }
 
     public enum MakeProfileOption {
-        LAUNCHWRAPPER, VANILLA, FORGE, FABRIC, LITELOADER
+        LAUNCHWRAPPER, VANILLA, FORGE, FABRIC, LITELOADER, LWJGLMAC
     }
 }
