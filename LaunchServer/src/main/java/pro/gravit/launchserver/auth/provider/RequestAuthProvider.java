@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class RequestAuthProvider extends AuthProvider {
-    private final HttpClient client = HttpClient.newBuilder()
+    private transient final HttpClient client = HttpClient.newBuilder()
             .build();
     public String url;
     public transient Pattern pattern;
