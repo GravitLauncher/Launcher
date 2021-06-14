@@ -18,7 +18,7 @@ public class DigestPasswordVerifier extends PasswordVerifier {
         try {
             MessageDigest digest = MessageDigest.getInstance(algo);
             byte[] bytes = SecurityHelper.fromHex(encryptedPassword);
-            return Arrays.equals(password.getBytes(StandardCharsets.UTF_8), digest.digest(bytes));
+            return Arrays.equals(bytes, digest.digest(password.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException e) {
             logger.error("Digest algorithm {} not supported", algo);
             return false;
