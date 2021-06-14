@@ -18,9 +18,9 @@ public class DoubleDigestPasswordVerifier extends PasswordVerifier {
     public boolean check(String encryptedPassword, String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance(algo);
-            byte[] bytes = SecurityHelper.fromHex(encryptedPassword);
+            byte[] bytes = SecurityHelper.fromHex(password);
             byte[] firstDigest = digest.digest(bytes);
-            return Arrays.equals(password.getBytes(StandardCharsets.UTF_8), toHexMode ? digest.digest(SecurityHelper.toHex(firstDigest).getBytes(StandardCharsets.UTF_8)) : digest.digest(firstDigest));
+            return Arrays.equals(encryptedPassword.getBytes(StandardCharsets.UTF_8), toHexMode ? digest.digest(SecurityHelper.toHex(firstDigest).getBytes(StandardCharsets.UTF_8)) : digest.digest(firstDigest));
         } catch (NoSuchAlgorithmException e) {
             logger.error("Digest algorithm {} not supported", algo);
             return false;
