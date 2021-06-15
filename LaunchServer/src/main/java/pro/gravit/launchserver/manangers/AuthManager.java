@@ -234,7 +234,8 @@ public class AuthManager {
         if (client.auth == null) return null;
         if (client.auth.isUseCore()) {
             User user = client.auth.core.checkServer(client, username, serverID);
-            return user == null ? null : CheckServerReport.ofUser(user, getPlayerProfile(user));
+            if (user == null) return null;
+            else return CheckServerReport.ofUser(user, getPlayerProfile(client.auth, user));
         } else {
             UUID uuid = client.auth.handler.checkServer(username, serverID);
             return uuid == null ? null : CheckServerReport.ofUUID(uuid, getPlayerProfile(client.auth, uuid));
@@ -255,7 +256,7 @@ public class AuthManager {
         PlayerProfile playerProfile;
         if (client.useOAuth) {
             User user = client.getUser();
-            playerProfile = getPlayerProfile(user);
+            playerProfile = getPlayerProfile(client.auth, user);
             if (playerProfile != null) return playerProfile;
         }
         if (client.auth.textureProvider != null) {
@@ -273,7 +274,7 @@ public class AuthManager {
         UUID uuid = null;
         if (pair.isUseCore()) {
             User user = pair.core.getUserByUsername(username);
-            PlayerProfile playerProfile = getPlayerProfile(user);
+            PlayerProfile playerProfile = getPlayerProfile(pair, user);
             uuid = user.getUUID();
             if (playerProfile != null) return playerProfile;
         } else {
@@ -300,7 +301,7 @@ public class AuthManager {
         String username = null;
         if (pair.isUseCore()) {
             User user = pair.core.getUserByUUID(uuid);
-            PlayerProfile playerProfile = getPlayerProfile(user);
+            PlayerProfile playerProfile = getPlayerProfile(pair, user);
             username = user.getUsername();
             if (playerProfile != null) return playerProfile;
         } else {
@@ -319,11 +320,11 @@ public class AuthManager {
         return new PlayerProfile(uuid, username, null, null);
     }
 
-    public PlayerProfile getPlayerProfile(User user) {
+    public PlayerProfile getPlayerProfile(AuthProviderPair pair, User user) {
         if (user instanceof UserSupportTextures) {
             return new PlayerProfile(user.getUUID(), user.getUsername(), ((UserSupportTextures) user).getSkinTexture(), ((UserSupportTextures) user).getCloakTexture());
         }
-        return null;
+        return getPlayerProfile(user.getUUID(), user.getUsername(), "", pair.textureProvider);
     }
 
     private PlayerProfile getPlayerProfile(UUID uuid, String username, String client, TextureProvider textureProvider) {

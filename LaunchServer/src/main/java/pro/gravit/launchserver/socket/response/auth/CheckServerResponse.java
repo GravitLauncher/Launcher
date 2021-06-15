@@ -34,13 +34,13 @@ public class CheckServerResponse extends SimpleResponse {
             if (report != null) {
                 result.playerProfile = report.playerProfile;
                 result.uuid = report.uuid;
-                logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile.username, result.uuid, serverID);
+                logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile == null ? null : result.playerProfile.username, result.uuid, serverID);
             }
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());
             return;
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Internal authHandler error", e);
             sendError("Internal authHandler error");
             return;
         }
