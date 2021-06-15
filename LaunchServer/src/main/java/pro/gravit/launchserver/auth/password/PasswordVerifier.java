@@ -11,9 +11,16 @@ public abstract class PasswordVerifier {
             providers.register("plain", PlainPasswordVerifier.class);
             providers.register("digest", DigestPasswordVerifier.class);
             providers.register("doubleDigest", DoubleDigestPasswordVerifier.class);
+            providers.register("json", JsonPasswordVerifier.class);
+            providers.register("accept", AcceptPasswordVerifier.class);
+            providers.register("reject", RejectPasswordVerifier.class);
             registeredProviders = true;
         }
     }
 
     public abstract boolean check(String encryptedPassword, String password);
+
+    public String encrypt(String password) {
+        throw new UnsupportedOperationException();
+    }
 }

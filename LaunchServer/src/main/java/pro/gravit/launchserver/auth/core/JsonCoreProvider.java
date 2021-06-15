@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class JsonCoreProvider extends AuthCoreProvider {
-    private transient final Logger logger = LogManager.getLogger();
+    private static transient final Logger logger = LogManager.getLogger();
     public String getUserByUsernameUrl;
     public String getUserByLoginUrl;
     public String getUserByUUIDUrl;
@@ -302,8 +302,11 @@ public class JsonCoreProvider extends AuthCoreProvider {
         }
     }
 
-
     public <T, R> R jsonRequest(T request, String url, Class<R> clazz) {
+        return jsonRequest(request, url, bearerToken, clazz, client);
+    }
+
+    public static <T, R> R jsonRequest(T request, String url, String bearerToken, Class<R> clazz, HttpClient client) {
         HttpRequest.BodyPublisher publisher;
         if (request != null) {
             publisher = HttpRequest.BodyPublishers.ofString(request.toString());

@@ -5,4 +5,9 @@ public class PlainPasswordVerifier extends PasswordVerifier {
     public boolean check(String encryptedPassword, String password) {
         return encryptedPassword.equals(password);
     }
+
+    @Override
+    public String encrypt(String password) {
+        return super.encrypt(password);
+    }
 }

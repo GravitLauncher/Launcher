@@ -13,15 +13,29 @@ public class DigestPasswordVerifier extends PasswordVerifier {
     private transient final Logger logger = LogManager.getLogger();
     public String algo;
 
+    private byte[] digest(String text) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance(algo);
+        return digest.digest(text.getBytes(StandardCharsets.UTF_8));
+    }
+
     @Override
     public boolean check(String encryptedPassword, String password) {
         try {
-            MessageDigest digest = MessageDigest.getInstance(algo);
             byte[] bytes = SecurityHelper.fromHex(encryptedPassword);
-            return Arrays.equals(bytes, digest.digest(password.getBytes(StandardCharsets.UTF_8)));
+            return Arrays.equals(bytes, digest(password));
         } catch (NoSuchAlgorithmException e) {
             logger.error("Digest algorithm {} not supported", algo);
             return false;
+        }
+    }
+
+    @Override
+    public String encrypt(String password) {
+        try {
+            return SecurityHelper.toHex(digest(password));
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("Digest algorithm {} not supported", algo);
+            return null;
         }
     }
 }
