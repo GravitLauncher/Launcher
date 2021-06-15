@@ -67,26 +67,28 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 return;
             }
             logger.debug("HardwareInfo received");
-            if (client.auth.core instanceof AuthSupportHardware) {
-                AuthSupportHardware authSupportHardware = (AuthSupportHardware) client.auth;
-                UserHardware hardware = authSupportHardware.getHardwareInfoByData(response.hardware);
-                if (hardware == null) {
-                    hardware = authSupportHardware.createHardwareInfo(response.hardware, client.trustLevel.publicKey);
+            {
+                var authSupportHardware = client.auth.isSupport(AuthSupportHardware.class);
+                if (authSupportHardware != null) {
+                    UserHardware hardware = authSupportHardware.getHardwareInfoByData(response.hardware);
+                    if (hardware == null) {
+                        hardware = authSupportHardware.createHardwareInfo(response.hardware, client.trustLevel.publicKey);
+                    } else {
+                        authSupportHardware.addPublicKeyToHardwareInfo(hardware, client.trustLevel.publicKey);
+                    }
+                    authSupportHardware.connectUserAndHardware(client.getUser(), hardware);
+                    if (hardware.isBanned()) {
+                        throw new SecurityException("Your hardware banned");
+                    }
+                    client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
                 } else {
-                    authSupportHardware.addPublicKeyToHardwareInfo(hardware, client.trustLevel.publicKey);
+                    provider.normalizeHardwareInfo(response.hardware);
+                    boolean needCreate = !provider.addPublicKeyToHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
+                    logger.debug("HardwareInfo needCreate: {}", needCreate ? "true" : "false");
+                    if (needCreate)
+                        provider.createHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
+                    client.trustLevel.hardwareInfo = response.hardware;
                 }
-                authSupportHardware.connectUserAndHardware(client.getUser(), hardware);
-                if (hardware.isBanned()) {
-                    throw new SecurityException("Your hardware banned");
-                }
-                client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
-            } else {
-                provider.normalizeHardwareInfo(response.hardware);
-                boolean needCreate = !provider.addPublicKeyToHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
-                logger.debug("HardwareInfo needCreate: {}", needCreate ? "true" : "false");
-                if (needCreate)
-                    provider.createHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
-                client.trustLevel.hardwareInfo = response.hardware;
             }
         } catch (HWIDException e) {
             throw new SecurityException(e.getMessage());
@@ -97,28 +99,21 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     @Override
     public VerifySecureLevelKeyRequestEvent onSuccessVerify(Client client) {
         if (enableHardwareFeature) {
-            if (client.isAuth && client.auth.core instanceof AuthSupportHardware) {
-                UserHardware hardware = ((AuthSupportHardware) client.auth.core).getHardwareInfoByPublicKey(client.trustLevel.publicKey);
+            var authSupportHardware = client.auth.isSupport(AuthSupportHardware.class);
+            if (authSupportHardware != null) {
+                UserHardware hardware = authSupportHardware.getHardwareInfoByPublicKey(client.trustLevel.publicKey);
                 if (hardware == null) //HWID not found?
                     return new VerifySecureLevelKeyRequestEvent(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
                 if (hardware.isBanned()) {
                     throw new SecurityException("Your hardware banned");
                 }
                 client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
+                authSupportHardware.connectUserAndHardware(client.getUser(), hardware);
             } else if (provider == null) {
                 logger.warn("HWIDProvider null. HardwareInfo not checked!");
             } else {
                 try {
-                    if (client.auth.core instanceof AuthSupportHardware) {
-                        AuthSupportHardware authSupportHardware = (AuthSupportHardware) client.auth;
-                        UserHardware hardware = authSupportHardware.getHardwareInfoByPublicKey(client.trustLevel.publicKey);
-                        if (hardware != null) {
-                            client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
-                            authSupportHardware.connectUserAndHardware(client.getUser(), hardware);
-                        }
-                    } else {
-                        client.trustLevel.hardwareInfo = provider.findHardwareInfoByPublicKey(client.trustLevel.publicKey, client);
-                    }
+                    client.trustLevel.hardwareInfo = provider.findHardwareInfoByPublicKey(client.trustLevel.publicKey, client);
                     if (client.trustLevel.hardwareInfo == null) //HWID not found?
                         return new VerifySecureLevelKeyRequestEvent(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
                 } catch (HWIDException e) {

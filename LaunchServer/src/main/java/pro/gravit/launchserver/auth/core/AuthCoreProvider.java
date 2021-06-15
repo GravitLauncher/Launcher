@@ -155,26 +155,28 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                 }
             }
         });
-        if (this instanceof AuthSupportGetAllUsers) {
-            AuthSupportGetAllUsers instance = (AuthSupportGetAllUsers) this;
-            map.put("getallusers", new SubCommand("(limit)", "print all users information") {
-                @Override
-                public void invoke(String... args) throws Exception {
-                    int max = Integer.MAX_VALUE;
-                    if (args.length > 0) max = Integer.parseInt(args[0]);
-                    Iterable<User> users = instance.getAllUsers();
-                    int counter = 0;
-                    for (User u : users) {
-                        logger.info("User {}", u.toString());
-                        counter++;
-                        if (counter == max) break;
+        {
+            var instance = isSupport(AuthSupportGetAllUsers.class);
+            if (instance != null) {
+                map.put("getallusers", new SubCommand("(limit)", "print all users information") {
+                    @Override
+                    public void invoke(String... args) throws Exception {
+                        int max = Integer.MAX_VALUE;
+                        if (args.length > 0) max = Integer.parseInt(args[0]);
+                        Iterable<User> users = instance.getAllUsers();
+                        int counter = 0;
+                        for (User u : users) {
+                            logger.info("User {}", u.toString());
+                            counter++;
+                            if (counter == max) break;
+                        }
+                        logger.info("Found {} users", counter);
                     }
-                    logger.info("Found {} users", counter);
-                }
-            });
+                });
+            }
         }
-        if (this instanceof AuthSupportHardware) {
-            AuthSupportHardware instance = (AuthSupportHardware) this;
+        {
+            var instance = isSupport(AuthSupportHardware.class);
             map.put("gethardwarebyid", new SubCommand("[id]", "get hardware by id") {
                 @Override
                 public void invoke(String... args) throws Exception {
@@ -292,6 +294,12 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         User user = client.getUser();
         if (user == null) return false;
         return user.getUsername().equals(username) && user.getAccessToken().equals(accessToken) && updateServerID(user, serverID);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T isSupport(Class<T> clazz) {
+        if (clazz.isAssignableFrom(getClass())) return (T) this;
+        return null;
     }
 
     @Override

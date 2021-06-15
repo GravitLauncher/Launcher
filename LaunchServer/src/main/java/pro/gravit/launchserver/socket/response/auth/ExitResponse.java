@@ -6,7 +6,8 @@ import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ExitRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportGetSessionsFromUser;
+import pro.gravit.launchserver.auth.core.UserSession;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportExit;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -48,12 +49,18 @@ public class ExitResponse extends SimpleResponse {
                 Client newClient = new Client(null);
                 newClient.checkSign = client.checkSign;
                 handler.setClient(newClient);
-                if (exitAll) {
-                    if (client.auth instanceof AuthSupportGetSessionsFromUser) {
-                        AuthSupportGetSessionsFromUser support = (AuthSupportGetSessionsFromUser) client.auth;
-                        support.clearSessionsByUser(client.getUser());
+                AuthSupportExit supportExit = client.auth.core.isSupport(AuthSupportExit.class);
+                if (supportExit != null) {
+                    if (exitAll) {
+                        supportExit.exitUser(client.getUser());
+                    } else {
+                        UserSession session = client.sessionObject;
+                        if (session != null) {
+                            supportExit.deleteSession(session);
+                        }
                     }
                 }
+                sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
             } else {
                 if (client.session == null && exitAll) {
                     sendError("Session invalid");

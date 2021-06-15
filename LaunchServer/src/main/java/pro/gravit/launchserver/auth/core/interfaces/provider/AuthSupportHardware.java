@@ -9,7 +9,7 @@ import pro.gravit.launchserver.helper.DamerauHelper;
 
 import java.util.Arrays;
 
-public interface AuthSupportHardware {
+public interface AuthSupportHardware extends AuthSupport {
     UserHardware getHardwareInfoByPublicKey(byte[] publicKey);
 
     UserHardware getHardwareInfoByData(HardwareReportRequest.HardwareInfo info);

@@ -5,7 +5,7 @@ import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportBanInfo;
 
 import java.time.LocalDateTime;
 
-public interface AuthSupportUserBan {
+public interface AuthSupportUserBan extends AuthSupport {
     UserSupportBanInfo.UserBanInfo banUser(User user, String reason, String moderator, LocalDateTime startTime, LocalDateTime endTime);
 
     default UserSupportBanInfo.UserBanInfo banUser(User user) {

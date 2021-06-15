@@ -4,6 +4,6 @@ import pro.gravit.launchserver.auth.Feature;
 import pro.gravit.launchserver.auth.core.User;
 
 @Feature("users")
-public interface AuthSupportGetAllUsers {
+public interface AuthSupportGetAllUsers extends AuthSupport {
     Iterable<User> getAllUsers();
 }

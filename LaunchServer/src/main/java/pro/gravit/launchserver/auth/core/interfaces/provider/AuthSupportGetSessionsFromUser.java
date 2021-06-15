@@ -7,8 +7,6 @@ import pro.gravit.launchserver.auth.core.UserSession;
 import java.util.List;
 
 @Feature("sessions")
-public interface AuthSupportGetSessionsFromUser {
+public interface AuthSupportGetSessionsFromUser extends AuthSupport {
     List<UserSession> getSessionsByUser(User user);
-
-    void clearSessionsByUser(User user);
 }
