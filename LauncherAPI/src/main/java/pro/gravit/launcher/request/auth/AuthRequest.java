@@ -99,5 +99,9 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
 
     public interface AuthPasswordInterface {
         boolean check();
+
+        default boolean isAllowSave() {
+            return false;
+        }
     }
 }

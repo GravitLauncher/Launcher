@@ -14,11 +14,11 @@ import java.util.Set;
 
 public final class AuthProviderPair {
     public boolean isDefault = true;
+    public AuthCoreProvider core;
+    public AuthSocialProvider social;
     public AuthProvider provider;
     public AuthHandler handler;
     public TextureProvider textureProvider;
-    public AuthCoreProvider core;
-    public AuthSocialProvider social;
     public Map<String, String> links;
     public transient String name;
     public transient Set<String> features;
@@ -30,9 +30,28 @@ public final class AuthProviderPair {
         this.textureProvider = textureProvider;
     }
 
+    public AuthProviderPair(AuthCoreProvider core, TextureProvider textureProvider) {
+        this.core = core;
+        this.textureProvider = textureProvider;
+    }
+
+    public AuthProviderPair(AuthCoreProvider core, AuthSocialProvider social) {
+        this.core = core;
+        this.social = social;
+    }
+
+    public AuthProviderPair(AuthCoreProvider core, AuthSocialProvider social, TextureProvider textureProvider) {
+        this.core = core;
+        this.social = social;
+        this.textureProvider = textureProvider;
+    }
+
     public final <T> T isSupport(Class<T> clazz) {
         if (core == null) return null;
-        return core.isSupport(clazz);
+        T result = null;
+        if (social != null) result = social.isSupport(clazz);
+        if (result == null) result = core.isSupport(clazz);
+        return result;
     }
 
     public final void init(LaunchServer srv, String name) {

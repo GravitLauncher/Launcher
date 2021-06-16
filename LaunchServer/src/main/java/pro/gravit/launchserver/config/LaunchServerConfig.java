@@ -8,10 +8,9 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
-import pro.gravit.launchserver.auth.handler.MemoryAuthHandler;
+import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
-import pro.gravit.launchserver.auth.provider.RejectAuthProvider;
 import pro.gravit.launchserver.auth.session.MemorySessionStorage;
 import pro.gravit.launchserver.auth.session.SessionStorage;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
@@ -70,8 +69,7 @@ public final class LaunchServerConfig {
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.auth = new HashMap<>();
-        AuthProviderPair a = new AuthProviderPair(new RejectAuthProvider("Настройте authProvider"),
-                new MemoryAuthHandler(),
+        AuthProviderPair a = new AuthProviderPair(new RejectAuthCoreProvider(),
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
         );
         a.displayName = "Default";

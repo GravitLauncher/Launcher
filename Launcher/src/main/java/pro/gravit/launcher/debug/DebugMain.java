@@ -21,6 +21,7 @@ public class DebugMain {
     public static final AtomicBoolean IS_DEBUG = new AtomicBoolean(false);
     public static String webSocketURL = System.getProperty("launcherdebug.websocket", "ws://localhost:9274/api");
     public static String projectName = System.getProperty("launcherdebug.projectname", "Minecraft");
+    public static String unlockKey = System.getProperty("launcherdebug.unlockkey", "0000");
     public static String[] moduleClasses = System.getProperty("launcherdebug.modules", "").split(",");
     public static String[] moduleFiles = System.getProperty("launcherdebug.modulefiles", "").split(",");
     public static LauncherConfig.LauncherEnvironment environment = LauncherConfig.LauncherEnvironment.valueOf(System.getProperty("launcherdebug.env", "STD"));
@@ -32,6 +33,7 @@ public class DebugMain {
         LogHelper.info("Launcher start in DEBUG mode (Only for developers)");
         LogHelper.debug("Initialization LauncherConfig");
         LauncherConfig config = new LauncherConfig(webSocketURL, new HashMap<>(), projectName, environment, new DebugLauncherTrustManager(DebugLauncherTrustManager.TrustDebugMode.TRUST_ALL));
+        config.oemUnlockKey = unlockKey;
         Launcher.setConfig(config);
         Launcher.applyLauncherEnv(environment);
         LauncherEngine.modulesManager = new ClientModuleManager();

@@ -50,6 +50,12 @@ public abstract class AuthSocialProvider implements AutoCloseable {
 
     public abstract SocialResult preAuth(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException;
 
+    @SuppressWarnings("unchecked")
+    public <T> T isSupport(Class<T> clazz) {
+        if (clazz.isAssignableFrom(getClass())) return (T) this;
+        return null;
+    }
+
     @Override
     public abstract void close() throws IOException;
 }

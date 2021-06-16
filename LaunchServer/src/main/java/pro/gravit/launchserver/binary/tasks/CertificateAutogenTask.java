@@ -75,7 +75,7 @@ public class CertificateAutogenTask implements LauncherBuildTask {
                     .getCertificate(bcCertificate);
             ArrayList<Certificate> chain = new ArrayList<>();
             chain.add(certificate);
-            signedDataGenerator = SignHelper.createSignedDataGenerator(server.privateKey, certificate, chain, "SHA256WITHECDSA");
+            signedDataGenerator = SignHelper.createSignedDataGenerator(server.keyAgreementManager.ecdsaPrivateKey, certificate, chain, "SHA256WITHECDSA");
         } catch (OperatorCreationException | CMSException | CertificateException e) {
             logger.error(e);
         }

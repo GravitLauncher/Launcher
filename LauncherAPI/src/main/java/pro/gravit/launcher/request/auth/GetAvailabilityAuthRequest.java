@@ -2,6 +2,7 @@ package pro.gravit.launcher.request.auth;
 
 import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.request.Request;
+import pro.gravit.launcher.request.auth.details.AuthLoginOnlyDetails;
 import pro.gravit.launcher.request.auth.details.AuthPasswordDetails;
 import pro.gravit.launcher.request.auth.details.AuthTotpDetails;
 import pro.gravit.launcher.request.auth.details.AuthWebViewDetails;
@@ -18,6 +19,7 @@ public class GetAvailabilityAuthRequest extends Request<GetAvailabilityAuthReque
             providers.register("password", AuthPasswordDetails.class);
             providers.register("webview", AuthWebViewDetails.class);
             providers.register("totp", AuthTotpDetails.class);
+            providers.register("loginonly", AuthLoginOnlyDetails.class);
             registeredProviders = true;
         }
     }
