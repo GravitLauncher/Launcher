@@ -2,6 +2,7 @@ package pro.gravit.launchserver.auth.password;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.nio.charset.StandardCharsets;
@@ -16,7 +17,8 @@ public class DoubleDigestPasswordVerifier extends PasswordVerifier {
 
     private byte[] digest(String text) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance(algo);
-        byte[] firstDigest = digest.digest();
+        byte[] firstDigest = digest.digest(text.getBytes(StandardCharsets.UTF_8));
+        LogHelper.info("HEX %s", SecurityHelper.toHex(firstDigest));
         return toHexMode ? digest.digest(SecurityHelper.toHex(firstDigest).getBytes(StandardCharsets.UTF_8)) : digest.digest(firstDigest);
     }
 
