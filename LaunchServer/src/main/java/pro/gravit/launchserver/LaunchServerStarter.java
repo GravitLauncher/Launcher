@@ -7,6 +7,7 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherTrustManager;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
@@ -211,6 +212,7 @@ public class LaunchServerStarter {
         GetAvailabilityAuthRequest.registerProviders();
         HWIDProvider.registerProviders();
         OptionalAction.registerProviders();
+        OptionalTrigger.registerProviders();
         SessionStorage.registerProviders();
     }
 

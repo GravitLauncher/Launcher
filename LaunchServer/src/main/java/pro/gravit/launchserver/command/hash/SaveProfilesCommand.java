@@ -8,9 +8,11 @@ import pro.gravit.launcher.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.profiles.optional.OptionalFile;
 import pro.gravit.launcher.profiles.optional.OptionalTrigger;
 import pro.gravit.launcher.profiles.optional.actions.*;
+import pro.gravit.launcher.profiles.optional.triggers.OSTrigger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -61,7 +63,7 @@ public class SaveProfilesCommand extends Command {
             optionalMacOs.visible = false;
             optionalMacOs.actions = new ArrayList<>(1);
             optionalMacOs.actions.add(new OptionalActionJvmArgs(List.of("-XstartOnFirstThread")));
-            optionalMacOs.triggers = new OptionalTrigger[]{new OptionalTrigger(OptionalTrigger.TriggerType.OS_TYPE, 2)};
+            optionalMacOs.triggersList = List.of(new OSTrigger(JVMHelper.OS.MACOSX));
             optionals.add(optionalMacOs);
         }
         if (optionContains(options, MakeProfileOption.LWJGLMAC)) {
@@ -77,7 +79,7 @@ public class SaveProfilesCommand extends Command {
                     "libraries/libraries/org/lwjgl/lwjgl-opengl/3.2.1", "",
                     "libraries/libraries/org/lwjgl/lwjgl-jemalloc/3.2.1", ""
             )));
-            optionalMac.triggers = new OptionalTrigger[]{new OptionalTrigger(OptionalTrigger.TriggerType.OS_TYPE, true, 2, 0)};
+            optionalMac.triggersList = List.of(new OSTrigger(JVMHelper.OS.MACOSX));
             optionals.add(optionalMac);
             OptionalFile optionalOther = new OptionalFile();
             optionalOther.name = "NonMacLwjgl";
@@ -91,7 +93,9 @@ public class SaveProfilesCommand extends Command {
                     "libraries/libraries/org/lwjgl/lwjgl-opengl/3.2.2", "",
                     "libraries/libraries/org/lwjgl/lwjgl-jemalloc/3.2.2", ""
             )));
-            optionalOther.triggers = new OptionalTrigger[]{new OptionalTrigger(OptionalTrigger.TriggerType.OS_TYPE, true, 2, 0)};
+            OSTrigger nonMacTrigger = new OSTrigger(JVMHelper.OS.MACOSX);
+            nonMacTrigger.inverted = true;
+            optionalOther.triggersList = List.of(nonMacTrigger);
             optionals.add(optionalOther);
         }
         if (version.compareTo(ClientProfile.Version.MC117) >= 0) {
@@ -191,6 +195,14 @@ public class SaveProfilesCommand extends Command {
                         continue;
                 }
                 file.actions.add(action);
+            }
+            if (file.triggers != null) {
+                file.triggersList = new ArrayList<>(file.triggers.length);
+                for (OptionalTrigger trigger : file.triggers) {
+                    pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger newTrigger = trigger.toTrigger();
+                    if (newTrigger != null) file.triggersList.add(newTrigger);
+                }
+                file.triggers = null;
             }
         }
         try (Writer w = IOHelper.newWriter(path)) {

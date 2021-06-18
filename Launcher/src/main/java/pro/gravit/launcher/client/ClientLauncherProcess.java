@@ -1,6 +1,5 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.ClientLauncherWrapper;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.LauncherNetworkAPI;
@@ -45,7 +44,7 @@ public class ClientLauncherProcess {
     public int bits;
     public boolean useLegacyJavaClassPathProperty;
     public boolean isStarted;
-    public ClientLauncherWrapper.JavaVersion javaVersion;
+    public JavaHelper.JavaVersion javaVersion;
     private transient Process process;
 
     public ClientLauncherProcess(Path executeFile, Path workDir, Path javaDir, String mainClass) {
@@ -87,13 +86,13 @@ public class ClientLauncherProcess {
             this.params.actions = view.getEnabledActions();
         }
         try {
-            javaVersion = ClientLauncherWrapper.JavaVersion.getByPath(javaDir);
+            javaVersion = JavaHelper.JavaVersion.getByPath(javaDir);
         } catch (IOException e) {
             LogHelper.error(e);
             javaVersion = null;
         }
         if (javaVersion == null) {
-            javaVersion = ClientLauncherWrapper.JavaVersion.getCurrentJavaVersion();
+            javaVersion = JavaHelper.JavaVersion.getCurrentJavaVersion();
         }
         this.bits = JVMHelper.JVM_BITS;
         applyClientProfile();
@@ -187,14 +186,14 @@ public class ClientLauncherProcess {
     private void applyJava9Params(List<String> processArgs) {
         jvmModulesPaths.add(javaVersion.jvmDir);
         jvmModulesPaths.add(javaVersion.jvmDir.resolve("jre"));
-        Path openjfxPath = ClientLauncherWrapper.tryGetOpenJFXPath(javaVersion.jvmDir);
+        Path openjfxPath = JavaHelper.tryGetOpenJFXPath(javaVersion.jvmDir);
         if (openjfxPath != null) {
             jvmModulesPaths.add(openjfxPath);
         }
         StringBuilder modulesPath = new StringBuilder();
         StringBuilder modulesAdd = new StringBuilder();
         for (String moduleName : jvmModules) {
-            boolean success = ClientLauncherWrapper.tryAddModule(jvmModulesPaths, moduleName, modulesPath);
+            boolean success = JavaHelper.tryAddModule(jvmModulesPaths, moduleName, modulesPath);
             if (success) {
                 if (modulesAdd.length() > 0) modulesAdd.append(",");
                 modulesAdd.append(moduleName);

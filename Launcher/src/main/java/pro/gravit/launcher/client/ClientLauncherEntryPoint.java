@@ -16,6 +16,7 @@ import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionClassPath;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionClientArgs;
+import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.AuthRequest;
@@ -198,6 +199,7 @@ public class ClientLauncherEntryPoint {
         AuthRequest.registerProviders();
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
+        OptionalTrigger.registerProviders();
         Launcher.gsonManager = new ClientGsonManager(moduleManager);
         Launcher.gsonManager.initGson();
     }

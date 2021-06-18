@@ -11,6 +11,7 @@ import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
@@ -124,6 +125,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         AuthRequest.registerProviders();
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
+        OptionalTrigger.registerProviders();
         if (args.length > 0 && args[0].equals("setup") && !disableSetup) {
             LogHelper.debug("Read ServerWrapperConfig.json");
             loadConfig();

@@ -16,6 +16,7 @@ import java.util.function.BiConsumer;
 
 public class OptionalFile {
     @LauncherNetworkAPI
+    @Deprecated
     public long permissions = 0L;
     @LauncherNetworkAPI
     @Deprecated
@@ -34,6 +35,9 @@ public class OptionalFile {
     @LauncherNetworkAPI
     public String info;
     @LauncherNetworkAPI
+    public List<pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger> triggersList;
+    @LauncherNetworkAPI
+    @Deprecated
     public OptionalTrigger[] triggers;
     @LauncherNetworkAPI
     public OptionalDepend[] dependenciesFile;
@@ -106,6 +110,7 @@ public class OptionalFile {
         return mark;
     }
 
+    @Deprecated
     public long getPermissions() {
         return permissions;
     }

@@ -5,6 +5,7 @@ import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.modules.events.PreGsonPhase;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.JsonResultSerializeAdapter;
 import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launcher.request.auth.AuthRequest;
@@ -50,6 +51,7 @@ public class LaunchServerGsonManager extends GsonManager {
         builder.registerTypeAdapter(GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails.class, new UniversalJsonAdapter<>(GetAvailabilityAuthRequest.providers));
         builder.registerTypeAdapter(HWIDProvider.class, new UniversalJsonAdapter<>(HWIDProvider.providers));
         builder.registerTypeAdapter(OptionalAction.class, new UniversalJsonAdapter<>(OptionalAction.providers));
+        builder.registerTypeAdapter(OptionalTrigger.class, new UniversalJsonAdapter<>(OptionalTrigger.providers));
         builder.registerTypeAdapter(SessionStorage.class, new UniversalJsonAdapter<>(SessionStorage.providers));
         modulesManager.invokeEvent(new PreGsonPhase(builder));
         //ClientWebSocketService.appendTypeAdapters(builder);
