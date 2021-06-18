@@ -43,6 +43,7 @@ public class AsyncDownloader {
     }
 
     public void downloadFile(URL url, Path target, long size) throws IOException {
+        if (isClosed) throw new IOException("Download interrupted");
         URLConnection connection = url.openConnection();
         if (isCertificatePinning) {
             HttpsURLConnection connection1 = (HttpsURLConnection) connection;

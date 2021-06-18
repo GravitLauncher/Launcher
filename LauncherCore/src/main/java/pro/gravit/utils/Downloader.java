@@ -1,6 +1,7 @@
 package pro.gravit.utils;
 
 import pro.gravit.launcher.AsyncDownloader;
+import pro.gravit.utils.helper.LogHelper;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -37,6 +38,7 @@ public class Downloader {
 
     public static Downloader downloadList(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
         final boolean closeExecutor;
+        LogHelper.info("Download with legacy mode");
         if (executor == null) {
             executor = Executors.newWorkStealingPool(4);
             closeExecutor = true;

@@ -2,6 +2,8 @@ package pro.gravit.utils;
 
 import pro.gravit.launcher.AsyncDownloader;
 import pro.gravit.launcher.LauncherInject;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,6 +12,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,6 +63,7 @@ public class Downloader {
 
     public static Downloader downloadList(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
         boolean closeExecutor = false;
+        LogHelper.info("Download with Java 11+ HttpClient");
         if (executor == null) {
             executor = Executors.newWorkStealingPool(Math.min(3, threads));
             closeExecutor = true;
@@ -118,8 +122,12 @@ public class Downloader {
             }
             try {
                 DownloadTask task = sendAsync(file, baseUri, targetDir, callback);
-                task.completableFuture.thenAccept(consumerObject.next);
+                task.completableFuture.thenAccept(consumerObject.next).exceptionally(ec -> {
+                    future.completeExceptionally(ec);
+                    return null;
+                });
             } catch (Exception exception) {
+                LogHelper.error(exception);
                 future.completeExceptionally(exception);
             }
         };
@@ -149,6 +157,7 @@ public class Downloader {
     }
 
     protected DownloadTask sendAsync(AsyncDownloader.SizedFile file, URI baseUri, Path targetDir, DownloadCallback callback) throws Exception {
+        IOHelper.createParentDirs(targetDir.resolve(file.filePath));
         ProgressTrackingBodyHandler<Path> bodyHandler = makeBodyHandler(targetDir.resolve(file.filePath), callback);
         CompletableFuture<HttpResponse<Path>> future = client.sendAsync(makeHttpRequest(baseUri, file.urlPath), bodyHandler);
         var ref = new Object() {
@@ -177,7 +186,7 @@ public class Downloader {
     }
 
     protected ProgressTrackingBodyHandler<Path> makeBodyHandler(Path file, DownloadCallback callback) {
-        return new ProgressTrackingBodyHandler<>(HttpResponse.BodyHandlers.ofFile(file), callback);
+        return new ProgressTrackingBodyHandler<>(HttpResponse.BodyHandlers.ofFile(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE), callback);
     }
 
     public static class ProgressTrackingBodyHandler<T> implements HttpResponse.BodyHandler<T> {
@@ -223,12 +232,12 @@ public class Downloader {
 
             @Override
             public void onNext(List<ByteBuffer> byteBuffers) {
-                delegate.onNext(byteBuffers);
                 long diff = 0;
                 for (ByteBuffer buffer : byteBuffers) {
                     diff += buffer.remaining();
                 }
                 if (callback != null) callback.apply(diff);
+                delegate.onNext(byteBuffers);
             }
 
             @Override
