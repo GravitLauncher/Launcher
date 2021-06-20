@@ -18,7 +18,7 @@ public class NettyThreadFactory extends DefaultThreadFactory {
             if (e.getMessage().contains("Connection reset by peer")) {
                 return;
             }
-            logger.error(e);
+            logger.error("Netty exception", e);
         });
         return thread;
     }

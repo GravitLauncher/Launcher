@@ -49,7 +49,7 @@ public class JoinServerResponse extends SimpleResponse {
             sendError(e.getMessage());
             return;
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Join Server error", e);
             sendError("Internal authHandler error");
             return;
         }

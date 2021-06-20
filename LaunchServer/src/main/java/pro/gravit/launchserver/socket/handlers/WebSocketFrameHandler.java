@@ -63,7 +63,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         try {
             if (hooks.hook(ctx, frame)) return;
         } catch (Throwable ex) {
-            logger.error(ex);
+            logger.error("WebSocket frame handler hook error", ex);
         }
         if (frame instanceof TextWebSocketFrame) {
             try {
@@ -72,7 +72,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
                 logger.warn("Client {} send invalid request. Connection force closed.", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip);
                 if (logger.isTraceEnabled()) {
                     logger.trace("Client message: {}", ((TextWebSocketFrame) frame).text());
-                    logger.error(ex);
+                    logger.error("Process websockets request failed", ex);
                 }
                 ctx.channel().close();
             }

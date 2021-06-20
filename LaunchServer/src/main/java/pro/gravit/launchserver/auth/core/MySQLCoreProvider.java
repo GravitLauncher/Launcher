@@ -346,7 +346,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
             s.setLong(2, mySQLUserHardware.id);
             s.executeUpdate();
         } catch (SQLException e) {
-            logger.error(e);
+            logger.error("SQL error", e);
         }
     }
 
@@ -363,7 +363,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
                 }
             }
         } catch (SQLException e) {
-            logger.error(e);
+            logger.error("SQL error", e);
             return null;
         }
         return users;
@@ -379,7 +379,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
             s.setLong(2, mySQLUserHardware.id);
             s.executeUpdate();
         } catch (SQLException e) {
-            logger.error(e);
+            logger.error("SQL Error", e);
         }
     }
 
@@ -393,7 +393,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
             s.setLong(2, mySQLUserHardware.id);
             s.executeUpdate();
         } catch (SQLException e) {
-            logger.error(e);
+            logger.error("SQL error", e);
         }
     }
 

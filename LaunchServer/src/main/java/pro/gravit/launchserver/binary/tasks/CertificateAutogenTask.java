@@ -77,7 +77,7 @@ public class CertificateAutogenTask implements LauncherBuildTask {
             chain.add(certificate);
             signedDataGenerator = SignHelper.createSignedDataGenerator(server.keyAgreementManager.ecdsaPrivateKey, certificate, chain, "SHA256WITHECDSA");
         } catch (OperatorCreationException | CMSException | CertificateException e) {
-            logger.error(e);
+            logger.error("Certificate generate failed", e);
         }
         return inputFile;
     }

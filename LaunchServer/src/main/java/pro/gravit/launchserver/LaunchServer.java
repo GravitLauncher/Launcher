@@ -344,7 +344,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 try {
                     close();
                 } catch (Exception e) {
-                    logger.error(e);
+                    logger.error("LaunchServer close error", e);
                 }
             }));
             CommonHelper.newThread("Command Thread", true, commandHandler).start();
@@ -361,8 +361,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                     syncProfilesDir();
                     modulesManager.invokeEvent(new LaunchServerProfilesSyncEvent(this));
                 } catch (IOException e) {
-                    logger.error(e);
-                    logger.error("Updates/Profiles not synced");
+                    logger.error("Updates/Profiles not synced", e);
                 }
             }).start();
         }
@@ -373,7 +372,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
             logger.info("LaunchServer started");
         } catch (Throwable e) {
-            logger.error(e);
+            logger.error("LaunchServer startup failed",e);
             JVMHelper.RUNTIME.exit(-1);
         }
     }
@@ -419,7 +418,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         try {
             builder.start();
         } catch (IOException e) {
-            logger.error(e);
+            logger.error("Restart failed", e);
         }
     }
 
