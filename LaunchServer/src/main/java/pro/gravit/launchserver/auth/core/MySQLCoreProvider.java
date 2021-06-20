@@ -56,8 +56,15 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     // Prepared SQL queries
     private transient String queryByUUIDSQL;
     private transient String queryByUsernameSQL;
+    private transient String queryByLoginSQL;
     private transient String updateAuthSQL;
     private transient String updateServerIDSQL;
+
+    public String defaultQueryByUUIDSQL;
+    public String defaultQueryByUsernameSQL;
+    public String defaultQueryByLoginSQL;
+    public String defaultUpdateAuthSQL;
+    public String defaultUpdateServerIdSQL;
 
     @Override
     public User getUserByUsername(String username) {
@@ -73,6 +80,16 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     public User getUserByUUID(UUID uuid) {
         try {
             return query(queryByUUIDSQL, uuid.toString());
+        } catch (IOException e) {
+            logger.error("SQL error", e);
+            return null;
+        }
+    }
+
+    @Override
+    public User getUserByLogin(String login) {
+        try {
+            return query(queryByLoginSQL, login);
         } catch (IOException e) {
             logger.error("SQL error", e);
             return null;
@@ -125,23 +142,24 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         if (table == null) logger.error("table cannot be null");
         // Prepare SQL queries
         String userInfoCols = String.format("%s, %s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn, hardwareIdColumn);
-        queryByUUIDSQL = String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1", userInfoCols,
+        queryByUUIDSQL = defaultQueryByUUIDSQL != null ? defaultQueryByUUIDSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1", userInfoCols,
                 table, uuidColumn);
-        queryByUsernameSQL = String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
+        queryByUsernameSQL = defaultQueryByUsernameSQL != null ? defaultQueryByUsernameSQL :  String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
                 userInfoCols, table, usernameColumn);
+        queryByLoginSQL = defaultQueryByLoginSQL != null ? defaultQueryByLoginSQL : queryByUsernameSQL;
 
-        updateAuthSQL = String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=? LIMIT 1",
+        updateAuthSQL = defaultUpdateAuthSQL != null ? defaultUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=? LIMIT 1",
                 table, accessTokenColumn, serverIDColumn, uuidColumn);
-        updateServerIDSQL = String.format("UPDATE %s SET %s=? WHERE %s=? LIMIT 1",
+        updateServerIDSQL = defaultUpdateServerIdSQL != null ? defaultUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=? LIMIT 1",
                 table, serverIDColumn, uuidColumn);
         String hardwareInfoCols = "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, graphicCard, banned";
-        sqlFindHardwareByPublicKey = String.format("SELECT %s FROM %s WHERE `publicKey` = ?", hardwareInfoCols, tableHWID);
-        sqlFindHardwareById = String.format("SELECT %s FROM %s WHERE `id` = ?", hardwareInfoCols, tableHWID);
-        sqlUsersByHwidId = String.format("SELECT %s FROM %s WHERE `%s` = ?", userInfoCols, table, hardwareIdColumn);
-        sqlFindHardwareByData = String.format("SELECT %s FROM %s", hardwareInfoCols, tableHWID);
-        sqlCreateHardware = String.format("INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `battery`, `graphicCard`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')", tableHWID);
-        sqlCreateHWIDLog = String.format("INSERT INTO %s (`hwidId`, `newPublicKey`) VALUES (?, ?)", tableHWIDLog);
-        sqlUpdateHardwarePublicKey = String.format("UPDATE %s SET `publicKey` = ? WHERE `id` = ?", tableHWID);
+        if(sqlFindHardwareByPublicKey == null) sqlFindHardwareByPublicKey = String.format("SELECT %s FROM %s WHERE `publicKey` = ?", hardwareInfoCols, tableHWID);
+        if(sqlFindHardwareById == null) sqlFindHardwareById = String.format("SELECT %s FROM %s WHERE `id` = ?", hardwareInfoCols, tableHWID);
+        if(sqlUsersByHwidId == null) sqlUsersByHwidId = String.format("SELECT %s FROM %s WHERE `%s` = ?", userInfoCols, table, hardwareIdColumn);
+        if(sqlFindHardwareByData == null) sqlFindHardwareByData = String.format("SELECT %s FROM %s", hardwareInfoCols, tableHWID);
+        if(sqlCreateHardware == null) sqlCreateHardware = String.format("INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `battery`, `graphicCard`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')", tableHWID);
+        if(sqlCreateHWIDLog == null) sqlCreateHWIDLog = String.format("INSERT INTO %s (`hwidId`, `newPublicKey`) VALUES (?, ?)", tableHWIDLog);
+        if(sqlUpdateHardwarePublicKey == null) sqlUpdateHardwarePublicKey = String.format("UPDATE %s SET `publicKey` = ? WHERE `id` = ?", tableHWID);
         sqlUpdateHardwareBanned = String.format("UPDATE %s SET `banned` = ? WHERE `id` = ?", tableHWID);
         sqlUpdateUsers = String.format("UPDATE %s SET `%s` = ? WHERE `%s` = ?", table, hardwareIdColumn, uuidColumn);
     }

@@ -18,7 +18,6 @@ public class DoubleDigestPasswordVerifier extends PasswordVerifier {
     private byte[] digest(String text) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance(algo);
         byte[] firstDigest = digest.digest(text.getBytes(StandardCharsets.UTF_8));
-        LogHelper.info("HEX %s", SecurityHelper.toHex(firstDigest));
         return toHexMode ? digest.digest(SecurityHelper.toHex(firstDigest).getBytes(StandardCharsets.UTF_8)) : digest.digest(firstDigest);
     }
 
