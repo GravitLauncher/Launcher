@@ -166,6 +166,8 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
 
     protected boolean updateAuth(User user, String accessToken) throws IOException {
         try (Connection c = mySQLHolder.getConnection()) {
+            MySQLUser mySQLUser = (MySQLUser) user;
+            mySQLUser.accessToken = accessToken;
             PreparedStatement s = c.prepareStatement(updateAuthSQL);
             s.setString(1, accessToken);
             s.setString(2, user.getUUID().toString());
@@ -179,6 +181,8 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     @Override
     protected boolean updateServerID(User user, String serverID) throws IOException {
         try (Connection c = mySQLHolder.getConnection()) {
+            MySQLUser mySQLUser = (MySQLUser) user;
+            mySQLUser.serverId = serverID;
             PreparedStatement s = c.prepareStatement(updateServerIDSQL);
             s.setString(1, serverID);
             s.setString(2, user.getUUID().toString());
