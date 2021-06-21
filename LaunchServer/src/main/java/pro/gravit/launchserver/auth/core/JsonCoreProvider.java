@@ -279,6 +279,15 @@ public class JsonCoreProvider extends AuthCoreProvider {
         public ClientPermissions getPermissions() {
             return permissions;
         }
+
+        @Override
+        public String toString() {
+            return "JsonUser{" +
+                    "username='" + username + '\'' +
+                    ", uuid=" + uuid +
+                    ", permissions=" + permissions +
+                    '}';
+        }
     }
 
     public static class JsonUserSession implements UserSession {
@@ -299,6 +308,15 @@ public class JsonCoreProvider extends AuthCoreProvider {
         @Override
         public long getExpireIn() {
             return expireIn;
+        }
+
+        @Override
+        public String toString() {
+            return "JsonUserSession{" +
+                    "id='" + id + '\'' +
+                    "user='" + (user == null ? null : user.getUsername()) + '\'' +
+                    ", expireIn=" + expireIn +
+                    '}';
         }
     }
 

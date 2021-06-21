@@ -1,10 +1,13 @@
 package pro.gravit.launcher;
 
 import pro.gravit.launcher.events.ExtendedTokenRequestEvent;
+import pro.gravit.launcher.events.request.AuthRequestEvent;
+import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.events.request.SecurityReportRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launcher.request.websockets.ClientWebSocketService;
+import pro.gravit.utils.helper.LogHelper;
 
 public class BasicLauncherEventHandler implements ClientWebSocketService.EventHandler {
 
@@ -15,8 +18,15 @@ public class BasicLauncherEventHandler implements ClientWebSocketService.EventHa
             if (event1.action == SecurityReportRequestEvent.ReportAction.CRASH) {
                 LauncherEngine.exitLauncher(80);
             }
+            else if(event1.action == SecurityReportRequestEvent.ReportAction.TOKEN_EXPIRED) {
+                try {
+                    Request.restore();
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                }
+            }
         }
-        if (event instanceof ExtendedTokenRequestEvent) {
+        else if (event instanceof ExtendedTokenRequestEvent) {
             ExtendedTokenRequestEvent event1 = (ExtendedTokenRequestEvent) event;
             String token = event1.getExtendedToken();
             if (token != null) {

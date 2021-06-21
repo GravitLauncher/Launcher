@@ -64,6 +64,9 @@ public class SecurityCheckCommand extends Command {
             } else {
                 printCheckResult(String.format("auth.%s.handler", name), "", true);
             }
+            if(!pair.isUseCore()) {
+                printCheckResult(String.format("auth.%s", name), "AuthProvider/AuthHandler may be removed in future release", null);
+            }
         });
         if (config.protectHandler instanceof NoProtectHandler) {
             printCheckResult("protectHandler", "protectHandler none", false);
@@ -220,8 +223,8 @@ public class SecurityCheckCommand extends Command {
                 if (checkOtherWriteAccess(IOHelper.getCodeSource(LaunchServer.class))) {
                     logger.warn("Write access to LaunchServer.jar. Please use 'chmod 755 LaunchServer.jar'");
                 }
-                if (Files.exists(server.dir.resolve("private.key")) && checkOtherReadOrWriteAccess(server.dir.resolve("private.key"))) {
-                    logger.warn("Write or read access to private.key. Please use 'chmod 600 private.key'");
+                if (Files.exists(server.dir.resolve(".keys")) && checkOtherReadOrWriteAccess(server.dir.resolve(".keys"))) {
+                    logger.warn("Write or read access to .keys directory. Please use 'chmod -R 600 .keys'");
                 }
                 if (Files.exists(server.dir.resolve("LaunchServerConfig.json")) && checkOtherReadOrWriteAccess(server.dir.resolve("LaunchServerConfig.json"))) {
                     logger.warn("Write or read access to LaunchServerConfig.json. Please use 'chmod 600 LaunchServerConfig.json'");

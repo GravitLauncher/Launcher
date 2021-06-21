@@ -10,6 +10,7 @@ import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
+import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.auth.session.MemorySessionStorage;
 import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
 import pro.gravit.launchserver.binary.EXELauncherBinary;
@@ -239,7 +240,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     @Override
     public Map<String, Command> getCommands() {
         Map<String, Command> commands = new HashMap<>();
-        SubCommand reload = new SubCommand() {
+        SubCommand reload = new SubCommand("[type]", "reload launchserver config") {
             @Override
             public void invoke(String... args) throws Exception {
                 if (args.length == 0) {
@@ -263,7 +264,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             }
         };
         commands.put("reload", reload);
-        SubCommand save = new SubCommand() {
+        SubCommand save = new SubCommand("[]", "save launchserver config") {
             @Override
             public void invoke(String... args) throws Exception {
                 launchServerConfigManager.writeConfig(config);
@@ -272,6 +273,28 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             }
         };
         commands.put("save", save);
+        LaunchServer instance = this;
+        SubCommand resetauth = new SubCommand("authId", "reset auth by id") {
+            @Override
+            public void invoke(String... args) throws Exception {
+                verifyArgs(args, 1);
+                AuthProviderPair pair = config.getAuthProviderPair(args[0]);
+                if(pair == null) {
+                    logger.error("Pair not found");
+                    return;
+                }
+                if(pair.isUseCore()){
+                    pair.core.close();
+                } else {
+                    pair.provider.close();
+                    pair.handler.close();
+                    pair.handler = null;
+                    pair.provider = null;
+                }
+                pair.core = new RejectAuthCoreProvider();
+                pair.core.init(instance);
+            }
+        };commands.put("resetauth", resetauth);
         return commands;
     }
 

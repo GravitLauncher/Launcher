@@ -7,7 +7,7 @@ import java.net.http.HttpClient;
 public class JsonPasswordVerifier extends PasswordVerifier {
     public String url;
     public String bearerToken;
-    private transient HttpClient client = HttpClient.newBuilder().build();
+    private transient final HttpClient client = HttpClient.newBuilder().build();
 
     public static class JsonPasswordRequest {
         public String encryptedPassword;

@@ -150,7 +150,7 @@ public class SaveProfilesCommand extends Command {
         if (Files.exists(dir.resolve("liteloader.jar"))) {
             options.add(MakeProfileOption.LITELOADER);
         }
-        if (Files.exists(dir.resolve("libraries/libraries/org/lwjgl/lwjgl/3.2.2")) && Files.exists(dir.resolve("libraries/libraries/org/lwjgl/lwjgl/3.2.1"))) {
+        if (Files.exists(dir.resolve("libraries/org/lwjgl/lwjgl/3.2.2")) && Files.exists(dir.resolve("libraries/org/lwjgl/lwjgl/3.2.1"))) {
             options.add(MakeProfileOption.LWJGLMAC);
         }
         if (version.compareTo(ClientProfile.Version.MC1122) <= 0) {

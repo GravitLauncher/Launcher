@@ -22,6 +22,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -453,6 +454,16 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
             hardware = result;
             return result;
         }
+
+        @Override
+        public String toString() {
+            return "MySQLUser{" +
+                    "uuid=" + uuid +
+                    ", username='" + username + '\'' +
+                    ", permissions=" + permissions +
+                    ", hwidId=" + hwidId +
+                    '}';
+        }
     }
 
     public static class MySQLUserHardware implements UserHardware {
@@ -486,6 +497,16 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         @Override
         public boolean isBanned() {
             return banned;
+        }
+
+        @Override
+        public String toString() {
+            return "MySQLUserHardware{" +
+                    "hardwareInfo=" + hardwareInfo +
+                    ", publicKey=" + (publicKey == null ? null : SecurityHelper.toHex(publicKey)) +
+                    ", id=" + id +
+                    ", banned=" + banned +
+                    '}';
         }
     }
 }
