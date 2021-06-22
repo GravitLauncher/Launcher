@@ -63,6 +63,7 @@ public class ComponentCommand extends Command {
             if (component instanceof AutoCloseable) {
                 ((AutoCloseable) component).close();
             }
+            server.unregisterObject("component." + componentName, component);
             server.config.components.remove(componentName);
             logger.info("Component %s unloaded. Use 'config launchserver save' to save changes");
         }
@@ -94,6 +95,7 @@ public class ComponentCommand extends Command {
                 component.setComponentName(componentName);
                 server.config.components.put(componentName, component);
                 component.init(server);
+                server.registerObject("component." + componentName, component);
                 logger.info("Component %s ready. Use 'config launchserver save' to save changes");
             } catch (Throwable throwable) {
                 logger.error(throwable);

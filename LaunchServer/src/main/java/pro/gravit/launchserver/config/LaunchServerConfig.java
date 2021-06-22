@@ -208,7 +208,7 @@ public final class LaunchServerConfig {
                 server.registerObject("auth.".concat(pair.name).concat(".provider"), pair.provider);
                 server.registerObject("auth.".concat(pair.name).concat(".handler"), pair.handler);
                 server.registerObject("auth.".concat(pair.name).concat(".core"), pair.core);
-                server.registerObject("auth.".concat(pair.name).concat(".social"), pair.core);
+                server.registerObject("auth.".concat(pair.name).concat(".social"), pair.social);
                 server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
             }
         }
