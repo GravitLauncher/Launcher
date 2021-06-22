@@ -84,7 +84,10 @@ public class ClientPermissions {
 
     @Override
     public String toString() {
-        return String.format("permissions %d | flags %d", permissions, flags);
+        return "ClientPermissions{" +
+                "permissions=" + permissions +
+                ", flags=" + flags +
+                '}';
     }
 
     public enum PermissionConsts {

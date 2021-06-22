@@ -2,9 +2,8 @@ package pro.gravit.launcher.request.secure;
 
 import pro.gravit.launcher.events.request.HardwareReportRequestEvent;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.utils.helper.SecurityHelper;
 
-import java.util.Arrays;
+import java.util.Base64;
 
 public class HardwareReportRequest extends Request<HardwareReportRequestEvent> {
     public HardwareInfo hardware;
@@ -36,7 +35,7 @@ public class HardwareReportRequest extends Request<HardwareReportRequestEvent> {
                     ", processorMaxFreq=" + processorMaxFreq +
                     ", battery=" + battery +
                     ", hwDiskId='" + hwDiskId + '\'' +
-                    ", displayId=" + (displayId == null ? null : SecurityHelper.toHex(displayId)) +
+                    ", displayId=" + (displayId == null ? null : new String(Base64.getEncoder().encode(displayId))) +
                     ", baseboardSerialNumber='" + baseboardSerialNumber + '\'' +
                     ", graphicCard='" + graphicCard + '\'' +
                     '}';

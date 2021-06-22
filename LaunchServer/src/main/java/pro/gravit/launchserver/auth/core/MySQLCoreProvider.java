@@ -22,7 +22,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
-import java.util.Arrays;
+import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -61,11 +61,11 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     private transient String updateAuthSQL;
     private transient String updateServerIDSQL;
 
-    public String defaultQueryByUUIDSQL;
-    public String defaultQueryByUsernameSQL;
-    public String defaultQueryByLoginSQL;
-    public String defaultUpdateAuthSQL;
-    public String defaultUpdateServerIdSQL;
+    public String customQueryByUUIDSQL;
+    public String customQueryByUsernameSQL;
+    public String customQueryByLoginSQL;
+    public String customUpdateAuthSQL;
+    public String customUpdateServerIdSQL;
 
     @Override
     public User getUserByUsername(String username) {
@@ -143,23 +143,26 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         if (table == null) logger.error("table cannot be null");
         // Prepare SQL queries
         String userInfoCols = String.format("%s, %s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn, hardwareIdColumn);
-        queryByUUIDSQL = defaultQueryByUUIDSQL != null ? defaultQueryByUUIDSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1", userInfoCols,
+        queryByUUIDSQL = customQueryByUUIDSQL != null ? customQueryByUUIDSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1", userInfoCols,
                 table, uuidColumn);
-        queryByUsernameSQL = defaultQueryByUsernameSQL != null ? defaultQueryByUsernameSQL :  String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
+        queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
                 userInfoCols, table, usernameColumn);
-        queryByLoginSQL = defaultQueryByLoginSQL != null ? defaultQueryByLoginSQL : queryByUsernameSQL;
+        queryByLoginSQL = customQueryByLoginSQL != null ? customQueryByLoginSQL : queryByUsernameSQL;
 
-        updateAuthSQL = defaultUpdateAuthSQL != null ? defaultUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=? LIMIT 1",
+        updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=? LIMIT 1",
                 table, accessTokenColumn, serverIDColumn, uuidColumn);
-        updateServerIDSQL = defaultUpdateServerIdSQL != null ? defaultUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=? LIMIT 1",
+        updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=? LIMIT 1",
                 table, serverIDColumn, uuidColumn);
-        String hardwareInfoCols = "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, graphicCard, banned";
+        String hardwareInfoCols = "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, graphicCard, banned, publicKey";
         if(sqlFindHardwareByPublicKey == null) sqlFindHardwareByPublicKey = String.format("SELECT %s FROM %s WHERE `publicKey` = ?", hardwareInfoCols, tableHWID);
         if(sqlFindHardwareById == null) sqlFindHardwareById = String.format("SELECT %s FROM %s WHERE `id` = ?", hardwareInfoCols, tableHWID);
         if(sqlUsersByHwidId == null) sqlUsersByHwidId = String.format("SELECT %s FROM %s WHERE `%s` = ?", userInfoCols, table, hardwareIdColumn);
-        if(sqlFindHardwareByData == null) sqlFindHardwareByData = String.format("SELECT %s FROM %s", hardwareInfoCols, tableHWID);
-        if(sqlCreateHardware == null) sqlCreateHardware = String.format("INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `battery`, `graphicCard`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')", tableHWID);
-        if(sqlCreateHWIDLog == null) sqlCreateHWIDLog = String.format("INSERT INTO %s (`hwidId`, `newPublicKey`) VALUES (?, ?)", tableHWIDLog);
+        if (sqlFindHardwareByData == null)
+            sqlFindHardwareByData = String.format("SELECT %s FROM %s", hardwareInfoCols, tableHWID);
+        if (sqlCreateHardware == null)
+            sqlCreateHardware = String.format("INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `graphicCard`, `battery`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')", tableHWID);
+        if (sqlCreateHWIDLog == null)
+            sqlCreateHWIDLog = String.format("INSERT INTO %s (`hwidId`, `newPublicKey`) VALUES (?, ?)", tableHWIDLog);
         if(sqlUpdateHardwarePublicKey == null) sqlUpdateHardwarePublicKey = String.format("UPDATE %s SET `publicKey` = ? WHERE `id` = ?", tableHWID);
         sqlUpdateHardwareBanned = String.format("UPDATE %s SET `banned` = ? WHERE `id` = ?", tableHWID);
         sqlUpdateUsers = String.format("UPDATE %s SET `%s` = ? WHERE `%s` = ?", table, hardwareIdColumn, uuidColumn);
@@ -256,7 +259,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
                 }
             }
         } catch (SQLException | IOException throwables) {
-            logger.error(throwables);
+            logger.error("SQL Error", throwables);
             return null;
         }
     }
@@ -275,7 +278,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
                 }
             }
         } catch (SQLException | IOException throwables) {
-            logger.error(throwables);
+            logger.error("SQL Error", throwables);
         }
         return null;
     }
@@ -293,7 +296,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
                 }
             }
         } catch (SQLException | IOException throwables) {
-            logger.error(throwables);
+            logger.error("SQL Error", throwables);
             return null;
         }
     }
@@ -323,7 +326,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
             }
             return null;
         } catch (SQLException throwables) {
-            logger.error(throwables);
+            logger.error("SQL Error", throwables);
             return null;
         }
     }
@@ -337,7 +340,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         try (Connection connection = mySQLHolder.getConnection()) {
             setUserHardwareId(connection, user.getUUID(), mySQLUserHardware.id);
         } catch (SQLException throwables) {
-            logger.error(throwables);
+            logger.error("SQL Error", throwables);
         }
     }
 
@@ -363,7 +366,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
             s.setLong(1, Long.parseLong(hardware.getId()));
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             try (ResultSet set = s.executeQuery()) {
-                while (set.next()) {
+                while (!set.isLast()) {
                     users.add(constructUser(set));
                 }
             }
@@ -503,7 +506,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         public String toString() {
             return "MySQLUserHardware{" +
                     "hardwareInfo=" + hardwareInfo +
-                    ", publicKey=" + (publicKey == null ? null : SecurityHelper.toHex(publicKey)) +
+                    ", publicKey=" + (publicKey == null ? null : new String(Base64.getEncoder().encode(publicKey))) +
                     ", id=" + id +
                     ", banned=" + banned +
                     '}';

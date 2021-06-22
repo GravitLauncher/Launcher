@@ -48,7 +48,7 @@ public class ClientsCommand extends Command {
                 logger.info("Data: checkSign {} | auth_id {}", client.checkSign ? "true" : "false",
                         client.auth_id);
                 if (client.trustLevel != null) {
-                    logger.info("trustLevel | key {} | pubkey {}", client.trustLevel.keyChecked ? "checked" : "unchecked", client.trustLevel.publicKey == null ? "null" : Base64.getEncoder().encode(client.trustLevel.publicKey));
+                    logger.info("trustLevel | key {} | pubkey {}", client.trustLevel.keyChecked ? "checked" : "unchecked", client.trustLevel.publicKey == null ? "null" : new String(Base64.getEncoder().encode(client.trustLevel.publicKey)));
                 }
                 logger.info("Permissions: {} (permissions {} | flags {})", client.permissions == null ? "null" : client.permissions.toString(), client.permissions == null ? 0 : client.permissions.permissions, client.permissions == null ? 0 : client.permissions.flags);
             }
