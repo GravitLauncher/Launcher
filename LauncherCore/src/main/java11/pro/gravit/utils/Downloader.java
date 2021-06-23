@@ -72,9 +72,7 @@ public class Downloader {
         downloader.future = downloader.downloadFiles(files, baseURL, targetDir, callback, executor, threads);
         if (closeExecutor) {
             ExecutorService finalExecutor = executor;
-            downloader.future = downloader.future.thenAccept(e -> {
-                finalExecutor.shutdownNow();
-            });
+            downloader.future = downloader.future.thenAccept(e -> finalExecutor.shutdownNow());
         }
         return downloader;
     }

@@ -63,7 +63,6 @@ public class MainBuildTask implements LauncherBuildTask {
             for (Path e : server.launcherBinary.coreLibs) {
                 reader.getCp().add(new JarFile(e.toFile()));
             }
-            ;
             context.pushJarFile(inputJar, (e) -> blacklist.contains(e.getName()), (e) -> true);
 
             // map for guard

@@ -89,7 +89,7 @@ public class RestoreResponse extends SimpleResponse {
             });
         }
         if (needUserInfo && client.isAuth) {
-            sendResult(new RestoreRequestEvent(CurrentUserResponse.collectUserInfoFromClient(client), invalidTokens));
+            sendResult(new RestoreRequestEvent(CurrentUserResponse.collectUserInfoFromClient(server, client), invalidTokens));
         } else {
             sendResult(new RestoreRequestEvent(invalidTokens));
         }

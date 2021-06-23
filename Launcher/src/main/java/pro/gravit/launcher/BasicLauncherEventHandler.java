@@ -1,8 +1,6 @@
 package pro.gravit.launcher;
 
 import pro.gravit.launcher.events.ExtendedTokenRequestEvent;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.events.request.SecurityReportRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.WebSocketEvent;

@@ -47,7 +47,7 @@ public class JavaHelper {
             Path result = tryFindModule(path, moduleName);
             if (result != null) {
                 if (args.length() != 0) args.append(File.pathSeparatorChar);
-                args.append(result.toAbsolutePath().toString());
+                args.append(result.toAbsolutePath());
                 return true;
             }
         }

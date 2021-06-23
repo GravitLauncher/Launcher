@@ -77,7 +77,7 @@ public class FormatHelper {
     }
 
     public static String formatVersion(String product) {
-        return String.format("GravitLauncher (fork sashok724's Launcher) %s v%s", product, Version.getVersion().toString());
+        return String.format("GravitLauncher (fork sashok724's Launcher) %s v%s", product, Version.getVersion());
     }
 
     public static String formatLicense(String product) {

@@ -141,7 +141,7 @@ public abstract class LauncherModule {
      * @return true if adding a handler was successful
      */
     protected <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass) {
-        EventEntity<T> eventEntity = new EventEntity<T>(handle, tClass);
+        EventEntity<T> eventEntity = new EventEntity<>(handle, tClass);
         eventList.add(eventEntity);
         return true;
     }

@@ -46,7 +46,7 @@ public class RestoreSessionResponse extends SimpleResponse {
         WebSocketFrameHandler frameHandler = ctx.pipeline().get(WebSocketFrameHandler.class);
         frameHandler.setClient(rClient[0]);
         if (needUserInfo) {
-            sendResult(new RestoreSessionRequestEvent(CurrentUserResponse.collectUserInfoFromClient(rClient[0])));
+            sendResult(new RestoreSessionRequestEvent(CurrentUserResponse.collectUserInfoFromClient(server, rClient[0])));
         } else {
             sendResult(new RestoreSessionRequestEvent());
         }

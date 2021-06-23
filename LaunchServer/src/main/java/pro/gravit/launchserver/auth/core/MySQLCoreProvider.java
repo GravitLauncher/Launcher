@@ -470,9 +470,9 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     }
 
     public static class MySQLUserHardware implements UserHardware {
-        private HardwareReportRequest.HardwareInfo hardwareInfo;
+        private final HardwareReportRequest.HardwareInfo hardwareInfo;
         private byte[] publicKey;
-        private long id;
+        private final long id;
         private boolean banned;
 
         public MySQLUserHardware(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, long id, boolean banned) {

@@ -20,7 +20,7 @@ public class UpdatesManager {
     private final LaunchServer server;
     private final Logger logger = LogManager.getLogger();
     private volatile Map<String, HashedDir> updatesDirMap;
-    private Path cacheFile;
+    private final Path cacheFile;
 
     public UpdatesManager(LaunchServer server) {
         this.server = server;

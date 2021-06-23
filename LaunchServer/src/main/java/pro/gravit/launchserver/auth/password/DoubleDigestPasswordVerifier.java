@@ -2,7 +2,6 @@ package pro.gravit.launchserver.auth.password;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.nio.charset.StandardCharsets;

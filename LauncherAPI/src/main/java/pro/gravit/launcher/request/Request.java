@@ -23,8 +23,8 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     private static Map<String, String> extendedTokens;
     private static String authId;
     private static long tokenExpiredTime;
-    private static List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
-    private static List<BiConsumer<String, AuthRequestEvent.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
+    private static final List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
+    private static final List<BiConsumer<String, AuthRequestEvent.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
     @LauncherNetworkAPI
     public final UUID requestUUID = UUID.randomUUID();
     private transient final AtomicBoolean started = new AtomicBoolean(false);

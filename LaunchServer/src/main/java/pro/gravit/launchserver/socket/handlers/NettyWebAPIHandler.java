@@ -78,8 +78,8 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
             String sub = uri.substring(ind + 1);
             String[] result = sub.split("&");
             Map<String, String> map = new HashMap<>();
-            for (int i = 0; i < result.length; ++i) {
-                String c = URLDecoder.decode(result[i], Charset.defaultCharset());
+            for (String s : result) {
+                String c = URLDecoder.decode(s, Charset.defaultCharset());
                 int index = c.indexOf("=");
                 if (index <= 0) {
                     continue;
