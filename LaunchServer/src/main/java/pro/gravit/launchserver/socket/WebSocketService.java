@@ -93,6 +93,7 @@ public class WebSocketService {
         providers.register("features", FeaturesResponse.class);
         providers.register("refreshToken", RefreshTokenResponse.class);
         providers.register("restore", RestoreResponse.class);
+        providers.register("additionalData", AdditionalDataResponse.class);
     }
 
     public void forEachActiveChannels(BiConsumer<Channel, WebSocketFrameHandler> callback) {

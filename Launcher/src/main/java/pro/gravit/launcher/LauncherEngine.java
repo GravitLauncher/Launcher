@@ -4,6 +4,8 @@ import pro.gravit.launcher.client.*;
 import pro.gravit.launcher.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientExitPhase;
 import pro.gravit.launcher.client.events.ClientPreGuiPhase;
+import pro.gravit.launcher.console.GetPublicKeyCommand;
+import pro.gravit.launcher.console.SignDataCommand;
 import pro.gravit.launcher.guard.LauncherGuardInterface;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.guard.LauncherNoGuard;
@@ -131,6 +133,14 @@ public class LauncherEngine {
             throw new SecurityException("JavaAgent found");
     }
 
+    public ECPublicKey getClientPublicKey() {
+        return publicKey;
+    }
+
+    public byte[] sign(byte[] bytes) {
+        return SecurityHelper.sign(bytes, privateKey);
+    }
+
     public static LauncherGuardInterface tryGetStdGuard() {
         switch (Launcher.getConfig().guardType) {
             case "no":
@@ -200,10 +210,16 @@ public class LauncherEngine {
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");
         readKeys();
+        registerCommands();
         LauncherEngine.modulesManager.invokeEvent(new ClientEngineInitPhase(this));
         runtimeProvider.preLoad();
         LauncherGuardManager.initGuard(clientInstance);
         LogHelper.debug("Dir: %s", DirBridge.dir);
         runtimeProvider.run(args);
+    }
+
+    private void registerCommands() {
+        ConsoleManager.handler.registerCommand("getpublickey", new GetPublicKeyCommand(this));
+        ConsoleManager.handler.registerCommand("signdata", new SignDataCommand(this));
     }
 }

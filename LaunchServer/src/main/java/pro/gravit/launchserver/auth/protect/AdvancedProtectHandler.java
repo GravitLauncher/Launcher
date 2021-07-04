@@ -167,7 +167,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 .setIssuer("LaunchServer")
                 .setSubject(username)
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 8))
-                .claim("publicKey", Base64.getEncoder().encode(publicKey))
+                .claim("publicKey", Base64.getEncoder().encodeToString(publicKey))
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
     }

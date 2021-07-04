@@ -113,6 +113,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
         results.register("features", FeaturesRequestEvent.class);
         results.register("refreshToken", RefreshTokenRequestEvent.class);
         results.register("restore", RestoreRequestEvent.class);
+        results.register("additionalData", AdditionalDataRequestEvent.class);
     }
 
     public void waitIfNotConnected() {

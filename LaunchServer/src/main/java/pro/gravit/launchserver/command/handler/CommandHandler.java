@@ -4,7 +4,10 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.auth.AuthCommand;
 import pro.gravit.launchserver.command.auth.UUIDToUsernameCommand;
 import pro.gravit.launchserver.command.auth.UsernameToUUIDCommand;
-import pro.gravit.launchserver.command.basic.*;
+import pro.gravit.launchserver.command.basic.BuildCommand;
+import pro.gravit.launchserver.command.basic.RestartCommand;
+import pro.gravit.launchserver.command.basic.StopCommand;
+import pro.gravit.launchserver.command.basic.VersionCommand;
 import pro.gravit.launchserver.command.hash.*;
 import pro.gravit.launchserver.command.modules.LoadModuleCommand;
 import pro.gravit.launchserver.command.modules.ModulesCommand;
@@ -29,7 +32,6 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         basic.registerCommand("gc", new GCCommand());
         basic.registerCommand("loadModule", new LoadModuleCommand(server));
         basic.registerCommand("modules", new ModulesCommand(server));
-        basic.registerCommand("test", new TestCommand(server));
         Category basicCategory = new Category(basic, "basic", "Base LaunchServer commands");
         handler.registerCategory(basicCategory);
 

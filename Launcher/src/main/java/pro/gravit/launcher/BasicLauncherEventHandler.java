@@ -1,6 +1,8 @@
 package pro.gravit.launcher;
 
+import pro.gravit.launcher.api.DialogService;
 import pro.gravit.launcher.events.ExtendedTokenRequestEvent;
+import pro.gravit.launcher.events.NotificationEvent;
 import pro.gravit.launcher.events.request.SecurityReportRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.WebSocketEvent;
@@ -29,6 +31,11 @@ public class BasicLauncherEventHandler implements ClientWebSocketService.EventHa
             String token = event1.getExtendedToken();
             if (token != null) {
                 Request.addExtendedToken(event1.getExtendedTokenName(), token);
+            }
+        } else if (event instanceof NotificationEvent) {
+            NotificationEvent n = (NotificationEvent) event;
+            if (DialogService.isNotificationsAvailable()) {
+                DialogService.createNotification(n.icon, n.head, n.message);
             }
         }
         return false;

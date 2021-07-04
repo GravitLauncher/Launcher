@@ -47,16 +47,24 @@ import java.util.Date;
 import java.util.List;
 
 public class CertificateManager {
+    @Deprecated
     public final int validDays = 60;
+    @Deprecated
     public final int minusHours = 6;
     private transient final Logger logger = LogManager.getLogger();
+    @Deprecated
     public X509CertificateHolder ca;
+    @Deprecated
     public AsymmetricKeyParameter caKey;
+    @Deprecated
     public X509CertificateHolder server;
+    @Deprecated
     public AsymmetricKeyParameter serverKey;
     public LauncherTrustManager trustManager;
+    @Deprecated
     public String orgName;
 
+    @Deprecated
     public X509CertificateHolder generateCertificate(String subjectName, PublicKey subjectPublicKey) throws OperatorCreationException {
         SubjectPublicKeyInfo subjectPubKeyInfo = SubjectPublicKeyInfo.getInstance(subjectPublicKey.getEncoded());
         BigInteger serial = BigInteger.valueOf(SecurityHelper.newRandom().nextLong());
@@ -76,6 +84,7 @@ public class CertificateManager {
         return v3CertGen.build(sigGen);
     }
 
+    @Deprecated
     public void generateCA() throws NoSuchAlgorithmException, IOException, OperatorCreationException, InvalidAlgorithmParameterException {
         ECGenParameterSpec ecGenSpec = new ECGenParameterSpec("secp384k1");
         KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
@@ -100,6 +109,7 @@ public class CertificateManager {
         caKey = PrivateKeyFactory.createKey(pair.getPrivate().getEncoded());
     }
 
+    @Deprecated
     public KeyPair generateKeyPair() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
         ECGenParameterSpec ecGenSpec = new ECGenParameterSpec("secp384k1");
         KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
