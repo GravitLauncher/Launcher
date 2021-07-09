@@ -68,9 +68,7 @@ public class JavaHelper {
                 Path p1 = Paths.get(p);
                 Path javaExecPath = JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? p1.resolve("java.exe") : p1.resolve("java");
                 if (Files.exists(javaExecPath)) {
-                    if (Files.isSymbolicLink(javaExecPath)) {
-                        javaExecPath = javaExecPath.toRealPath();
-                    }
+                    javaExecPath = javaExecPath.toRealPath();
                     p1 = javaExecPath.getParent().getParent();
                     tryAddJava(javaPaths, result, JavaVersion.getByPath(p1));
                     trySearchJava(javaPaths, result, p1.getParent());
