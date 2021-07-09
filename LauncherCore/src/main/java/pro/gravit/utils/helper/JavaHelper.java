@@ -78,7 +78,7 @@ public class JavaHelper {
             }
         }
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
-            Path rootDrive = Paths.get(System.getProperty("java.home"));
+            Path rootDrive = IOHelper.getRoot();
             try {
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("Java"));
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("AdoptOpenJDK"));

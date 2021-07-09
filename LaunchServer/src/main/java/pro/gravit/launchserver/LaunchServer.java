@@ -177,8 +177,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         authManager = new AuthManager(this);
         updatesManager = new UpdatesManager(this);
         RestoreResponse.registerProviders(this);
-        //Generate or set new Certificate API
-        certificateManager.orgName = config.projectName;
+
         config.init(ReloadType.FULL);
         registerObject("launchServer", this);
         GarbageManager.registerNeedGC(sessionManager);

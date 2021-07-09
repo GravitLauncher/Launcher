@@ -137,6 +137,20 @@ public final class IOHelper {
         return ((InetSocketAddress) address).getAddress().getHostAddress();
     }
 
+    public static Path getRoot() {
+        switch (JVMHelper.OS_TYPE) {
+            case MUSTDIE: {
+                String drive = System.getenv("SystemDrive");
+                return Paths.get(drive);
+            }
+            case LINUX:
+            case MACOSX: {
+                return Paths.get("/");
+            }
+        }
+        throw new UnsupportedOperationException();
+    }
+
     public static byte[] getResourceBytes(String name) throws IOException {
         return read(getResourceURL(name));
     }
