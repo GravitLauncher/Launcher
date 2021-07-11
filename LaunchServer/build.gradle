@@ -71,7 +71,6 @@ task cleanjar(type: Jar, dependsOn: jar) {
 
 dependencies {
     pack project(':LauncherAPI')
-    pack group: 'org.apache.maven', name: 'maven-artifact', version: '3.8.1'
     bundle group: 'me.tongfei', name: 'progressbar', version: '0.9.2'
     bundle group: 'org.fusesource.jansi', name: 'jansi', version: rootProject['verJansi']
     bundle group: 'org.jline', name: 'jline', version: rootProject['verJline']
