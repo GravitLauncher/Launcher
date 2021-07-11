@@ -49,6 +49,7 @@ public class MakeProfileHelper {
         jvmArgs.add("-XX:G1HeapRegionSize=32M");
         // -----------
         Optional<MakeProfileOptionForge> forge = findOption(options, MakeProfileOptionForge.class);
+        Optional<MakeProfileOptionFabric> fabric = findOption(options, MakeProfileOptionFabric.class);
         if (version.compareTo(ClientProfile.Version.MC1122) > 0) {
             jvmArgs.add("-Djava.library.path=natives");
             OptionalFile optionalMacOs = new OptionalFile();
@@ -58,6 +59,9 @@ public class MakeProfileHelper {
             optionalMacOs.actions.add(new OptionalActionJvmArgs(List.of("-XstartOnFirstThread")));
             optionalMacOs.triggersList = List.of(new OSTrigger(JVMHelper.OS.MACOSX));
             optionals.add(optionalMacOs);
+        }
+        if (fabric.isPresent()) {
+            builder.setAltClassPath(fabric.orElseThrow().getAltClassPath());
         }
         if (findOption(options, MakeProfileOptionLwjgl.class).isPresent()) {
             OptionalFile optionalMac = new OptionalFile();
@@ -163,7 +167,7 @@ public class MakeProfileHelper {
                 options.add(new MakeProfileOptionForge(dir));
             }
             if (Files.exists(dir.resolve("libraries/net/fabricmc/fabric-loader"))) {
-                options.add(new MakeProfileOptionFabric());
+                options.add(new MakeProfileOptionFabric(dir));
             }
         }
         if (Files.exists(dir.resolve("liteloader.jar"))) {
@@ -232,12 +236,37 @@ public class MakeProfileHelper {
         return Files.list(path).findFirst().orElse(null);
     }
 
+    private static Path findFirstMavenFile(Path path) throws IOException {
+        return Files.list(Files.list(path).findFirst().orElseThrow()).filter(e -> e.getFileName().toString().endsWith(".jar")).findFirst().orElseThrow();
+    }
+
     public static class MakeProfileOptionLaunchWrapper implements MakeProfileOption {
 
     }
 
     public static class MakeProfileOptionFabric implements MakeProfileOption {
+        public String jimfsPath;
+        public String guavaPath;
 
+        public List<String> getAltClassPath() {
+            if (jimfsPath == null || guavaPath == null) return List.of();
+            return List.of(jimfsPath, guavaPath);
+        }
+
+        public MakeProfileOptionFabric() {
+        }
+
+        public MakeProfileOptionFabric(String jimfsPath, String guavaPath) {
+            this.jimfsPath = jimfsPath;
+            this.guavaPath = guavaPath;
+        }
+
+        public MakeProfileOptionFabric(Path clientDir) throws IOException {
+            if (Files.exists(clientDir.resolve("libraries/com/google/jimfs/jimfs"))) {
+                jimfsPath = clientDir.relativize(findFirstMavenFile(clientDir.resolve("libraries/com/google/jimfs/jimfs"))).toString();
+                guavaPath = clientDir.relativize(findFirstMavenFile(clientDir.resolve("libraries/com/google/guava/guava/"))).toString();
+            }
+        }
     }
 
     public static class MakeProfileOptionLiteLoader implements MakeProfileOption {
