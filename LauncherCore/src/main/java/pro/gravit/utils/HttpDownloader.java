@@ -59,6 +59,7 @@ public final class HttpDownloader {
             for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
                 if (entry.isDirectory()) {
                     Files.createDirectory(dir.resolve(IOHelper.toPath(entry.getName())));
+                    continue;
                 }
                 // Unpack entry
                 String name = entry.getName();
