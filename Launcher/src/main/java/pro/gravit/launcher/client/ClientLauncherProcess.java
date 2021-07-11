@@ -27,6 +27,7 @@ import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClientLauncherProcess {
     public final ClientParams params = new ClientParams();
@@ -152,6 +153,8 @@ public class ClientLauncherProcess {
         //ADD CLASSPATH
         if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.AGENT) {
             processArgs.add("-javaagent:".concat(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString()));
+        } else if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
+            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(workDir, params.actions, params.profile).map(Path::toString).collect(Collectors.toList()));
         }
         if (useLegacyJavaClassPathProperty) {
             processArgs.add("-Djava.class.path=".concat(String.join(getPathSeparator(), systemClassPath)));

@@ -110,13 +110,7 @@ public class ClientLauncherEntryPoint {
 
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        List<URL> classpath = new LinkedList<>();
-        resolveClassPathStream(clientDir, params.profile.getClassPath()).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
-
-        for (OptionalAction a : params.actions) {
-            if (a instanceof OptionalActionClassPath)
-                resolveClassPathStream(clientDir, ((OptionalActionClassPath) a).args).map(IOHelper::toURL).collect(Collectors.toCollection(() -> classpath));
-        }
+        List<URL> classpath = resolveClassPath(clientDir, params.actions, params.profile).map(IOHelper::toURL).collect(Collectors.toList());
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
         LogHelper.debug("Restore sessions");
@@ -132,19 +126,18 @@ public class ClientLauncherEntryPoint {
                 throw new RequestException("Connection failed", e);
             }
         };
-        if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.LAUNCHER) {
+        ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
+        if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
             ClientClassLoader classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
             ClientLauncherEntryPoint.classLoader = classLoader;
             Thread.currentThread().setContextClassLoader(classLoader);
             classLoader.nativePath = clientDir.resolve("natives").toString();
             LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
-            AuthService.username = params.playerProfile.username;
-            AuthService.uuid = params.playerProfile.uuid;
             ClientService.classLoader = classLoader;
             ClientService.nativePath = classLoader.nativePath;
             classLoader.addURL(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
             ClientService.baseURLs = classLoader.getURLs();
-        } else if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.AGENT) {
+        } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
             ClientLauncherEntryPoint.classLoader = ClassLoader.getSystemClassLoader();
             classpath.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
             for (URL url : classpath) {
@@ -153,11 +146,15 @@ public class ClientLauncherEntryPoint {
             ClientService.instrumentation = LauncherAgent.inst;
             ClientService.nativePath = clientDir.resolve("natives").toString();
             LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
-            AuthService.username = params.playerProfile.username;
-            AuthService.uuid = params.playerProfile.uuid;
             ClientService.classLoader = classLoader;
             ClientService.baseURLs = classpath.toArray(new URL[0]);
+        } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
+            ClientLauncherEntryPoint.classLoader = ClassLoader.getSystemClassLoader();
+            ClientService.classLoader = ClassLoader.getSystemClassLoader();
+            ClientService.baseURLs = classpath.toArray(new URL[0]);
         }
+        AuthService.username = params.playerProfile.username;
+        AuthService.uuid = params.playerProfile.uuid;
         if (params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
             CommonHelper.newThread("Client Launcher Thread", true, () -> {
                 try {
@@ -267,6 +264,15 @@ public class ClientLauncherEntryPoint {
             builder.accept(path);
         }
         return builder.build();
+    }
+
+    public static Stream<Path> resolveClassPath(Path clientDir, Set<OptionalAction> actions, ClientProfile profile) throws IOException {
+        Stream<Path> result = resolveClassPathStream(clientDir, profile.getClassPath());
+        for (OptionalAction a : actions) {
+            if (a instanceof OptionalActionClassPath)
+                result = Stream.concat(result, resolveClassPathStream(clientDir, ((OptionalActionClassPath) a).args));
+        }
+        return result;
     }
 
     private static void launch(ClientProfile profile, ClientLauncherProcess.ClientParams params) throws Throwable {
