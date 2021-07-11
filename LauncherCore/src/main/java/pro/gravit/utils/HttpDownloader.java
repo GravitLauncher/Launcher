@@ -7,6 +7,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -56,8 +57,9 @@ public final class HttpDownloader {
     public static void downloadZip(URL url, Path dir) throws IOException {
         try (ZipInputStream input = IOHelper.newZipInput(url)) {
             for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
-                if (entry.isDirectory())
-                    continue; // Skip directories
+                if (entry.isDirectory()) {
+                    Files.createDirectory(dir.resolve(IOHelper.toPath(entry.getName())));
+                }
                 // Unpack entry
                 String name = entry.getName();
                 LogHelper.subInfo("Downloading file: '%s'", name);
