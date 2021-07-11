@@ -6,6 +6,7 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
+import pro.gravit.launchserver.helper.MakeProfileHelper;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.Writer;
@@ -30,14 +31,14 @@ public class MakeProfileCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 3);
-        ClientProfile.Version version = ClientProfile.Version.byName(args[2]);
-        SaveProfilesCommand.MakeProfileOption[] options = SaveProfilesCommand.getMakeProfileOptionsFromDir(server.updatesDir.resolve(args[2]), version);
-        for (SaveProfilesCommand.MakeProfileOption option : options) {
+        ClientProfile.Version version = ClientProfile.Version.byName(args[1]);
+        MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(server.updatesDir.resolve(args[2]), version);
+        for (MakeProfileHelper.MakeProfileOption option : options) {
             logger.info("Detected option {}", option);
         }
-        ClientProfile profile = SaveProfilesCommand.makeProfile(ClientProfile.Version.byName(args[1]), args[0], options);
+        ClientProfile profile = MakeProfileHelper.makeProfile(ClientProfile.Version.byName(args[1]), args[0], options);
         try (Writer writer = IOHelper.newWriter(server.profilesDir.resolve(args[0].concat(".json")))) {
-            Launcher.gsonManager.gson.toJson(profile, writer);
+            Launcher.gsonManager.configGson.toJson(profile, writer);
         }
         logger.info("Profile {} created", args[0]);
         server.syncProfilesDir();

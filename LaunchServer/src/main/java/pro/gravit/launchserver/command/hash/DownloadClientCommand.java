@@ -7,6 +7,7 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
+import pro.gravit.launchserver.helper.MakeProfileHelper;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.helper.IOHelper;
 
@@ -70,11 +71,11 @@ public final class DownloadClientCommand extends Command {
                 if (version.compareTo(ClientProfile.Version.MC164) <= 0) {
                     logger.warn("Minecraft 1.6.4 and below not supported. Use at your own risk");
                 }
-                SaveProfilesCommand.MakeProfileOption[] options = SaveProfilesCommand.getMakeProfileOptionsFromDir(clientDir, version);
-                for (SaveProfilesCommand.MakeProfileOption option : options) {
-                    logger.debug("Detected option {}", option);
+                MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(clientDir, version);
+                for (MakeProfileHelper.MakeProfileOption option : options) {
+                    logger.debug("Detected option {}", option.getClass().getSimpleName());
                 }
-                client = SaveProfilesCommand.makeProfile(version, dirName, options);
+                client = MakeProfileHelper.makeProfile(version, dirName, options);
             } catch (Throwable e) {
                 isMirrorClientDownload = true;
             }
