@@ -140,7 +140,7 @@ public final class IOHelper {
     public static Path getRoot() {
         switch (JVMHelper.OS_TYPE) {
             case MUSTDIE: {
-                String drive = System.getenv("SystemDrive");
+                String drive = System.getenv("SystemDrive").concat("\\");
                 return Paths.get(drive);
             }
             case LINUX:
