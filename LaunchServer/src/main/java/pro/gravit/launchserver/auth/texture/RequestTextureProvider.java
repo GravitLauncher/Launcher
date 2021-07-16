@@ -7,12 +7,17 @@ import pro.gravit.utils.helper.IOHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 public final class RequestTextureProvider extends TextureProvider {
     // Instance
-    private String skinURL;
-    private String cloakURL;
+    public String skinURL;
+    public String cloakURL;
+
+    public String skinLocalPath;
+    public String cloakLocalPath;
 
     public RequestTextureProvider() {
     }
@@ -25,6 +30,14 @@ public final class RequestTextureProvider extends TextureProvider {
     private static Texture getTexture(String url, boolean cloak) throws IOException {
         try {
             return new Texture(url, cloak);
+        } catch (FileNotFoundException ignored) {
+            return null; // Simply not found
+        }
+    }
+
+    private static Texture getTexture(String url, Path local, boolean cloak) throws IOException {
+        try {
+            return new Texture(url, local, cloak);
         } catch (FileNotFoundException ignored) {
             return null; // Simply not found
         }
@@ -43,11 +56,21 @@ public final class RequestTextureProvider extends TextureProvider {
 
     @Override
     public Texture getCloakTexture(UUID uuid, String username, String client) throws IOException {
-        return getTexture(getTextureURL(cloakURL, uuid, username, client), true);
+        String textureUrl = getTextureURL(cloakURL, uuid, username, client);
+        if (cloakLocalPath == null) {
+            return getTexture(textureUrl, true);
+        } else {
+            return getTexture(textureUrl, Paths.get(cloakLocalPath), true);
+        }
     }
 
     @Override
     public Texture getSkinTexture(UUID uuid, String username, String client) throws IOException {
-        return getTexture(getTextureURL(skinURL, uuid, username, client), false);
+        String textureUrl = getTextureURL(skinURL, uuid, username, client);
+        if (skinLocalPath == null) {
+            return getTexture(textureUrl, false);
+        } else {
+            return getTexture(textureUrl, Paths.get(skinLocalPath), false);
+        }
     }
 }

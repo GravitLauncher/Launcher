@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Objects;
 
 public final class Texture extends StreamObject {
@@ -22,11 +23,11 @@ public final class Texture extends StreamObject {
     public final byte[] digest;
 
 
+    @Deprecated
     public Texture(HInput input) throws IOException {
         url = IOHelper.verifyURL(input.readASCII(2048));
         digest = input.readByteArray(-DIGEST_ALGO.bytes);
     }
-
 
     public Texture(String url, boolean cloak) throws IOException {
         this.url = IOHelper.verifyURL(url);
@@ -42,6 +43,14 @@ public final class Texture extends StreamObject {
 
         // Get digest of texture
         digest = SecurityHelper.digest(DIGEST_ALGO, new URL(url));
+    }
+
+    public Texture(String url, Path local, boolean cloak) throws IOException {
+        this.url = IOHelper.verifyURL(url);
+        try (InputStream input = IOHelper.newInput(local)) {
+            IOHelper.readTexture(input, cloak); // Verify texture
+        }
+        this.digest = Objects.requireNonNull(SecurityHelper.digest(DIGEST_ALGO, local), "digest");
     }
 
 
