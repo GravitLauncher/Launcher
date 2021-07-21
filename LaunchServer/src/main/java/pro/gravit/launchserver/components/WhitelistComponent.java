@@ -16,11 +16,11 @@ import java.util.List;
 import java.util.Map;
 
 public class WhitelistComponent extends Component implements AutoCloseable, Reconfigurable {
-    private transient LaunchServer server;
     private transient final Logger logger = LogManager.getLogger();
     public String message = "auth.message.techwork";
     public boolean enabled = true;
     public List<String> whitelist = new ArrayList<>();
+    private transient LaunchServer server;
 
     @Override
     public void init(LaunchServer launchServer) {

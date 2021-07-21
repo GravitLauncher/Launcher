@@ -221,7 +221,7 @@ public class ClientLauncherProcess {
             }
             Socket socket = serverSocket.accept();
             try (HOutput output = new HOutput(socket.getOutputStream())) {
-                byte[] serializedMainParams = Launcher.gsonManager.gson.toJson(params).getBytes(IOHelper.UNICODE_CHARSET);
+                byte[] serializedMainParams = IOHelper.encode(Launcher.gsonManager.gson.toJson(params));
                 output.writeByteArray(serializedMainParams, 0);
                 params.clientHDir.write(output);
                 params.assetHDir.write(output);

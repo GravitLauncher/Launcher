@@ -17,16 +17,14 @@ public class BasicLauncherEventHandler implements ClientWebSocketService.EventHa
             SecurityReportRequestEvent event1 = (SecurityReportRequestEvent) event;
             if (event1.action == SecurityReportRequestEvent.ReportAction.CRASH) {
                 LauncherEngine.exitLauncher(80);
-            }
-            else if(event1.action == SecurityReportRequestEvent.ReportAction.TOKEN_EXPIRED) {
+            } else if (event1.action == SecurityReportRequestEvent.ReportAction.TOKEN_EXPIRED) {
                 try {
                     Request.restore();
                 } catch (Exception e) {
                     LogHelper.error(e);
                 }
             }
-        }
-        else if (event instanceof ExtendedTokenRequestEvent) {
+        } else if (event instanceof ExtendedTokenRequestEvent) {
             ExtendedTokenRequestEvent event1 = (ExtendedTokenRequestEvent) event;
             String token = event1.getExtendedToken();
             if (token != null) {

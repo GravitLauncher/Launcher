@@ -12,20 +12,6 @@ public class DialogService {
         throw new UnsupportedOperationException();
     }
 
-    public interface DialogServiceImplementation {
-        void showDialog(String header, String text, Runnable onApplyCallback, Runnable onCloseCallback);
-
-        void showApplyDialog(String header, String text, Runnable onApplyCallback, Runnable onDenyCallback);
-
-        void showApplyDialog(String header, String text, Runnable onApplyCallback, Runnable onDenyCallback, Runnable onCloseCallback);
-
-        void showTextDialog(String header, Consumer<String> onApplyCallback, Runnable onCloseCallback);
-    }
-
-    public interface DialogServiceNotificationImplementation {
-        void createNotification(NotificationEvent.NotificationType type, String head, String message);
-    }
-
     public static void setDialogImpl(DialogServiceImplementation impl) {
         DialogService.dialogImpl = impl;
     }
@@ -73,5 +59,19 @@ public class DialogService {
     public static void showTextDialog(String header, Consumer<String> onApplyCallback, Runnable onCloseCallback) {
         checkIfAvailable();
         dialogImpl.showTextDialog(header, onApplyCallback, onCloseCallback);
+    }
+
+    public interface DialogServiceImplementation {
+        void showDialog(String header, String text, Runnable onApplyCallback, Runnable onCloseCallback);
+
+        void showApplyDialog(String header, String text, Runnable onApplyCallback, Runnable onDenyCallback);
+
+        void showApplyDialog(String header, String text, Runnable onApplyCallback, Runnable onDenyCallback, Runnable onCloseCallback);
+
+        void showTextDialog(String header, Consumer<String> onApplyCallback, Runnable onCloseCallback);
+    }
+
+    public interface DialogServiceNotificationImplementation {
+        void createNotification(NotificationEvent.NotificationType type, String head, String message);
     }
 }

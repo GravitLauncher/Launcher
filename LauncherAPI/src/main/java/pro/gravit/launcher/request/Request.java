@@ -17,14 +17,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 public abstract class Request<R extends WebSocketEvent> implements WebSocketRequest {
+    private static final List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
+    private static final List<BiConsumer<String, AuthRequestEvent.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
     public static StdWebSocketService service;
     private static UUID session = UUID.randomUUID();
     private static AuthRequestEvent.OAuthRequestEvent oauth;
     private static Map<String, String> extendedTokens;
     private static String authId;
     private static long tokenExpiredTime;
-    private static final List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
-    private static final List<BiConsumer<String, AuthRequestEvent.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
     @LauncherNetworkAPI
     public final UUID requestUUID = UUID.randomUUID();
     private transient final AtomicBoolean started = new AtomicBoolean(false);

@@ -10,30 +10,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Downloader {
-    public interface DownloadCallback {
-        void apply(long fullDiff);
-
-        void onComplete(Path path);
-    }
-
     private final CompletableFuture<Void> future;
     private final AsyncDownloader asyncDownloader;
-
     private Downloader(CompletableFuture<Void> future, AsyncDownloader downloader) {
         this.future = future;
         this.asyncDownloader = downloader;
-    }
-
-    public CompletableFuture<Void> getFuture() {
-        return future;
-    }
-
-    public void cancel() {
-        this.asyncDownloader.isClosed = true;
-    }
-
-    public boolean isCanceled() {
-        return this.asyncDownloader.isClosed;
     }
 
     public static Downloader downloadList(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
@@ -59,5 +40,23 @@ public class Downloader {
                 finalExecutor.shutdownNow();
             }
         }), asyncDownloader);
+    }
+
+    public CompletableFuture<Void> getFuture() {
+        return future;
+    }
+
+    public void cancel() {
+        this.asyncDownloader.isClosed = true;
+    }
+
+    public boolean isCanceled() {
+        return this.asyncDownloader.isClosed;
+    }
+
+    public interface DownloadCallback {
+        void apply(long fullDiff);
+
+        void onComplete(Path path);
     }
 }

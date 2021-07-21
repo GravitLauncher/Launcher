@@ -35,7 +35,8 @@ public final class AuthCommand extends Command {
         if (args.length > 2) pair = server.config.getAuthProviderPair(args[2]);
         else pair = server.config.getAuthProviderPair();
         if (pair == null) throw new IllegalStateException(String.format("Auth %s not found", args[1]));
-        if(pair.isUseCore()) throw new UnsupportedOperationException(String.format("Please use `config auth.%s.core COMMAND ARGS`", pair.name));
+        if (pair.isUseCore())
+            throw new UnsupportedOperationException(String.format("Please use `config auth.%s.core COMMAND ARGS`", pair.name));
         String login = args[0];
         String password = args[1];
 

@@ -278,11 +278,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             public void invoke(String... args) throws Exception {
                 verifyArgs(args, 1);
                 AuthProviderPair pair = config.getAuthProviderPair(args[0]);
-                if(pair == null) {
+                if (pair == null) {
                     logger.error("Pair not found");
                     return;
                 }
-                if(pair.isUseCore()){
+                if (pair.isUseCore()) {
                     pair.core.close();
                 } else {
                     pair.provider.close();
@@ -293,7 +293,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 pair.core = new RejectAuthCoreProvider();
                 pair.core.init(instance);
             }
-        };commands.put("resetauth", resetauth);
+        };
+        commands.put("resetauth", resetauth);
         return commands;
     }
 
@@ -394,7 +395,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
             logger.info("LaunchServer started");
         } catch (Throwable e) {
-            logger.error("LaunchServer startup failed",e);
+            logger.error("LaunchServer startup failed", e);
             JVMHelper.RUNTIME.exit(-1);
         }
     }

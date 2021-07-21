@@ -24,6 +24,21 @@ public abstract class AuthSocialProvider implements AutoCloseable {
         }
     }
 
+    public abstract void init(LaunchServer server, AuthCoreProvider provider);
+
+    public abstract List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client);
+
+    public abstract SocialResult preAuth(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException;
+
+    @SuppressWarnings("unchecked")
+    public <T> T isSupport(Class<T> clazz) {
+        if (clazz.isAssignableFrom(getClass())) return (T) this;
+        return null;
+    }
+
+    @Override
+    public abstract void close() throws IOException;
+
     public static class SocialResult {
         public String login;
         public AuthRequest.AuthPasswordInterface password;
@@ -43,19 +58,4 @@ public abstract class AuthSocialProvider implements AutoCloseable {
             return new SocialResult(null, null, user);
         }
     }
-
-    public abstract void init(LaunchServer server, AuthCoreProvider provider);
-
-    public abstract List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client);
-
-    public abstract SocialResult preAuth(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException;
-
-    @SuppressWarnings("unchecked")
-    public <T> T isSupport(Class<T> clazz) {
-        if (clazz.isAssignableFrom(getClass())) return (T) this;
-        return null;
-    }
-
-    @Override
-    public abstract void close() throws IOException;
 }

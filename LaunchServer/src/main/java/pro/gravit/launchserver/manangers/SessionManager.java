@@ -6,8 +6,8 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.RequiredDAO;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.HookSet;
+import pro.gravit.utils.helper.IOHelper;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,11 +46,11 @@ public class SessionManager implements NeedGarbageCollection {
     }
 
     private byte[] compressClient(Client client) {
-        return Launcher.gsonManager.gson.toJson(client).getBytes(StandardCharsets.UTF_8); //Compress using later
+        return IOHelper.encode(Launcher.gsonManager.gson.toJson(client)); //Compress using later
     }
 
     private Client decompressClient(byte[] client) {
-        return Launcher.gsonManager.gson.fromJson(new String(client, StandardCharsets.UTF_8), Client.class); //Compress using later
+        return Launcher.gsonManager.gson.fromJson(IOHelper.decode(client), Client.class); //Compress using later
     }
 
     @SuppressWarnings("deprecation")

@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.socket.NettyConnectContext;
+import pro.gravit.utils.helper.IOHelper;
 
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
@@ -21,6 +22,12 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static final TreeSet<SeverletPathPair> severletList = new TreeSet<>(Comparator.comparingInt((e) -> -e.key.length()));
+    private static final DefaultFullHttpResponse ERROR_500 = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.wrappedBuffer(IOHelper.encode("Internal Server Error 500")));
+
+    static {
+        ERROR_500.retain();
+    }
+
     private final NettyConnectContext context;
     private transient final Logger logger = LogManager.getLogger();
 
@@ -54,7 +61,7 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
                     pair.callback.handle(ctx, msg, context);
                 } catch (Throwable e) {
                     logger.error("WebAPI Error", e);
-                    ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.wrappedBuffer("Internal Server Error 500".getBytes())), ctx.voidPromise());
+                    ctx.writeAndFlush(ERROR_500, ctx.voidPromise());
                 }
                 isNext = false;
                 break;
@@ -92,11 +99,11 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
         }
 
         default FullHttpResponse simpleResponse(HttpResponseStatus status, String body) {
-            return new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(body.getBytes()) : Unpooled.buffer());
+            return new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(IOHelper.encode(body)) : Unpooled.buffer());
         }
 
         default FullHttpResponse simpleJsonResponse(HttpResponseStatus status, Object body) {
-            DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(Launcher.gsonManager.gson.toJson(body).getBytes()) : Unpooled.buffer());
+            DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(IOHelper.encode(Launcher.gsonManager.gson.toJson(body))) : Unpooled.buffer());
             httpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
             return httpResponse;
         }

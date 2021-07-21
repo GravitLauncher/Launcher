@@ -14,6 +14,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,7 +38,6 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static pro.gravit.utils.helper.IOHelper.UNICODE_CHARSET;
 import static pro.gravit.utils.helper.IOHelper.newZipEntry;
 
 public class BuildContext {
@@ -72,8 +72,14 @@ public class BuildContext {
     }
 
     public void pushFile(String filename, Object object, Type type) throws IOException {
-        String bytes = Launcher.gsonManager.gson.toJson(object, type);
-        pushBytes(filename, bytes.getBytes(UNICODE_CHARSET));
+        ZipEntry zip = IOHelper.newZipEntry(filename);
+        output.putNextEntry(zip);
+        try (BufferedWriter w = IOHelper.newWriter(IOHelper.nonClosing(output))) {
+            Launcher.gsonManager.gson.toJson(object, type);
+        }
+        output.closeEntry();
+        fileList.add(filename);
+        pushBytes(filename, IOHelper.encode(Launcher.gsonManager.gson.toJson(object, type)));
     }
 
     public void pushDir(Path dir, String targetDir, Map<String, byte[]> hashMap, boolean hidden) throws IOException {
@@ -211,7 +217,7 @@ public class BuildContext {
                 byte[] key = SecurityHelper.fromHex(aesKey);
                 byte[] compatKey = SecurityHelper.getAESKey(key);
                 sKeySpec = new SecretKeySpec(compatKey, "AES/CBC/PKCS5Padding");
-                iKeySpec = new IvParameterSpec("8u3d90ikr7o67lsq".getBytes());
+                iKeySpec = new IvParameterSpec(IOHelper.encode("8u3d90ikr7o67lsq"));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -5,9 +5,18 @@ import pro.gravit.launchserver.auth.core.JsonCoreProvider;
 import java.net.http.HttpClient;
 
 public class JsonPasswordVerifier extends PasswordVerifier {
+    private transient final HttpClient client = HttpClient.newBuilder().build();
     public String url;
     public String bearerToken;
-    private transient final HttpClient client = HttpClient.newBuilder().build();
+
+    @Override
+    public boolean check(String encryptedPassword, String password) {
+        JsonPasswordResponse response = JsonCoreProvider.jsonRequest(new JsonPasswordRequest(encryptedPassword, password), url, bearerToken, JsonPasswordResponse.class, client);
+        if (response != null) {
+            return response.success;
+        }
+        return false;
+    }
 
     public static class JsonPasswordRequest {
         public String encryptedPassword;
@@ -21,14 +30,5 @@ public class JsonPasswordVerifier extends PasswordVerifier {
 
     public static class JsonPasswordResponse {
         public boolean success;
-    }
-
-    @Override
-    public boolean check(String encryptedPassword, String password) {
-        JsonPasswordResponse response = JsonCoreProvider.jsonRequest(new JsonPasswordRequest(encryptedPassword, password), url, bearerToken, JsonPasswordResponse.class, client);
-        if (response != null) {
-            return response.success;
-        }
-        return false;
     }
 }

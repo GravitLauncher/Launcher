@@ -49,7 +49,7 @@ public class ClientLauncherEntryPoint {
             socket.connect(address);
             try (HInput input = new HInput(socket.getInputStream())) {
                 byte[] serialized = input.readByteArray(0);
-                ClientLauncherProcess.ClientParams params = Launcher.gsonManager.gson.fromJson(new String(serialized, IOHelper.UNICODE_CHARSET), ClientLauncherProcess.ClientParams.class);
+                ClientLauncherProcess.ClientParams params = Launcher.gsonManager.gson.fromJson(IOHelper.decode(serialized), ClientLauncherProcess.ClientParams.class);
                 params.clientHDir = new HashedDir(input);
                 params.assetHDir = new HashedDir(input);
                 boolean isNeedReadJavaDir = input.readBoolean();
@@ -61,7 +61,6 @@ public class ClientLauncherEntryPoint {
     }
 
     public static void main(String[] args) throws Throwable {
-        LauncherEngine.IS_CLIENT.set(true);
         LauncherEngine engine = LauncherEngine.clientInstance();
         JVMHelper.verifySystemProperties(ClientLauncherEntryPoint.class, true);
         EnvHelper.checkDangerousParams();

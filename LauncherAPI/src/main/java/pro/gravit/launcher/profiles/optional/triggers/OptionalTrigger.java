@@ -6,6 +6,8 @@ import pro.gravit.utils.ProviderMap;
 public abstract class OptionalTrigger {
     public static ProviderMap<OptionalTrigger> providers = new ProviderMap<>("OptionalTriggers");
     private static boolean isRegisteredProviders = false;
+    public boolean required;
+    public boolean inverted;
 
     public static void registerProviders() {
         if (!isRegisteredProviders) {
@@ -14,9 +16,6 @@ public abstract class OptionalTrigger {
             isRegisteredProviders = true;
         }
     }
-
-    public boolean required;
-    public boolean inverted;
 
     protected abstract boolean isTriggered(OptionalFile optional, OptionalTriggerContext context);
 

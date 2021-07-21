@@ -42,6 +42,20 @@ public class AsyncDownloader {
         callback = IGNORE;
     }
 
+    public static SSLSocketFactory makeSSLSocketFactory() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
+        if (sslSocketFactory != null) return sslSocketFactory;
+        SSLContext sslContext = makeSSLContext();
+        sslSocketFactory = sslContext.getSocketFactory();
+        return sslSocketFactory;
+    }
+
+    public static SSLContext makeSSLContext() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
+        if (sslContext != null) return sslContext;
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, CertificatePinningTrustManager.getTrustManager().getTrustManagers(), new SecureRandom());
+        return sslContext;
+    }
+
     public void downloadFile(URL url, Path target, long size) throws IOException {
         if (isClosed) throw new IOException("Download interrupted");
         URLConnection connection = url.openConnection();
@@ -71,20 +85,6 @@ public class AsyncDownloader {
         try (InputStream input = connection.getInputStream()) {
             IOHelper.transfer(input, target);
         }
-    }
-
-    public static SSLSocketFactory makeSSLSocketFactory() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
-        if (sslSocketFactory != null) return sslSocketFactory;
-        SSLContext sslContext = makeSSLContext();
-        sslSocketFactory = sslContext.getSocketFactory();
-        return sslSocketFactory;
-    }
-
-    public static SSLContext makeSSLContext() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
-        if (sslContext != null) return sslContext;
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(null, CertificatePinningTrustManager.getTrustManager().getTrustManagers(), new SecureRandom());
-        return sslContext;
     }
 
     public void downloadListInOneThread(List<SizedFile> files, String baseURL, Path targetDir) throws URISyntaxException, IOException {

@@ -26,39 +26,13 @@ public class Downloader {
     private static boolean isCertificatePinning;
     @LauncherInject("launcher.noHttp2")
     private static boolean isNoHttp2;
-
-    public interface DownloadCallback {
-        void apply(long fullDiff);
-
-        void onComplete(Path path);
-    }
-
     protected final HttpClient client;
     protected final ExecutorService executor;
-    protected CompletableFuture<Void> future;
     protected final LinkedList<DownloadTask> tasks = new LinkedList<>();
-
+    protected CompletableFuture<Void> future;
     protected Downloader(HttpClient client, ExecutorService executor) {
         this.client = client;
         this.executor = executor;
-    }
-
-    public void cancel() {
-        for (DownloadTask task : tasks) {
-            if (!task.isCompleted()) {
-                task.cancel();
-            }
-        }
-        tasks.clear();
-        executor.shutdownNow();
-    }
-
-    public boolean isCanceled() {
-        return executor.isTerminated();
-    }
-
-    public CompletableFuture<Void> getFuture() {
-        return future;
     }
 
     public static Downloader downloadList(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
@@ -96,8 +70,22 @@ public class Downloader {
         return new Downloader(client, executor);
     }
 
-    private static class ConsumerObject {
-        Consumer<HttpResponse<Path>> next = null;
+    public void cancel() {
+        for (DownloadTask task : tasks) {
+            if (!task.isCompleted()) {
+                task.cancel();
+            }
+        }
+        tasks.clear();
+        executor.shutdownNow();
+    }
+
+    public boolean isCanceled() {
+        return executor.isTerminated();
+    }
+
+    public CompletableFuture<Void> getFuture() {
+        return future;
     }
 
     public CompletableFuture<Void> downloadFiles(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
@@ -136,24 +124,6 @@ public class Downloader {
         return future;
     }
 
-    public static class DownloadTask {
-        public final ProgressTrackingBodyHandler<Path> bodyHandler;
-        public final CompletableFuture<HttpResponse<Path>> completableFuture;
-
-        public DownloadTask(ProgressTrackingBodyHandler<Path> bodyHandler, CompletableFuture<HttpResponse<Path>> completableFuture) {
-            this.bodyHandler = bodyHandler;
-            this.completableFuture = completableFuture;
-        }
-
-        public boolean isCompleted() {
-            return completableFuture.isDone() | completableFuture.isCompletedExceptionally();
-        }
-
-        public void cancel() {
-            bodyHandler.cancel();
-        }
-    }
-
     protected DownloadTask sendAsync(AsyncDownloader.SizedFile file, URI baseUri, Path targetDir, DownloadCallback callback) throws Exception {
         IOHelper.createParentDirs(targetDir.resolve(file.filePath));
         ProgressTrackingBodyHandler<Path> bodyHandler = makeBodyHandler(targetDir.resolve(file.filePath), callback);
@@ -185,6 +155,34 @@ public class Downloader {
 
     protected ProgressTrackingBodyHandler<Path> makeBodyHandler(Path file, DownloadCallback callback) {
         return new ProgressTrackingBodyHandler<>(HttpResponse.BodyHandlers.ofFile(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE), callback);
+    }
+
+    public interface DownloadCallback {
+        void apply(long fullDiff);
+
+        void onComplete(Path path);
+    }
+
+    private static class ConsumerObject {
+        Consumer<HttpResponse<Path>> next = null;
+    }
+
+    public static class DownloadTask {
+        public final ProgressTrackingBodyHandler<Path> bodyHandler;
+        public final CompletableFuture<HttpResponse<Path>> completableFuture;
+
+        public DownloadTask(ProgressTrackingBodyHandler<Path> bodyHandler, CompletableFuture<HttpResponse<Path>> completableFuture) {
+            this.bodyHandler = bodyHandler;
+            this.completableFuture = completableFuture;
+        }
+
+        public boolean isCompleted() {
+            return completableFuture.isDone() | completableFuture.isCompletedExceptionally();
+        }
+
+        public void cancel() {
+            bodyHandler.cancel();
+        }
     }
 
     public static class ProgressTrackingBodyHandler<T> implements HttpResponse.BodyHandler<T> {

@@ -589,6 +589,29 @@ public final class IOHelper {
         Files.write(file, bytes, WRITE_OPTIONS);
     }
 
+    public static InputStream nonClosing(InputStream in) {
+        return new FilterInputStream(in) {
+            @Override
+            public void close() {
+                // ignore
+            }
+        };
+    }
+
+    public static OutputStream nonClosing(OutputStream out) {
+        return new FilterOutputStream(out) {
+            @Override
+            public void write(byte[] b, int offset, int len) throws IOException {
+                super.out.write(b, offset, len);
+            }
+
+            @Override
+            public void close() {
+                // ignore
+            }
+        };
+    }
+
     private static class MoveFileVisitor implements FileVisitor<Path> {
         private final Path from, to;
 

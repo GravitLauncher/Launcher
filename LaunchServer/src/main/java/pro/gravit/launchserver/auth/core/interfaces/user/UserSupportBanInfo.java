@@ -3,6 +3,8 @@ package pro.gravit.launchserver.auth.core.interfaces.user;
 import java.time.LocalDateTime;
 
 public interface UserSupportBanInfo {
+    UserBanInfo getBanInfo();
+
     interface UserBanInfo {
         String getId();
 
@@ -22,6 +24,4 @@ public interface UserSupportBanInfo {
             return null;
         }
     }
-
-    UserBanInfo getBanInfo();
 }

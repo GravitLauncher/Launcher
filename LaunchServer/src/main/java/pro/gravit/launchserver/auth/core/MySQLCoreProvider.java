@@ -41,6 +41,13 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
 
     public String tableHWID = "hwids";
     public String tableHWIDLog = "hwidLog";
+    public PasswordVerifier passwordVerifier;
+    public double criticalCompareLevel = 1.0;
+    public String customQueryByUUIDSQL;
+    public String customQueryByUsernameSQL;
+    public String customQueryByLoginSQL;
+    public String customUpdateAuthSQL;
+    public String customUpdateServerIdSQL;
     private transient String sqlFindHardwareByPublicKey;
     private transient String sqlFindHardwareByData;
     private transient String sqlFindHardwareById;
@@ -50,22 +57,12 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     private transient String sqlUpdateHardwareBanned;
     private transient String sqlUpdateUsers;
     private transient String sqlUsersByHwidId;
-
-    public PasswordVerifier passwordVerifier;
-    public double criticalCompareLevel = 1.0;
-
     // Prepared SQL queries
     private transient String queryByUUIDSQL;
     private transient String queryByUsernameSQL;
     private transient String queryByLoginSQL;
     private transient String updateAuthSQL;
     private transient String updateServerIDSQL;
-
-    public String customQueryByUUIDSQL;
-    public String customQueryByUsernameSQL;
-    public String customQueryByLoginSQL;
-    public String customUpdateAuthSQL;
-    public String customUpdateServerIdSQL;
 
     @Override
     public User getUserByUsername(String username) {
@@ -154,16 +151,20 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=? LIMIT 1",
                 table, serverIDColumn, uuidColumn);
         String hardwareInfoCols = "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, graphicCard, banned, publicKey";
-        if(sqlFindHardwareByPublicKey == null) sqlFindHardwareByPublicKey = String.format("SELECT %s FROM %s WHERE `publicKey` = ?", hardwareInfoCols, tableHWID);
-        if(sqlFindHardwareById == null) sqlFindHardwareById = String.format("SELECT %s FROM %s WHERE `id` = ?", hardwareInfoCols, tableHWID);
-        if(sqlUsersByHwidId == null) sqlUsersByHwidId = String.format("SELECT %s FROM %s WHERE `%s` = ?", userInfoCols, table, hardwareIdColumn);
+        if (sqlFindHardwareByPublicKey == null)
+            sqlFindHardwareByPublicKey = String.format("SELECT %s FROM %s WHERE `publicKey` = ?", hardwareInfoCols, tableHWID);
+        if (sqlFindHardwareById == null)
+            sqlFindHardwareById = String.format("SELECT %s FROM %s WHERE `id` = ?", hardwareInfoCols, tableHWID);
+        if (sqlUsersByHwidId == null)
+            sqlUsersByHwidId = String.format("SELECT %s FROM %s WHERE `%s` = ?", userInfoCols, table, hardwareIdColumn);
         if (sqlFindHardwareByData == null)
             sqlFindHardwareByData = String.format("SELECT %s FROM %s", hardwareInfoCols, tableHWID);
         if (sqlCreateHardware == null)
             sqlCreateHardware = String.format("INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `graphicCard`, `battery`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')", tableHWID);
         if (sqlCreateHWIDLog == null)
             sqlCreateHWIDLog = String.format("INSERT INTO %s (`hwidId`, `newPublicKey`) VALUES (?, ?)", tableHWIDLog);
-        if(sqlUpdateHardwarePublicKey == null) sqlUpdateHardwarePublicKey = String.format("UPDATE %s SET `publicKey` = ? WHERE `id` = ?", tableHWID);
+        if (sqlUpdateHardwarePublicKey == null)
+            sqlUpdateHardwarePublicKey = String.format("UPDATE %s SET `publicKey` = ? WHERE `id` = ?", tableHWID);
         sqlUpdateHardwareBanned = String.format("UPDATE %s SET `banned` = ? WHERE `id` = ?", tableHWID);
         sqlUpdateUsers = String.format("UPDATE %s SET `%s` = ? WHERE `%s` = ?", table, hardwareIdColumn, uuidColumn);
     }
@@ -405,6 +406,50 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         }
     }
 
+    public static class MySQLUserHardware implements UserHardware {
+        private final HardwareReportRequest.HardwareInfo hardwareInfo;
+        private final long id;
+        private byte[] publicKey;
+        private boolean banned;
+
+        public MySQLUserHardware(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, long id, boolean banned) {
+            this.hardwareInfo = hardwareInfo;
+            this.publicKey = publicKey;
+            this.id = id;
+            this.banned = banned;
+        }
+
+        @Override
+        public HardwareReportRequest.HardwareInfo getHardwareInfo() {
+            return hardwareInfo;
+        }
+
+        @Override
+        public byte[] getPublicKey() {
+            return publicKey;
+        }
+
+        @Override
+        public String getId() {
+            return String.valueOf(id);
+        }
+
+        @Override
+        public boolean isBanned() {
+            return banned;
+        }
+
+        @Override
+        public String toString() {
+            return "MySQLUserHardware{" +
+                    "hardwareInfo=" + hardwareInfo +
+                    ", publicKey=" + (publicKey == null ? null : new String(Base64.getEncoder().encode(publicKey))) +
+                    ", id=" + id +
+                    ", banned=" + banned +
+                    '}';
+        }
+    }
+
     public class MySQLUser implements User, UserSupportHardware {
         protected UUID uuid;
         protected String username;
@@ -465,50 +510,6 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
                     ", username='" + username + '\'' +
                     ", permissions=" + permissions +
                     ", hwidId=" + hwidId +
-                    '}';
-        }
-    }
-
-    public static class MySQLUserHardware implements UserHardware {
-        private final HardwareReportRequest.HardwareInfo hardwareInfo;
-        private byte[] publicKey;
-        private final long id;
-        private boolean banned;
-
-        public MySQLUserHardware(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, long id, boolean banned) {
-            this.hardwareInfo = hardwareInfo;
-            this.publicKey = publicKey;
-            this.id = id;
-            this.banned = banned;
-        }
-
-        @Override
-        public HardwareReportRequest.HardwareInfo getHardwareInfo() {
-            return hardwareInfo;
-        }
-
-        @Override
-        public byte[] getPublicKey() {
-            return publicKey;
-        }
-
-        @Override
-        public String getId() {
-            return String.valueOf(id);
-        }
-
-        @Override
-        public boolean isBanned() {
-            return banned;
-        }
-
-        @Override
-        public String toString() {
-            return "MySQLUserHardware{" +
-                    "hardwareInfo=" + hardwareInfo +
-                    ", publicKey=" + (publicKey == null ? null : new String(Base64.getEncoder().encode(publicKey))) +
-                    ", id=" + id +
-                    ", banned=" + banned +
                     '}';
         }
     }

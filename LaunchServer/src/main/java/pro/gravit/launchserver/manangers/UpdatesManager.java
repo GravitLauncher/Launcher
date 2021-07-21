@@ -19,8 +19,8 @@ import java.util.stream.Stream;
 public class UpdatesManager {
     private final LaunchServer server;
     private final Logger logger = LogManager.getLogger();
-    private volatile Map<String, HashedDir> updatesDirMap;
     private final Path cacheFile;
+    private volatile Map<String, HashedDir> updatesDirMap;
 
     public UpdatesManager(LaunchServer server) {
         this.server = server;

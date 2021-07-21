@@ -34,7 +34,8 @@ public final class UUIDToUsernameCommand extends Command {
         if (args.length > 1) pair = server.config.getAuthProviderPair(args[1]);
         else pair = server.config.getAuthProviderPair();
         if (pair == null) throw new IllegalStateException(String.format("Auth %s not found", args[1]));
-        if(pair.isUseCore()) throw new UnsupportedOperationException(String.format("Please use `config auth.%s.core COMMAND ARGS`", pair.name));
+        if (pair.isUseCore())
+            throw new UnsupportedOperationException(String.format("Please use `config auth.%s.core COMMAND ARGS`", pair.name));
         UUID uuid = parseUUID(args[0]);
 
         // Get UUID by username

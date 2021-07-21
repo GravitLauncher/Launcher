@@ -78,7 +78,7 @@ public class SecurityCheckCommand extends Command {
             } else {
                 printCheckResult(String.format("auth.%s.handler", name), "", true);
             }
-            if(!pair.isUseCore()) {
+            if (!pair.isUseCore()) {
                 printCheckResult(String.format("auth.%s", name), "AuthProvider/AuthHandler may be removed in future release", null);
             }
         });

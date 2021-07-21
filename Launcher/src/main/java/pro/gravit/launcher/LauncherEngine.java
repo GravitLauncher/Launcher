@@ -38,7 +38,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LauncherEngine {
-    public static final AtomicBoolean IS_CLIENT = new AtomicBoolean(false);
     public static ClientLauncherProcess.ClientParams clientParams;
     public static LauncherGuardInterface guard;
     public static ClientModuleManager modulesManager;
@@ -133,14 +132,6 @@ public class LauncherEngine {
             throw new SecurityException("JavaAgent found");
     }
 
-    public ECPublicKey getClientPublicKey() {
-        return publicKey;
-    }
-
-    public byte[] sign(byte[] bytes) {
-        return SecurityHelper.sign(bytes, privateKey);
-    }
-
     public static LauncherGuardInterface tryGetStdGuard() {
         switch (Launcher.getConfig().guardType) {
             case "no":
@@ -157,6 +148,14 @@ public class LauncherEngine {
 
     public static LauncherEngine newInstance(boolean clientInstance) {
         return new LauncherEngine(clientInstance);
+    }
+
+    public ECPublicKey getClientPublicKey() {
+        return publicKey;
+    }
+
+    public byte[] sign(byte[] bytes) {
+        return SecurityHelper.sign(bytes, privateKey);
     }
 
     public void readKeys() throws IOException, InvalidKeySpecException {

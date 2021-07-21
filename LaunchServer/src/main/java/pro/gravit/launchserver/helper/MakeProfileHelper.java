@@ -182,6 +182,14 @@ public class MakeProfileHelper {
         return options.toArray(new MakeProfileOption[0]);
     }
 
+    private static Path findFirstDir(Path path) throws IOException {
+        return Files.list(path).findFirst().orElse(null);
+    }
+
+    private static Path findFirstMavenFile(Path path) throws IOException {
+        return Files.list(Files.list(path).findFirst().orElseThrow()).filter(e -> e.getFileName().toString().endsWith(".jar")).findFirst().orElseThrow();
+    }
+
     public interface MakeProfileOption {
     }
 
@@ -191,11 +199,6 @@ public class MakeProfileHelper {
         public String forgeGroup;
         public String minecraftVersion;
         public String mcpVersion;
-
-        public List<String> makeClientArgs() {
-            if (launchTarget == null) return List.of();
-            return List.of("--launchTarget", launchTarget, "--fml.forgeVersion", forgeVersion, "--fml.mcVersion", minecraftVersion, "--fml.forgeGroup", forgeGroup, "--fml.mcpVersion", mcpVersion);
-        }
 
         public MakeProfileOptionForge() {
 
@@ -230,14 +233,11 @@ public class MakeProfileHelper {
             String[] minecraftFullVersion = minecraftPath.getFileName().toString().split("-");
             mcpVersion = minecraftFullVersion[1];
         }
-    }
 
-    private static Path findFirstDir(Path path) throws IOException {
-        return Files.list(path).findFirst().orElse(null);
-    }
-
-    private static Path findFirstMavenFile(Path path) throws IOException {
-        return Files.list(Files.list(path).findFirst().orElseThrow()).filter(e -> e.getFileName().toString().endsWith(".jar")).findFirst().orElseThrow();
+        public List<String> makeClientArgs() {
+            if (launchTarget == null) return List.of();
+            return List.of("--launchTarget", launchTarget, "--fml.forgeVersion", forgeVersion, "--fml.mcVersion", minecraftVersion, "--fml.forgeGroup", forgeGroup, "--fml.mcpVersion", mcpVersion);
+        }
     }
 
     public static class MakeProfileOptionLaunchWrapper implements MakeProfileOption {
@@ -247,11 +247,6 @@ public class MakeProfileHelper {
     public static class MakeProfileOptionFabric implements MakeProfileOption {
         public String jimfsPath;
         public String guavaPath;
-
-        public List<String> getAltClassPath() {
-            if (jimfsPath == null || guavaPath == null) return List.of();
-            return List.of(jimfsPath, guavaPath);
-        }
 
         public MakeProfileOptionFabric() {
         }
@@ -266,6 +261,11 @@ public class MakeProfileHelper {
                 jimfsPath = clientDir.relativize(findFirstMavenFile(clientDir.resolve("libraries/com/google/jimfs/jimfs"))).toString();
                 guavaPath = clientDir.relativize(findFirstMavenFile(clientDir.resolve("libraries/com/google/guava/guava/"))).toString();
             }
+        }
+
+        public List<String> getAltClassPath() {
+            if (jimfsPath == null || guavaPath == null) return List.of();
+            return List.of(jimfsPath, guavaPath);
         }
     }
 

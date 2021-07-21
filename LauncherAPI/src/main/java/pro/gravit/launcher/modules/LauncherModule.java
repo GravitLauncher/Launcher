@@ -14,6 +14,7 @@ public abstract class LauncherModule {
     protected InitStatus initStatus = InitStatus.CREATED;
     private LauncherModulesContext context;
     private LauncherTrustManager.CheckClassResult checkResult;
+
     protected LauncherModule() {
         moduleInfo = new LauncherModuleInfo("UnknownModule");
     }

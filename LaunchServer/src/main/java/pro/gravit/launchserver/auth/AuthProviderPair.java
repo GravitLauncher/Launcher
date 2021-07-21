@@ -46,6 +46,29 @@ public final class AuthProviderPair {
         this.textureProvider = textureProvider;
     }
 
+    public static Set<String> getFeatures(Class<?> clazz) {
+        Set<String> list = new HashSet<>();
+        getFeatures(clazz, list);
+        return list;
+    }
+
+    public static void getFeatures(Class<?> clazz, Set<String> list) {
+        Features features = clazz.getAnnotation(Features.class);
+        if (features != null) {
+            for (Feature feature : features.value()) {
+                list.add(feature.value());
+            }
+        }
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass != null && superClass != Object.class) {
+            getFeatures(superClass, list);
+        }
+        Class<?>[] interfaces = clazz.getInterfaces();
+        for (Class<?> i : interfaces) {
+            getFeatures(i, list);
+        }
+    }
+
     public final <T> T isSupport(Class<T> clazz) {
         if (core == null) return null;
         T result = null;
@@ -115,29 +138,6 @@ public final class AuthProviderPair {
         }
         if (textureProvider != null) {
             textureProvider.close();
-        }
-    }
-
-    public static Set<String> getFeatures(Class<?> clazz) {
-        Set<String> list = new HashSet<>();
-        getFeatures(clazz, list);
-        return list;
-    }
-
-    public static void getFeatures(Class<?> clazz, Set<String> list) {
-        Features features = clazz.getAnnotation(Features.class);
-        if (features != null) {
-            for (Feature feature : features.value()) {
-                list.add(feature.value());
-            }
-        }
-        Class<?> superClass = clazz.getSuperclass();
-        if (superClass != null && superClass != Object.class) {
-            getFeatures(superClass, list);
-        }
-        Class<?>[] interfaces = clazz.getInterfaces();
-        for (Class<?> i : interfaces) {
-            getFeatures(i, list);
         }
     }
 
