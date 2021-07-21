@@ -488,12 +488,12 @@ public final class SecurityHelper {
 
     //AES
     public static byte[] encrypt(String seed, byte[] cleartext) throws Exception {
-        byte[] rawKey = getAESKey(seed.getBytes());
+        byte[] rawKey = getAESKey(IOHelper.encode(seed));
         return encrypt(rawKey, cleartext);
     }
 
     public static byte[] encrypt(String seed, String cleartext) throws Exception {
-        return encrypt(seed, cleartext.getBytes());
+        return encrypt(seed, IOHelper.encode(cleartext));
     }
 
     public static byte[] getAESKey(byte[] seed) throws Exception {
@@ -520,7 +520,7 @@ public final class SecurityHelper {
     }
 
     public static byte[] decrypt(String seed, byte[] encrypted) throws Exception {
-        return decrypt(getAESKey(seed.getBytes()), encrypted);
+        return decrypt(getAESKey(IOHelper.encode(seed)), encrypted);
     }
 
     public static byte[] fromHex(String hexString) {
