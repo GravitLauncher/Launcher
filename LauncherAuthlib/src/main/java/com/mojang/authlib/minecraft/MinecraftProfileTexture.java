@@ -2,6 +2,7 @@ package com.mojang.authlib.minecraft;
 
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 
 public class MinecraftProfileTexture {
@@ -10,6 +11,7 @@ public class MinecraftProfileTexture {
     // Instance
     private final String url;
     private final String hash;
+    private final Map<String, String> metadata;
 
     public MinecraftProfileTexture(String url) {
         this(url, baseName(url));
@@ -18,6 +20,13 @@ public class MinecraftProfileTexture {
     public MinecraftProfileTexture(String url, String hash) {
         this.url = url;
         this.hash = hash;
+        this.metadata = null;
+    }
+
+    public MinecraftProfileTexture(String url, String hash, Map<String, String> metadata) {
+        this.url = url;
+        this.hash = hash;
+        this.metadata = metadata;
     }
 
     private static String baseName(String url) {
@@ -37,7 +46,10 @@ public class MinecraftProfileTexture {
     }
 
     public String getMetadata(String key) {
-        return null;
+        if (metadata == null) {
+            return null;
+        }
+        return metadata.get(key);
     }
 
     public String getUrl() {

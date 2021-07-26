@@ -43,7 +43,7 @@ public final class RequestTextureProvider extends TextureProvider {
         }
     }
 
-    private static String getTextureURL(String url, UUID uuid, String username, String client) {
+    public static String getTextureURL(String url, UUID uuid, String username, String client) {
         return CommonHelper.replace(url, "username", IOHelper.urlEncode(username),
                 "uuid", IOHelper.urlEncode(uuid.toString()), "hash", IOHelper.urlEncode(Launcher.toHash(uuid)),
                 "client", IOHelper.urlEncode(client == null ? "unknown" : client));

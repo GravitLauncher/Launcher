@@ -1,9 +1,11 @@
 package com.mojang.authlib.yggdrasil;
 
 import com.google.common.collect.Iterables;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import com.mojang.authlib.AuthenticationService;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
@@ -21,6 +23,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.util.Base64;
 import java.util.EnumMap;
@@ -29,6 +32,7 @@ import java.util.UUID;
 
 public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionService {
     public static final boolean NO_TEXTURES = Boolean.getBoolean("launcher.com.mojang.authlib.noTextures");
+    private static final Gson gson = new Gson();
 
     public YggdrasilMinecraftSessionService(AuthenticationService service) {
         super(service);
@@ -53,6 +57,10 @@ public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionServic
         if (pp.skin != null) {
             properties.put(Launcher.SKIN_URL_PROPERTY, new Property(Launcher.SKIN_URL_PROPERTY, pp.skin.url, ""));
             properties.put(Launcher.SKIN_DIGEST_PROPERTY, new Property(Launcher.SKIN_DIGEST_PROPERTY, SecurityHelper.toHex(pp.skin.digest), ""));
+            if (pp.skin.metadata != null) {
+                String metadata = serializeMetadataMap(pp.skin.metadata);
+                properties.put(Launcher.SKIN_METADATA_PROPERTY, new Property(Launcher.SKIN_METADATA_PROPERTY, metadata, ""));
+            }
             if (debug) {
                 LogHelper.debug("fillTextureProperties, Has skin texture for username '%s'", profile.getName());
             }
@@ -60,10 +68,27 @@ public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionServic
         if (pp.cloak != null) {
             properties.put(Launcher.CLOAK_URL_PROPERTY, new Property(Launcher.CLOAK_URL_PROPERTY, pp.cloak.url, ""));
             properties.put(Launcher.CLOAK_DIGEST_PROPERTY, new Property(Launcher.CLOAK_DIGEST_PROPERTY, SecurityHelper.toHex(pp.cloak.digest), ""));
+            if (pp.cloak.metadata != null) {
+                String metadata = serializeMetadataMap(pp.cloak.metadata);
+                properties.put(Launcher.CLOAK_METADATA_PROPERTY, new Property(Launcher.SKIN_METADATA_PROPERTY, metadata, ""));
+            }
             if (debug) {
                 LogHelper.debug("fillTextureProperties, Has cloak texture for username '%s'", profile.getName());
             }
         }
+    }
+
+    private static String serializeMetadataMap(Map<String, String> map) {
+        if (map == null) {
+            return null;
+        }
+        return gson.toJson(map);
+    }
+
+    private static Map<String, String> deserializeMetadataMap(String value) {
+        Type typeOfMap = new TypeToken<Map<String, String>>() {
+        }.getType();
+        return gson.fromJson(value, typeOfMap);
     }
 
     private static void getTexturesMojang(Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textures, String texturesBase64, GameProfile profile) {
@@ -148,14 +173,16 @@ public class YggdrasilMinecraftSessionService extends BaseMinecraftSessionServic
             // Add skin URL to textures map
             Property skinURL = Iterables.getFirst(profile.getProperties().get(Launcher.SKIN_URL_PROPERTY), null);
             Property skinDigest = Iterables.getFirst(profile.getProperties().get(Launcher.SKIN_DIGEST_PROPERTY), null);
+            Property skinMetadata = Iterables.getFirst(profile.getProperties().get(Launcher.SKIN_METADATA_PROPERTY), null);
             if (skinURL != null && skinDigest != null)
-                textures.put(MinecraftProfileTexture.Type.SKIN, new MinecraftProfileTexture(skinURL.getValue(), skinDigest.getValue()));
+                textures.put(MinecraftProfileTexture.Type.SKIN, new MinecraftProfileTexture(skinURL.getValue(), skinDigest.getValue(), skinMetadata == null ? null : deserializeMetadataMap(skinMetadata.getValue())));
 
             // Add cloak URL to textures map
             Property cloakURL = Iterables.getFirst(profile.getProperties().get(Launcher.CLOAK_URL_PROPERTY), null);
             Property cloakDigest = Iterables.getFirst(profile.getProperties().get(Launcher.CLOAK_DIGEST_PROPERTY), null);
+            Property cloakMetadata = Iterables.getFirst(profile.getProperties().get(Launcher.CLOAK_METADATA_PROPERTY), null);
             if (cloakURL != null && cloakDigest != null)
-                textures.put(MinecraftProfileTexture.Type.CAPE, new MinecraftProfileTexture(cloakURL.getValue(), cloakDigest.getValue()));
+                textures.put(MinecraftProfileTexture.Type.CAPE, new MinecraftProfileTexture(cloakURL.getValue(), cloakDigest.getValue(), cloakMetadata == null ? null : deserializeMetadataMap(cloakMetadata.getValue())));
 
             // Try to find missing textures in textures payload (now always true because launcher is not passing elytra skins)
             if (textures.size() != MinecraftProfileTexture.PROFILE_TEXTURE_COUNT) {

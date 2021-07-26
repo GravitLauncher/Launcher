@@ -25,9 +25,15 @@ public final class Launcher {
 
     public static final String SKIN_DIGEST_PROPERTY = "skinDigest";
 
+    public static final String SKIN_METADATA_PROPERTY = "skinMetadata";
+
     public static final String CLOAK_URL_PROPERTY = "cloakURL";
 
     public static final String CLOAK_DIGEST_PROPERTY = "cloakDigest";
+
+    public static final String CLOAK_METADATA_PROPERTY = "cloakMetadata";
+
+
     // Used to determine from clientside is launched from launcher
     public static final AtomicBoolean LAUNCHED = new AtomicBoolean(false);
     public static final int PROTOCOL_MAGIC_LEGACY = 0x724724_00 + 24;

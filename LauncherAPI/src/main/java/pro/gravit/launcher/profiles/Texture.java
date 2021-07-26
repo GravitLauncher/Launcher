@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Objects;
 
 public final class Texture extends StreamObject {
@@ -22,11 +23,14 @@ public final class Texture extends StreamObject {
 
     public final byte[] digest;
 
+    public final Map<String, String> metadata;
+
 
     @Deprecated
     public Texture(HInput input) throws IOException {
         url = IOHelper.verifyURL(input.readASCII(2048));
         digest = input.readByteArray(-DIGEST_ALGO.bytes);
+        metadata = null;
     }
 
     public Texture(String url, boolean cloak) throws IOException {
@@ -43,6 +47,7 @@ public final class Texture extends StreamObject {
 
         // Get digest of texture
         digest = SecurityHelper.digest(DIGEST_ALGO, new URL(url));
+        metadata = null; // May be auto-detect?
     }
 
     public Texture(String url, Path local, boolean cloak) throws IOException {
@@ -51,12 +56,20 @@ public final class Texture extends StreamObject {
             IOHelper.readTexture(input, cloak); // Verify texture
         }
         this.digest = Objects.requireNonNull(SecurityHelper.digest(DIGEST_ALGO, local), "digest");
+        this.metadata = null;
     }
 
 
     public Texture(String url, byte[] digest) {
         this.url = IOHelper.verifyURL(url);
         this.digest = Objects.requireNonNull(digest, "digest");
+        this.metadata = null;
+    }
+
+    public Texture(String url, byte[] digest, Map<String, String> metadata) {
+        this.url = url;
+        this.digest = digest;
+        this.metadata = metadata;
     }
 
     @Override

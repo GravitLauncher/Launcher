@@ -17,6 +17,7 @@ public abstract class TextureProvider implements AutoCloseable {
 
             // Auth providers that doesn't do nothing :D
             providers.register("request", RequestTextureProvider.class);
+            providers.register("json", JsonTextureProvider.class);
             registredProv = true;
         }
     }
@@ -29,4 +30,34 @@ public abstract class TextureProvider implements AutoCloseable {
 
 
     public abstract Texture getSkinTexture(UUID uuid, String username, String client) throws IOException;
+
+    public static class SkinAndCloakTextures {
+        public final Texture skin;
+        public final Texture cloak;
+
+        public SkinAndCloakTextures(Texture skin, Texture cloak) {
+            this.skin = skin;
+            this.cloak = cloak;
+        }
+    }
+
+    public SkinAndCloakTextures getTextures(UUID uuid, String username, String client) {
+
+        Texture skin;
+        try {
+            skin = getSkinTexture(uuid, username, client);
+        } catch (IOException e) {
+            skin = null;
+        }
+
+        // Get cloak texture
+        Texture cloak;
+        try {
+            cloak = getCloakTexture(uuid, username, client);
+        } catch (IOException e) {
+            cloak = null;
+        }
+
+        return new SkinAndCloakTextures(skin, cloak);
+    }
 }
