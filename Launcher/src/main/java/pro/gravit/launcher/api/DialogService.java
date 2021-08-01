@@ -35,7 +35,7 @@ public class DialogService {
     }
 
     public static void createNotification(NotificationEvent.NotificationType type, String head, String message) {
-        if (isNotificationsAvailable()) {
+        if (!isNotificationsAvailable()) {
             throw new UnsupportedOperationException("DialogService notifications implementation not available");
         }
         notificationImpl.createNotification(type, head, message);
