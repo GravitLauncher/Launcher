@@ -394,6 +394,9 @@ public final class SecurityHelper {
 
 
     public static String toHex(byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
         int offset = 0;
         char[] hex = new char[bytes.length << 1];
         for (byte currentByte : bytes) {
