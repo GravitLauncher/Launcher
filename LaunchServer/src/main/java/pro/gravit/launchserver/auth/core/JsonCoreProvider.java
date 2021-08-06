@@ -44,7 +44,7 @@ public class JsonCoreProvider extends AuthCoreProvider {
     public static <T, R> R jsonRequest(T request, String url, String bearerToken, Class<R> clazz, HttpClient client) {
         HttpRequest.BodyPublisher publisher;
         if (request != null) {
-            publisher = HttpRequest.BodyPublishers.ofString(request.toString());
+            publisher = HttpRequest.BodyPublishers.ofString(Launcher.gsonManager.gson.toJson(request));
         } else {
             publisher = HttpRequest.BodyPublishers.noBody();
         }
