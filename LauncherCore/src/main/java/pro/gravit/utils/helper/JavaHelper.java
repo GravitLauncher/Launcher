@@ -103,6 +103,9 @@ public class JavaHelper {
     }
 
     private static JavaVersion tryFindJavaByPath(Path path) {
+        if(javaVersionsCache == null) {
+            return null;
+        }
         for(JavaVersion version : javaVersionsCache) {
             if(version.jvmDir.equals(path)) {
                 return version;
