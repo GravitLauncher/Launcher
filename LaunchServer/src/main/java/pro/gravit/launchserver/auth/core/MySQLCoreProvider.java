@@ -112,7 +112,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     @Override
     public PasswordVerifyReport verifyPassword(User user, AuthRequest.AuthPasswordInterface password) {
         if (passwordVerifier.check(((MySQLUser) user).password, ((AuthPlainPassword) password).password)) {
-            return new PasswordVerifyReport(true);
+            return PasswordVerifyReport.OK;
         } else {
             return PasswordVerifyReport.FAILED;
         }

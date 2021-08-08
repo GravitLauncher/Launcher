@@ -37,6 +37,8 @@ public class JsonCoreProvider extends AuthCoreProvider {
     public String verifyPasswordUrl;
     public String createOAuthSessionUrl;
     public String updateServerIdUrl;
+    public String joinServerUrl;
+    public String checkServerUrl;
     public String bearerToken;
     public PasswordVerifier passwordVerifier;
     private transient HttpClient client;
@@ -160,7 +162,28 @@ public class JsonCoreProvider extends AuthCoreProvider {
     }
 
     @Override
+    public User checkServer(Client client, String username, String serverID) throws IOException {
+        if (checkServerUrl == null) {
+            return super.checkServer(client, username, serverID);
+        }
+        return jsonRequest(new JsonCheckServer(username, serverID), checkServerUrl, JsonUser.class);
+    }
+
+    @Override
+    public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
+        if (joinServerUrl == null) {
+            return super.joinServer(client, username, accessToken, serverID);
+        }
+        return jsonRequest(new JsonJoinServer(username, accessToken, serverID), joinServerUrl, JsonSuccessResponse.class).success;
+    }
+
+    @Override
     protected boolean updateServerID(User user, String serverID) throws IOException {
+        JsonUser jsonUser = (JsonUser) user;
+        if (updateServerIdUrl == null) {
+            return false;
+        }
+        jsonUser.serverId = serverID;
         JsonSuccessResponse successResponse = jsonRequest(new JsonUpdateServerId(user.getUsername(), user.getUUID(), serverID), updateServerIdUrl, JsonSuccessResponse.class);
         if (successResponse == null) return false;
         return successResponse.success;
@@ -180,6 +203,28 @@ public class JsonCoreProvider extends AuthCoreProvider {
 
         public JsonGetUserByUsername(String username) {
             this.username = username;
+        }
+    }
+
+    public static class JsonCheckServer {
+        public String username;
+        public String serverId;
+
+        public JsonCheckServer(String username, String serverId) {
+            this.username = username;
+            this.serverId = serverId;
+        }
+    }
+
+    public static class JsonJoinServer {
+        public String username;
+        public String accessToken;
+        public String serverId;
+
+        public JsonJoinServer(String username, String accessToken, String serverId) {
+            this.username = username;
+            this.accessToken = accessToken;
+            this.serverId = serverId;
         }
     }
 
