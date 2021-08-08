@@ -132,16 +132,16 @@ public class JsonCoreProvider extends AuthCoreProvider {
     public PasswordVerifyReport verifyPassword(User user, AuthRequest.AuthPasswordInterface password) {
         JsonUser jsonUser = (JsonUser) user;
         if (password instanceof AuthPlainPassword && jsonUser.password != null && passwordVerifier != null) {
-            if (passwordVerifier.check(((AuthPlainPassword) password).password, jsonUser.password)) {
+            if (passwordVerifier.check(jsonUser.password, ((AuthPlainPassword) password).password)) {
                 return PasswordVerifyReport.OK;
             } else {
                 return PasswordVerifyReport.FAILED;
             }
         }
         if (user == null) {
-            return jsonRequest(new JsonPasswordVerify(null, null), verifyPasswordUrl, PasswordVerifyReport.class);
+            return jsonRequest(new JsonPasswordVerify(null, null, password), verifyPasswordUrl, PasswordVerifyReport.class);
         }
-        return jsonRequest(new JsonPasswordVerify(user.getUsername(), user.getUUID()), verifyPasswordUrl, PasswordVerifyReport.class);
+        return jsonRequest(new JsonPasswordVerify(user.getUsername(), user.getUUID(), password), verifyPasswordUrl, PasswordVerifyReport.class);
     }
 
     @Override
@@ -225,10 +225,12 @@ public class JsonCoreProvider extends AuthCoreProvider {
     public static class JsonPasswordVerify {
         public String username;
         public UUID uuid;
+        public AuthRequest.AuthPasswordInterface password;
 
-        public JsonPasswordVerify(String username, UUID uuid) {
+        public JsonPasswordVerify(String username, UUID uuid, AuthRequest.AuthPasswordInterface password) {
             this.username = username;
             this.uuid = uuid;
+            this.password = password;
         }
     }
 
