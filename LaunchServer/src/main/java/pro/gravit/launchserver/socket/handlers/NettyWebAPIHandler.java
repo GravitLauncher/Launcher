@@ -12,7 +12,7 @@ import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,7 +86,7 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
             String[] result = sub.split("&");
             Map<String, String> map = new HashMap<>();
             for (String s : result) {
-                String c = URLDecoder.decode(s, Charset.defaultCharset());
+                String c = URLDecoder.decode(s, StandardCharsets.UTF_8);
                 int index = c.indexOf("=");
                 if (index <= 0) {
                     continue;
