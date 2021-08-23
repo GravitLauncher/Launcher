@@ -58,7 +58,7 @@ public class JsonCoreProvider extends AuthCoreProvider {
                     .header("Accept", "application/json")
                     .timeout(Duration.ofMillis(10000));
             if (bearerToken != null) {
-                request1.header("Authentication", "Bearer ".concat(bearerToken));
+                request1.header("Authorization", "Bearer ".concat(bearerToken));
             }
             HttpResponse<InputStream> response = client.send(request1.build(), HttpResponse.BodyHandlers.ofInputStream());
             int statusCode = response.statusCode();
