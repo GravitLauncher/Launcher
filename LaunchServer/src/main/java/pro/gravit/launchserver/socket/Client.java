@@ -81,7 +81,7 @@ public class Client {
 
     public void setSerializableProperty(String name, String value) {
         if (serializableProperties == null) serializableProperties = new HashMap<>();
-        properties.put(name, value);
+        serializableProperties.put(name, value);
     }
 
     public pro.gravit.launchserver.auth.core.User getUser() {
