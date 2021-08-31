@@ -5,7 +5,7 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.8' apply false
 }
 group = 'pro.gravit.launcher'
-version = '5.2.0'
+version = '5.2.1'
 
 apply from: 'props.gradle'
 
