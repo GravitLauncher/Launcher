@@ -1,6 +1,5 @@
 name: push
-on:
-  push:
+on: push
 jobs:
   launcher:
     name: Launcher
@@ -49,26 +48,30 @@ jobs:
           name: Launcher
           path: artifacts
 
+      - name: Get version value, set to env
+        if: startsWith(github.event.ref, 'refs/tags')
+        run: echo "LAUNCHER_VERSION=$(echo ${{ github.event.ref }} | awk -F\/ '{print $3}')" >> $GITHUB_ENV
+
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
-        if: github.event.ref == 'refs/tags/*'
+        if: startsWith(github.event.ref, 'refs/tags')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: GravitLauncher ${{ github.ref }}
+          release_name: GravitLauncher ${{ env.LAUNCHER_VERSION }}
           draft: false
           prerelease: false
 
       - name: Pack release
-        if: github.event.ref == 'refs/tags/*'
+        if: startsWith(github.event.ref, 'refs/tags')
         run: |
           cd artifacts/
           zip -r -9 ../Release.zip *
 
       - name: Upload release
-        if: github.event.ref == 'refs/tags/*'
+        if: startsWith(github.event.ref, 'refs/tags')
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
