@@ -50,7 +50,7 @@ jobs:
 
       - name: Get version value, set to env
         if: startsWith(github.event.ref, 'refs/tags')
-        run: echo "LAUNCHER_VERSION=v$(awk -F\' '/version =/ {print $2}' build.gradle)" >> $GITHUB_ENV
+        run: echo "LAUNCHER_VERSION=$(echo ${{ github.event.ref }} | awk -F\/ '{print $3}')" >> $GITHUB_ENV
 
       - name: Create release
         id: create_release
