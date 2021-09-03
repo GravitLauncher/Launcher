@@ -29,6 +29,7 @@ public final class JVMHelper {
     public static final Runtime RUNTIME = Runtime.getRuntime();
     public static final ClassLoader LOADER = ClassLoader.getSystemClassLoader();
     public static final int JVM_VERSION = getVersion();
+    public static final int JVM_BUILD = getBuild();
 
     static {
         try {
@@ -44,6 +45,10 @@ public final class JVMHelper {
     public static int getVersion() {
         //System.out.println("[DEBUG] JVMHelper 11 version");
         return Runtime.version().feature();
+    }
+
+    public static int getBuild() {
+        return Runtime.version().patch();
     }
 
     public static void appendVars(ProcessBuilder builder, Map<String, String> vars) {
