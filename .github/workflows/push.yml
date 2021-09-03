@@ -55,18 +55,11 @@ jobs:
       - name: Prebuild release files
         if: startsWith(github.event.ref, 'refs/tags')
         run: |
-          cp modules/*_module/build/libs/*.jar artifacts/modules || true
-          cp modules/*_lmodule/build/libs/*.jar artifacts/lmodules || true
-          cp modules/*_swmodule/build/libs/*.jar artifacts/swmodules || true
           cd artifacts
           zip -9 LauncherBase.zip libraries.zip LaunchServer.jar
-          cd lmodules
-          zip -9 ../LauncherModules.zip *
-          cd ../modules
-          zip -9 ../LaunchServerModules.zip *
-          cd ../swmodules
-          zip -9 ../ServerWrapperModules.zip *
-          cd ..
+          zip -j -9 LaunchServerModules.zip ../modules/*_module/build/libs/*.jar
+          zip -j -9 LauncherModules.zip ../modules/*_lmodule/build/libs/*.jar
+          zip -j -9 ServerWrapperModules.zip ../modules/*_swmodule/build/libs/*.jar
 
       - name: Create release
         id: create_release
