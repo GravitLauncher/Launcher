@@ -52,31 +52,40 @@ jobs:
         if: startsWith(github.event.ref, 'refs/tags')
         run: echo "LAUNCHER_VERSION=$(echo ${{ github.event.ref }} | awk -F\/ '{print $3}')" >> $GITHUB_ENV
 
+      - name: Prebuild release files
+        if: startsWith(github.event.ref, 'refs/tags')
+        run: |
+          cp modules/*_module/build/libs/*.jar artifacts/modules || true
+          cp modules/*_lmodule/build/libs/*.jar artifacts/lmodules || true
+          cp modules/*_swmodule/build/libs/*.jar artifacts/swmodules || true
+          cd artifacts
+          zip -9 LauncherBase.zip libraries.zip LaunchServer.jar
+          cd lmodules
+          zip -9 ../LauncherModules.zip *
+          cd ../modules
+          zip -9 ../LaunchServerModules.zip *
+          cd ../swmodules
+          zip -9 ../ServerWrapperModules.zip *
+          cd ..
+
       - name: Create release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         if: startsWith(github.event.ref, 'refs/tags')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       Список настроек тута: https://github.com/softprops/action-gh-release#-customizing
+#       Можно сделать пуш описания релиза из файла
         with:
-          tag_name: ${{ github.ref }}
           release_name: GravitLauncher ${{ env.LAUNCHER_VERSION }}
           draft: false
           prerelease: false
-
-      - name: Pack release
-        if: startsWith(github.event.ref, 'refs/tags')
-        run: |
-          cd artifacts/
-          zip -r -9 ../Release.zip *
-
-      - name: Upload release
-        if: startsWith(github.event.ref, 'refs/tags')
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Release.zip
-          asset_name: Release.zip
-          asset_content_type: application/zip
+          files: |
+            libraries.zip
+            LaunchServer.jar
+            ServerWrapper.jar
+            LauncherAuthlib.jar
+            LauncherModules.zip
+            LaunchServerModules.zip
+            ServerWrapperModules.zip
+            LauncherBase.zip
