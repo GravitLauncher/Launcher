@@ -48,7 +48,7 @@ public final class JVMHelper {
     }
 
     public static int getBuild() {
-        return Runtime.version().patch();
+        return Runtime.version().update();
     }
 
     public static void appendVars(ProcessBuilder builder, Map<String, String> vars) {
