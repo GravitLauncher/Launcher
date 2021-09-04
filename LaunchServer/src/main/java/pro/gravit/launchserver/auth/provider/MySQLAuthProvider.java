@@ -24,9 +24,10 @@ public final class MySQLAuthProvider extends AuthProvider {
     @Override
     public void init(LaunchServer srv) {
         super.init(srv);
+        if (mySQLHolder == null) throw new RuntimeException("[Verify][AuthProvider] mySQLHolder cannot be null");
         if (query == null) throw new RuntimeException("[Verify][AuthProvider] query cannot be null");
         if (message == null) throw new RuntimeException("[Verify][AuthProvider] message cannot be null");
-        if (mySQLHolder == null) throw new RuntimeException("[Verify][AuthProvider] mySQLHolder cannot be null");
+        if (queryParams == null) throw new RuntimeException("[Verify][AuthProvider] queryParams cannot be null");
     }
 
     @Override
