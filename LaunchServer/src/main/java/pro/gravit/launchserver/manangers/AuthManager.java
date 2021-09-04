@@ -303,6 +303,9 @@ public class AuthManager {
         if (user instanceof UserSupportTextures) {
             return new PlayerProfile(user.getUUID(), user.getUsername(), ((UserSupportTextures) user).getSkinTexture(), ((UserSupportTextures) user).getCloakTexture());
         }
+        if (pair.textureProvider == null) {
+            throw new NullPointerException("TextureProvider not found");
+        }
         return getPlayerProfile(user.getUUID(), user.getUsername(), "", pair.textureProvider);
     }
 
