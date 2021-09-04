@@ -85,7 +85,7 @@ dependencies {
     bundle group: 'mysql', name: 'mysql-connector-java', version: rootProject['verMySQLConn']
     bundle group: 'org.postgresql', name: 'postgresql', version: rootProject['verPostgreSQLConn']
     bundle group: 'com.guardsquare', name: 'proguard-base', version: rootProject['verProguard']
-    bundle group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
+    bundle group: 'org.apache.logging.log4j', name: 'log4j-core', rootProject['verLog4j']
     bundle group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: rootProject['verLog4j']
     bundle group: 'io.jsonwebtoken', name: 'jjwt-api', version: rootProject['verJwt']
     bundle group: 'io.jsonwebtoken', name: 'jjwt-impl', version: rootProject['verJwt']
