@@ -1,5 +1,7 @@
 package pro.gravit.launchserver;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonSyntaxException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -118,37 +120,25 @@ public class LaunchServerStarter {
         modulesManager.invokeEvent(new PreConfigPhase());
         generateConfigIfNotExists(configFile, localCommandHandler, env);
         logger.info("Reading LaunchServer config file");
-        try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
-        }
+        config = readConfig(configFile, LaunchServerConfig.class);
         if (!Files.exists(runtimeConfigFile)) {
             logger.info("Reset LaunchServer runtime config file");
             runtimeConfig = new LaunchServerRuntimeConfig();
             runtimeConfig.reset();
         } else {
             logger.info("Reading LaunchServer runtime config file");
-            try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
-                runtimeConfig = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
-            }
+            runtimeConfig = readConfig(runtimeConfigFile, LaunchServerRuntimeConfig.class);
         }
 
         LaunchServer.LaunchServerConfigManager launchServerConfigManager = new LaunchServer.LaunchServerConfigManager() {
             @Override
             public LaunchServerConfig readConfig() throws IOException {
-                LaunchServerConfig config1;
-                try (BufferedReader reader = IOHelper.newReader(configFile)) {
-                    config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
-                }
-                return config1;
+                return LaunchServerStarter.readConfig(configFile, LaunchServerConfig.class);
             }
 
             @Override
             public LaunchServerRuntimeConfig readRuntimeConfig() throws IOException {
-                LaunchServerRuntimeConfig config1;
-                try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
-                    config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
-                }
-                return config1;
+                return LaunchServerStarter.readConfig(runtimeConfigFile, LaunchServerRuntimeConfig.class);
             }
 
             @Override
@@ -189,6 +179,34 @@ public class LaunchServerStarter {
             server.run();
         } else {
             server.close();
+        }
+    }
+
+    public static <T> T readConfig(Path file, Class<T> readTo) throws IOException {
+        try (BufferedReader reader = IOHelper.newReader(file)) {
+            return Launcher.gsonManager.gson.fromJson(reader, readTo);
+        } catch (JsonSyntaxException ignored) {
+            return repairConfig(file, readTo);
+        }
+    }
+
+    public static <T> T repairConfig(Path file, Class<T> readTo) throws IOException {
+        logger.warn("Try to repair " + file.getFileName());
+        try (BufferedReader reader = IOHelper.newReader(file)) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line.trim());
+            }
+            String s = sb.toString();
+            s = s.replaceAll(",\\s*}", "}").replaceAll("}\\{", "},{").replaceAll("]\\[", "],[");
+            T toReturn = Launcher.gsonManager.configGson.fromJson(s, readTo);
+            BufferedWriter bw = IOHelper.newWriter(file, false);
+            JsonElement nativeElement = Launcher.gsonManager.configGson.fromJson(s, JsonElement.class);
+            bw.write(Launcher.gsonManager.configGson.toJson(nativeElement));
+            bw.flush();
+            bw.close();
+            return toReturn;
         }
     }
 

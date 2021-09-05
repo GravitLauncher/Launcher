@@ -2,7 +2,6 @@ package pro.gravit.launchserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.managers.ConfigManager;
@@ -33,7 +32,6 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.invoke.MethodHandles;
@@ -505,10 +503,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             logger.info("Syncing '{}' profile", IOHelper.getFileName(file));
 
             // Read profile
-            ClientProfile profile;
-            try (BufferedReader reader = IOHelper.newReader(file)) {
-                profile = Launcher.gsonManager.gson.fromJson(reader, ClientProfile.class);
-            }
+            ClientProfile profile = LaunchServerStarter.readConfig(file, ClientProfile.class);
             profile.verify();
 
             // Add SIGNED profile to result list
