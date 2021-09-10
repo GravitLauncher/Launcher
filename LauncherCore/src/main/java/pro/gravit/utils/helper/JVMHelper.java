@@ -29,6 +29,7 @@ public final class JVMHelper {
     public static final Runtime RUNTIME = Runtime.getRuntime();
     public static final ClassLoader LOADER = ClassLoader.getSystemClassLoader();
     public static final int JVM_VERSION = getVersion();
+    public static final int JVM_BUILD = getBuild();
 
     static {
         try {
@@ -52,6 +53,25 @@ public final class JVMHelper {
             }
         }
         return Integer.parseInt(version);
+    }
+
+    public static int getBuild() {
+        String version = System.getProperty("java.version");
+        int dot;
+        if (version.startsWith("1.")) {
+            dot = version.indexOf("_");
+        } else {
+            dot = version.lastIndexOf(".");
+        }
+        if (dot != -1) {
+            version = version.substring(dot + 1);
+        }
+        try {
+            return Integer.parseInt(version);
+        } catch (NumberFormatException exception) {
+            return 0;
+        }
+
     }
 
     public static void appendVars(ProcessBuilder builder, Map<String, String> vars) {
