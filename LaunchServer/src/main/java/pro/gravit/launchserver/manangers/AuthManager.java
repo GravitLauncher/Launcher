@@ -235,6 +235,9 @@ public class AuthManager {
         PlayerProfile playerProfile;
         if (client.useOAuth) {
             User user = client.getUser();
+            if (user == null) {
+                return null;
+            }
             playerProfile = getPlayerProfile(client.auth, user);
             if (playerProfile != null) return playerProfile;
         }
@@ -253,6 +256,9 @@ public class AuthManager {
         UUID uuid = null;
         if (pair.isUseCore()) {
             User user = pair.core.getUserByUsername(username);
+            if (user == null) {
+                return null;
+            }
             PlayerProfile playerProfile = getPlayerProfile(pair, user);
             uuid = user.getUUID();
             if (playerProfile != null) return playerProfile;
@@ -280,6 +286,9 @@ public class AuthManager {
         String username = null;
         if (pair.isUseCore()) {
             User user = pair.core.getUserByUUID(uuid);
+            if (user == null) {
+                return null;
+            }
             PlayerProfile playerProfile = getPlayerProfile(pair, user);
             username = user.getUsername();
             if (playerProfile != null) return playerProfile;
