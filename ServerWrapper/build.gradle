@@ -18,7 +18,7 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 jar {
-    classifier = 'clean'
+    archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
             "Can-Redefine-Classes": "true",
@@ -28,12 +28,12 @@ jar {
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
-    archiveClassifier = 'sources'
+    archiveClassifier.set('sources')
 }
 
 task javadocJar(type: Jar) {
     from javadoc
-    archiveClassifier = 'javadoc'
+    archiveClassifier.set('javadoc')
 }
 
 dependencies {

@@ -23,7 +23,7 @@ configurations {
 }
 
 jar {
-    classifier = 'clean'
+    archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
             "Multi-Release": "true")
@@ -31,17 +31,17 @@ jar {
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
-    archiveClassifier = 'sources'
+    archiveClassifier.set('sources')
 }
 
 task javadocJar(type: Jar) {
     from javadoc
-    archiveClassifier = 'javadoc'
+    archiveClassifier.set('javadoc')
 }
 
 shadowJar {
     duplicatesStrategy = 'EXCLUDE'
-    classifier = null
+    archiveClassifier.set(null)
     relocate 'org.objectweb.asm', 'pro.gravit.repackage.org.objectweb.asm'
     relocate 'io.netty', 'pro.gravit.repackage.io.netty'
     configurations = [project.configurations.pack]

@@ -36,7 +36,7 @@ jar {
     into('META-INF/versions/11') {
         from sourceSets.java11.output
     }
-    classifier = 'clean'
+    archiveClassifier.set('clean')
 }
 compileJava11Java {
     sourceCompatibility = 11
@@ -45,12 +45,12 @@ compileJava11Java {
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
-    archiveClassifier = 'sources'
+    archiveClassifier.set('sources')
 }
 
 task javadocJar(type: Jar) {
     from javadoc
-    archiveClassifier = 'javadoc'
+    archiveClassifier.set('javadoc')
 }
 
 publishing {
