@@ -70,7 +70,7 @@ jobs:
 #       Список настроек тута: https://github.com/softprops/action-gh-release#-customizing
 #       Можно сделать пуш описания релиза из файла
         with:
-          release_name: GravitLauncher ${{ env.LAUNCHER_VERSION }}
+          name: GravitLauncher ${{ env.LAUNCHER_VERSION }}
           draft: false
           prerelease: false
           files: |
