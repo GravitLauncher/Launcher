@@ -39,7 +39,6 @@ jobs:
           cp LauncherAuthlib.jar ../../../artifacts/LauncherAuthlib.jar
           cd ../../../
           cp modules/*_module/build/libs/*.jar artifacts/modules || true
-          cp modules/*_swmodule/build/libs/*.jar artifacts/modules || true
           cp modules/*_lmodule/build/libs/*.jar artifacts/modules || true
 
       - name: Upload artifacts
@@ -59,7 +58,6 @@ jobs:
           zip -9 LauncherBase.zip libraries.zip LaunchServer.jar
           zip -j -9 LaunchServerModules.zip ../modules/*_module/build/libs/*.jar
           zip -j -9 LauncherModules.zip ../modules/*_lmodule/build/libs/*.jar
-          zip -j -9 ServerWrapperModules.zip ../modules/*_swmodule/build/libs/*.jar
 
       - name: Create release
         id: create_release
@@ -80,5 +78,4 @@ jobs:
             LauncherAuthlib.jar
             LauncherModules.zip
             LaunchServerModules.zip
-            ServerWrapperModules.zip
             LauncherBase.zip
