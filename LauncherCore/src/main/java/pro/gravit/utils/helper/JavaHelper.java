@@ -141,7 +141,10 @@ public class JavaHelper {
         JavaVersionAndBuild result = new JavaVersionAndBuild();
         if (version.startsWith("1.")) {
             result.version = Integer.parseInt(version.substring(2, 3));
-            result.build = Integer.parseInt(version.substring(version.indexOf('_') + 1));
+            int pos = version.indexOf('_');
+            if (pos != -1) {
+                result.build = Integer.parseInt(version.substring(pos + 1));
+            }
         } else {
             int dot = version.indexOf(".");
             if (dot != -1) {
