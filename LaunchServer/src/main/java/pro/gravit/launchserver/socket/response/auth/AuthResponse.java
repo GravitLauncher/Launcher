@@ -67,8 +67,6 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public enum ConnectTypes {
-        @Deprecated
-        SERVER,
         CLIENT,
         API
     }
@@ -81,8 +79,6 @@ public class AuthResponse extends SimpleResponse {
         public final Client client;
         public final AuthProviderPair pair;
         public AuthManager.AuthReport report;
-        @Deprecated
-        public int password_length; //Use AuthProvider for get password
 
         public AuthContext(Client client, String login, String profileName, String ip, ConnectTypes authType, AuthProviderPair pair) {
             this.client = client;

@@ -267,8 +267,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public static final class Config {
-        @Deprecated
-        public String title;
         public String projectname;
         public String address;
         public String serverName;

@@ -19,19 +19,9 @@ public abstract class Component {
         }
     }
 
-    @Deprecated
-    public void preInit(LaunchServer launchServer) {
-
-    }
-
     public abstract void init(LaunchServer launchServer);
 
     public final void setComponentName(String s) {
         this.componentName = s;
-    }
-
-    @Deprecated
-    public void postInit(LaunchServer launchServer) {
-
     }
 }

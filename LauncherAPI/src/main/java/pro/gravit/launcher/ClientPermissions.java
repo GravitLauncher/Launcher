@@ -1,7 +1,6 @@
 package pro.gravit.launcher;
 
 import pro.gravit.launcher.serialize.HInput;
-import pro.gravit.launcher.serialize.HOutput;
 
 import java.io.IOException;
 
@@ -37,11 +36,6 @@ public class ClientPermissions {
 
     public long toLong() {
         return permissions;
-    }
-
-    @Deprecated
-    public void write(HOutput output) throws IOException {
-        output.writeLong(toLong());
     }
 
     //Read methods

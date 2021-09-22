@@ -35,8 +35,6 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected final LauncherTrustManager trustManager;
     protected final PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{});
     protected LauncherInitContext initContext;
-    @Deprecated
-    protected LauncherTrustManager.CheckMode checkMode = LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED;
 
     public SimpleModuleManager(Path modulesDir, Path configDir) {
         modulesConfigManager = new SimpleModulesConfigManager(configDir);
@@ -169,24 +167,6 @@ public class SimpleModuleManager implements LauncherModulesManager {
             LogHelper.error(e);
             LogHelper.error("In module %s Module-Main-Class incorrect", file.toString());
             return null;
-        }
-    }
-
-    @Deprecated
-    public void checkModuleClass(Class<? extends LauncherModule> clazz, LauncherTrustManager.CheckMode mode) throws SecurityException {
-        if (trustManager == null) return;
-        X509Certificate[] certificates = getCertificates(clazz);
-        if (certificates == null) {
-            if (mode == LauncherTrustManager.CheckMode.EXCEPTION_IN_NOT_SIGNED)
-                throw new SecurityException(String.format("Class %s not signed", clazz.getName()));
-            else if (mode == LauncherTrustManager.CheckMode.WARN_IN_NOT_SIGNED)
-                LogHelper.warning("Class %s not signed", clazz.getName());
-            return;
-        }
-        try {
-            trustManager.checkCertificatesSuccess(certificates, trustManager::stdCertificateChecker);
-        } catch (Exception e) {
-            throw new SecurityException(e);
         }
     }
 

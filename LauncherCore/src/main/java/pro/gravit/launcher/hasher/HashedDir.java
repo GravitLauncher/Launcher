@@ -5,7 +5,6 @@ import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.EnumSerializer;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
@@ -66,40 +65,6 @@ public final class HashedDir extends HashedEntry {
 
     public void remove(String name) {
         map.remove(name);
-    }
-
-    @Deprecated
-    public void removeR(String name) {
-        LinkedList<String> dirs = new LinkedList<>();
-        StringTokenizer t = new StringTokenizer(name, "/");
-        while (t.hasMoreTokens()) {
-            dirs.add(t.nextToken());
-        }
-        Map<String, HashedEntry> current = map;
-        for (String s : dirs) {
-            HashedEntry e = current.get(s);
-            if (e == null) {
-                if (LogHelper.isDebugEnabled()) {
-                    LogHelper.debug("Null %s", s);
-                }
-                if (LogHelper.isDebugEnabled()) {
-                    for (String x : current.keySet()) LogHelper.debug("Contains %s", x);
-                }
-                break;
-            }
-            if (e.getType() == Type.DIR) {
-                current = ((HashedDir) e).map;
-                if (LogHelper.isDebugEnabled()) {
-                    LogHelper.debug("Found dir %s", s);
-                }
-            } else {
-                current.remove(s);
-                if (LogHelper.isDebugEnabled()) {
-                    LogHelper.debug("Found filename %s", s);
-                }
-                break;
-            }
-        }
     }
 
     public void moveTo(String elementName, HashedDir target, String targetElementName) {

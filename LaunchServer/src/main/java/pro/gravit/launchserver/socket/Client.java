@@ -88,12 +88,6 @@ public class Client {
         return coreObject;
     }
 
-    @Deprecated
-    public enum Type {
-        SERVER,
-        USER
-    }
-
     public static class TrustLevel {
         public byte[] verifySecureKey;
         public boolean keyChecked;

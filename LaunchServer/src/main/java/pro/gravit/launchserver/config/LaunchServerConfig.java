@@ -279,8 +279,6 @@ public final class LaunchServerConfig {
     public static class LauncherConf {
         public String guardType;
         public boolean compress;
-        @Deprecated
-        public boolean warningMissArchJava;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
         public boolean certificatePinning;

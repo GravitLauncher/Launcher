@@ -83,11 +83,6 @@ public final class SecurityHelper {
         }
     }
 
-    @Deprecated
-    public static KeyPair genECKeyPair(SecureRandom random) {
-        return genECDSAKeyPair(random);
-    }
-
     public static KeyPair genECDSAKeyPair(SecureRandom random) {
         try {
             KeyPairGenerator generator = KeyPairGenerator.getInstance(EC_ALGO);
@@ -407,16 +402,6 @@ public final class SecurityHelper {
             offset++;
         }
         return new String(hex);
-    }
-
-    @Deprecated
-    public static ECPublicKey toPublicECKey(byte[] bytes) throws InvalidKeySpecException {
-        return toPublicECDSAKey(bytes);
-    }
-
-    @Deprecated
-    public static ECPrivateKey toPrivateECKey(byte[] bytes) throws InvalidKeySpecException {
-        return toPrivateECDSAKey(bytes);
     }
 
     public static ECPublicKey toPublicECDSAKey(byte[] bytes) throws InvalidKeySpecException {

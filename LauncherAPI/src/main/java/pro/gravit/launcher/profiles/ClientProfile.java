@@ -4,7 +4,6 @@ import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.profiles.optional.OptionalDepend;
 import pro.gravit.launcher.profiles.optional.OptionalFile;
-import pro.gravit.launcher.profiles.optional.OptionalType;
 import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
@@ -257,13 +256,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    @Deprecated
-    public OptionalFile getOptionalFile(String file, OptionalType type) {
-        for (OptionalFile f : updateOptional)
-            if (f.type.equals(type) && f.name.equals(file)) return f;
-        return null;
-    }
-
     public OptionalFile getOptionalFile(String file) {
         for (OptionalFile f : updateOptional)
             if (f.name.equals(file)) return f;
@@ -277,11 +269,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public int getServerPort() {
         ServerProfile profile = getDefaultServerProfile();
         return profile == null ? 25565 : profile.serverPort;
-    }
-
-    @Deprecated
-    public InetSocketAddress getServerSocketAddress() {
-        return InetSocketAddress.createUnresolved(getServerAddress(), getServerPort());
     }
 
     public int getSortIndex() {

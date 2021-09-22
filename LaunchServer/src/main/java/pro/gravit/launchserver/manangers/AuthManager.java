@@ -272,16 +272,7 @@ public class AuthManager {
         return password;
     }
 
-    @SuppressWarnings("deprecation")
     private AuthRequest.AuthPasswordInterface tryDecryptPasswordPlain(AuthRequest.AuthPasswordInterface password) throws AuthException {
-        if (password instanceof AuthECPassword) {
-            try {
-                return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
-                        , ((AuthECPassword) password).password)));
-            } catch (Exception ignored) {
-                throw new AuthException("Password decryption error");
-            }
-        }
         if (password instanceof AuthAESPassword) {
             try {
                 return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey

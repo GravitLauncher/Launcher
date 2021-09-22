@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
-import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.launcher.modules.events.ClosePhase;
@@ -40,10 +39,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -89,10 +85,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      * This object contains runtime configuration
      */
     public final LaunchServerRuntimeConfig runtime;
-    @Deprecated
-    public final ECPublicKey publicKey;
-    @Deprecated
-    public final ECPrivateKey privateKey;
     /**
      * Pipeline for building JAR
      */
@@ -121,15 +113,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     // Server
     public final CommandHandler commandHandler;
     public final NettyServerSocketHandler nettyServerSocketHandler;
-    @Deprecated
-    public final Timer taskPool;
     public final ScheduledExecutorService service;
     public final AtomicBoolean started = new AtomicBoolean(false);
     public final LauncherModuleLoader launcherModuleLoader;
     private final Logger logger = LogManager.getLogger();
     public LaunchServerConfig config;
-    @Deprecated
-    public volatile Map<String, HashedDir> updatesDirMap;
     // Updates and profiles
     private volatile Set<ClientProfile> profilesList;
 
@@ -143,13 +131,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.profilesDir = directories.profilesDir;
         this.updatesDir = directories.updatesDir;
         this.keyAgreementManager = keyAgreementManager;
-        this.publicKey = keyAgreementManager.ecdsaPublicKey;
-        this.privateKey = keyAgreementManager.ecdsaPrivateKey;
         this.commandHandler = commandHandler;
         this.runtime = runtimeConfig;
         this.certificateManager = certificateManager;
         this.service = Executors.newScheduledThreadPool(config.netty.performance.schedulerThread);
-        taskPool = new Timer("Timered task worker thread", true);
         launcherLibraries = directories.launcherLibrariesDir;
         launcherLibrariesCompile = directories.launcherLibrariesCompileDir;
 
@@ -324,16 +309,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     public void setProfiles(Set<ClientProfile> profilesList) {
         this.profilesList = Collections.unmodifiableSet(profilesList);
-    }
-
-    @Deprecated
-    public HashedDir getUpdateDir(String name) {
-        return updatesDirMap.get(name);
-    }
-
-    @Deprecated
-    public Set<Entry<String, HashedDir>> getUpdateDirs() {
-        return updatesDirMap.entrySet();
     }
 
     public void rebindNettyServerSocket() {

@@ -13,7 +13,6 @@ import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.helper.SignHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,11 +44,6 @@ public class SecurityCheckCommand extends Command {
         } else {
             logger.error(String.format("[%s] %s", module, comment));
         }
-    }
-
-    @Deprecated
-    public static void printCheckResult(LogHelper.Level level, String module, String comment, Boolean status) {
-        printCheckResult(module, comment, status);
     }
 
     @Override
