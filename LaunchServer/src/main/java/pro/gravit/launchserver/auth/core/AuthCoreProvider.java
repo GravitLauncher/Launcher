@@ -1,5 +1,6 @@
 package pro.gravit.launchserver.auth.core;
 
+import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
@@ -14,6 +15,7 @@ import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportGetAllUsers;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportRegistration;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
 import pro.gravit.launchserver.manangers.AuthManager;
@@ -25,6 +27,7 @@ import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.command.SubCommand;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -277,6 +280,33 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                             return;
                         }
                         logger.info("Compare result: {} Spoof: {} first {} second", result.compareLevel, result.firstSpoofingLevel, result.secondSpoofingLevel);
+                    }
+                });
+            }
+        }
+        {
+            var instance = isSupport(AuthSupportRegistration.class);
+            if (instance != null) {
+                map.put("register", new SubCommand("[username] [email] [plain or json password] (json args)", "Register new user") {
+                    @Override
+                    public void invoke(String... args) throws Exception {
+                        verifyArgs(args, 2);
+                        Map<String, String> map = null;
+                        String username = args[0];
+                        String email = args[1];
+                        String plainPassword = args[2];
+                        if (args.length > 3) {
+                            Type typeOfMap = new TypeToken<Map<String, String>>() {
+                            }.getType();
+                            map = Launcher.gsonManager.gson.fromJson(args[2], typeOfMap);
+                        }
+                        AuthRequest.AuthPasswordInterface password;
+                        if (plainPassword.startsWith("{")) {
+                            password = Launcher.gsonManager.gson.fromJson(plainPassword, AuthRequest.AuthPasswordInterface.class);
+                        } else {
+                            password = new AuthPlainPassword(plainPassword);
+                        }
+                        instance.registration(username, email, password, map);
                     }
                 });
             }
