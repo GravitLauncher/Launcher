@@ -49,16 +49,16 @@ test {
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
-    archiveClassifier = 'sources'
+    archiveClassifier.set('sources')
 }
 
 task javadocJar(type: Jar) {
     from javadoc
-    archiveClassifier = 'javadoc'
+    archiveClassifier.set('javadoc')
 }
 
 task cleanjar(type: Jar, dependsOn: jar) {
-    classifier = 'clean'
+    archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
             "Can-Redefine-Classes": "true",
@@ -92,8 +92,8 @@ dependencies {
     bundle group: 'io.jsonwebtoken', name: 'jjwt-gson', version: rootProject['verJwt']
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 
-    hikari 'io.micrometer:micrometer-core:1.5.10'
-    hikari('com.zaxxer:HikariCP:4.0.3') {
+    hikari 'io.micrometer:micrometer-core:1.7.2'
+    hikari('com.zaxxer:HikariCP:5.0.0') {
         exclude group: 'javassist'
         exclude group: 'io.micrometer'
         exclude group: 'org.slf4j'
@@ -112,7 +112,7 @@ dependencies {
     compileOnlyA group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
     // Do not update (laggy deps).
     compileOnlyA 'log4j:log4j:1.2.17'
-    compileOnlyA 'org.apache.logging.log4j:log4j-core:2.11.2'
+    compileOnlyA 'org.apache.logging.log4j:log4j-core:2.14.1'
 }
 
 task hikari(type: Copy) {

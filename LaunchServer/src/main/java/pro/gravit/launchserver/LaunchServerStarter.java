@@ -85,6 +85,9 @@ public class LaunchServerStarter {
                 logger.warn("LaunchServer signed incorrectly. Status: {}", result.type.name());
             }
         }
+        if (JVMHelper.getVersion() < 17) {
+            logger.warn("LaunchServer will end Java {} support in next release. Please install Java 17 or above", JVMHelper.getVersion());
+        }
 
         LaunchServerRuntimeConfig runtimeConfig;
         LaunchServerConfig config;

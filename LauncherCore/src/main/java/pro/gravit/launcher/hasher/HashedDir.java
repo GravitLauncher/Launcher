@@ -68,6 +68,7 @@ public final class HashedDir extends HashedEntry {
         map.remove(name);
     }
 
+    @Deprecated
     public void removeR(String name) {
         LinkedList<String> dirs = new LinkedList<>();
         StringTokenizer t = new StringTokenizer(name, "/");
@@ -116,6 +117,9 @@ public final class HashedDir extends HashedEntry {
             HashedEntry e = current.map.get(name);
             if (e == null && !t.hasMoreTokens()) {
                 break;
+            }
+            if (e == null) {
+                throw new RuntimeException(String.format("Directory %s not found", name));
             }
             if (e.getType() == Type.DIR) {
                 if (!t.hasMoreTokens()) {

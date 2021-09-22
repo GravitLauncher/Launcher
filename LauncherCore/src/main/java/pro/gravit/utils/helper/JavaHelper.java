@@ -141,7 +141,10 @@ public class JavaHelper {
         JavaVersionAndBuild result = new JavaVersionAndBuild();
         if (version.startsWith("1.")) {
             result.version = Integer.parseInt(version.substring(2, 3));
-            result.build = Integer.parseInt(version.substring(version.indexOf('_') + 1));
+            int pos = version.indexOf('_');
+            if (pos != -1) {
+                result.build = Integer.parseInt(version.substring(pos + 1));
+            }
         } else {
             int dot = version.indexOf(".");
             if (dot != -1) {
@@ -170,12 +173,14 @@ public class JavaHelper {
         public final Path jvmDir;
         public final int version;
         public final int build;
+        public final int bitness;
         public boolean enabledJavaFX;
 
         public JavaVersion(Path jvmDir, int version) {
             this.jvmDir = jvmDir;
             this.version = version;
             this.build = 0;
+            this.bitness = JVMHelper.OS_BITS;
             this.enabledJavaFX = true;
         }
 
@@ -183,11 +188,20 @@ public class JavaHelper {
             this.jvmDir = jvmDir;
             this.version = version;
             this.build = build;
+            this.bitness = JVMHelper.OS_BITS;
+            this.enabledJavaFX = enabledJavaFX;
+        }
+
+        public JavaVersion(Path jvmDir, int version, int build, int bitness, boolean enabledJavaFX) {
+            this.jvmDir = jvmDir;
+            this.version = version;
+            this.build = build;
+            this.bitness = bitness;
             this.enabledJavaFX = enabledJavaFX;
         }
 
         public static JavaVersion getCurrentJavaVersion() {
-            return new JavaVersion(Paths.get(System.getProperty("java.home")), JVMHelper.getVersion(), 0, isCurrentJavaSupportJavaFX());
+            return new JavaVersion(Paths.get(System.getProperty("java.home")), JVMHelper.getVersion(), JVMHelper.JVM_BUILD, JVMHelper.JVM_BITS, isCurrentJavaSupportJavaFX());
         }
 
         private static boolean isCurrentJavaSupportJavaFX() {
@@ -212,14 +226,21 @@ public class JavaHelper {
             }
             Path releaseFile = jvmDir.resolve("release");
             JavaVersionAndBuild versionAndBuild;
+            int bitness = JVMHelper.OS_BITS;
             if (IOHelper.isFile(releaseFile)) {
                 Properties properties = new Properties();
                 properties.load(IOHelper.newReader(releaseFile));
                 versionAndBuild = getJavaVersion(properties.getProperty("JAVA_VERSION").replaceAll("\"", ""));
+                String arch = properties.getProperty("JAVA_VERSION").replaceAll("\"", "");
+                if (arch.contains("x86_64")) {
+                    bitness = 64;
+                } else if (arch.contains("x86") || arch.contains("x32")) {
+                    bitness = 32;
+                }
             } else {
                 versionAndBuild = new JavaVersionAndBuild(isExistExtJavaLibrary(jvmDir, "jfxrt") ? 8 : 9, 0);
             }
-            JavaVersion resultJavaVersion = new JavaVersion(jvmDir, versionAndBuild.version, versionAndBuild.build, false);
+            JavaVersion resultJavaVersion = new JavaVersion(jvmDir, versionAndBuild.version, versionAndBuild.build, bitness, false);
             if (versionAndBuild.version <= 8) {
                 resultJavaVersion.enabledJavaFX = isExistExtJavaLibrary(jvmDir, "jfxrt");
             } else {

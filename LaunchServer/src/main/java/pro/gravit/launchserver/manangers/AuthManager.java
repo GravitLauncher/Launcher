@@ -235,6 +235,9 @@ public class AuthManager {
         PlayerProfile playerProfile;
         if (client.useOAuth) {
             User user = client.getUser();
+            if (user == null) {
+                return null;
+            }
             playerProfile = getPlayerProfile(client.auth, user);
             if (playerProfile != null) return playerProfile;
         }
@@ -253,6 +256,9 @@ public class AuthManager {
         UUID uuid = null;
         if (pair.isUseCore()) {
             User user = pair.core.getUserByUsername(username);
+            if (user == null) {
+                return null;
+            }
             PlayerProfile playerProfile = getPlayerProfile(pair, user);
             uuid = user.getUUID();
             if (playerProfile != null) return playerProfile;
@@ -280,6 +286,9 @@ public class AuthManager {
         String username = null;
         if (pair.isUseCore()) {
             User user = pair.core.getUserByUUID(uuid);
+            if (user == null) {
+                return null;
+            }
             PlayerProfile playerProfile = getPlayerProfile(pair, user);
             username = user.getUsername();
             if (playerProfile != null) return playerProfile;
@@ -302,6 +311,9 @@ public class AuthManager {
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, User user) {
         if (user instanceof UserSupportTextures) {
             return new PlayerProfile(user.getUUID(), user.getUsername(), ((UserSupportTextures) user).getSkinTexture(), ((UserSupportTextures) user).getCloakTexture());
+        }
+        if (pair.textureProvider == null) {
+            throw new NullPointerException("TextureProvider not found");
         }
         return getPlayerProfile(user.getUUID(), user.getUsername(), "", pair.textureProvider);
     }

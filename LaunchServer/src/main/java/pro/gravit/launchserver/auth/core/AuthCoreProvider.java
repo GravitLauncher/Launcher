@@ -286,6 +286,9 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
 
     public User checkServer(Client client, String username, String serverID) throws IOException {
         User user = getUserByUsername(username);
+        if (user == null) {
+            return null;
+        }
         if (user.getUsername().equals(username) && user.getServerId().equals(serverID)) {
             return user;
         }
