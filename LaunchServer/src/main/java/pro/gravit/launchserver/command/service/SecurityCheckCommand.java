@@ -171,19 +171,10 @@ public class SecurityCheckCommand extends Command {
         }
 
         switch (config.env) {
-
-            case DEV:
-                printCheckResult("env", "found env DEV", false);
-                break;
-            case DEBUG:
-                printCheckResult("env", "found env DEBUG", false);
-                break;
-            case STD:
-                printCheckResult("env", "you can improve security by using env PROD", null);
-                break;
-            case PROD:
-                printCheckResult("env", "", true);
-                break;
+            case DEV -> printCheckResult("env", "found env DEV", false);
+            case DEBUG -> printCheckResult("env", "found env DEBUG", false);
+            case STD -> printCheckResult("env", "you can improve security by using env PROD", null);
+            case PROD -> printCheckResult("env", "", true);
         }
 
         //Profiles

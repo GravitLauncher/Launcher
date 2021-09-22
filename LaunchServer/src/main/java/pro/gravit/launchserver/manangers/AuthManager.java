@@ -117,8 +117,7 @@ public class AuthManager {
     private AuthReport authWithCore(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException {
         AuthCoreProvider provider = context.pair.core;
         provider.verifyAuth(context);
-        if (password instanceof AuthOAuthPassword) {
-            AuthOAuthPassword password1 = (AuthOAuthPassword) password;
+        if (password instanceof AuthOAuthPassword password1) {
             UserSession session;
             try {
                 session = provider.getUserSessionByOAuthAccessToken(password1.accessToken);
@@ -327,12 +326,10 @@ public class AuthManager {
     }
 
     public AuthRequest.AuthPasswordInterface decryptPassword(AuthRequest.AuthPasswordInterface password) throws AuthException {
-        if (password instanceof Auth2FAPassword) {
-            Auth2FAPassword auth2FAPassword = (Auth2FAPassword) password;
+        if (password instanceof Auth2FAPassword auth2FAPassword) {
             auth2FAPassword.firstPassword = tryDecryptPasswordPlain(auth2FAPassword.firstPassword);
             auth2FAPassword.secondPassword = tryDecryptPasswordPlain(auth2FAPassword.secondPassword);
-        } else if (password instanceof AuthMultiPassword) {
-            AuthMultiPassword multiPassword = (AuthMultiPassword) password;
+        } else if (password instanceof AuthMultiPassword multiPassword) {
             List<AuthRequest.AuthPasswordInterface> list = new ArrayList<>(multiPassword.list.size());
             for (AuthRequest.AuthPasswordInterface p : multiPassword.list) {
                 list.add(tryDecryptPasswordPlain(p));

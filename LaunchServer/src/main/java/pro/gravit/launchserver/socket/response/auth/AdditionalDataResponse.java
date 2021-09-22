@@ -31,8 +31,7 @@ public class AdditionalDataResponse extends SimpleResponse {
         if (username == null && uuid == null) {
             Map<String, String> properties;
             User user = client.getUser();
-            if (user instanceof UserSupportAdditionalData) {
-                UserSupportAdditionalData userSupport = (UserSupportAdditionalData) user;
+            if (user instanceof UserSupportAdditionalData userSupport) {
                 if (user.getPermissions().isPermission(ClientPermissions.PermissionConsts.ADMIN)) {
                     properties = userSupport.getPropertiesMap();
                 } else {
@@ -50,11 +49,10 @@ public class AdditionalDataResponse extends SimpleResponse {
         } else {
             user = pair.core.getUserByUUID(uuid);
         }
-        if (!(user instanceof UserSupportAdditionalData)) {
+        if (!(user instanceof UserSupportAdditionalData userSupport)) {
             sendResult(new AdditionalDataRequestEvent(Map.of()));
             return;
         }
-        UserSupportAdditionalData userSupport = (UserSupportAdditionalData) user;
         Map<String, String> properties;
         if (client.permissions.isPermission(ClientPermissions.PermissionConsts.ADMIN)) {
             properties = userSupport.getPropertiesMap();

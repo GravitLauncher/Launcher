@@ -247,18 +247,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                     return;
                 }
                 switch (args[0]) {
-                    case "full":
-                        reload(ReloadType.FULL);
-                        break;
-                    case "no_auth":
-                        reload(ReloadType.NO_AUTH);
-                        break;
-                    case "no_components":
-                        reload(ReloadType.NO_COMPONENTS);
-                        break;
-                    default:
-                        reload(ReloadType.FULL);
-                        break;
+                    case "full" -> reload(ReloadType.FULL);
+                    case "no_auth" -> reload(ReloadType.NO_AUTH);
+                    case "no_components" -> reload(ReloadType.NO_COMPONENTS);
+                    default -> reload(ReloadType.FULL);
                 }
             }
         };

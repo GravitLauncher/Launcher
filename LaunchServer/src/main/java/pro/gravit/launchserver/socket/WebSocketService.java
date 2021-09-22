@@ -155,8 +155,7 @@ public class WebSocketService {
         if (hook.hook(context, ctx)) {
             return;
         }
-        if (response instanceof SimpleResponse) {
-            SimpleResponse simpleResponse = (SimpleResponse) response;
+        if (response instanceof SimpleResponse simpleResponse) {
             simpleResponse.server = server;
             simpleResponse.service = this;
             simpleResponse.ctx = ctx;

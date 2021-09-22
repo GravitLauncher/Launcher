@@ -19,11 +19,10 @@ public class VerifySecureLevelKeyResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (!(server.config.protectHandler instanceof SecureProtectHandler) || client.trustLevel == null || client.trustLevel.verifySecureKey == null) {
+        if (!(server.config.protectHandler instanceof SecureProtectHandler secureProtectHandler) || client.trustLevel == null || client.trustLevel.verifySecureKey == null) {
             sendError("This method not allowed");
             return;
         }
-        SecureProtectHandler secureProtectHandler = (SecureProtectHandler) server.config.protectHandler;
         try {
             secureProtectHandler.verifySecureLevelKey(publicKey, client.trustLevel.verifySecureKey, signature);
         } catch (InvalidKeySpecException e) {

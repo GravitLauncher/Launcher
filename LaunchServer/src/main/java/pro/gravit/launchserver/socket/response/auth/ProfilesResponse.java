@@ -26,8 +26,7 @@ public class ProfilesResponse extends SimpleResponse {
 
         List<ClientProfile> profileList;
         Set<ClientProfile> serverProfiles = server.getProfiles();
-        if (server.config.protectHandler instanceof ProfilesProtectHandler) {
-            ProfilesProtectHandler protectHandler = (ProfilesProtectHandler) server.config.protectHandler;
+        if (server.config.protectHandler instanceof ProfilesProtectHandler protectHandler) {
             profileList = new ArrayList<>(4);
             for (ClientProfile profile : serverProfiles) {
                 if (protectHandler.canGetProfile(profile, client)) {
