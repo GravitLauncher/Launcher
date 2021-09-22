@@ -58,6 +58,7 @@ jobs:
           zip -9 LauncherBase.zip libraries.zip LaunchServer.jar
           zip -j -9 LaunchServerModules.zip ../modules/*_module/build/libs/*.jar
           zip -j -9 LauncherModules.zip ../modules/*_lmodule/build/libs/*.jar
+          zip -j -9 ServerWrapperModules.zip ../modules/*_swmodule/build/libs/*.jar || true
 
       - name: Create release
         id: create_release
@@ -72,10 +73,4 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            libraries.zip
-            LaunchServer.jar
-            ServerWrapper.jar
-            LauncherAuthlib.jar
-            LauncherModules.zip
-            LaunchServerModules.zip
-            LauncherBase.zip
+            artifacts/*
