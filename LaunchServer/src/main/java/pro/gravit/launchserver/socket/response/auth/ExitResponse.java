@@ -2,7 +2,6 @@ package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ExitRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
@@ -35,7 +34,7 @@ public class ExitResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (username != null && (!client.isAuth || client.permissions == null || !client.permissions.isPermission(ClientPermissions.PermissionConsts.ADMIN))) {
+        if (username != null && (!client.isAuth || client.permissions == null || !client.permissions.hasAction("launchserver\\.management\\.kick"))) {
             sendError("Permissions denied");
             return;
         }

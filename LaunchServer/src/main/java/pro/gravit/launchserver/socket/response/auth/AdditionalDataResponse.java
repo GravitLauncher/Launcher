@@ -12,6 +12,7 @@ import pro.gravit.launchserver.socket.response.SimpleResponse;
 import java.util.Map;
 import java.util.UUID;
 
+@SuppressWarnings("deprecation")
 public class AdditionalDataResponse extends SimpleResponse {
     public String username;
     public UUID uuid;

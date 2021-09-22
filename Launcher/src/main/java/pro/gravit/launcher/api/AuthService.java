@@ -11,7 +11,7 @@ public class AuthService {
     public static UUID uuid;
     public static ClientProfile profile;
 
-    public static boolean isAdmin() {
-        return permissions.isPermission(ClientPermissions.PermissionConsts.ADMIN);
+    public static boolean hasPermission(String permission) {
+        return permissions.hasAction(permission);
     }
 }

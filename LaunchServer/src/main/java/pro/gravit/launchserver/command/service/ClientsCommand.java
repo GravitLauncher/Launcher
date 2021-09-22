@@ -50,7 +50,9 @@ public class ClientsCommand extends Command {
                 if (client.trustLevel != null) {
                     logger.info("trustLevel | key {} | pubkey {}", client.trustLevel.keyChecked ? "checked" : "unchecked", client.trustLevel.publicKey == null ? "null" : new String(Base64.getEncoder().encode(client.trustLevel.publicKey)));
                 }
-                logger.info("Permissions: {} (permissions {} | flags {})", client.permissions == null ? "null" : client.permissions.toString(), client.permissions == null ? 0 : client.permissions.permissions, client.permissions == null ? 0 : client.permissions.flags);
+                if (client.permissions != null) {
+                    logger.info("Permissions: {}", client.permissions.toString());
+                }
             }
         }));
     }
