@@ -57,7 +57,7 @@ public class RestoreResponse extends SimpleResponse {
         } else {
             pair = client.auth;
         }
-        if (pair == null || !pair.isUseCore()) {
+        if (pair == null) {
             sendError("Invalid authId");
             return;
         }

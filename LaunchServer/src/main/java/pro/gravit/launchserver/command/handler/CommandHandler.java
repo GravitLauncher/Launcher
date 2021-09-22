@@ -1,9 +1,6 @@
 package pro.gravit.launchserver.command.handler;
 
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.command.auth.AuthCommand;
-import pro.gravit.launchserver.command.auth.UUIDToUsernameCommand;
-import pro.gravit.launchserver.command.auth.UsernameToUUIDCommand;
 import pro.gravit.launchserver.command.basic.BuildCommand;
 import pro.gravit.launchserver.command.basic.RestartCommand;
 import pro.gravit.launchserver.command.basic.StopCommand;
@@ -49,14 +46,6 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         updates.registerCommand("makeProfile", new MakeProfileCommand(server));
         Category updatesCategory = new Category(updates, "updates", "Update and Sync Management");
         handler.registerCategory(updatesCategory);
-
-        // Register auth commands
-        BaseCommandCategory auth = new BaseCommandCategory();
-        auth.registerCommand("auth", new AuthCommand(server));
-        auth.registerCommand("usernameToUUID", new UsernameToUUIDCommand(server));
-        auth.registerCommand("uuidToUsername", new UUIDToUsernameCommand(server));
-        Category authCategory = new Category(auth, "auth", "User Management");
-        handler.registerCategory(authCategory);
 
         //Register service commands
         BaseCommandCategory service = new BaseCommandCategory();

@@ -4,11 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.handler.MemoryAuthHandler;
 import pro.gravit.launchserver.auth.protect.AdvancedProtectHandler;
 import pro.gravit.launchserver.auth.protect.NoProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
-import pro.gravit.launchserver.auth.provider.AcceptAuthProvider;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.components.ProGuardComponent;
 import pro.gravit.launchserver.config.LaunchServerConfig;
@@ -68,19 +66,6 @@ public class SecurityCheckCommand extends Command {
     public void invoke(String... args) {
         LaunchServerConfig config = server.config;
         config.auth.forEach((name, pair) -> {
-            if (pair.provider instanceof AcceptAuthProvider) {
-                printCheckResult(String.format("auth.%s.provider", name), "Accept auth provider", false);
-            } else {
-                printCheckResult(String.format("auth.%s.provider", name), "", true);
-            }
-            if (pair.handler instanceof MemoryAuthHandler) {
-                printCheckResult(String.format("auth.%s.handler", name), "MemoryAuthHandler test-only", false);
-            } else {
-                printCheckResult(String.format("auth.%s.handler", name), "", true);
-            }
-            if (!pair.isUseCore()) {
-                printCheckResult(String.format("auth.%s", name), "AuthProvider/AuthHandler may be removed in future release", null);
-            }
         });
         if (config.protectHandler instanceof NoProtectHandler) {
             printCheckResult("protectHandler", "protectHandler none", false);

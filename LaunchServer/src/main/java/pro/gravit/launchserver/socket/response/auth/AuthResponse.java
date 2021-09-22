@@ -48,7 +48,7 @@ public class AuthResponse extends SimpleResponse {
             context.report = server.authManager.auth(context, password);
             server.authHookManager.postHook.hook(context, clientData);
             if (context.report.isUsingOAuth()) {
-                result.oauth = new AuthRequestEvent.OAuthRequestEvent(context.report.oauthAccessToken, context.report.oauthRefreshToken, context.report.oauthExpire);
+                result.oauth = new AuthRequestEvent.OAuthRequestEvent(context.report.oauthAccessToken(), context.report.oauthRefreshToken(), context.report.oauthExpire());
             } else if (getSession) {
                 if (clientData.session == null) {
                     clientData.session = UUID.randomUUID();
@@ -56,8 +56,8 @@ public class AuthResponse extends SimpleResponse {
                 }
                 result.session = clientData.session;
             }
-            if (context.report.minecraftAccessToken != null) {
-                result.accessToken = context.report.minecraftAccessToken;
+            if (context.report.minecraftAccessToken() != null) {
+                result.accessToken = context.report.minecraftAccessToken();
             }
             result.playerProfile = server.authManager.getPlayerProfile(clientData);
             sendResult(result);

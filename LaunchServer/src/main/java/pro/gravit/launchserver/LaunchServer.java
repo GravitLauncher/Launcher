@@ -274,14 +274,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                     logger.error("Pair not found");
                     return;
                 }
-                if (pair.isUseCore()) {
-                    pair.core.close();
-                } else {
-                    pair.provider.close();
-                    pair.handler.close();
-                    pair.handler = null;
-                    pair.provider = null;
-                }
+                pair.core.close();
                 pair.core = new RejectAuthCoreProvider();
                 pair.core.init(instance);
             }

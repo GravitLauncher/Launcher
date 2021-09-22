@@ -46,7 +46,6 @@ public class ProfileByUUIDResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        String username;
         AuthProviderPair pair;
         if (client.auth == null) {
             pair = server.config.getAuthProviderPair();
@@ -57,18 +56,10 @@ public class ProfileByUUIDResponse extends SimpleResponse {
             sendError("ProfileByUUIDResponse: AuthProviderPair is null");
             return;
         }
-        if (pair.isUseCore()) {
-            User user = pair.core.getUserByUUID(uuid);
-            if (user == null) {
-                sendError("User not found");
-                return;
-            } else username = user.getUsername();
-        } else {
-            username = pair.handler.uuidToUsername(uuid);
-            if (username == null) {
-                sendError(String.format("ProfileByUUIDResponse: User with uuid %s not found or AuthProvider#uuidToUsername returned null", uuid));
-                return;
-            }
+        User user = pair.core.getUserByUUID(uuid);
+        if (user == null) {
+            sendError("User not found");
+            return;
         }
         sendResult(new ProfileByUUIDRequestEvent(server.authManager.getPlayerProfile(pair, uuid)));
     }

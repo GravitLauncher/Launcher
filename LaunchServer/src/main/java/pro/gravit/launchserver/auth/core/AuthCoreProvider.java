@@ -145,13 +145,13 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                     return;
                 }
                 if (report.isUsingOAuth()) {
-                    logger.info("OAuth: AccessToken: {} RefreshToken: {} MinecraftAccessToken: {}", report.oauthAccessToken, report.oauthRefreshToken, report.minecraftAccessToken);
-                    if (report.session != null) {
-                        logger.info("UserSession: id {} expire {} user {}", report.session.getID(), report.session.getExpireIn(), report.session.getUser() == null ? "null" : "found");
-                        logger.info(report.session.toString());
+                    logger.info("OAuth: AccessToken: {} RefreshToken: {} MinecraftAccessToken: {}", report.oauthAccessToken(), report.oauthRefreshToken(), report.minecraftAccessToken());
+                    if (report.session() != null) {
+                        logger.info("UserSession: id {} expire {} user {}", report.session().getID(), report.session().getExpireIn(), report.session().getUser() == null ? "null" : "found");
+                        logger.info(report.session().toString());
                     }
                 } else {
-                    logger.info("Basic: MinecraftAccessToken: {}", report.minecraftAccessToken);
+                    logger.info("Basic: MinecraftAccessToken: {}", report.minecraftAccessToken());
                 }
             }
         });

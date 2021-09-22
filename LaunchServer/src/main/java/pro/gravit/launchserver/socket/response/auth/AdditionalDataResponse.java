@@ -23,7 +23,7 @@ public class AdditionalDataResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        if (!client.isAuth || !client.auth.isUseCore()) {
+        if (!client.isAuth) {
             sendError("Access denied");
             return;
         }

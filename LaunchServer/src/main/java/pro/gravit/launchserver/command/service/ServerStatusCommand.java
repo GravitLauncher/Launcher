@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
-import pro.gravit.launchserver.auth.handler.CachedAuthHandler;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.helper.JVMHelper;
@@ -43,9 +42,6 @@ public class ServerStatusCommand extends Command {
         }
         logger.info("Commands: {}({} categories)", commands, server.commandHandler.getCategories().size() + 1);
         for (AuthProviderPair pair : server.config.auth.values()) {
-            if (pair.handler instanceof CachedAuthHandler) {
-                logger.info("AuthHandler {}: EntryCache: {} | usernameCache: {}", pair.name, ((CachedAuthHandler) pair.handler).getEntryCache().size(), ((CachedAuthHandler) pair.handler).getUsernamesCache().size());
-            }
         }
 
     }

@@ -3,7 +3,6 @@ package pro.gravit.launchserver.manangers;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.RequiredDAO;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.HookSet;
 import pro.gravit.utils.helper.IOHelper;
@@ -53,18 +52,11 @@ public class SessionManager implements NeedGarbageCollection {
         return Launcher.gsonManager.gson.fromJson(IOHelper.decode(client), Client.class); //Compress using later
     }
 
-    @SuppressWarnings("deprecation")
     private Client restoreFromString(byte[] data) {
         Client result = decompressClient(data);
         result.updateAuth(server);
         if (result.auth != null && (result.username != null)) {
-            if (result.auth.isUseCore()) {
-                result.coreObject = result.auth.core.getUserByUUID(result.uuid);
-            } else {
-                if (result.auth.handler instanceof RequiredDAO || result.auth.provider instanceof RequiredDAO || result.auth.textureProvider instanceof RequiredDAO) {
-                    result.daoObject = server.config.dao.userDAO.findByUsername(result.username);
-                }
-            }
+            result.coreObject = result.auth.core.getUserByUUID(result.uuid);
         }
         if (result.refCount == null) result.refCount = new AtomicInteger(1);
         clientRestoreHook.hook(result);
