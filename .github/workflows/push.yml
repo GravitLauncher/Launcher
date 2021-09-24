@@ -56,7 +56,7 @@ jobs:
         run: |
           cd artifacts
           zip -r -9 Release.zip *
-          zip -9 LauncherBase.zip libraries.zip LaunchServer.jar
+          zip -r -9 LauncherBase.zip * -x "LaunchServer-clean.jar"
           zip -j -9 LaunchServerModules.zip ../modules/*_module/build/libs/*.jar
           zip -j -9 LauncherModules.zip ../modules/*_lmodule/build/libs/*.jar
 
