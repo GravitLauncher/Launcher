@@ -30,14 +30,12 @@ jobs:
       - name: Create artifacts
         run: |
           mkdir -p artifacts/modules
-          cd LaunchServer/build/libs/
+          cd LaunchServer/build/libs
           zip -r -9 ../../../artifacts/libraries.zip * -x "LaunchServer.jar" -x "LaunchServer-clean.jar"
           cp LaunchServer.jar ../../../artifacts/LaunchServer.jar
-          cd ../../../ServerWrapper/build/libs
-          cp ServerWrapper.jar ../../../artifacts/ServerWrapper.jar
-          cd ../../../LauncherAuthlib/build/libs
-          cp LauncherAuthlib.jar ../../../artifacts/LauncherAuthlib.jar
-          cd ../../../
+          cd ../../..
+          cp ServerWrapper/build/libs/ServerWrapper.jar artifacts/ServerWrapper.jar
+          cp LauncherAuthlib/build/libs/LauncherAuthlib.jar artifacts/LauncherAuthlib.jar
           cp modules/*_module/build/libs/*.jar artifacts/modules || true
           cp modules/*_lmodule/build/libs/*.jar artifacts/modules || true
 
@@ -58,9 +56,8 @@ jobs:
           zip -r -9 Release.zip *
           zip -j -9 LaunchServerModules.zip ../modules/*_module/build/libs/*.jar
           zip -j -9 LauncherModules.zip ../modules/*_lmodule/build/libs/*.jar
-          cd ../LaunchServer/build/libs/
+          cd ../LaunchServer/build/libs
           zip -r -9 ../../../artifacts/LauncherBase.zip * -x "LaunchServer-clean.jar"
-          cd ../../..
 
       - name: Create release
         id: create_release
