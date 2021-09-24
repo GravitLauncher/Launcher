@@ -56,9 +56,11 @@ jobs:
         run: |
           cd artifacts
           zip -r -9 Release.zip *
-          zip -r -9 LauncherBase.zip * -x "LaunchServer-clean.jar"
           zip -j -9 LaunchServerModules.zip ../modules/*_module/build/libs/*.jar
           zip -j -9 LauncherModules.zip ../modules/*_lmodule/build/libs/*.jar
+          cd ../LaunchServer/build/libs/
+          zip -r -9 ../../../artifacts/LauncherBase.zip * -x "LaunchServer-clean.jar"
+          cd ../../..
 
       - name: Create release
         id: create_release
