@@ -55,24 +55,26 @@ public class ServerWrapperSetup {
         System.out.println("Print your server name:");
         wrapper.config.serverName = commands.commandHandler.readLine();
         wrapper.config.mainclass = mainClassName;
-        boolean stopOnError = wrapper.config.stopOnError;
         for (int i = 0; i < 10; ++i) {
-            System.out.println("Print launchserver websocket host( ws://host:port/api ):");
-            wrapper.config.address = commands.commandHandler.readLine();
+            if(Request.service == null || Request.service.isClosed) {
+                System.out.println("Print launchserver websocket host( ws://host:port/api ):");
+                wrapper.config.address = commands.commandHandler.readLine();
+            }
             System.out.println("Print server token:");
             String checkServerToken = commands.commandHandler.readLine();
             wrapper.config.extendedTokens.put("checkServer", checkServerToken);
-            wrapper.config.stopOnError = false;
             wrapper.updateLauncherConfig();
             try {
                 wrapper.restore();
                 wrapper.getProfiles();
+                break;
             } catch (Throwable e) {
                 LogHelper.error(e);
-                Request.service.close();
+                if(!Request.service.isClosed) {
+                    Request.service.close();
+                }
             }
         }
-        wrapper.config.stopOnError = stopOnError;
         wrapper.saveConfig();
         LogHelper.info("Generate start script");
         Path startScript;

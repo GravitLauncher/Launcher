@@ -30,10 +30,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
@@ -121,23 +118,24 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
         if (classname.length() == 0) {
-            LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.cfg or first commandline argument");
-            if (config.stopOnError) System.exit(-1);
+            LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.json or first commandline argument");
+            System.exit(-1);
+        }
+        if(config.oauth == null && ( config.extendedTokens == null || config.extendedTokens.isEmpty())) {
+            LogHelper.error("Auth not configured. Please use 'java -jar ServerWrapper.jar setup'");
+            System.exit(-1);
         }
         Class<?> mainClass;
-        if (config.customClassPath) {
-            if (config.classpath == null)
-                throw new UnsupportedOperationException("classpath is null, customClassPath not available");
-            String[] cp = config.classpath.split(":");
+        if (config.classpath != null && !config.classpath.isEmpty()) {
             if (!ServerAgent.isAgentStarted()) {
                 LogHelper.warning("JavaAgent not found. Using URLClassLoader");
-                URL[] urls = Arrays.stream(cp).map(Paths::get).map(IOHelper::toURL).toArray(URL[]::new);
+                URL[] urls = config.classpath.stream().map(Paths::get).map(IOHelper::toURL).toArray(URL[]::new);
                 ucp = new PublicURLClassLoader(urls);
                 Thread.currentThread().setContextClassLoader(ucp);
                 loader = ucp;
             } else {
-                LogHelper.info("Found %d custom classpath elements", cp.length);
-                for (String c : cp)
+                LogHelper.info("Found %d custom classpath elements", config.classpath.size());
+                for (String c : config.classpath)
                     ServerAgent.addJVMClassPath(c);
             }
         }
@@ -175,9 +173,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 System.arraycopy(args, 1, real_args, 0, args.length - 1);
             } else real_args = args;
 
-            mainMethod.invoke(real_args);
+            mainMethod.invoke((Object) real_args);
         } else {
-            mainMethod.invoke(config.args);
+            mainMethod.invoke((Object) config.args.toArray(new String[0]));
         }
     }
 
@@ -204,10 +202,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         newConfig.projectname = "MineCraft";
         newConfig.mainclass = "";
         newConfig.extendedTokens = new HashMap<>();
-        newConfig.syncAuth = true;
-        newConfig.stopOnError = true;
-        newConfig.reconnectCount = 10;
-        newConfig.reconnectSleep = 1000;
+        newConfig.args = new ArrayList<>();
+        newConfig.classpath = new ArrayList<>();
         newConfig.address = "ws://localhost:9274/api";
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         return newConfig;
@@ -217,17 +213,12 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String projectname;
         public String address;
         public String serverName;
-        public int reconnectCount;
-        public int reconnectSleep;
-        public boolean customClassPath;
         public boolean autoloadLibraries;
-        public boolean stopOnError;
-        public boolean syncAuth;
         public String logFile;
-        public String classpath;
+        public List<String> classpath;
         public String librariesDir;
         public String mainclass;
-        public String[] args;
+        public List<String> args;
         public String authId;
         public AuthRequestEvent.OAuthRequestEvent oauth;
         public long oauthExpireTime;
