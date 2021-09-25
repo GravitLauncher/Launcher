@@ -92,9 +92,12 @@ public class ClientPermissions {
 
     public void addAction(String action) {
         if (actions == null) {
-            actions = new ArrayList<>();
+            actions = new ArrayList<>(1);
         }
         actions.add(action);
+        if(available == null) {
+            available = new ArrayList<>(1);
+        }
         available.add(Pattern.compile(action));
     }
 
@@ -154,15 +157,9 @@ public class ClientPermissions {
 
     @Override
     public String toString() {
-        if (roles != null || actions != null) {
-            return "ClientPermissions{" +
-                    "roles=" + String.join(", ", roles == null ? Collections.emptyList() : roles) +
-                    ", actions=" + String.join(", ", actions == null ? Collections.emptyList() : actions) +
-                    '}';
-        }
         return "ClientPermissions{" +
-                "permissions=" + permissions +
-                ", flags=" + flags +
+                "roles=" + String.join(", ", roles == null ? Collections.emptyList() : roles) +
+                ", actions=" + String.join(", ", actions == null ? Collections.emptyList() : actions) +
                 '}';
     }
 

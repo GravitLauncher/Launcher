@@ -10,6 +10,7 @@ import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.auth.protect.AdvancedProtectHandler;
+import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.update.LauncherResponse;
@@ -32,6 +33,7 @@ public class RestoreResponse extends SimpleResponse {
             providers.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponse.LauncherTokenVerifier(server));
             providers.put("publicKey", new AdvancedProtectHandler.PublicKeyTokenVerifier(server));
             providers.put("hardware", new AdvancedProtectHandler.HardwareInfoTokenVerifier(server));
+            providers.put("checkServer", new AuthManager.CheckServerVerifier(server));
             registeredProviders = true;
         }
     }

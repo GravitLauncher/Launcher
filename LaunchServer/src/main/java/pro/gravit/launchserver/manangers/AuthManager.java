@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.manangers;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import org.apache.logging.log4j.LogManager;
@@ -70,11 +69,16 @@ public class AuthManager {
         }
     }
 
-    public class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
+    public static class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
+        private final LaunchServer server;
+
+        public CheckServerVerifier(LaunchServer server) {
+            this.server = server;
+        }
 
         @Override
         public boolean accept(Client client, AuthProviderPair pair, String extendedToken) {
-            var info = parseCheckServerToken(extendedToken);
+            var info = server.authManager.parseCheckServerToken(extendedToken);
             if(info == null) {
                 return false;
             }

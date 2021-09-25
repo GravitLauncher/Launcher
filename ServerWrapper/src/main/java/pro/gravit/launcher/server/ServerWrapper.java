@@ -156,7 +156,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         {
             LogHelper.debug("WebSocket connect closed. Try reconnect");
             try {
-                restore();
+                Request.reconnect();
                 getProfiles();
             } catch (Exception e) {
                 LogHelper.error(e);
