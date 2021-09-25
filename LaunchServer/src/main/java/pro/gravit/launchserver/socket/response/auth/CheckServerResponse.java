@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.events.request.CheckServerRequestEvent;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -23,7 +24,7 @@ public class CheckServerResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client pClient) {
-        if (!pClient.isAuth || pClient.type == AuthResponse.ConnectTypes.CLIENT) {
+        if (pClient.permissions == null || !pClient.permissions.hasAction("launchserver.checkserver")) {
             sendError("Permissions denied");
             return;
         }
@@ -46,5 +47,4 @@ public class CheckServerResponse extends SimpleResponse {
         }
         sendResult(result);
     }
-
 }

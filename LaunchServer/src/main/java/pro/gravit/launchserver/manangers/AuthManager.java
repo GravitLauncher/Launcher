@@ -1,5 +1,8 @@
 package pro.gravit.launchserver.manangers;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.ClientPermissions;
@@ -19,6 +22,7 @@ import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportTextures;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
+import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -33,9 +37,53 @@ import java.util.stream.Collectors;
 public class AuthManager {
     private transient final LaunchServer server;
     private transient final Logger logger = LogManager.getLogger();
+    private transient final JwtParser checkServerTokenParser;
 
     public AuthManager(LaunchServer server) {
         this.server = server;
+        this.checkServerTokenParser = Jwts.parserBuilder()
+                .requireIssuer("LaunchServer")
+                .require("tokenType", "checkServer")
+                .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+                .build();
+    }
+
+    public String newCheckServerToken(String serverName, String authId) {
+        return Jwts.builder()
+                .setIssuer("LaunchServer")
+                .claim("serverName", serverName)
+                .claim("authId", authId)
+                .claim("tokenType", "checkServer")
+                .signWith(server.keyAgreementManager.ecdsaPrivateKey)
+                .compact();
+    }
+
+    public record CheckServerTokenInfo(String serverName, String authId) {
+    }
+
+    public CheckServerTokenInfo parseCheckServerToken(String token) {
+        try {
+            var jwt = checkServerTokenParser.parseClaimsJws(token).getBody();
+            return new CheckServerTokenInfo(jwt.get("serverName", String.class), jwt.get("authId", String.class));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
+
+        @Override
+        public boolean accept(Client client, AuthProviderPair pair, String extendedToken) {
+            var info = parseCheckServerToken(extendedToken);
+            if(info == null) {
+                return false;
+            }
+            client.auth_id = info.authId;
+            client.auth = server.config.getAuthProviderPair(info.authId);
+            if(client.permissions == null) client.permissions = new ClientPermissions();
+            client.permissions.addAction("launchserver\\.checkserver");
+            return true;
+        }
     }
 
     /**

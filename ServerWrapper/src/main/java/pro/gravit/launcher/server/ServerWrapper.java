@@ -15,12 +15,14 @@ import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
+import pro.gravit.launcher.request.auth.RestoreRequest;
 import pro.gravit.launcher.request.update.ProfilesRequest;
 import pro.gravit.launcher.server.setup.ServerWrapperSetup;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -30,14 +32,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
-    public static final Path modulesDir = Paths.get(System.getProperty("serverwrapper.modulesDir", "modules"));
-    public static final Path modulesConfigDir = Paths.get(System.getProperty("serverwrapper.modulesConfigDir", "modules-config"));
     public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
     public static final boolean disableSetup = Boolean.parseBoolean(System.getProperty("serverwrapper.disableSetup", "false"));
-    public static ServerWrapperModulesManager modulesManager;
     public static ServerWrapper wrapper;
     public Config config;
     public PublicURLClassLoader ucp;
@@ -51,77 +51,53 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         super(type, configPath);
     }
 
-    public static void initGson(ServerWrapperModulesManager modulesManager) {
-        Launcher.gsonManager = new ServerWrapperGsonManager(modulesManager);
+    public static void initGson() {
+        Launcher.gsonManager = new ServerWrapperGsonManager();
         Launcher.gsonManager.initGson();
     }
 
     public static void main(String... args) throws Throwable {
         LogHelper.printVersion("ServerWrapper");
         LogHelper.printLicense("ServerWrapper");
-        modulesManager = new ServerWrapperModulesManager(modulesDir, modulesConfigDir);
-        modulesManager.autoload();
-        modulesManager.initModules(null);
         ServerWrapper.wrapper = new ServerWrapper(ServerWrapper.Config.class, configFile);
         ServerWrapper.wrapper.run(args);
     }
 
-    public boolean auth() {
-        try {
-            Launcher.getConfig();
-            AuthRequest request = new AuthRequest(config.login, config.password, config.auth_id, AuthRequest.ConnectTypes.API);
-            AuthRequestEvent authResult = request.request();
-            if (config.saveSession) {
-                if (authResult.oauth != null) {
-                    Request.setOAuth(config.auth_id, authResult.oauth);
-                    config.oauth = authResult.oauth;
-                    config.oauthExpireTime = Request.getTokenExpiredTime();
-                } else {
-                    Request.setSession(authResult.session);
-                }
-                saveConfig();
-            }
-            permissions = authResult.permissions;
-            playerProfile = authResult.playerProfile;
-            return true;
-        } catch (Throwable e) {
-            LogHelper.error(e);
-            if (config.stopOnError) System.exit(-1);
-            return false;
+    public void restore() throws Exception {
+        if(config.oauth != null) {
+            Request.setOAuth(config.authId, config.oauth, config.oauthExpireTime);
         }
+        if(config.extendedTokens != null) {
+            Request.addAllExtendedToken(config.extendedTokens);
+        }
+        Request.restore();
     }
 
-    public ProfilesRequestEvent getProfiles() {
-        try {
-            ProfilesRequestEvent result = new ProfilesRequest().request();
-            for (ClientProfile p : result.profiles) {
-                LogHelper.debug("Get profile: %s", p.getTitle());
-                boolean isFound = false;
-                for (ClientProfile.ServerProfile srv : p.getServers()) {
-                    if (srv != null && srv.name.equals(config.serverName)) {
-                        this.serverProfile = srv;
-                        this.profile = p;
-                        Launcher.profile = p;
-                        LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
-                        isFound = true;
-                        break;
-                    }
+    public ProfilesRequestEvent getProfiles() throws Exception {
+        ProfilesRequestEvent result = new ProfilesRequest().request();
+        for (ClientProfile p : result.profiles) {
+            LogHelper.debug("Get profile: %s", p.getTitle());
+            boolean isFound = false;
+            for (ClientProfile.ServerProfile srv : p.getServers()) {
+                if (srv != null && srv.name.equals(config.serverName)) {
+                    this.serverProfile = srv;
+                    this.profile = p;
+                    Launcher.profile = p;
+                    LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
+                    isFound = true;
+                    break;
                 }
-                if (isFound) break;
             }
-            if (profile == null) {
-                LogHelper.warning("Not connected to ServerProfile. May be serverName incorrect?");
-            }
-            return result;
-        } catch (Throwable e) {
-            LogHelper.error(e);
-            if (config.stopOnError) System.exit(-1);
-            return null;
+            if (isFound) break;
         }
+        if (profile == null) {
+            LogHelper.warning("Not connected to ServerProfile. May be serverName incorrect?");
+        }
+        return result;
     }
 
     public void run(String... args) throws Throwable {
-        initGson(modulesManager);
+        initGson();
         AuthRequest.registerProviders();
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
@@ -133,7 +109,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             setup.run();
             System.exit(0);
         }
-        modulesManager.invokeEvent(new PreConfigPhase());
         LogHelper.debug("Read ServerWrapperConfig.json");
         loadConfig();
         updateLauncherConfig();
@@ -141,30 +116,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         else Launcher.applyLauncherEnv(LauncherConfig.LauncherEnvironment.STD);
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
-            if (config.saveSession) {
-                boolean needRestore = false;
-                if (config.oauth != null) {
-                    Request.setOAuth(config.auth_id, config.oauth, config.oauthExpireTime);
-                    needRestore = true;
-                } else if (config.session != null) {
-                    Request.setSession(config.session);
-                    needRestore = true;
-                } else {
-                    auth();
-                }
-                try {
-                    if (needRestore)
-                        Request.restore();
-                } catch (Exception e) {
-                    LogHelper.error(e);
-                    auth();
-                }
-            } else {
-                auth();
-            }
+            restore();
             getProfiles();
         }
-        modulesManager.invokeEvent(new ServerWrapperInitPhase(this));
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
         if (classname.length() == 0) {
             LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.cfg or first commandline argument");
@@ -200,20 +154,15 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         if (loader != null) mainClass = Class.forName(classname, true, loader);
         else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
-        modulesManager.invokeEvent(new PostInitPhase());
         Request.service.reconnectCallback = () ->
         {
             LogHelper.debug("WebSocket connect closed. Try reconnect");
-            if (config.saveSession) {
-                try {
-                    Request.restore();
-                } catch (Exception e) {
-                    auth();
-                }
-            } else {
-                auth();
+            try {
+                restore();
+                getProfiles();
+            } catch (Exception e) {
+                LogHelper.error(e);
             }
-            getProfiles();
         };
         LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s. Title: %s", config.projectname, config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
@@ -253,12 +202,10 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         Config newConfig = new Config();
         newConfig.serverName = "your server name";
         newConfig.projectname = "MineCraft";
-        newConfig.login = "login";
-        newConfig.password = "password";
         newConfig.mainclass = "";
+        newConfig.extendedTokens = new HashMap<>();
         newConfig.syncAuth = true;
         newConfig.stopOnError = true;
-        newConfig.saveSession = true;
         newConfig.reconnectCount = 10;
         newConfig.reconnectSleep = 1000;
         newConfig.address = "ws://localhost:9274/api";
@@ -280,14 +227,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String classpath;
         public String librariesDir;
         public String mainclass;
-        public String login;
         public String[] args;
-        public String password;
-        public String auth_id = "";
-        public boolean saveSession;
+        public String authId;
         public AuthRequestEvent.OAuthRequestEvent oauth;
         public long oauthExpireTime;
-        public UUID session;
+        public Map<String, String> extendedTokens;
         public LauncherConfig.LauncherEnvironment env;
     }
 

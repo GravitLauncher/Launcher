@@ -1,5 +1,6 @@
 package pro.gravit.launcher.server.setup;
 
+import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.server.ServerWrapper;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
@@ -12,6 +13,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.jar.JarFile;
 
 public class ServerWrapperSetup {
@@ -22,9 +24,8 @@ public class ServerWrapperSetup {
         commands = new ServerWrapperCommands();
     }
 
-    public void run() throws IOException {
+    public void run() throws Exception {
         ServerWrapper wrapper = ServerWrapper.wrapper;
-        ServerWrapper.modulesManager.invokeEvent(new ServerWrapperPreSetupEvent(this));
         System.out.println("Print server jar filename:");
         String jarName = commands.commandHandler.readLine();
         Path jarPath = Paths.get(jarName);
@@ -53,24 +54,22 @@ public class ServerWrapperSetup {
         }
         System.out.println("Print your server name:");
         wrapper.config.serverName = commands.commandHandler.readLine();
-        System.out.println("Print launchserver websocket host( ws://host:port/api ):");
-        String address = commands.commandHandler.readLine();
         wrapper.config.mainclass = mainClassName;
-        wrapper.config.address = address;
         boolean stopOnError = wrapper.config.stopOnError;
         for (int i = 0; i < 10; ++i) {
-            System.out.println("Print server account login:");
-            String login = commands.commandHandler.readLine();
-            System.out.println("Print server account password:");
-            String password = commands.commandHandler.readLine();
-            wrapper.config.login = login;
-            wrapper.config.password = password;
+            System.out.println("Print launchserver websocket host( ws://host:port/api ):");
+            wrapper.config.address = commands.commandHandler.readLine();
+            System.out.println("Print server token:");
+            String checkServerToken = commands.commandHandler.readLine();
+            wrapper.config.extendedTokens.put("checkServer", checkServerToken);
             wrapper.config.stopOnError = false;
             wrapper.updateLauncherConfig();
-            if (wrapper.auth() && wrapper.getProfiles() != null) {
-                break;
-            } else {
-                LogHelper.error("Auth error. Recheck account params");
+            try {
+                wrapper.restore();
+                wrapper.getProfiles();
+            } catch (Throwable e) {
+                LogHelper.error(e);
+                Request.service.close();
             }
         }
         wrapper.config.stopOnError = stopOnError;
@@ -84,7 +83,6 @@ public class ServerWrapperSetup {
             Path startScriptBak = Paths.get("start.bak");
             IOHelper.move(startScript, startScriptBak);
         }
-        ServerWrapper.modulesManager.invokeEvent(new ServerWrapperSetupEvent(this));
         try (Writer writer = IOHelper.newWriter(startScript)) {
             if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
                 writer.append("#!/bin/bash\n\n");
@@ -113,6 +111,5 @@ public class ServerWrapperSetup {
             writer.append(ServerWrapper.class.getName());
             writer.append("\n");
         }
-        ServerWrapper.modulesManager.invokeEvent(new ServerWrapperPostSetupEvent(this));
     }
 }
