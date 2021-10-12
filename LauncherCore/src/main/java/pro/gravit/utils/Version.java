@@ -8,7 +8,7 @@ public final class Version implements Comparable<Version> {
     public static final int MINOR = 2;
     public static final int PATCH = 3;
     public static final int BUILD = 1;
-    public static final Version.Type RELEASE = Type.DEV;
+    public static final Version.Type RELEASE = Type.BETA;
     public final int major;
     public final int minor;
     public final int patch;

@@ -141,8 +141,10 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
 
     @Override
     public void init(LaunchServer server) {
-        if (provider != null)
+        if (provider != null) {
             provider.init(server);
+            logger.warn("HWIDProvider deprecated. Please use 'AuthSupportHardware' in AuthCoreProvider");
+        }
         this.server = server;
     }
 

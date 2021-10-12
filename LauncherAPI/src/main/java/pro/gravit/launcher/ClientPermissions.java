@@ -3,10 +3,7 @@ package pro.gravit.launcher;
 import pro.gravit.launcher.serialize.HInput;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Pattern;
+import java.util.*;
 
 public class ClientPermissions {
     public static final ClientPermissions DEFAULT = new ClientPermissions();
@@ -21,7 +18,7 @@ public class ClientPermissions {
     @LauncherNetworkAPI
     private List<String> actions;
 
-    private transient List<Pattern> available;
+    private transient List<PermissionPattern> available;
 
     public ClientPermissions(HInput input) throws IOException {
         this(input.readLong());
@@ -61,12 +58,12 @@ public class ClientPermissions {
         }
         available = new ArrayList<>(actions.size());
         for (String a : actions) {
-            available.add(Pattern.compile(a));
+            available.add(new PermissionPattern(a));
         }
         if (permissions != 0) {
             if (isPermission(PermissionConsts.ADMIN)) {
                 roles.add("ADMIN");
-                available.add(Pattern.compile(".*"));
+                available.add(new PermissionPattern("*"));
             }
         }
     }
@@ -75,8 +72,8 @@ public class ClientPermissions {
         if (available == null) {
             compile();
         }
-        for (Pattern p : available) {
-            if (p.matcher(action).matches()) {
+        for (PermissionPattern p : available) {
+            if (p.match(action)) {
                 return true;
             }
         }
@@ -98,7 +95,7 @@ public class ClientPermissions {
         if(available == null) {
             available = new ArrayList<>(1);
         }
-        available.add(Pattern.compile(action));
+        available.add(new PermissionPattern(action));
     }
 
     public List<String> getRoles() {
@@ -184,6 +181,56 @@ public class ClientPermissions {
 
         FlagConsts(long mask) {
             this.mask = mask;
+        }
+    }
+
+    public static class PermissionPattern {
+        private final String[] parts;
+        private final int priority;
+
+        public PermissionPattern(String pattern) {
+            List<String> prepare = new ArrayList<>();
+            for(int i=0;true;) {
+                int pos = pattern.indexOf("*", i);
+                if(pos >= 0) {
+                    prepare.add(pattern.substring(i, pos));
+                    i = pos+1;
+                } else {
+                    prepare.add(pattern.substring(i));
+                    break;
+                }
+            }
+            priority = prepare.size() - 1;
+            parts = prepare.toArray(new String[0]);
+        }
+
+        public int getPriority() {
+            return priority;
+        }
+
+        public boolean match(String str) {
+            if(parts.length == 0) {
+                return true;
+            }
+            if(parts.length == 1) {
+                return parts[0].equals(str);
+            }
+            int offset = 0;
+            if(!str.startsWith(parts[0])) {
+                return false;
+            }
+            if(!str.endsWith(parts[parts.length-1])) {
+                return false;
+            }
+            for(int i=1;i<parts.length-1;++i) {
+                int pos = str.indexOf(parts[i], offset);
+                if(pos >= 0) {
+                    offset = pos+1;
+                } else {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

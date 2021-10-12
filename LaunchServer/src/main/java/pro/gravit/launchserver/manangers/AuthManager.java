@@ -205,6 +205,9 @@ public class AuthManager {
      * Writing authorization information to the Client object
      */
     public void internalAuth(Client client, AuthResponse.ConnectTypes authType, AuthProviderPair pair, String username, UUID uuid, ClientPermissions permissions, boolean oauth) {
+        if(!oauth) {
+            pair.internalShowOAuthWarnMessage();
+        }
         client.isAuth = true;
         client.permissions = permissions;
         client.auth_id = pair.name;

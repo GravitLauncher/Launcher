@@ -1,8 +1,11 @@
 package pro.gravit.launchserver.auth;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.core.AuthSocialProvider;
+import pro.gravit.launchserver.auth.core.MySQLCoreProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 
 import java.io.IOException;
@@ -11,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 public final class AuthProviderPair {
+    private transient final Logger logger = LogManager.getLogger();
     public boolean isDefault = true;
     public AuthCoreProvider core;
     public AuthSocialProvider social;
@@ -19,6 +23,7 @@ public final class AuthProviderPair {
     public transient String name;
     public transient Set<String> features;
     public String displayName;
+    private transient boolean warnOAuthShow = false;
 
     public AuthProviderPair(AuthCoreProvider core, TextureProvider textureProvider) {
         this.core = core;
@@ -40,6 +45,15 @@ public final class AuthProviderPair {
         Set<String> list = new HashSet<>();
         getFeatures(clazz, list);
         return list;
+    }
+
+    public void internalShowOAuthWarnMessage() {
+        if(!warnOAuthShow) {
+            if(!(core instanceof MySQLCoreProvider)) { // MySQL upgraded later
+                logger.warn("AuthCoreProvider {} ({}) not supported OAuth. Legacy session system may be removed in next release", name, core.getClass().getName());
+            }
+            warnOAuthShow = true;
+        }
     }
 
     public static void getFeatures(Class<?> clazz, Set<String> list) {

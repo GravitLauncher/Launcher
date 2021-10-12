@@ -1,16 +1,17 @@
 package pro.gravit.launchserver.auth.protect;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class StdProtectHandler extends ProtectHandler implements ProfilesProtectHandler {
+    private transient final Logger logger = LogManager.getLogger();
     public Map<String, List<String>> profileWhitelist = new HashMap<>();
     public List<String> allowUpdates = new ArrayList<>();
 
@@ -25,13 +26,20 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
     }
 
     @Override
+    public void init(LaunchServer server) {
+        if(profileWhitelist != null && profileWhitelist.size() > 0) {
+            logger.warn("profileWhitelist deprecated. Please use permission 'launchserver.profile.PROFILE_UUID.show' and 'launchserver.profile.PROFILE_UUID.enter'");
+        }
+    }
+
+    @Override
     public boolean canGetProfile(ClientProfile profile, Client client) {
-        return canChangeProfile(profile, client);
+        return client.isAuth && client.username != null && (!profile.isLimited() || isWhitelisted("launchserver.profile.%s.show", profile, client) );
     }
 
     @Override
     public boolean canChangeProfile(ClientProfile profile, Client client) {
-        return client.isAuth && client.username != null && isWhitelisted(profile.getTitle(), client.username);
+        return client.isAuth && client.username != null && (!profile.isLimited() || isWhitelisted("launchserver.profile.%s.enter", profile, client) );
     }
 
     @Override
@@ -39,9 +47,19 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
         return client.profile != null && (client.profile.getDir().equals(updatesDirName) || client.profile.getAssetDir().equals(updatesDirName) || allowUpdates.contains(updatesDirName));
     }
 
-    public boolean isWhitelisted(String profileTitle, String username) {
-        List<String> allowedUsername = profileWhitelist.get(profileTitle);
-        if (allowedUsername == null) return true;
-        return allowedUsername.contains(username);
+    private boolean isWhitelisted(String property, ClientProfile profile, Client client) {
+        if(client.permissions != null) {
+            String permByUUID = String.format(property, profile.getUUID());
+            if(client.permissions.hasAction(permByUUID)) {
+                return true;
+            }
+            String permByTitle = String.format(property, profile.getTitle().toLowerCase(Locale.ROOT));
+            if(client.permissions.hasAction(permByTitle)) {
+                return true;
+            }
+        }
+        List<String> allowedUsername = profileWhitelist.get(profile.getTitle());
+        if (allowedUsername != null && allowedUsername.contains(client.username)) return true;
+        return false;
     }
 }

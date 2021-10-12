@@ -20,7 +20,6 @@ public class GCCommand extends Command {
     public void invoke(String... args) {
         LogHelper.subInfo("Performing full GC");
         JVMHelper.fullGC();
-        GarbageManager.gc();
         // Print memory usage
         long max = JVMHelper.RUNTIME.maxMemory() >> 20;
         long free = JVMHelper.RUNTIME.freeMemory() >> 20;

@@ -77,6 +77,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private ProfileDefaultSettings settings = new ProfileDefaultSettings();
     @LauncherNetworkAPI
     private boolean updateFastCheck;
+    @LauncherNetworkAPI
+    private boolean limited;
     // Client launcher
     @LauncherNetworkAPI
     private String mainClass;
@@ -439,6 +441,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public void setRuntimeInClientConfig(RuntimeInClientConfig runtimeInClientConfig) {
         this.runtimeInClientConfig = runtimeInClientConfig;
+    }
+
+    public boolean isLimited() {
+        return limited;
     }
 
     public enum Version {
