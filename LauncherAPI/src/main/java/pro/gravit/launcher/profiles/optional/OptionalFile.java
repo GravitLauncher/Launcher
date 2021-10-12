@@ -31,6 +31,8 @@ public class OptionalFile {
     public int subTreeLevel = 1;
     @LauncherNetworkAPI
     public boolean isPreset;
+    @LauncherNetworkAPI
+    public boolean limited;
 
     @Override
     public boolean equals(Object o) {
