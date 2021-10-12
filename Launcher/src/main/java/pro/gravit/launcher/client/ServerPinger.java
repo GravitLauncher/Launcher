@@ -163,6 +163,9 @@ public final class ServerPinger {
 
         // Parse JSON response
         JsonObject object = JsonParser.parseString(response).getAsJsonObject();
+        if(object.has("error")) {
+            throw new IOException(object.get("error").getAsString());
+        }
         JsonObject playersObject = object.get("players").getAsJsonObject();
         int online = playersObject.get("online").getAsInt();
         int max = playersObject.get("max").getAsInt();

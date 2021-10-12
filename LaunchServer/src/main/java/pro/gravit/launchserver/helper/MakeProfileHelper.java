@@ -24,7 +24,7 @@ public class MakeProfileHelper {
         builder.setTitle(title);
         builder.setUuid(UUID.randomUUID());
         builder.setMainClass(getMainClassByVersion(version, options));
-        builder.setServers(List.of(new ClientProfile.ServerProfile(title, "localhost", 25535)));
+        builder.setServers(List.of(new ClientProfile.ServerProfile(title, "localhost", 25565)));
         // ------------
         builder.setUpdateVerify(List.of("libraries", "natives", "mods", "minecraft.jar", "forge.jar", "liteloader.jar"));
         {
