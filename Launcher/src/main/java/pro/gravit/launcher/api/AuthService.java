@@ -12,6 +12,6 @@ public class AuthService {
     public static ClientProfile profile;
 
     public static boolean hasPermission(String permission) {
-        return permissions.hasAction(permission);
+        return permissions.hasPerm(permission);
     }
 }

@@ -34,7 +34,7 @@ public class ExitResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (username != null && (!client.isAuth || client.permissions == null || !client.permissions.hasAction("launchserver\\.management\\.kick"))) {
+        if (username != null && (!client.isAuth || client.permissions == null || !client.permissions.hasPerm("launchserver\\.management\\.kick"))) {
             sendError("Permissions denied");
             return;
         }

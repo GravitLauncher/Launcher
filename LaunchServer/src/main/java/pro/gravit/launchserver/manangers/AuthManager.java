@@ -85,8 +85,8 @@ public class AuthManager {
             client.auth_id = info.authId;
             client.auth = server.config.getAuthProviderPair(info.authId);
             if(client.permissions == null) client.permissions = new ClientPermissions();
-            client.permissions.addAction("launchserver.checkserver");
-            client.permissions.addAction(String.format("launchserver.profiles.%s.show", info.serverName));
+            client.permissions.addPerm("launchserver.checkserver");
+            client.permissions.addPerm(String.format("launchserver.profiles.%s.show", info.serverName));
             return true;
         }
     }

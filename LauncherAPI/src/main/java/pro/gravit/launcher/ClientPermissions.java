@@ -16,7 +16,7 @@ public class ClientPermissions {
     @LauncherNetworkAPI
     private List<String> roles;
     @LauncherNetworkAPI
-    private List<String> actions;
+    private List<String> perms;
 
     private transient List<PermissionPattern> available;
 
@@ -40,7 +40,7 @@ public class ClientPermissions {
     public static ClientPermissions getSuperuserAccount() {
         ClientPermissions perm = new ClientPermissions();
         perm.setPermission(PermissionConsts.ADMIN, true);
-        perm.addAction("*");
+        perm.addPerm("*");
         return perm;
     }
 
@@ -56,8 +56,8 @@ public class ClientPermissions {
         if (available != null) {
             return;
         }
-        available = new ArrayList<>(actions.size());
-        for (String a : actions) {
+        available = new ArrayList<>(perms.size());
+        for (String a : perms) {
             available.add(new PermissionPattern(a));
         }
         if (permissions != 0) {
@@ -68,7 +68,7 @@ public class ClientPermissions {
         }
     }
 
-    public boolean hasAction(String action) {
+    public boolean hasPerm(String action) {
         if (available == null) {
             compile();
         }
@@ -87,23 +87,34 @@ public class ClientPermissions {
         roles.add(role);
     }
 
-    public void addAction(String action) {
-        if (actions == null) {
-            actions = new ArrayList<>(1);
+    public void addPerm(String perm) {
+        if (perms == null) {
+            perms = new ArrayList<>(1);
         }
-        actions.add(action);
+        perms.add(perm);
         if(available == null) {
             available = new ArrayList<>(1);
         }
-        available.add(new PermissionPattern(action));
+        available.add(new PermissionPattern(perm));
+    }
+
+    public void removePerm(String action) {
+        if (perms == null) {
+            return;
+        }
+        if(available == null) {
+            return;
+        }
+        perms.remove(action);
+        available.remove(new PermissionPattern(action));
     }
 
     public List<String> getRoles() {
         return roles;
     }
 
-    public List<String> getActions() {
-        return actions;
+    public List<String> getPerms() {
+        return perms;
     }
 
     //Read methods
@@ -156,7 +167,7 @@ public class ClientPermissions {
     public String toString() {
         return "ClientPermissions{" +
                 "roles=" + String.join(", ", roles == null ? Collections.emptyList() : roles) +
-                ", actions=" + String.join(", ", actions == null ? Collections.emptyList() : actions) +
+                ", actions=" + String.join(", ", perms == null ? Collections.emptyList() : perms) +
                 '}';
     }
 
@@ -231,6 +242,21 @@ public class ClientPermissions {
                 }
             }
             return true;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PermissionPattern that = (PermissionPattern) o;
+            return priority == that.priority && Arrays.equals(parts, that.parts);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(priority);
+            result = 31 * result + Arrays.hashCode(parts);
+            return result;
         }
     }
 }
