@@ -96,7 +96,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                 if (report.success) {
                     logger.info("Password correct");
                 } else {
-                    if (report.needMoreFactor) {
+                    if (report.needMoreFactors) {
                         if (report.factors.size() == 1 && report.factors.get(0) == -1) {
                             logger.info("Password not correct: Required 2FA");
                         } else {
@@ -345,30 +345,30 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         public static final PasswordVerifyReport FAILED = new PasswordVerifyReport(false);
         public static final PasswordVerifyReport OK = new PasswordVerifyReport(true);
         public final boolean success;
-        public final boolean needMoreFactor;
+        public final boolean needMoreFactors;
         public final List<Integer> factors;
 
         public PasswordVerifyReport(boolean success) {
             this.success = success;
-            this.needMoreFactor = false;
+            this.needMoreFactors = false;
             this.factors = List.of();
         }
 
         public PasswordVerifyReport(int nextFactor) {
             this.success = false;
-            this.needMoreFactor = true;
+            this.needMoreFactors = true;
             this.factors = List.of(nextFactor);
         }
 
         public PasswordVerifyReport(List<Integer> factors) {
             this.success = false;
-            this.needMoreFactor = false;
+            this.needMoreFactors = false;
             this.factors = Collections.unmodifiableList(factors);
         }
 
-        private PasswordVerifyReport(boolean success, boolean needMoreFactor, List<Integer> factors) {
+        private PasswordVerifyReport(boolean success, boolean needMoreFactors, List<Integer> factors) {
             this.success = success;
-            this.needMoreFactor = needMoreFactor;
+            this.needMoreFactors = needMoreFactors;
             this.factors = factors;
         }
     }

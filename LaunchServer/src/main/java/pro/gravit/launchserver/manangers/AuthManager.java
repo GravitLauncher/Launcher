@@ -190,7 +190,7 @@ public class AuthManager {
             internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), result.isUsingOAuth());
             return result;
         } else {
-            if (report.needMoreFactor) {
+            if (report.needMoreFactors) {
                 if (report.factors.size() == 1 && report.factors.get(0) == -1) {
                     throw new AuthException(AuthRequestEvent.TWO_FACTOR_NEED_ERROR_MESSAGE);
                 }
