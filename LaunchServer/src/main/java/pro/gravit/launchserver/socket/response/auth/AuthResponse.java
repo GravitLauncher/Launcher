@@ -48,7 +48,7 @@ public class AuthResponse extends SimpleResponse {
             context.report = server.authManager.auth(context, password);
             server.authHookManager.postHook.hook(context, clientData);
             if (context.report.isUsingOAuth()) {
-                result.oauth = new AuthRequestEvent.OAuthRequestEvent(context.report.oauthAccessToken, context.report.oauthRefreshToken, context.report.oauthExpire);
+                result.oauth = new AuthRequestEvent.OAuthRequestEvent(context.report.oauthAccessToken(), context.report.oauthRefreshToken(), context.report.oauthExpire());
             } else if (getSession) {
                 if (clientData.session == null) {
                     clientData.session = UUID.randomUUID();
@@ -56,8 +56,8 @@ public class AuthResponse extends SimpleResponse {
                 }
                 result.session = clientData.session;
             }
-            if (context.report.minecraftAccessToken != null) {
-                result.accessToken = context.report.minecraftAccessToken;
+            if (context.report.minecraftAccessToken() != null) {
+                result.accessToken = context.report.minecraftAccessToken();
             }
             result.playerProfile = server.authManager.getPlayerProfile(clientData);
             sendResult(result);
@@ -67,8 +67,6 @@ public class AuthResponse extends SimpleResponse {
     }
 
     public enum ConnectTypes {
-        @Deprecated
-        SERVER,
         CLIENT,
         API
     }
@@ -81,8 +79,6 @@ public class AuthResponse extends SimpleResponse {
         public final Client client;
         public final AuthProviderPair pair;
         public AuthManager.AuthReport report;
-        @Deprecated
-        public int password_length; //Use AuthProvider for get password
 
         public AuthContext(Client client, String login, String profileName, String ip, ConnectTypes authType, AuthProviderPair pair) {
             this.client = client;

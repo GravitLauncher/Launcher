@@ -12,6 +12,7 @@ import pro.gravit.launchserver.socket.response.SimpleResponse;
 import java.util.Map;
 import java.util.UUID;
 
+@SuppressWarnings("deprecation")
 public class AdditionalDataResponse extends SimpleResponse {
     public String username;
     public UUID uuid;
@@ -23,7 +24,7 @@ public class AdditionalDataResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        if (!client.isAuth || !client.auth.isUseCore()) {
+        if (!client.isAuth) {
             sendError("Access denied");
             return;
         }
@@ -31,8 +32,7 @@ public class AdditionalDataResponse extends SimpleResponse {
         if (username == null && uuid == null) {
             Map<String, String> properties;
             User user = client.getUser();
-            if (user instanceof UserSupportAdditionalData) {
-                UserSupportAdditionalData userSupport = (UserSupportAdditionalData) user;
+            if (user instanceof UserSupportAdditionalData userSupport) {
                 if (user.getPermissions().isPermission(ClientPermissions.PermissionConsts.ADMIN)) {
                     properties = userSupport.getPropertiesMap();
                 } else {
@@ -50,11 +50,10 @@ public class AdditionalDataResponse extends SimpleResponse {
         } else {
             user = pair.core.getUserByUUID(uuid);
         }
-        if (!(user instanceof UserSupportAdditionalData)) {
+        if (!(user instanceof UserSupportAdditionalData userSupport)) {
             sendResult(new AdditionalDataRequestEvent(Map.of()));
             return;
         }
-        UserSupportAdditionalData userSupport = (UserSupportAdditionalData) user;
         Map<String, String> properties;
         if (client.permissions.isPermission(ClientPermissions.PermissionConsts.ADMIN)) {
             properties = userSupport.getPropertiesMap();

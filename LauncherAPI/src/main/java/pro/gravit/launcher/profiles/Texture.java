@@ -1,6 +1,5 @@
 package pro.gravit.launcher.profiles;
 
-import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 import pro.gravit.utils.helper.IOHelper;
@@ -24,14 +23,6 @@ public final class Texture extends StreamObject {
     public final byte[] digest;
 
     public final Map<String, String> metadata;
-
-
-    @Deprecated
-    public Texture(HInput input) throws IOException {
-        url = IOHelper.verifyURL(input.readASCII(2048));
-        digest = input.readByteArray(-DIGEST_ALGO.bytes);
-        metadata = null;
-    }
 
     public Texture(String url, boolean cloak) throws IOException {
         this.url = IOHelper.verifyURL(url);

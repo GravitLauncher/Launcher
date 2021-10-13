@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.manangers;
 
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.ClientPermissions;
@@ -16,12 +18,10 @@ import pro.gravit.launchserver.auth.core.AuthSocialProvider;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportTextures;
-import pro.gravit.launchserver.auth.provider.AuthProvider;
-import pro.gravit.launchserver.auth.provider.AuthProviderDAOResult;
-import pro.gravit.launchserver.auth.provider.AuthProviderResult;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
+import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -36,9 +36,59 @@ import java.util.stream.Collectors;
 public class AuthManager {
     private transient final LaunchServer server;
     private transient final Logger logger = LogManager.getLogger();
+    private transient final JwtParser checkServerTokenParser;
 
     public AuthManager(LaunchServer server) {
         this.server = server;
+        this.checkServerTokenParser = Jwts.parserBuilder()
+                .requireIssuer("LaunchServer")
+                .require("tokenType", "checkServer")
+                .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+                .build();
+    }
+
+    public String newCheckServerToken(String serverName, String authId) {
+        return Jwts.builder()
+                .setIssuer("LaunchServer")
+                .claim("serverName", serverName)
+                .claim("authId", authId)
+                .claim("tokenType", "checkServer")
+                .signWith(server.keyAgreementManager.ecdsaPrivateKey)
+                .compact();
+    }
+
+    public record CheckServerTokenInfo(String serverName, String authId) {
+    }
+
+    public CheckServerTokenInfo parseCheckServerToken(String token) {
+        try {
+            var jwt = checkServerTokenParser.parseClaimsJws(token).getBody();
+            return new CheckServerTokenInfo(jwt.get("serverName", String.class), jwt.get("authId", String.class));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
+        private final LaunchServer server;
+
+        public CheckServerVerifier(LaunchServer server) {
+            this.server = server;
+        }
+
+        @Override
+        public boolean accept(Client client, AuthProviderPair pair, String extendedToken) {
+            var info = server.authManager.parseCheckServerToken(extendedToken);
+            if(info == null) {
+                return false;
+            }
+            client.auth_id = info.authId;
+            client.auth = server.config.getAuthProviderPair(info.authId);
+            if(client.permissions == null) client.permissions = new ClientPermissions();
+            client.permissions.addPerm("launchserver.checkserver");
+            client.permissions.addPerm(String.format("launchserver.profiles.%s.show", info.serverName));
+            return true;
+        }
     }
 
     /**
@@ -61,12 +111,10 @@ public class AuthManager {
      */
     public void check(AuthResponse.AuthContext context) throws AuthException {
         if (context.authType == AuthResponse.ConnectTypes.CLIENT && !context.client.checkSign) {
-            AuthProvider.authError("Don't skip Launcher Update");
-            return;
+            throw new AuthException("Don't skip Launcher Update");
         }
         if (context.client.isAuth) {
-            AuthProvider.authError("You are already logged in");
-            return;
+            throw new AuthException("You are already logged in");
         }
     }
 
@@ -78,47 +126,9 @@ public class AuthManager {
      * @return Access token
      */
     public AuthReport auth(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException {
-        AuthProviderPair pair = context.pair;
-        AuthReport report;
-        if (pair.core == null) {
-            try {
-                report = AuthReport.ofMinecraftAccessToken(authWithProviderAndHandler(context, password));
-            } catch (Exception e) {
-                if (e instanceof AuthException) throw (AuthException) e;
-                throw new AuthException("Internal Auth Error. Please contact administrator");
-            }
-        } else {
-            report = authWithCore(context, password);
-        }
-        return report;
-    }
-
-    @SuppressWarnings("deprecation")
-    private String authWithProviderAndHandler(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws Exception {
-        String accessToken;
-        context.pair.provider.preAuth(context.login, password, context.ip);
-        AuthProviderResult aresult = context.pair.provider.auth(context.login, password, context.ip);
-        UUID uuid;
-        String username = aresult.username != null ? aresult.username : context.login;
-        if (aresult instanceof AuthProviderDAOResult) {
-            context.client.daoObject = ((AuthProviderDAOResult) aresult).daoObject;
-        }
-        if (context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context)) {
-            uuid = context.pair.handler.auth(aresult);
-            accessToken = aresult.accessToken;
-        } else {
-            uuid = context.pair.handler.usernameToUUID(aresult.username);
-            accessToken = null;
-        }
-        internalAuth(context.client, context.authType, context.pair, username, uuid, aresult.permissions, false);
-        return accessToken;
-    }
-
-    private AuthReport authWithCore(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException {
         AuthCoreProvider provider = context.pair.core;
         provider.verifyAuth(context);
-        if (password instanceof AuthOAuthPassword) {
-            AuthOAuthPassword password1 = (AuthOAuthPassword) password;
+        if (password instanceof AuthOAuthPassword password1) {
             UserSession session;
             try {
                 session = provider.getUserSessionByOAuthAccessToken(password1.accessToken);
@@ -180,7 +190,7 @@ public class AuthManager {
             internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), result.isUsingOAuth());
             return result;
         } else {
-            if (report.needMoreFactor) {
+            if (report.needMoreFactors) {
                 if (report.factors.size() == 1 && report.factors.get(0) == -1) {
                     throw new AuthException(AuthRequestEvent.TWO_FACTOR_NEED_ERROR_MESSAGE);
                 }
@@ -196,6 +206,9 @@ public class AuthManager {
      * Writing authorization information to the Client object
      */
     public void internalAuth(Client client, AuthResponse.ConnectTypes authType, AuthProviderPair pair, String username, UUID uuid, ClientPermissions permissions, boolean oauth) {
+        if(!oauth) {
+            pair.internalShowOAuthWarnMessage();
+        }
         client.isAuth = true;
         client.permissions = permissions;
         client.auth_id = pair.name;
@@ -204,30 +217,19 @@ public class AuthManager {
         client.type = authType;
         client.uuid = uuid;
         client.useOAuth = oauth;
-        if (pair.isUseCore() && client.coreObject == null) {
-            client.coreObject = pair.core.getUserByUUID(uuid);
-        }
+        client.coreObject = pair.core.getUserByUUID(uuid);
     }
 
     public CheckServerReport checkServer(Client client, String username, String serverID) throws IOException {
         if (client.auth == null) return null;
-        if (client.auth.isUseCore()) {
-            User user = client.auth.core.checkServer(client, username, serverID);
-            if (user == null) return null;
-            else return CheckServerReport.ofUser(user, getPlayerProfile(client.auth, user));
-        } else {
-            UUID uuid = client.auth.handler.checkServer(username, serverID);
-            return uuid == null ? null : CheckServerReport.ofUUID(uuid, getPlayerProfile(client.auth, uuid));
-        }
+        User user = client.auth.core.checkServer(client, username, serverID);
+        if (user == null) return null;
+        else return CheckServerReport.ofUser(user, getPlayerProfile(client.auth, user));
     }
 
     public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
         if (client.auth == null) return false;
-        if (client.auth.isUseCore()) {
-            return client.auth.core.joinServer(client, username, accessToken, serverID);
-        } else {
-            return client.auth.handler.joinServer(username, accessToken, serverID);
-        }
+        return client.auth.core.joinServer(client, username, accessToken, serverID);
     }
 
     public PlayerProfile getPlayerProfile(Client client) {
@@ -253,22 +255,14 @@ public class AuthManager {
     }
 
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, String username, ClientProfile profile) {
-        UUID uuid = null;
-        if (pair.isUseCore()) {
-            User user = pair.core.getUserByUsername(username);
-            if (user == null) {
-                return null;
-            }
-            PlayerProfile playerProfile = getPlayerProfile(pair, user);
-            uuid = user.getUUID();
-            if (playerProfile != null) return playerProfile;
-        } else {
-            try {
-                uuid = pair.handler.usernameToUUID(username);
-            } catch (IOException e) {
-                logger.error("UsernameToUUID failed", e);
-            }
+        UUID uuid;
+        User user = pair.core.getUserByUsername(username);
+        if (user == null) {
+            return null;
         }
+        PlayerProfile playerProfile = getPlayerProfile(pair, user);
+        uuid = user.getUUID();
+        if (playerProfile != null) return playerProfile;
         if (uuid == null) {
             return null;
         }
@@ -283,22 +277,14 @@ public class AuthManager {
     }
 
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, UUID uuid, ClientProfile profile) {
-        String username = null;
-        if (pair.isUseCore()) {
-            User user = pair.core.getUserByUUID(uuid);
-            if (user == null) {
-                return null;
-            }
-            PlayerProfile playerProfile = getPlayerProfile(pair, user);
-            username = user.getUsername();
-            if (playerProfile != null) return playerProfile;
-        } else {
-            try {
-                username = pair.handler.uuidToUsername(uuid);
-            } catch (IOException e) {
-                logger.error("UUIDToUsername failed", e);
-            }
+        String username;
+        User user = pair.core.getUserByUUID(uuid);
+        if (user == null) {
+            return null;
         }
+        PlayerProfile playerProfile = getPlayerProfile(pair, user);
+        username = user.getUsername();
+        if (playerProfile != null) return playerProfile;
         if (username == null) {
             return null;
         }
@@ -327,12 +313,10 @@ public class AuthManager {
     }
 
     public AuthRequest.AuthPasswordInterface decryptPassword(AuthRequest.AuthPasswordInterface password) throws AuthException {
-        if (password instanceof Auth2FAPassword) {
-            Auth2FAPassword auth2FAPassword = (Auth2FAPassword) password;
+        if (password instanceof Auth2FAPassword auth2FAPassword) {
             auth2FAPassword.firstPassword = tryDecryptPasswordPlain(auth2FAPassword.firstPassword);
             auth2FAPassword.secondPassword = tryDecryptPasswordPlain(auth2FAPassword.secondPassword);
-        } else if (password instanceof AuthMultiPassword) {
-            AuthMultiPassword multiPassword = (AuthMultiPassword) password;
+        } else if (password instanceof AuthMultiPassword multiPassword) {
             List<AuthRequest.AuthPasswordInterface> list = new ArrayList<>(multiPassword.list.size());
             for (AuthRequest.AuthPasswordInterface p : multiPassword.list) {
                 list.add(tryDecryptPasswordPlain(p));
@@ -344,16 +328,7 @@ public class AuthManager {
         return password;
     }
 
-    @SuppressWarnings("deprecation")
     private AuthRequest.AuthPasswordInterface tryDecryptPasswordPlain(AuthRequest.AuthPasswordInterface password) throws AuthException {
-        if (password instanceof AuthECPassword) {
-            try {
-                return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
-                        , ((AuthECPassword) password).password)));
-            } catch (Exception ignored) {
-                throw new AuthException("Password decryption error");
-            }
-        }
         if (password instanceof AuthAESPassword) {
             try {
                 return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
@@ -395,20 +370,9 @@ public class AuthManager {
         }
     }
 
-    public static class AuthReport {
-        public final String minecraftAccessToken;
-        public final String oauthAccessToken;
-        public final String oauthRefreshToken;
-        public final long oauthExpire;
-        public final UserSession session;
-
-        public AuthReport(String minecraftAccessToken, String oauthAccessToken, String oauthRefreshToken, long oauthExpire, UserSession session) {
-            this.minecraftAccessToken = minecraftAccessToken;
-            this.oauthAccessToken = oauthAccessToken;
-            this.oauthRefreshToken = oauthRefreshToken;
-            this.oauthExpire = oauthExpire;
-            this.session = session;
-        }
+    public record AuthReport(String minecraftAccessToken, String oauthAccessToken,
+                             String oauthRefreshToken, long oauthExpire,
+                             UserSession session) {
 
         public static AuthReport ofOAuth(String oauthAccessToken, String oauthRefreshToken, long oauthExpire) {
             return new AuthReport(null, oauthAccessToken, oauthRefreshToken, oauthExpire, null);

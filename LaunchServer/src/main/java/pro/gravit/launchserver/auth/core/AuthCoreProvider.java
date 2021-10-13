@@ -1,5 +1,6 @@
 package pro.gravit.launchserver.auth.core;
 
+import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
@@ -14,6 +15,7 @@ import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportGetAllUsers;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportRegistration;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
 import pro.gravit.launchserver.manangers.AuthManager;
@@ -25,6 +27,7 @@ import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.command.SubCommand;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +96,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                 if (report.success) {
                     logger.info("Password correct");
                 } else {
-                    if (report.needMoreFactor) {
+                    if (report.needMoreFactors) {
                         if (report.factors.size() == 1 && report.factors.get(0) == -1) {
                             logger.info("Password not correct: Required 2FA");
                         } else {
@@ -145,13 +148,13 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                     return;
                 }
                 if (report.isUsingOAuth()) {
-                    logger.info("OAuth: AccessToken: {} RefreshToken: {} MinecraftAccessToken: {}", report.oauthAccessToken, report.oauthRefreshToken, report.minecraftAccessToken);
-                    if (report.session != null) {
-                        logger.info("UserSession: id {} expire {} user {}", report.session.getID(), report.session.getExpireIn(), report.session.getUser() == null ? "null" : "found");
-                        logger.info(report.session.toString());
+                    logger.info("OAuth: AccessToken: {} RefreshToken: {} MinecraftAccessToken: {}", report.oauthAccessToken(), report.oauthRefreshToken(), report.minecraftAccessToken());
+                    if (report.session() != null) {
+                        logger.info("UserSession: id {} expire {} user {}", report.session().getID(), report.session().getExpireIn(), report.session().getUser() == null ? "null" : "found");
+                        logger.info(report.session().toString());
                     }
                 } else {
-                    logger.info("Basic: MinecraftAccessToken: {}", report.minecraftAccessToken);
+                    logger.info("Basic: MinecraftAccessToken: {}", report.minecraftAccessToken());
                 }
             }
         });
@@ -281,6 +284,33 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                 });
             }
         }
+        {
+            var instance = isSupport(AuthSupportRegistration.class);
+            if (instance != null) {
+                map.put("register", new SubCommand("[username] [email] [plain or json password] (json args)", "Register new user") {
+                    @Override
+                    public void invoke(String... args) throws Exception {
+                        verifyArgs(args, 2);
+                        Map<String, String> map = null;
+                        String username = args[0];
+                        String email = args[1];
+                        String plainPassword = args[2];
+                        if (args.length > 3) {
+                            Type typeOfMap = new TypeToken<Map<String, String>>() {
+                            }.getType();
+                            map = Launcher.gsonManager.gson.fromJson(args[2], typeOfMap);
+                        }
+                        AuthRequest.AuthPasswordInterface password;
+                        if (plainPassword.startsWith("{")) {
+                            password = Launcher.gsonManager.gson.fromJson(plainPassword, AuthRequest.AuthPasswordInterface.class);
+                        } else {
+                            password = new AuthPlainPassword(plainPassword);
+                        }
+                        instance.registration(username, email, password, map);
+                    }
+                });
+            }
+        }
         return map;
     }
 
@@ -315,30 +345,30 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         public static final PasswordVerifyReport FAILED = new PasswordVerifyReport(false);
         public static final PasswordVerifyReport OK = new PasswordVerifyReport(true);
         public final boolean success;
-        public final boolean needMoreFactor;
+        public final boolean needMoreFactors;
         public final List<Integer> factors;
 
         public PasswordVerifyReport(boolean success) {
             this.success = success;
-            this.needMoreFactor = false;
+            this.needMoreFactors = false;
             this.factors = List.of();
         }
 
         public PasswordVerifyReport(int nextFactor) {
             this.success = false;
-            this.needMoreFactor = true;
+            this.needMoreFactors = true;
             this.factors = List.of(nextFactor);
         }
 
         public PasswordVerifyReport(List<Integer> factors) {
             this.success = false;
-            this.needMoreFactor = false;
+            this.needMoreFactors = false;
             this.factors = Collections.unmodifiableList(factors);
         }
 
-        private PasswordVerifyReport(boolean success, boolean needMoreFactor, List<Integer> factors) {
+        private PasswordVerifyReport(boolean success, boolean needMoreFactors, List<Integer> factors) {
             this.success = success;
-            this.needMoreFactor = needMoreFactor;
+            this.needMoreFactors = needMoreFactors;
             this.factors = factors;
         }
     }

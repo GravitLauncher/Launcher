@@ -45,42 +45,11 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
         public String name;
         @LauncherNetworkAPI
         public String displayName;
-        @Deprecated
-        @LauncherNetworkAPI
-        public AuthType firstType;
-        @Deprecated
-        @LauncherNetworkAPI
-        public AuthType secondType;
-
-        @Deprecated
-        public AuthAvailability(String name, String displayName, AuthType firstType, AuthType secondType) {
-            this.name = name;
-            this.displayName = displayName;
-            this.firstType = firstType;
-            this.secondType = secondType;
-            this.details = null;
-        }
 
         public AuthAvailability(String name, String displayName, List<AuthAvailabilityDetails> details) {
             this.name = name;
             this.displayName = displayName;
             this.details = details;
-        }
-
-        @Deprecated
-        public enum AuthType {
-            @LauncherNetworkAPI
-            PASSWORD,
-            @LauncherNetworkAPI
-            KEY,
-            @LauncherNetworkAPI
-            TOTP,
-            @LauncherNetworkAPI
-            OAUTH,
-            @LauncherNetworkAPI
-            NONE,
-            @LauncherNetworkAPI
-            OTHER
         }
     }
 }

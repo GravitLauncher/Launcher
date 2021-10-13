@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@Deprecated
 public class GarbageManager {
     private static final Timer timer = new Timer("GarbageTimer");
     private static final Set<Entry> NEED_GARBARE_COLLECTION = new HashSet<>();

@@ -11,17 +11,14 @@ import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
-import pro.gravit.launchserver.auth.handler.AuthHandler;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
-import pro.gravit.launchserver.auth.provider.AuthProvider;
 import pro.gravit.launchserver.auth.session.SessionStorage;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
-import pro.gravit.launchserver.dao.provider.DaoProvider;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
@@ -84,9 +81,6 @@ public class LaunchServerStarter {
                 }
                 logger.warn("LaunchServer signed incorrectly. Status: {}", result.type.name());
             }
-        }
-        if (JVMHelper.getVersion() < 17) {
-            logger.warn("LaunchServer will end Java {} support in next release. Please install Java 17 or above", JVMHelper.getVersion());
         }
 
         LaunchServerRuntimeConfig runtimeConfig;
@@ -204,13 +198,10 @@ public class LaunchServerStarter {
     public static void registerAll() {
         AuthCoreProvider.registerProviders();
         PasswordVerifier.registerProviders();
-        AuthHandler.registerHandlers();
-        AuthProvider.registerProviders();
         TextureProvider.registerProviders();
         Component.registerComponents();
         ProtectHandler.registerHandlers();
         WebSocketService.registerResponses();
-        DaoProvider.registerProviders();
         AuthRequest.registerProviders();
         GetAvailabilityAuthRequest.registerProviders();
         HWIDProvider.registerProviders();

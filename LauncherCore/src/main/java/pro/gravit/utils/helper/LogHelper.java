@@ -10,10 +10,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -135,11 +132,6 @@ public final class LogHelper {
         impl.setDevEnabled(stacktraceEnabled);
     }
 
-    @Deprecated
-    public static String getDataTime() {
-        return DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US).format(LocalDateTime.now());
-    }
-
     public static void log(Level level, String message, boolean sub) {
         impl.log(level, message, sub);
     }
@@ -205,9 +197,6 @@ public final class LogHelper {
         PLAIN,
         @LauncherNetworkAPI
         JANSI,
-        @LauncherNetworkAPI
-        @Deprecated
-        HTML
     }
 
     public enum Level {

@@ -134,8 +134,7 @@ public class MainBuildTask implements LauncherBuildTask {
         ClassWriter writer;
         ClassNode cn = null;
         for (Transformer t : transformers) {
-            if (t instanceof ASMTransformer) {
-                ASMTransformer asmTransformer = (ASMTransformer) t;
+            if (t instanceof ASMTransformer asmTransformer) {
                 if (cn == null) {
                     ClassReader cr = new ClassReader(result);
                     cn = new ClassNode();

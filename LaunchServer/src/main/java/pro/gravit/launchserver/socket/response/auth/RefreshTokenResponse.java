@@ -33,7 +33,7 @@ public class RefreshTokenResponse extends SimpleResponse {
         } else {
             pair = client.auth;
         }
-        if (pair == null || !pair.isUseCore()) {
+        if (pair == null) {
             sendError("Invalid request");
             return;
         }
@@ -42,6 +42,6 @@ public class RefreshTokenResponse extends SimpleResponse {
             sendError("Invalid RefreshToken");
             return;
         }
-        sendResult(new RefreshTokenRequestEvent(new AuthRequestEvent.OAuthRequestEvent(report.oauthAccessToken, report.oauthRefreshToken, report.oauthExpire)));
+        sendResult(new RefreshTokenRequestEvent(new AuthRequestEvent.OAuthRequestEvent(report.oauthAccessToken(), report.oauthRefreshToken(), report.oauthExpire())));
     }
 }

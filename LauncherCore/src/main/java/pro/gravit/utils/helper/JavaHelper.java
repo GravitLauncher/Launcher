@@ -151,6 +151,15 @@ public class JavaHelper {
                 result.version = Integer.parseInt(version.substring(0, dot));
                 dot = version.lastIndexOf(".");
                 result.build = Integer.parseInt(version.substring(dot + 1));
+            } else {
+                try {
+                    if(version.endsWith("-ea")) {
+                        version = version.substring(0, version.length()-3);
+                    }
+                    result.version = Integer.parseInt(version);
+                    result.build = 0;
+                } catch (NumberFormatException ignored) {
+                }
             }
         }
         return result;

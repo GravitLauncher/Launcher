@@ -30,7 +30,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -96,36 +95,6 @@ public class BuildContext {
         output.write(bytes);
         output.closeEntry();
         fileList.add(filename);
-    }
-
-    @Deprecated
-    public void pushJarFile(ZipInputStream input) throws IOException {
-        ZipEntry e = input.getNextEntry();
-        while (e != null) {
-            if (fileList.contains(e.getName())) {
-                e = input.getNextEntry();
-                continue;
-            }
-            output.putNextEntry(IOHelper.newZipEntry(e));
-            IOHelper.transfer(input, output);
-            fileList.add(e.getName());
-            e = input.getNextEntry();
-        }
-    }
-
-    @Deprecated
-    public void pushJarFile(ZipInputStream input, Set<String> blacklist) throws IOException {
-        ZipEntry e = input.getNextEntry();
-        while (e != null) {
-            if (fileList.contains(e.getName()) || blacklist.contains(e.getName())) {
-                e = input.getNextEntry();
-                continue;
-            }
-            output.putNextEntry(IOHelper.newZipEntry(e));
-            IOHelper.transfer(input, output);
-            fileList.add(e.getName());
-            e = input.getNextEntry();
-        }
     }
 
     public void pushJarFile(Path jarfile, Predicate<ZipEntry> filter, Predicate<String> needTransform) throws IOException {

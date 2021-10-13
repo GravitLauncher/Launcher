@@ -5,7 +5,6 @@ import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
-import pro.gravit.launchserver.dao.User;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 
 import java.util.HashMap;
@@ -28,9 +27,6 @@ public class Client {
     public TrustLevel trustLevel;
 
     public transient AuthProviderPair auth;
-
-    @Deprecated
-    public transient User daoObject;
 
     public transient pro.gravit.launchserver.auth.core.User coreObject;
 
@@ -86,16 +82,10 @@ public class Client {
 
     public pro.gravit.launchserver.auth.core.User getUser() {
         if (coreObject != null) return coreObject;
-        if (auth != null && uuid != null && auth.isUseCore()) {
+        if (auth != null && uuid != null) {
             coreObject = auth.core.getUserByUUID(uuid);
         }
         return coreObject;
-    }
-
-    @Deprecated
-    public enum Type {
-        SERVER,
-        USER
     }
 
     public static class TrustLevel {

@@ -13,8 +13,6 @@ import java.net.InetSocketAddress;
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private transient final LaunchServer server;
     private transient final Logger logger = LogManager.getLogger();
-    @Deprecated
-    public volatile boolean logConnections = Boolean.getBoolean("launcher.logConnections");
     public LauncherNettyServer nettyServer;
     private SSLServerSocketFactory ssf;
 

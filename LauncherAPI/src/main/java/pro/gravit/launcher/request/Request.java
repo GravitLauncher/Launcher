@@ -20,7 +20,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     private static final List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
     private static final List<BiConsumer<String, AuthRequestEvent.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
     public static StdWebSocketService service;
-    private static UUID session = UUID.randomUUID();
+    private static UUID session;
     private static AuthRequestEvent.OAuthRequestEvent oauth;
     private static Map<String, String> extendedTokens;
     private static String authId;
@@ -110,20 +110,44 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         return oauth == null ? null : oauth.refreshToken;
     }
 
-    public static void reconnect() throws Exception {
+    public static RequestRestoreReport reconnect() throws Exception {
         service.open();
-        restore();
+        return restore();
     }
 
-    public static void restore() throws Exception {
-        if (oauth != null) {
-            if (isTokenExpired() || oauth.accessToken == null) {
-                RefreshTokenRequest request = new RefreshTokenRequest(authId, oauth.refreshToken);
-                RefreshTokenRequestEvent event = request.request();
-                setOAuth(authId, event.oauth);
+    public static class RequestRestoreReport {
+        public final boolean legacySession;
+        public final boolean refreshed;
+        public final List<String> invalidExtendedTokens;
+
+        public RequestRestoreReport(boolean legacySession, boolean refreshed, List<String> invalidExtendedTokens) {
+            this.legacySession = legacySession;
+            this.refreshed = refreshed;
+            this.invalidExtendedTokens = invalidExtendedTokens;
+        }
+    }
+
+    public static RequestRestoreReport restore() throws Exception {
+        if (session != null) {
+            RestoreSessionRequest request = new RestoreSessionRequest(session);
+            request.request();
+            return  new RequestRestoreReport(true, false, null);
+        } else {
+            boolean refreshed = false;
+            RestoreRequest request;
+            if(oauth != null) {
+                if (isTokenExpired() || oauth.accessToken == null) {
+                    RefreshTokenRequest refreshRequest = new RefreshTokenRequest(authId, oauth.refreshToken);
+                    RefreshTokenRequestEvent event = refreshRequest.request();
+                    setOAuth(authId, event.oauth);
+                    refreshed = true;
+                }
+                request = new RestoreRequest(authId, oauth.accessToken, extendedTokens, false);
+            } else {
+                request = new RestoreRequest(authId, null, extendedTokens, false);
             }
-            RestoreRequest request = new RestoreRequest(authId, oauth.accessToken, extendedTokens, false);
             RestoreRequestEvent event = request.request();
+            List<String> invalidTokens = null;
             if (event.invalidTokens != null && event.invalidTokens.size() > 0) {
                 boolean needRequest = false;
                 Map<String, String> tokens = new HashMap<>();
@@ -144,10 +168,9 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
                         LogHelper.warning("Tokens %s not restored", String.join(",", event.invalidTokens));
                     }
                 }
+                invalidTokens = event.invalidTokens;
             }
-        } else if (session != null) {
-            RestoreSessionRequest request = new RestoreSessionRequest(session);
-            request.request();
+            return new RequestRestoreReport(false, refreshed, invalidTokens);
         }
     }
 

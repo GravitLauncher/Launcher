@@ -23,7 +23,7 @@ public class CheckServerResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client pClient) {
-        if (!pClient.isAuth || pClient.type == AuthResponse.ConnectTypes.CLIENT) {
+        if (pClient.permissions == null || !pClient.permissions.hasPerm("launchserver.checkserver")) {
             sendError("Permissions denied");
             return;
         }
@@ -46,5 +46,4 @@ public class CheckServerResponse extends SimpleResponse {
         }
         sendResult(result);
     }
-
 }

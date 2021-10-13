@@ -11,21 +11,18 @@ import java.util.function.BiConsumer;
 
 public class OptionalView {
     public Set<OptionalFile> enabled = new HashSet<>();
-    @Deprecated
-    public Map<OptionalFile, Set<OptionalFile>> dependenciesCountMap = new HashMap<>();
     public Map<OptionalFile, OptionalFileInstallInfo> installInfo = new HashMap<>();
     public Set<OptionalFile> all;
 
     public OptionalView(ClientProfile profile) {
         this.all = profile.getOptional();
         for (OptionalFile f : this.all) {
-            if (f.mark) enable(f);
+            if (f.mark) enable(f, true, null);
         }
     }
 
     public OptionalView(OptionalView view) {
         this.enabled = new HashSet<>(view.enabled);
-        this.dependenciesCountMap = new HashMap<>(view.dependenciesCountMap);
         this.installInfo = new HashMap<>(view.installInfo);
         this.all = view.all;
     }
@@ -66,51 +63,6 @@ public class OptionalView {
         return results;
     }
 
-    @Deprecated
-    public void enable(OptionalFile file) {
-        if (enabled.contains(file)) return;
-        enabled.add(file);
-        file.watchEvent(true);
-        if (file.dependencies != null) {
-            for (OptionalFile dep : file.dependencies) {
-                Set<OptionalFile> dependenciesCount = dependenciesCountMap.computeIfAbsent(dep, k -> new HashSet<>());
-                dependenciesCount.add(file);
-                enable(dep);
-            }
-        }
-        if (file.conflict != null) {
-            for (OptionalFile conflict : file.conflict) {
-                disable(conflict);
-            }
-        }
-    }
-
-    @Deprecated
-    public void disable(OptionalFile file) {
-        if (!enabled.remove(file)) return;
-        file.watchEvent(false);
-        Set<OptionalFile> dependenciesCount = dependenciesCountMap.get(file);
-        if (dependenciesCount != null) {
-            for (OptionalFile f : dependenciesCount) {
-                if (f.isPreset) continue;
-                disable(f);
-            }
-            dependenciesCount.clear();
-        }
-        if (file.dependencies != null) {
-            for (OptionalFile f : file.dependencies) {
-                if (!enabled.contains(f)) continue;
-                dependenciesCount = dependenciesCountMap.get(f);
-                if (dependenciesCount == null) {
-                    disable(f);
-                } else if (dependenciesCount.size() <= 1) {
-                    dependenciesCount.clear();
-                    disable(f);
-                }
-            }
-        }
-    }
-
     public void enable(OptionalFile file, boolean manual, BiConsumer<OptionalFile, Boolean> callback) {
         if (enabled.contains(file)) return;
         enabled.add(file);
@@ -128,7 +80,7 @@ public class OptionalView {
         }
         if (file.conflict != null) {
             for (OptionalFile conflict : file.conflict) {
-                disable(conflict);
+                disable(conflict, null);
             }
         }
     }

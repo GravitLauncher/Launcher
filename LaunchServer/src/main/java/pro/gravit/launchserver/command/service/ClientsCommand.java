@@ -47,10 +47,12 @@ public class ClientsCommand extends Command {
                 logger.info("OAuth {} | session {}", client.useOAuth, client.sessionObject == null ? "null" : client.sessionObject);
                 logger.info("Data: checkSign {} | auth_id {}", client.checkSign ? "true" : "false",
                         client.auth_id);
-                if (client.trustLevel != null) {
-                    logger.info("trustLevel | key {} | pubkey {}", client.trustLevel.keyChecked ? "checked" : "unchecked", client.trustLevel.publicKey == null ? "null" : new String(Base64.getEncoder().encode(client.trustLevel.publicKey)));
-                }
-                logger.info("Permissions: {} (permissions {} | flags {})", client.permissions == null ? "null" : client.permissions.toString(), client.permissions == null ? 0 : client.permissions.permissions, client.permissions == null ? 0 : client.permissions.flags);
+            }
+            if (client.trustLevel != null) {
+                logger.info("trustLevel | key {} | pubkey {}", client.trustLevel.keyChecked ? "checked" : "unchecked", client.trustLevel.publicKey == null ? "null" : new String(Base64.getEncoder().encode(client.trustLevel.publicKey)));
+            }
+            if (client.permissions != null) {
+                logger.info("Permissions: {}", client.permissions.toString());
             }
         }));
     }
