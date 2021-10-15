@@ -3,7 +3,9 @@ package pro.gravit.launchserver.command.service;
 import io.jsonwebtoken.Jwts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.command.SubCommand;
 
@@ -20,11 +22,22 @@ public class TokenCommand extends Command {
                 logger.info("Token: {}", claims.getBody());
             }
         });
-        this.childCommands.put("server", new SubCommand("[serverName] (authId)", "generate new server token") {
+        this.childCommands.put("server", new SubCommand("[profileName] (authId)", "generate new server token") {
             @Override
             public void invoke(String... args) throws Exception {
-                String token = server.authManager.newCheckServerToken(args[0], args.length > 1 ? args[1] : server.config.getAuthProviderPair().name);
-                logger.info("Token: {}", token);
+                AuthProviderPair pair = args.length > 1 ? server.config.getAuthProviderPair(args[1]) : server.config.getAuthProviderPair();
+                ClientProfile profile = null;
+                for(ClientProfile p : server.getProfiles()) {
+                    if(p.getTitle().equals(args[0])) {
+                        profile = p;
+                        break;
+                    }
+                }
+                if(profile == null) {
+                    logger.warn("Profile {} not found", args[0]);
+                }
+                String token = server.authManager.newCheckServerToken(args[0], pair.name);
+                logger.info("Server token {} authId {}: {}", args[0], pair.name, token);
             }
         });
     }
