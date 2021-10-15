@@ -306,7 +306,8 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                         } else {
                             password = new AuthPlainPassword(plainPassword);
                         }
-                        instance.registration(username, email, password, map);
+                        User user = instance.registration(username, email, password, map);
+                        logger.info("User '{}' registered", user.toString());
                     }
                 });
             }

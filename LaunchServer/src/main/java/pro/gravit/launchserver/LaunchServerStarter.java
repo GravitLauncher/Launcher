@@ -72,7 +72,7 @@ public class LaunchServerStarter {
         {
             LauncherTrustManager.CheckClassResult result = certificateManager.checkClass(LaunchServer.class);
             if (result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
-                logger.info("LaunchServer signed by {}", result.endCertificate.getSubjectDN().getName());
+                logger.info("LaunchServer signed by {}", result.endCertificate.getSubjectX500Principal().getName());
             } else if (result.type == LauncherTrustManager.CheckClassResultType.NOT_SIGNED) {
                 // None
             } else {

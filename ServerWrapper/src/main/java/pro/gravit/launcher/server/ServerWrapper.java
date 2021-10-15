@@ -93,6 +93,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         return result;
     }
 
+    @SuppressWarnings("ConfusingArgumentToVarargsMethod")
     public void run(String... args) throws Throwable {
         initGson();
         AuthRequest.registerProviders();
@@ -173,9 +174,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 System.arraycopy(args, 1, real_args, 0, args.length - 1);
             } else real_args = args;
 
-            mainMethod.invoke((Object) real_args);
+            mainMethod.invokeWithArguments(real_args);
         } else {
-            mainMethod.invoke((Object) config.args.toArray(new String[0]));
+            mainMethod.invokeWithArguments(config.args.toArray(new String[0]));
         }
     }
 
