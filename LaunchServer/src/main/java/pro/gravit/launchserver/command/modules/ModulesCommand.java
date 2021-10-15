@@ -47,11 +47,11 @@ public class ModulesCommand extends Command {
     private void printCheckStatusInfo(LauncherTrustManager.CheckClassResult checkStatus) {
         if (checkStatus != null && checkStatus.endCertificate != null) {
             X509Certificate cert = checkStatus.endCertificate;
-            logger.info("[MODULE CERT] Module signer: {}", cert.getSubjectDN().getName());
+            logger.info("[MODULE CERT] Module signer: {}", cert.getSubjectX500Principal().getName());
         }
         if (checkStatus != null && checkStatus.rootCertificate != null) {
             X509Certificate cert = checkStatus.rootCertificate;
-            logger.info("[MODULE CERT] Module signer CA: {}", cert.getSubjectDN().getName());
+            logger.info("[MODULE CERT] Module signer CA: {}", cert.getSubjectX500Principal().getName());
         }
     }
 }
