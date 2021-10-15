@@ -36,6 +36,10 @@ public class TokenCommand extends Command {
                 if(profile == null) {
                     logger.warn("Profile {} not found", args[0]);
                 }
+                if(pair == null) {
+                    logger.error("AuthId {} not found", args[1]);
+                    return;
+                }
                 String token = server.authManager.newCheckServerToken(args[0], pair.name);
                 logger.info("Server token {} authId {}: {}", args[0], pair.name, token);
             }
