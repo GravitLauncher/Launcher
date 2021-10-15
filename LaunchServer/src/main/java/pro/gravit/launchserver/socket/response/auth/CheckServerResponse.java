@@ -31,11 +31,13 @@ public class CheckServerResponse extends SimpleResponse {
         try {
             server.authHookManager.checkServerHook.hook(this, pClient);
             AuthManager.CheckServerReport report = server.authManager.checkServer(pClient, username, serverID);
-            if (report != null) {
-                result.playerProfile = report.playerProfile;
-                result.uuid = report.uuid;
-                logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile == null ? null : result.playerProfile.username, result.uuid, serverID);
+            if(report == null) {
+                sendError("User not verified");
+                return;
             }
+            result.playerProfile = report.playerProfile;
+            result.uuid = report.uuid;
+            logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile == null ? null : result.playerProfile.username, result.uuid, serverID);
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());
             return;
