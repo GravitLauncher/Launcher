@@ -174,9 +174,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 System.arraycopy(args, 1, real_args, 0, args.length - 1);
             } else real_args = args;
 
-            mainMethod.invokeWithArguments(real_args);
+            mainMethod.invoke(real_args);
         } else {
-            mainMethod.invokeWithArguments(config.args.toArray(new String[0]));
+            mainMethod.invoke(config.args.toArray(new String[0]));
         }
     }
 
