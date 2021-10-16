@@ -45,7 +45,7 @@ public class ExitResponse extends SimpleResponse {
                     sendError("Exit internal error");
                     return;
                 }
-                Client newClient = new Client(null);
+                Client newClient = new Client(null, 0);
                 newClient.checkSign = client.checkSign;
                 handler.setClient(newClient);
                 AuthSupportExit supportExit = client.auth.core.isSupport(AuthSupportExit.class);
