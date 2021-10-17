@@ -36,9 +36,14 @@ public class Client {
 
     public Map<String, String> serializableProperties;
 
-    public transient AtomicInteger refCount = new AtomicInteger(1);
+    public transient AtomicInteger refCount;
 
     public Client(UUID session) {
+        this(session, 1);
+    }
+
+    public Client(UUID session, int initialRefCount) {
+        refCount = new AtomicInteger(initialRefCount);
         this.session = session;
         timestamp = System.currentTimeMillis();
         type = null;
