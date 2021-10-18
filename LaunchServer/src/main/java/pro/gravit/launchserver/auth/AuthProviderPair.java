@@ -25,6 +25,9 @@ public final class AuthProviderPair {
     public String displayName;
     private transient boolean warnOAuthShow = false;
 
+    public AuthProviderPair() {
+    }
+
     public AuthProviderPair(AuthCoreProvider core, TextureProvider textureProvider) {
         this.core = core;
         this.textureProvider = textureProvider;
