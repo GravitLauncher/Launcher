@@ -192,7 +192,6 @@ public final class LaunchServerConfig {
         if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
             for (AuthProviderPair pair : auth.values()) {
                 server.registerObject("auth.".concat(pair.name).concat(".core"), pair.core);
-                server.registerObject("auth.".concat(pair.name).concat(".social"), pair.social);
                 server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
             }
         }
@@ -203,7 +202,6 @@ public final class LaunchServerConfig {
         try {
             if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
                 for (AuthProviderPair pair : auth.values()) {
-                    server.unregisterObject("auth.".concat(pair.name).concat(".social"), pair.social);
                     server.unregisterObject("auth.".concat(pair.name).concat(".core"), pair.core);
                     server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
                     pair.close();

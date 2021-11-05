@@ -2,6 +2,7 @@ package pro.gravit.launchserver.auth.core.interfaces.provider;
 
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.auth.core.User;
+import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
 import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
@@ -18,7 +19,7 @@ public interface AuthSupportHardware extends AuthSupport {
 
     UserHardware createHardwareInfo(HardwareReportRequest.HardwareInfo info, byte[] publicKey);
 
-    void connectUserAndHardware(User user, UserHardware hardware);
+    void connectUserAndHardware(UserSession userSession, UserHardware hardware);
 
     void addPublicKeyToHardwareInfo(UserHardware hardware, byte[] publicKey);
 

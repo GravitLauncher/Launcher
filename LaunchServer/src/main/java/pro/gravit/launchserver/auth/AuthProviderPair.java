@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
-import pro.gravit.launchserver.auth.core.AuthSocialProvider;
 import pro.gravit.launchserver.auth.core.MySQLCoreProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 
@@ -17,7 +16,6 @@ public final class AuthProviderPair {
     private transient final Logger logger = LogManager.getLogger();
     public boolean isDefault = true;
     public AuthCoreProvider core;
-    public AuthSocialProvider social;
     public TextureProvider textureProvider;
     public Map<String, String> links;
     public transient String name;
@@ -30,17 +28,6 @@ public final class AuthProviderPair {
 
     public AuthProviderPair(AuthCoreProvider core, TextureProvider textureProvider) {
         this.core = core;
-        this.textureProvider = textureProvider;
-    }
-
-    public AuthProviderPair(AuthCoreProvider core, AuthSocialProvider social) {
-        this.core = core;
-        this.social = social;
-    }
-
-    public AuthProviderPair(AuthCoreProvider core, AuthSocialProvider social, TextureProvider textureProvider) {
-        this.core = core;
-        this.social = social;
         this.textureProvider = textureProvider;
     }
 
@@ -79,7 +66,6 @@ public final class AuthProviderPair {
     public final <T> T isSupport(Class<T> clazz) {
         if (core == null) return null;
         T result = null;
-        if (social != null) result = social.isSupport(clazz);
         if (result == null) result = core.isSupport(clazz);
         return result;
     }
@@ -90,10 +76,6 @@ public final class AuthProviderPair {
         core.init(srv);
         features = new HashSet<>();
         getFeatures(core.getClass(), features);
-        if (social != null) {
-            social.init(srv, core);
-            getFeatures(social.getClass(), features);
-        }
     }
 
     public final void link(LaunchServer srv) {
@@ -111,16 +93,9 @@ public final class AuthProviderPair {
     }
 
     public final void close() throws IOException {
-        if (social != null) {
-            social.close();
-        }
         core.close();
         if (textureProvider != null) {
             textureProvider.close();
         }
-    }
-
-    public final boolean isUseSocial() {
-        return core != null && social != null;
     }
 }

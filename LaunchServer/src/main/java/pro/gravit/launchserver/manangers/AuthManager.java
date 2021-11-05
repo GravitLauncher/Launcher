@@ -14,7 +14,6 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
-import pro.gravit.launchserver.auth.core.AuthSocialProvider;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportTextures;
@@ -31,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class AuthManager {
     private transient final LaunchServer server;
@@ -143,62 +141,27 @@ public class AuthManager {
             context.client.sessionObject = session;
             internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
             if (context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context)) {
-                return AuthReport.ofMinecraftAccessToken(user.getAccessToken());
+                return AuthReport.ofMinecraftAccessToken(user.getAccessToken(), session);
             }
-            return AuthReport.ofMinecraftAccessToken(null);
+            return AuthReport.ofMinecraftAccessToken(null, session);
         }
-        User user = null;
-        boolean skipPasswordCheck = false;
         String login = context.login;
-        if (context.pair.social != null) {
-            AuthSocialProvider.SocialResult result = context.pair.social.preAuth(context, password);
-            if (result != null) {
-                if (result.user != null) user = result.user;
-                if (result.login != null) login = result.login;
-                if (result.password != null) password = result.password;
-                if (result.user != null && result.password == null) skipPasswordCheck = true;
-            }
-        }
-        if (user == null && login != null) {
-            user = provider.getUserByLogin(context.login);
-            if (user == null) {
-                throw new AuthException(AuthRequestEvent.USER_NOT_FOUND_ERROR_MESSAGE);
-            }
-        }
-        AuthCoreProvider.PasswordVerifyReport report = null;
-        if (!skipPasswordCheck) {
-            report = provider.verifyPassword(user, password);
-        }
-        if (skipPasswordCheck || report.success) {
-            AuthReport result;
-            try {
-                result = provider.createOAuthSession(user, context, report, context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context));
-            } catch (IOException e) {
-                if (e instanceof AuthException) throw (AuthException) e;
-                logger.error(e);
+        try {
+            AuthReport result = provider.authorize(login, context, password, context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context));
+            if(result == null || result.session == null || result.session.getUser() == null) {
+                logger.error("AuthCoreProvider {} method 'authorize' return null", context.pair.name);
                 throw new AuthException("Internal Auth Error");
             }
-            if (user == null) {
-                if (result.session != null) {
-                    user = result.session.getUser();
-                } else {
-                    logger.error("AuthCoreProvider {} method createOAuthSession returns null session with login null", context.pair.name);
-                    throw new AuthException("Internal Auth Error");
-                }
-            }
+            var session = result.session;
+            var user = session.getUser();
             context.client.coreObject = user;
+            context.client.sessionObject = session;
             internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), result.isUsingOAuth());
             return result;
-        } else {
-            if (report.needMoreFactors) {
-                if (report.factors.size() == 1 && report.factors.get(0) == -1) {
-                    throw new AuthException(AuthRequestEvent.TWO_FACTOR_NEED_ERROR_MESSAGE);
-                }
-                String message = AuthRequestEvent.ONE_FACTOR_NEED_ERROR_MESSAGE_PREFIX
-                        .concat(report.factors.stream().map(String::valueOf).collect(Collectors.joining(".")));
-                throw new AuthException(message);
-            }
-            throw new AuthException(AuthRequestEvent.WRONG_PASSWORD_ERROR_MESSAGE);
+        } catch (IOException e) {
+            if (e instanceof AuthException) throw (AuthException) e;
+            logger.error(e);
+            throw new AuthException("Internal Auth Error");
         }
     }
 
@@ -217,7 +180,6 @@ public class AuthManager {
         client.type = authType;
         client.uuid = uuid;
         client.useOAuth = oauth;
-        client.coreObject = pair.core.getUserByUUID(uuid);
     }
 
     public CheckServerReport checkServer(Client client, String username, String serverID) throws IOException {
@@ -374,24 +336,16 @@ public class AuthManager {
                              String oauthRefreshToken, long oauthExpire,
                              UserSession session) {
 
-        public static AuthReport ofOAuth(String oauthAccessToken, String oauthRefreshToken, long oauthExpire) {
-            return new AuthReport(null, oauthAccessToken, oauthRefreshToken, oauthExpire, null);
-        }
-
         public static AuthReport ofOAuth(String oauthAccessToken, String oauthRefreshToken, long oauthExpire, UserSession session) {
             return new AuthReport(null, oauthAccessToken, oauthRefreshToken, oauthExpire, session);
-        }
-
-        public static AuthReport ofOAuthWithMinecraft(String minecraftAccessToken, String oauthAccessToken, String oauthRefreshToken, long oauthExpire) {
-            return new AuthReport(minecraftAccessToken, oauthAccessToken, oauthRefreshToken, oauthExpire, null);
         }
 
         public static AuthReport ofOAuthWithMinecraft(String minecraftAccessToken, String oauthAccessToken, String oauthRefreshToken, long oauthExpire, UserSession session) {
             return new AuthReport(minecraftAccessToken, oauthAccessToken, oauthRefreshToken, oauthExpire, session);
         }
 
-        public static AuthReport ofMinecraftAccessToken(String minecraftAccessToken) {
-            return new AuthReport(minecraftAccessToken, null, null, 0, null);
+        public static AuthReport ofMinecraftAccessToken(String minecraftAccessToken, UserSession session) {
+            return new AuthReport(minecraftAccessToken, null, null, 0, session);
         }
 
         public boolean isUsingOAuth() {

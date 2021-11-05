@@ -20,7 +20,7 @@ public class GetAvailabilityAuthResponse extends SimpleResponse {
         List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>();
         for (AuthProviderPair pair : server.config.auth.values()) {
             list.add(new GetAvailabilityAuthRequestEvent.AuthAvailability(pair.name, pair.displayName,
-                    pair.isUseSocial() ? pair.social.getDetails(client) : pair.core.getDetails(client)));
+                    pair.core.getDetails(client)));
         }
         sendResult(new GetAvailabilityAuthRequestEvent(list));
     }

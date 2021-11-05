@@ -36,13 +36,8 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public PasswordVerifyReport verifyPassword(User user, AuthRequest.AuthPasswordInterface password) {
-        return PasswordVerifyReport.FAILED;
-    }
-
-    @Override
-    public AuthManager.AuthReport createOAuthSession(User user, AuthResponse.AuthContext context, PasswordVerifyReport report, boolean minecraftAccess) throws IOException {
-        return null;
+    public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
+        throw new AuthException("Please configure AuthCoreProvider");
     }
 
     @Override
