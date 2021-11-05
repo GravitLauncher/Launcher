@@ -76,7 +76,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                     } else {
                         authSupportHardware.addPublicKeyToHardwareInfo(hardware, client.trustLevel.publicKey);
                     }
-                    authSupportHardware.connectUserAndHardware(client.getUser(), hardware);
+                    authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
                     if (hardware.isBanned()) {
                         throw new SecurityException("Your hardware banned");
                     }
@@ -108,7 +108,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                     throw new SecurityException("Your hardware banned");
                 }
                 client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
-                authSupportHardware.connectUserAndHardware(client.getUser(), hardware);
+                authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
             } else if (provider == null) {
                 logger.warn("HWIDProvider null. HardwareInfo not checked!");
             } else {

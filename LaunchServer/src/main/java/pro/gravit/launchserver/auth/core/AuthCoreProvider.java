@@ -45,7 +45,8 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         if (!registredProviders) {
             providers.register("reject", RejectAuthCoreProvider.class);
             providers.register("mysql", MySQLCoreProvider.class);
-            providers.register("json", JsonCoreProvider.class);
+            providers.register("memory", MemoryAuthCoreProvider.class);
+            providers.register("http", HttpAuthCoreProvider.class);
             registredProviders = true;
         }
     }
@@ -62,16 +63,22 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
 
     public abstract AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context /* may be null */);
 
-    public abstract void verifyAuth(AuthResponse.AuthContext context) throws AuthException;
+    public void verifyAuth(AuthResponse.AuthContext context) throws AuthException {
+        // None
+    }
 
-    public abstract PasswordVerifyReport verifyPassword(User user, AuthRequest.AuthPasswordInterface password);
+    public abstract AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context /* may be null */, AuthRequest.AuthPasswordInterface password /* may be null */, boolean minecraftAccess) throws IOException;
 
-    public abstract AuthManager.AuthReport createOAuthSession(User user, AuthResponse.AuthContext context /* may be null */, PasswordVerifyReport report /* may be null */, boolean minecraftAccess) throws IOException;
+    public AuthManager.AuthReport authorize(User user, AuthResponse.AuthContext context /* may be null */, AuthRequest.AuthPasswordInterface password /* may be null */, boolean minecraftAccess) throws IOException {
+        return authorize(user.getUsername(), context, password, minecraftAccess);
+    }
 
     public abstract void init(LaunchServer server);
 
     // Auth Handler methods
-    protected abstract boolean updateServerID(User user, String serverID) throws IOException;
+    protected boolean updateServerID(User user, String serverID) throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
     public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
         return List.of(new AuthPasswordDetails());
@@ -80,31 +87,27 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
     @Override
     public Map<String, Command> getCommands() {
         Map<String, Command> map = defaultCommandsMap();
-        map.put("checkpassword", new SubCommand("[username] [json/plain password data]", "check password") {
+        map.put("auth", new SubCommand("[login] (json/plain password data)", "Test auth") {
             @Override
             public void invoke(String... args) throws Exception {
-                verifyArgs(args, 2);
-                User user = getUserByUsername(args[0]);
-                if (user == null) throw new CommandException("User not found");
-                AuthRequest.AuthPasswordInterface password;
-                if (args[1].startsWith("{")) {
-                    password = Launcher.gsonManager.gson.fromJson(args[1], AuthRequest.AuthPasswordInterface.class);
-                } else {
-                    password = new AuthPlainPassword(args[1]);
-                }
-                PasswordVerifyReport report = verifyPassword(user, password);
-                if (report.success) {
-                    logger.info("Password correct");
-                } else {
-                    if (report.needMoreFactors) {
-                        if (report.factors.size() == 1 && report.factors.get(0) == -1) {
-                            logger.info("Password not correct: Required 2FA");
-                        } else {
-                            logger.info("Password not correct: Required more factors: {}", report.factors.toString());
-                        }
+                verifyArgs(args, 1);
+                AuthRequest.AuthPasswordInterface password = null;
+                if(args.length > 1) {
+                    if (args[1].startsWith("{")) {
+                        password = Launcher.gsonManager.gson.fromJson(args[1], AuthRequest.AuthPasswordInterface.class);
                     } else {
-                        logger.info("Password incorrect");
+                        password = new AuthPlainPassword(args[1]);
                     }
+                }
+                var report = authorize(args[0], null, password, false);
+                if (report.isUsingOAuth()) {
+                    logger.info("OAuth: AccessToken: {} RefreshToken: {} MinecraftAccessToken: {}", report.oauthAccessToken(), report.oauthRefreshToken(), report.minecraftAccessToken());
+                    if (report.session() != null) {
+                        logger.info("UserSession: id {} expire {} user {}", report.session().getID(), report.session().getExpireIn(), report.session().getUser() == null ? "null" : "found");
+                        logger.info(report.session().toString());
+                    }
+                } else {
+                    logger.info("Basic: MinecraftAccessToken: {}", report.minecraftAccessToken());
                 }
             }
         });
@@ -129,32 +132,6 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                     logger.info("User {} not found", args[0]);
                 } else {
                     logger.info("User {}: {}", args[0], user.toString());
-                }
-            }
-        });
-        map.put("createsession", new SubCommand("[username] (true/false)", "create user session with/without minecraft access") {
-            @Override
-            public void invoke(String... args) throws Exception {
-                verifyArgs(args, 1);
-                User user = getUserByUsername(args[0]);
-                if (user == null) {
-                    logger.info("User {} not found", args[0]);
-                    return;
-                }
-                boolean minecraftAccess = args.length > 1 && Boolean.parseBoolean(args[1]);
-                AuthManager.AuthReport report = createOAuthSession(user, null, null, minecraftAccess);
-                if (report == null) {
-                    logger.error("Method createOAuthSession return null");
-                    return;
-                }
-                if (report.isUsingOAuth()) {
-                    logger.info("OAuth: AccessToken: {} RefreshToken: {} MinecraftAccessToken: {}", report.oauthAccessToken(), report.oauthRefreshToken(), report.minecraftAccessToken());
-                    if (report.session() != null) {
-                        logger.info("UserSession: id {} expire {} user {}", report.session().getID(), report.session().getExpireIn(), report.session().getUser() == null ? "null" : "found");
-                        logger.info(report.session().toString());
-                    }
-                } else {
-                    logger.info("Basic: MinecraftAccessToken: {}", report.minecraftAccessToken());
                 }
             }
         });
@@ -355,6 +332,12 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
             this.factors = List.of();
         }
 
+        public PasswordVerifyReport(AuthManager.AuthReport report) {
+            this.success = true;
+            this.needMoreFactors = false;
+            this.factors = List.of();
+        }
+
         public PasswordVerifyReport(int nextFactor) {
             this.success = false;
             this.needMoreFactors = true;
@@ -371,6 +354,10 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
             this.success = success;
             this.needMoreFactors = needMoreFactors;
             this.factors = factors;
+        }
+
+        public boolean isSuccess() {
+            return success;
         }
     }
 

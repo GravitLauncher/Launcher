@@ -163,7 +163,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 LogHelper.error(e);
             }
         };
-        LogHelper.info("ServerWrapper: Project %s, LaunchServer address: %s. Title: %s", config.projectname, config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
+        LogHelper.info("ServerWrapper: LaunchServer address: %s. Title: %s", config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s", mainClass.getName());
@@ -181,8 +181,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public void updateLauncherConfig() {
-
-        LauncherConfig cfg = new LauncherConfig(config.address, null, null, new HashMap<>(), config.projectname);
+        LauncherConfig cfg = new LauncherConfig(config.address, null, null, new HashMap<>(), "ServerWrapper");
         Launcher.setConfig(cfg);
     }
 
@@ -200,7 +199,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public Config getDefaultConfig() {
         Config newConfig = new Config();
         newConfig.serverName = "your server name";
-        newConfig.projectname = "MineCraft";
         newConfig.mainclass = "";
         newConfig.extendedTokens = new HashMap<>();
         newConfig.args = new ArrayList<>();
@@ -211,6 +209,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public static final class Config {
+        @Deprecated
         public String projectname;
         public String address;
         public String serverName;

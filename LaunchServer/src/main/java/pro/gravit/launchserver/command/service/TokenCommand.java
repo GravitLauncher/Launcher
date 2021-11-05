@@ -28,7 +28,7 @@ public class TokenCommand extends Command {
                 AuthProviderPair pair = args.length > 1 ? server.config.getAuthProviderPair(args[1]) : server.config.getAuthProviderPair();
                 ClientProfile profile = null;
                 for(ClientProfile p : server.getProfiles()) {
-                    if(p.getTitle().equals(args[0])) {
+                    if(p.getTitle().equals(args[0]) || p.getUUID().toString().equals(args[0])) {
                         profile = p;
                         break;
                     }
@@ -40,7 +40,7 @@ public class TokenCommand extends Command {
                     logger.error("AuthId {} not found", args[1]);
                     return;
                 }
-                String token = server.authManager.newCheckServerToken(args[0], pair.name);
+                String token = server.authManager.newCheckServerToken(profile != null ? profile.getUUID().toString() : args[0], pair.name);
                 logger.info("Server token {} authId {}: {}", args[0], pair.name, token);
             }
         });
@@ -48,7 +48,7 @@ public class TokenCommand extends Command {
 
     @Override
     public String getArgsDescription() {
-        return "[new/info/token name] [args]";
+        return "[server/info/token name] [args]";
     }
 
     @Override

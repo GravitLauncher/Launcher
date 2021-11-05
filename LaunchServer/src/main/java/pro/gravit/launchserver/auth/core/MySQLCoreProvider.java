@@ -105,27 +105,27 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     }
 
     @Override
-    public void verifyAuth(AuthResponse.AuthContext context) throws AuthException {
-
-    }
-
-    @Override
-    public PasswordVerifyReport verifyPassword(User user, AuthRequest.AuthPasswordInterface password) {
-        if (passwordVerifier.check(((MySQLUser) user).password, ((AuthPlainPassword) password).password)) {
-            return PasswordVerifyReport.OK;
-        } else {
-            return PasswordVerifyReport.FAILED;
+    public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
+        MySQLUser mySQLUser = (MySQLUser) getUserByLogin(login);
+        if(mySQLUser == null) {
+            throw AuthException.wrongPassword();
         }
-    }
-
-    @Override
-    public AuthManager.AuthReport createOAuthSession(User user, AuthResponse.AuthContext context, PasswordVerifyReport report, boolean minecraftAccess) throws IOException {
+        if(context != null) {
+            AuthPlainPassword plainPassword = (AuthPlainPassword) password;
+            if(plainPassword == null) {
+                throw AuthException.wrongPassword();
+            }
+            if(!passwordVerifier.check(mySQLUser.password, plainPassword.password)) {
+                throw AuthException.wrongPassword();
+            }
+        }
+        MySQLUserSession session = new MySQLUserSession(mySQLUser);
         if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();
-            updateAuth(user, minecraftAccessToken);
-            return AuthManager.AuthReport.ofMinecraftAccessToken(minecraftAccessToken);
+            updateAuth(mySQLUser, minecraftAccessToken);
+            return AuthManager.AuthReport.ofMinecraftAccessToken(minecraftAccessToken, session);
         } else {
-            return AuthManager.AuthReport.ofMinecraftAccessToken(null);
+            return AuthManager.AuthReport.ofMinecraftAccessToken(null, session);
         }
     }
 
@@ -333,13 +333,14 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     }
 
     @Override
-    public void connectUserAndHardware(User user, UserHardware hardware) {
-        MySQLUser mySQLUser = (MySQLUser) user;
+    public void connectUserAndHardware(UserSession userSession, UserHardware hardware) {
+        MySQLUserSession mySQLUserSession = (MySQLUserSession) userSession;
+        MySQLUser mySQLUser = mySQLUserSession.user;
         MySQLUserHardware mySQLUserHardware = (MySQLUserHardware) hardware;
         if (mySQLUser.hwidId == mySQLUserHardware.id) return;
         mySQLUser.hwidId = mySQLUserHardware.id;
         try (Connection connection = mySQLHolder.getConnection()) {
-            setUserHardwareId(connection, user.getUUID(), mySQLUserHardware.id);
+            setUserHardwareId(connection, mySQLUser.getUUID(), mySQLUserHardware.id);
         } catch (SQLException throwables) {
             logger.error("SQL Error", throwables);
         }
@@ -511,6 +512,31 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
                     ", permissions=" + permissions +
                     ", hwidId=" + hwidId +
                     '}';
+        }
+    }
+
+    public static class MySQLUserSession implements UserSession {
+        private final MySQLUser user;
+        private final String id;
+
+        public MySQLUserSession(MySQLUser user) {
+            this.user = user;
+            this.id = user.username;
+        }
+
+        @Override
+        public String getID() {
+            return id;
+        }
+
+        @Override
+        public User getUser() {
+            return user;
+        }
+
+        @Override
+        public long getExpireIn() {
+            return 0;
         }
     }
 }

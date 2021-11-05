@@ -76,9 +76,9 @@ public class AuthResponse extends SimpleResponse {
         public final String profileName;
         public final String ip;
         public final ConnectTypes authType;
-        public final Client client;
-        public final AuthProviderPair pair;
-        public AuthManager.AuthReport report;
+        public transient final Client client;
+        public transient final AuthProviderPair pair;
+        public transient AuthManager.AuthReport report;
 
         public AuthContext(Client client, String login, String profileName, String ip, ConnectTypes authType, AuthProviderPair pair) {
             this.client = client;
