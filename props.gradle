@@ -8,7 +8,7 @@ project.ext {
     verJline = '3.20.0'
     verJwt = '0.11.2'
     verBcprov = '1.69'
-    verGson = '2.8.8'
+    verGson = '2.8.9'
     verBcpkix = '1.69'
     verSlf4j = '1.7.32'
     verLog4j = '2.14.1'

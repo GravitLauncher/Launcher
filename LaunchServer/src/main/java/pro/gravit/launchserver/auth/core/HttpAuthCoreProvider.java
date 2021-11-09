@@ -120,14 +120,22 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
     @Override
     public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
         var result = requester.send(requester.post(authorizeUrl, new AuthorizeRequest(login, context, password, minecraftAccess),
-                bearerToken), AuthManager.AuthReport.class);
+                bearerToken), HttpAuthReport.class);
         if(!result.isSuccessful()) {
             var error = result.error().error;
             if(error != null) {
                 throw new AuthException(error);
             }
         }
-        return result.getOrThrow();
+        return result.getOrThrow().toAuthReport();
+    }
+
+    public record HttpAuthReport(String minecraftAccessToken, String oauthAccessToken,
+                                 String oauthRefreshToken, long oauthExpire,
+                                 HttpUserSession session) {
+        public AuthManager.AuthReport toAuthReport() {
+            return new AuthManager.AuthReport(minecraftAccessToken, oauthAccessToken, oauthRefreshToken, oauthExpire, session);
+        }
     }
 
     @Override
@@ -303,13 +311,13 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
 
     public static class HttpUserSession implements UserSession {
         private String id;
-        private User user;
+        private HttpUser user;
         private long expireIn;
 
         public HttpUserSession() {
         }
 
-        public HttpUserSession(String id, User user, long expireIn) {
+        public HttpUserSession(String id, HttpUser user, long expireIn) {
             this.id = id;
             this.user = user;
             this.expireIn = expireIn;
