@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.manangers;
 
 import com.google.gson.GsonBuilder;
+import marcono1234.gson.recordadapter.RecordTypeAdapterFactory;
 import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.modules.events.PreGsonPhase;
@@ -33,6 +34,7 @@ public class LaunchServerGsonManager extends GsonManager {
     @Override
     public void registerAdapters(GsonBuilder builder) {
         super.registerAdapters(builder);
+        builder.registerTypeAdapterFactory(RecordTypeAdapterFactory.DEFAULT);
         builder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
         builder.registerTypeAdapter(AuthCoreProvider.class, new UniversalJsonAdapter<>(AuthCoreProvider.providers));
         builder.registerTypeAdapter(PasswordVerifier.class, new UniversalJsonAdapter<>(PasswordVerifier.providers));

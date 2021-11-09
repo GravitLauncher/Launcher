@@ -27,6 +27,9 @@ configure(subprojects.findAll { it.name != 'modules' }) {
         maven {
             url "https://jcenter.bintray.com/"
         }
+        maven {
+            url "https://jitpack.io/"
+        }
     }
 
     jar {
