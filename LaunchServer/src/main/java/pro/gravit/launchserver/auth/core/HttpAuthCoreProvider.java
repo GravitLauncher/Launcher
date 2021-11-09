@@ -198,7 +198,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
         if(authorizeUrl == null) {
             throw new IllegalArgumentException("'authorizeUrl' can't be null");
         }
-        if((checkServerUrl == null && joinServerUrl == null) || updateServerIdUrl == null) {
+        if(checkServerUrl == null && joinServerUrl == null && updateServerIdUrl == null) {
             throw new IllegalArgumentException("Please set 'checkServerUrl' and 'joinServerUrl' or 'updateServerIdUrl'");
         }
     }
