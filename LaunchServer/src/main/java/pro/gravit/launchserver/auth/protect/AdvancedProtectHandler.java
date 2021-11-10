@@ -9,12 +9,9 @@ import pro.gravit.launcher.events.request.HardwareReportRequestEvent;
 import pro.gravit.launcher.events.request.VerifySecureLevelKeyRequestEvent;
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
-import pro.gravit.launchserver.auth.protect.hwid.HWIDException;
-import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
 import pro.gravit.launchserver.auth.protect.interfaces.HardwareProtectHandler;
 import pro.gravit.launchserver.auth.protect.interfaces.JoinServerProtectHandler;
 import pro.gravit.launchserver.auth.protect.interfaces.SecureProtectHandler;
@@ -22,17 +19,13 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
 import pro.gravit.launchserver.socket.response.secure.HardwareReportResponse;
-import pro.gravit.utils.command.Command;
 
 import java.util.Base64;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
-public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, HardwareProtectHandler, JoinServerProtectHandler, Reconfigurable {
+public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, HardwareProtectHandler, JoinServerProtectHandler {
     private transient final Logger logger = LogManager.getLogger();
     public boolean enableHardwareFeature;
-    public HWIDProvider provider;
     private transient LaunchServer server;
 
     @Override
@@ -61,37 +54,28 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
             response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, response.hardware)));
             return;
         }
-        try {
-            if (!client.isAuth || client.trustLevel == null || client.trustLevel.publicKey == null) {
-                response.sendError("Access denied");
-                return;
-            }
-            logger.debug("HardwareInfo received");
-            {
-                var authSupportHardware = client.auth.isSupport(AuthSupportHardware.class);
-                if (authSupportHardware != null) {
-                    UserHardware hardware = authSupportHardware.getHardwareInfoByData(response.hardware);
-                    if (hardware == null) {
-                        hardware = authSupportHardware.createHardwareInfo(response.hardware, client.trustLevel.publicKey);
-                    } else {
-                        authSupportHardware.addPublicKeyToHardwareInfo(hardware, client.trustLevel.publicKey);
-                    }
-                    authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
-                    if (hardware.isBanned()) {
-                        throw new SecurityException("Your hardware banned");
-                    }
-                    client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
+        if (!client.isAuth || client.trustLevel == null || client.trustLevel.publicKey == null) {
+            response.sendError("Access denied");
+            return;
+        }
+        logger.debug("HardwareInfo received");
+        {
+            var authSupportHardware = client.auth.isSupport(AuthSupportHardware.class);
+            if (authSupportHardware != null) {
+                UserHardware hardware = authSupportHardware.getHardwareInfoByData(response.hardware);
+                if (hardware == null) {
+                    hardware = authSupportHardware.createHardwareInfo(response.hardware, client.trustLevel.publicKey);
                 } else {
-                    provider.normalizeHardwareInfo(response.hardware);
-                    boolean needCreate = !provider.addPublicKeyToHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
-                    logger.debug("HardwareInfo needCreate: {}", needCreate ? "true" : "false");
-                    if (needCreate)
-                        provider.createHardwareInfo(response.hardware, client.trustLevel.publicKey, client);
-                    client.trustLevel.hardwareInfo = response.hardware;
+                    authSupportHardware.addPublicKeyToHardwareInfo(hardware, client.trustLevel.publicKey);
                 }
+                authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
+                if (hardware.isBanned()) {
+                    throw new SecurityException("Your hardware banned");
+                }
+                client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
+            } else {
+                logger.error("AuthCoreProvider not supported hardware");
             }
-        } catch (HWIDException e) {
-            throw new SecurityException(e.getMessage());
         }
         response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, response.hardware)));
     }
@@ -109,29 +93,12 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 }
                 client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
                 authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
-            } else if (provider == null) {
-                logger.warn("HWIDProvider null. HardwareInfo not checked!");
             } else {
-                try {
-                    client.trustLevel.hardwareInfo = provider.findHardwareInfoByPublicKey(client.trustLevel.publicKey, client);
-                    if (client.trustLevel.hardwareInfo == null) //HWID not found?
-                        return new VerifySecureLevelKeyRequestEvent(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
-                } catch (HWIDException e) {
-                    throw new SecurityException(e.getMessage()); //Show banned message
-                }
+                logger.warn("AuthCoreProvider not supported hardware. HardwareInfo not checked!");
             }
             return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
         }
         return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
-    }
-
-    @Override
-    public Map<String, Command> getCommands() {
-        Map<String, Command> commands = new HashMap<>();
-        if (provider instanceof Reconfigurable) {
-            commands.putAll(((Reconfigurable) provider).getCommands());
-        }
-        return commands;
     }
 
     @Override
@@ -141,17 +108,11 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
 
     @Override
     public void init(LaunchServer server) {
-        if (provider != null) {
-            provider.init(server);
-            logger.warn("HWIDProvider deprecated. Please use 'AuthSupportHardware' in AuthCoreProvider");
-        }
         this.server = server;
     }
 
     @Override
     public void close() {
-        if (provider != null)
-            provider.close();
     }
 
     public String createHardwareToken(String username, HardwareReportRequest.HardwareInfo info) {

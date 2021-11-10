@@ -2,7 +2,6 @@ package pro.gravit.launchserver.components;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
@@ -12,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractLimiter<T> extends Component implements NeedGarbageCollection, Reconfigurable {
+public abstract class AbstractLimiter<T> extends Component implements Reconfigurable {
     public final List<T> exclude = new ArrayList<>();
     protected final transient Map<T, LimitEntry> map = new HashMap<>();
     private transient final Logger logger = LogManager.getLogger();
@@ -64,7 +63,6 @@ public abstract class AbstractLimiter<T> extends Component implements NeedGarbag
 
     protected abstract T getFromString(String str);
 
-    @Override
     public void garbageCollection() {
         long time = System.currentTimeMillis();
         map.entrySet().removeIf((e) -> e.getValue().time + rateLimitMillis < time);

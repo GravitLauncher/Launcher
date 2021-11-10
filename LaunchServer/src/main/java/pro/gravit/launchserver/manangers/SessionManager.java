@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.manangers;
 
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.HookSet;
@@ -11,7 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-public class SessionManager implements NeedGarbageCollection {
+public class SessionManager {
 
     private final LaunchServer server;
     public HookSet<Client> clientRestoreHook = new HookSet<>();
@@ -57,7 +56,6 @@ public class SessionManager implements NeedGarbageCollection {
         return result;
     }
 
-    @Override
     public void garbageCollection() {
     }
 

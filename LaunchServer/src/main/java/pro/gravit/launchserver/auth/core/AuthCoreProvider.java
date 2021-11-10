@@ -17,13 +17,11 @@ import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportGetAllUs
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportRegistration;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
-import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.command.Command;
-import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.command.SubCommand;
 
 import java.io.IOException;
@@ -251,7 +249,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                         verifyArgs(args, 2);
                         HardwareReportRequest.HardwareInfo hardware1 = Launcher.gsonManager.gson.fromJson(args[0], HardwareReportRequest.HardwareInfo.class);
                         HardwareReportRequest.HardwareInfo hardware2 = Launcher.gsonManager.gson.fromJson(args[1], HardwareReportRequest.HardwareInfo.class);
-                        HWIDProvider.HardwareInfoCompareResult result = instance.compareHardwareInfo(hardware1, hardware2);
+                        AuthSupportHardware.HardwareInfoCompareResult result = instance.compareHardwareInfo(hardware1, hardware2);
                         if (result == null) {
                             logger.error("Method compareHardwareInfo return null");
                             return;

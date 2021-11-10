@@ -3,9 +3,7 @@ package pro.gravit.launchserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launcher.managers.ConfigManager;
-import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
@@ -166,7 +164,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         config.init(ReloadType.FULL);
         registerObject("launchServer", this);
-        GarbageManager.registerNeedGC(sessionManager);
 
         pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(commandHandler, this);
 
@@ -411,18 +408,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         if (object instanceof Reconfigurable) {
             reconfigurableManager.registerReconfigurable(name, (Reconfigurable) object);
         }
-        if (object instanceof NeedGarbageCollection) {
-            GarbageManager.registerNeedGC((NeedGarbageCollection) object);
-        }
     }
 
     @SuppressWarnings("deprecation")
     public void unregisterObject(String name, Object object) {
         if (object instanceof Reconfigurable) {
             reconfigurableManager.unregisterReconfigurable(name);
-        }
-        if (object instanceof NeedGarbageCollection) {
-            GarbageManager.unregisterNeedGC((NeedGarbageCollection) object);
         }
     }
 

@@ -1,6 +1,5 @@
 package pro.gravit.utils.command.basic;
 
-import pro.gravit.launcher.managers.GarbageManager;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
