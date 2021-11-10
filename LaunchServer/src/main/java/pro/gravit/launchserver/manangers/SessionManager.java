@@ -56,9 +56,6 @@ public class SessionManager {
         return result;
     }
 
-    public void garbageCollection() {
-    }
-
 
     public Client getClient(UUID session) {
         if (session == null) return null;

@@ -144,6 +144,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                     logger.debug("JMods resolved in {}", jfxPath.toString());
                 } else {
                     logger.error("JavaFX jmods not found. May be install OpenJFX?");
+                    jfxPath = null;
                 }
                 ConfigurationParser parser = new ConfigurationParser(proguardConf.buildConfig(inputFile, outputJar, jfxPath == null ? new Path[0] : new Path[]{jfxPath}),
                         proguardConf.proguard.toFile(), System.getProperties());
