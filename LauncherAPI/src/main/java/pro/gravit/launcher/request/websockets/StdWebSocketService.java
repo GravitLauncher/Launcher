@@ -71,7 +71,7 @@ public class StdWebSocketService extends ClientWebSocketService {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
     public <T extends WebSocketEvent> void eventHandle(T webSocketEvent) {
         if (webSocketEvent instanceof RequestEvent) {
             RequestEvent event = (RequestEvent) webSocketEvent;

@@ -6,6 +6,7 @@ import pro.gravit.launcher.request.management.PingServerReportRequest;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
+@Deprecated
 public class PingServerReportResponse extends SimpleResponse {
     public PingServerReportRequest.PingServerReport data;
     public String name;

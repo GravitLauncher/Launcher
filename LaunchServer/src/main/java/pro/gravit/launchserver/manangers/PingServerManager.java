@@ -7,6 +7,7 @@ import pro.gravit.launchserver.LaunchServer;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class PingServerManager {
     public static final long REPORT_EXPIRED_TIME = 20 * 1000;
     public final Map<String, ServerInfoEntry> map = new HashMap<>();

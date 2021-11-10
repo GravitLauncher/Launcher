@@ -2,6 +2,7 @@ package pro.gravit.launcher.events;
 
 import pro.gravit.launcher.LauncherNetworkAPI;
 
+@Deprecated
 public class ExceptionEvent extends RequestEvent {
     @LauncherNetworkAPI
     public final String message;

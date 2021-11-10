@@ -102,6 +102,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final AuthManager authManager;
     public final ReconfigurableManager reconfigurableManager;
     public final ConfigManager configManager;
+    @Deprecated
     public final PingServerManager pingServerManager;
     public final FeaturesManager featuresManager;
     public final KeyAgreementManager keyAgreementManager;
@@ -403,14 +404,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
     }
 
-    @SuppressWarnings("deprecation")
     public void registerObject(String name, Object object) {
         if (object instanceof Reconfigurable) {
             reconfigurableManager.registerReconfigurable(name, (Reconfigurable) object);
         }
     }
 
-    @SuppressWarnings("deprecation")
     public void unregisterObject(String name, Object object) {
         if (object instanceof Reconfigurable) {
             reconfigurableManager.unregisterReconfigurable(name);

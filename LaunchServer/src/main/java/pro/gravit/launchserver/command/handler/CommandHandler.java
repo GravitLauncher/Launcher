@@ -16,6 +16,7 @@ import pro.gravit.utils.command.basic.GCCommand;
 import pro.gravit.utils.command.basic.HelpCommand;
 
 public abstract class CommandHandler extends pro.gravit.utils.command.CommandHandler {
+    @SuppressWarnings("deprecation")
     public static void registerCommands(pro.gravit.utils.command.CommandHandler handler, LaunchServer server) {
         BaseCommandCategory basic = new BaseCommandCategory();
         // Register basic commands
