@@ -125,8 +125,10 @@ public class ClientLauncherEntryPoint {
         RequestService service;
         if(params.offlineMode) {
             service = initOffline(LauncherEngine.modulesManager, params);
+            Request.setRequestService(service);
         } else {
             service = StdWebSocketService.initWebSockets(Launcher.getConfig().address).get();
+            Request.setRequestService(service);
             LogHelper.debug("Restore sessions");
             Request.restore();
             service.registerEventHandler(new BasicLauncherEventHandler());
@@ -141,7 +143,6 @@ public class ClientLauncherEntryPoint {
                 }
             };
         }
-        Request.setRequestService(service);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
             ClientClassLoader classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
