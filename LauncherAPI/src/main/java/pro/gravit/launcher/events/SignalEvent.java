@@ -4,6 +4,7 @@ import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.request.WebSocketEvent;
 
 //Используется, что бы послать короткое сообщение, которое вмещается в int
+@Deprecated
 public class SignalEvent implements WebSocketEvent {
     @LauncherNetworkAPI
     public final int signal;

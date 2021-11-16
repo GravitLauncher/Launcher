@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.components;
 
-import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.utils.HookException;
@@ -8,7 +7,7 @@ import pro.gravit.utils.HookException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RegLimiterComponent extends IPLimiter implements NeedGarbageCollection, AutoCloseable {
+public class RegLimiterComponent extends IPLimiter implements AutoCloseable {
 
     public transient LaunchServer launchServer;
     public String message;

@@ -13,7 +13,6 @@ import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
-import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.IOHelper;
@@ -272,7 +271,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
             try (ResultSet set = s.executeQuery()) {
                 while (set.next()) {
                     MySQLUserHardware hw = fetchHardwareInfo(set);
-                    HWIDProvider.HardwareInfoCompareResult result = compareHardwareInfo(hw.getHardwareInfo(), info);
+                    HardwareInfoCompareResult result = compareHardwareInfo(hw.getHardwareInfo(), info);
                     if (result.compareLevel > criticalCompareLevel) {
                         return hw;
                     }

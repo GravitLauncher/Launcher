@@ -11,15 +11,15 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
     public static final ProviderMap<AuthPasswordInterface> providers = new ProviderMap<>();
     private static boolean registerProviders = false;
     @LauncherNetworkAPI
-    private final String login;
+    public final String login;
     @LauncherNetworkAPI
-    private final AuthPasswordInterface password;
+    public final AuthPasswordInterface password;
     @LauncherNetworkAPI
-    private final String auth_id;
+    public final String auth_id;
     @LauncherNetworkAPI
-    private final boolean getSession;
+    public final boolean getSession;
     @LauncherNetworkAPI
-    private final ConnectTypes authType;
+    public final ConnectTypes authType;
 
     public AuthRequest(String login, String password, String auth_id, ConnectTypes authType) {
         this.login = login;

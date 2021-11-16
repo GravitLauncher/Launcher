@@ -5,7 +5,7 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.10' apply false
 }
 group = 'pro.gravit.launcher'
-version = '5.2.5'
+version = '5.2.6'
 
 apply from: 'props.gradle'
 
@@ -26,6 +26,9 @@ configure(subprojects.findAll { it.name != 'modules' }) {
         }
         maven {
             url "https://jcenter.bintray.com/"
+        }
+        maven {
+            url "https://jitpack.io/"
         }
     }
 

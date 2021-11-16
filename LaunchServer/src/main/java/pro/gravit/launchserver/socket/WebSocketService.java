@@ -65,6 +65,7 @@ public class WebSocketService {
         this.gson = Launcher.gsonManager.gson;
     }
 
+    @SuppressWarnings("deprecation")
     public static void registerResponses() {
         providers.register("auth", AuthResponse.class);
         providers.register("checkServer", CheckServerResponse.class);
@@ -165,11 +166,7 @@ public class WebSocketService {
         } catch (Exception e) {
             logger.error("WebSocket request processing failed", e);
             RequestEvent event;
-            if (server.config.netty.sendExceptionEnabled) {
-                event = new ExceptionEvent(e);
-            } else {
-                event = new ErrorRequestEvent("Fatal server error. Contact administrator");
-            }
+            event = new ErrorRequestEvent("Fatal server error. Contact administrator");
             if (response instanceof SimpleResponse) {
                 event.requestUUID = ((SimpleResponse) response).requestUUID;
             }

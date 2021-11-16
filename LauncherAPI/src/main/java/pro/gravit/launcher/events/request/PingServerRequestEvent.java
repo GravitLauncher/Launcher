@@ -5,6 +5,7 @@ import pro.gravit.launcher.request.management.PingServerReportRequest;
 
 import java.util.Map;
 
+@Deprecated
 public class PingServerRequestEvent extends RequestEvent {
     public Map<String, PingServerReportRequest.PingServerReport> serverMap;
 

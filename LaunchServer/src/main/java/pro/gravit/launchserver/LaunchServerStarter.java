@@ -13,7 +13,6 @@ import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
-import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
 import pro.gravit.launchserver.auth.session.SessionStorage;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.components.Component;
@@ -204,7 +203,6 @@ public class LaunchServerStarter {
         WebSocketService.registerResponses();
         AuthRequest.registerProviders();
         GetAvailabilityAuthRequest.registerProviders();
-        HWIDProvider.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
         SessionStorage.registerProviders();

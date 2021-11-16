@@ -77,7 +77,6 @@ public final class LaunchServerConfig {
 
         newConfig.netty = new NettyConfig();
         newConfig.netty.fileServerEnabled = true;
-        newConfig.netty.sendExceptionEnabled = false;
         newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
         newConfig.netty.performance = new NettyPerformanceConfig();
         try {
@@ -286,6 +285,7 @@ public final class LaunchServerConfig {
 
     public static class NettyConfig {
         public boolean fileServerEnabled;
+        @Deprecated
         public boolean sendExceptionEnabled;
         public boolean ipForwarding;
         public boolean disableWebApiInterface;

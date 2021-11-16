@@ -17,6 +17,7 @@ import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.request.auth.RestoreRequest;
 import pro.gravit.launcher.request.update.ProfilesRequest;
+import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.server.setup.ServerWrapperSetup;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
@@ -112,6 +113,18 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         updateLauncherConfig();
         if (config.env != null) Launcher.applyLauncherEnv(config.env);
         else Launcher.applyLauncherEnv(LauncherConfig.LauncherEnvironment.STD);
+        StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
+        service.reconnectCallback = () ->
+        {
+            LogHelper.debug("WebSocket connect closed. Try reconnect");
+            try {
+                Request.reconnect();
+                getProfiles();
+            } catch (Exception e) {
+                LogHelper.error(e);
+            }
+        };
+        Request.setRequestService(service);
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
             restore();
@@ -153,16 +166,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         if (loader != null) mainClass = Class.forName(classname, true, loader);
         else mainClass = Class.forName(classname);
         MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
-        Request.service.reconnectCallback = () ->
-        {
-            LogHelper.debug("WebSocket connect closed. Try reconnect");
-            try {
-                Request.reconnect();
-                getProfiles();
-            } catch (Exception e) {
-                LogHelper.error(e);
-            }
-        };
         LogHelper.info("ServerWrapper: LaunchServer address: %s. Title: %s", config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");

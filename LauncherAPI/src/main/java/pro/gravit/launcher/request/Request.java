@@ -19,7 +19,9 @@ import java.util.function.BiConsumer;
 public abstract class Request<R extends WebSocketEvent> implements WebSocketRequest {
     private static final List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
     private static final List<BiConsumer<String, AuthRequestEvent.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
+    @Deprecated
     public static StdWebSocketService service;
+    private static RequestService requestService;
     private static UUID session;
     private static AuthRequestEvent.OAuthRequestEvent oauth;
     private static Map<String, String> extendedTokens;
@@ -28,6 +30,21 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     @LauncherNetworkAPI
     public final UUID requestUUID = UUID.randomUUID();
     private transient final AtomicBoolean started = new AtomicBoolean(false);
+
+    public static void setRequestService(RequestService service) {
+        requestService = service;
+        if(service instanceof StdWebSocketService) {
+            Request.service = (StdWebSocketService) service;
+        }
+    }
+
+    public static RequestService getRequestService() {
+        return requestService;
+    }
+
+    public static boolean isAvailable() {
+        return requestService != null;
+    }
 
     public static UUID getSession() {
         return Request.session;
@@ -197,18 +214,26 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     public R request() throws Exception {
         if (!started.compareAndSet(false, true))
             throw new IllegalStateException("Request already started");
-        if (service == null)
-            service = StdWebSocketService.initWebSockets(Launcher.getConfig().address, false);
-        return requestDo(service);
+        if(!isAvailable()) {
+            throw new RequestException("RequestService not initialized");
+        }
+        return requestDo(requestService);
     }
 
+    @Deprecated
     public R request(StdWebSocketService service) throws Exception {
         if (!started.compareAndSet(false, true))
             throw new IllegalStateException("Request already started");
         return requestDo(service);
     }
 
-    protected R requestDo(StdWebSocketService service) throws Exception {
+    public R request(RequestService service) throws Exception {
+        if (!started.compareAndSet(false, true))
+            throw new IllegalStateException("Request already started");
+        return requestDo(service);
+    }
+
+    protected R requestDo(RequestService service) throws Exception {
         return service.requestSync(this);
     }
 

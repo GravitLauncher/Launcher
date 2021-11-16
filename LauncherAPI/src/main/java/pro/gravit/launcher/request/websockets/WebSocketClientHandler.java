@@ -77,17 +77,15 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             // uncomment to print request
             // logger.info(frame.content().toString());
         }
-
     }
 
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
-        LogHelper.error(cause);
-
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);
+        } else {
+            LogHelper.error(cause);
         }
-
         ctx.close();
     }
 }

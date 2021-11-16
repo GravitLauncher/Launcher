@@ -85,12 +85,6 @@ public class SecurityCheckCommand extends Command {
             printCheckResult("netty.address", "", true);
         }
 
-        if (config.netty.sendExceptionEnabled) {
-            printCheckResult("netty.sendExceptionEnabled", "recommend \"false\" in production", false);
-        } else {
-            printCheckResult("netty.sendExceptionEnabled", "", true);
-        }
-
         if (config.netty.launcherURL.startsWith("http://")) {
             printCheckResult("netty.launcherUrl", "launcher jar download connection not secure", false);
         } else if (config.netty.launcherURL.startsWith("https://")) {

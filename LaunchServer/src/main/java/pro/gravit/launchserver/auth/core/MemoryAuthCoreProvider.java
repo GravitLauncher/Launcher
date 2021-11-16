@@ -83,7 +83,7 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
                 memory.add(user);
             }
         }
-        if(minecraftAccess) {
+        if(!minecraftAccess) {
             return AuthManager.AuthReport.ofOAuth(user.accessToken, null, 0, new MemoryUserSession(user));
         } else {
             return AuthManager.AuthReport.ofOAuthWithMinecraft(user.accessToken, user.accessToken, null, 0, new MemoryUserSession(user));

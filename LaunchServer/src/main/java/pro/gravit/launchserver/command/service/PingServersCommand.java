@@ -6,6 +6,7 @@ import pro.gravit.launcher.request.management.PingServerReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 
+@Deprecated
 public class PingServersCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 

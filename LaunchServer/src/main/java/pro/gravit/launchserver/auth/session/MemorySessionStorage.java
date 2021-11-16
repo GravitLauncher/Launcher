@@ -3,7 +3,6 @@ package pro.gravit.launchserver.auth.session;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.IOHelper;
 
@@ -12,14 +11,13 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-public class MemorySessionStorage extends SessionStorage implements NeedGarbageCollection, AutoCloseable {
+public class MemorySessionStorage extends SessionStorage implements AutoCloseable {
 
     private transient final Map<UUID, Entry> clientSet = new ConcurrentHashMap<>(128);
     private transient final Map<UUID, Set<Entry>> uuidIndex = new ConcurrentHashMap<>(32);
@@ -32,7 +30,6 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
         super.init(server);
         if (autoDump) {
             loadSessionsData();
-            garbageCollection();
         }
     }
 
@@ -145,25 +142,8 @@ public class MemorySessionStorage extends SessionStorage implements NeedGarbageC
     }
 
     @Override
-    public void garbageCollection() {
-        long time = System.currentTimeMillis();
-        long session_timeout = server.config.netty.performance.sessionLifetimeMs;
-        Set<UUID> to_delete = new HashSet<>(32);
-        clientSet.forEach((uuid, entry) -> {
-            long timestamp = entry.timestamp;
-            if (timestamp + session_timeout < time)
-                to_delete.add(uuid);
-        });
-        for (UUID session : to_delete) {
-            deleteSession(session);
-        }
-        to_delete.clear();
-    }
-
-    @Override
     public void close() {
         if (autoDump) {
-            garbageCollection();
             dumpSessionsData();
         }
     }

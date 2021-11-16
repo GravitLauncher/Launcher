@@ -5,7 +5,6 @@ import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
-import pro.gravit.launchserver.auth.protect.hwid.HWIDProvider;
 import pro.gravit.launchserver.helper.DamerauHelper;
 
 import java.util.Arrays;
@@ -40,8 +39,8 @@ public interface AuthSupportHardware extends AuthSupport {
     }
 
     //Required normalize HardwareInfo
-    default HWIDProvider.HardwareInfoCompareResult compareHardwareInfo(HardwareReportRequest.HardwareInfo first, HardwareReportRequest.HardwareInfo second) {
-        HWIDProvider.HardwareInfoCompareResult result = new HWIDProvider.HardwareInfoCompareResult();
+    default HardwareInfoCompareResult compareHardwareInfo(HardwareReportRequest.HardwareInfo first, HardwareReportRequest.HardwareInfo second) {
+        HardwareInfoCompareResult result = new HardwareInfoCompareResult();
         if (first.hwDiskId == null || first.hwDiskId.isEmpty()) result.firstSpoofingLevel += 0.9;
         if (first.displayId == null || first.displayId.length < 4) result.firstSpoofingLevel += 0.3;
         if (first.baseboardSerialNumber == null || first.baseboardSerialNumber.trim().isEmpty())
@@ -94,5 +93,11 @@ public interface AuthSupportHardware extends AuthSupport {
         if (Math.abs(first.totalMemory - second.totalMemory) < 32 * 1024)
             result.compareLevel += 0.05;
         return result;
+    }
+
+    class HardwareInfoCompareResult {
+        public double firstSpoofingLevel = 0.0;
+        public double secondSpoofingLevel = 0.0;
+        public double compareLevel;
     }
 }

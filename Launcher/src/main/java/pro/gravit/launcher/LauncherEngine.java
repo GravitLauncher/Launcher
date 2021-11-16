@@ -6,6 +6,7 @@ import pro.gravit.launcher.client.events.ClientExitPhase;
 import pro.gravit.launcher.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.console.GetPublicKeyCommand;
 import pro.gravit.launcher.console.SignDataCommand;
+import pro.gravit.launcher.events.request.*;
 import pro.gravit.launcher.guard.LauncherGuardInterface;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.guard.LauncherNoGuard;
@@ -14,13 +15,21 @@ import pro.gravit.launcher.gui.NoRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ConsoleManager;
+import pro.gravit.launcher.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
+import pro.gravit.launcher.request.RequestService;
+import pro.gravit.launcher.request.auth.*;
+import pro.gravit.launcher.request.auth.details.AuthLoginOnlyDetails;
+import pro.gravit.launcher.request.management.FeaturesRequest;
+import pro.gravit.launcher.request.secure.GetSecureLevelInfoRequest;
+import pro.gravit.launcher.request.secure.SecurityReportRequest;
+import pro.gravit.launcher.request.update.LauncherRequest;
+import pro.gravit.launcher.request.websockets.ClientWebSocketService;
+import pro.gravit.launcher.request.websockets.OfflineRequestService;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.helper.*;
@@ -33,7 +42,9 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -142,6 +153,35 @@ public class LauncherEngine {
         return null;
     }
 
+    public static RequestService initOffline() {
+        OfflineRequestService service = new OfflineRequestService();
+        applyBasicOfflineProcessors(service);
+        OfflineModeEvent event = new OfflineModeEvent(service);
+        modulesManager.invokeEvent(event);
+        return event.service;
+    }
+
+    public static void applyBasicOfflineProcessors(OfflineRequestService service) {
+        service.registerRequestProcessor(LauncherRequest.class, (r) -> new LauncherRequestEvent(false, (String) null));
+        service.registerRequestProcessor(CheckServerRequest.class, (r) -> {
+            throw new RequestException("CheckServer disabled in offline mode");
+        });
+        service.registerRequestProcessor(GetAvailabilityAuthRequest.class, (r) -> {
+            List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> details = new ArrayList<>();
+            details.add(new AuthLoginOnlyDetails());
+            GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability = new GetAvailabilityAuthRequestEvent.AuthAvailability("offline", "Offline Mode", details);
+            List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>(1);
+            list.add(authAvailability);
+            return new GetAvailabilityAuthRequestEvent(list);
+        });
+        service.registerRequestProcessor(JoinServerRequest.class, (r) -> new JoinServerRequestEvent(false));
+        service.registerRequestProcessor(ExitRequest.class, (r) -> new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
+        service.registerRequestProcessor(SetProfileRequest.class, (r) -> new SetProfileRequestEvent(null));
+        service.registerRequestProcessor(FeaturesRequest.class, (r) -> new FeaturesRequestEvent());
+        service.registerRequestProcessor(GetSecureLevelInfoRequest.class, (r) -> new GetSecureLevelInfoRequestEvent(null, false));
+        service.registerRequestProcessor(SecurityReportRequest.class, (r) -> new SecurityReportRequestEvent(SecurityReportRequestEvent.ReportAction.NONE));
+    }
+
     public static LauncherEngine clientInstance() {
         return new LauncherEngine(true);
     }
@@ -189,21 +229,33 @@ public class LauncherEngine {
         if (runtimeProvider == null) runtimeProvider = new NoRuntimeProvider();
         runtimeProvider.init(clientInstance);
         //runtimeProvider.preLoad();
-        if (Request.service == null) {
+        if (!Request.isAvailable()) {
             String address = Launcher.getConfig().address;
             LogHelper.debug("Start async connection to %s", address);
-            Request.service = StdWebSocketService.initWebSockets(address, true);
-            Request.service.reconnectCallback = () ->
-            {
-                LogHelper.debug("WebSocket connect closed. Try reconnect");
-                try {
-                    Request.reconnect();
-                } catch (Exception e) {
+            RequestService service;
+            try {
+                service = StdWebSocketService.initWebSockets(address).get();
+            } catch (Throwable e) {
+                if(LogHelper.isDebugEnabled()) {
                     LogHelper.error(e);
-                    throw new RequestException("Connection failed", e);
                 }
-            };
-            Request.service.registerEventHandler(new BasicLauncherEventHandler());
+                LogHelper.warning("Launcher in offline mode");
+                service = initOffline();
+            }
+            Request.setRequestService(service);
+            if(service instanceof StdWebSocketService) {
+                ((StdWebSocketService) service).reconnectCallback = () ->
+                {
+                    LogHelper.debug("WebSocket connect closed. Try reconnect");
+                    try {
+                        Request.reconnect();
+                    } catch (Exception e) {
+                        LogHelper.error(e);
+                        throw new RequestException("Connection failed", e);
+                    }
+                };
+            }
+            service.registerEventHandler(new BasicLauncherEventHandler());
         }
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))

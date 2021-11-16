@@ -3,6 +3,7 @@ package pro.gravit.launcher.events.request;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.request.WebSocketEvent;
 
+@Deprecated
 public class LogEvent implements WebSocketEvent {
     @LauncherNetworkAPI
     public final String string;

@@ -281,6 +281,8 @@ public class ClientLauncherProcess {
 
         public Map<String, String> extendedTokens;
 
+        public boolean offlineMode;
+
         public transient HashedDir assetHDir;
 
         public transient HashedDir clientHDir;
