@@ -4,6 +4,7 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.launcher.request.Request;
+import pro.gravit.launcher.request.RequestService;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.helper.IOHelper;
@@ -88,7 +89,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     }
 
     @Override
-    public LauncherRequestEvent requestDo(StdWebSocketService service) throws Exception {
+    public LauncherRequestEvent requestDo(RequestService service) throws Exception {
         LauncherRequestEvent result = super.request(service);
         if (result.needUpdate) update(result);
         return result;

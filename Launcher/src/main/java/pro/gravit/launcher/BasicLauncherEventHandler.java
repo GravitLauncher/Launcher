@@ -5,11 +5,12 @@ import pro.gravit.launcher.events.ExtendedTokenRequestEvent;
 import pro.gravit.launcher.events.NotificationEvent;
 import pro.gravit.launcher.events.request.SecurityReportRequestEvent;
 import pro.gravit.launcher.request.Request;
+import pro.gravit.launcher.request.RequestService;
 import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launcher.request.websockets.ClientWebSocketService;
 import pro.gravit.utils.helper.LogHelper;
 
-public class BasicLauncherEventHandler implements ClientWebSocketService.EventHandler {
+public class BasicLauncherEventHandler implements RequestService.EventHandler {
 
     @Override
     public <T extends WebSocketEvent> boolean eventHandle(T event) {

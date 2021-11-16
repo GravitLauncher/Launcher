@@ -5,6 +5,7 @@ import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
+import pro.gravit.launcher.request.RequestService;
 import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -17,10 +18,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
-public class StdWebSocketService extends ClientWebSocketService {
+public class StdWebSocketService extends ClientWebSocketService implements RequestService {
     @SuppressWarnings("rawtypes")
     private final ConcurrentHashMap<UUID, CompletableFuture> futureMap = new ConcurrentHashMap<>();
-    private final HashSet<EventHandler> eventHandlers = new HashSet<>();
+    private final HashSet<RequestService.EventHandler> eventHandlers = new HashSet<>();
+    private final HashSet<ClientWebSocketService.EventHandler> legacyEventHandlers = new HashSet<>();
 
     public StdWebSocketService(String address) throws SSLException {
         super(address);
@@ -57,16 +59,21 @@ public class StdWebSocketService extends ClientWebSocketService {
         return service;
     }
 
-    public void registerEventHandler(EventHandler handler) {
-        eventHandlers.add(handler);
+    @Deprecated
+    public void registerEventHandler(ClientWebSocketService.EventHandler handler) {
+        legacyEventHandlers.add(handler);
     }
 
-    public void unregisterEventHandler(EventHandler handler) {
-        eventHandlers.remove(handler);
+    @Deprecated
+    public void unregisterEventHandler(ClientWebSocketService.EventHandler handler) {
+        legacyEventHandlers.remove(handler);
     }
 
     public <T extends WebSocketEvent> void processEventHandlers(T event) {
-        for (EventHandler handler : eventHandlers) {
+        for (RequestService.EventHandler handler : eventHandlers) {
+            if (handler.eventHandle(event)) return;
+        }
+        for (ClientWebSocketService.EventHandler handler : legacyEventHandlers) {
             if (handler.eventHandle(event)) return;
         }
     }
@@ -110,6 +117,16 @@ public class StdWebSocketService extends ClientWebSocketService {
         return result;
     }
 
+    @Override
+    public void registerEventHandler(RequestService.EventHandler handler) {
+        eventHandlers.add(handler);
+    }
+
+    @Override
+    public void unregisterEventHandler(RequestService.EventHandler handler) {
+        eventHandlers.remove(handler);
+    }
+
     public <T extends WebSocketEvent> T requestSync(Request<T> request) throws IOException {
         try {
             return request(request).get();
@@ -123,5 +140,10 @@ public class StdWebSocketService extends ClientWebSocketService {
                 throw new RequestException(cause);
             }
         }
+    }
+
+    @Override
+    public boolean isClosed() {
+        return isClosed;
     }
 }

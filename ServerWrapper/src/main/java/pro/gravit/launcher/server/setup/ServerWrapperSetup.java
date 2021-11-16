@@ -1,12 +1,14 @@
 package pro.gravit.launcher.server.setup;
 
 import pro.gravit.launcher.request.Request;
+import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.server.ServerWrapper;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
@@ -56,9 +58,11 @@ public class ServerWrapperSetup {
         wrapper.config.serverName = commands.commandHandler.readLine();
         wrapper.config.mainclass = mainClassName;
         for (int i = 0; i < 10; ++i) {
-            if(Request.service == null || Request.service.isClosed) {
+            if(!Request.isAvailable() || Request.getRequestService().isClosed()) {
                 System.out.println("Print launchserver websocket host( ws://host:port/api ):");
                 wrapper.config.address = commands.commandHandler.readLine();
+                StdWebSocketService service = StdWebSocketService.initWebSockets(wrapper.config.address, false);
+                Request.setRequestService(service);
             }
             System.out.println("Print server token:");
             String checkServerToken = commands.commandHandler.readLine();
@@ -70,8 +74,8 @@ public class ServerWrapperSetup {
                 break;
             } catch (Throwable e) {
                 LogHelper.error(e);
-                if(!Request.service.isClosed) {
-                    Request.service.close();
+                if(Request.isAvailable() && Request.getRequestService() instanceof AutoCloseable) {
+                    ((AutoCloseable) Request.getRequestService()).close();
                 }
             }
         }

@@ -21,6 +21,7 @@ import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
+import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.utils.DirWatcher;
 import pro.gravit.utils.helper.*;
@@ -112,10 +113,12 @@ public class ClientLauncherEntryPoint {
         List<URL> classpath = resolveClassPath(clientDir, params.actions, params.profile).map(IOHelper::toURL).collect(Collectors.toList());
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
-        LogHelper.debug("Restore sessions");
+        StdWebSocketService service = StdWebSocketService.initWebSockets(Launcher.getConfig().address, false);
+                LogHelper.debug("Restore sessions");
         Request.restore();
-        Request.service.registerEventHandler(new BasicLauncherEventHandler());
-        Request.service.reconnectCallback = () ->
+
+        service.registerEventHandler(new BasicLauncherEventHandler());
+        service.reconnectCallback = () ->
         {
             LogHelper.debug("WebSocket connect closed. Try reconnect");
             try {
@@ -125,6 +128,7 @@ public class ClientLauncherEntryPoint {
                 throw new RequestException("Connection failed", e);
             }
         };
+        Request.setRequestService(service);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
             ClientClassLoader classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());

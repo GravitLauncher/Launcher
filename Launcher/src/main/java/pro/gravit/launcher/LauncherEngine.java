@@ -21,6 +21,7 @@ import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
+import pro.gravit.launcher.request.websockets.ClientWebSocketService;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.helper.*;
@@ -189,11 +190,12 @@ public class LauncherEngine {
         if (runtimeProvider == null) runtimeProvider = new NoRuntimeProvider();
         runtimeProvider.init(clientInstance);
         //runtimeProvider.preLoad();
-        if (Request.service == null) {
+        if (!Request.isAvailable()) {
             String address = Launcher.getConfig().address;
             LogHelper.debug("Start async connection to %s", address);
-            Request.service = StdWebSocketService.initWebSockets(address, true);
-            Request.service.reconnectCallback = () ->
+            StdWebSocketService service = StdWebSocketService.initWebSockets(address, true);
+            Request.setRequestService(service);
+            service.reconnectCallback = () ->
             {
                 LogHelper.debug("WebSocket connect closed. Try reconnect");
                 try {
@@ -203,7 +205,7 @@ public class LauncherEngine {
                     throw new RequestException("Connection failed", e);
                 }
             };
-            Request.service.registerEventHandler(new BasicLauncherEventHandler());
+            service.registerEventHandler(new BasicLauncherEventHandler());
         }
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
