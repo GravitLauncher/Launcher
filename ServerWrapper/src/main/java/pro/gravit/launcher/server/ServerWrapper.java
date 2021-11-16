@@ -113,7 +113,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         updateLauncherConfig();
         if (config.env != null) Launcher.applyLauncherEnv(config.env);
         else Launcher.applyLauncherEnv(LauncherConfig.LauncherEnvironment.STD);
-        StdWebSocketService service = StdWebSocketService.initWebSockets(config.address, false);
+        StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
         service.reconnectCallback = () ->
         {
             LogHelper.debug("WebSocket connect closed. Try reconnect");

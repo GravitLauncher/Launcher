@@ -4,12 +4,16 @@ import pro.gravit.launcher.*;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
 import pro.gravit.launcher.client.events.client.*;
+import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
+import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
 import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ConsoleManager;
+import pro.gravit.launcher.modules.LauncherModulesManager;
+import pro.gravit.launcher.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.patches.FMLPatcher;
 import pro.gravit.launcher.profiles.ClientProfile;
@@ -19,8 +23,13 @@ import pro.gravit.launcher.profiles.optional.actions.OptionalActionClientArgs;
 import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
+import pro.gravit.launcher.request.RequestService;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
+import pro.gravit.launcher.request.uuid.BatchProfileByUsernameRequest;
+import pro.gravit.launcher.request.uuid.ProfileByUUIDRequest;
+import pro.gravit.launcher.request.uuid.ProfileByUsernameRequest;
+import pro.gravit.launcher.request.websockets.OfflineRequestService;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.utils.DirWatcher;
@@ -113,21 +122,25 @@ public class ClientLauncherEntryPoint {
         List<URL> classpath = resolveClassPath(clientDir, params.actions, params.profile).map(IOHelper::toURL).collect(Collectors.toList());
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
-        StdWebSocketService service = StdWebSocketService.initWebSockets(Launcher.getConfig().address, false);
-                LogHelper.debug("Restore sessions");
-        Request.restore();
-
-        service.registerEventHandler(new BasicLauncherEventHandler());
-        service.reconnectCallback = () ->
-        {
-            LogHelper.debug("WebSocket connect closed. Try reconnect");
-            try {
-                Request.reconnect();
-            } catch (Exception e) {
-                LogHelper.error(e);
-                throw new RequestException("Connection failed", e);
-            }
-        };
+        RequestService service;
+        if(params.offlineMode) {
+            service = initOffline(LauncherEngine.modulesManager, params);
+        } else {
+            service = StdWebSocketService.initWebSockets(Launcher.getConfig().address).get();
+            LogHelper.debug("Restore sessions");
+            Request.restore();
+            service.registerEventHandler(new BasicLauncherEventHandler());
+            ((StdWebSocketService) service).reconnectCallback = () ->
+            {
+                LogHelper.debug("WebSocket connect closed. Try reconnect");
+                try {
+                    Request.reconnect();
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                    throw new RequestException("Connection failed", e);
+                }
+            };
+        }
         Request.setRequestService(service);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
@@ -202,6 +215,30 @@ public class ClientLauncherEntryPoint {
         OptionalTrigger.registerProviders();
         Launcher.gsonManager = new ClientGsonManager(moduleManager);
         Launcher.gsonManager.initGson();
+    }
+
+    public static RequestService initOffline(LauncherModulesManager modulesManager, ClientLauncherProcess.ClientParams params) {
+        OfflineRequestService service = new OfflineRequestService();
+        LauncherEngine.applyBasicOfflineProcessors(service);
+        applyClientOfflineProcessors(service, params);
+        OfflineModeEvent event = new OfflineModeEvent(service);
+        modulesManager.invokeEvent(event);
+        return event.service;
+    }
+
+    public static void applyClientOfflineProcessors(OfflineRequestService service, ClientLauncherProcess.ClientParams params) {
+        service.registerRequestProcessor(ProfileByUsernameRequest.class, (r) -> {
+            if(params.playerProfile.username.equals(r.username)) {
+                return new ProfileByUsernameRequestEvent(params.playerProfile);
+            }
+            throw new RequestException("User not found");
+        });
+        service.registerRequestProcessor(ProfileByUUIDRequest.class, (r) -> {
+            if(params.playerProfile.uuid.equals(r.uuid)) {
+                return new ProfileByUUIDRequestEvent(params.playerProfile);
+            }
+            throw new RequestException("User not found");
+        });
     }
 
     public static void verifyHDir(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) throws IOException {

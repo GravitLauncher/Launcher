@@ -24,6 +24,8 @@ import java.net.URI;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public abstract class ClientJSONPoint {
 
@@ -94,16 +96,26 @@ public abstract class ClientJSONPoint {
         webSocketClientHandler.handshakeFuture().sync();
     }
 
-    public void openAsync(Runnable onConnect) {
+    public void openAsync(Runnable onConnect, Consumer<Throwable> onFail) {
         //System.out.println("WebSocket Client connecting");
         webSocketClientHandler =
                 new WebSocketClientHandler(
                         WebSocketClientHandshakerFactory.newHandshaker(
                                 uri, WebSocketVersion.V13, null, false, EmptyHttpHeaders.INSTANCE, 12800000), this);
         ChannelFuture future = bootstrap.connect(uri.getHost(), port);
-        future.addListener((e) -> {
-            ch = future.channel();
-            webSocketClientHandler.handshakeFuture().addListener((e1) -> onConnect.run());
+        future.addListener((l) -> {
+            if(l.isSuccess()) {
+                ch = future.channel();
+                webSocketClientHandler.handshakeFuture().addListener((e) -> {
+                    if(e.isSuccess()) {
+                        onConnect.run();
+                    } else {
+                        onFail.accept(webSocketClientHandler.handshakeFuture().cause());
+                    }
+                });
+            } else {
+                onFail.accept(future.cause());
+            }
         });
     }
 

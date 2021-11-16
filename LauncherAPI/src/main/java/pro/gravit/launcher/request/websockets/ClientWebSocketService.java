@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 public abstract class ClientWebSocketService extends ClientJSONPoint {
     public static final ProviderMap<WebSocketEvent> results = new ProviderMap<>();
     public static final ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
+    private static boolean resultsRegistered = false;
     public final Gson gson;
     public final Boolean onConnect;
     public OnCloseCallback onCloseCallback;
@@ -83,38 +84,41 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
 
     @SuppressWarnings("deprecation")
     public void registerResults() {
-        results.register("auth", AuthRequestEvent.class);
-        results.register("checkServer", CheckServerRequestEvent.class);
-        results.register("joinServer", JoinServerRequestEvent.class);
-        results.register("launcher", LauncherRequestEvent.class);
-        results.register("profileByUsername", ProfileByUsernameRequestEvent.class);
-        results.register("profileByUUID", ProfileByUUIDRequestEvent.class);
-        results.register("batchProfileByUsername", BatchProfileByUsernameRequestEvent.class);
-        results.register("profiles", ProfilesRequestEvent.class);
-        results.register("setProfile", SetProfileRequestEvent.class);
-        results.register("updateList", UpdateListRequestEvent.class);
-        results.register("error", ErrorRequestEvent.class);
-        results.register("update", UpdateRequestEvent.class);
-        results.register("restoreSession", RestoreSessionRequestEvent.class);
-        results.register("log", LogEvent.class);
-        results.register("getAvailabilityAuth", GetAvailabilityAuthRequestEvent.class);
-        results.register("exception", ExceptionEvent.class);
-        results.register("register", RegisterRequestEvent.class);
-        results.register("notification", NotificationEvent.class);
-        results.register("signal", SignalEvent.class);
-        results.register("exit", ExitRequestEvent.class);
-        results.register("getSecureLevelInfo", GetSecureLevelInfoRequestEvent.class);
-        results.register("verifySecureLevelKey", VerifySecureLevelKeyRequestEvent.class);
-        results.register("securityReport", SecurityReportRequestEvent.class);
-        results.register("hardwareReport", HardwareReportRequestEvent.class);
-        results.register("serverStatus", ServerStatusRequestEvent.class);
-        results.register("pingServerReport", PingServerReportRequestEvent.class);
-        results.register("pingServer", PingServerRequestEvent.class);
-        results.register("currentUser", CurrentUserRequestEvent.class);
-        results.register("features", FeaturesRequestEvent.class);
-        results.register("refreshToken", RefreshTokenRequestEvent.class);
-        results.register("restore", RestoreRequestEvent.class);
-        results.register("additionalData", AdditionalDataRequestEvent.class);
+        if(!resultsRegistered) {
+            results.register("auth", AuthRequestEvent.class);
+            results.register("checkServer", CheckServerRequestEvent.class);
+            results.register("joinServer", JoinServerRequestEvent.class);
+            results.register("launcher", LauncherRequestEvent.class);
+            results.register("profileByUsername", ProfileByUsernameRequestEvent.class);
+            results.register("profileByUUID", ProfileByUUIDRequestEvent.class);
+            results.register("batchProfileByUsername", BatchProfileByUsernameRequestEvent.class);
+            results.register("profiles", ProfilesRequestEvent.class);
+            results.register("setProfile", SetProfileRequestEvent.class);
+            results.register("updateList", UpdateListRequestEvent.class);
+            results.register("error", ErrorRequestEvent.class);
+            results.register("update", UpdateRequestEvent.class);
+            results.register("restoreSession", RestoreSessionRequestEvent.class);
+            results.register("log", LogEvent.class);
+            results.register("getAvailabilityAuth", GetAvailabilityAuthRequestEvent.class);
+            results.register("exception", ExceptionEvent.class);
+            results.register("register", RegisterRequestEvent.class);
+            results.register("notification", NotificationEvent.class);
+            results.register("signal", SignalEvent.class);
+            results.register("exit", ExitRequestEvent.class);
+            results.register("getSecureLevelInfo", GetSecureLevelInfoRequestEvent.class);
+            results.register("verifySecureLevelKey", VerifySecureLevelKeyRequestEvent.class);
+            results.register("securityReport", SecurityReportRequestEvent.class);
+            results.register("hardwareReport", HardwareReportRequestEvent.class);
+            results.register("serverStatus", ServerStatusRequestEvent.class);
+            results.register("pingServerReport", PingServerReportRequestEvent.class);
+            results.register("pingServer", PingServerRequestEvent.class);
+            results.register("currentUser", CurrentUserRequestEvent.class);
+            results.register("features", FeaturesRequestEvent.class);
+            results.register("refreshToken", RefreshTokenRequestEvent.class);
+            results.register("restore", RestoreRequestEvent.class);
+            results.register("additionalData", AdditionalDataRequestEvent.class);
+            resultsRegistered = true;
+        }
     }
 
     public void waitIfNotConnected() {

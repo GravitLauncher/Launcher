@@ -214,8 +214,9 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     public R request() throws Exception {
         if (!started.compareAndSet(false, true))
             throw new IllegalStateException("Request already started");
-        if (!isAvailable())
-            setRequestService(StdWebSocketService.initWebSockets(Launcher.getConfig().address, false));
+        if(!isAvailable()) {
+            throw new RequestException("RequestService not initialized");
+        }
         return requestDo(requestService);
     }
 

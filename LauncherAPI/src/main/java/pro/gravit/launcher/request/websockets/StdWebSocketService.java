@@ -28,7 +28,7 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
         super(address);
     }
 
-    public static StdWebSocketService initWebSockets(String address, boolean async) {
+    public static CompletableFuture<StdWebSocketService> initWebSockets(String address) throws Exception {
         StdWebSocketService service;
         try {
             service = new StdWebSocketService(address);
@@ -37,27 +37,25 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
         }
         service.registerResults();
         service.registerRequests();
-        if (!async) {
-            try {
-                service.open();
-            } catch (Exception e) {
-                LogHelper.error(e);
-            }
-        } else {
-            service.openAsync(() -> {
-            });
-        }
-        JVMHelper.RUNTIME.addShutdownHook(new Thread(() -> {
-            try {
-                //if(service.isOpen())
-                //    service.closeBlocking();
-                service.close();
-            } catch (InterruptedException e) {
-                LogHelper.error(e);
-            }
-        }));
-        return service;
+        CompletableFuture<StdWebSocketService> future = new CompletableFuture<>();
+        service.openAsync(() -> {
+            future.complete(service);
+            JVMHelper.RUNTIME.addShutdownHook(new Thread(() -> {
+                try {
+                    //if(service.isOpen())
+                    //    service.closeBlocking();
+                    service.close();
+                } catch (InterruptedException e) {
+                    LogHelper.error(e);
+                }
+            }));
+        }, (error) -> {
+            future.completeExceptionally(error);
+        });
+        return future;
     }
+
+
 
     @Deprecated
     public void registerEventHandler(ClientWebSocketService.EventHandler handler) {

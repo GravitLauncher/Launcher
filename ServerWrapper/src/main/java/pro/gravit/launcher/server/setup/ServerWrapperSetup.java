@@ -61,7 +61,13 @@ public class ServerWrapperSetup {
             if(!Request.isAvailable() || Request.getRequestService().isClosed()) {
                 System.out.println("Print launchserver websocket host( ws://host:port/api ):");
                 wrapper.config.address = commands.commandHandler.readLine();
-                StdWebSocketService service = StdWebSocketService.initWebSockets(wrapper.config.address, false);
+                StdWebSocketService service;
+                try {
+                    service = StdWebSocketService.initWebSockets(wrapper.config.address).get();
+                } catch (Throwable e) {
+                    LogHelper.error(e);
+                    continue;
+                }
                 Request.setRequestService(service);
             }
             System.out.println("Print server token:");
