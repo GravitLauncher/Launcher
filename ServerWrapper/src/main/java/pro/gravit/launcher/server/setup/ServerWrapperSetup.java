@@ -99,8 +99,9 @@ public class ServerWrapperSetup {
             if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
                 writer.append("#!/bin/bash\n\n");
             }
+            writer.append("\"");
             writer.append(IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home"))).toAbsolutePath().toString());
-            writer.append(" ");
+            writer.append("\" ");
             if (mainClassName.contains("bungee")) {
                 LogHelper.info("Found BungeeCord mainclass. Modules dir change to modules_srv");
                 writer.append(JVMHelper.jvmProperty("serverwrapper.modulesDir", "modules_srv"));
