@@ -430,11 +430,15 @@ public final class IOHelper {
     }
 
     public static Path resolveJavaBin(Path javaDir) {
+        return resolveJavaBin(javaDir, false);
+    }
+
+    public static Path resolveJavaBin(Path javaDir, boolean isConsole) {
         // Get Java binaries path
         Path javaBinDir = (javaDir == null ? JVM_DIR : javaDir).resolve("bin");
 
         // Verify has "javaw.exe" file
-        if (!LogHelper.isDebugEnabled()) {
+        if (!isConsole && !LogHelper.isDebugEnabled()) {
             Path javawExe = javaBinDir.resolve("javaw.exe");
             if (isFile(javawExe))
                 return javawExe;

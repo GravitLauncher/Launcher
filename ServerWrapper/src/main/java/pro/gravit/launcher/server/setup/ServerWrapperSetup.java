@@ -100,7 +100,7 @@ public class ServerWrapperSetup {
                 writer.append("#!/bin/bash\n\n");
             }
             writer.append("\"");
-            writer.append(IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home"))).toAbsolutePath().toString());
+            writer.append(IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")), true).toAbsolutePath().toString());
             writer.append("\" ");
             if (mainClassName.contains("bungee")) {
                 LogHelper.info("Found BungeeCord mainclass. Modules dir change to modules_srv");
