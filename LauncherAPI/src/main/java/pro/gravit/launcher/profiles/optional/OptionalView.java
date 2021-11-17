@@ -80,7 +80,7 @@ public class OptionalView {
         }
         if (file.conflict != null) {
             for (OptionalFile conflict : file.conflict) {
-                disable(conflict, null);
+                disable(conflict, callback);
             }
         }
     }
