@@ -38,8 +38,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private List<String> updateExclusions;
     @LauncherNetworkAPI
-    private List<String> updateShared;
-    @LauncherNetworkAPI
     private List<String> updateVerify;
     @LauncherNetworkAPI
     private Set<OptionalFile> updateOptional;
@@ -51,6 +49,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private List<String> altClassPath;
     @LauncherNetworkAPI
     private List<String> clientArgs;
+    @LauncherNetworkAPI
+    private List<ClientProfileLibrary> libraries;
     @LauncherNetworkAPI
     private List<String> compatClasses;
     @LauncherNetworkAPI
@@ -83,12 +83,42 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private String mainClass;
 
+    public static class ClientProfileLibrary {
+        public final String zone;
+        public final String name;
+        public final String path;
+
+        public ClientProfileLibrary(String zone, String name, String path) {
+            this.zone = zone;
+            this.name = name;
+            this.path = path;
+        }
+
+        public ClientProfileLibrary(String name, String path) {
+            this.zone = "libraries";
+            this.name = name;
+            this.path = path;
+        }
+
+        public ClientProfileLibrary(String name) {
+            this.zone = "libraries";
+            this.name = name;
+            this.path = convertMavenNameToPath(name);
+        }
+
+        public static String convertMavenNameToPath(String name) {
+            String[] mavenIdSplit = name.split(":");
+            return String.format("%s/%s/%s/%s-%s.jar", mavenIdSplit[0].replaceAll("\\.", "/"),
+                    mavenIdSplit[1], mavenIdSplit[2], mavenIdSplit[1], mavenIdSplit[2]);
+        }
+    }
+
     public ClientProfile() {
         update = new ArrayList<>();
         updateExclusions = new ArrayList<>();
-        updateShared = new ArrayList<>();
         updateVerify = new ArrayList<>();
         updateOptional = new HashSet<>();
+        libraries = new ArrayList<>();
         jvmArgs = new ArrayList<>();
         classPath = new ArrayList<>();
         altClassPath = new ArrayList<>();
@@ -102,12 +132,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         runtimeInClientConfig = RuntimeInClientConfig.NONE;
     }
 
-    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, SecurityManagerConfig securityManagerConfig, ClassLoaderConfig classLoaderConfig, SignedClientConfig signedClientConfig, RuntimeInClientConfig runtimeInClientConfig, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, boolean warnMissJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, boolean updateFastCheck, String mainClass) {
+    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateVerify, Set<OptionalFile> updateOptional, List<ClientProfileLibrary> libraries, List<String> jvmArgs, List<String> classPath, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, SecurityManagerConfig securityManagerConfig, ClassLoaderConfig classLoaderConfig, SignedClientConfig signedClientConfig, RuntimeInClientConfig runtimeInClientConfig, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, boolean warnMissJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, boolean updateFastCheck, String mainClass) {
         this.update = update;
         this.updateExclusions = updateExclusions;
-        this.updateShared = updateShared;
         this.updateVerify = updateVerify;
         this.updateOptional = updateOptional;
+        this.libraries = libraries;
         this.jvmArgs = jvmArgs;
         this.classPath = classPath;
         this.altClassPath = altClassPath;
@@ -262,10 +292,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         for (OptionalFile f : updateOptional)
             if (f.name.equals(file)) return f;
         return null;
-    }
-
-    public Collection<String> getShared() {
-        return updateShared;
     }
 
     public int getServerPort() {

@@ -7,9 +7,9 @@ import java.util.*;
 public class ClientProfileBuilder {
     private List<String> update = new ArrayList<>();
     private List<String> updateExclusions = new ArrayList<>();
-    private List<String> updateShared = new ArrayList<>();
     private List<String> updateVerify = new ArrayList<>();
     private Set<OptionalFile> updateOptional = new HashSet<>();
+    private List<ClientProfile.ClientProfileLibrary> libraries = new ArrayList<>();
     private List<String> jvmArgs = new ArrayList<>();
     private List<String> classPath = new ArrayList<>();
     private List<String> altClassPath = new ArrayList<>();
@@ -42,13 +42,18 @@ public class ClientProfileBuilder {
         return this;
     }
 
+    public ClientProfileBuilder update(String value) {
+        this.update.add(value);
+        return this;
+    }
+
     public ClientProfileBuilder setUpdateExclusions(List<String> updateExclusions) {
         this.updateExclusions = updateExclusions;
         return this;
     }
 
-    public ClientProfileBuilder setUpdateShared(List<String> updateShared) {
-        this.updateShared = updateShared;
+    public ClientProfileBuilder updateExclusions(String value) {
+        this.updateExclusions.add(value);
         return this;
     }
 
@@ -57,8 +62,43 @@ public class ClientProfileBuilder {
         return this;
     }
 
+    public ClientProfileBuilder updateVerify(String value) {
+        this.updateVerify.add(value);
+        return this;
+    }
+
+    public ClientProfileBuilder setLibraries(List<ClientProfile.ClientProfileLibrary> libraries) {
+        this.libraries = libraries;
+        return this;
+    }
+
+    public ClientProfileBuilder library(ClientProfile.ClientProfileLibrary library) {
+        this.libraries.add(library);
+        return this;
+    }
+
+    public ClientProfileBuilder library(String zone, String name, String path) {
+        this.libraries.add(new ClientProfile.ClientProfileLibrary(zone, name, path));
+        return this;
+    }
+
+    public ClientProfileBuilder library(String name, String path) {
+        this.libraries.add(new ClientProfile.ClientProfileLibrary(name, path));
+        return this;
+    }
+
+    public ClientProfileBuilder library(String name) {
+        this.libraries.add(new ClientProfile.ClientProfileLibrary(name));
+        return this;
+    }
+
     public ClientProfileBuilder setUpdateOptional(Set<OptionalFile> updateOptional) {
         this.updateOptional = updateOptional;
+        return this;
+    }
+
+    public ClientProfileBuilder optional(OptionalFile value) {
+        this.updateOptional.add(value);
         return this;
     }
 
@@ -67,13 +107,28 @@ public class ClientProfileBuilder {
         return this;
     }
 
+    public ClientProfileBuilder jvmArgs(String value) {
+        this.jvmArgs.add(value);
+        return this;
+    }
+
     public ClientProfileBuilder setClassPath(List<String> classPath) {
         this.classPath = classPath;
         return this;
     }
 
+    public ClientProfileBuilder classPath(String value) {
+        this.classPath.add(value);
+        return this;
+    }
+
     public ClientProfileBuilder setAltClassPath(List<String> altClassPath) {
         this.altClassPath = altClassPath;
+        return this;
+    }
+
+    public ClientProfileBuilder altClassPath(String value) {
+        this.altClassPath.add(value);
         return this;
     }
 
@@ -87,13 +142,28 @@ public class ClientProfileBuilder {
         return this;
     }
 
+    public ClientProfileBuilder compatClasses(String value) {
+        this.compatClasses.add(value);
+        return this;
+    }
+
     public ClientProfileBuilder setProperties(Map<String, String> properties) {
         this.properties = properties;
         return this;
     }
 
+    public ClientProfileBuilder property(String key, String value) {
+        this.properties.put(key, value);
+        return this;
+    }
+
     public ClientProfileBuilder setServers(List<ClientProfile.ServerProfile> servers) {
         this.servers = servers;
+        return this;
+    }
+
+    public ClientProfileBuilder server(ClientProfile.ServerProfile serverProfile) {
+        this.servers.add(serverProfile);
         return this;
     }
 
@@ -193,6 +263,6 @@ public class ClientProfileBuilder {
     }
 
     public ClientProfile createClientProfile() {
-        return new ClientProfile(update, updateExclusions, updateShared, updateVerify, updateOptional, jvmArgs, classPath, altClassPath, clientArgs, compatClasses, properties, servers, securityManagerConfig, classLoaderConfig, signedClientConfig, runtimeInClientConfig, version, assetIndex, dir, assetDir, recommendJavaVersion, minJavaVersion, maxJavaVersion, warnMissJavaVersion, settings, sortIndex, uuid, title, info, updateFastCheck, mainClass);
+        return new ClientProfile(update, updateExclusions, updateVerify, updateOptional, libraries, jvmArgs, classPath, altClassPath, clientArgs, compatClasses, properties, servers, securityManagerConfig, classLoaderConfig, signedClientConfig, runtimeInClientConfig, version, assetIndex, dir, assetDir, recommendJavaVersion, minJavaVersion, maxJavaVersion, warnMissJavaVersion, settings, sortIndex, uuid, title, info, updateFastCheck, mainClass);
     }
 }

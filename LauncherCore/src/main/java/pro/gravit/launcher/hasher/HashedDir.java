@@ -59,6 +59,11 @@ public final class HashedDir extends HashedEntry {
         return new Diff(mismatch, extra);
     }
 
+    public Diff diffWithoutExtra(HashedDir other, FileNameMatcher matcher) {
+        HashedDir mismatch = sideDiff(other, matcher, new LinkedList<>(), true);
+        return new Diff(mismatch, null);
+    }
+
     public Diff compare(HashedDir other, FileNameMatcher matcher) {
         HashedDir mismatch = sideDiff(other, matcher, new LinkedList<>(), true);
         HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
