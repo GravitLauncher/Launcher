@@ -5,6 +5,7 @@ import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.stream.EnumSerializer;
 import pro.gravit.launcher.serialize.stream.StreamObject;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 public abstract class HashedEntry extends StreamObject {
@@ -15,6 +16,8 @@ public abstract class HashedEntry extends StreamObject {
     public abstract Type getType();
 
     public abstract long size();
+
+    public abstract void write(DataOutputStream stream) throws IOException;
 
     public enum Type implements EnumSerializer.Itf {
         DIR(1), FILE(2);

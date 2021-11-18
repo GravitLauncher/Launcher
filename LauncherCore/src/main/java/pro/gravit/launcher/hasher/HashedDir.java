@@ -7,7 +7,10 @@ import pro.gravit.launcher.serialize.stream.EnumSerializer;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,6 +44,27 @@ public final class HashedDir extends HashedEntry {
                     break;
                 default:
                     throw new AssertionError("Unsupported hashed entry type: " + type.name());
+            }
+
+            // Try add entry to map
+            VerifyHelper.putIfAbsent(map, name, entry, String.format("Duplicate dir entry: '%s'", name));
+        }
+    }
+
+    public HashedDir(DataInputStream input) throws IOException {
+        int entriesCount = input.readInt();
+        for (int i = 0; i < entriesCount; i++) {
+            String name = input.readUTF();
+
+            // Read entry
+            HashedEntry entry;
+            int type = input.readByte();
+            if(type == Type.FILE.getNumber()) {
+                entry = new HashedFile(input);
+            } else if(type == Type.DIR.getNumber()) {
+                entry = new HashedDir(input);
+            } else {
+                throw new AssertionError("Unsupported hashed entry type: " + type);
             }
 
             // Try add entry to map
@@ -310,6 +334,18 @@ public final class HashedDir extends HashedEntry {
             // Write hashed entry
             HashedEntry entry = mapEntry.getValue();
             EnumSerializer.write(output, entry.getType());
+            entry.write(output);
+        }
+    }
+
+    public void write(DataOutputStream output) throws IOException {
+        Set<Entry<String, HashedEntry>> entries = map.entrySet();
+        output.writeInt(entries.size());
+        for (Entry<String, HashedEntry> mapEntry : entries) {
+            output.writeUTF(mapEntry.getKey());
+            // Write hashed entry
+            HashedEntry entry = mapEntry.getValue();
+            output.writeByte(entry.getType().getNumber());
             entry.write(output);
         }
     }

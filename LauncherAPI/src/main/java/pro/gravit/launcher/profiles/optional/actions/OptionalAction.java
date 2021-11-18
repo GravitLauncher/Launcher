@@ -12,6 +12,7 @@ public class OptionalAction {
             providers.register("clientArgs", OptionalActionClientArgs.class);
             providers.register("jvmArgs", OptionalActionJvmArgs.class);
             providers.register("classpath", OptionalActionClassPath.class);
+            providers.register("library", OptionalLibraryAction.class);
             registerProviders = true;
         }
     }

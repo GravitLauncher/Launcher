@@ -8,6 +8,8 @@ import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.SecurityHelper.DigestAlgorithm;
 import pro.gravit.utils.helper.VerifyHelper;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -24,6 +26,16 @@ public final class HashedFile extends HashedEntry {
 
     public HashedFile(HInput input) throws IOException {
         this(input.readVarLong(), input.readBoolean() ? input.readByteArray(-DIGEST_ALGO.bytes) : null);
+    }
+
+    public HashedFile(DataInputStream input) throws IOException {
+        this(input.readLong(), input.readBoolean() ? readDigest(input) : null);
+    }
+
+    private static byte[] readDigest(DataInputStream input) throws IOException {
+        byte[] bytes = new byte[input.readInt()];
+        input.readFully(bytes);
+        return bytes;
     }
 
 
@@ -67,6 +79,18 @@ public final class HashedFile extends HashedEntry {
     @Override
     public long size() {
         return size;
+    }
+
+    @Override
+    public void write(DataOutputStream stream) throws IOException {
+        stream.writeLong(size);
+        if(digest == null) {
+            stream.writeBoolean(false);
+        } else {
+            stream.writeBoolean(true);
+            stream.writeInt(digest.length);
+            stream.write(digest);
+        }
     }
 
     @Override

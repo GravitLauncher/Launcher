@@ -87,30 +87,64 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         public final String zone;
         public final String name;
         public final String path;
+        public final String url;
+        public final LibraryType type;
+
+        public ClientProfileLibrary(String zone, String name, String path, String url, LibraryType type) {
+            this.zone = zone;
+            this.name = name;
+            this.path = path;
+            this.url = url;
+            this.type = type;
+        }
+
+        public ClientProfileLibrary(String zone, String name, String path, LibraryType type) {
+            this.zone = zone;
+            this.name = name;
+            this.path = path;
+            this.url = null;
+            this.type = type;
+        }
 
         public ClientProfileLibrary(String zone, String name, String path) {
             this.zone = zone;
             this.name = name;
             this.path = path;
+            this.url = null;
+            this.type = LibraryType.CLASSPATH;
         }
 
         public ClientProfileLibrary(String name, String path) {
             this.zone = "libraries";
             this.name = name;
             this.path = path;
+            this.url = null;
+            this.type = LibraryType.CLASSPATH;
         }
 
         public ClientProfileLibrary(String name) {
             this.zone = "libraries";
             this.name = name;
             this.path = convertMavenNameToPath(name);
+            this.url = null;
+            this.type = LibraryType.CLASSPATH;
         }
 
         public static String convertMavenNameToPath(String name) {
             String[] mavenIdSplit = name.split(":");
+            if(mavenIdSplit.length < 3) {
+                throw new IllegalArgumentException(String.format("%s not valid maven library name", name));
+            }
             return String.format("%s/%s/%s/%s-%s.jar", mavenIdSplit[0].replaceAll("\\.", "/"),
                     mavenIdSplit[1], mavenIdSplit[2], mavenIdSplit[1], mavenIdSplit[2]);
         }
+        public enum LibraryType {
+            CLASSPATH, MODULEPATH, NATIVE, RUNTIME
+        }
+    }
+
+    public List<ClientProfileLibrary> getLibraries() {
+        return libraries;
     }
 
     public ClientProfile() {

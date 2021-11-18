@@ -20,6 +20,7 @@ import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionClassPath;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionClientArgs;
+import pro.gravit.launcher.profiles.optional.actions.OptionalLibraryAction;
 import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
@@ -119,7 +120,7 @@ public class ClientLauncherEntryPoint {
 
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        List<URL> classpath = resolveClassPath(clientDir, params.actions, params.profile).map(IOHelper::toURL).collect(Collectors.toList());
+        List<URL> classpath = resolveClassPath(clientDir, params.actions, params.zones, params.profile).map(IOHelper::toURL).collect(Collectors.toList());
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
         RequestService service;
@@ -204,8 +205,24 @@ public class ClientLauncherEntryPoint {
             verifyHDir(clientDir, params.clientHDir, clientMatcher, digest);
             if (javaWatcher != null)
                 verifyHDir(javaDir, params.javaHDir, null, digest);
+            List<DirWatcher> watchers = null;
+            if(params.zones != null) {
+                watchers = new ArrayList<>(params.zones.size());
+                for(ClientLauncherProcess.ClientParams.ClientZoneInfo info : params.zones) {
+                    if(info.dir == null)
+                        continue;
+                    DirWatcher watcher = new DirWatcher(Paths.get(info.path), info.dir, null, digest);
+                    watchers.add(watcher);
+                    CommonHelper.newThread(String.format("Zone '%s' Watcher", info.name), true, watcher).start();
+                }
+            }
             LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
             launch(profile, params);
+            if(watchers != null) {
+                for(DirWatcher watcher : watchers) {
+                    watcher.close();
+                }
+            }
         }
     }
 
@@ -290,10 +307,6 @@ public class ClientLauncherEntryPoint {
         return ok;
     }
 
-    private static LinkedList<Path> resolveClassPathList(Path clientDir, String... classPath) throws IOException {
-        return resolveClassPathStream(clientDir, classPath).collect(Collectors.toCollection(LinkedList::new));
-    }
-
     private static Stream<Path> resolveClassPathStream(Path clientDir, String... classPath) throws IOException {
         Stream.Builder<Path> builder = Stream.builder();
         for (String classPathEntry : classPath) {
@@ -307,11 +320,41 @@ public class ClientLauncherEntryPoint {
         return builder.build();
     }
 
-    public static Stream<Path> resolveClassPath(Path clientDir, Set<OptionalAction> actions, ClientProfile profile) throws IOException {
+    private static Stream<Path> resolveZonedClassPath(Path clientDir, List<ClientLauncherProcess.ClientParams.ClientZoneInfo> zones, ClientProfile.ClientProfileLibrary... libraries) {
+        Stream.Builder<Path> builder = Stream.builder();
+        for(ClientProfile.ClientProfileLibrary library : libraries) {
+            if(library.type == ClientProfile.ClientProfileLibrary.LibraryType.CLASSPATH) {
+                Path zone = null;
+                if(library.zone == null || library.zone.isEmpty()) {
+                    zone = clientDir;
+                } else {
+                    for(ClientLauncherProcess.ClientParams.ClientZoneInfo info : zones) {
+                        if(info.name.equals(library.zone)) {
+                            zone = Paths.get(info.path);
+                        }
+                    }
+                }
+                if(zone == null) {
+                    LogHelper.warning("Library %s not enabled, because zone %s not found", library.name, library.zone);
+                    continue;
+                }
+                Path path = zone.resolve(library.path);
+                builder.accept(path);
+            }
+        }
+        return builder.build();
+    }
+
+    public static Stream<Path> resolveClassPath(Path clientDir, Set<OptionalAction> actions, List<ClientLauncherProcess.ClientParams.ClientZoneInfo> zones, ClientProfile profile) throws IOException {
         Stream<Path> result = resolveClassPathStream(clientDir, profile.getClassPath());
+        if(profile.getLibraries() != null) {
+            result = Stream.concat(result, resolveZonedClassPath(clientDir, zones, profile.getLibraries().toArray(new ClientProfile.ClientProfileLibrary[0])));
+        }
         for (OptionalAction a : actions) {
             if (a instanceof OptionalActionClassPath)
                 result = Stream.concat(result, resolveClassPathStream(clientDir, ((OptionalActionClassPath) a).args));
+            if(a instanceof OptionalLibraryAction)
+                result = Stream.concat(result, resolveZonedClassPath(clientDir, zones, ((OptionalLibraryAction) a).libraries));
         }
         return result;
     }

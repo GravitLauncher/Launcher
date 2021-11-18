@@ -20,10 +20,14 @@ import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.*;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -99,6 +103,7 @@ public class ClientLauncherProcess {
         applyClientProfile();
     }
 
+
     public static String getPathSeparator() {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
             return ";";
@@ -154,7 +159,7 @@ public class ClientLauncherProcess {
         if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.AGENT) {
             processArgs.add("-javaagent:".concat(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString()));
         } else if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
-            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(workDir, params.actions, params.profile).map(Path::toString).collect(Collectors.toList()));
+            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(workDir, params.actions, params.zones, params.profile).map(Path::toString).collect(Collectors.toList()));
         }
         if (useLegacyJavaClassPathProperty) {
             processArgs.add("-Djava.class.path=".concat(String.join(getPathSeparator(), systemClassPath)));
@@ -212,30 +217,6 @@ public class ClientLauncherProcess {
         }
     }
 
-    public void runWriteParams(SocketAddress address) throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket()) {
-            serverSocket.bind(address);
-            synchronized (waitWriteParams) {
-                waitWriteParams[0] = true;
-                waitWriteParams.notifyAll();
-            }
-            Socket socket = serverSocket.accept();
-            try (HOutput output = new HOutput(socket.getOutputStream())) {
-                byte[] serializedMainParams = IOHelper.encode(Launcher.gsonManager.gson.toJson(params));
-                output.writeByteArray(serializedMainParams, 0);
-                params.clientHDir.write(output);
-                params.assetHDir.write(output);
-                if (params.javaHDir == null || params.javaHDir == params.assetHDir) { //OLD RUNTIME USE params.assetHDir AS NULL IN java.javaHDir
-                    output.writeBoolean(false);
-                } else {
-                    output.writeBoolean(true);
-                    params.javaHDir.write(output);
-                }
-            }
-        }
-        LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderParamsWrittedEvent(this));
-    }
-
     public Process getProcess() {
         return process;
     }
@@ -288,6 +269,8 @@ public class ClientLauncherProcess {
         public transient HashedDir clientHDir;
 
         public transient HashedDir javaHDir;
+
+        public transient List<ClientZoneInfo> zones;
 
         public void addClientArgs(Collection<String> args) {
             if (profile.getVersion().compareTo(ClientProfile.Version.MC164) >= 0)
@@ -363,6 +346,58 @@ public class ClientLauncherProcess {
             }
         }
 
+        public void write(DataOutputStream stream) throws IOException {
+            stream.writeUTF(Launcher.gsonManager.gson.toJson(this));
+            if(clientHDir == null) {
+                stream.writeBoolean(false);
+            } else {
+                stream.writeBoolean(true);
+                clientHDir.write(stream);
+            }
+            if(assetHDir == null) {
+                stream.writeBoolean(false);
+            } else {
+                stream.writeBoolean(true);
+                assetHDir.write(stream);
+            }
+            if(javaHDir == null) {
+                stream.writeBoolean(false);
+            } else {
+                stream.writeBoolean(true);
+                javaHDir.write(stream);
+            }
+            if(zones == null) {
+                stream.writeBoolean(false);
+            } else {
+                stream.writeBoolean(true);
+                stream.writeInt(zones.size());
+                for(ClientZoneInfo zone : zones) {
+                    zone.write(stream);
+                }
+            }
+        }
+
+        public static ClientParams read(DataInputStream input) throws IOException {
+            ClientParams params = Launcher.gsonManager.gson.fromJson(input.readUTF(), ClientParams.class);
+            if(input.readBoolean()) {
+                params.clientHDir = new HashedDir(input);
+            }
+            if(input.readBoolean()) {
+                params.assetHDir = new HashedDir(input);
+            }
+            if(input.readBoolean()) {
+                params.javaHDir = new HashedDir(input);
+            }
+            if(input.readBoolean()) {
+                int length = input.readInt();
+                params.zones = new ArrayList<>(length);
+                for(int i=0;i<length;++i) {
+                    params.zones.add(new ClientZoneInfo(input));
+                }
+            }
+            return params;
+        }
+
         public static class ClientUserProperties {
             @LauncherNetworkAPI
             public String[] skinURL;
@@ -372,6 +407,42 @@ public class ClientLauncherProcess {
             public String[] cloakURL;
             @LauncherNetworkAPI
             public String[] cloakDigest;
+        }
+
+        public static class ClientZoneInfo {
+            public String name;
+            public String path;
+            public HashedDir dir;
+
+            public ClientZoneInfo(String name, String path, HashedDir dir) {
+                this.name = name;
+                this.path = path;
+                this.dir = dir;
+            }
+
+            public ClientZoneInfo(String name, String path) {
+                this.name = name;
+                this.path = path;
+            }
+
+            public ClientZoneInfo(DataInputStream input) throws IOException {
+                name = input.readUTF();
+                path = input.readUTF();
+                if(input.readBoolean()) {
+                    dir = new HashedDir(input);
+                }
+            }
+
+            public void write(DataOutputStream stream) throws IOException {
+                stream.writeUTF(name);
+                stream.writeUTF(path);
+                if(dir == null) {
+                    stream.writeBoolean(false);
+                } else {
+                    stream.writeBoolean(true);
+                    dir.write(stream);
+                }
+            }
         }
     }
 }

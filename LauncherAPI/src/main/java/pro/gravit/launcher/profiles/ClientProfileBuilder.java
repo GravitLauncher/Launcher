@@ -77,21 +77,6 @@ public class ClientProfileBuilder {
         return this;
     }
 
-    public ClientProfileBuilder library(String zone, String name, String path) {
-        this.libraries.add(new ClientProfile.ClientProfileLibrary(zone, name, path));
-        return this;
-    }
-
-    public ClientProfileBuilder library(String name, String path) {
-        this.libraries.add(new ClientProfile.ClientProfileLibrary(name, path));
-        return this;
-    }
-
-    public ClientProfileBuilder library(String name) {
-        this.libraries.add(new ClientProfile.ClientProfileLibrary(name));
-        return this;
-    }
-
     public ClientProfileBuilder setUpdateOptional(Set<OptionalFile> updateOptional) {
         this.updateOptional = updateOptional;
         return this;
