@@ -413,7 +413,7 @@ public final class HashedDir extends HashedEntry {
 
 
         public boolean isSame() {
-            return mismatch.isEmpty() && extra.isEmpty();
+            return mismatch.isEmpty() && (extra == null || extra.isEmpty());
         }
     }
 

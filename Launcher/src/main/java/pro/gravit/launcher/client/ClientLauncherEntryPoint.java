@@ -211,9 +211,11 @@ public class ClientLauncherEntryPoint {
                 for(ClientLauncherProcess.ClientParams.ClientZoneInfo info : params.zones) {
                     if(info.dir == null)
                         continue;
-                    DirWatcher watcher = new DirWatcher(Paths.get(info.path), info.dir, null, digest);
+                    Path zoneDir = Paths.get(info.path);
+                    DirWatcher watcher = new DirWatcher(zoneDir, info.dir, null, digest);
                     watchers.add(watcher);
                     CommonHelper.newThread(String.format("Zone '%s' Watcher", info.name), true, watcher).start();
+                    verifyZoneHDir(zoneDir, info.dir, null, digest); //TODO: Optimize this
                 }
             }
             LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
@@ -274,6 +276,26 @@ public class ClientLauncherEntryPoint {
                     } else LogHelper.error("Extra %s", e);
                     return HashedDir.WalkAction.CONTINUE;
                 });
+                diff.mismatch.walk(File.separator, (e, k, v) -> {
+                    if (v.getType().equals(HashedEntry.Type.FILE)) {
+                        LogHelper.error("Mismatch file %s", e);
+                    } else LogHelper.error("Mismatch %s", e);
+                    return HashedDir.WalkAction.CONTINUE;
+                });
+            }
+            throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
+        }
+    }
+
+    public static void verifyZoneHDir(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) throws IOException {
+        //if (matcher != null)
+        //    matcher = matcher.verifyOnly();
+
+        // Hash directory and compare (ignore update-only matcher entries, it will break offline-mode)
+        HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);
+        HashedDir.Diff diff = hdir.diffWithoutExtra(currentHDir, matcher);
+        if (!diff.isSame()) {
+            if (LogHelper.isDebugEnabled()) {
                 diff.mismatch.walk(File.separator, (e, k, v) -> {
                     if (v.getType().equals(HashedEntry.Type.FILE)) {
                         LogHelper.error("Mismatch file %s", e);
