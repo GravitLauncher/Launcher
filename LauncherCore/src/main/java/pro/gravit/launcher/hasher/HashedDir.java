@@ -10,10 +10,12 @@ import pro.gravit.utils.helper.VerifyHelper;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 
 public final class HashedDir extends HashedEntry {
     @LauncherNetworkAPI
@@ -61,6 +63,60 @@ public final class HashedDir extends HashedEntry {
         HashedDir mismatch = sideDiff(other, matcher, new LinkedList<>(), true);
         HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
         return new Diff(mismatch, extra);
+    }
+
+    public HashedDir filter(Predicate<Path> filter) {
+        return filterAndAdd(new HashedDir(), filter);
+    }
+
+    public HashedDir filterAndAdd(HashedDir result, Predicate<Path> filter) {
+        Queue<HashedEntryAndPath> queue = new ArrayDeque<>();
+        Path path = Paths.get("");
+        queue.add(new HashedEntryAndPath(path, this, result));
+        while(!queue.isEmpty()) {
+            HashedEntryAndPath entry = queue.poll();
+            if(!filter.test(entry.path)) {
+                continue;
+            }
+            if(entry.entry.getType() == Type.DIR) {
+                HashedDir dir = (HashedDir) entry.entry;
+                for(Map.Entry<String, HashedEntry> e : dir.map.entrySet()) {
+                    String key = e.getKey();
+                    HashedEntry value = e.getValue();
+                    if(entry.sideEntry.getType() == Type.FILE) {
+                        throw new IllegalArgumentException(String.format("Filter path: %s failed: expected DIR, found FILE ", entry.path));
+                    }
+                    HashedDir sideDir = (HashedDir) entry.sideEntry;
+                    HashedEntry sideEntry = sideDir.getEntry(key);
+                    if(sideEntry == null) {
+                         if(value.getType() == Type.DIR) {
+                             sideEntry = new HashedDir();
+                             queue.add(new HashedEntryAndPath(entry.path.resolve(key), value, sideEntry));
+                         } else if(value.getType() == Type.FILE) {
+                             sideEntry = value;
+                         }
+                         sideDir.map.put(key, sideEntry);
+                    } else if(sideEntry.getType() == Type.DIR) {
+                        queue.add(new HashedEntryAndPath(entry.path.resolve(key), value, sideEntry));
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+
+
+    private static class HashedEntryAndPath {
+        public final HashedEntry entry;
+        public final HashedEntry sideEntry;
+        public final Path path;
+
+        public HashedEntryAndPath(Path path, HashedEntry entry, HashedEntry sideEntry) {
+            this.entry = entry;
+            this.path = path;
+            this.sideEntry = sideEntry;
+        }
     }
 
     public void remove(String name) {

@@ -16,7 +16,6 @@ public abstract class HashedEntry extends StreamObject {
 
     public abstract long size();
 
-
     public enum Type implements EnumSerializer.Itf {
         DIR(1), FILE(2);
         private static final EnumSerializer<Type> SERIALIZER = new EnumSerializer<>(Type.class);
