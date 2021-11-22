@@ -4,6 +4,8 @@ import pro.gravit.launcher.*;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
 import pro.gravit.launcher.client.events.client.*;
+import pro.gravit.launcher.client.params.ParamsWriter;
+import pro.gravit.launcher.client.params.SocketParamsWriter;
 import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
 import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
 import pro.gravit.launcher.guard.LauncherGuardManager;
@@ -55,22 +57,6 @@ import java.util.stream.Stream;
 public class ClientLauncherEntryPoint {
     private static ClassLoader classLoader;
 
-    private static ClientLauncherProcess.ClientParams readParams(SocketAddress address) throws IOException {
-        try (Socket socket = IOHelper.newSocket()) {
-            socket.connect(address);
-            try (HInput input = new HInput(socket.getInputStream())) {
-                byte[] serialized = input.readByteArray(0);
-                ClientLauncherProcess.ClientParams params = Launcher.gsonManager.gson.fromJson(IOHelper.decode(serialized), ClientLauncherProcess.ClientParams.class);
-                params.clientHDir = new HashedDir(input);
-                params.assetHDir = new HashedDir(input);
-                boolean isNeedReadJavaDir = input.readBoolean();
-                if (isNeedReadJavaDir)
-                    params.javaHDir = new HashedDir(input);
-                return params;
-            }
-        }
-    }
-
     public static void main(String[] args) throws Throwable {
         LauncherEngine engine = LauncherEngine.clientInstance();
         JVMHelper.verifySystemProperties(ClientLauncherEntryPoint.class, true);
@@ -90,7 +76,8 @@ public class ClientLauncherEntryPoint {
         engine.readKeys();
         LauncherGuardManager.initGuard(true);
         LogHelper.debug("Reading ClientLauncher params");
-        ClientLauncherProcess.ClientParams params = readParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
+        ParamsWriter paramsWriter = new SocketParamsWriter(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
+        ClientLauncherProcess.ClientParams params = paramsWriter.read();
         if (params.profile.getClassLoaderConfig() != ClientProfile.ClassLoaderConfig.AGENT) {
             LauncherEngine.verifyNoAgent();
         }
