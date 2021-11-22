@@ -56,6 +56,10 @@ public class ClientPermissions {
         if (available != null) {
             return;
         }
+        if (perms == null) {
+            perms = new ArrayList<>(0);
+
+        }
         available = new ArrayList<>(perms.size());
         for (String a : perms) {
             available.add(new PermissionPattern(a));
