@@ -22,6 +22,7 @@ import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.WebSocketService;
+import pro.gravit.utils.Version;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
@@ -110,6 +111,10 @@ public class LaunchServerStarter {
         } catch (ClassNotFoundException ignored) {
             localCommandHandler = new StdCommandHandler(true);
             logger.warn("JLine2 isn't in classpath, using std");
+        }
+        if(Version.getVersion().release == Version.Type.EXPERIMENTAL) {
+            logger.warn("You are using an experimental branch.");
+            logger.warn("LauncherRuntime may be not worked");
         }
         modulesManager.invokeEvent(new PreConfigPhase());
         generateConfigIfNotExists(configFile, localCommandHandler, env);
