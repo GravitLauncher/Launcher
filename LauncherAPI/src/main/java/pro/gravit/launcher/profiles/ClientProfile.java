@@ -11,6 +11,8 @@ import pro.gravit.utils.helper.VerifyHelper;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class ClientProfile implements Comparable<ClientProfile> {
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
@@ -83,7 +85,13 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private String mainClass;
 
+    public ClientProfile setAssetDir(String assetDir) {
+        this.assetDir = assetDir;
+        return this;
+    }
+
     public static class ClientProfileLibrary {
+        private static Pattern MAVEN_PATTERN = Pattern.compile("(?<group>.)/(?<name>.)/(?<version>.)/(?<jarname>.).jar");
         public final String zone;
         public final String name;
         public final String path;
@@ -128,6 +136,14 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             this.path = convertMavenNameToPath(name);
             this.url = null;
             this.type = LibraryType.CLASSPATH;
+        }
+
+        public static String convertMavenPathToName(String path) {
+            Matcher matcher = MAVEN_PATTERN.matcher(path);
+            if(matcher.matches()) {
+                return String.format("%s:%s:%s", matcher.group("group"), matcher.group("name"), matcher.group("version"));
+            }
+            return null;
         }
 
         public static String convertMavenNameToPath(String name) {

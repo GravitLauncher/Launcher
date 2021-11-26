@@ -5,6 +5,8 @@ import pro.gravit.launchserver.command.basic.BuildCommand;
 import pro.gravit.launchserver.command.basic.RestartCommand;
 import pro.gravit.launchserver.command.basic.StopCommand;
 import pro.gravit.launchserver.command.basic.VersionCommand;
+import pro.gravit.launchserver.command.experimental.UnionAssetsCommand;
+import pro.gravit.launchserver.command.experimental.UnionLibrariesCommand;
 import pro.gravit.launchserver.command.hash.*;
 import pro.gravit.launchserver.command.modules.LoadModuleCommand;
 import pro.gravit.launchserver.command.modules.ModulesCommand;
@@ -62,5 +64,11 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         service.registerCommand("token", new TokenCommand(server));
         Category serviceCategory = new Category(service, "service", "Managing LaunchServer Components");
         handler.registerCategory(serviceCategory);
+
+        BaseCommandCategory experimental = new BaseCommandCategory();
+        experimental.registerCommand("unionlibraries", new UnionLibrariesCommand(server));
+        experimental.registerCommand("unionassets", new UnionAssetsCommand(server));
+        Category experimentalCategory = new Category(experimental, "Experimental", "Experimental features");
+        handler.registerCategory(experimentalCategory);
     }
 }

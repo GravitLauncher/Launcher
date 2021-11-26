@@ -334,8 +334,8 @@ public class ClientLauncherEntryPoint {
         for(ClientProfile.ClientProfileLibrary library : libraries) {
             if(library.type == ClientProfile.ClientProfileLibrary.LibraryType.CLASSPATH) {
                 Path zone = null;
-                if(library.zone == null || library.zone.isEmpty()) {
-                    zone = clientDir;
+                if(library.zone == null || library.zone.isEmpty() || library.zone.equals("@")) {
+                    zone = clientDir.resolve("libraries");
                 } else {
                     for(ClientLauncherProcess.ClientParams.ClientZoneInfo info : zones) {
                         if(info.name.equals(library.zone)) {
@@ -348,6 +348,7 @@ public class ClientLauncherEntryPoint {
                     continue;
                 }
                 Path path = zone.resolve(library.path);
+                LogHelper.debug("Library %s (zone %s path %s) resolved in %s", library.name, library.zone, library.path, path);
                 builder.accept(path);
             }
         }
