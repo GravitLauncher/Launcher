@@ -10,6 +10,7 @@ import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -136,6 +137,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             this.path = convertMavenNameToPath(name);
             this.url = null;
             this.type = LibraryType.CLASSPATH;
+        }
+
+        public boolean isDefaultZone() {
+            return zone == null || zone.isEmpty() || zone.equals("@");
         }
 
         public static String convertMavenPathToName(String path) {

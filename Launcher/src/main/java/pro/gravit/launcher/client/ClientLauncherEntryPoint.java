@@ -45,10 +45,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.net.*;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -56,6 +53,48 @@ import java.util.stream.Stream;
 
 public class ClientLauncherEntryPoint {
     private static ClassLoader classLoader;
+    private static List<ClientLauncherProcess.ClientParams.ClientZoneInfo> zones;
+
+    public static Path getLibraryPath(ClientProfile.ClientProfileLibrary library) {
+        Path basePath = IOHelper.WORKING_DIR;
+        if(!library.isDefaultZone()) {
+            for(ClientLauncherProcess.ClientParams.ClientZoneInfo zoneInfo : zones) {
+                if(library.zone.equals(zoneInfo.name)) {
+                    basePath = Paths.get(zoneInfo.path);
+                    break;
+                }
+            }
+        }
+        if(library.type == ClientProfile.ClientProfileLibrary.LibraryType.CLASSPATH || library.type == ClientProfile.ClientProfileLibrary.LibraryType.MODULEPATH || library.type == ClientProfile.ClientProfileLibrary.LibraryType.RUNTIME) {
+            return basePath.resolve("libraries").resolve(library.path);
+        } else if(library.type == ClientProfile.ClientProfileLibrary.LibraryType.NATIVE) {
+            Path path = basePath.resolve("natives").resolve(library.path);
+            if(Files.isDirectory(path)) {
+                path = path.resolve(getNativePrefix().concat(library.name).concat(getNativeEx()));
+            }
+            return path;
+        } else {
+            return basePath.resolve(library.path);
+        }
+    }
+
+    public static String getNativeEx() {
+        if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
+            return ".dll";
+        else if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
+            return ".so";
+        else if (JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX)
+            return ".dylib";
+        return "";
+    }
+
+    public static String getNativePrefix() {
+        if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
+            return "lib";
+        else if (JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX)
+            return "lib";
+        return "";
+    }
 
     public static void main(String[] args) throws Throwable {
         LauncherEngine engine = LauncherEngine.clientInstance();
@@ -85,6 +124,7 @@ public class ClientLauncherEntryPoint {
         Launcher.profile = profile;
         AuthService.profile = profile;
         LauncherEngine.clientParams = params;
+        zones = params.zones;
         if (params.oauth != null) {
             LogHelper.info("Using OAuth");
             if (params.oauthExpiredTime != 0) {
@@ -133,13 +173,13 @@ public class ClientLauncherEntryPoint {
         }
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
-            ClientClassLoader classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
+            ClientClassLoader classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), profile, ClassLoader.getSystemClassLoader());
             ClientLauncherEntryPoint.classLoader = classLoader;
             Thread.currentThread().setContextClassLoader(classLoader);
-            classLoader.nativePath = clientDir.resolve("natives").toString();
+            classLoader.clientPath = clientDir;
             LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
             ClientService.classLoader = classLoader;
-            ClientService.nativePath = classLoader.nativePath;
+            ClientService.nativePath = clientDir.resolve("natives").toString();
             classLoader.addURL(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
             ClientService.baseURLs = classLoader.getURLs();
         } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {

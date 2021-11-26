@@ -1,13 +1,19 @@
 package pro.gravit.launcher.client;
 
+import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class ClientClassLoader extends URLClassLoader {
-    public String nativePath;
+    public Path clientPath;
+    private ClientProfile profile;
 
     /**
      * Constructs a new URLClassLoader for the specified URLs using the
@@ -54,13 +60,25 @@ public class ClientClassLoader extends URLClassLoader {
      * @throws NullPointerException if {@code urls} is {@code null}.
      * @see SecurityManager#checkCreateClassLoader
      */
-    public ClientClassLoader(URL[] urls, ClassLoader parent) {
+    public ClientClassLoader(URL[] urls, ClientProfile profile, ClassLoader parent) {
         super(urls, parent);
+        this.profile = profile;
+    }
+
+    public Path resolveLibrary(String name) {
+        for(ClientProfile.ClientProfileLibrary library : profile.getLibraries()) {
+            if(library.type == ClientProfile.ClientProfileLibrary.LibraryType.NATIVE) {
+                if(library.name.equals(name)) {
+                    return ClientLauncherEntryPoint.getLibraryPath(library);
+                }
+            }
+        }
+        return clientPath.resolve("natives").resolve(getNativePrefix().concat(name).concat(getNativeEx()));
     }
 
     @Override
     public String findLibrary(String name) {
-        return nativePath.concat(IOHelper.PLATFORM_SEPARATOR).concat(getNativePrefix()).concat(name).concat(getNativeEx());
+        return resolveLibrary(name).toString();
     }
 
     public String getNativeEx() {
