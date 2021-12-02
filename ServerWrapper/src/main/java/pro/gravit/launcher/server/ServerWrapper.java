@@ -141,14 +141,16 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
         Class<?> mainClass;
         if (config.classpath != null && !config.classpath.isEmpty()) {
-            if (!ServerAgent.isAgentStarted()) {
-                LogHelper.warning("JavaAgent not found. Using URLClassLoader");
+            if(config.classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
                 URL[] urls = config.classpath.stream().map(Paths::get).map(IOHelper::toURL).toArray(URL[]::new);
                 ucp = new PublicURLClassLoader(urls);
                 Thread.currentThread().setContextClassLoader(ucp);
                 loader = ucp;
-            } else {
-                LogHelper.info("Found %d custom classpath elements", config.classpath.size());
+            } else if(config.classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
+                if (!ServerAgent.isAgentStarted()) {
+                    LogHelper.error("JavaAgent not found");
+                    System.exit(-1);
+                }
                 for (String c : config.classpath)
                     ServerAgent.addJVMClassPath(c);
             }
@@ -207,6 +209,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         newConfig.args = new ArrayList<>();
         newConfig.classpath = new ArrayList<>();
         newConfig.address = "ws://localhost:9274/api";
+        newConfig.classLoaderConfig = ClientProfile.ClassLoaderConfig.SYSTEM_ARGS;
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         return newConfig;
     }
@@ -219,6 +222,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public boolean autoloadLibraries;
         public String logFile;
         public List<String> classpath;
+        public ClientProfile.ClassLoaderConfig classLoaderConfig;
         public String librariesDir;
         public String mainclass;
         public List<String> args;
