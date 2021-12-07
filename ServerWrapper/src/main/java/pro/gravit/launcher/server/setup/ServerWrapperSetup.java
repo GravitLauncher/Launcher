@@ -86,13 +86,14 @@ public class ServerWrapperSetup {
                     ((AutoCloseable) Request.getRequestService()).close();
                 }
             }
-            if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfile.Version.MC118) >= 0) {
+        }
+		    if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfile.Version.MC118) >= 0) {
                 LogHelper.info("Switch to alternative start mode (1.18)");
                 wrapper.config.classpath.add(jarName);
                 wrapper.config.classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;
                 altMode = true;
             }
-        }
+		 
         wrapper.saveConfig();
         LogHelper.info("Generate start script");
         Path startScript;
