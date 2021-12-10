@@ -27,7 +27,6 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
     public String accessTokenColumn;
     public String passwordColumn;
     public String serverIDColumn;
-    public String hardwareIdColumn;
     public String table;
 
     public PasswordVerifier passwordVerifier;
@@ -115,10 +114,9 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
         if (usernameColumn == null) logger.error("usernameColumn cannot be null");
         if (accessTokenColumn == null) logger.error("accessTokenColumn cannot be null");
         if (serverIDColumn == null) logger.error("serverIDColumn cannot be null");
-        if (hardwareIdColumn == null) logger.error("hardwareIdColumn cannot be null");
         if (table == null) logger.error("table cannot be null");
         // Prepare SQL queries
-        String userInfoCols = String.format("%s, %s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn, hardwareIdColumn);
+        String userInfoCols = String.format("%s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn);
         queryByUUIDSQL = customQueryByUUIDSQL != null ? customQueryByUUIDSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1", userInfoCols,
                 table, uuidColumn);
         queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
@@ -167,7 +165,7 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
 
     private PostgresSQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new PostgresSQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
-                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), new ClientPermissions(), set.getLong(hardwareIdColumn)) : null;
+                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), new ClientPermissions()) : null;
     }
 
     private User query(String sql, String value) throws IOException {
@@ -190,16 +188,14 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
         protected String serverId;
         protected String password;
         protected ClientPermissions permissions;
-        protected long hwidId;
 
-        public PostgresSQLUser(UUID uuid, String username, String accessToken, String serverId, String password, ClientPermissions permissions, long hwidId) {
+        public PostgresSQLUser(UUID uuid, String username, String accessToken, String serverId, String password, ClientPermissions permissions) {
             this.uuid = uuid;
             this.username = username;
             this.accessToken = accessToken;
             this.serverId = serverId;
             this.password = password;
             this.permissions = permissions;
-            this.hwidId = hwidId;
         }
 
         @Override
@@ -233,7 +229,6 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
                     "uuid=" + uuid +
                     ", username='" + username + '\'' +
                     ", permissions=" + permissions +
-                    ", hwidId=" + hwidId +
                     '}';
         }
     }
