@@ -1,5 +1,6 @@
 package pro.gravit.launcher.server.setup;
 
+import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.server.ServerWrapper;
@@ -57,6 +58,7 @@ public class ServerWrapperSetup {
         System.out.println("Print your server name:");
         wrapper.config.serverName = commands.commandHandler.readLine();
         wrapper.config.mainclass = mainClassName;
+        boolean altMode = false;
         for (int i = 0; i < 10; ++i) {
             if(!Request.isAvailable() || Request.getRequestService().isClosed()) {
                 System.out.println("Print launchserver websocket host( ws://host:port/api ):");
@@ -85,6 +87,12 @@ public class ServerWrapperSetup {
                 }
             }
         }
+        if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfile.Version.MC118) >= 0) {
+            LogHelper.info("Switch to alternative start mode (1.18)");
+            wrapper.config.classpath.add(jarName);
+            wrapper.config.classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;
+            altMode = true;
+        }
         wrapper.saveConfig();
         LogHelper.info("Generate start script");
         Path startScript;
@@ -99,8 +107,9 @@ public class ServerWrapperSetup {
             if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
                 writer.append("#!/bin/bash\n\n");
             }
-            writer.append(IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home"))).toAbsolutePath().toString());
-            writer.append(" ");
+            writer.append("\"");
+            writer.append(IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")), true).toAbsolutePath().toString());
+            writer.append("\" ");
             if (mainClassName.contains("bungee")) {
                 LogHelper.info("Found BungeeCord mainclass. Modules dir change to modules_srv");
                 writer.append(JVMHelper.jvmProperty("serverwrapper.modulesDir", "modules_srv"));
@@ -115,10 +124,12 @@ public class ServerWrapperSetup {
             writer.append("-cp ");
             String pathServerWrapper = IOHelper.getCodeSource(ServerWrapper.class).getFileName().toString();
             writer.append(pathServerWrapper);
-            if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
-                writer.append(";");
-            } else writer.append(":");
-            writer.append(jarName);
+            if(!altMode) {
+                if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
+                    writer.append(";");
+                } else writer.append(":");
+                writer.append(jarName);
+            }
             writer.append(" ");
             writer.append(ServerWrapper.class.getName());
             writer.append("\n");

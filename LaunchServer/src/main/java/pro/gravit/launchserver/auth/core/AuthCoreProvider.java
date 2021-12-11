@@ -43,6 +43,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         if (!registredProviders) {
             providers.register("reject", RejectAuthCoreProvider.class);
             providers.register("mysql", MySQLCoreProvider.class);
+            providers.register("postgresql", PostgresSQLCoreProvider.class);
             providers.register("memory", MemoryAuthCoreProvider.class);
             providers.register("http", HttpAuthCoreProvider.class);
             registredProviders = true;
