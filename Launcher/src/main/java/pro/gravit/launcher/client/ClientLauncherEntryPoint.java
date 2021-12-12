@@ -119,7 +119,8 @@ public class ClientLauncherEntryPoint {
 
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        List<URL> classpath = resolveClassPath(clientDir, params.actions, params.profile).map(IOHelper::toURL).collect(Collectors.toList());
+        List<Path> classpath = resolveClassPath(clientDir, params.actions, params.profile).collect(Collectors.toList());
+        List<URL> classpathURLs = classpath.stream().map(IOHelper::toURL).collect(Collectors.toList());
         // Start client with WatchService monitoring
         boolean digest = !profile.isUpdateFastCheck();
         RequestService service;
@@ -145,7 +146,8 @@ public class ClientLauncherEntryPoint {
         }
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
-            ClientClassLoader classLoader = new ClientClassLoader(classpath.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
+            ClientClassLoader classLoader = new ClientClassLoader(classpathURLs.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
+            System.setProperty("java.class.path", classpath.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator)));
             ClientLauncherEntryPoint.classLoader = classLoader;
             Thread.currentThread().setContextClassLoader(classLoader);
             classLoader.nativePath = clientDir.resolve("natives").toString();
@@ -156,19 +158,19 @@ public class ClientLauncherEntryPoint {
             ClientService.baseURLs = classLoader.getURLs();
         } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
             ClientLauncherEntryPoint.classLoader = ClassLoader.getSystemClassLoader();
-            classpath.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
-            for (URL url : classpath) {
+            classpathURLs.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
+            for (URL url : classpathURLs) {
                 LauncherAgent.addJVMClassPath(Paths.get(url.toURI()));
             }
             ClientService.instrumentation = LauncherAgent.inst;
             ClientService.nativePath = clientDir.resolve("natives").toString();
             LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
             ClientService.classLoader = classLoader;
-            ClientService.baseURLs = classpath.toArray(new URL[0]);
+            ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
         } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
             ClientLauncherEntryPoint.classLoader = ClassLoader.getSystemClassLoader();
             ClientService.classLoader = ClassLoader.getSystemClassLoader();
-            ClientService.baseURLs = classpath.toArray(new URL[0]);
+            ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
         }
         AuthService.username = params.playerProfile.username;
         AuthService.uuid = params.playerProfile.uuid;
