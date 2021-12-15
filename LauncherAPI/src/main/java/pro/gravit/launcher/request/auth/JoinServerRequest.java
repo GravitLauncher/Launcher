@@ -18,7 +18,7 @@ public final class JoinServerRequest extends Request<JoinServerRequestEvent> imp
 
 
     public JoinServerRequest(String username, String accessToken, String serverID) {
-        this.username = VerifyHelper.verifyUsername(username);
+        this.username = username;
         this.accessToken = accessToken;
         this.serverID = VerifyHelper.verifyServerID(serverID);
     }

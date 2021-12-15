@@ -12,7 +12,7 @@ public final class ProfileByUsernameRequest extends Request<ProfileByUsernameReq
 
 
     public ProfileByUsernameRequest(String username) {
-        this.username = VerifyHelper.verifyUsername(username);
+        this.username = username;
     }
 
     @Override

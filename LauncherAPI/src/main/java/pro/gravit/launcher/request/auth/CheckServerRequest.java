@@ -14,7 +14,7 @@ public final class CheckServerRequest extends Request<CheckServerRequestEvent> i
 
 
     public CheckServerRequest(String username, String serverID) {
-        this.username = VerifyHelper.verifyUsername(username);
+        this.username = username;
         this.serverID = VerifyHelper.verifyServerID(serverID);
     }
 
