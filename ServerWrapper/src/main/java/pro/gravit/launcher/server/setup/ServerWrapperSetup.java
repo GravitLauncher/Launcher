@@ -87,8 +87,8 @@ public class ServerWrapperSetup {
                 }
             }
         }
-        if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfile.Version.MC118) >= 0) {
-            LogHelper.info("Switch to alternative start mode (1.18)");
+        if(wrapper.profile != null && ((wrapper.profile.getVersion().compareTo(ClientProfile.Version.MC118) >= 0) || (wrapper.profile.getVersion().compareTo(ClientProfile.Version.MC1181) >= 0))) {
+            LogHelper.info("Switch to alternative start mode (1.18+)");
             wrapper.config.classpath.add(jarName);
             wrapper.config.classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;
             altMode = true;
