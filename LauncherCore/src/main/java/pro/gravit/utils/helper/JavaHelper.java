@@ -3,6 +3,7 @@ package pro.gravit.utils.helper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -77,6 +78,8 @@ public class JavaHelper {
                     tryAddJava(javaPaths, result, JavaVersion.getByPath(p1));
                     trySearchJava(javaPaths, result, p1.getParent());
                 }
+            } catch (InvalidPathException ignored) {
+
             } catch (IOException e) {
                 LogHelper.error(e);
             }
