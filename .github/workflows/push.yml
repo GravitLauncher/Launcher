@@ -1,6 +1,5 @@
 name: push
-on:
-  push:
+on: push
 jobs:
   launcher:
     name: Launcher
@@ -17,10 +16,10 @@ jobs:
           path: ~/.gradle/caches
           key: gravit-${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}-launcher
 
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 17
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -31,49 +30,44 @@ jobs:
       - name: Create artifacts
         run: |
           mkdir -p artifacts/modules
-          cd LaunchServer/build/libs/
+          cd LaunchServer/build/libs
           zip -r -9 ../../../artifacts/libraries.zip * -x "LaunchServer.jar" -x "LaunchServer-clean.jar"
           cp LaunchServer.jar ../../../artifacts/LaunchServer.jar
-          cd ../../../ServerWrapper/build/libs
-          cp ServerWrapper.jar ../../../artifacts/ServerWrapper.jar
-          cd ../../../LauncherAuthlib/build/libs
-          cp LauncherAuthlib.jar ../../../artifacts/LauncherAuthlib.jar
-          cd ../../../
+          cd ../../..
+          cp ServerWrapper/build/libs/ServerWrapper.jar artifacts/ServerWrapper.jar
+          cp LauncherAuthlib/build/libs/LauncherAuthlib.jar artifacts/LauncherAuthlib.jar
           cp modules/*_module/build/libs/*.jar artifacts/modules || true
-          cp modules/*_swmodule/build/libs/*.jar artifacts/modules || true
           cp modules/*_lmodule/build/libs/*.jar artifacts/modules || true
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
           name: Launcher
           path: artifacts
 
+      - name: Get version value, set to env
+        if: startsWith(github.event.ref, 'refs/tags')
+        run: echo "LAUNCHER_VERSION=$(echo ${{ github.event.ref }} | awk -F\/ '{print $3}')" >> $GITHUB_ENV
+
+      - name: Prebuild release files
+        if: startsWith(github.event.ref, 'refs/tags')
+        run: |
+          cd artifacts
+          zip -r -9 Release.zip *
+          zip -j -9 LaunchServerModules.zip ../modules/*_module/build/libs/*.jar
+          zip -j -9 LauncherModules.zip ../modules/*_lmodule/build/libs/*.jar
+          cd ../LaunchServer/build/libs
+          zip -r -9 ../../../artifacts/LauncherBase.zip * -x "LaunchServer-clean.jar"
       - name: Create release
         id: create_release
-        uses: actions/create-release@v1
-        if: github.event.ref == 'refs/tags/*'
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.event.ref, 'refs/tags')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #       Список настроек тута: https://github.com/softprops/action-gh-release#-customizing
+        #       Можно сделать пуш описания релиза из файла
         with:
-          tag_name: ${{ github.ref }}
-          release_name: GravitLauncher ${{ github.ref }}
+          name: GravitLauncher ${{ env.LAUNCHER_VERSION }}
           draft: false
           prerelease: false
-
-      - name: Pack release
-        if: github.event.ref == 'refs/tags/*'
-        run: |
-          cd artifacts/
-          zip -r -9 ../Release.zip *
-
-      - name: Upload release
-        if: github.event.ref == 'refs/tags/*'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Release.zip
-          asset_name: Release.zip
-          asset_content_type: application/zip
+          files: |
+            artifacts/*

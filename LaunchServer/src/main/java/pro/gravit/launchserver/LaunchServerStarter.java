@@ -68,6 +68,8 @@ public class LaunchServerStarter {
             LogHelper.error("Library BouncyCastle not found! Is directory 'libraries' empty?");
             return;
         }
+        LogHelper.warning("This is an outdated version. You can find the current version here: https://github.com/GravitLauncher/Launcher/releases");
+        LogHelper.warning("You need to manually fix the CVE-2021-44228 vulnerability for your minecraft clients and servers");
         CertificateManager certificateManager = new CertificateManager();
         try {
             certificateManager.readTrustStore(dir.resolve("truststore"));

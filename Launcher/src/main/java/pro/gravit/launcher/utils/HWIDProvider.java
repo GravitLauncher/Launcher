@@ -8,6 +8,8 @@ import oshi.hardware.PowerSource;
 import oshi.software.os.OperatingSystem;
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 
+import java.util.List;
+
 public class HWIDProvider {
     public final SystemInfo systemInfo;
     public final OperatingSystem system;
@@ -41,13 +43,13 @@ public class HWIDProvider {
     }
 
     public boolean isBattery() {
-        PowerSource[] powerSources = hardware.getPowerSources();
-        return powerSources != null && powerSources.length != 0;
+        List<PowerSource> powerSources = hardware.getPowerSources();
+        return powerSources != null && powerSources.size() != 0;
     }
 
     //Hardware Information
     public String getHWDiskID() {
-        HWDiskStore[] hwDiskStore = hardware.getDiskStores();
+        List<HWDiskStore> hwDiskStore = hardware.getDiskStores();
         long size = 0;
         HWDiskStore maxStore = null;
         for (HWDiskStore store : hwDiskStore) {
@@ -63,8 +65,8 @@ public class HWIDProvider {
     }
 
     public byte[] getDisplayID() {
-        Display[] displays = hardware.getDisplays();
-        if (displays == null || displays.length == 0) return null;
+        List<Display> displays = hardware.getDisplays();
+        if (displays == null || displays.size() == 0) return null;
         for (Display display : displays) {
             return display.getEdid();
         }
