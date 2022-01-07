@@ -30,8 +30,8 @@ public final class MySQLSourceConfig implements AutoCloseable {
     private String username;
     private String password;
     private String database;
-    private String timeZone;
-    private boolean enableHikari;
+    private String timezone;
+    private boolean useHikari;
 
     // Cache
     private transient DataSource source;
@@ -91,21 +91,26 @@ public final class MySQLSourceConfig implements AutoCloseable {
             mysqlSource.setPassword(password);
             mysqlSource.setDatabaseName(database);
             mysqlSource.setTcpNoDelay(true);
-            if (timeZone != null) mysqlSource.setServerTimezone(timeZone);
+            if (timezone != null) mysqlSource.setServerTimezone(timezone);
             hikari = false;
             // Try using HikariCP
             source = mysqlSource;
-            if (enableHikari) {
+            if (useHikari) {
                 try {
                     Class.forName("com.zaxxer.hikari.HikariDataSource");
                     hikari = true; // Used for shutdown. Not instanceof because of possible classpath error
-                    HikariConfig cfg = new HikariConfig();
-                    cfg.setDataSource(mysqlSource);
-                    cfg.setPoolName(poolName);
-                    cfg.setMaximumPoolSize(MAX_POOL_SIZE);
+                    HikariConfig hikariConfig = new HikariConfig();
+                    hikariConfig.setDataSource(mysqlSource);
+                    hikariConfig.setPoolName(poolName);
+                    hikariConfig.setMinimumIdle(1);
+                    hikariConfig.setMaximumPoolSize(MAX_POOL_SIZE);
+                    hikariConfig.setConnectionTestQuery("SELECT 1");
+                    hikariConfig.setConnectionTimeout(1000);
+                    hikariConfig.setAutoCommit(true);
+                    hikariConfig.setLeakDetectionThreshold(2000);
                     // Set HikariCP pool
                     // Replace source with hds
-                    source = new HikariDataSource(cfg);
+                    source = new HikariDataSource(hikariConfig);
                     LogHelper.warning("HikariCP pooling enabled for '%s'", poolName);
                 } catch (ClassNotFoundException ignored) {
                     LogHelper.debug("HikariCP isn't in classpath for '%s'", poolName);
