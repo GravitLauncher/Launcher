@@ -30,6 +30,10 @@ public class ClientsCommand extends Command {
         WebSocketService service = server.nettyServerSocketHandler.nettyServer.service;
         service.channels.forEach((channel -> {
             WebSocketFrameHandler frameHandler = channel.pipeline().get(WebSocketFrameHandler.class);
+            if(frameHandler == null) {
+                LogHelper.info("Channel %s", IOHelper.getIP(channel.remoteAddress()));
+                return;
+            }
             Client client = frameHandler.getClient();
             String ip = frameHandler.context.ip != null ? frameHandler.context.ip : IOHelper.getIP(channel.remoteAddress());
             if (!client.isAuth)
