@@ -52,7 +52,7 @@ public final class RejectAuthProvider extends AuthProvider implements Reconfigur
                 LogHelper.info("New reject message: %s", message);
             }
         });
-        commands.put("whirelist.add", new SubCommand() {
+        commands.put("whitelist.add", new SubCommand() {
             @Override
             public void invoke(String... args) throws Exception {
                 verifyArgs(args, 1);
