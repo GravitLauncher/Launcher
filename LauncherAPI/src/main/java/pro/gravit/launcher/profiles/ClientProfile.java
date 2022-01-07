@@ -401,6 +401,9 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
         // Client launcher
         VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Main class can't be empty");
+        if(getUUID() == null) {
+            throw new IllegalArgumentException("Profile UUID can't be null");
+        }
         for (String s : update) {
             if (s == null) throw new IllegalArgumentException("Found null entry in update");
         }
