@@ -33,7 +33,9 @@ public class LaunchServerGsonManager extends GsonManager {
     @Override
     public void registerAdapters(GsonBuilder builder) {
         super.registerAdapters(builder);
-        builder.registerTypeAdapterFactory(RecordTypeAdapterFactory.DEFAULT);
+        builder.registerTypeAdapterFactory(RecordTypeAdapterFactory.builder()
+                        .allowMissingComponentValues()
+                        .create());
         builder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
         builder.registerTypeAdapter(AuthCoreProvider.class, new UniversalJsonAdapter<>(AuthCoreProvider.providers));
         builder.registerTypeAdapter(PasswordVerifier.class, new UniversalJsonAdapter<>(PasswordVerifier.providers));
