@@ -15,7 +15,7 @@ public final class PlayerProfile {
 
     public PlayerProfile(UUID uuid, String username, Texture skin, Texture cloak) {
         this.uuid = Objects.requireNonNull(uuid, "uuid");
-        this.username = VerifyHelper.verifyUsername(username);
+        this.username = username;
         this.skin = skin;
         this.cloak = cloak;
     }

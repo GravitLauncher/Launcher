@@ -21,8 +21,6 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
             this.list[i].username = usernames[i];
         }
         IOHelper.verifyLength(usernames.length, IOHelper.MAX_BATCH_SIZE);
-        for (String username : usernames)
-            VerifyHelper.verifyUsername(username);
     }
 
     @Override
