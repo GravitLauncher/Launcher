@@ -8,7 +8,7 @@ public final class Version {
     public static final int MINOR = 1;
     public static final int PATCH = 12;
     public static final int BUILD = 1;
-    public static final Version.Type RELEASE = Type.UNKNOWN;
+    public static final Version.Type RELEASE = Type.LTS;
     public final int major;
     public final int minor;
     public final int patch;
