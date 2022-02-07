@@ -27,6 +27,7 @@ public final class HTTPRequest {
         if (request != null) connection.setDoOutput(true);
         connection.setRequestMethod(method);
         if (request != null) connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        if (request != null) connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36");
         connection.setRequestProperty("Accept", "application/json");
         if (TIMEOUT > 0)
             connection.setConnectTimeout(TIMEOUT);
