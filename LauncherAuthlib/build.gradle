@@ -1,8 +1,0 @@
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
-
-dependencies {
-    api project(':LauncherAPI')
-    compileOnly group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
-    api files('../compat/authlib/authlib-clean.jar')
-}
