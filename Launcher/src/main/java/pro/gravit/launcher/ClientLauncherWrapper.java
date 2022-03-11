@@ -20,6 +20,8 @@ public class ClientLauncherWrapper {
     public static boolean waitProcess = Boolean.getBoolean(WAIT_PROCESS_PROPERTY);
     @LauncherInject("launcher.memory")
     public static int launcherMemoryLimit;
+    @LauncherInject("launcher.customJvmOptions")
+    public static List<String> customJvmOptions;
 
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
@@ -137,6 +139,9 @@ public class ClientLauncherWrapper {
         }
         if (context.memoryLimit != 0) {
             args.add(String.format("-Xmx%dM", context.memoryLimit));
+        }
+        if(customJvmOptions != null) {
+            args.addAll(customJvmOptions);
         }
         args.add("-cp");
         args.add(String.join(IOHelper.PLATFORM_SEPARATOR, context.classpath));

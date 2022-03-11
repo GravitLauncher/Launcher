@@ -23,9 +23,7 @@ import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class LaunchServerConfig {
     private transient final Logger logger = LogManager.getLogger();
@@ -292,6 +290,7 @@ public final class LaunchServerConfig {
         public boolean deleteTempFiles;
         public boolean certificatePinning;
         public boolean encryptRuntime;
+        public List<String> customJvmOptions = new ArrayList<>();
         public int memoryLimit = 256;
     }
 
