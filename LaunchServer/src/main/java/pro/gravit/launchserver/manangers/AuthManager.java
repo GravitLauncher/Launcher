@@ -8,6 +8,7 @@ import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
+import pro.gravit.launcher.profiles.Texture;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.*;
 import pro.gravit.launchserver.LaunchServer;
@@ -207,7 +208,7 @@ public class AuthManager {
             return getPlayerProfile(client.uuid, client.username, client.profile == null ? null : client.profile.getTitle(), client.auth.textureProvider, new HashMap<>());
         }
         // Return combined profile
-        return new PlayerProfile(client.uuid, client.username, null, null);
+        return new PlayerProfile(client.uuid, client.username, null, null, new HashMap<>());
     }
 
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, String username) {
@@ -229,7 +230,7 @@ public class AuthManager {
         if (pair.textureProvider != null) {
             return getPlayerProfile(uuid, username, profile == null ? null : profile.getTitle(), pair.textureProvider, new HashMap<>());
         }
-        return new PlayerProfile(uuid, username, null, null);
+        return new PlayerProfile(uuid, username, null, null, new HashMap<>());
     }
 
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, UUID uuid) {
@@ -261,8 +262,8 @@ public class AuthManager {
         } else {
             properties = new HashMap<>();
         }
-        if (user instanceof UserSupportTextures) {
-            return new PlayerProfile(user.getUUID(), user.getUsername(), ((UserSupportTextures) user).getSkinTexture(), ((UserSupportTextures) user).getCloakTexture(), properties);
+        if (user instanceof UserSupportTextures userSupportTextures) {
+            return new PlayerProfile(user.getUUID(), user.getUsername(), userSupportTextures.getUserAssets(), properties);
         }
         if (pair.textureProvider == null) {
             throw new NullPointerException("TextureProvider not found");
@@ -272,10 +273,10 @@ public class AuthManager {
 
     private PlayerProfile getPlayerProfile(UUID uuid, String username, String client, TextureProvider textureProvider, Map<String, String> properties) {
         // Get skin texture
-        TextureProvider.SkinAndCloakTextures textures = textureProvider.getTextures(uuid, username, client);
+        var assets = textureProvider.getAssets(uuid, username, client);
 
         // Return combined profile
-        return new PlayerProfile(uuid, username, textures.skin, textures.cloak, properties);
+        return new PlayerProfile(uuid, username, assets, properties);
     }
 
     public AuthRequest.AuthPasswordInterface decryptPassword(AuthRequest.AuthPasswordInterface password) throws AuthException {
