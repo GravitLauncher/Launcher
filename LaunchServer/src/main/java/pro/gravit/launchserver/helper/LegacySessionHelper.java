@@ -36,6 +36,9 @@ public class LegacySessionHelper {
     }
 
     public static String makeRefreshTokenFromPassword(String username, String rawPassword, String secretSalt) {
+        if(rawPassword == null) {
+            rawPassword = "";
+        }
         return SecurityHelper.toHex(SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
                 String.format("%s.%s.%s.%s", secretSalt, username, rawPassword, secretSalt)));
     }
