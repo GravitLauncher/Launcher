@@ -97,14 +97,6 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         if (logger.isTraceEnabled()) {
             logger.trace("Client {} disconnected", IOHelper.getIP(ctx.channel().remoteAddress()));
         }
-        int refCount = client.refCount.decrementAndGet();
-        if (client.session != null) {
-            if (refCount == 0) {
-                srv.sessionManager.addClient(client);
-            } else if (refCount < 0) {
-                logger.warn("Client session {} reference counter invalid - {}", client.session, refCount);
-            }
-        }
         super.channelInactive(ctx);
     }
 }
