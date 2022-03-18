@@ -252,8 +252,11 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
         private String serverId;
         private String accessToken;
         private ClientPermissions permissions;
+        @Deprecated
         private Texture skin;
+        @Deprecated
         private Texture cloak;
+        private Map<String, Texture> assets;
         private Map<String, String> properties;
 
         public HttpUser() {
@@ -288,6 +291,16 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
             this.properties = properties;
         }
 
+        public HttpUser(String username, UUID uuid, String serverId, String accessToken, ClientPermissions permissions, Map<String, Texture> assets, Map<String, String> properties) {
+            this.username = username;
+            this.uuid = uuid;
+            this.serverId = serverId;
+            this.accessToken = accessToken;
+            this.permissions = permissions;
+            this.assets = assets;
+            this.properties = properties;
+        }
+
         @Override
         public String getUsername() {
             return username;
@@ -315,12 +328,32 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
 
         @Override
         public Texture getSkinTexture() {
-            return skin;
+            if(assets == null) {
+                return skin;
+            }
+            return assets.get("SKIN");
         }
 
         @Override
         public Texture getCloakTexture() {
-            return cloak;
+            if(assets == null) {
+                return cloak;
+            }
+            return assets.get("CAPE");
+        }
+
+        public Map<String, Texture> getAssets() {
+            if(assets == null) {
+                Map<String, Texture> map = new HashMap<>();
+                if(skin != null) {
+                    map.put("SKIN", skin);
+                }
+                if(cloak != null) {
+                    map.put("CAPE", cloak);
+                }
+                return map;
+            }
+            return assets;
         }
 
         @Override

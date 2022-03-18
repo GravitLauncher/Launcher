@@ -83,11 +83,11 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
     public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
         try {
             var info = LegacySessionHelper.getJwtInfoFromAccessToken(accessToken, server.keyAgreementManager.ecdsaPublicKey);
-            var user = (MySQLCoreProvider.MySQLUser) getUserByUUID(info.uuid());
+            var user = (PostgresSQLUser) getUserByUUID(info.uuid());
             if(user == null) {
                 return null;
             }
-            return new MySQLCoreProvider.MySQLUserSession(user);
+            return new PostgresSQLCoreProvider.MySQLUserSession(user);
         } catch (ExpiredJwtException e) {
             throw new OAuthAccessTokenExpired();
         } catch (JwtException e) {
@@ -103,7 +103,7 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
         }
         String username = parts[0];
         String token = parts[1];
-        var user = (MySQLCoreProvider.MySQLUser) getUserByUsername(username);
+        var user = (PostgresSQLUser) getUserByUsername(username);
         if(user == null || user.password == null) {
             return null;
         }
@@ -112,7 +112,7 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
             return null;
         }
         var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now().plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
-        return new AuthManager.AuthReport(null, accessToken, refreshToken, expireSeconds * 1000L, new MySQLCoreProvider.MySQLUserSession(user));
+        return new AuthManager.AuthReport(null, accessToken, refreshToken, expireSeconds * 1000L, new PostgresSQLCoreProvider.MySQLUserSession(user));
     }
 
     @Override
