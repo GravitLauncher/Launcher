@@ -155,7 +155,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         }
         MySQLUserSession session = new MySQLUserSession(mySQLUser);
         var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(mySQLUser, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
-        var refreshToken = LegacySessionHelper.makeRefreshTokenFromPassword(mySQLUser.username, mySQLUser.password, server.keyAgreementManager.legacySalt);
+        var refreshToken = mySQLUser.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(mySQLUser.username, mySQLUser.password, server.keyAgreementManager.legacySalt));
         if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();
             updateAuth(mySQLUser, minecraftAccessToken);

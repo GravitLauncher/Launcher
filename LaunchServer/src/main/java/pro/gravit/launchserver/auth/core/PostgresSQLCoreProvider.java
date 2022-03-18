@@ -133,7 +133,7 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
         }
         MySQLUserSession session = new MySQLUserSession(postgresSQLUser);
         var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(postgresSQLUser, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
-        var refreshToken = LegacySessionHelper.makeRefreshTokenFromPassword(postgresSQLUser.username, postgresSQLUser.password, server.keyAgreementManager.legacySalt);
+        var refreshToken = postgresSQLUser.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(postgresSQLUser.username, postgresSQLUser.password, server.keyAgreementManager.legacySalt));
         if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();
             updateAuth(postgresSQLUser, minecraftAccessToken);
