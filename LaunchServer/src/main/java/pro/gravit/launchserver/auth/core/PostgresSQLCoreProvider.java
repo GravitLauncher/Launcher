@@ -19,6 +19,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -111,7 +112,7 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
         if(!token.equals(realToken)) {
             return null;
         }
-        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now().plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
         return new AuthManager.AuthReport(null, accessToken, refreshToken, expireSeconds * 1000L, new PostgresSQLCoreProvider.MySQLUserSession(user));
     }
 
@@ -131,7 +132,7 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
             }
         }
         MySQLUserSession session = new MySQLUserSession(postgresSQLUser);
-        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(postgresSQLUser, LocalDateTime.now().plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(postgresSQLUser, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
         var refreshToken = LegacySessionHelper.makeRefreshTokenFromPassword(postgresSQLUser.username, postgresSQLUser.password, server.keyAgreementManager.legacySalt);
         if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();

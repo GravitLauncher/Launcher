@@ -24,6 +24,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -133,7 +134,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         if(!token.equals(realToken)) {
             return null;
         }
-        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now().plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
         return new AuthManager.AuthReport(null, accessToken, refreshToken, expireSeconds * 1000L, new MySQLUserSession(user));
     }
 
@@ -153,7 +154,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
             }
         }
         MySQLUserSession session = new MySQLUserSession(mySQLUser);
-        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(mySQLUser, LocalDateTime.now().plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(mySQLUser, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
         var refreshToken = LegacySessionHelper.makeRefreshTokenFromPassword(mySQLUser.username, mySQLUser.password, server.keyAgreementManager.legacySalt);
         if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();
