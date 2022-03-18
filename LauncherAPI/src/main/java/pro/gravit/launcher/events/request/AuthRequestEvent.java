@@ -24,6 +24,7 @@ public class AuthRequestEvent extends RequestEvent {
     @LauncherNetworkAPI
     public String protectToken;
     @LauncherNetworkAPI
+    @Deprecated // Always null
     public UUID session;
     @LauncherNetworkAPI
     public OAuthRequestEvent oauth;

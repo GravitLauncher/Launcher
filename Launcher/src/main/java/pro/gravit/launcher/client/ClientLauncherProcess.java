@@ -121,7 +121,7 @@ public class ClientLauncherProcess {
         }
         this.params.oauth = Request.getOAuth();
         if (this.params.oauth == null) {
-            this.params.session = Request.getSession();
+            throw new UnsupportedOperationException("Legacy session not supported");
         } else {
             this.params.authId = Request.getAuthId();
             this.params.oauthExpiredTime = Request.getTokenExpiredTime();

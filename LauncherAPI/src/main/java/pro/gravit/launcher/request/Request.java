@@ -22,6 +22,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     @Deprecated
     public static StdWebSocketService service;
     private static RequestService requestService;
+    @Deprecated
     private static UUID session;
     private static AuthRequestEvent.OAuthRequestEvent oauth;
     private static Map<String, String> extendedTokens;
@@ -46,10 +47,12 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         return requestService != null;
     }
 
+    @Deprecated
     public static UUID getSession() {
         return Request.session;
     }
 
+    @Deprecated
     public static void setSession(UUID session) {
         Request.session = session;
     }
@@ -146,9 +149,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
 
     public static RequestRestoreReport restore() throws Exception {
         if (session != null) {
-            RestoreSessionRequest request = new RestoreSessionRequest(session);
-            request.request();
-            return  new RequestRestoreReport(true, false, null);
+            throw new UnsupportedOperationException("Legacy session system not supported");
         } else {
             boolean refreshed = false;
             RestoreRequest request;
