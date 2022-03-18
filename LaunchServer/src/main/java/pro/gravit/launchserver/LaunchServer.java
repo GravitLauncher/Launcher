@@ -8,7 +8,6 @@ import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
-import pro.gravit.launchserver.auth.session.MemorySessionStorage;
 import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
 import pro.gravit.launchserver.binary.EXELauncherBinary;
 import pro.gravit.launchserver.binary.JARLauncherBinary;
@@ -94,7 +93,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     //public static LaunchServer server = null;
     public final Class<? extends LauncherBinary> launcherEXEBinaryClass;
     // Server config
-    public final SessionManager sessionManager;
     public final AuthHookManager authHookManager;
     public final LaunchServerModulesManager modulesManager;
     // Launcher binary
@@ -149,10 +147,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         runtime.verify();
         config.verify();
-        if (config.sessions == null) config.sessions = new MemorySessionStorage();
 
         // build hooks, anti-brutforce and other
-        sessionManager = new SessionManager(this);
         mirrorManager = new MirrorManager();
         reconfigurableManager = new ReconfigurableManager();
         authHookManager = new AuthHookManager();

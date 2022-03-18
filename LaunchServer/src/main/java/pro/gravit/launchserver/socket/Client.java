@@ -13,8 +13,10 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client {
+    @Deprecated
     public UUID session;
-    public boolean useOAuth;
+    @Deprecated
+    public boolean useOAuth; // Always true
     public String auth_id;
     public long timestamp;
     public AuthResponse.ConnectTypes type;
@@ -36,6 +38,7 @@ public class Client {
 
     public Map<String, String> serializableProperties;
 
+    @Deprecated
     public transient AtomicInteger refCount;
 
     public Client(UUID session) {

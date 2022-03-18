@@ -169,7 +169,7 @@ public class AuthManager {
      */
     public void internalAuth(Client client, AuthResponse.ConnectTypes authType, AuthProviderPair pair, String username, UUID uuid, ClientPermissions permissions, boolean oauth) {
         if(!oauth) {
-            pair.internalShowOAuthWarnMessage();
+            throw new UnsupportedOperationException("Unsupported legacy session system");
         }
         client.isAuth = true;
         client.permissions = permissions;
@@ -178,7 +178,7 @@ public class AuthManager {
         client.username = username;
         client.type = authType;
         client.uuid = uuid;
-        client.useOAuth = oauth;
+        client.useOAuth = true;
     }
 
     public CheckServerReport checkServer(Client client, String username, String serverID) throws IOException {
