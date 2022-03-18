@@ -6,6 +6,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -27,6 +28,7 @@ public class LegacySessionHelper {
     public static JwtTokenInfo getJwtInfoFromAccessToken(String token, ECPublicKey publicKey) {
         var parser = Jwts.parserBuilder()
                 .requireIssuer("LaunchServer")
+                .setClock(() -> new Date(Clock.systemUTC().millis()))
                 .setSigningKey(publicKey)
                 .build();
         var claims = parser.parseClaimsJws(token);
