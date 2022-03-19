@@ -108,8 +108,7 @@ public class ClientLauncherEntryPoint {
                 Request.addAllExtendedToken(params.extendedTokens);
             }
         } else if (params.session != null) {
-            LogHelper.info("Using Sessions");
-            Request.setSession(params.session);
+            throw new UnsupportedOperationException("Legacy session not supported");
         }
         checkJVMBitsAndVersion(params.profile.getMinJavaVersion(), params.profile.getRecommendJavaVersion(), params.profile.getMaxJavaVersion(), params.profile.isWarnMissJavaVersion());
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessInitPhase(engine, params));

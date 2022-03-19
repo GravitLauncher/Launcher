@@ -11,8 +11,6 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
-import pro.gravit.launchserver.auth.session.MemorySessionStorage;
-import pro.gravit.launchserver.auth.session.SessionStorage;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
 import pro.gravit.launchserver.binary.tasks.exe.Launch4JTask;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
@@ -23,9 +21,7 @@ import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class LaunchServerConfig {
     private transient final Logger logger = LogManager.getLogger();
@@ -36,7 +32,6 @@ public final class LaunchServerConfig {
     public boolean cacheUpdates = true;
     public LauncherConfig.LauncherEnvironment env;
     public Map<String, AuthProviderPair> auth;
-    public SessionStorage sessions;
     // Handlers & Providers
     public ProtectHandler protectHandler;
     public Map<String, Component> components;
@@ -72,7 +67,6 @@ public final class LaunchServerConfig {
         a.displayName = "Default";
         newConfig.auth.put("std", a);
         newConfig.protectHandler = new StdProtectHandler();
-        newConfig.sessions = new MemorySessionStorage();
         newConfig.binaryName = "Launcher";
 
         newConfig.netty = new NettyConfig();
@@ -193,10 +187,6 @@ public final class LaunchServerConfig {
             protectHandler.init(server);
             protectHandler.checkLaunchServerLicense();
         }
-        if (sessions != null) {
-            sessions.init(server);
-            server.registerObject("sessions", sessions);
-        }
         if (components != null) {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
         }
@@ -236,16 +226,6 @@ public final class LaunchServerConfig {
         if (protectHandler != null) {
             server.unregisterObject("protectHandler", protectHandler);
             protectHandler.close();
-        }
-        if (sessions != null) {
-            server.unregisterObject("sessions", sessions);
-            if (sessions instanceof AutoCloseable) {
-                try {
-                    ((AutoCloseable) sessions).close();
-                } catch (Exception e) {
-                    logger.error(e);
-                }
-            }
         }
     }
 
@@ -292,6 +272,7 @@ public final class LaunchServerConfig {
         public boolean deleteTempFiles;
         public boolean certificatePinning;
         public boolean encryptRuntime;
+        public List<String> customJvmOptions = new ArrayList<>();
         public int memoryLimit = 256;
     }
 

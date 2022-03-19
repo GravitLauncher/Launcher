@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.auth.core;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.ClientPermissions;
@@ -10,18 +12,22 @@ import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.PostgreSQLSourceConfig;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
+import pro.gravit.launchserver.helper.LegacySessionHelper;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class PostgresSQLCoreProvider extends AuthCoreProvider {
     private transient final Logger logger = LogManager.getLogger();
     public PostgreSQLSourceConfig postgresSQLHolder;
 
+    public int expireSeconds = 3600;
     public String uuidColumn;
     public String usernameColumn;
     public String accessTokenColumn;
@@ -41,6 +47,8 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
     private transient String queryByLoginSQL;
     private transient String updateAuthSQL;
     private transient String updateServerIDSQL;
+
+    private transient LaunchServer server;
 
     @Override
     public User getUserByUsername(String username) {
@@ -74,12 +82,38 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
 
     @Override
     public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
-        return null;
+        try {
+            var info = LegacySessionHelper.getJwtInfoFromAccessToken(accessToken, server.keyAgreementManager.ecdsaPublicKey);
+            var user = (PostgresSQLUser) getUserByUUID(info.uuid());
+            if(user == null) {
+                return null;
+            }
+            return new PostgresSQLCoreProvider.MySQLUserSession(user);
+        } catch (ExpiredJwtException e) {
+            throw new OAuthAccessTokenExpired();
+        } catch (JwtException e) {
+            return null;
+        }
     }
 
     @Override
     public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context) {
-        return null;
+        String[] parts = refreshToken.split("\\.");
+        if(parts.length != 2) {
+            return null;
+        }
+        String username = parts[0];
+        String token = parts[1];
+        var user = (PostgresSQLUser) getUserByUsername(username);
+        if(user == null || user.password == null) {
+            return null;
+        }
+        var realToken = LegacySessionHelper.makeRefreshTokenFromPassword(username, user.password, server.keyAgreementManager.legacySalt);
+        if(!token.equals(realToken)) {
+            return null;
+        }
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        return new AuthManager.AuthReport(null, accessToken, refreshToken, expireSeconds * 1000L, new PostgresSQLCoreProvider.MySQLUserSession(user));
     }
 
     @Override
@@ -98,17 +132,20 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
             }
         }
         MySQLUserSession session = new MySQLUserSession(postgresSQLUser);
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(postgresSQLUser, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        var refreshToken = postgresSQLUser.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(postgresSQLUser.username, postgresSQLUser.password, server.keyAgreementManager.legacySalt));
         if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();
             updateAuth(postgresSQLUser, minecraftAccessToken);
-            return AuthManager.AuthReport.ofMinecraftAccessToken(minecraftAccessToken, session);
+            return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, expireSeconds * 1000L, session);
         } else {
-            return AuthManager.AuthReport.ofMinecraftAccessToken(null, session);
+            return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, expireSeconds * 1000L, session);
         }
     }
 
     @Override
     public void init(LaunchServer server) {
+        this.server = server;
         if (postgresSQLHolder == null) logger.error("postgresSQLHolder cannot be null");
         if (uuidColumn == null) logger.error("uuidColumn cannot be null");
         if (usernameColumn == null) logger.error("usernameColumn cannot be null");

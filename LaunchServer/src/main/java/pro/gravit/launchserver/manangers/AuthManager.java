@@ -8,6 +8,7 @@ import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
+import pro.gravit.launcher.profiles.Texture;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.*;
 import pro.gravit.launchserver.LaunchServer;
@@ -16,6 +17,7 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.UserSession;
+import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportProperties;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportTextures;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.socket.Client;
@@ -26,10 +28,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import javax.crypto.Cipher;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class AuthManager {
     private transient final LaunchServer server;
@@ -170,7 +169,7 @@ public class AuthManager {
      */
     public void internalAuth(Client client, AuthResponse.ConnectTypes authType, AuthProviderPair pair, String username, UUID uuid, ClientPermissions permissions, boolean oauth) {
         if(!oauth) {
-            pair.internalShowOAuthWarnMessage();
+            throw new UnsupportedOperationException("Unsupported legacy session system");
         }
         client.isAuth = true;
         client.permissions = permissions;
@@ -179,7 +178,7 @@ public class AuthManager {
         client.username = username;
         client.type = authType;
         client.uuid = uuid;
-        client.useOAuth = oauth;
+        client.useOAuth = true;
     }
 
     public CheckServerReport checkServer(Client client, String username, String serverID) throws IOException {
@@ -206,10 +205,10 @@ public class AuthManager {
             if (playerProfile != null) return playerProfile;
         }
         if (client.auth.textureProvider != null) {
-            return getPlayerProfile(client.uuid, client.username, client.profile == null ? null : client.profile.getTitle(), client.auth.textureProvider);
+            return getPlayerProfile(client.uuid, client.username, client.profile == null ? null : client.profile.getTitle(), client.auth.textureProvider, new HashMap<>());
         }
         // Return combined profile
-        return new PlayerProfile(client.uuid, client.username, null, null);
+        return new PlayerProfile(client.uuid, client.username, null, null, new HashMap<>());
     }
 
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, String username) {
@@ -229,9 +228,9 @@ public class AuthManager {
             return null;
         }
         if (pair.textureProvider != null) {
-            return getPlayerProfile(uuid, username, profile == null ? null : profile.getTitle(), pair.textureProvider);
+            return getPlayerProfile(uuid, username, profile == null ? null : profile.getTitle(), pair.textureProvider, new HashMap<>());
         }
-        return new PlayerProfile(uuid, username, null, null);
+        return new PlayerProfile(uuid, username, null, null, new HashMap<>());
     }
 
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, UUID uuid) {
@@ -251,27 +250,33 @@ public class AuthManager {
             return null;
         }
         if (pair.textureProvider != null) {
-            return getPlayerProfile(uuid, username, profile == null ? null : profile.getTitle(), pair.textureProvider);
+            return getPlayerProfile(uuid, username, profile == null ? null : profile.getTitle(), pair.textureProvider, new HashMap<>());
         }
-        return new PlayerProfile(uuid, username, null, null);
+        return new PlayerProfile(uuid, username, null, null, new HashMap<>());
     }
 
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, User user) {
-        if (user instanceof UserSupportTextures) {
-            return new PlayerProfile(user.getUUID(), user.getUsername(), ((UserSupportTextures) user).getSkinTexture(), ((UserSupportTextures) user).getCloakTexture());
+        Map<String, String> properties;
+        if(user instanceof UserSupportProperties userSupportProperties) {
+            properties = userSupportProperties.getProperties();
+        } else {
+            properties = new HashMap<>();
+        }
+        if (user instanceof UserSupportTextures userSupportTextures) {
+            return new PlayerProfile(user.getUUID(), user.getUsername(), userSupportTextures.getUserAssets(), properties);
         }
         if (pair.textureProvider == null) {
             throw new NullPointerException("TextureProvider not found");
         }
-        return getPlayerProfile(user.getUUID(), user.getUsername(), "", pair.textureProvider);
+        return getPlayerProfile(user.getUUID(), user.getUsername(), "", pair.textureProvider, properties);
     }
 
-    private PlayerProfile getPlayerProfile(UUID uuid, String username, String client, TextureProvider textureProvider) {
+    private PlayerProfile getPlayerProfile(UUID uuid, String username, String client, TextureProvider textureProvider, Map<String, String> properties) {
         // Get skin texture
-        TextureProvider.SkinAndCloakTextures textures = textureProvider.getTextures(uuid, username, client);
+        var assets = textureProvider.getAssets(uuid, username, client);
 
         // Return combined profile
-        return new PlayerProfile(uuid, username, textures.skin, textures.cloak);
+        return new PlayerProfile(uuid, username, assets, properties);
     }
 
     public AuthRequest.AuthPasswordInterface decryptPassword(AuthRequest.AuthPasswordInterface password) throws AuthException {

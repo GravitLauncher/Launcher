@@ -6,6 +6,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.SecureRandom;
@@ -20,13 +21,15 @@ public class KeyAgreementManager {
     public final ECPrivateKey ecdsaPrivateKey;
     public final RSAPublicKey rsaPublicKey;
     public final RSAPrivateKey rsaPrivateKey;
+    public final String legacySalt;
     private transient final Logger logger = LogManager.getLogger();
 
-    public KeyAgreementManager(ECPublicKey ecdsaPublicKey, ECPrivateKey ecdsaPrivateKey, RSAPublicKey rsaPublicKey, RSAPrivateKey rsaPrivateKey) {
+    public KeyAgreementManager(ECPublicKey ecdsaPublicKey, ECPrivateKey ecdsaPrivateKey, RSAPublicKey rsaPublicKey, RSAPrivateKey rsaPrivateKey, String legacySalt) {
         this.ecdsaPublicKey = ecdsaPublicKey;
         this.ecdsaPrivateKey = ecdsaPrivateKey;
         this.rsaPublicKey = rsaPublicKey;
         this.rsaPrivateKey = rsaPrivateKey;
+        this.legacySalt = legacySalt;
     }
 
     public KeyAgreementManager(Path keyDirectory) throws IOException, InvalidKeySpecException {
@@ -61,6 +64,13 @@ public class KeyAgreementManager {
             logger.info("Writing RSA keypair list");
             IOHelper.write(rsaPublicKeyPath, rsaPublicKey.getEncoded());
             IOHelper.write(rsaPrivateKeyPath, rsaPrivateKey.getEncoded());
+        }
+        Path legacySaltPath = keyDirectory.resolve("legacySalt");
+        if(IOHelper.isFile(legacySaltPath)) {
+            legacySalt = new String(IOHelper.read(legacySaltPath), StandardCharsets.UTF_8);
+        } else {
+            legacySalt = SecurityHelper.randomStringToken();
+            IOHelper.write(legacySaltPath, legacySalt.getBytes(StandardCharsets.UTF_8));
         }
     }
 }

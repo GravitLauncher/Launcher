@@ -7,6 +7,7 @@ import pro.gravit.launcher.request.websockets.WebSocketRequest;
 
 import java.util.UUID;
 
+@Deprecated
 public class RestoreSessionRequest extends Request<RestoreSessionRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
     public final UUID session;

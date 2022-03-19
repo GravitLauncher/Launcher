@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.auth.core;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.ClientPermissions;
@@ -13,6 +15,7 @@ import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
+import pro.gravit.launchserver.helper.LegacySessionHelper;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.IOHelper;
@@ -21,6 +24,9 @@ import pro.gravit.utils.helper.SecurityHelper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +36,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     private transient final Logger logger = LogManager.getLogger();
     public MySQLSourceConfig mySQLHolder;
 
+    public int expireSeconds = 3600;
     public String uuidColumn;
     public String usernameColumn;
     public String accessTokenColumn;
@@ -63,6 +70,8 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     private transient String updateAuthSQL;
     private transient String updateServerIDSQL;
 
+    private transient LaunchServer server;
+
     @Override
     public User getUserByUsername(String username) {
         try {
@@ -95,12 +104,38 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
 
     @Override
     public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
-        return null;
+        try {
+            var info = LegacySessionHelper.getJwtInfoFromAccessToken(accessToken, server.keyAgreementManager.ecdsaPublicKey);
+            var user = (MySQLUser) getUserByUUID(info.uuid());
+            if(user == null) {
+                return null;
+            }
+            return new MySQLUserSession(user);
+        } catch (ExpiredJwtException e) {
+            throw new OAuthAccessTokenExpired();
+        } catch (JwtException e) {
+            return null;
+        }
     }
 
     @Override
     public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context) {
-        return null;
+        String[] parts = refreshToken.split("\\.");
+        if(parts.length != 2) {
+            return null;
+        }
+        String username = parts[0];
+        String token = parts[1];
+        var user = (MySQLUser) getUserByUsername(username);
+        if(user == null || user.password == null) {
+            return null;
+        }
+        var realToken = LegacySessionHelper.makeRefreshTokenFromPassword(username, user.password, server.keyAgreementManager.legacySalt);
+        if(!token.equals(realToken)) {
+            return null;
+        }
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        return new AuthManager.AuthReport(null, accessToken, refreshToken, expireSeconds * 1000L, new MySQLUserSession(user));
     }
 
     @Override
@@ -119,17 +154,20 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
             }
         }
         MySQLUserSession session = new MySQLUserSession(mySQLUser);
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(mySQLUser, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        var refreshToken = mySQLUser.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(mySQLUser.username, mySQLUser.password, server.keyAgreementManager.legacySalt));
         if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();
             updateAuth(mySQLUser, minecraftAccessToken);
-            return AuthManager.AuthReport.ofMinecraftAccessToken(minecraftAccessToken, session);
+            return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, expireSeconds * 1000L, session);
         } else {
-            return AuthManager.AuthReport.ofMinecraftAccessToken(null, session);
+            return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, expireSeconds * 1000L, session);
         }
     }
 
     @Override
     public void init(LaunchServer server) {
+        this.server = server;
         if (mySQLHolder == null) logger.error("mySQLHolder cannot be null");
         if (uuidColumn == null) logger.error("uuidColumn cannot be null");
         if (usernameColumn == null) logger.error("usernameColumn cannot be null");
@@ -145,9 +183,9 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
                 userInfoCols, table, usernameColumn);
         queryByLoginSQL = customQueryByLoginSQL != null ? customQueryByLoginSQL : queryByUsernameSQL;
 
-        updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=? LIMIT 1",
+        updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=?",
                 table, accessTokenColumn, serverIDColumn, uuidColumn);
-        updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=? LIMIT 1",
+        updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=?",
                 table, serverIDColumn, uuidColumn);
         String hardwareInfoCols = "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, graphicCard, banned, publicKey";
         if (sqlFindHardwareByPublicKey == null)

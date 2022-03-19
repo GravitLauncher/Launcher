@@ -10,6 +10,7 @@ import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.HttpRequester;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportProperties;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportTextures;
 import pro.gravit.launchserver.helper.HttpHelper;
 import pro.gravit.launchserver.manangers.AuthManager;
@@ -18,7 +19,9 @@ import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.CommonHelper;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class HttpAuthCoreProvider extends AuthCoreProvider {
@@ -243,14 +246,18 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
         }
     }
 
-    public static class HttpUser implements User, UserSupportTextures {
+    public static class HttpUser implements User, UserSupportTextures, UserSupportProperties {
         private String username;
         private UUID uuid;
         private String serverId;
         private String accessToken;
         private ClientPermissions permissions;
+        @Deprecated
         private Texture skin;
+        @Deprecated
         private Texture cloak;
+        private Map<String, Texture> assets;
+        private Map<String, String> properties;
 
         public HttpUser() {
         }
@@ -271,6 +278,27 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
             this.permissions = permissions;
             this.skin = skin;
             this.cloak = cloak;
+        }
+
+        public HttpUser(String username, UUID uuid, String serverId, String accessToken, ClientPermissions permissions, Texture skin, Texture cloak, Map<String, String> properties) {
+            this.username = username;
+            this.uuid = uuid;
+            this.serverId = serverId;
+            this.accessToken = accessToken;
+            this.permissions = permissions;
+            this.skin = skin;
+            this.cloak = cloak;
+            this.properties = properties;
+        }
+
+        public HttpUser(String username, UUID uuid, String serverId, String accessToken, ClientPermissions permissions, Map<String, Texture> assets, Map<String, String> properties) {
+            this.username = username;
+            this.uuid = uuid;
+            this.serverId = serverId;
+            this.accessToken = accessToken;
+            this.permissions = permissions;
+            this.assets = assets;
+            this.properties = properties;
         }
 
         @Override
@@ -300,12 +328,40 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
 
         @Override
         public Texture getSkinTexture() {
-            return skin;
+            if(assets == null) {
+                return skin;
+            }
+            return assets.get("SKIN");
         }
 
         @Override
         public Texture getCloakTexture() {
-            return cloak;
+            if(assets == null) {
+                return cloak;
+            }
+            return assets.get("CAPE");
+        }
+
+        public Map<String, Texture> getAssets() {
+            if(assets == null) {
+                Map<String, Texture> map = new HashMap<>();
+                if(skin != null) {
+                    map.put("SKIN", skin);
+                }
+                if(cloak != null) {
+                    map.put("CAPE", cloak);
+                }
+                return map;
+            }
+            return assets;
+        }
+
+        @Override
+        public Map<String, String> getProperties() {
+            if(properties == null) {
+                return new HashMap<>();
+            }
+            return properties;
         }
     }
 
