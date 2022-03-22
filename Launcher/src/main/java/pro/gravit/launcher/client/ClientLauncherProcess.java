@@ -20,6 +20,7 @@ import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -33,7 +34,7 @@ public class ClientLauncherProcess {
     public final ClientParams params = new ClientParams();
     public final List<String> jvmArgs = new LinkedList<>();
     public final List<String> jvmModules = new LinkedList<>();
-    public final List<Path> jvmModulesPaths = new LinkedList<>();
+    public final List<String> jvmModulesPaths = new LinkedList<>();
     public final List<String> systemClientArgs = new LinkedList<>();
     public final List<String> systemClassPath = new LinkedList<>();
     public final Map<String, String> systemEnv = new HashMap<>();
@@ -127,7 +128,8 @@ public class ClientLauncherProcess {
             this.params.oauthExpiredTime = Request.getTokenExpiredTime();
             this.params.extendedTokens = Request.getExtendedTokens();
         }
-
+        this.jvmModules.addAll(this.params.profile.getModules());
+        this.jvmModulesPaths.addAll(this.params.profile.getModulePath());
         if (this.params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
             jvmModules.add("javafx.base");
             jvmModules.add("javafx.graphics");
@@ -137,6 +139,7 @@ public class ClientLauncherProcess {
             jvmModules.add("javafx.media");
             jvmModules.add("javafx.web");
         }
+
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));
     }
 
@@ -187,20 +190,26 @@ public class ClientLauncherProcess {
     }
 
     private void applyJava9Params(List<String> processArgs) {
-        jvmModulesPaths.add(javaVersion.jvmDir);
+        /*jvmModulesPaths.add(javaVersion.jvmDir);
         jvmModulesPaths.add(javaVersion.jvmDir.resolve("jre"));
         Path openjfxPath = JavaHelper.tryGetOpenJFXPath(javaVersion.jvmDir);
         if (openjfxPath != null) {
             jvmModulesPaths.add(openjfxPath);
-        }
+        }*/ // TODO: fix runtime in client
         StringBuilder modulesPath = new StringBuilder();
         StringBuilder modulesAdd = new StringBuilder();
         for (String moduleName : jvmModules) {
-            boolean success = JavaHelper.tryAddModule(jvmModulesPaths, moduleName, modulesPath);
+            /*boolean success = JavaHelper.tryAddModule(jvmModulesPaths, moduleName, modulesPath);
             if (success) {
                 if (modulesAdd.length() > 0) modulesAdd.append(",");
                 modulesAdd.append(moduleName);
-            }
+            }*/
+            if (modulesAdd.length() > 0) modulesAdd.append(",");
+            modulesAdd.append(moduleName);
+        }
+        for(String modulePath : jvmModulesPaths) {
+            if (modulesPath.length() > 0) modulesPath.append(File.pathSeparator);
+            modulesPath.append(modulePath);
         }
         if (modulesAdd.length() > 0) {
             processArgs.add("--add-modules");
