@@ -6,9 +6,9 @@ public final class Version implements Comparable<Version> {
 
     public static final int MAJOR = 5;
     public static final int MINOR = 2;
-    public static final int PATCH = 9;
+    public static final int PATCH = 10;
     public static final int BUILD = 1;
-    public static final Version.Type RELEASE = Type.STABLE;
+    public static final Version.Type RELEASE = Type.DEV;
     public final int major;
     public final int minor;
     public final int patch;
