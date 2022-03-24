@@ -48,9 +48,9 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private List<String> classPath;
     @LauncherNetworkAPI
-    private List<String> modulePath;
+    private List<String> modulePath = new ArrayList<>();
     @LauncherNetworkAPI
-    private List<String> modules;
+    private List<String> modules = new ArrayList<>();
     @LauncherNetworkAPI
     private List<String> altClassPath;
     @LauncherNetworkAPI
