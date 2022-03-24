@@ -426,28 +426,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return Objects.hash(uuid);
     }
 
-    public SecurityManagerConfig getSecurityManagerConfig() {
-        return securityManagerConfig;
-    }
-
-    public void setSecurityManagerConfig(SecurityManagerConfig securityManagerConfig) {
-        this.securityManagerConfig = securityManagerConfig;
-    }
-
     public ClassLoaderConfig getClassLoaderConfig() {
         return classLoaderConfig;
     }
 
     public void setClassLoaderConfig(ClassLoaderConfig classLoaderConfig) {
         this.classLoaderConfig = classLoaderConfig;
-    }
-
-    public SignedClientConfig getSignedClientConfig() {
-        return signedClientConfig;
-    }
-
-    public void setSignedClientConfig(SignedClientConfig signedClientConfig) {
-        this.signedClientConfig = signedClientConfig;
     }
 
     public RuntimeInClientConfig getRuntimeInClientConfig() {
