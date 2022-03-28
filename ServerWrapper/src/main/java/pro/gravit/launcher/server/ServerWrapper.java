@@ -167,7 +167,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
         if (loader != null) mainClass = Class.forName(classname, true, loader);
         else mainClass = Class.forName(classname);
-        MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
+        MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         LogHelper.info("ServerWrapper: LaunchServer address: %s. Title: %s", config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         LogHelper.info("Start Minecraft Server");
