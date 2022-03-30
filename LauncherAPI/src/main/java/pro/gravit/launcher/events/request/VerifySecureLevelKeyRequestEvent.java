@@ -6,6 +6,7 @@ public class VerifySecureLevelKeyRequestEvent extends RequestEvent {
     public boolean needHardwareInfo;
     public boolean onlyStatisticInfo;
     public String extendedToken;
+    public String hardwareExtendedToken;
 
     public VerifySecureLevelKeyRequestEvent() {
     }
@@ -18,6 +19,13 @@ public class VerifySecureLevelKeyRequestEvent extends RequestEvent {
         this.needHardwareInfo = needHardwareInfo;
         this.onlyStatisticInfo = onlyStatisticInfo;
         this.extendedToken = extendedToken;
+    }
+
+    public VerifySecureLevelKeyRequestEvent(boolean needHardwareInfo, boolean onlyStatisticInfo, String extendedToken, String hardwareExtendedToken) {
+        this.needHardwareInfo = needHardwareInfo;
+        this.onlyStatisticInfo = onlyStatisticInfo;
+        this.extendedToken = extendedToken;
+        this.hardwareExtendedToken = hardwareExtendedToken;
     }
 
     @Override

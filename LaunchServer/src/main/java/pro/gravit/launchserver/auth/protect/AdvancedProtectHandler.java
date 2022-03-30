@@ -93,17 +93,17 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 }
                 client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
                 authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
+                return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), createHardwareToken(client.username, client.trustLevel.hardwareInfo));
             } else {
                 logger.warn("AuthCoreProvider not supported hardware. HardwareInfo not checked!");
             }
-            return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
         }
         return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
     }
 
     @Override
     public boolean onJoinServer(String serverID, String username, Client client) {
-        return !enableHardwareFeature || (client.trustLevel != null && client.trustLevel.publicKey != null);
+        return !enableHardwareFeature || (client.trustLevel != null && client.trustLevel.hardwareInfo != null);
     }
 
     @Override
