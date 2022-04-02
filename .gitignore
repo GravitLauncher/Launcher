@@ -110,7 +110,3 @@ cmd.sh
 project/target
 ## PVS Studio
 .PVS-Studio/
-## VS Code
-settings.json
-/.vscode
-settings.json
