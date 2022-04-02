@@ -114,9 +114,6 @@ dependencies {
     launch4j('net.sf.launch4j:launch4j:' + rootProject['verLaunch4j'] + ':workdir-linux64') { transitive = false }
 
     compileOnlyA group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
-    // Do not update (laggy deps).
-    compileOnlyA 'log4j:log4j:1.2.17'
-    compileOnlyA 'org.apache.logging.log4j:log4j-core:2.14.1'
 }
 
 task hikari(type: Copy) {
