@@ -516,7 +516,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public enum ClassLoaderConfig {
-        AGENT, LAUNCHER, SYSTEM_ARGS
+        AGENT, LAUNCHER, MODULE, SYSTEM_ARGS
     }
 
     public enum SignedClientConfig {
