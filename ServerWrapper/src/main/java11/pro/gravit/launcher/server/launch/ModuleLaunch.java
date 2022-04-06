@@ -61,7 +61,7 @@ public class ModuleLaunch implements Launch {
     }
 
     private static String getPackageFromClass(String clazz) {
-        int index = clazz.indexOf(".");
+        int index = clazz.lastIndexOf(".");
         if(index >= 0) {
             return clazz.substring(0, index);
         }
