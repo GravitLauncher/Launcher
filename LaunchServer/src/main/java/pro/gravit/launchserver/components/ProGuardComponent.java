@@ -152,7 +152,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                     parser.parse(proguard_cfg);
                     ProGuard proGuard = new ProGuard(proguard_cfg);
                     proGuard.execute();
-                } catch (ParseException e) {
+                } catch (Exception e) {
                     logger.error(e);
                 }
             } else
