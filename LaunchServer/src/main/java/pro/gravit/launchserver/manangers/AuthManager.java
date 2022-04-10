@@ -84,6 +84,7 @@ public class AuthManager {
             if(client.permissions == null) client.permissions = new ClientPermissions();
             client.permissions.addPerm("launchserver.checkserver");
             client.permissions.addPerm(String.format("launchserver.profile.%s.show", info.serverName));
+            client.setSerializableProperty("launchserver.serverName", info.serverName);
             return true;
         }
     }
