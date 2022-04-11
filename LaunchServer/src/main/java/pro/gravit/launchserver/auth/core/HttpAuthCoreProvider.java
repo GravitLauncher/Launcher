@@ -363,6 +363,19 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
             }
             return properties;
         }
+
+        @Override
+        public String toString() {
+            return "HttpUser{" +
+                    "username='" + username + '\'' +
+                    ", uuid=" + uuid +
+                    ", serverId='" + serverId + '\'' +
+                    ", accessToken='" + accessToken + '\'' +
+                    ", permissions=" + permissions +
+                    ", assets=" + getAssets() +
+                    ", properties=" + properties +
+                    '}';
+        }
     }
 
     public static class HttpUserSession implements UserSession {
@@ -392,6 +405,15 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
         @Override
         public long getExpireIn() {
             return expireIn;
+        }
+
+        @Override
+        public String toString() {
+            return "HttpUserSession{" +
+                    "id='" + id + '\'' +
+                    ", user=" + user +
+                    ", expireIn=" + expireIn +
+                    '}';
         }
     }
 }

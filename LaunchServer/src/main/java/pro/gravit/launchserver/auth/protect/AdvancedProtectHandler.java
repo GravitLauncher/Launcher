@@ -51,7 +51,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     @Override
     public void onHardwareReport(HardwareReportResponse response, Client client) {
         if (!enableHardwareFeature) {
-            response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, response.hardware)));
+            response.sendResult(new HardwareReportRequestEvent(null));
             return;
         }
         if (!client.isAuth || client.trustLevel == null || client.trustLevel.publicKey == null) {
@@ -73,11 +73,14 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                     throw new SecurityException("Your hardware banned");
                 }
                 client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
+                response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, hardware)));
+                return;
             } else {
                 logger.error("AuthCoreProvider not supported hardware");
+                response.sendError("AuthCoreProvider not supported hardware");
+                return;
             }
         }
-        response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, response.hardware)));
     }
 
     @Override
@@ -93,10 +96,10 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 }
                 client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
                 authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
+                return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), createHardwareToken(client.username, hardware));
             } else {
                 logger.warn("AuthCoreProvider not supported hardware. HardwareInfo not checked!");
             }
-            return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
         }
         return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
     }
@@ -115,12 +118,12 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     public void close() {
     }
 
-    public String createHardwareToken(String username, HardwareReportRequest.HardwareInfo info) {
+    public String createHardwareToken(String username, UserHardware hardware) {
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .setSubject(username)
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 8))
-                .claim("hardware", info)
+                .claim("hardware", hardware.getId())
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
     }
@@ -152,10 +155,14 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         public boolean accept(Client client, AuthProviderPair pair, String extendedToken) {
             try {
                 var parse = parser.parseClaimsJws(extendedToken);
-                HardwareReportRequest.HardwareInfo hardwareInfo = parse.getBody().get("hardware", HardwareReportRequest.HardwareInfo.class);
-                if (hardwareInfo == null) return false;
+                String hardwareInfoId = parse.getBody().get("hardware", String.class);
+                if (hardwareInfoId == null) return false;
+                if(client.auth == null) return false;
+                var hardwareSupport = client.auth.core.isSupport(AuthSupportHardware.class);
+                if(hardwareSupport == null) return false;
+                UserHardware hardware = hardwareSupport.getHardwareInfoById(hardwareInfoId);
                 if (client.trustLevel == null) client.trustLevel = new Client.TrustLevel();
-                client.trustLevel.hardwareInfo = hardwareInfo;
+                client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
                 return true;
             } catch (Throwable e) {
                 logger.error("Hardware JWT error", e);

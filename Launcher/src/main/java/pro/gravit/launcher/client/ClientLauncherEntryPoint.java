@@ -349,19 +349,19 @@ public class ClientLauncherEntryPoint {
         }
         FMLPatcher.apply();
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessPreInvokeMainClassEvent(params, profile, args));
-        {
-            List<String> compatClasses = profile.getCompatClasses();
-            for (String e : compatClasses) {
-                Class<?> clazz = classLoader.loadClass(e);
-                MethodHandle runMethod = MethodHandles.publicLookup().findStatic(clazz, "run", MethodType.methodType(void.class));
-                runMethod.invoke();
-            }
-        }
-        MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
-        Launcher.LAUNCHED.set(true);
-        JVMHelper.fullGC();
         // Invoke main method
         try {
+            {
+                List<String> compatClasses = profile.getCompatClasses();
+                for (String e : compatClasses) {
+                    Class<?> clazz = classLoader.loadClass(e);
+                    MethodHandle runMethod = MethodHandles.publicLookup().findStatic(clazz, "run", MethodType.methodType(void.class));
+                    runMethod.invoke();
+                }
+            }
+            MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
+            Launcher.LAUNCHED.set(true);
+            JVMHelper.fullGC();
             mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
             LogHelper.debug("Main exit successful");
         } catch (Throwable e) {

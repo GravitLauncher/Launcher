@@ -37,6 +37,7 @@ public class CheckServerResponse extends SimpleResponse {
             }
             result.playerProfile = report.playerProfile;
             result.uuid = report.uuid;
+            server.authHookManager.postCheckServerHook.hook(report, pClient);
             logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile == null ? null : result.playerProfile.username, result.uuid, serverID);
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());

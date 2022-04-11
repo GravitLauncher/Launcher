@@ -12,6 +12,8 @@ public class ClientProfileBuilder {
     private Set<OptionalFile> updateOptional = new HashSet<>();
     private List<String> jvmArgs = new ArrayList<>();
     private List<String> classPath = new ArrayList<>();
+    private List<String> modulePath = new ArrayList<>();
+    private List<String> modules = new ArrayList<>();
     private List<String> altClassPath = new ArrayList<>();
     private List<String> clientArgs = new ArrayList<>();
     private List<String> compatClasses = new ArrayList<>();
@@ -142,6 +144,16 @@ public class ClientProfileBuilder {
         return this;
     }
 
+    public ClientProfileBuilder setModulePath(List<String> modulePath) {
+        this.modulePath = modulePath;
+        return this;
+    }
+
+    public ClientProfileBuilder setModules(List<String> modules) {
+        this.modules = modules;
+        return this;
+    }
+
     public ClientProfileBuilder setMinJavaVersion(int minJavaVersion) {
         this.minJavaVersion = minJavaVersion;
         return this;
@@ -193,6 +205,6 @@ public class ClientProfileBuilder {
     }
 
     public ClientProfile createClientProfile() {
-        return new ClientProfile(update, updateExclusions, updateShared, updateVerify, updateOptional, jvmArgs, classPath, altClassPath, clientArgs, compatClasses, properties, servers, securityManagerConfig, classLoaderConfig, signedClientConfig, runtimeInClientConfig, version, assetIndex, dir, assetDir, recommendJavaVersion, minJavaVersion, maxJavaVersion, warnMissJavaVersion, settings, sortIndex, uuid, title, info, updateFastCheck, mainClass);
+        return new ClientProfile(update, updateExclusions, updateShared, updateVerify, updateOptional, jvmArgs, classPath, modulePath, modules, altClassPath, clientArgs, compatClasses, properties, servers, securityManagerConfig, classLoaderConfig, signedClientConfig, runtimeInClientConfig, version, assetIndex, dir, assetDir, recommendJavaVersion, minJavaVersion, maxJavaVersion, warnMissJavaVersion, settings, sortIndex, uuid, title, info, updateFastCheck, mainClass);
     }
 }

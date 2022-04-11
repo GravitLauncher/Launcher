@@ -18,6 +18,10 @@ import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.request.auth.RestoreRequest;
 import pro.gravit.launcher.request.update.ProfilesRequest;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
+import pro.gravit.launcher.server.launch.ClasspathLaunch;
+import pro.gravit.launcher.server.launch.Launch;
+import pro.gravit.launcher.server.launch.ModuleLaunch;
+import pro.gravit.launcher.server.launch.SimpleLaunch;
 import pro.gravit.launcher.server.setup.ServerWrapperSetup;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
@@ -139,22 +143,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             LogHelper.error("Auth not configured. Please use 'java -jar ServerWrapper.jar setup'");
             System.exit(-1);
         }
-        Class<?> mainClass;
-        if (config.classpath != null && !config.classpath.isEmpty()) {
-            if(config.classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
-                URL[] urls = config.classpath.stream().map(Paths::get).map(IOHelper::toURL).toArray(URL[]::new);
-                ucp = new PublicURLClassLoader(urls);
-                Thread.currentThread().setContextClassLoader(ucp);
-                loader = ucp;
-            } else if(config.classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
-                if (!ServerAgent.isAgentStarted()) {
-                    LogHelper.error("JavaAgent not found");
-                    System.exit(-1);
-                }
-                for (String c : config.classpath)
-                    ServerAgent.addJVMClassPath(c);
-            }
-        }
         if (config.autoloadLibraries) {
             if (!ServerAgent.isAgentStarted()) {
                 throw new UnsupportedOperationException("JavaAgent not found, autoloadLibraries not available");
@@ -165,24 +153,34 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             LogHelper.info("Load libraries");
             ServerAgent.loadLibraries(librariesDir);
         }
-        if (loader != null) mainClass = Class.forName(classname, true, loader);
-        else mainClass = Class.forName(classname);
-        MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         LogHelper.info("ServerWrapper: LaunchServer address: %s. Title: %s", config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
-        LogHelper.info("Start Minecraft Server");
-        LogHelper.debug("Invoke main method %s", mainClass.getName());
-        if (config.args == null) {
-            String[] real_args;
-            if (args.length > 0) {
-                real_args = new String[args.length - 1];
-                System.arraycopy(args, 1, real_args, 0, args.length - 1);
-            } else real_args = args;
-
-            mainMethod.invoke(real_args);
-        } else {
-            mainMethod.invoke(config.args.toArray(new String[0]));
+        String[] real_args;
+        if (args.length > 0) {
+            real_args = new String[args.length - 1];
+            System.arraycopy(args, 1, real_args, 0, args.length - 1);
+        } else real_args = args;
+        Launch launch;
+        switch (config.classLoaderConfig) {
+            case LAUNCHER:
+                launch = new ClasspathLaunch();
+                break;
+            case MODULE:
+                launch = new ModuleLaunch();
+                break;
+            default:
+                launch = new SimpleLaunch();
+                break;
         }
+        LogHelper.info("Start Minecraft Server");
+        LogHelper.debug("Invoke main method %s with %s", config.mainclass, launch.getClass().getName());
+        try {
+            launch.run(config, real_args);
+        } catch (Throwable e) {
+            LogHelper.error(e);
+            System.exit(-1);
+        }
+        System.exit(0);
     }
 
     public void updateLauncherConfig() {
@@ -231,8 +229,15 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public long oauthExpireTime;
         public Map<String, String> extendedTokens;
         public LauncherConfig.LauncherEnvironment env;
+        public ModuleConf moduleConf = new ModuleConf();
     }
 
-    public static final class WebSocketConf {
+    public static final class ModuleConf {
+        public List<String> modules = new ArrayList<>();
+        public List<String> modulePath = new ArrayList<>();
+        public String mainModule = "";
+        public Map<String, String> exports = new HashMap<>();
+        public Map<String, String> opens = new HashMap<>();
+        public Map<String, String> reads = new HashMap<>();
     }
 }

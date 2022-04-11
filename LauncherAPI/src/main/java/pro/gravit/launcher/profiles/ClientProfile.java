@@ -48,6 +48,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private List<String> classPath;
     @LauncherNetworkAPI
+    private List<String> modulePath = new ArrayList<>();
+    @LauncherNetworkAPI
+    private List<String> modules = new ArrayList<>();
+    @LauncherNetworkAPI
     private List<String> altClassPath;
     @LauncherNetworkAPI
     private List<String> clientArgs;
@@ -91,6 +95,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         updateOptional = new HashSet<>();
         jvmArgs = new ArrayList<>();
         classPath = new ArrayList<>();
+        modulePath = new ArrayList<>();
         altClassPath = new ArrayList<>();
         clientArgs = new ArrayList<>();
         compatClasses = new ArrayList<>();
@@ -102,7 +107,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         runtimeInClientConfig = RuntimeInClientConfig.NONE;
     }
 
-    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, SecurityManagerConfig securityManagerConfig, ClassLoaderConfig classLoaderConfig, SignedClientConfig signedClientConfig, RuntimeInClientConfig runtimeInClientConfig, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, boolean warnMissJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, boolean updateFastCheck, String mainClass) {
+    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> modulePath, List<String> modules, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, SecurityManagerConfig securityManagerConfig, ClassLoaderConfig classLoaderConfig, SignedClientConfig signedClientConfig, RuntimeInClientConfig runtimeInClientConfig, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, boolean warnMissJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, boolean updateFastCheck, String mainClass) {
         this.update = update;
         this.updateExclusions = updateExclusions;
         this.updateShared = updateShared;
@@ -110,6 +115,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.updateOptional = updateOptional;
         this.jvmArgs = jvmArgs;
         this.classPath = classPath;
+        this.modulePath = modulePath;
+        this.modules = modules;
         this.altClassPath = altClassPath;
         this.clientArgs = clientArgs;
         this.compatClasses = compatClasses;
@@ -158,6 +165,14 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public String[] getClassPath() {
         return classPath.toArray(new String[0]);
+    }
+
+    public List<String> getModulePath() {
+        return Collections.unmodifiableList(modulePath);
+    }
+
+    public List<String> getModules() {
+        return Collections.unmodifiableList(modules);
     }
 
     public String[] getAlternativeClassPath() {
@@ -411,28 +426,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return Objects.hash(uuid);
     }
 
-    public SecurityManagerConfig getSecurityManagerConfig() {
-        return securityManagerConfig;
-    }
-
-    public void setSecurityManagerConfig(SecurityManagerConfig securityManagerConfig) {
-        this.securityManagerConfig = securityManagerConfig;
-    }
-
     public ClassLoaderConfig getClassLoaderConfig() {
         return classLoaderConfig;
     }
 
     public void setClassLoaderConfig(ClassLoaderConfig classLoaderConfig) {
         this.classLoaderConfig = classLoaderConfig;
-    }
-
-    public SignedClientConfig getSignedClientConfig() {
-        return signedClientConfig;
-    }
-
-    public void setSignedClientConfig(SignedClientConfig signedClientConfig) {
-        this.signedClientConfig = signedClientConfig;
     }
 
     public RuntimeInClientConfig getRuntimeInClientConfig() {
@@ -517,7 +516,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public enum ClassLoaderConfig {
-        AGENT, LAUNCHER, SYSTEM_ARGS
+        AGENT, LAUNCHER, MODULE, SYSTEM_ARGS
     }
 
     public enum SignedClientConfig {
