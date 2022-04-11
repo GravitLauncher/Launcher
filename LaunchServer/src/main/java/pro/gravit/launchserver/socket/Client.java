@@ -38,7 +38,7 @@ public class Client {
         timestamp = System.currentTimeMillis();
         type = null;
         isAuth = false;
-        permissions = ClientPermissions.DEFAULT;
+        permissions = new ClientPermissions();
         username = "";
         checkSign = false;
     }
