@@ -39,9 +39,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     }
 
     public void setClient(Client client) {
-        if (this.client != null) this.client.refCount.decrementAndGet();
         this.client = client;
-        if (client != null) client.refCount.incrementAndGet();
     }
 
     public final UUID getConnectUUID() {
@@ -51,7 +49,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         logger.trace("New client {}", IOHelper.getIP(ctx.channel().remoteAddress()));
-        client = new Client(null);
+        client = new Client();
         Channel ch = ctx.channel();
         service.registerClient(ch);
         future = ctx.executor().scheduleAtFixedRate(() -> ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise()), 30L, 30L, TimeUnit.SECONDS);

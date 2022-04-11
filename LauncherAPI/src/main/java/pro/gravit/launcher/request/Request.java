@@ -1,13 +1,11 @@
 package pro.gravit.launcher.request;
 
-import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.RefreshTokenRequestEvent;
 import pro.gravit.launcher.events.request.RestoreRequestEvent;
 import pro.gravit.launcher.request.auth.RefreshTokenRequest;
 import pro.gravit.launcher.request.auth.RestoreRequest;
-import pro.gravit.launcher.request.auth.RestoreSessionRequest;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.helper.LogHelper;

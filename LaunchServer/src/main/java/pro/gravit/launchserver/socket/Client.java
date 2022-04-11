@@ -13,10 +13,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client {
-    @Deprecated
-    public UUID session;
-    @Deprecated
-    public boolean useOAuth; // Always true
     public String auth_id;
     public long timestamp;
     public AuthResponse.ConnectTypes type;
@@ -38,16 +34,7 @@ public class Client {
 
     public Map<String, String> serializableProperties;
 
-    @Deprecated
-    public transient AtomicInteger refCount;
-
-    public Client(UUID session) {
-        this(session, 1);
-    }
-
-    public Client(UUID session, int initialRefCount) {
-        refCount = new AtomicInteger(initialRefCount);
-        this.session = session;
+    public Client() {
         timestamp = System.currentTimeMillis();
         type = null;
         isAuth = false;

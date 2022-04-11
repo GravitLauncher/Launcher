@@ -24,7 +24,6 @@ public final class JVMHelper {
     public static final String OS_VERSION = OPERATING_SYSTEM_MXBEAN.getVersion();
     public static final int OS_BITS = getCorrectOSArch();
     public static final int JVM_BITS = Integer.parseInt(System.getProperty("sun.arch.data.model"));
-    public static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
     // Public static fields
     public static final Runtime RUNTIME = Runtime.getRuntime();
     public static final ClassLoader LOADER = ClassLoader.getSystemClassLoader();

@@ -18,12 +18,9 @@ public class ExitResponse extends SimpleResponse {
     public static void exit(LaunchServer server, WebSocketFrameHandler wsHandler, Channel channel, ExitRequestEvent.ExitReason reason) {
 
         Client chClient = wsHandler.getClient();
-        Client newCusClient = new Client(null);
+        Client newCusClient = new Client();
         newCusClient.checkSign = chClient.checkSign;
         wsHandler.setClient(newCusClient);
-        if (chClient.session != null) {
-            throw new UnsupportedOperationException("Legacy session system removed");
-        }
         ExitRequestEvent event = new ExitRequestEvent(reason);
         event.requestUUID = RequestEvent.eventUUID;
         wsHandler.service.sendObject(channel, event);
@@ -41,13 +38,13 @@ public class ExitResponse extends SimpleResponse {
             return;
         }
         if (username == null) {
-            if (client.useOAuth) {
+            {
                 WebSocketFrameHandler handler = ctx.pipeline().get(WebSocketFrameHandler.class);
                 if (handler == null) {
                     sendError("Exit internal error");
                     return;
                 }
-                Client newClient = new Client(null, 0);
+                Client newClient = new Client();
                 newClient.checkSign = client.checkSign;
                 handler.setClient(newClient);
                 AuthSupportExit supportExit = client.auth.core.isSupport(AuthSupportExit.class);
@@ -62,33 +59,6 @@ public class ExitResponse extends SimpleResponse {
                     }
                 }
                 sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
-            } else {
-                if (client.session == null && exitAll) {
-                    sendError("Session invalid");
-                    return;
-                }
-                WebSocketFrameHandler handler = ctx.pipeline().get(WebSocketFrameHandler.class);
-                if (handler == null) {
-                    sendError("Exit internal error");
-                    return;
-                }
-                Client newClient = new Client(null);
-                newClient.checkSign = client.checkSign;
-                handler.setClient(newClient);
-                if (client.session != null) {
-                    throw new UnsupportedOperationException("Legacy session system removed");
-                }
-                if (exitAll) {
-                    service.forEachActiveChannels(((channel, webSocketFrameHandler) -> {
-                        Client client1 = webSocketFrameHandler.getClient();
-                        if (client.isAuth && client.username != null) {
-                            if (!client1.isAuth || !client.username.equals(client1.username)) return;
-                        } else {
-                            if (client1.session != client.session) return;
-                        }
-                        exit(server, webSocketFrameHandler, channel, ExitRequestEvent.ExitReason.SERVER);
-                    }));
-                }
             }
             sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
         } else {

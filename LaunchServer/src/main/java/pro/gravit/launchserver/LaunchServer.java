@@ -100,8 +100,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final AuthManager authManager;
     public final ReconfigurableManager reconfigurableManager;
     public final ConfigManager configManager;
-    @Deprecated
-    public final PingServerManager pingServerManager;
     public final FeaturesManager featuresManager;
     public final KeyAgreementManager keyAgreementManager;
     public final UpdatesManager updatesManager;
@@ -153,7 +151,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         reconfigurableManager = new ReconfigurableManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
-        pingServerManager = new PingServerManager(this);
         featuresManager = new FeaturesManager(this);
         authManager = new AuthManager(this);
         updatesManager = new UpdatesManager(this);
@@ -377,8 +374,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         // Sort and set new profiles
         newProfies.sort(Comparator.comparing(a -> a));
         profilesList = Set.copyOf(newProfies);
-        if (pingServerManager != null)
-            pingServerManager.syncServers();
     }
 
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
