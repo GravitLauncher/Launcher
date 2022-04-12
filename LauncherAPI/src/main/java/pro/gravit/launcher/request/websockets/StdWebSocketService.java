@@ -1,6 +1,5 @@
 package pro.gravit.launcher.request.websockets;
 
-import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.request.Request;
@@ -93,9 +92,6 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
             if (future != null) {
                 if (event instanceof ErrorRequestEvent) {
                     future.completeExceptionally(new RequestException(((ErrorRequestEvent) event).error));
-                } else if (event instanceof ExceptionEvent) {
-                    future.completeExceptionally(new RequestException(
-                            String.format("LaunchServer internal error: %s %s", ((ExceptionEvent) event).clazz, ((ExceptionEvent) event).message)));
                 } else
                     future.complete(event);
                 futureMap.remove(event.requestUUID);

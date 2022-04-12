@@ -180,7 +180,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             LogHelper.error(e);
             System.exit(-1);
         }
-        System.exit(0);
     }
 
     public void updateLauncherConfig() {

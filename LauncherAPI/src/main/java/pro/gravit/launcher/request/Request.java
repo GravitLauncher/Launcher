@@ -1,13 +1,11 @@
 package pro.gravit.launcher.request;
 
-import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.RefreshTokenRequestEvent;
 import pro.gravit.launcher.events.request.RestoreRequestEvent;
 import pro.gravit.launcher.request.auth.RefreshTokenRequest;
 import pro.gravit.launcher.request.auth.RestoreRequest;
-import pro.gravit.launcher.request.auth.RestoreSessionRequest;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.helper.LogHelper;
@@ -22,8 +20,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     @Deprecated
     public static StdWebSocketService service;
     private static RequestService requestService;
-    @Deprecated
-    private static UUID session;
     private static AuthRequestEvent.OAuthRequestEvent oauth;
     private static Map<String, String> extendedTokens;
     private static String authId;
@@ -45,16 +41,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
 
     public static boolean isAvailable() {
         return requestService != null;
-    }
-
-    @Deprecated
-    public static UUID getSession() {
-        return Request.session;
-    }
-
-    @Deprecated
-    public static void setSession(UUID session) {
-        Request.session = session;
     }
 
     public static void setOAuth(String authId, AuthRequestEvent.OAuthRequestEvent event) {
@@ -148,48 +134,44 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     }
 
     public static RequestRestoreReport restore() throws Exception {
-        if (session != null) {
-            throw new UnsupportedOperationException("Legacy session system not supported");
+        boolean refreshed = false;
+        RestoreRequest request;
+        if(oauth != null) {
+            if (isTokenExpired() || oauth.accessToken == null) {
+                RefreshTokenRequest refreshRequest = new RefreshTokenRequest(authId, oauth.refreshToken);
+                RefreshTokenRequestEvent event = refreshRequest.request();
+                setOAuth(authId, event.oauth);
+                refreshed = true;
+            }
+            request = new RestoreRequest(authId, oauth.accessToken, extendedTokens, false);
         } else {
-            boolean refreshed = false;
-            RestoreRequest request;
-            if(oauth != null) {
-                if (isTokenExpired() || oauth.accessToken == null) {
-                    RefreshTokenRequest refreshRequest = new RefreshTokenRequest(authId, oauth.refreshToken);
-                    RefreshTokenRequestEvent event = refreshRequest.request();
-                    setOAuth(authId, event.oauth);
-                    refreshed = true;
-                }
-                request = new RestoreRequest(authId, oauth.accessToken, extendedTokens, false);
-            } else {
-                request = new RestoreRequest(authId, null, extendedTokens, false);
-            }
-            RestoreRequestEvent event = request.request();
-            List<String> invalidTokens = null;
-            if (event.invalidTokens != null && event.invalidTokens.size() > 0) {
-                boolean needRequest = false;
-                Map<String, String> tokens = new HashMap<>();
-                for (ExtendedTokenCallback cb : extendedTokenCallbacks) {
-                    for (String tokenName : event.invalidTokens) {
-                        String newToken = cb.tryGetNewToken(tokenName);
-                        if (newToken != null) {
-                            needRequest = true;
-                            tokens.put(tokenName, newToken);
-                            addExtendedToken(tokenName, newToken);
-                        }
-                    }
-                }
-                if (needRequest) {
-                    request = new RestoreRequest(authId, null, tokens, false);
-                    event = request.request();
-                    if (event.invalidTokens != null && event.invalidTokens.size() > 0) {
-                        LogHelper.warning("Tokens %s not restored", String.join(",", event.invalidTokens));
-                    }
-                }
-                invalidTokens = event.invalidTokens;
-            }
-            return new RequestRestoreReport(false, refreshed, invalidTokens);
+            request = new RestoreRequest(authId, null, extendedTokens, false);
         }
+        RestoreRequestEvent event = request.request();
+        List<String> invalidTokens = null;
+        if (event.invalidTokens != null && event.invalidTokens.size() > 0) {
+            boolean needRequest = false;
+            Map<String, String> tokens = new HashMap<>();
+            for (ExtendedTokenCallback cb : extendedTokenCallbacks) {
+                for (String tokenName : event.invalidTokens) {
+                    String newToken = cb.tryGetNewToken(tokenName);
+                    if (newToken != null) {
+                        needRequest = true;
+                        tokens.put(tokenName, newToken);
+                        addExtendedToken(tokenName, newToken);
+                    }
+                }
+            }
+            if (needRequest) {
+                request = new RestoreRequest(authId, null, tokens, false);
+                event = request.request();
+                if (event.invalidTokens != null && event.invalidTokens.size() > 0) {
+                    LogHelper.warning("Tokens %s not restored", String.join(",", event.invalidTokens));
+                }
+            }
+            invalidTokens = event.invalidTokens;
+        }
+        return new RequestRestoreReport(false, refreshed, invalidTokens);
     }
 
     public static void requestError(String message) throws RequestException {

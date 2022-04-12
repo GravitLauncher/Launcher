@@ -328,16 +328,7 @@ public class ClientLauncherProcess {
                 if (version.compareTo(ClientProfile.Version.MC1710) >= 0) {
                     // Add user properties
                     Collections.addAll(args, "--userType", "mojang");
-                    ClientUserProperties properties = new ClientUserProperties();
-                    if (playerProfile.skin != null) {
-                        properties.skinURL = new String[]{playerProfile.skin.url};
-                        properties.skinDigest = new String[]{SecurityHelper.toHex(playerProfile.skin.digest)};
-                    }
-                    if (playerProfile.cloak != null) {
-                        properties.cloakURL = new String[]{playerProfile.cloak.url};
-                        properties.cloakDigest = new String[]{SecurityHelper.toHex(playerProfile.cloak.digest)};
-                    }
-                    Collections.addAll(args, "--userProperties", Launcher.gsonManager.gson.toJson(properties));
+                    Collections.addAll(args, "--userProperties", "{}");
 
                     // Add asset index
                     Collections.addAll(args, "--assetIndex", profile.getAssetIndex());
@@ -370,17 +361,6 @@ public class ClientLauncherProcess {
                 Collections.addAll(args, "--width", Integer.toString(width));
                 Collections.addAll(args, "--height", Integer.toString(height));
             }
-        }
-
-        public static class ClientUserProperties {
-            @LauncherNetworkAPI
-            public String[] skinURL;
-            @LauncherNetworkAPI
-            public String[] skinDigest;
-            @LauncherNetworkAPI
-            public String[] cloakURL;
-            @LauncherNetworkAPI
-            public String[] cloakDigest;
         }
     }
 }

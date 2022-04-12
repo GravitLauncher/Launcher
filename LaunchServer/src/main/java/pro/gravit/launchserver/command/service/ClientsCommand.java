@@ -43,8 +43,8 @@ public class ClientsCommand extends Command {
                 logger.info("Channel {} | connectUUID {} | checkSign {}", ip, frameHandler.getConnectUUID(), client.checkSign ? "true" : "false");
             else {
                 logger.info("Client name {} | ip {} | connectUUID {}", client.username == null ? "null" : client.username, ip, frameHandler.getConnectUUID());
-                logger.info("userUUID: {} | session {}", client.uuid == null ? "null" : client.uuid.toString(), client.session == null ? "null" : client.session);
-                logger.info("OAuth {} | session {}", client.useOAuth, client.sessionObject == null ? "null" : client.sessionObject);
+                logger.info("userUUID: {}", client.uuid == null ? "null" : client.uuid.toString());
+                logger.info("OAuth session {}", client.sessionObject == null ? "null" : client.sessionObject);
                 logger.info("Data: checkSign {} | auth_id {}", client.checkSign ? "true" : "false",
                         client.auth_id);
             }
