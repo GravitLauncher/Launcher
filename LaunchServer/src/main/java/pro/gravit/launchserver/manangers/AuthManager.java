@@ -179,7 +179,6 @@ public class AuthManager {
         client.username = username;
         client.type = authType;
         client.uuid = uuid;
-        client.useOAuth = true;
     }
 
     public CheckServerReport checkServer(Client client, String username, String serverID) throws IOException {
@@ -197,19 +196,17 @@ public class AuthManager {
     public PlayerProfile getPlayerProfile(Client client) {
         if (client.auth == null) return null;
         PlayerProfile playerProfile;
-        if (client.useOAuth) {
-            User user = client.getUser();
-            if (user == null) {
-                return null;
-            }
-            playerProfile = getPlayerProfile(client.auth, user);
-            if (playerProfile != null) return playerProfile;
+        User user = client.getUser();
+        if (user == null) {
+            return null;
         }
+        playerProfile = getPlayerProfile(client.auth, user);
+        if (playerProfile != null) return playerProfile;
         if (client.auth.textureProvider != null) {
             return getPlayerProfile(client.uuid, client.username, client.profile == null ? null : client.profile.getTitle(), client.auth.textureProvider, new HashMap<>());
         }
         // Return combined profile
-        return new PlayerProfile(client.uuid, client.username, null, null, new HashMap<>());
+        return new PlayerProfile(client.uuid, client.username, new HashMap<>(), new HashMap<>());
     }
 
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, String username) {
@@ -231,7 +228,7 @@ public class AuthManager {
         if (pair.textureProvider != null) {
             return getPlayerProfile(uuid, username, profile == null ? null : profile.getTitle(), pair.textureProvider, new HashMap<>());
         }
-        return new PlayerProfile(uuid, username, null, null, new HashMap<>());
+        return new PlayerProfile(uuid, username, new HashMap<>(), new HashMap<>());
     }
 
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, UUID uuid) {
@@ -253,7 +250,7 @@ public class AuthManager {
         if (pair.textureProvider != null) {
             return getPlayerProfile(uuid, username, profile == null ? null : profile.getTitle(), pair.textureProvider, new HashMap<>());
         }
-        return new PlayerProfile(uuid, username, null, null, new HashMap<>());
+        return new PlayerProfile(uuid, username, new HashMap<>(), new HashMap<>());
     }
 
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, User user) {

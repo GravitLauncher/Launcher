@@ -33,7 +33,7 @@ public class AdditionalDataResponse extends SimpleResponse {
             Map<String, String> properties;
             User user = client.getUser();
             if (user instanceof UserSupportAdditionalData userSupport) {
-                if (user.getPermissions().isPermission(ClientPermissions.PermissionConsts.ADMIN)) {
+                if (client.permissions.hasPerm("launchserver.request.addionaldata.privileged")) {
                     properties = userSupport.getPropertiesMap();
                 } else {
                     properties = userSupport.getPropertiesMapUnprivilegedSelf();
@@ -55,7 +55,7 @@ public class AdditionalDataResponse extends SimpleResponse {
             return;
         }
         Map<String, String> properties;
-        if (client.permissions.isPermission(ClientPermissions.PermissionConsts.ADMIN)) {
+        if (client.permissions.hasPerm("launchserver.request.addionaldata.privileged")) {
             properties = userSupport.getPropertiesMap();
         } else {
             properties = userSupport.getPropertiesMapUnprivileged();

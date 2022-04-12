@@ -18,7 +18,6 @@ public class AuthResponse extends SimpleResponse {
     private transient final Logger logger = LogManager.getLogger();
     public String login;
     public String client;
-    public boolean getSession;
 
     public AuthRequest.AuthPasswordInterface password;
 
@@ -49,12 +48,6 @@ public class AuthResponse extends SimpleResponse {
             server.authHookManager.postHook.hook(context, clientData);
             if (context.report.isUsingOAuth()) {
                 result.oauth = new AuthRequestEvent.OAuthRequestEvent(context.report.oauthAccessToken(), context.report.oauthRefreshToken(), context.report.oauthExpire());
-            } else if (getSession) {
-                if (clientData.session == null) {
-                    clientData.session = UUID.randomUUID();
-                    //server.sessionManager.addClient(clientData);
-                }
-                result.session = clientData.session;
             }
             if (context.report.minecraftAccessToken() != null) {
                 result.accessToken = context.report.minecraftAccessToken();

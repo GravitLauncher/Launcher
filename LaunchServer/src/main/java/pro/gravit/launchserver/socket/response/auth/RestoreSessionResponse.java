@@ -2,9 +2,7 @@ package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.LauncherNetworkAPI;
-import pro.gravit.launcher.events.request.RestoreSessionRequestEvent;
 import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
 import java.util.UUID;
