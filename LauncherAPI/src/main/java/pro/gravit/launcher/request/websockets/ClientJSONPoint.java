@@ -25,11 +25,19 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public abstract class ClientJSONPoint {
-
-    private static final EventLoopGroup group = new NioEventLoopGroup();
+    private static final AtomicInteger counter = new AtomicInteger();
+    private static final ThreadFactory threadFactory = (runnable) -> {
+        Thread t = new Thread(runnable);
+        t.setName(String.format("Netty Thread #%d", counter.incrementAndGet()));
+        t.setDaemon(true);
+        return t;
+    };
+    private static final EventLoopGroup group = new NioEventLoopGroup(threadFactory);
     @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
     protected final Bootstrap bootstrap = new Bootstrap();
