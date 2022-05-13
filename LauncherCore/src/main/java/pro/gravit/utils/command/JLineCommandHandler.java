@@ -77,6 +77,9 @@ public class JLineCommandHandler extends CommandHandler {
                 });
             } else {
                 Command target = findCommand(line.words().get(0));
+                if(target == null) {
+                    return;
+                }
                 List<String> words = line.words();
                 List<Candidate> candidates1 = target.complete(words.subList(1, words.size()), line.wordIndex() - 1, completeWord);
                 candidates.addAll(candidates1);
