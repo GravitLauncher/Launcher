@@ -145,7 +145,7 @@ public class ClientLauncherEntryPoint {
         }
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
-            ClientClassLoader classLoader = new ClientClassLoader(classpathURLs.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
+            ClientClassLoader classLoader = new ClientClassLoader(classpathURLs.toArray(new URL[0]), ClientLauncherEntryPoint.class.getClassLoader());
             System.setProperty("java.class.path", classpath.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator)));
             ClientLauncherEntryPoint.classLoader = classLoader;
             Thread.currentThread().setContextClassLoader(classLoader);
