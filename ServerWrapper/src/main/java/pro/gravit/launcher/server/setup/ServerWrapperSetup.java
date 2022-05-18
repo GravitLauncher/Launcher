@@ -134,5 +134,10 @@ public class ServerWrapperSetup {
             writer.append(ServerWrapper.class.getName());
             writer.append("\n");
         }
+        if(JVMHelper.OS_TYPE != JVMHelper.OS.MUSTDIE) {
+            if(!startScript.toFile().setExecutable(true)) {
+                LogHelper.error("Failed to set executable %s", startScript);
+            }
+        }
     }
 }
