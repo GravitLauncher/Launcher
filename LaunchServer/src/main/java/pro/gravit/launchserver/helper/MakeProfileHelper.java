@@ -98,19 +98,23 @@ public class MakeProfileHelper {
             optionals.add(optionalOther);
         }
         Optional<MakeProfileOptionLog4j> logFile = findOption(options, MakeProfileOptionLog4j.class);
-        if(logFile.isPresent()) {
+        if (logFile.isPresent()) {
             var log4jOption = logFile.get();
-            if(log4jOption.logFile != null) {
+            if (log4jOption.logFile != null) {
                 jvmArgs.add("-Dlog4j.configurationFile=".concat(logFile.get().logFile));
-            } else if(log4jOption.affected) {
-                if(version.compareTo(ClientProfile.Version.MC117) >= 0 && version.compareTo(ClientProfile.Version.MC118) < 0) {
+            } else if (log4jOption.affected) {
+                if (version.compareTo(ClientProfile.Version.MC117) >= 0 && version.compareTo(ClientProfile.Version.MC118) < 0) {
                     jvmArgs.add("-Dlog4j2.formatMsgNoLookups=true");
                 }
             }
         }
-        if (version.compareTo(ClientProfile.Version.MC117) >= 0) {
+        if (version.compareTo(ClientProfile.Version.MC117) >= 0 && version.compareTo(ClientProfile.Version.MC118) < 0) {
             builder.setMinJavaVersion(16);
             builder.setRecommendJavaVersion(16);
+        }
+        if (version.compareTo(ClientProfile.Version.MC118) >= 0) {
+            builder.setMinJavaVersion(17);
+            builder.setRecommendJavaVersion(17);
         }
         jvmArgs.add("-Dfml.ignorePatchDiscrepancies=true");
         jvmArgs.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
@@ -168,20 +172,20 @@ public class MakeProfileHelper {
     }
 
     private static boolean isAffectedLog4jVersion(String version) {
-        if(version == null) {
+        if (version == null) {
             return true;
         }
         String[] split = version.split("\\.");
-        if(split.length < 2) return true;
-        if(!split[0].equals("2")) return false;
+        if (split.length < 2) return true;
+        if (!split[0].equals("2")) return false;
         return Integer.parseInt(split[1]) < 15;
     }
 
     private static String getLog4jVersion(Path dir) throws IOException {
         Path log4jCore = dir.resolve("org/apache/logging/log4j/log4j-core");
-        if(Files.exists(log4jCore)) {
+        if (Files.exists(log4jCore)) {
             Path target = Files.list(log4jCore).findFirst().orElse(null);
-            if(target != null) {
+            if (target != null) {
                 return target.getFileName().toString();
             }
         }
@@ -192,9 +196,8 @@ public class MakeProfileHelper {
         List<MakeProfileOption> options = new ArrayList<>(2);
         if (Files.exists(dir.resolve("forge.jar"))) {
             options.add(new MakeProfileOptionForge());
-        }
-        else if (Files.exists(dir.resolve("libraries/net/minecraftforge/forge"))) {
-            if(version.compareTo(ClientProfile.Version.MC1122) > 0) {
+        } else if (Files.exists(dir.resolve("libraries/net/minecraftforge/forge"))) {
+            if (version.compareTo(ClientProfile.Version.MC1122) > 0) {
                 options.add(new MakeProfileOptionForge(dir));
             } else {
                 options.add(new MakeProfileOptionForge());
@@ -205,10 +208,10 @@ public class MakeProfileHelper {
         }
         {
             String log4jVersion = getLog4jVersion(dir);
-            if(log4jVersion != null) {
+            if (log4jVersion != null) {
 
                 boolean affected = isAffectedLog4jVersion(log4jVersion);
-                if(Files.exists(dir.resolve("log4j2_custom.xml"))) {
+                if (Files.exists(dir.resolve("log4j2_custom.xml"))) {
                     options.add(new MakeProfileOptionLog4j(affected, "log4j2_custom.xml"));
                 } else {
                     options.add(new MakeProfileOptionLog4j(affected, null));
