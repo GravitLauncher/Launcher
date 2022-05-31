@@ -64,6 +64,9 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             logger.error("WebSocket frame handler hook error", ex);
         }
         if (frame instanceof TextWebSocketFrame) {
+            if(logger.isTraceEnabled()) {
+                logger.trace("Message from {}: {}", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip, ((TextWebSocketFrame) frame).text());
+            }
             try {
                 service.process(ctx, (TextWebSocketFrame) frame, client, context.ip);
             } catch (Throwable ex) {
