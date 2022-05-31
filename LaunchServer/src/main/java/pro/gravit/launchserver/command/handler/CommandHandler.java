@@ -1,17 +1,13 @@
 package pro.gravit.launchserver.command.handler;
 
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.command.basic.BuildCommand;
-import pro.gravit.launchserver.command.basic.RestartCommand;
-import pro.gravit.launchserver.command.basic.StopCommand;
-import pro.gravit.launchserver.command.basic.VersionCommand;
+import pro.gravit.launchserver.command.basic.*;
 import pro.gravit.launchserver.command.hash.*;
 import pro.gravit.launchserver.command.modules.LoadModuleCommand;
 import pro.gravit.launchserver.command.modules.ModulesCommand;
 import pro.gravit.launchserver.command.service.*;
 import pro.gravit.utils.command.BaseCommandCategory;
 import pro.gravit.utils.command.basic.ClearCommand;
-import pro.gravit.utils.command.basic.DebugCommand;
 import pro.gravit.utils.command.basic.GCCommand;
 import pro.gravit.utils.command.basic.HelpCommand;
 
@@ -25,7 +21,7 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         basic.registerCommand("build", new BuildCommand(server));
         basic.registerCommand("stop", new StopCommand(server));
         basic.registerCommand("restart", new RestartCommand(server));
-        basic.registerCommand("debug", new DebugCommand());
+        basic.registerCommand("debug", new DebugCommand(server));
         basic.registerCommand("clear", new ClearCommand(handler));
         basic.registerCommand("gc", new GCCommand());
         basic.registerCommand("loadModule", new LoadModuleCommand(server));

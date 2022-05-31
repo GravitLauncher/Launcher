@@ -156,7 +156,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LogHelper.info("ServerWrapper: LaunchServer address: %s. Title: %s", config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         String[] real_args;
-        if (args.length > 0) {
+        if(config.args != null && config.args.size() > 0) {
+            real_args = config.args.toArray(new String[0]);
+        } else if (args.length > 0) {
             real_args = new String[args.length - 1];
             System.arraycopy(args, 1, real_args, 0, args.length - 1);
         } else real_args = args;
