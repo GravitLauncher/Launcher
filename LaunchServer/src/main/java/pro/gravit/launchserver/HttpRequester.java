@@ -29,6 +29,9 @@ public class HttpRequester {
             if(statusCode < 200 || statusCode >= 300) {
                 return new HttpHelper.HttpOptional<>(null, Launcher.gsonManager.gson.fromJson(response, SimpleError.class), statusCode);
             }
+            if(type == Void.class) {
+                return  new HttpHelper.HttpOptional<>(null, null, statusCode);
+            }
             return new HttpHelper.HttpOptional<>(Launcher.gsonManager.gson.fromJson(response, type), null, statusCode);
         }
     }

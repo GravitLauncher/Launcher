@@ -150,12 +150,12 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
 
     @Override
     public User checkServer(Client client, String username, String serverID) throws IOException {
-        return requester.send(requester.post(checkServerUrl, new CheckServerRequest(username, serverID), null), HttpUser.class).getOrThrow();
+        return requester.send(requester.post(checkServerUrl, new CheckServerRequest(username, serverID), bearerToken), HttpUser.class).getOrThrow();
     }
 
     @Override
     public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
-        var result = requester.send(requester.post(joinServerUrl, new JoinServerRequest(username, accessToken, serverID), null), Void.class);
+        var result = requester.send(requester.post(joinServerUrl, new JoinServerRequest(username, accessToken, serverID), bearerToken), Void.class);
         return result.isSuccessful();
     }
 
