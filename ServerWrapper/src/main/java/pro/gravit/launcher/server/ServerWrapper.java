@@ -6,8 +6,6 @@ import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.config.JsonConfigurable;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
-import pro.gravit.launcher.modules.events.PostInitPhase;
-import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
@@ -15,9 +13,9 @@ import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
-import pro.gravit.launcher.request.auth.RestoreRequest;
 import pro.gravit.launcher.request.update.ProfilesRequest;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
+import pro.gravit.launcher.server.authlib.InstallAuthlib;
 import pro.gravit.launcher.server.launch.ClasspathLaunch;
 import pro.gravit.launcher.server.launch.Launch;
 import pro.gravit.launcher.server.launch.ModuleLaunch;
@@ -27,12 +25,7 @@ import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -110,6 +103,13 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             loadConfig();
             ServerWrapperSetup setup = new ServerWrapperSetup();
             setup.run();
+            System.exit(0);
+        }
+        if (args.length > 1 && args[0].equals("installAuthlib") && !disableSetup) {
+            LogHelper.debug("Read ServerWrapperConfig.json");
+            loadConfig();
+            InstallAuthlib command = new InstallAuthlib();
+            command. run(args[1]);
             System.exit(0);
         }
         LogHelper.debug("Read ServerWrapperConfig.json");
