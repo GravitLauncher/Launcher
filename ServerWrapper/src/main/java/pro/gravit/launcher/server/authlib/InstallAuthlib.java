@@ -19,6 +19,7 @@ public class InstallAuthlib {
         modifierMap = new HashMap<>();
         modifierMap.put("META-INF/libraries.list", new LibrariesLstModifier());
         modifierMap.put("patch.properties", new PatchPropertiesModifier());
+        modifierMap.put("META-INF/download-context", new DownloadContextModifier());
     }
     public void run(String... args) throws Exception {
         boolean deleteAuthlibAfterInstall = false;
