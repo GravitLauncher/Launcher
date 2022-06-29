@@ -8,7 +8,6 @@ import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
-import pro.gravit.launcher.profiles.Texture;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.password.*;
 import pro.gravit.launchserver.LaunchServer;
@@ -84,7 +83,7 @@ public class AuthManager {
             if(client.permissions == null) client.permissions = new ClientPermissions();
             client.permissions.addPerm("launchserver.checkserver");
             client.permissions.addPerm(String.format("launchserver.profile.%s.show", info.serverName));
-            client.setSerializableProperty("launchserver.serverName", info.serverName);
+            client.setProperty("launchserver.serverName", info.serverName);
             return true;
         }
     }

@@ -200,7 +200,7 @@ public class ClientLauncherEntryPoint {
             CommonHelper.newThread("Asset Directory Watcher", true, assetWatcher).start();
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
             if (javaWatcher != null)
-                CommonHelper.newThread("Java Directory Watcher", true, clientWatcher).start();
+                CommonHelper.newThread("Java Directory Watcher", true, javaWatcher).start();
             verifyHDir(assetDir, params.assetHDir, assetMatcher, digest);
             verifyHDir(clientDir, params.clientHDir, clientMatcher, digest);
             if (javaWatcher != null)

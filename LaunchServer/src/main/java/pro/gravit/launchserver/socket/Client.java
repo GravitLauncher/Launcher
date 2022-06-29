@@ -10,7 +10,6 @@ import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client {
     public String auth_id;
@@ -32,7 +31,7 @@ public class Client {
 
     public transient Map<String, Object> properties;
 
-    public Map<String, String> serializableProperties;
+    public Map<String, Object> staticProperties;
 
     public Client() {
         timestamp = System.currentTimeMillis();
@@ -65,14 +64,15 @@ public class Client {
         properties.put(name, object);
     }
 
-    public String getSerializableProperty(String name) {
-        if (serializableProperties == null) serializableProperties = new HashMap<>();
-        return serializableProperties.get(name);
+    @SuppressWarnings("unchecked")
+    public<T> T getStaticProperty(String name) {
+        if (staticProperties == null) staticProperties = new HashMap<>();
+        return (T) staticProperties.get(name);
     }
 
-    public void setSerializableProperty(String name, String value) {
-        if (serializableProperties == null) serializableProperties = new HashMap<>();
-        serializableProperties.put(name, value);
+    public<T> void setStaticProperty(String name, T value) {
+        if (staticProperties == null) staticProperties = new HashMap<>();
+        staticProperties.put(name, value);
     }
 
     public pro.gravit.launchserver.auth.core.User getUser() {
