@@ -11,6 +11,8 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
+import java.util.HashMap;
+
 public class ExitResponse extends SimpleResponse {
     public boolean exitAll;
     public String username;
@@ -20,6 +22,9 @@ public class ExitResponse extends SimpleResponse {
         Client chClient = wsHandler.getClient();
         Client newCusClient = new Client();
         newCusClient.checkSign = chClient.checkSign;
+        if(chClient.staticProperties != null) {
+            newCusClient.staticProperties = new HashMap<>(chClient.staticProperties);
+        }
         wsHandler.setClient(newCusClient);
         ExitRequestEvent event = new ExitRequestEvent(reason);
         event.requestUUID = RequestEvent.eventUUID;
