@@ -17,6 +17,7 @@ import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportProperties;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportTextures;
+import pro.gravit.launchserver.helper.HttpHelper;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
@@ -152,7 +153,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
         }
         try {
             return requester.send(requester.post(getHardwareInfoByPublicKeyUrl, new HardwareRequest(publicKey),
-                    null), HttpUserHardware.class).getOrThrow();
+                    bearerToken), HttpUserHardware.class).getOrThrow();
         } catch (IOException e) {
             logger.error(e);
             return null;
@@ -165,8 +166,10 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             return null;
         }
         try {
-            return requester.send(requester.post(getHardwareInfoByDataUrl, new HardwareRequest(new HttpUserHardware(info)),
-                    null), HttpUserHardware.class).getOrThrow();
+            HttpHelper.HttpOptional<HttpUserHardware, HttpRequester.SimpleError> hardware = requester.send(requester.post(getHardwareInfoByDataUrl, new HardwareRequest(new HttpUserHardware(info)),
+                    bearerToken), HttpUserHardware.class);
+            //should return null if not found
+            return hardware.isSuccessful() ? hardware.getOrThrow() : null;
         } catch (IOException e) {
             logger.error(e);
             return null;
@@ -180,7 +183,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
         }
         try {
             return requester.send(requester.post(getHardwareInfoByIdUrl, new HardwareRequest(new HttpUserHardware(Long.parseLong(id))),
-                    null), HttpUserHardware.class).getOrThrow();
+                    bearerToken), HttpUserHardware.class).getOrThrow();
         } catch (IOException | NumberFormatException e) {
             logger.error(e);
             return null;
@@ -194,7 +197,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
         }
         try {
             return requester.send(requester.post(createHardwareInfoUrl, new HardwareRequest(new HttpUserHardware(info, publicKey, false)),
-                    null), HttpUserHardware.class).getOrThrow();
+                    bearerToken), HttpUserHardware.class).getOrThrow();
         } catch (IOException e) {
             logger.error(e);
             return null;
@@ -207,7 +210,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             return;
         }
         try {
-            requester.send(requester.post(connectUserAndHardwareUrl, new HardwareRequest(userSession, hardware), null), Void.class);
+            requester.send(requester.post(connectUserAndHardwareUrl, new HardwareRequest(userSession, hardware), bearerToken), Void.class);
         } catch (IOException e) {
             logger.error(e);
         }
@@ -219,7 +222,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             return;
         }
         try {
-            requester.send(requester.post(addPublicKeyToHardwareInfoUrl, new HardwareRequest(hardware, publicKey), null), Void.class);
+            requester.send(requester.post(addPublicKeyToHardwareInfoUrl, new HardwareRequest(hardware, publicKey), bearerToken), Void.class);
         } catch (IOException e) {
             logger.error(e);
         }
@@ -232,7 +235,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
         }
         try {
             return requester.send(requester.post(getUsersByHardwareInfoUrl, new HardwareRequest(hardware),
-                    null), List.class).getOrThrow();
+                    bearerToken), List.class).getOrThrow();
         } catch (IOException e) {
             logger.error(e);
             return null;
@@ -245,7 +248,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             return;
         }
         try {
-            requester.send(requester.post(banHardwareUrl, new HardwareRequest(hardware), null), Void.class);
+            requester.send(requester.post(banHardwareUrl, new HardwareRequest(hardware), bearerToken), Void.class);
         } catch (IOException e) {
             logger.error(e);
         }
@@ -257,7 +260,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             return;
         }
         try {
-            requester.send(requester.post(unbanHardwareUrl, new HardwareRequest(hardware), null), Void.class);
+            requester.send(requester.post(unbanHardwareUrl, new HardwareRequest(hardware), bearerToken), Void.class);
         } catch (IOException e) {
             logger.error(e);
         }
@@ -534,6 +537,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
                     ", permissions=" + permissions +
                     ", assets=" + getAssets() +
                     ", properties=" + properties +
+                    ", hwidId=" + hwidId +
                     '}';
         }
 
