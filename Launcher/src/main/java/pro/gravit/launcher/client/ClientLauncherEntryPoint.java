@@ -3,10 +3,10 @@ package pro.gravit.launcher.client;
 import pro.gravit.launcher.*;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
+import pro.gravit.launcher.api.KeyService;
 import pro.gravit.launcher.client.events.client.*;
 import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
 import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
-import pro.gravit.launcher.guard.LauncherGuardManager;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
@@ -15,7 +15,6 @@ import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.modules.LauncherModulesManager;
 import pro.gravit.launcher.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
-import pro.gravit.launcher.patches.FMLPatcher;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionClassPath;
@@ -26,7 +25,6 @@ import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.RequestService;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
-import pro.gravit.launcher.request.uuid.BatchProfileByUsernameRequest;
 import pro.gravit.launcher.request.uuid.ProfileByUUIDRequest;
 import pro.gravit.launcher.request.uuid.ProfileByUsernameRequest;
 import pro.gravit.launcher.request.websockets.OfflineRequestService;
@@ -87,7 +85,6 @@ public class ClientLauncherEntryPoint {
         ConsoleManager.initConsole();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         engine.readKeys();
-        LauncherGuardManager.initGuard(true);
         LogHelper.debug("Reading ClientLauncher params");
         ClientLauncherProcess.ClientParams params = readParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
         if (params.profile.getClassLoaderConfig() != ClientProfile.ClassLoaderConfig.AGENT) {
@@ -143,13 +140,14 @@ public class ClientLauncherEntryPoint {
                 }
             };
         }
+        LogHelper.debug("Natives dir %s", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
             ClientClassLoader classLoader = new ClientClassLoader(classpathURLs.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
             System.setProperty("java.class.path", classpath.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator)));
             ClientLauncherEntryPoint.classLoader = classLoader;
             Thread.currentThread().setContextClassLoader(classLoader);
-            classLoader.nativePath = clientDir.resolve("natives").toString();
+            classLoader.nativePath = params.nativesDir;
             LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
             ClientService.classLoader = classLoader;
             ClientService.nativePath = classLoader.nativePath;
@@ -162,7 +160,7 @@ public class ClientLauncherEntryPoint {
                 LauncherAgent.addJVMClassPath(Paths.get(url.toURI()));
             }
             ClientService.instrumentation = LauncherAgent.inst;
-            ClientService.nativePath = clientDir.resolve("natives").toString();
+            ClientService.nativePath = params.nativesDir;
             LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
             ClientService.classLoader = classLoader;
             ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
@@ -170,9 +168,11 @@ public class ClientLauncherEntryPoint {
             ClientLauncherEntryPoint.classLoader = ClassLoader.getSystemClassLoader();
             ClientService.classLoader = ClassLoader.getSystemClassLoader();
             ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
+            ClientService.nativePath = params.nativesDir;
         }
         AuthService.username = params.playerProfile.username;
         AuthService.uuid = params.playerProfile.uuid;
+        KeyService.serverRsaPublicKey = Launcher.getConfig().rsaPublicKey;
         if (params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
             CommonHelper.newThread("Client Launcher Thread", true, () -> {
                 try {
@@ -251,28 +251,26 @@ public class ClientLauncherEntryPoint {
         HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);
         HashedDir.Diff diff = hdir.diff(currentHDir, matcher);
         if (!diff.isSame()) {
-            if (LogHelper.isDebugEnabled()) {
-                diff.extra.walk(File.separator, (e, k, v) -> {
-                    if (v.getType().equals(HashedEntry.Type.FILE)) {
-                        LogHelper.error("Extra file %s", e);
-                    } else LogHelper.error("Extra %s", e);
-                    return HashedDir.WalkAction.CONTINUE;
-                });
-                diff.mismatch.walk(File.separator, (e, k, v) -> {
-                    if (v.getType().equals(HashedEntry.Type.FILE)) {
-                        LogHelper.error("Mismatch file %s", e);
-                    } else LogHelper.error("Mismatch %s", e);
-                    return HashedDir.WalkAction.CONTINUE;
-                });
-            }
+            diff.extra.walk(File.separator, (e, k, v) -> {
+                if (v.getType().equals(HashedEntry.Type.FILE)) {
+                    LogHelper.error("Extra file %s", e);
+                } else LogHelper.error("Extra %s", e);
+                return HashedDir.WalkAction.CONTINUE;
+            });
+            diff.mismatch.walk(File.separator, (e, k, v) -> {
+                if (v.getType().equals(HashedEntry.Type.FILE)) {
+                    LogHelper.error("Mismatch file %s", e);
+                } else LogHelper.error("Mismatch %s", e);
+                return HashedDir.WalkAction.CONTINUE;
+            });
             throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
         }
     }
 
     public static boolean checkJVMBitsAndVersion(int minVersion, int recommendVersion, int maxVersion, boolean showMessage) {
         boolean ok = true;
-        if (JVMHelper.JVM_BITS != JVMHelper.OS_BITS) {
-            String error = String.format("У Вас установлена Java %d, но Ваша система определена как %d. Установите Java правильной разрядности", JVMHelper.JVM_BITS, JVMHelper.OS_BITS);
+        if (JVMHelper.JVM_BITS == 64 && JVMHelper.ARCH_TYPE == JVMHelper.ARCH.X86) {
+            String error = "У Вас установлена Java x64, но Ваша система определена как x32. Установите Java правильной разрядности";
             LogHelper.error(error);
             if (showMessage)
                 JOptionPane.showMessageDialog(null, error);
@@ -282,7 +280,7 @@ public class ClientLauncherEntryPoint {
         LogHelper.info(jvmVersion);
         int version = JVMHelper.getVersion();
         if (version < minVersion || version > maxVersion) {
-            String error = String.format("У Вас установлена Java %s. Для правильной работы необходима Java %d", JVMHelper.RUNTIME_MXBEAN.getVmVersion(), recommendVersion);
+            String error = String.format("У Вас установлена Java %d, но этот клиент требует Java %d", JVMHelper.getVersion(), recommendVersion);
             LogHelper.error(error);
             if (showMessage)
                 JOptionPane.showMessageDialog(null, error);
@@ -347,7 +345,6 @@ public class ClientLauncherEntryPoint {
                 LogHelper.dev("ClassLoader URL: %s", u.toString());
             }
         }
-        FMLPatcher.apply();
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessPreInvokeMainClassEvent(params, profile, args));
         // Invoke main method
         try {

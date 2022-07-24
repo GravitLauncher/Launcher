@@ -18,7 +18,11 @@ public class MakeProfileHelper {
         ClientProfileBuilder builder = new ClientProfileBuilder();
         builder.setVersion(version.name);
         builder.setDir(title);
-        builder.setAssetDir("asset" + version.name);
+        if(findOption(options, MakeProfileOptionGlobalAssets.class).isPresent()) {
+            builder.setAssetDir("assets");
+        } else {
+            builder.setAssetDir("asset" + version.name);
+        }
         builder.setAssetIndex(version.name);
         builder.setInfo("Информация о сервере");
         builder.setTitle(title);
@@ -42,11 +46,16 @@ public class MakeProfileHelper {
         Set<OptionalFile> optionals = new HashSet<>();
         jvmArgs.add("-XX:+DisableAttachMechanism");
         // Official Mojang launcher java arguments
-        jvmArgs.add("-XX:+UseG1GC");
-        jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
-        jvmArgs.add("-XX:G1NewSizePercent=20");
-        jvmArgs.add("-XX:MaxGCPauseMillis=50");
-        jvmArgs.add("-XX:G1HeapRegionSize=32M");
+        if(version.compareTo(ClientProfile.Version.MC112) <= 0) {
+            jvmArgs.add("-XX:+UseConcMarkSweepGC");
+            jvmArgs.add("-XX:+CMSIncrementalMode");
+        } else if(version.compareTo(ClientProfile.Version.MC118) <= 0) { // 1.13 - 1.16.5
+            jvmArgs.add("-XX:+UseG1GC");
+            jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
+        } else { // 1.18+
+            jvmArgs.add("-XX:+UseShenandoahGC");
+            jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
+        }
         // -----------
         Optional<MakeProfileOptionForge> forge = findOption(options, MakeProfileOptionForge.class);
         Optional<MakeProfileOptionFabric> fabric = findOption(options, MakeProfileOptionFabric.class);
@@ -192,7 +201,7 @@ public class MakeProfileHelper {
         return null;
     }
 
-    public static MakeProfileOption[] getMakeProfileOptionsFromDir(Path dir, ClientProfile.Version version) throws IOException {
+    public static MakeProfileOption[] getMakeProfileOptionsFromDir(Path dir, ClientProfile.Version version, boolean globalAssets) throws IOException {
         List<MakeProfileOption> options = new ArrayList<>(2);
         if (Files.exists(dir.resolve("forge.jar"))) {
             options.add(new MakeProfileOptionForge());
@@ -299,6 +308,10 @@ public class MakeProfileHelper {
     }
 
     public static class MakeProfileOptionLaunchWrapper implements MakeProfileOption {
+
+    }
+
+    public static class MakeProfileOptionGlobalAssets implements MakeProfileOption {
 
     }
 

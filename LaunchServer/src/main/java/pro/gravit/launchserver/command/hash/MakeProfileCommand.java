@@ -10,6 +10,7 @@ import pro.gravit.launchserver.helper.MakeProfileHelper;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.Writer;
+import java.nio.file.Files;
 
 public class MakeProfileCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
@@ -32,7 +33,7 @@ public class MakeProfileCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 3);
         ClientProfile.Version version = ClientProfile.Version.byName(args[1]);
-        MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(server.updatesDir.resolve(args[2]), version);
+        MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(server.updatesDir.resolve(args[2]), version, Files.exists(server.updatesDir.resolve("assets")));
         for (MakeProfileHelper.MakeProfileOption option : options) {
             logger.info("Detected option {}", option);
         }

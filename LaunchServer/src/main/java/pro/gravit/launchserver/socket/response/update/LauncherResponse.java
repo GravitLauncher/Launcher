@@ -71,7 +71,7 @@ public class LauncherResponse extends SimpleResponse {
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .claim("checkSign", true)
-                .setExpiration(Date.from(LocalDateTime.now().plusHours(8).toInstant(ZoneOffset.UTC)))
+                .setExpiration(Date.from(LocalDateTime.now().plusSeconds(server.config.netty.security.launcherTokenExpire).toInstant(ZoneOffset.UTC)))
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey, SignatureAlgorithm.ES256)
                 .compact();
     }

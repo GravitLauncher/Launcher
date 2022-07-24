@@ -1,5 +1,7 @@
 package pro.gravit.launcher.api;
 
+import pro.gravit.launcher.utils.ApiBridgeService;
+
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 
@@ -11,5 +13,9 @@ public class ClientService {
 
     public static ClassLoader getClassLoader() {
         return classLoader;
+    }
+
+    public static String findLibrary(String name) {
+        return ApiBridgeService.findLibrary(classLoader, name);
     }
 }

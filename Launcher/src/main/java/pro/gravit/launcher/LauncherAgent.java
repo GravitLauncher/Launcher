@@ -1,6 +1,5 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.patches.FMLPatcher;
 import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -30,7 +29,6 @@ public final class LauncherAgent {
         checkAgentStacktrace();
         inst = instrumentation;
         NativeJVMHalt.initFunc();
-        FMLPatcher.apply();
         isAgentStarted = true;
     }
 

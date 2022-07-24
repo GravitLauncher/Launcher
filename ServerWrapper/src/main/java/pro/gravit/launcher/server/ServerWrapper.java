@@ -3,6 +3,7 @@ package pro.gravit.launcher.server;
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.api.KeyService;
 import pro.gravit.launcher.config.JsonConfigurable;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
@@ -24,6 +25,7 @@ import pro.gravit.launcher.server.setup.ServerWrapperSetup;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;
@@ -134,6 +136,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             restore();
             getProfiles();
         }
+        if(config.encodedServerRsaPublicKey != null) {
+            KeyService.serverRsaPublicKey = SecurityHelper.toPublicRSAKey(config.encodedServerRsaPublicKey);
+        }
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
         if (classname.length() == 0) {
             LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.json or first commandline argument");
@@ -231,6 +236,10 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public Map<String, String> extendedTokens;
         public LauncherConfig.LauncherEnvironment env;
         public ModuleConf moduleConf = new ModuleConf();
+
+        public byte[] encodedServerRsaPublicKey;
+
+        public byte[] encodedServerEcPublicKey;
     }
 
     public static final class ModuleConf {

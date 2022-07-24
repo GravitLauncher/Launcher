@@ -108,6 +108,8 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
             results.register("refreshToken", RefreshTokenRequestEvent.class);
             results.register("restore", RestoreRequestEvent.class);
             results.register("additionalData", AdditionalDataRequestEvent.class);
+            results.register("clientProfileKey", FetchClientProfileKeyRequestEvent.class);
+            results.register("getPublicKey", GetPublicKeyRequestEvent.class);
             resultsRegistered = true;
         }
     }

@@ -1,6 +1,7 @@
 package pro.gravit.launcher.client;
 
 import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.client.events.client.ClientProcessBuilderCreateEvent;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -42,42 +44,45 @@ public class ClientLauncherProcess {
     private final transient Boolean[] waitWriteParams = new Boolean[]{false};
     public Path executeFile;
     public Path workDir;
-    public Path javaDir;
-    public int bits;
+    public JavaHelper.JavaVersion javaVersion;
     public boolean useLegacyJavaClassPathProperty;
     public boolean isStarted;
-    public JavaHelper.JavaVersion javaVersion;
     private transient Process process;
 
-    public ClientLauncherProcess(Path executeFile, Path workDir, Path javaDir, String mainClass) {
+    public ClientLauncherProcess(Path executeFile, Path workDir, JavaHelper.JavaVersion javaVersion, String mainClass) {
         this.executeFile = executeFile;
         this.workDir = workDir;
-        this.javaDir = javaDir;
+        this.javaVersion = javaVersion;
         this.mainClass = mainClass;
     }
 
-    public ClientLauncherProcess(Path clientDir, Path assetDir, Path javaDir,
+    public ClientLauncherProcess(Path clientDir, Path assetDir, JavaHelper.JavaVersion javaVersion,
                                  ClientProfile profile, PlayerProfile playerProfile, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
-        this(clientDir, assetDir, javaDir, clientDir.resolve("resourcepacks"), profile, playerProfile, null, accessToken, clientHDir, assetHDir, jvmHDir);
+        this(clientDir, assetDir, javaVersion, clientDir.resolve("resourcepacks"), profile, playerProfile, null, accessToken, clientHDir, assetHDir, jvmHDir);
     }
 
     public ClientLauncherProcess(Path clientDir, Path assetDir,
                                  ClientProfile profile, PlayerProfile playerProfile, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
-        this(clientDir, assetDir, Paths.get(System.getProperty("java.home")), clientDir.resolve("resourcepacks"), profile, playerProfile, null, accessToken, clientHDir, assetHDir, jvmHDir);
+        this(clientDir, assetDir, JavaHelper.JavaVersion.getCurrentJavaVersion(), clientDir.resolve("resourcepacks"), profile, playerProfile, null, accessToken, clientHDir, assetHDir, jvmHDir);
     }
 
-    public ClientLauncherProcess(Path clientDir, Path assetDir, Path javaDir, Path resourcePackDir,
+    public ClientLauncherProcess(Path clientDir, Path assetDir, JavaHelper.JavaVersion javaVersion, Path resourcePackDir,
                                  ClientProfile profile, PlayerProfile playerProfile, OptionalView view, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
+        this.javaVersion = javaVersion;
         this.workDir = clientDir.toAbsolutePath();
-        this.javaDir = javaDir;
-        this.executeFile = IOHelper.resolveJavaBin(this.javaDir);
+        this.executeFile = IOHelper.resolveJavaBin(this.javaVersion.jvmDir);
         this.mainClass = ClientLauncherEntryPoint.class.getName();
         this.params.clientDir = this.workDir.toString();
         this.params.resourcePackDir = resourcePackDir.toAbsolutePath().toString();
         this.params.assetDir = assetDir.toAbsolutePath().toString();
+        Path nativesPath = workDir.resolve("natives").resolve(JVMHelper.OS_TYPE.name).resolve(javaVersion.arch.name);
+        if(!Files.isDirectory(nativesPath)) {
+            nativesPath = workDir.resolve("natives");
+        }
+        this.params.nativesDir = nativesPath.toString();
         this.params.profile = profile;
         this.params.playerProfile = playerProfile;
         this.params.accessToken = accessToken;
@@ -87,16 +92,6 @@ public class ClientLauncherProcess {
         if (view != null) {
             this.params.actions = view.getEnabledActions();
         }
-        try {
-            javaVersion = JavaHelper.JavaVersion.getByPath(javaDir);
-        } catch (IOException e) {
-            LogHelper.error(e);
-            javaVersion = null;
-        }
-        if (javaVersion == null) {
-            javaVersion = JavaHelper.JavaVersion.getCurrentJavaVersion();
-        }
-        this.bits = JVMHelper.JVM_BITS;
         applyClientProfile();
     }
 
@@ -115,7 +110,7 @@ public class ClientLauncherProcess {
                 this.jvmArgs.addAll(((OptionalActionJvmArgs) a).args);
             }
         }
-        this.systemEnv.put("JAVA_HOME", javaDir.toString());
+        this.systemEnv.put("JAVA_HOME", javaVersion.jvmDir.toString());
         Collections.addAll(this.systemClassPath, this.params.profile.getAlternativeClassPath());
         if (params.ram > 0) {
             this.jvmArgs.add("-Xmx" + params.ram + 'M');
@@ -154,10 +149,16 @@ public class ClientLauncherProcess {
             applyJava9Params(processArgs);
         }
         //ADD CLASSPATH
+        processArgs.add(JVMHelper.jvmProperty("java.library.path", this.params.nativesDir));
         if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.AGENT) {
             processArgs.add("-javaagent:".concat(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString()));
         } else if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
             systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(workDir, params.actions, params.profile).map(Path::toString).collect(Collectors.toList()));
+        }
+        if(Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
+            processArgs.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, String.valueOf(LogHelper.isDevEnabled())));
+            processArgs.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, String.valueOf(LogHelper.isDebugEnabled())));
+            processArgs.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, String.valueOf(LogHelper.isStacktraceEnabled())));
         }
         if (useLegacyJavaClassPathProperty) {
             processArgs.add("-Djava.class.path=".concat(String.join(getPathSeparator(), systemClassPath)));
@@ -176,7 +177,7 @@ public class ClientLauncherProcess {
             LogHelper.debug("Commandline: %s", Arrays.toString(processArgs.toArray()));
         ProcessBuilder processBuilder = new ProcessBuilder(processArgs);
         EnvHelper.addEnv(processBuilder);
-        processBuilder.environment().put("JAVA_HOME", javaDir.toAbsolutePath().toString());
+        processBuilder.environment().put("JAVA_HOME", javaVersion.jvmDir.toAbsolutePath().toString());
         processBuilder.environment().putAll(systemEnv);
         processBuilder.directory(workDir.toFile());
         processBuilder.inheritIO();
@@ -255,6 +256,8 @@ public class ClientLauncherProcess {
         public String clientDir;
 
         public String resourcePackDir;
+
+        public String nativesDir;
 
         // Client params
 

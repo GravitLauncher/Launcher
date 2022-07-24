@@ -387,6 +387,16 @@ public final class SecurityHelper {
         }
     }
 
+    public static byte[] sign(byte[] bytes, RSAPrivateKey privateKey) {
+        Signature signature = newRSASignSignature(privateKey);
+        try {
+            signature.update(bytes);
+            return signature.sign();
+        } catch (SignatureException e) {
+            throw new InternalError(e);
+        }
+    }
+
 
     public static String toHex(byte[] bytes) {
         if (bytes == null) {
