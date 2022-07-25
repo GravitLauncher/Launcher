@@ -3,6 +3,7 @@ package pro.gravit.launchserver.auth.core;
 import io.netty.util.internal.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Contract;
 import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
@@ -166,8 +167,9 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             return null;
         }
         try {
-            HttpHelper.HttpOptional<HttpUserHardware, HttpRequester.SimpleError> hardware = requester.send(requester.post(getHardwareInfoByDataUrl, new HardwareRequest(new HttpUserHardware(info)),
-                    bearerToken), HttpUserHardware.class);
+            HttpHelper.HttpOptional<HttpUserHardware, HttpRequester.SimpleError> hardware =
+                    requester.send(requester.post(getHardwareInfoByDataUrl, new HardwareRequest(new HttpUserHardware(info)),
+                            bearerToken), HttpUserHardware.class);
             //should return null if not found
             return hardware.isSuccessful() ? hardware.getOrThrow() : null;
         } catch (IOException e) {
@@ -196,8 +198,8 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             return null;
         }
         try {
-            return requester.send(requester.post(createHardwareInfoUrl, new HardwareRequest(new HttpUserHardware(info, publicKey, false)),
-                    bearerToken), HttpUserHardware.class).getOrThrow();
+            return requester.send(requester.post(createHardwareInfoUrl, new HardwareRequest(new HttpUserHardware(info,
+                    publicKey, false)), bearerToken), HttpUserHardware.class).getOrThrow();
         } catch (IOException e) {
             logger.error(e);
             return null;
@@ -210,7 +212,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             return;
         }
         try {
-            requester.send(requester.post(connectUserAndHardwareUrl, new HardwareRequest(userSession, hardware), bearerToken), Void.class);
+            requester.send(requester.post(connectUserAndHardwareUrl, new HardwareRequest(hardware, userSession), bearerToken), Void.class);
         } catch (IOException e) {
             logger.error(e);
         }
@@ -234,8 +236,8 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             return null;
         }
         try {
-            return requester.send(requester.post(getUsersByHardwareInfoUrl, new HardwareRequest(hardware),
-                    bearerToken), List.class).getOrThrow();
+            return requester.send(requester
+                    .post(getUsersByHardwareInfoUrl, new HardwareRequest(hardware), bearerToken), List.class).getOrThrow();
         } catch (IOException e) {
             logger.error(e);
             return null;
@@ -379,28 +381,24 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
         }
     }
 
-    public static class HardwareRequest {
-        public UserHardware userHardware;
-        public byte[] key;
-        public UserSession userSession;
+    public record HardwareRequest(UserHardware userHardware, byte[] key, UserSession userSession) {
 
         public HardwareRequest(UserHardware userHardware) {
-            this.userHardware = userHardware;
+            this(userHardware, null, null);
         }
 
         public HardwareRequest(UserHardware userHardware, byte[] key) {
-            this.userHardware = userHardware;
-            this.key = key;
+            this(userHardware, key, null);
         }
 
-        public HardwareRequest(UserSession session, UserHardware hardware) {
-            this.userSession = session;
-            this.userHardware = hardware;
+        public HardwareRequest(UserHardware userHardware, UserSession userSession) {
+            this(userHardware, null, userSession);
         }
 
         public HardwareRequest(byte[] key) {
-            this.key = key;
+            this(null, key, null);
         }
+
     }
 
     public class HttpUser implements User, UserSupportTextures, UserSupportProperties, UserSupportHardware {
