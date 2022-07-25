@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.auth.core;
 
-import com.mysql.cj.util.StringUtils;
+import io.netty.util.internal.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.ClientPermissions;
@@ -148,7 +148,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public UserHardware getHardwareInfoByPublicKey(byte[] publicKey) {
-        if(StringUtils.isNullOrEmpty(getHardwareInfoByPublicKeyUrl)) {
+        if(StringUtil.isNullOrEmpty(getHardwareInfoByPublicKeyUrl)) {
             return null;
         }
         try {
@@ -162,7 +162,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public UserHardware getHardwareInfoByData(HardwareReportRequest.HardwareInfo info) {
-        if(StringUtils.isNullOrEmpty(getHardwareInfoByDataUrl)) {
+        if(StringUtil.isNullOrEmpty(getHardwareInfoByDataUrl)) {
             return null;
         }
         try {
@@ -178,7 +178,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public UserHardware getHardwareInfoById(String id) {
-        if(StringUtils.isNullOrEmpty(getHardwareInfoByIdUrl)) {
+        if(StringUtil.isNullOrEmpty(getHardwareInfoByIdUrl)) {
             return null;
         }
         try {
@@ -192,7 +192,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public UserHardware createHardwareInfo(HardwareReportRequest.HardwareInfo info, byte[] publicKey) {
-        if(StringUtils.isNullOrEmpty(createHardwareInfoUrl)) {
+        if(StringUtil.isNullOrEmpty(createHardwareInfoUrl)) {
             return null;
         }
         try {
@@ -206,7 +206,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public void connectUserAndHardware(UserSession userSession, UserHardware hardware) {
-        if(StringUtils.isNullOrEmpty(connectUserAndHardwareUrl)) {
+        if(StringUtil.isNullOrEmpty(connectUserAndHardwareUrl)) {
             return;
         }
         try {
@@ -218,7 +218,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public void addPublicKeyToHardwareInfo(UserHardware hardware, byte[] publicKey) {
-        if(StringUtils.isNullOrEmpty(addPublicKeyToHardwareInfoUrl)) {
+        if(StringUtil.isNullOrEmpty(addPublicKeyToHardwareInfoUrl)) {
             return;
         }
         try {
@@ -230,7 +230,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public Iterable<User> getUsersByHardwareInfo(UserHardware hardware) {
-        if(StringUtils.isNullOrEmpty(getUsersByHardwareInfoUrl)) {
+        if(StringUtil.isNullOrEmpty(getUsersByHardwareInfoUrl)) {
             return null;
         }
         try {
@@ -244,7 +244,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public void banHardware(UserHardware hardware) {
-        if(StringUtils.isNullOrEmpty(banHardwareUrl)) {
+        if(StringUtil.isNullOrEmpty(banHardwareUrl)) {
             return;
         }
         try {
@@ -256,7 +256,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public void unbanHardware(UserHardware hardware) {
-        if(StringUtils.isNullOrEmpty(unbanHardwareUrl)) {
+        if(StringUtil.isNullOrEmpty(unbanHardwareUrl)) {
             return;
         }
         try {
