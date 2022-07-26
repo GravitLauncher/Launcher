@@ -36,7 +36,6 @@ public class ClientProfileBuilder {
     private UUID uuid;
     private String title;
     private String info;
-    private boolean updateFastCheck = true;
     private String mainClass;
 
     public ClientProfileBuilder setUpdate(List<String> update) {
@@ -194,17 +193,12 @@ public class ClientProfileBuilder {
         return this;
     }
 
-    public ClientProfileBuilder setUpdateFastCheck(boolean updateFastCheck) {
-        this.updateFastCheck = updateFastCheck;
-        return this;
-    }
-
     public ClientProfileBuilder setMainClass(String mainClass) {
         this.mainClass = mainClass;
         return this;
     }
 
     public ClientProfile createClientProfile() {
-        return new ClientProfile(update, updateExclusions, updateShared, updateVerify, updateOptional, jvmArgs, classPath, modulePath, modules, altClassPath, clientArgs, compatClasses, properties, servers, securityManagerConfig, classLoaderConfig, signedClientConfig, runtimeInClientConfig, version, assetIndex, dir, assetDir, recommendJavaVersion, minJavaVersion, maxJavaVersion, warnMissJavaVersion, settings, sortIndex, uuid, title, info, updateFastCheck, mainClass);
+        return new ClientProfile(update, updateExclusions, updateShared, updateVerify, updateOptional, jvmArgs, classPath, modulePath, modules, altClassPath, clientArgs, compatClasses, properties, servers, securityManagerConfig, classLoaderConfig, signedClientConfig, runtimeInClientConfig, version, assetIndex, dir, assetDir, recommendJavaVersion, minJavaVersion, maxJavaVersion, warnMissJavaVersion, settings, sortIndex, uuid, title, info, mainClass);
     }
 }
