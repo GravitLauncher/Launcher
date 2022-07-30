@@ -115,7 +115,9 @@ public class ClientLauncherEntryPoint {
 
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        List<Path> classpath = resolveClassPath(clientDir, params.actions, params.profile).collect(Collectors.toList());
+        List<Path> classpath = resolveClassPath(clientDir, params.actions, params.profile)
+                .filter(x -> !profile.getModulePath().contains(clientDir.relativize(x).toString()))
+                .collect(Collectors.toList());
         List<URL> classpathURLs = classpath.stream().map(IOHelper::toURL).collect(Collectors.toList());
         // Start client with WatchService monitoring
         RequestService service;

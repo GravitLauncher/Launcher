@@ -236,6 +236,9 @@ public class MakeProfileHelper {
         if (Files.exists(dir.resolve("libraries/forge/launchwrapper-1.12-launcherfixed.jar.jar")) || Files.exists(dir.resolve("libraries/net/minecraft/launchwrapper"))) {
             options.add(new MakeProfileOptionLaunchWrapper());
         }
+        if(globalAssets) {
+            options.add(new MakeProfileOptionGlobalAssets());
+        }
         return options.toArray(new MakeProfileOption[0]);
     }
 

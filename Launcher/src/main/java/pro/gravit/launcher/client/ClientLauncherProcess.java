@@ -153,7 +153,10 @@ public class ClientLauncherProcess {
         if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.AGENT) {
             processArgs.add("-javaagent:".concat(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString()));
         } else if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
-            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(workDir, params.actions, params.profile).map(Path::toString).collect(Collectors.toList()));
+            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(workDir, params.actions, params.profile)
+                    .filter(x -> !params.profile.getModulePath().contains(workDir.relativize(x).toString()))
+                    .map(Path::toString)
+                    .collect(Collectors.toList()));
         }
         if(Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
             processArgs.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, String.valueOf(LogHelper.isDevEnabled())));
