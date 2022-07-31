@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.auth.core;
 
-import io.netty.util.internal.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.ClientPermissions;
