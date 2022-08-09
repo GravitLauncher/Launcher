@@ -113,7 +113,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider {
         }
         try {
             return requester.send(requester.post(refreshTokenUrl, new RefreshTokenRequest(refreshToken, context),
-                    null), AuthManager.AuthReport.class).getOrThrow();
+                    null), HttpAuthReport.class).getOrThrow().toAuthReport();
         } catch (IOException e) {
             logger.error(e);
             return null;
