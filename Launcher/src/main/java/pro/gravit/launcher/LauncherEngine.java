@@ -84,17 +84,25 @@ public class LauncherEngine {
         }
     }
 
-    public static void exitLauncher(int code) {
+    public static void beforeExit(int code) {
         try {
             modulesManager.invokeEvent(new ClientExitPhase(code));
         } catch (Throwable ignored) {
         }
+    }
+
+    public static void forceExit(int code) {
         try {
             System.exit(code);
         } catch (Throwable e) //Forge Security Manager?
         {
             NativeJVMHalt.haltA(code);
         }
+    }
+
+    public static void exitLauncher(int code) {
+        beforeExit(code);
+        forceExit(code);
     }
 
     public static void main(String... args) throws Throwable {

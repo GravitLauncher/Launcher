@@ -46,8 +46,8 @@ public final class LauncherConfig extends StreamObject {
     public final String address;
     @LauncherInject("runtimeconfig.secretKeyClient")
     public String secretKeyClient;
-    @LauncherInject("runtimeconfig.oemUnlockKey")
-    public String oemUnlockKey;
+    @LauncherInject("runtimeconfig.unlockSecret")
+    public String unlockSecret;
     @LauncherInject("launchercore.env")
     public LauncherEnvironment environment;
 
@@ -63,7 +63,6 @@ public final class LauncherConfig extends StreamObject {
         projectName = null;
         clientPort = -1;
         secretKeyClient = null;
-        oemUnlockKey = null;
         try {
             trustManager = new LauncherTrustManager(secureConfigCertificates);
         } catch (CertificateException e) {

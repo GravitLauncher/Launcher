@@ -50,6 +50,7 @@ shadowJar {
 dependencies {
     pack project(':LauncherAPI')
     bundle group: 'com.github.oshi', name: 'oshi-core', version: rootProject['verOshiCore']
+    bundle "pro.gravit.utils.enfs:enfs:1.0.0-SNAPSHOT"
     pack group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
 }
 
