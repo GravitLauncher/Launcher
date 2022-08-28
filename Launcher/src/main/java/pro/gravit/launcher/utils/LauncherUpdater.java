@@ -1,13 +1,16 @@
 package pro.gravit.launcher.utils;
 
+import pro.gravit.launcher.AsyncDownloader;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.LauncherInject;
 import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.launcher.request.update.LauncherRequest;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -16,11 +19,17 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class LauncherUpdater {
+    @LauncherInject("launcher.certificatePinning")
+    private static boolean isCertificatePinning;
     public static void nothing() {
 
     }
@@ -39,6 +48,14 @@ public class LauncherUpdater {
         Path pathToLauncher = getLauncherPath();
         Path tempFile = Files.createTempFile("launcher-update-", ".jar");
         URLConnection connection = url.openConnection();
+        if (isCertificatePinning) {
+            HttpsURLConnection connection1 = (HttpsURLConnection) connection;
+            try {
+                connection1.setSSLSocketFactory(AsyncDownloader.makeSSLSocketFactory());
+            } catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | KeyManagementException e) {
+                throw new IOException(e);
+            }
+        }
         try (InputStream in = connection.getInputStream()) {
             IOHelper.transfer(in, tempFile);
         }
