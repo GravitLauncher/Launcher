@@ -134,7 +134,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             if (component.enabled) {
                 Configuration proguard_cfg = new Configuration();
                 if (!checkJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
-                    logger.error("Java path: {} is not JDK! Please install JDK", IOHelper.JVM_DIR);
+                    throw new RuntimeException(String.format("Java path: %s is not JDK! Please install JDK", IOHelper.JVM_DIR));
                 }
                 Path jfxPath = tryFindOpenJFXPath(IOHelper.JVM_DIR);
                 if (checkFXJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
@@ -143,8 +143,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                 } else if (jfxPath != null && checkFXJMods(jfxPath)) {
                     logger.debug("JMods resolved in {}", jfxPath.toString());
                 } else {
-                    logger.error("JavaFX jmods not found. May be install OpenJFX?");
-                    jfxPath = null;
+                    throw new RuntimeException("JavaFX jmods not found. May be install OpenJFX?");
                 }
                 ConfigurationParser parser = new ConfigurationParser(proguardConf.buildConfig(inputFile, outputJar, jfxPath == null ? new Path[0] : new Path[]{jfxPath}),
                         proguardConf.proguard.toFile(), System.getProperties());

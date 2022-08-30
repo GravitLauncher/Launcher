@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -82,6 +83,11 @@ public final class DownloadAssetCommand extends Command {
             try(Writer writer = IOHelper.newWriter(indexPath)) {
                 logger.info("Save {}", indexPath);
                 Launcher.gsonManager.configGson.toJson(assets, writer);
+            }
+            if(!assetIndex.equals(versionName)) {
+                Path targetPath = assetDir.resolve("indexes").resolve(versionName+".json");
+                logger.info("Copy {} into {}", indexPath, targetPath);
+                Files.copy(indexPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
             }
             List<AsyncDownloader.SizedFile> toDownload = new ArrayList<>(128);
             for(var e : objects.entrySet()) {
