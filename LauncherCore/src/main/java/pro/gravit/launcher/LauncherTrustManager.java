@@ -57,6 +57,7 @@ public class LauncherTrustManager {
             final Map<String, Certificate> jdkTrustStore = getDefaultKeyStore();
             // Создание нового KeyStore с дополнительными сертификатами.
             final KeyStore mergedTrustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            mergedTrustStore.load(null, new char[0]);
 
             // добавление дополнительных сертификатов в новый KeyStore
             Arrays.stream(trustSigners).forEach(cert -> setCertificateEntry(mergedTrustStore, "injected-certificate" + UUID.randomUUID(), cert));
@@ -73,7 +74,7 @@ public class LauncherTrustManager {
             // Установка контекста по умолчанию
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
             LogHelper.info("Successfully injected certificates to truststore");
-        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | IOException | CertificateException e) {
             LogHelper.error("Error while modify existing keystore");
         }
     }
