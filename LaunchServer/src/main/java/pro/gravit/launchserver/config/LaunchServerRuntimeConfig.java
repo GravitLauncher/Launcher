@@ -8,7 +8,7 @@ public class LaunchServerRuntimeConfig {
     private transient final Logger logger = LogManager.getLogger();
     public String passwordEncryptKey;
     public String runtimeEncryptKey;
-    public String oemUnlockKey;
+    public String unlockSecret;
     public String registerApiKey;
     public String clientCheckSecret;
 

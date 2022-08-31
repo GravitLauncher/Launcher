@@ -60,10 +60,10 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         final WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             final TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            clientJSONPoint.onMessage(textFrame.text());
             if (LogHelper.isDevEnabled()) {
                 LogHelper.dev("Message: %s", textFrame.text());
             }
+            clientJSONPoint.onMessage(textFrame.text());
             // uncomment to print request
             // logger.info(textFrame.text());
         } else if ((frame instanceof PingWebSocketFrame)) {

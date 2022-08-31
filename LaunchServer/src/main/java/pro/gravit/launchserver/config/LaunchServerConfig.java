@@ -45,7 +45,7 @@ public final class LaunchServerConfig {
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
-        newConfig.mirrors = new String[]{"https://mirror.gravit.pro/5.2.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
+        newConfig.mirrors = new String[]{"https://mirror.gravit.pro/5.3.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         newConfig.launch4j = new LaunchServerConfig.ExeConf();
         newConfig.launch4j.enabled = false;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
@@ -168,9 +168,9 @@ public final class LaunchServerConfig {
             boolean updateMirror = Boolean.getBoolean("launchserver.config.disableUpdateMirror");
             if(!updateMirror) {
                 for(int i=0;i < mirrors.length;++i) {
-                    if("https://mirror.gravit.pro/".equals(mirrors[i])) {
-                        logger.warn("Replace mirror 'https://mirror.gravit.pro/' to 'https://mirror.gravit.pro/5.2.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'");
-                        mirrors[i] = "https://mirror.gravit.pro/5.2.x/";
+                    if("https://mirror.gravit.pro/5.2.x/".equals(mirrors[i])) {
+                        logger.warn("Replace mirror 'https://mirror.gravit.pro/5.2.x/' to 'https://mirror.gravit.pro/5.3.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'");
+                        mirrors[i] = "https://mirror.gravit.pro/5.3.x/";
                     }
                 }
             }
@@ -278,8 +278,6 @@ public final class LaunchServerConfig {
 
     public static class NettyConfig {
         public boolean fileServerEnabled;
-        @Deprecated
-        public boolean sendExceptionEnabled;
         public boolean ipForwarding;
         public boolean disableWebApiInterface;
         public boolean showHiddenFiles;

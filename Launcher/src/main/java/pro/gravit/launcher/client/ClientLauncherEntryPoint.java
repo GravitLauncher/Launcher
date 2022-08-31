@@ -202,10 +202,10 @@ public class ClientLauncherEntryPoint {
             CommonHelper.newThread("Client Directory Watcher", true, clientWatcher).start();
             if (javaWatcher != null)
                 CommonHelper.newThread("Java Directory Watcher", true, javaWatcher).start();
-            verifyHDir(assetDir, params.assetHDir, assetMatcher, false);
-            verifyHDir(clientDir, params.clientHDir, clientMatcher, false);
+            verifyHDir(assetDir, params.assetHDir, assetMatcher, false, false);
+            verifyHDir(clientDir, params.clientHDir, clientMatcher, false, true);
             if (javaWatcher != null)
-                verifyHDir(javaDir, params.javaHDir, null, false);
+                verifyHDir(javaDir, params.javaHDir, null, false, true);
             LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
             launch(profile, params);
         }
@@ -244,14 +244,14 @@ public class ClientLauncherEntryPoint {
         });
     }
 
-    public static void verifyHDir(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest) throws IOException {
+    public static void verifyHDir(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest, boolean checkExtra) throws IOException {
         //if (matcher != null)
         //    matcher = matcher.verifyOnly();
 
         // Hash directory and compare (ignore update-only matcher entries, it will break offline-mode)
         HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);
         HashedDir.Diff diff = hdir.diff(currentHDir, matcher);
-        if (!diff.isSame()) {
+        if (!diff.mismatch.isEmpty() || (checkExtra && !diff.extra.isEmpty())) {
             diff.extra.walk(File.separator, (e, k, v) -> {
                 if (v.getType().equals(HashedEntry.Type.FILE)) {
                     LogHelper.error("Extra file %s", e);
