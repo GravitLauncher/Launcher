@@ -2,21 +2,34 @@ package pro.gravit.launcher;
 
 import pro.gravit.utils.helper.LogHelper;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class LauncherTrustManager {
     private final X509Certificate[] trustSigners;
     private final List<X509Certificate> trustCache = new ArrayList<>();
 
+    @LauncherInject("launcher.certificatePinning")
+    private static boolean isCertificatePinning;
+
     public LauncherTrustManager(X509Certificate[] trustSigners) {
         this.trustSigners = trustSigners;
+        if (requireCustomTrustStore()) {
+            injectCertificates();
+        }
     }
 
     public LauncherTrustManager(List<byte[]> encodedCertificate) throws CertificateException {
@@ -29,6 +42,95 @@ public class LauncherTrustManager {
                 return null;
             }
         }).toArray(X509Certificate[]::new);
+        if (requireCustomTrustStore()) {
+            injectCertificates();
+        }
+    }
+
+    private boolean requireCustomTrustStore() {
+        return trustSigners != null && trustSigners.length != 0 && isCertificatePinning;
+    }
+
+    private void injectCertificates() {
+        try {
+            // Получение списка всех существующих и действительных сертификатов из стандартного KeyStore JVM
+            final Map<String, Certificate> jdkTrustStore = getDefaultKeyStore();
+            // Создание нового KeyStore с дополнительными сертификатами.
+            final KeyStore mergedTrustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            mergedTrustStore.load(null, new char[0]);
+
+            // добавление дополнительных сертификатов в новый KeyStore
+            Arrays.stream(trustSigners).forEach(cert -> setCertificateEntry(mergedTrustStore, "injected-certificate" + UUID.randomUUID(), cert));
+
+            // добавление стандартных сертификатов в новый KeyStore
+            jdkTrustStore.keySet().forEach(key -> setCertificateEntry(mergedTrustStore, key, jdkTrustStore.get(key)));
+
+            // Инициализация контекста. В случае неудачи допустимо прерывание процесса, но сертификаты добавлены не будут
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(mergedTrustStore);
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
+
+            // Установка контекста по умолчанию
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+            LogHelper.info("Successfully injected certificates to truststore");
+        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | IOException | CertificateException e) {
+            LogHelper.error("Error while modify existing keystore");
+        }
+    }
+
+    /**
+     * Получение набора стандартных сертификатов, вшитых в текущую сессию JVM
+     */
+    private static Map<String, Certificate> getDefaultKeyStore() {
+        // init existing keystore
+        final Map<String, Certificate> jdkTrustStore = new HashMap<>();
+        try {
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            Path ksPath = Paths.get(System.getProperty("java.home"), "lib", "security", "cacerts");
+            keyStore.load(Files.newInputStream(ksPath), "changeit".toCharArray());
+
+            // getting all JDK/JRE certificates
+            extractAllCertsAndPutInMap(keyStore, jdkTrustStore);
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
+            LogHelper.warning("Error while loading existing keystore");
+        }
+        return jdkTrustStore;
+    }
+
+    /**
+     * Извлечение существующих сертификатов из стандартного KeyStore текущий сессии JVM. Процесс не должен прерываться в случае неудачи
+     */
+    private static void extractAllCertsAndPutInMap(KeyStore keyStore, Map<String, Certificate> placeToExport) {
+        try {
+            Collections.list(keyStore.aliases()).forEach(key -> extractCertAndPutInMap(keyStore, key, placeToExport));
+        } catch (KeyStoreException e) {
+            LogHelper.error("Error during extraction certificates from default keystore");
+        }
+    }
+
+    /**
+     * Добавление сертификата с именем name в KeyStore. Не должно прерывать общий процесс инъекции сертификатов, в случае неудачи.
+     */
+    private static void setCertificateEntry(KeyStore keyStore, String name, Certificate cert) {
+        try {
+            keyStore.setCertificateEntry(name, cert);
+        } catch (KeyStoreException e) {
+            LogHelper.warning("Something went wrong while adding certificate " + name);
+        }
+    }
+
+    /**
+     * Извлечение существующего сертификата из стандартного KeyStore текущий сессии JVM. Процесс не должен прерываться в случае неудачи
+     */
+    private static void extractCertAndPutInMap(KeyStore keyStoreFromExtract, String key, Map<String, Certificate> placeToExtract) {
+        try {
+            if (keyStoreFromExtract.containsAlias(key)) {
+                placeToExtract.put(key, keyStoreFromExtract.getCertificate(key));
+            }
+        } catch (KeyStoreException e) {
+            LogHelper.warning("Error while extracting certificate " + key);
+        }
     }
 
     public CheckClassResult checkCertificates(X509Certificate[] certs, CertificateChecker checker) {
