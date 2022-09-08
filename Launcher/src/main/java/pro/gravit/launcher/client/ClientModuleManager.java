@@ -7,6 +7,8 @@ import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 
 public final class ClientModuleManager extends SimpleModuleManager {
     public ClientModuleManager() {
@@ -26,6 +28,10 @@ public final class ClientModuleManager extends SimpleModuleManager {
     @Override
     public LauncherModule loadModule(LauncherModule module) {
         return super.loadModule(module);
+    }
+
+    public List<LauncherModule> getModules() {
+        return Collections.unmodifiableList(modules);
     }
 
     @Override

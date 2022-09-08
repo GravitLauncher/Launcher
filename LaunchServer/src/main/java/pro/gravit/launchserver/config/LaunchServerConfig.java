@@ -45,9 +45,9 @@ public final class LaunchServerConfig {
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
-        newConfig.mirrors = new String[]{"https://mirror.gravit.pro/5.2.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
+        newConfig.mirrors = new String[]{"https://mirror.gravit.pro/5.3.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         newConfig.launch4j = new LaunchServerConfig.ExeConf();
-        newConfig.launch4j.enabled = true;
+        newConfig.launch4j.enabled = false;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
         newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
@@ -168,9 +168,9 @@ public final class LaunchServerConfig {
             boolean updateMirror = Boolean.getBoolean("launchserver.config.disableUpdateMirror");
             if(!updateMirror) {
                 for(int i=0;i < mirrors.length;++i) {
-                    if("https://mirror.gravit.pro/".equals(mirrors[i])) {
-                        logger.warn("Replace mirror 'https://mirror.gravit.pro/' to 'https://mirror.gravit.pro/5.2.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'");
-                        mirrors[i] = "https://mirror.gravit.pro/5.2.x/";
+                    if("https://mirror.gravit.pro/5.2.x/".equals(mirrors[i])) {
+                        logger.warn("Replace mirror 'https://mirror.gravit.pro/5.2.x/' to 'https://mirror.gravit.pro/5.3.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'");
+                        mirrors[i] = "https://mirror.gravit.pro/5.3.x/";
                     }
                 }
             }
@@ -278,8 +278,6 @@ public final class LaunchServerConfig {
 
     public static class NettyConfig {
         public boolean fileServerEnabled;
-        @Deprecated
-        public boolean sendExceptionEnabled;
         public boolean ipForwarding;
         public boolean disableWebApiInterface;
         public boolean showHiddenFiles;
@@ -289,6 +287,8 @@ public final class LaunchServerConfig {
         public String address;
         public Map<String, LaunchServerConfig.NettyUpdatesBind> bindings = new HashMap<>();
         public NettyPerformanceConfig performance;
+
+        public NettySecurityConfig security = new NettySecurityConfig();
         public NettyBindAddress[] binds;
         public LogLevel logLevel = LogLevel.DEBUG;
     }
@@ -298,7 +298,6 @@ public final class LaunchServerConfig {
         public int bossThread;
         public int workerThread;
         public int schedulerThread;
-        public long sessionLifetimeMs = 24 * 60 * 60 * 1000;
         public int maxWebSocketRequestBytes = 1024 * 1024;
     }
 
@@ -310,5 +309,12 @@ public final class LaunchServerConfig {
             this.address = address;
             this.port = port;
         }
+    }
+
+    public static class NettySecurityConfig {
+        public long hardwareTokenExpire = 60 * 60 * 8;
+        public long publicKeyTokenExpire = 60 * 60 * 8;
+
+        public long launcherTokenExpire = 60 * 60 * 8;
     }
 }

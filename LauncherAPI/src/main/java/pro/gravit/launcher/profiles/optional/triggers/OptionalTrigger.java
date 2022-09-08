@@ -13,6 +13,7 @@ public abstract class OptionalTrigger {
         if (!isRegisteredProviders) {
             providers.register("java", JavaTrigger.class);
             providers.register("os", OSTrigger.class);
+            providers.register("arch", ArchTrigger.class);
             isRegisteredProviders = true;
         }
     }

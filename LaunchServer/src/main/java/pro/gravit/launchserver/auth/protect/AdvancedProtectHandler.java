@@ -122,7 +122,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 8))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * server.config.netty.security.hardwareTokenExpire))
                 .claim("hardware", hardware.getId())
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
@@ -132,7 +132,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 8))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * server.config.netty.security.publicKeyTokenExpire))
                 .claim("publicKey", Base64.getEncoder().encodeToString(publicKey))
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();

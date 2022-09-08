@@ -16,25 +16,7 @@ import java.util.regex.Pattern;
 
 public final class CommonHelper {
 
-    private static ScriptEngineFactory nashornFactory;
-
-    static {
-        try {
-            ScriptEngineManager scriptManager = new ScriptEngineManager();
-            nashornFactory = getEngineFactories(scriptManager);
-        } catch (Throwable e) {
-            nashornFactory = null;
-        }
-    }
-
     private CommonHelper() {
-    }
-
-    private static ScriptEngineFactory getEngineFactories(ScriptEngineManager manager) {
-        // Метод похож на костыль но таковым не является, ибо единоразовое получение фактории быстрее, чем её переполучение на ходу.
-        for (ScriptEngineFactory fact : manager.getEngineFactories())
-            if (fact.getNames().contains("nashorn") || fact.getNames().contains("Nashorn")) return fact;
-        return null;
     }
 
     public static String low(String s) {
@@ -57,11 +39,9 @@ public final class CommonHelper {
         return tmp != null ? tmp : from;
     }
 
+    @Deprecated
     public static ScriptEngine newScriptEngine() {
-        if (nashornFactory == null) {
-            throw new UnsupportedOperationException("ScriptEngine not supported");
-        }
-        return nashornFactory.getScriptEngine();
+        throw new UnsupportedOperationException("ScriptEngine not supported");
     }
 
     public static Thread newThread(String name, boolean daemon, Runnable runnable) {

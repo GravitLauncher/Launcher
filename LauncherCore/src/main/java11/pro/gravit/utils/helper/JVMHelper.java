@@ -22,7 +22,12 @@ public final class JVMHelper {
     public static final OS OS_TYPE = OS.byName(OPERATING_SYSTEM_MXBEAN.getName());
     // System properties
     public static final String OS_VERSION = OPERATING_SYSTEM_MXBEAN.getVersion();
+
+    @Deprecated
     public static final int OS_BITS = getCorrectOSArch();
+
+    public static final ARCH ARCH_TYPE = getArch(System.getProperty("os.arch"));
+
     public static final int JVM_BITS = Integer.parseInt(System.getProperty("sun.arch.data.model"));
     // Public static fields
     public static final Runtime RUNTIME = Runtime.getRuntime();
@@ -39,6 +44,24 @@ public final class JVMHelper {
     }
 
     private JVMHelper() {
+    }
+
+    public enum ARCH {
+        X86("x86"), X86_64("x86-64"), ARM64("arm64"), ARM32("arm32");
+
+        public final String name;
+
+        ARCH(String name) {
+            this.name = name;
+        }
+    }
+
+    public static ARCH getArch(String arch) {
+        if(arch.equals("amd64") || arch.equals("x86-64") || arch.equals("x86_64")) return ARCH.X86_64;
+        if(arch.equals("i386") || arch.equals("i686") || arch.equals("x86")) return ARCH.X86;
+        if(arch.startsWith("armv8") || arch.startsWith("aarch64")) return ARCH.ARM64;
+        if(arch.startsWith("arm") || arch.startsWith("aarch32")) return ARCH.ARM32;
+        throw new InternalError(String.format("Unsupported arch '%s'", arch));
     }
 
     public static int getVersion() {
@@ -108,6 +131,7 @@ public final class JVMHelper {
         }
     }
 
+    @Deprecated
     private static int getCorrectOSArch() {
         // As always, mustdie must die
         if (OS_TYPE == OS.MUSTDIE)
@@ -123,6 +147,7 @@ public final class JVMHelper {
     }
 
 
+    @Deprecated
     public static boolean isJVMMatchesSystemArch() {
         return JVM_BITS == OS_BITS;
     }
@@ -154,10 +179,6 @@ public final class JVMHelper {
 
         // Verify system and java architecture
         LogHelper.debug("Verifying JVM architecture");
-        if (!isJVMMatchesSystemArch()) {
-            LogHelper.warning("Java and OS architecture mismatch");
-            LogHelper.warning("It's recommended to download %d-bit JRE", OS_BITS);
-        }
     }
 
     public enum OS {

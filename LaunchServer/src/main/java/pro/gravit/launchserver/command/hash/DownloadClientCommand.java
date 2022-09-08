@@ -71,7 +71,7 @@ public final class DownloadClientCommand extends Command {
                 if (version.compareTo(ClientProfile.Version.MC164) <= 0) {
                     logger.warn("Minecraft 1.6.4 and below not supported. Use at your own risk");
                 }
-                MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(clientDir, version);
+                MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(clientDir, version, Files.exists(server.updatesDir.resolve("assets")));
                 for (MakeProfileHelper.MakeProfileOption option : options) {
                     logger.debug("Detected option {}", option.getClass().getSimpleName());
                 }

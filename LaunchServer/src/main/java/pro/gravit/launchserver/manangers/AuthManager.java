@@ -16,6 +16,7 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.UserSession;
+import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportKeys;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportProperties;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportTextures;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
@@ -26,7 +27,13 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import javax.crypto.Cipher;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.security.KeyPair;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 public class AuthManager {
@@ -178,6 +185,10 @@ public class AuthManager {
         client.username = username;
         client.type = authType;
         client.uuid = uuid;
+    }
+
+    public UserSessionSupportKeys.ClientProfileKeys createClientProfileKeys(UUID playerUUID) {
+        throw new UnsupportedOperationException("Minecraft 1.19.1 signature"); // TODO
     }
 
     public CheckServerReport checkServer(Client client, String username, String serverID) throws IOException {

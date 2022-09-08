@@ -15,7 +15,7 @@ public class GsonManager {
     public void initGson() {
         gsonBuilder = CommonHelper.newBuilder();
         configGsonBuilder = CommonHelper.newBuilder();
-        configGsonBuilder.setPrettyPrinting();
+        configGsonBuilder.setPrettyPrinting().disableHtmlEscaping();
         registerAdapters(gsonBuilder);
         registerAdapters(configGsonBuilder);
         preConfigGson(configGsonBuilder);

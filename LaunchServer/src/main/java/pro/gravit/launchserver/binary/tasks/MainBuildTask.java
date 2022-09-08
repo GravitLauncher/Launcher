@@ -124,9 +124,8 @@ public class MainBuildTask implements LauncherBuildTask {
                 server.runtime.clientCheckSecret.concat(".").concat(launcherSalt));
         properties.put("runtimeconfig.secureCheckHash", Base64.getEncoder().encodeToString(launcherSecureHash));
         properties.put("runtimeconfig.secureCheckSalt", launcherSalt);
-        //LogHelper.debug("[checkSecure] %s: %s", launcherSalt, Arrays.toString(launcherSecureHash));
-        if (server.runtime.oemUnlockKey == null) server.runtime.oemUnlockKey = SecurityHelper.randomStringToken();
-        properties.put("runtimeconfig.oemUnlockKey", server.runtime.oemUnlockKey);
+        if (server.runtime.unlockSecret == null) server.runtime.unlockSecret = SecurityHelper.randomStringToken();
+        properties.put("runtimeconfig.unlockSecret", server.runtime.unlockSecret);
 
     }
 

@@ -49,7 +49,7 @@ public class ConsoleManager {
     }
 
     public static boolean checkUnlockKey(String key) {
-        return key.equals(Launcher.getConfig().oemUnlockKey);
+        return key.equals(Launcher.getConfig().unlockSecret);
     }
 
     public static boolean unlock() {

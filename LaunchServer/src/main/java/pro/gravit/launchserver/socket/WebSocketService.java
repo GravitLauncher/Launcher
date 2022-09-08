@@ -20,6 +20,7 @@ import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.launchserver.socket.response.auth.*;
 import pro.gravit.launchserver.socket.response.management.FeaturesResponse;
+import pro.gravit.launchserver.socket.response.management.GetPublicKeyResponse;
 import pro.gravit.launchserver.socket.response.management.ServerStatusResponse;
 import pro.gravit.launchserver.socket.response.profile.BatchProfileByUsername;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
@@ -88,6 +89,8 @@ public class WebSocketService {
         providers.register("refreshToken", RefreshTokenResponse.class);
         providers.register("restore", RestoreResponse.class);
         providers.register("additionalData", AdditionalDataResponse.class);
+        providers.register("clientProfileKey", FetchClientProfileKeyResponse.class);
+        providers.register("getPublicKey", GetPublicKeyResponse.class);
     }
 
     public void forEachActiveChannels(BiConsumer<Channel, WebSocketFrameHandler> callback) {

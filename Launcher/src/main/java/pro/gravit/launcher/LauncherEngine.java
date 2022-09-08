@@ -5,10 +5,10 @@ import pro.gravit.launcher.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientExitPhase;
 import pro.gravit.launcher.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.console.GetPublicKeyCommand;
+import pro.gravit.launcher.console.ModulesCommand;
 import pro.gravit.launcher.console.SignDataCommand;
 import pro.gravit.launcher.events.request.*;
-import pro.gravit.launcher.guard.LauncherGuardInterface;
-import pro.gravit.launcher.guard.LauncherGuardManager;
+import pro.gravit.launcher.guard.LauncherGuard;
 import pro.gravit.launcher.guard.LauncherNoGuard;
 import pro.gravit.launcher.guard.LauncherWrapperGuard;
 import pro.gravit.launcher.gui.NoRuntimeProvider;
@@ -28,7 +28,6 @@ import pro.gravit.launcher.request.management.FeaturesRequest;
 import pro.gravit.launcher.request.secure.GetSecureLevelInfoRequest;
 import pro.gravit.launcher.request.secure.SecurityReportRequest;
 import pro.gravit.launcher.request.update.LauncherRequest;
-import pro.gravit.launcher.request.websockets.ClientWebSocketService;
 import pro.gravit.launcher.request.websockets.OfflineRequestService;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.utils.NativeJVMHalt;
@@ -50,7 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LauncherEngine {
     public static ClientLauncherProcess.ClientParams clientParams;
-    public static LauncherGuardInterface guard;
+    public static LauncherGuard guard;
     public static ClientModuleManager modulesManager;
     public final boolean clientInstance;
     // Instance
@@ -85,14 +84,25 @@ public class LauncherEngine {
         }
     }
 
-    public static void exitLauncher(int code) {
-        modulesManager.invokeEvent(new ClientExitPhase(code));
+    public static void beforeExit(int code) {
+        try {
+            modulesManager.invokeEvent(new ClientExitPhase(code));
+        } catch (Throwable ignored) {
+        }
+    }
+
+    public static void forceExit(int code) {
         try {
             System.exit(code);
         } catch (Throwable e) //Forge Security Manager?
         {
             NativeJVMHalt.haltA(code);
         }
+    }
+
+    public static void exitLauncher(int code) {
+        beforeExit(code);
+        forceExit(code);
     }
 
     public static void main(String... args) throws Throwable {
@@ -143,7 +153,7 @@ public class LauncherEngine {
             throw new SecurityException("JavaAgent found");
     }
 
-    public static LauncherGuardInterface tryGetStdGuard() {
+    public static LauncherGuard tryGetStdGuard() {
         switch (Launcher.getConfig().guardType) {
             case "no":
                 return new LauncherNoGuard();
@@ -264,7 +274,6 @@ public class LauncherEngine {
         registerCommands();
         LauncherEngine.modulesManager.invokeEvent(new ClientEngineInitPhase(this));
         runtimeProvider.preLoad();
-        LauncherGuardManager.initGuard(clientInstance);
         LogHelper.debug("Dir: %s", DirBridge.dir);
         runtimeProvider.run(args);
     }
@@ -272,5 +281,6 @@ public class LauncherEngine {
     private void registerCommands() {
         ConsoleManager.handler.registerCommand("getpublickey", new GetPublicKeyCommand(this));
         ConsoleManager.handler.registerCommand("signdata", new SignDataCommand(this));
+        ConsoleManager.handler.registerCommand("modules", new ModulesCommand());
     }
 }

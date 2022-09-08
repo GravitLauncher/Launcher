@@ -8,7 +8,7 @@ import pro.gravit.utils.helper.UnpackHelper;
 
 import java.io.IOException;
 
-public class LauncherWrapperGuard implements LauncherGuardInterface {
+public class LauncherWrapperGuard implements LauncherGuard {
 
     public LauncherWrapperGuard() {
         try {

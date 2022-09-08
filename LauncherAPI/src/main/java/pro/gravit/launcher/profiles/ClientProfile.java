@@ -80,8 +80,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private ProfileDefaultSettings settings = new ProfileDefaultSettings();
     @LauncherNetworkAPI
-    private boolean updateFastCheck;
-    @LauncherNetworkAPI
     private boolean limited;
     // Client launcher
     @LauncherNetworkAPI
@@ -107,7 +105,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         runtimeInClientConfig = RuntimeInClientConfig.NONE;
     }
 
-    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> modulePath, List<String> modules, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, SecurityManagerConfig securityManagerConfig, ClassLoaderConfig classLoaderConfig, SignedClientConfig signedClientConfig, RuntimeInClientConfig runtimeInClientConfig, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, boolean warnMissJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, boolean updateFastCheck, String mainClass) {
+    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> modulePath, List<String> modules, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, SecurityManagerConfig securityManagerConfig, ClassLoaderConfig classLoaderConfig, SignedClientConfig signedClientConfig, RuntimeInClientConfig runtimeInClientConfig, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, boolean warnMissJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, String mainClass) {
         this.update = update;
         this.updateExclusions = updateExclusions;
         this.updateShared = updateShared;
@@ -139,7 +137,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.uuid = uuid;
         this.title = title;
         this.info = info;
-        this.updateFastCheck = updateFastCheck;
         this.mainClass = mainClass;
     }
 
@@ -316,8 +313,9 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.version = version.name;
     }
 
+    @Deprecated
     public boolean isUpdateFastCheck() {
-        return updateFastCheck;
+        return true;
     }
 
     @Override
@@ -484,7 +482,9 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         MC118("1.18", 757),
         MC1181("1.18.1", 757),
         MC1182("1.18.2", 758),
-        MC119("1.19", 759);
+        MC119("1.19", 759),
+        MC1191("1.19.1", 760),
+        MC1192("1.19.2", 760);
         private static final Map<String, Version> VERSIONS;
 
         static {

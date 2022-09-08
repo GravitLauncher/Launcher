@@ -42,7 +42,6 @@ task javadocJar(type: Jar) {
 shadowJar {
     duplicatesStrategy = 'EXCLUDE'
     archiveClassifier.set(null)
-    relocate 'org.objectweb.asm', 'pro.gravit.repackage.org.objectweb.asm'
     relocate 'io.netty', 'pro.gravit.repackage.io.netty'
     configurations = [project.configurations.pack]
     exclude 'module-info.class'
@@ -52,7 +51,6 @@ dependencies {
     pack project(':LauncherAPI')
     bundle group: 'com.github.oshi', name: 'oshi-core', version: rootProject['verOshiCore']
     pack group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
-    pack group: 'org.ow2.asm', name: 'asm-tree', version: rootProject['verAsm']
 }
 
 task genRuntimeJS(type: Zip) {
