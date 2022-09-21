@@ -2,9 +2,6 @@ package pro.gravit.launchserver.auth.password;
 
 import pro.gravit.utils.ProviderMap;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-
 public abstract class PasswordVerifier {
     public static final ProviderMap<PasswordVerifier> providers = new ProviderMap<>("PasswordVerifier");
     private static boolean registeredProviders = false;
@@ -22,7 +19,7 @@ public abstract class PasswordVerifier {
         }
     }
 
-    public abstract boolean check(String encryptedPassword, String password) throws NoSuchAlgorithmException, InvalidKeySpecException;
+    public abstract boolean check(String encryptedPassword, String password);
 
     public String encrypt(String password) {
         throw new UnsupportedOperationException();
