@@ -59,6 +59,7 @@ public class AsyncDownloader {
     public void downloadFile(URL url, Path target, long size) throws IOException {
         if (isClosed) throw new IOException("Download interrupted");
         URLConnection connection = url.openConnection();
+        connection.addRequestProperty("User-Agent", IOHelper.USER_AGENT);
         if (isCertificatePinning) {
             HttpsURLConnection connection1 = (HttpsURLConnection) connection;
             try {
@@ -74,6 +75,7 @@ public class AsyncDownloader {
 
     public void downloadFile(URL url, Path target) throws IOException {
         URLConnection connection = url.openConnection();
+        connection.addRequestProperty("User-Agent", IOHelper.USER_AGENT);
         if (isCertificatePinning) {
             HttpsURLConnection connection1 = (HttpsURLConnection) connection;
             try {

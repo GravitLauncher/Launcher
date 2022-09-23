@@ -234,6 +234,7 @@ public final class IOHelper {
         HttpURLConnection connection = (HttpURLConnection) newConnection(url);
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
+        connection.addRequestProperty("User-Agent", IOHelper.USER_AGENT);
         return connection;
     }
 

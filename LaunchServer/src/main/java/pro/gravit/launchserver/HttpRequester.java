@@ -3,6 +3,7 @@ package pro.gravit.launchserver;
 import com.google.gson.JsonElement;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.helper.HttpHelper;
+import pro.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -28,6 +29,7 @@ public class HttpRequester {
                     .uri(new URI(url))
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .header("Accept", "application/json")
+                    .header("User-Agent", IOHelper.USER_AGENT)
                     .timeout(Duration.ofMillis(10000));
             if (token != null) {
                 requestBuilder.header("Authorization", "Bearer ".concat(token));
@@ -45,6 +47,7 @@ public class HttpRequester {
                     .uri(new URI(url))
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .header("Accept", "application/json")
+                    .header("User-Agent", IOHelper.USER_AGENT)
                     .timeout(Duration.ofMillis(10000));
             if (token != null) {
                 requestBuilder.header("Authorization", "Bearer ".concat(token));

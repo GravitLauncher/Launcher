@@ -3,6 +3,7 @@ package pro.gravit.launchserver.auth.password;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
+import pro.gravit.utils.helper.IOHelper;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,6 +33,7 @@ public class JsonPasswordVerifier extends PasswordVerifier {
                     .uri(new URI(url))
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .header("Accept", "application/json")
+                    .header("User-Agent", IOHelper.USER_AGENT)
                     .timeout(Duration.ofMillis(10000));
             if (bearerToken != null) {
                 request1.header("Authorization", "Bearer ".concat(bearerToken));
