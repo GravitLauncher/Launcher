@@ -11,14 +11,12 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.jar.JarFile;
 
 public class ServerWrapperSetup {
@@ -62,7 +60,7 @@ public class ServerWrapperSetup {
         wrapper.config.mainclass = mainClassName;
         boolean altMode = false;
         for (int i = 0; i < 10; ++i) {
-            if(!Request.isAvailable() || Request.getRequestService().isClosed()) {
+            if (!Request.isAvailable() || Request.getRequestService().isClosed()) {
                 System.out.println("Print launchserver websocket host( ws://host:port/api ):");
                 wrapper.config.address = commands.commandHandler.readLine();
                 StdWebSocketService service;
@@ -87,12 +85,12 @@ public class ServerWrapperSetup {
                 break;
             } catch (Throwable e) {
                 LogHelper.error(e);
-                if(Request.isAvailable() && Request.getRequestService() instanceof AutoCloseable) {
+                if (Request.isAvailable() && Request.getRequestService() instanceof AutoCloseable) {
                     ((AutoCloseable) Request.getRequestService()).close();
                 }
             }
         }
-        if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfile.Version.MC118) >= 0) {
+        if (wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfile.Version.MC118) >= 0) {
             LogHelper.info("Switch to alternative start mode (1.18)");
             wrapper.config.classpath.add(jarName);
             wrapper.config.classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;
@@ -129,7 +127,7 @@ public class ServerWrapperSetup {
             writer.append("-cp ");
             String pathServerWrapper = IOHelper.getCodeSource(ServerWrapper.class).getFileName().toString();
             writer.append(pathServerWrapper);
-            if(!altMode) {
+            if (!altMode) {
                 if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
                     writer.append(";");
                 } else writer.append(":");
@@ -139,8 +137,8 @@ public class ServerWrapperSetup {
             writer.append(ServerWrapper.class.getName());
             writer.append("\n");
         }
-        if(JVMHelper.OS_TYPE != JVMHelper.OS.MUSTDIE) {
-            if(!startScript.toFile().setExecutable(true)) {
+        if (JVMHelper.OS_TYPE != JVMHelper.OS.MUSTDIE) {
+            if (!startScript.toFile().setExecutable(true)) {
                 LogHelper.error("Failed to set executable %s", startScript);
             }
         }

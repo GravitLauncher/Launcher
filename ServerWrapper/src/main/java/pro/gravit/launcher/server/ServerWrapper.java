@@ -30,7 +30,10 @@ import pro.gravit.utils.helper.SecurityHelper;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
@@ -61,10 +64,10 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public void restore() throws Exception {
-        if(config.oauth != null) {
+        if (config.oauth != null) {
             Request.setOAuth(config.authId, config.oauth, config.oauthExpireTime);
         }
-        if(config.extendedTokens != null) {
+        if (config.extendedTokens != null) {
             Request.addAllExtendedToken(config.extendedTokens);
         }
         Request.restore();
@@ -111,7 +114,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             LogHelper.debug("Read ServerWrapperConfig.json");
             loadConfig();
             InstallAuthlib command = new InstallAuthlib();
-            command. run(args[1]);
+            command.run(args[1]);
             System.exit(0);
         }
         LogHelper.debug("Read ServerWrapperConfig.json");
@@ -136,7 +139,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             restore();
             getProfiles();
         }
-        if(config.encodedServerRsaPublicKey != null) {
+        if (config.encodedServerRsaPublicKey != null) {
             KeyService.serverRsaPublicKey = SecurityHelper.toPublicRSAKey(config.encodedServerRsaPublicKey);
         }
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
@@ -144,7 +147,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.json or first commandline argument");
             System.exit(-1);
         }
-        if(config.oauth == null && ( config.extendedTokens == null || config.extendedTokens.isEmpty())) {
+        if (config.oauth == null && (config.extendedTokens == null || config.extendedTokens.isEmpty())) {
             LogHelper.error("Auth not configured. Please use 'java -jar ServerWrapper.jar setup'");
             System.exit(-1);
         }
@@ -161,7 +164,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LogHelper.info("ServerWrapper: LaunchServer address: %s. Title: %s", config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
         String[] real_args;
-        if(config.args != null && config.args.size() > 0) {
+        if (config.args != null && config.args.size() > 0) {
             real_args = config.args.toArray(new String[0]);
         } else if (args.length > 0) {
             real_args = new String[args.length - 1];
