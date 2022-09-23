@@ -55,7 +55,6 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
     }
 
 
-
     @Deprecated
     public void registerEventHandler(ClientWebSocketService.EventHandler handler) {
         legacyEventHandlers.add(handler);

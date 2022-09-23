@@ -6,9 +6,12 @@ import java.util.concurrent.ExecutionException;
 
 public interface RequestService {
     <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) throws IOException;
+
     void registerEventHandler(EventHandler handler);
+
     void unregisterEventHandler(EventHandler handler);
-    default  <T extends WebSocketEvent> T requestSync(Request<T> request) throws IOException {
+
+    default <T extends WebSocketEvent> T requestSync(Request<T> request) throws IOException {
         try {
             return request(request).get();
         } catch (InterruptedException e) {

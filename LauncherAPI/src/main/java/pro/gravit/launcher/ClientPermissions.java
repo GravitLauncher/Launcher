@@ -1,8 +1,5 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.serialize.HInput;
-
-import java.io.IOException;
 import java.util.*;
 
 public class ClientPermissions {
@@ -71,7 +68,7 @@ public class ClientPermissions {
             perms = new ArrayList<>(1);
         }
         perms.add(perm);
-        if(available == null) {
+        if (available == null) {
             available = new ArrayList<>(1);
         }
         available.add(new PermissionPattern(perm));
@@ -81,7 +78,7 @@ public class ClientPermissions {
         if (perms == null) {
             return;
         }
-        if(available == null) {
+        if (available == null) {
             return;
         }
         perms.remove(action);
@@ -110,11 +107,11 @@ public class ClientPermissions {
 
         public PermissionPattern(String pattern) {
             List<String> prepare = new ArrayList<>();
-            for(int i=0;true;) {
+            for (int i = 0; true; ) {
                 int pos = pattern.indexOf("*", i);
-                if(pos >= 0) {
+                if (pos >= 0) {
                     prepare.add(pattern.substring(i, pos));
-                    i = pos+1;
+                    i = pos + 1;
                 } else {
                     prepare.add(pattern.substring(i));
                     break;
@@ -129,23 +126,23 @@ public class ClientPermissions {
         }
 
         public boolean match(String str) {
-            if(parts.length == 0) {
+            if (parts.length == 0) {
                 return true;
             }
-            if(parts.length == 1) {
+            if (parts.length == 1) {
                 return parts[0].equals(str);
             }
             int offset = 0;
-            if(!str.startsWith(parts[0])) {
+            if (!str.startsWith(parts[0])) {
                 return false;
             }
-            if(!str.endsWith(parts[parts.length-1])) {
+            if (!str.endsWith(parts[parts.length - 1])) {
                 return false;
             }
-            for(int i=1;i<parts.length-1;++i) {
+            for (int i = 1; i < parts.length - 1; ++i) {
                 int pos = str.indexOf(parts[i], offset);
-                if(pos >= 0) {
-                    offset = pos+1;
+                if (pos >= 0) {
+                    offset = pos + 1;
                 } else {
                     return false;
                 }

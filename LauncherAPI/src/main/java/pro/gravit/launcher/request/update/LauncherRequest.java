@@ -5,21 +5,13 @@ import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestService;
-import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class LauncherRequest extends Request<LauncherRequestEvent> implements WebSocketRequest {
     public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
