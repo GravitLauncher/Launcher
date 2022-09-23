@@ -223,6 +223,7 @@ public final class IOHelper {
             connection.setReadTimeout(HTTP_TIMEOUT);
             connection.setConnectTimeout(HTTP_TIMEOUT);
             connection.addRequestProperty("User-Agent", USER_AGENT); // Fix for stupid servers
+			connection.setConnectTimeout(10000);
         } else
             connection.setUseCaches(false);
         connection.setDoInput(true);
@@ -235,6 +236,7 @@ public final class IOHelper {
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
         connection.addRequestProperty("User-Agent", IOHelper.USER_AGENT);
+		connection.setConnectTimeout(10000);
         return connection;
     }
 
