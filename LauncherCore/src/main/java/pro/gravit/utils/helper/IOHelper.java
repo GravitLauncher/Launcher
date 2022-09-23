@@ -41,6 +41,7 @@ public final class IOHelper {
     public static final FileSystem FS = FileSystems.getDefault();
     // Platform-dependent
     public static final String PLATFORM_SEPARATOR = FS.getSeparator();
+    private static final Pattern PLATFORM_SEPARATOR_PATTERN = Pattern.compile(PLATFORM_SEPARATOR, Pattern.LITERAL);
     public static final boolean POSIX = FS.supportedFileAttributeViews().contains("posix") || FS.supportedFileAttributeViews().contains("Posix");
     public static final Path JVM_DIR = Paths.get(System.getProperty("java.home"));
     public static final Path HOME_DIR = Paths.get(System.getProperty("user.home"));
@@ -56,7 +57,6 @@ public final class IOHelper {
     private static final Set<FileVisitOption> WALK_OPTIONS = Collections.singleton(FileVisitOption.FOLLOW_LINKS);
     // Other constants
     private static final Pattern CROSS_SEPARATOR_PATTERN = Pattern.compile(CROSS_SEPARATOR, Pattern.LITERAL);
-    private static final Pattern PLATFORM_SEPARATOR_PATTERN = Pattern.compile(PLATFORM_SEPARATOR, Pattern.LITERAL);
 
     private IOHelper() {
     }

@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 public class Downloader {
     private final CompletableFuture<Void> future;
     private final AsyncDownloader asyncDownloader;
+
     private Downloader(CompletableFuture<Void> future, AsyncDownloader downloader) {
         this.future = future;
         this.asyncDownloader = downloader;

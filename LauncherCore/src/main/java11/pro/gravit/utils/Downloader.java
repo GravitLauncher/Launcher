@@ -30,6 +30,7 @@ public class Downloader {
     protected final ExecutorService executor;
     protected final LinkedList<DownloadTask> tasks = new LinkedList<>();
     protected CompletableFuture<Void> future;
+
     protected Downloader(HttpClient client, ExecutorService executor) {
         this.client = client;
         this.executor = executor;

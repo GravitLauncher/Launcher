@@ -77,7 +77,7 @@ public class JLineCommandHandler extends CommandHandler {
                 });
             } else {
                 Command target = findCommand(line.words().get(0));
-                if(target == null) {
+                if (target == null) {
                     return;
                 }
                 List<String> words = line.words();
