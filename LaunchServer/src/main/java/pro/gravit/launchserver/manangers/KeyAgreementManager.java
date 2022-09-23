@@ -66,7 +66,7 @@ public class KeyAgreementManager {
             IOHelper.write(rsaPrivateKeyPath, rsaPrivateKey.getEncoded());
         }
         Path legacySaltPath = keyDirectory.resolve("legacySalt");
-        if(IOHelper.isFile(legacySaltPath)) {
+        if (IOHelper.isFile(legacySaltPath)) {
             legacySalt = new String(IOHelper.read(legacySaltPath), StandardCharsets.UTF_8);
         } else {
             legacySalt = SecurityHelper.randomStringToken();

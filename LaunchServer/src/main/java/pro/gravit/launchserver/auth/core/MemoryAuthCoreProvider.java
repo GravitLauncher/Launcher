@@ -13,15 +13,19 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 public class MemoryAuthCoreProvider extends AuthCoreProvider {
     private transient final List<MemoryUser> memory = new ArrayList<>(16);
+
     @Override
     public User getUserByUsername(String username) {
         synchronized (memory) {
-            for(MemoryUser u : memory) {
-                if(u.username.equals(username)) {
+            for (MemoryUser u : memory) {
+                if (u.username.equals(username)) {
                     return u;
                 }
             }
@@ -39,8 +43,8 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     @Override
     public User getUserByUUID(UUID uuid) {
         synchronized (memory) {
-            for(MemoryUser u : memory) {
-                if(u.uuid.equals(uuid)) {
+            for (MemoryUser u : memory) {
+                if (u.uuid.equals(uuid)) {
                     return u;
                 }
             }
@@ -51,8 +55,8 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     @Override
     public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
         synchronized (memory) {
-            for(MemoryUser u : memory) {
-                if(u.accessToken.equals(accessToken)) {
+            for (MemoryUser u : memory) {
+                if (u.accessToken.equals(accessToken)) {
                     return new MemoryUserSession(u);
                 }
             }
@@ -67,23 +71,23 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
 
     @Override
     public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
-        if(login == null) {
+        if (login == null) {
             throw AuthException.userNotFound();
         }
         MemoryUser user = null;
         synchronized (memory) {
-            for(MemoryUser u : memory) {
-                if(u.username.equals(login)) {
+            for (MemoryUser u : memory) {
+                if (u.username.equals(login)) {
                     user = u;
                     break;
                 }
             }
-            if(user == null) {
+            if (user == null) {
                 user = new MemoryUser(login);
                 memory.add(user);
             }
         }
-        if(!minecraftAccess) {
+        if (!minecraftAccess) {
             return AuthManager.AuthReport.ofOAuth(user.accessToken, null, 0, new MemoryUserSession(user));
         } else {
             return AuthManager.AuthReport.ofOAuthWithMinecraft(user.accessToken, user.accessToken, null, 0, new MemoryUserSession(user));
@@ -100,8 +104,8 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     @Override
     public User checkServer(Client client, String username, String serverID) throws IOException {
         synchronized (memory) {
-            for(MemoryUser u : memory) {
-                if(u.username.equals(username)) {
+            for (MemoryUser u : memory) {
+                if (u.username.equals(username)) {
                     return u;
                 }
             }

@@ -7,7 +7,6 @@ import pro.gravit.utils.helper.SecurityHelper;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
@@ -20,7 +19,7 @@ public class LegacySessionHelper {
                 .setSubject(user.getUsername())
                 .claim("uuid", user.getUUID().toString())
                 .setExpiration(Date.from(expirationTime
-                                .toInstant(ZoneOffset.UTC)))
+                        .toInstant(ZoneOffset.UTC)))
                 .signWith(privateKey)
                 .compact();
     }
@@ -38,7 +37,7 @@ public class LegacySessionHelper {
     }
 
     public static String makeRefreshTokenFromPassword(String username, String rawPassword, String secretSalt) {
-        if(rawPassword == null) {
+        if (rawPassword == null) {
             rawPassword = "";
         }
         return SecurityHelper.toHex(SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,

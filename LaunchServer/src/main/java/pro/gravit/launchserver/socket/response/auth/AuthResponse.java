@@ -12,8 +12,6 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.HookException;
 
-import java.util.UUID;
-
 public class AuthResponse extends SimpleResponse {
     private transient final Logger logger = LogManager.getLogger();
     public String login;

@@ -5,7 +5,9 @@ import java.security.PublicKey;
 
 public interface UserSessionSupportKeys {
     ClientProfileKeys getClientProfileKeys();
-    record ClientProfileKeys(PublicKey publicKey, PrivateKey privateKey, byte[] signature /* V2 */, long expiresAt, long refreshedAfter) {
+
+    record ClientProfileKeys(PublicKey publicKey, PrivateKey privateKey, byte[] signature /* V2 */, long expiresAt,
+                             long refreshedAfter) {
 
     }
 }
