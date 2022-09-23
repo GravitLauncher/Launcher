@@ -1,5 +1,7 @@
 package pro.gravit.utils.helper;
 
+import pro.gravit.utils.Version;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;
@@ -43,7 +45,7 @@ public final class IOHelper {
     public static final Path JVM_DIR = Paths.get(System.getProperty("java.home"));
     public static final Path HOME_DIR = Paths.get(System.getProperty("user.home"));
     public static final Path WORKING_DIR = Paths.get(System.getProperty("user.dir"));
-    public static final String USER_AGENT = System.getProperty("launcher.userAgentDefault", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+    public static final String USER_AGENT = System.getProperty("launcher.userAgentDefault", String.format("GravitLauncher/%s", Version.getVersion()));
     // Open options - as arrays
     private static final OpenOption[] READ_OPTIONS = {StandardOpenOption.READ};
     private static final OpenOption[] WRITE_OPTIONS = {StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING};
