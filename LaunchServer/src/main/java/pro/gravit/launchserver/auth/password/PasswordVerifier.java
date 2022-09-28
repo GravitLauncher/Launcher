@@ -12,6 +12,7 @@ public abstract class PasswordVerifier {
             providers.register("digest", DigestPasswordVerifier.class);
             providers.register("doubleDigest", DoubleDigestPasswordVerifier.class);
             providers.register("json", JsonPasswordVerifier.class);
+            providers.register("bcrypt", BCryptPasswordVerifier.class);
             providers.register("accept", AcceptPasswordVerifier.class);
             providers.register("reject", RejectPasswordVerifier.class);
             registeredProviders = true;
