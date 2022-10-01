@@ -3,9 +3,12 @@ package pro.gravit.launchserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.events.RequestEvent;
+import pro.gravit.launcher.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.request.Request;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
@@ -19,7 +22,9 @@ import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.modules.events.*;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
+import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
+import pro.gravit.launchserver.socket.response.auth.ProfilesResponse;
 import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandHandler;
@@ -374,6 +379,24 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         // Sort and set new profiles
         newProfies.sort(Comparator.comparing(a -> a));
         profilesList = Set.copyOf(newProfies);
+        if(config.netty.sendProfileUpdatesEvent) {
+            sendUpdateProfilesEvent();
+        }
+    }
+
+    private void sendUpdateProfilesEvent() {
+        if(nettyServerSocketHandler == null || nettyServerSocketHandler.nettyServer == null || nettyServerSocketHandler.nettyServer.service == null) {
+            return;
+        }
+        nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((ch, handler) -> {
+            Client client = handler.getClient();
+            if(client == null || !client.isAuth) {
+                return;
+            }
+            ProfilesRequestEvent event = new ProfilesRequestEvent(ProfilesResponse.getListVisibleProfiles(this, client));
+            event.requestUUID = RequestEvent.eventUUID;
+            handler.service.sendObject(ch, event);
+        });
     }
 
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {

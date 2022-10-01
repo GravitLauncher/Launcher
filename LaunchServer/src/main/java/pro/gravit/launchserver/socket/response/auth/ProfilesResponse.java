@@ -3,6 +3,7 @@ package pro.gravit.launchserver.socket.response.auth;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -23,7 +24,10 @@ public class ProfilesResponse extends SimpleResponse {
             sendError("Access denied");
             return;
         }
+        sendResult(new ProfilesRequestEvent(getListVisibleProfiles(server, client)));
+    }
 
+    public static List<ClientProfile> getListVisibleProfiles(LaunchServer server, Client client) {
         List<ClientProfile> profileList;
         Set<ClientProfile> serverProfiles = server.getProfiles();
         if (server.config.protectHandler instanceof ProfilesProtectHandler protectHandler) {
@@ -36,6 +40,6 @@ public class ProfilesResponse extends SimpleResponse {
         } else {
             profileList = List.copyOf(serverProfiles);
         }
-        sendResult(new ProfilesRequestEvent(profileList));
+        return profileList;
     }
 }
