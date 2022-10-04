@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.LinkedList;
@@ -107,7 +106,7 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         try {
             var info = LegacySessionHelper.getJwtInfoFromAccessToken(accessToken, server.keyAgreementManager.ecdsaPublicKey);
             var user = (MySQLUser) getUserByUUID(info.uuid());
-            if(user == null) {
+            if (user == null) {
                 return null;
             }
             return new MySQLUserSession(user);
@@ -121,17 +120,17 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     @Override
     public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context) {
         String[] parts = refreshToken.split("\\.");
-        if(parts.length != 2) {
+        if (parts.length != 2) {
             return null;
         }
         String username = parts[0];
         String token = parts[1];
         var user = (MySQLUser) getUserByUsername(username);
-        if(user == null || user.password == null) {
+        if (user == null || user.password == null) {
             return null;
         }
         var realToken = LegacySessionHelper.makeRefreshTokenFromPassword(username, user.password, server.keyAgreementManager.legacySalt);
-        if(!token.equals(realToken)) {
+        if (!token.equals(realToken)) {
             return null;
         }
         var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
@@ -141,15 +140,15 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     @Override
     public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
         MySQLUser mySQLUser = (MySQLUser) getUserByLogin(login);
-        if(mySQLUser == null) {
+        if (mySQLUser == null) {
             throw AuthException.wrongPassword();
         }
-        if(context != null) {
+        if (context != null) {
             AuthPlainPassword plainPassword = (AuthPlainPassword) password;
-            if(plainPassword == null) {
+            if (plainPassword == null) {
                 throw AuthException.wrongPassword();
             }
-            if(!passwordVerifier.check(mySQLUser.password, plainPassword.password)) {
+            if (!passwordVerifier.check(mySQLUser.password, plainPassword.password)) {
                 throw AuthException.wrongPassword();
             }
         }
@@ -488,6 +487,31 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         }
     }
 
+    public static class MySQLUserSession implements UserSession {
+        private final MySQLUser user;
+        private final String id;
+
+        public MySQLUserSession(MySQLUser user) {
+            this.user = user;
+            this.id = user.username;
+        }
+
+        @Override
+        public String getID() {
+            return id;
+        }
+
+        @Override
+        public User getUser() {
+            return user;
+        }
+
+        @Override
+        public long getExpireIn() {
+            return 0;
+        }
+    }
+
     public class MySQLUser implements User, UserSupportHardware {
         protected UUID uuid;
         protected String username;
@@ -549,31 +573,6 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
                     ", permissions=" + permissions +
                     ", hwidId=" + hwidId +
                     '}';
-        }
-    }
-
-    public static class MySQLUserSession implements UserSession {
-        private final MySQLUser user;
-        private final String id;
-
-        public MySQLUserSession(MySQLUser user) {
-            this.user = user;
-            this.id = user.username;
-        }
-
-        @Override
-        public String getID() {
-            return id;
-        }
-
-        @Override
-        public User getUser() {
-            return user;
-        }
-
-        @Override
-        public long getExpireIn() {
-            return 0;
         }
     }
 }

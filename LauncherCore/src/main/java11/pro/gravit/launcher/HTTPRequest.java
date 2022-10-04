@@ -39,7 +39,7 @@ public final class HTTPRequest {
                     .uri(url.toURI())
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .header("Accept", "application/json")
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36")
+                    .header("User-Agent", IOHelper.USER_AGENT)
                     .timeout(Duration.ofMillis(TIMEOUT))
                     .build();
             HttpResponse<InputStream> response = client.send(request1, HttpResponse.BodyHandlers.ofInputStream());

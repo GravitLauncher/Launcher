@@ -7,7 +7,6 @@ import pro.gravit.launcher.events.request.SecurityReportRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestService;
 import pro.gravit.launcher.request.WebSocketEvent;
-import pro.gravit.launcher.request.websockets.ClientWebSocketService;
 import pro.gravit.utils.helper.LogHelper;
 
 public class BasicLauncherEventHandler implements RequestService.EventHandler {

@@ -1,11 +1,8 @@
 package pro.gravit.launcher.utils;
 
-import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 public final class NativeJVMHalt {
     public final int haltCode;
@@ -30,7 +27,7 @@ public final class NativeJVMHalt {
             exitMethod.invoke(null, code);
         } catch (Throwable e) {
             th[1] = e;
-            if(LogHelper.isDevEnabled()) {
+            if (LogHelper.isDevEnabled()) {
                 LogHelper.error(e);
             }
         }

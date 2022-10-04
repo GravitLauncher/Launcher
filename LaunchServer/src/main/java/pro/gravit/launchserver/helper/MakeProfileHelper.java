@@ -18,7 +18,7 @@ public class MakeProfileHelper {
         ClientProfileBuilder builder = new ClientProfileBuilder();
         builder.setVersion(version.name);
         builder.setDir(title);
-        if(findOption(options, MakeProfileOptionGlobalAssets.class).isPresent()) {
+        if (findOption(options, MakeProfileOptionGlobalAssets.class).isPresent()) {
             builder.setAssetDir("assets");
         } else {
             builder.setAssetDir("asset" + version.name);
@@ -46,10 +46,10 @@ public class MakeProfileHelper {
         Set<OptionalFile> optionals = new HashSet<>();
         jvmArgs.add("-XX:+DisableAttachMechanism");
         // Official Mojang launcher java arguments
-        if(version.compareTo(ClientProfile.Version.MC112) <= 0) {
+        if (version.compareTo(ClientProfile.Version.MC112) <= 0) {
             jvmArgs.add("-XX:+UseConcMarkSweepGC");
             jvmArgs.add("-XX:+CMSIncrementalMode");
-        } else if(version.compareTo(ClientProfile.Version.MC118) <= 0) { // 1.13 - 1.16.5
+        } else if (version.compareTo(ClientProfile.Version.MC118) <= 0) { // 1.13 - 1.16.5
             jvmArgs.add("-XX:+UseG1GC");
             jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
         } else { // 1.18+
@@ -236,7 +236,7 @@ public class MakeProfileHelper {
         if (Files.exists(dir.resolve("libraries/forge/launchwrapper-1.12-launcherfixed.jar.jar")) || Files.exists(dir.resolve("libraries/net/minecraft/launchwrapper"))) {
             options.add(new MakeProfileOptionLaunchWrapper());
         }
-        if(globalAssets) {
+        if (globalAssets) {
             options.add(new MakeProfileOptionGlobalAssets());
         }
         return options.toArray(new MakeProfileOption[0]);

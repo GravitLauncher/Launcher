@@ -1,5 +1,7 @@
 package pro.gravit.utils.helper;
 
+import pro.gravit.utils.Version;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;
@@ -39,11 +41,12 @@ public final class IOHelper {
     public static final FileSystem FS = FileSystems.getDefault();
     // Platform-dependent
     public static final String PLATFORM_SEPARATOR = FS.getSeparator();
+    private static final Pattern PLATFORM_SEPARATOR_PATTERN = Pattern.compile(PLATFORM_SEPARATOR, Pattern.LITERAL);
     public static final boolean POSIX = FS.supportedFileAttributeViews().contains("posix") || FS.supportedFileAttributeViews().contains("Posix");
     public static final Path JVM_DIR = Paths.get(System.getProperty("java.home"));
     public static final Path HOME_DIR = Paths.get(System.getProperty("user.home"));
     public static final Path WORKING_DIR = Paths.get(System.getProperty("user.dir"));
-    public static final String USER_AGENT = System.getProperty("launcher.userAgentDefault", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+    public static final String USER_AGENT = System.getProperty("launcher.userAgentDefault", String.format("GravitLauncher/%s", Version.getVersion()));
     // Open options - as arrays
     private static final OpenOption[] READ_OPTIONS = {StandardOpenOption.READ};
     private static final OpenOption[] WRITE_OPTIONS = {StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING};
@@ -54,7 +57,6 @@ public final class IOHelper {
     private static final Set<FileVisitOption> WALK_OPTIONS = Collections.singleton(FileVisitOption.FOLLOW_LINKS);
     // Other constants
     private static final Pattern CROSS_SEPARATOR_PATTERN = Pattern.compile(CROSS_SEPARATOR, Pattern.LITERAL);
-    private static final Pattern PLATFORM_SEPARATOR_PATTERN = Pattern.compile(PLATFORM_SEPARATOR, Pattern.LITERAL);
 
     private IOHelper() {
     }
@@ -221,6 +223,7 @@ public final class IOHelper {
             connection.setReadTimeout(HTTP_TIMEOUT);
             connection.setConnectTimeout(HTTP_TIMEOUT);
             connection.addRequestProperty("User-Agent", USER_AGENT); // Fix for stupid servers
+			connection.setConnectTimeout(10000);
         } else
             connection.setUseCaches(false);
         connection.setDoInput(true);
@@ -232,6 +235,8 @@ public final class IOHelper {
         HttpURLConnection connection = (HttpURLConnection) newConnection(url);
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
+        connection.addRequestProperty("User-Agent", IOHelper.USER_AGENT);
+		connection.setConnectTimeout(10000);
         return connection;
     }
 

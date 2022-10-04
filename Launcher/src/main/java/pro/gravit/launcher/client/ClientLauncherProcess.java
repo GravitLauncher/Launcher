@@ -3,7 +3,6 @@ package pro.gravit.launcher.client;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.LauncherEngine;
-import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.client.events.client.ClientProcessBuilderCreateEvent;
 import pro.gravit.launcher.client.events.client.ClientProcessBuilderLaunchedEvent;
 import pro.gravit.launcher.client.events.client.ClientProcessBuilderParamsWrittedEvent;
@@ -28,7 +27,6 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -79,7 +77,7 @@ public class ClientLauncherProcess {
         this.params.resourcePackDir = resourcePackDir.toAbsolutePath().toString();
         this.params.assetDir = assetDir.toAbsolutePath().toString();
         Path nativesPath = workDir.resolve("natives").resolve(JVMHelper.OS_TYPE.name).resolve(javaVersion.arch.name);
-        if(!Files.isDirectory(nativesPath)) {
+        if (!Files.isDirectory(nativesPath)) {
             nativesPath = workDir.resolve("natives");
         }
         this.params.nativesDir = nativesPath.toString();
@@ -158,7 +156,7 @@ public class ClientLauncherProcess {
                     .map(Path::toString)
                     .collect(Collectors.toList()));
         }
-        if(Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
+        if (Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
             processArgs.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, String.valueOf(LogHelper.isDevEnabled())));
             processArgs.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, String.valueOf(LogHelper.isDebugEnabled())));
             processArgs.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, String.valueOf(LogHelper.isStacktraceEnabled())));
@@ -211,7 +209,7 @@ public class ClientLauncherProcess {
             if (modulesAdd.length() > 0) modulesAdd.append(",");
             modulesAdd.append(moduleName);
         }
-        for(String modulePath : jvmModulesPaths) {
+        for (String modulePath : jvmModulesPaths) {
             if (modulesPath.length() > 0) modulesPath.append(File.pathSeparator);
             modulesPath.append(modulePath);
         }

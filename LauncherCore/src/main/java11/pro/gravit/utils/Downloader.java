@@ -30,6 +30,7 @@ public class Downloader {
     protected final ExecutorService executor;
     protected final LinkedList<DownloadTask> tasks = new LinkedList<>();
     protected CompletableFuture<Void> future;
+
     protected Downloader(HttpClient client, ExecutorService executor) {
         this.client = client;
         this.executor = executor;
@@ -149,7 +150,7 @@ public class Downloader {
         return HttpRequest.newBuilder()
                 .GET()
                 .uri(new URI(scheme, host, path + filePath, "", ""))
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36")
+                .header("User-Agent", IOHelper.USER_AGENT)
                 .build();
     }
 

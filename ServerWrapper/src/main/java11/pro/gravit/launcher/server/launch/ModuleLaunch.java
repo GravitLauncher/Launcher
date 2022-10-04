@@ -13,9 +13,16 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ModuleLaunch implements Launch {
+    private static String getPackageFromClass(String clazz) {
+        int index = clazz.lastIndexOf(".");
+        if (index >= 0) {
+            return clazz.substring(0, index);
+        }
+        return clazz;
+    }
+
     @Override
     @SuppressWarnings("ConfusingArgumentToVarargsMethod")
     public void run(ServerWrapper.Config config, String[] args) throws Throwable {
@@ -29,28 +36,28 @@ public class ModuleLaunch implements Launch {
         ModuleLayer.Controller controller = ModuleLayer.defineModulesWithOneLoader(configuration, List.of(bootLayer), ucl);
         ModuleLayer layer = controller.layer();
         // Configure exports / opens
-        for(var e : config.moduleConf.exports.entrySet()) {
+        for (var e : config.moduleConf.exports.entrySet()) {
             String[] split = e.getKey().split("\\\\");
             Module source = layer.findModule(split[0]).orElseThrow();
             String pkg = split[1];
             Module target = layer.findModule(e.getValue()).orElseThrow();
             controller.addExports(source, pkg, target);
         }
-        for(var e : config.moduleConf.opens.entrySet()) {
+        for (var e : config.moduleConf.opens.entrySet()) {
             String[] split = e.getKey().split("\\\\");
             Module source = layer.findModule(split[0]).orElseThrow();
             String pkg = split[1];
             Module target = layer.findModule(e.getValue()).orElseThrow();
             controller.addOpens(source, pkg, target);
         }
-        for(var e : config.moduleConf.reads.entrySet()) {
+        for (var e : config.moduleConf.reads.entrySet()) {
             Module source = layer.findModule(e.getKey()).orElseThrow();
             Module target = layer.findModule(e.getValue()).orElseThrow();
             controller.addReads(source, target);
         }
         Module mainModule = layer.findModule(config.moduleConf.mainModule).orElseThrow();
         Module unnamed = ModuleLaunch.class.getClassLoader().getUnnamedModule();
-        if(unnamed != null) {
+        if (unnamed != null) {
             controller.addOpens(mainModule, getPackageFromClass(config.mainclass), unnamed);
         }
         // Start main class
@@ -58,13 +65,5 @@ public class ModuleLaunch implements Launch {
         Class<?> mainClass = Class.forName(config.mainclass, true, loader);
         MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         mainMethod.invoke(args);
-    }
-
-    private static String getPackageFromClass(String clazz) {
-        int index = clazz.lastIndexOf(".");
-        if(index >= 0) {
-            return clazz.substring(0, index);
-        }
-        return clazz;
     }
 }

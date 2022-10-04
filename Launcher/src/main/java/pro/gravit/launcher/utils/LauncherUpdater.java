@@ -1,10 +1,8 @@
 package pro.gravit.launcher.utils;
 
 import pro.gravit.launcher.AsyncDownloader;
-import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.LauncherInject;
-import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.launcher.request.update.LauncherRequest;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -13,12 +11,10 @@ import pro.gravit.utils.helper.SecurityHelper;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -30,14 +26,16 @@ import java.util.List;
 public class LauncherUpdater {
     @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
+
     public static void nothing() {
 
     }
+
     private static Path getLauncherPath() {
         Path pathToCore = IOHelper.getCodeSource(IOHelper.class);
         Path pathToApi = IOHelper.getCodeSource(LauncherRequest.class);
         Path pathToSelf = IOHelper.getCodeSource(LauncherUpdater.class);
-        if(pathToCore.equals(pathToApi) && pathToCore.equals(pathToSelf)) {
+        if (pathToCore.equals(pathToApi) && pathToCore.equals(pathToSelf)) {
             return pathToCore;
         } else {
             throw new SecurityException("Found split-jar launcher");

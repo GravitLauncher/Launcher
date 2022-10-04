@@ -15,34 +15,34 @@ public class PatchPropertiesModifier implements LibrariesHashFileModifier {
         String version = null;
         int linePatchedHashIndex = -1;
         int lineOriginalHashIndex = -1;
-        for(int i=0;i<lines.length;++i) {
-            if(lines[i].startsWith("version=")) {
+        for (int i = 0; i < lines.length; ++i) {
+            if (lines[i].startsWith("version=")) {
                 version = lines[i].split("=")[1];
-            } else if(lines[i].startsWith("patchedHash=")) {
+            } else if (lines[i].startsWith("patchedHash=")) {
                 linePatchedHashIndex = i;
-            } else if(lines[i].startsWith("originalHash=")) {
+            } else if (lines[i].startsWith("originalHash=")) {
                 lineOriginalHashIndex = i;
             }
         }
-        if(version == null) {
+        if (version == null) {
             LogHelper.warning("Unable to parse version from patch.properties");
             return data;
         }
-        if(linePatchedHashIndex < 0) {
+        if (linePatchedHashIndex < 0) {
             LogHelper.warning("Unable to parse patchedHash from patch.properties");
             return data;
         }
-        if(lineOriginalHashIndex < 0) {
+        if (lineOriginalHashIndex < 0) {
             LogHelper.warning("Unable to parse originalHash from patch.properties");
             return data;
         }
         Path patchedFile = context.workdir.resolve("cache").resolve("patched_".concat(version).concat(".jar"));
         Path originalFile = context.workdir.resolve("cache").resolve("mojang_".concat(version).concat(".jar"));
-        if(Files.notExists(patchedFile)) {
+        if (Files.notExists(patchedFile)) {
             LogHelper.warning("Unable to find %s. Maybe you should start the server at least once?", patchedFile);
             return data;
         }
-        if(Files.notExists(originalFile)) {
+        if (Files.notExists(originalFile)) {
             LogHelper.warning("Unable to find %s. Maybe you should start the server at least once?", originalFile);
             return data;
         }

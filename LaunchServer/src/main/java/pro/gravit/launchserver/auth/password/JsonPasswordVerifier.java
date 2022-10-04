@@ -3,6 +3,7 @@ package pro.gravit.launchserver.auth.password;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
+import pro.gravit.utils.helper.IOHelper;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,29 +20,6 @@ public class JsonPasswordVerifier extends PasswordVerifier {
     public String url;
     public String bearerToken;
 
-    @Override
-    public boolean check(String encryptedPassword, String password) {
-        JsonPasswordResponse response = jsonRequest(new JsonPasswordRequest(encryptedPassword, password), url, bearerToken, JsonPasswordResponse.class, client);
-        if (response != null) {
-            return response.success;
-        }
-        return false;
-    }
-
-    public static class JsonPasswordRequest {
-        public String encryptedPassword;
-        public String password;
-
-        public JsonPasswordRequest(String encryptedPassword, String password) {
-            this.encryptedPassword = encryptedPassword;
-            this.password = password;
-        }
-    }
-
-    public static class JsonPasswordResponse {
-        public boolean success;
-    }
-
     public static <T, R> R jsonRequest(T request, String url, String bearerToken, Class<R> clazz, HttpClient client) {
         HttpRequest.BodyPublisher publisher;
         if (request != null) {
@@ -55,6 +33,7 @@ public class JsonPasswordVerifier extends PasswordVerifier {
                     .uri(new URI(url))
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .header("Accept", "application/json")
+                    .header("User-Agent", IOHelper.USER_AGENT)
                     .timeout(Duration.ofMillis(10000));
             if (bearerToken != null) {
                 request1.header("Authorization", "Bearer ".concat(bearerToken));
@@ -77,5 +56,28 @@ public class JsonPasswordVerifier extends PasswordVerifier {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @Override
+    public boolean check(String encryptedPassword, String password) {
+        JsonPasswordResponse response = jsonRequest(new JsonPasswordRequest(encryptedPassword, password), url, bearerToken, JsonPasswordResponse.class, client);
+        if (response != null) {
+            return response.success;
+        }
+        return false;
+    }
+
+    public static class JsonPasswordRequest {
+        public String encryptedPassword;
+        public String password;
+
+        public JsonPasswordRequest(String encryptedPassword, String password) {
+            this.encryptedPassword = encryptedPassword;
+            this.password = password;
+        }
+    }
+
+    public static class JsonPasswordResponse {
+        public boolean success;
     }
 }

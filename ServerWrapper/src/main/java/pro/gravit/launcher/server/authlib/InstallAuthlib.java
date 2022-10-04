@@ -15,19 +15,21 @@ import java.util.zip.ZipOutputStream;
 
 public class InstallAuthlib {
     private static Map<String, LibrariesHashFileModifier> modifierMap;
+
     static {
         modifierMap = new HashMap<>();
         modifierMap.put("META-INF/libraries.list", new LibrariesLstModifier());
         modifierMap.put("patch.properties", new PatchPropertiesModifier());
         modifierMap.put("META-INF/download-context", new DownloadContextModifier());
     }
+
     public void run(String... args) throws Exception {
         boolean deleteAuthlibAfterInstall = false;
         InstallAuthlibContext context = new InstallAuthlibContext();
-        if(args[0].startsWith("http://") || args[0].startsWith("https://")) {
+        if (args[0].startsWith("http://") || args[0].startsWith("https://")) {
             Path tempAuthlib = Paths.get("authlib.jar");
             LogHelper.info("Download %s to %s", args[0], tempAuthlib);
-            try(InputStream input = IOHelper.newInput(new URL(args[0]))) {
+            try (InputStream input = IOHelper.newInput(new URL(args[0]))) {
                 IOHelper.transfer(input, tempAuthlib);
             }
             context.pathToAuthlib = tempAuthlib;
@@ -35,7 +37,7 @@ public class InstallAuthlib {
         } else {
             context.pathToAuthlib = Paths.get(args[0]);
         }
-        if(Files.notExists(context.pathToAuthlib)) {
+        if (Files.notExists(context.pathToAuthlib)) {
             throw new FileNotFoundException(context.pathToAuthlib.toString());
         }
         context.workdir = IOHelper.WORKING_DIR;
@@ -43,26 +45,26 @@ public class InstallAuthlib {
         IOHelper.walk(context.workdir, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                if(file.getFileName().toString().endsWith(".jar")) {
+                if (file.getFileName().toString().endsWith(".jar")) {
                     context.files.add(file);
                 }
                 return FileVisitResult.CONTINUE;
             }
         }, true);
         LogHelper.info("Search authlib in %d files", context.files.size());
-        for(Path path : context.files) {
+        for (Path path : context.files) {
             boolean foundAuthlib = false;
-            try(ZipInputStream input = IOHelper.newZipInput(path)) {
+            try (ZipInputStream input = IOHelper.newZipInput(path)) {
                 ZipEntry e = input.getNextEntry();
-                while(e != null) {
+                while (e != null) {
                     String name = e.getName();
-                    if(!e.isDirectory() && name.contains("com/mojang/authlib") && !foundAuthlib) {
+                    if (!e.isDirectory() && name.contains("com/mojang/authlib") && !foundAuthlib) {
                         boolean isJarFile = name.endsWith(".jar");
                         String prefix = isJarFile ? name : name.substring(0, name.indexOf("com/mojang/authlib"));
                         context.repack.add(new RepackInfo(path, prefix, isJarFile));
                         foundAuthlib = true;
                     }
-                    if(!e.isDirectory() && modifierMap.containsKey(name)) {
+                    if (!e.isDirectory() && modifierMap.containsKey(name)) {
                         context.hashes.add(new HashFile(path, name, modifierMap.get(name)));
                     }
                     e = input.getNextEntry();
@@ -70,14 +72,14 @@ public class InstallAuthlib {
             }
         }
         Path tmpFile = Paths.get("repack.tmp");
-        for(RepackInfo ri : context.repack) {
+        for (RepackInfo ri : context.repack) {
             LogHelper.info("Found authlib in %s (prefix '%s' jar %s)", ri.path, ri.prefix, ri.isJarFile ? "true" : "false");
-            try(ZipInputStream input = IOHelper.newZipInput(ri.path)) {
-                try(ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(tmpFile))) {
+            try (ZipInputStream input = IOHelper.newZipInput(ri.path)) {
+                try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(tmpFile))) {
                     ZipEntry e;
                     e = input.getNextEntry();
-                    while(e != null) {
-                        if(!e.getName().equals("META-INF") && !e.getName().equals("META-INF/")  && !e.getName().equals("META-INF/MANIFEST.MF")) {
+                    while (e != null) {
+                        if (!e.getName().equals("META-INF") && !e.getName().equals("META-INF/") && !e.getName().equals("META-INF/MANIFEST.MF")) {
                             break;
                         }
                         ZipEntry newEntry = IOHelper.newZipEntry(e);
@@ -85,11 +87,11 @@ public class InstallAuthlib {
                         IOHelper.transfer(input, output);
                         e = input.getNextEntry();
                     }
-                    if(!ri.isJarFile) {
-                        try(ZipInputStream input2 = new ZipInputStream(IOHelper.newInput(context.pathToAuthlib))) {
+                    if (!ri.isJarFile) {
+                        try (ZipInputStream input2 = new ZipInputStream(IOHelper.newInput(context.pathToAuthlib))) {
                             ZipEntry e2 = input2.getNextEntry();
-                            while(e2 != null) {
-                                if(e2.getName().startsWith("META-INF")) {
+                            while (e2 != null) {
+                                if (e2.getName().startsWith("META-INF")) {
                                     e2 = input2.getNextEntry();
                                     continue;
                                 }
@@ -102,10 +104,10 @@ public class InstallAuthlib {
                             }
                         }
                     }
-                    while(e != null) {
-                        if(e.getName().startsWith(ri.prefix)) {
-                            if(ri.isJarFile) {
-                                if(context.repackedAuthlibBytes == null) {
+                    while (e != null) {
+                        if (e.getName().startsWith(ri.prefix)) {
+                            if (ri.isJarFile) {
+                                if (context.repackedAuthlibBytes == null) {
                                     byte[] orig = IOHelper.read(input);
                                     context.repackedAuthlibBytes = repackAuthlibJar(orig, context.pathToAuthlib);
                                 }
@@ -115,10 +117,10 @@ public class InstallAuthlib {
                                 e = input.getNextEntry();
                                 continue;
                             } else {
-                                if(context.repackedAuthlibFiles == null) {
+                                if (context.repackedAuthlibFiles == null) {
                                     context.repackedAuthlibFiles = getNames(context.pathToAuthlib);
                                 }
-                                if(context.repackedAuthlibFiles.contains(e.getName().substring(ri.prefix.length()))) {
+                                if (context.repackedAuthlibFiles.contains(e.getName().substring(ri.prefix.length()))) {
                                     e = input.getNextEntry();
                                     continue;
                                 }
@@ -135,15 +137,15 @@ public class InstallAuthlib {
             Files.move(tmpFile, ri.path);
         }
         LogHelper.info("%d authlib files repacked", context.repack.size());
-        for(HashFile hf : context.hashes) {
+        for (HashFile hf : context.hashes) {
             LogHelper.info("Found hash file %s in %s", hf.prefix, hf.path);
-            try(ZipInputStream input = IOHelper.newZipInput(hf.path)) {
+            try (ZipInputStream input = IOHelper.newZipInput(hf.path)) {
                 try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(tmpFile))) {
                     ZipEntry e = input.getNextEntry();
-                    while(e != null) {
+                    while (e != null) {
                         ZipEntry newEntry = IOHelper.newZipEntry(e);
                         output.putNextEntry(newEntry);
-                        if(e.getName().equals(hf.prefix)) {
+                        if (e.getName().equals(hf.prefix)) {
                             byte[] orig = IOHelper.read(input);
                             byte[] bytes = hf.modifier.apply(orig, context);
                             output.write(bytes);
@@ -158,7 +160,7 @@ public class InstallAuthlib {
             Files.move(tmpFile, hf.path);
         }
         LogHelper.info("%d hash files repacked", context.hashes.size());
-        if(deleteAuthlibAfterInstall) {
+        if (deleteAuthlibAfterInstall) {
             LogHelper.info("Delete %s", context.pathToAuthlib);
             Files.delete(context.pathToAuthlib);
         }
@@ -167,10 +169,10 @@ public class InstallAuthlib {
 
     private Set<String> getNames(Path path) throws IOException {
         Set<String> set = new HashSet<>();
-        try(ZipInputStream input = IOHelper.newZipInput(path)) {
+        try (ZipInputStream input = IOHelper.newZipInput(path)) {
             ZipEntry e = input.getNextEntry();
-            while(e != null) {
-                if(!e.getName().startsWith("META-INF")) {
+            while (e != null) {
+                if (!e.getName().startsWith("META-INF")) {
                     set.add(e.getName());
                 }
                 e = input.getNextEntry();
@@ -180,14 +182,14 @@ public class InstallAuthlib {
     }
 
     private byte[] repackAuthlibJar(byte[] data, Path path) throws IOException {
-        try(ZipInputStream input = new ZipInputStream(new ByteArrayInputStream(data))) {
+        try (ZipInputStream input = new ZipInputStream(new ByteArrayInputStream(data))) {
             ByteArrayOutputStream result = new ByteArrayOutputStream();
-            try(ZipOutputStream output = new ZipOutputStream(result)) {
+            try (ZipOutputStream output = new ZipOutputStream(result)) {
                 Set<String> blacklist = new HashSet<>();
-                try(ZipInputStream input2 = IOHelper.newZipInput(path)) {
+                try (ZipInputStream input2 = IOHelper.newZipInput(path)) {
                     ZipEntry e = input2.getNextEntry();
-                    while(e != null) {
-                        if(e.getName().startsWith("META-INF")) {
+                    while (e != null) {
+                        if (e.getName().startsWith("META-INF")) {
                             e = input2.getNextEntry();
                             continue;
                         }
@@ -199,8 +201,8 @@ public class InstallAuthlib {
                     }
                 }
                 ZipEntry e = input.getNextEntry();
-                while(e != null) {
-                    if(blacklist.contains(e.getName())) {
+                while (e != null) {
+                    if (blacklist.contains(e.getName())) {
                         e = input.getNextEntry();
                         continue;
                     }

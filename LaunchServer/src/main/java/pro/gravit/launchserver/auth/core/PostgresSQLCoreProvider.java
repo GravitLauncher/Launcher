@@ -18,7 +18,10 @@ import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -85,7 +88,7 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
         try {
             var info = LegacySessionHelper.getJwtInfoFromAccessToken(accessToken, server.keyAgreementManager.ecdsaPublicKey);
             var user = (PostgresSQLUser) getUserByUUID(info.uuid());
-            if(user == null) {
+            if (user == null) {
                 return null;
             }
             return new PostgresSQLCoreProvider.MySQLUserSession(user);
@@ -99,17 +102,17 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
     @Override
     public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context) {
         String[] parts = refreshToken.split("\\.");
-        if(parts.length != 2) {
+        if (parts.length != 2) {
             return null;
         }
         String username = parts[0];
         String token = parts[1];
         var user = (PostgresSQLUser) getUserByUsername(username);
-        if(user == null || user.password == null) {
+        if (user == null || user.password == null) {
             return null;
         }
         var realToken = LegacySessionHelper.makeRefreshTokenFromPassword(username, user.password, server.keyAgreementManager.legacySalt);
-        if(!token.equals(realToken)) {
+        if (!token.equals(realToken)) {
             return null;
         }
         var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
@@ -119,15 +122,15 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
     @Override
     public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
         PostgresSQLUser postgresSQLUser = (PostgresSQLUser) getUserByLogin(login);
-        if(postgresSQLUser == null) {
+        if (postgresSQLUser == null) {
             throw AuthException.wrongPassword();
         }
-        if(context != null) {
+        if (context != null) {
             AuthPlainPassword plainPassword = (AuthPlainPassword) password;
-            if(plainPassword == null) {
+            if (plainPassword == null) {
                 throw AuthException.wrongPassword();
             }
-            if(!passwordVerifier.check(postgresSQLUser.password, plainPassword.password)) {
+            if (!passwordVerifier.check(postgresSQLUser.password, plainPassword.password)) {
                 throw AuthException.wrongPassword();
             }
         }

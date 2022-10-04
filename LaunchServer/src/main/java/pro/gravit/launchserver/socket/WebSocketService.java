@@ -93,6 +93,22 @@ public class WebSocketService {
         providers.register("getPublicKey", GetPublicKeyResponse.class);
     }
 
+    public static String getIPFromContext(ChannelHandlerContext ctx) {
+        var handler = ctx.pipeline().get(WebSocketFrameHandler.class);
+        if (handler == null || handler.context == null || handler.context.ip == null) {
+            return IOHelper.getIP(ctx.channel().remoteAddress());
+        }
+        return handler.context.ip;
+    }
+
+    public static String getIPFromChannel(Channel channel) {
+        var handler = channel.pipeline().get(WebSocketFrameHandler.class);
+        if (handler == null || handler.context == null || handler.context.ip == null) {
+            return IOHelper.getIP(channel.remoteAddress());
+        }
+        return handler.context.ip;
+    }
+
     public void forEachActiveChannels(BiConsumer<Channel, WebSocketFrameHandler> callback) {
         for (Channel channel : channels) {
             if (channel == null || channel.pipeline() == null) continue;
@@ -176,25 +192,9 @@ public class WebSocketService {
         channels.add(channel);
     }
 
-    public static String getIPFromContext(ChannelHandlerContext ctx) {
-        var handler = ctx.pipeline().get(WebSocketFrameHandler.class);
-        if(handler == null || handler.context == null || handler.context.ip == null) {
-            return IOHelper.getIP(ctx.channel().remoteAddress());
-        }
-        return handler.context.ip;
-    }
-
-    public static String getIPFromChannel(Channel channel) {
-        var handler = channel.pipeline().get(WebSocketFrameHandler.class);
-        if(handler == null || handler.context == null || handler.context.ip == null) {
-            return IOHelper.getIP(channel.remoteAddress());
-        }
-        return handler.context.ip;
-    }
-
     public void sendObject(ChannelHandlerContext ctx, Object obj) {
         String msg = gson.toJson(obj, WebSocketEvent.class);
-        if(logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("Send to {}: {}", getIPFromContext(ctx), msg);
         }
         ctx.writeAndFlush(new TextWebSocketFrame(msg), ctx.voidPromise());
@@ -202,7 +202,7 @@ public class WebSocketService {
 
     public void sendObject(ChannelHandlerContext ctx, Object obj, Type type) {
         String msg = gson.toJson(obj, type);
-        if(logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("Send to {}: {}", getIPFromContext(ctx), msg);
         }
         ctx.writeAndFlush(new TextWebSocketFrame(msg), ctx.voidPromise());
@@ -210,7 +210,7 @@ public class WebSocketService {
 
     public void sendObject(Channel channel, Object obj) {
         String msg = gson.toJson(obj, WebSocketEvent.class);
-        if(logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("Send to channel {}: {}", getIPFromChannel(channel), msg);
         }
         channel.writeAndFlush(new TextWebSocketFrame(msg), channel.voidPromise());
@@ -218,7 +218,7 @@ public class WebSocketService {
 
     public void sendObject(Channel channel, Object obj, Type type) {
         String msg = gson.toJson(obj, type);
-        if(logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("Send to channel {}: {}", getIPFromChannel(channel), msg);
         }
         channel.writeAndFlush(new TextWebSocketFrame(msg), channel.voidPromise());
@@ -226,7 +226,7 @@ public class WebSocketService {
 
     public void sendObjectAll(Object obj) {
         String msg = gson.toJson(obj, WebSocketEvent.class);
-        if(logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("Send to all: {}", msg);
         }
         for (Channel ch : channels) {
@@ -236,7 +236,7 @@ public class WebSocketService {
 
     public void sendObjectAll(Object obj, Type type) {
         String msg = gson.toJson(obj, type);
-        if(logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("Send to all: {}", msg);
         }
         for (Channel ch : channels) {
@@ -252,7 +252,7 @@ public class WebSocketService {
             Client client = wsHandler.getClient();
             if (client == null || !userUuid.equals(client.uuid)) continue;
             String msg = gson.toJson(obj, type);
-            if(logger.isTraceEnabled()) {
+            if (logger.isTraceEnabled()) {
                 logger.trace("Send to {}({}): {}", getIPFromChannel(ch), userUuid, msg);
             }
             ch.writeAndFlush(new TextWebSocketFrame(msg), ch.voidPromise());
@@ -320,7 +320,7 @@ public class WebSocketService {
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
         String msg = gson.toJson(obj, WebSocketEvent.class);
-        if(logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("Send and close {}: {}", getIPFromContext(ctx), msg);
         }
         ctx.writeAndFlush(new TextWebSocketFrame(msg)).addListener(ChannelFutureListener.CLOSE);
@@ -328,7 +328,7 @@ public class WebSocketService {
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj, Type type) {
         String msg = gson.toJson(obj, type);
-        if(logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("Send and close {}: {}", getIPFromContext(ctx), msg);
         }
         ctx.writeAndFlush(new TextWebSocketFrame(msg)).addListener(ChannelFutureListener.CLOSE);
@@ -337,7 +337,7 @@ public class WebSocketService {
     @Deprecated
     public void sendEvent(EventResult obj) {
         String msg = gson.toJson(obj, WebSocketEvent.class);
-        if(logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("Send event: {}", msg);
         }
         channels.writeAndFlush(new TextWebSocketFrame(msg), ChannelMatchers.all(), true);

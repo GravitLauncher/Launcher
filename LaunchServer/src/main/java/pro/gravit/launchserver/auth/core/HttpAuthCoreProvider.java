@@ -27,7 +27,6 @@ import java.util.*;
 
 public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSupportHardware {
     private transient final Logger logger = LogManager.getLogger();
-    private transient HttpRequester requester;
     public String bearerToken;
     public String getUserByUsernameUrl;
     public String getUserByLoginUrl;
@@ -49,6 +48,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
     public String getUsersByHardwareInfoUrl;
     public String banHardwareUrl;
     public String unbanHardwareUrl;
+    private transient HttpRequester requester;
 
     @Override
     public User getUserByUsername(String username) {
@@ -62,7 +62,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public User getUserByLogin(String login) {
-        if(getUserByLoginUrl != null) {
+        if (getUserByLoginUrl != null) {
             try {
                 return requester.send(requester.get(CommonHelper.replace(getUserByLoginUrl, "login", login), null), HttpUser.class).getOrThrow();
             } catch (IOException e) {
@@ -85,7 +85,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
-        if(getAuthDetailsUrl == null) {
+        if (getAuthDetailsUrl == null) {
             return super.getDetails(client);
         }
         try {
@@ -99,14 +99,14 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
-        if(getUserByTokenUrl == null) {
+        if (getUserByTokenUrl == null) {
             return null;
         }
         try {
             var result = requester.send(requester.get(getUserByTokenUrl, accessToken), HttpUserSession.class);
-            if(!result.isSuccessful()) {
+            if (!result.isSuccessful()) {
                 var error = result.error().error;
-                if(error.equals(AuthRequestEvent.OAUTH_TOKEN_EXPIRE)) {
+                if (error.equals(AuthRequestEvent.OAUTH_TOKEN_EXPIRE)) {
                     throw new OAuthAccessTokenExpired();
                 }
                 return null;
@@ -120,7 +120,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context) {
-        if(refreshTokenUrl == null) {
+        if (refreshTokenUrl == null) {
             return null;
         }
         try {
@@ -136,9 +136,9 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
     public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
         var result = requester.send(requester.post(authorizeUrl, new AuthorizeRequest(login, context, password, minecraftAccess),
                 bearerToken), HttpAuthReport.class);
-        if(!result.isSuccessful()) {
+        if (!result.isSuccessful()) {
             var error = result.error().error;
-            if(error != null) {
+            if (error != null) {
                 throw new AuthException(error);
             }
         }
@@ -147,7 +147,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public UserHardware getHardwareInfoByPublicKey(byte[] publicKey) {
-        if(getHardwareInfoByPublicKeyUrl == null) {
+        if (getHardwareInfoByPublicKeyUrl == null) {
             return null;
         }
         try {
@@ -161,7 +161,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public UserHardware getHardwareInfoByData(HardwareReportRequest.HardwareInfo info) {
-        if(getHardwareInfoByDataUrl == null) {
+        if (getHardwareInfoByDataUrl == null) {
             return null;
         }
         try {
@@ -179,7 +179,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public UserHardware getHardwareInfoById(String id) {
-        if(getHardwareInfoByIdUrl == null) {
+        if (getHardwareInfoByIdUrl == null) {
             return null;
         }
         try {
@@ -193,7 +193,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public UserHardware createHardwareInfo(HardwareReportRequest.HardwareInfo info, byte[] publicKey) {
-        if(createHardwareInfoUrl == null) {
+        if (createHardwareInfoUrl == null) {
             return null;
         }
         try {
@@ -207,7 +207,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public void connectUserAndHardware(UserSession userSession, UserHardware hardware) {
-        if(connectUserAndHardwareUrl == null) {
+        if (connectUserAndHardwareUrl == null) {
             return;
         }
         try {
@@ -219,11 +219,11 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public void addPublicKeyToHardwareInfo(UserHardware hardware, byte[] publicKey) {
-        if(addPublicKeyToHardwareInfoUrl == null) {
+        if (addPublicKeyToHardwareInfoUrl == null) {
             return;
         }
         try {
-            requester.send(requester.post(addPublicKeyToHardwareInfoUrl, new HardwareRequest((HttpUserHardware)hardware, publicKey), bearerToken), Void.class);
+            requester.send(requester.post(addPublicKeyToHardwareInfoUrl, new HardwareRequest((HttpUserHardware) hardware, publicKey), bearerToken), Void.class);
         } catch (IOException e) {
             logger.error(e);
         }
@@ -231,7 +231,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public Iterable<User> getUsersByHardwareInfo(UserHardware hardware) {
-        if(getUsersByHardwareInfoUrl == null) {
+        if (getUsersByHardwareInfoUrl == null) {
             return null;
         }
         try {
@@ -245,7 +245,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public void banHardware(UserHardware hardware) {
-        if(banHardwareUrl == null) {
+        if (banHardwareUrl == null) {
             return;
         }
         try {
@@ -257,21 +257,13 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     @Override
     public void unbanHardware(UserHardware hardware) {
-        if(unbanHardwareUrl == null) {
+        if (unbanHardwareUrl == null) {
             return;
         }
         try {
             requester.send(requester.post(unbanHardwareUrl, new HardwareRequest((HttpUserHardware) hardware), bearerToken), Void.class);
         } catch (IOException e) {
             logger.error(e);
-        }
-    }
-
-    public record HttpAuthReport(String minecraftAccessToken, String oauthAccessToken,
-                                 String oauthRefreshToken, long oauthExpire,
-                                 HttpUserSession session) {
-        public AuthManager.AuthReport toAuthReport() {
-            return new AuthManager.AuthReport(minecraftAccessToken, oauthAccessToken, oauthRefreshToken, oauthExpire, session);
         }
     }
 
@@ -291,6 +283,36 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
     public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
         var result = requester.send(requester.post(joinServerUrl, new JoinServerRequest(username, accessToken, serverID), bearerToken), Void.class);
         return result.isSuccessful();
+    }
+
+    @Override
+    public void init(LaunchServer server) {
+        requester = new HttpRequester();
+        if (getUserByUsernameUrl == null) {
+            throw new IllegalArgumentException("'getUserByUsernameUrl' can't be null");
+        }
+        if (getUserByUUIDUrl == null) {
+            throw new IllegalArgumentException("'getUserByUUIDUrl' can't be null");
+        }
+        if (authorizeUrl == null) {
+            throw new IllegalArgumentException("'authorizeUrl' can't be null");
+        }
+        if (checkServerUrl == null && joinServerUrl == null && updateServerIdUrl == null) {
+            throw new IllegalArgumentException("Please set 'checkServerUrl' and 'joinServerUrl' or 'updateServerIdUrl'");
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+
+    }
+
+    public record HttpAuthReport(String minecraftAccessToken, String oauthAccessToken,
+                                 String oauthRefreshToken, long oauthExpire,
+                                 HttpUserSession session) {
+        public AuthManager.AuthReport toAuthReport() {
+            return new AuthManager.AuthReport(minecraftAccessToken, oauthAccessToken, oauthRefreshToken, oauthExpire, session);
+        }
     }
 
     public static class UpdateServerIdRequest {
@@ -329,28 +351,6 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             this.accessToken = accessToken;
             this.serverId = serverId;
         }
-    }
-
-    @Override
-    public void init(LaunchServer server) {
-        requester = new HttpRequester();
-        if(getUserByUsernameUrl == null) {
-            throw new IllegalArgumentException("'getUserByUsernameUrl' can't be null");
-        }
-        if(getUserByUUIDUrl == null) {
-            throw new IllegalArgumentException("'getUserByUUIDUrl' can't be null");
-        }
-        if(authorizeUrl == null) {
-            throw new IllegalArgumentException("'authorizeUrl' can't be null");
-        }
-        if(checkServerUrl == null && joinServerUrl == null && updateServerIdUrl == null) {
-            throw new IllegalArgumentException("Please set 'checkServerUrl' and 'joinServerUrl' or 'updateServerIdUrl'");
-        }
-    }
-
-    @Override
-    public void close() throws IOException {
-
     }
 
     public static class AuthorizeRequest {
@@ -398,153 +398,6 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             this(null, key, null);
         }
 
-    }
-
-    public class HttpUser implements User, UserSupportTextures, UserSupportProperties, UserSupportHardware {
-        private String username;
-        private UUID uuid;
-        private String serverId;
-        private String accessToken;
-        private ClientPermissions permissions;
-        @Deprecated
-        private Texture skin;
-        @Deprecated
-        private Texture cloak;
-        private Map<String, Texture> assets;
-        private Map<String, String> properties;
-        private long hwidId;
-        private transient HttpUserHardware hardware;
-
-        public HttpUser() {
-        }
-
-        public HttpUser(String username, UUID uuid, String serverId, String accessToken, ClientPermissions permissions, long hwidId) {
-            this.username = username;
-            this.uuid = uuid;
-            this.serverId = serverId;
-            this.accessToken = accessToken;
-            this.permissions = permissions;
-            this.hwidId = hwidId;
-        }
-
-        public HttpUser(String username, UUID uuid, String serverId, String accessToken, ClientPermissions permissions, Texture skin, Texture cloak, long hwidId) {
-            this.username = username;
-            this.uuid = uuid;
-            this.serverId = serverId;
-            this.accessToken = accessToken;
-            this.permissions = permissions;
-            this.skin = skin;
-            this.cloak = cloak;
-            this.hwidId = hwidId;
-        }
-
-        public HttpUser(String username, UUID uuid, String serverId, String accessToken, ClientPermissions permissions, Texture skin, Texture cloak, Map<String, String> properties, long hwidId) {
-            this.username = username;
-            this.uuid = uuid;
-            this.serverId = serverId;
-            this.accessToken = accessToken;
-            this.permissions = permissions;
-            this.skin = skin;
-            this.cloak = cloak;
-            this.properties = properties;
-            this.hwidId = hwidId;
-        }
-
-        public HttpUser(String username, UUID uuid, String serverId, String accessToken, ClientPermissions permissions, Map<String, Texture> assets, Map<String, String> properties, long hwidId) {
-            this.username = username;
-            this.uuid = uuid;
-            this.serverId = serverId;
-            this.accessToken = accessToken;
-            this.permissions = permissions;
-            this.assets = assets;
-            this.properties = properties;
-            this.hwidId = hwidId;
-        }
-
-        @Override
-        public String getUsername() {
-            return username;
-        }
-
-        @Override
-        public UUID getUUID() {
-            return uuid;
-        }
-
-        @Override
-        public String getServerId() {
-            return serverId;
-        }
-
-        @Override
-        public String getAccessToken() {
-            return accessToken;
-        }
-
-        @Override
-        public ClientPermissions getPermissions() {
-            return permissions;
-        }
-
-        @Override
-        public Texture getSkinTexture() {
-            if(assets == null) {
-                return skin;
-            }
-            return assets.get("SKIN");
-        }
-
-        @Override
-        public Texture getCloakTexture() {
-            if(assets == null) {
-                return cloak;
-            }
-            return assets.get("CAPE");
-        }
-
-        public Map<String, Texture> getAssets() {
-            if(assets == null) {
-                Map<String, Texture> map = new HashMap<>();
-                if(skin != null) {
-                    map.put("SKIN", skin);
-                }
-                if(cloak != null) {
-                    map.put("CAPE", cloak);
-                }
-                return map;
-            }
-            return assets;
-        }
-
-        @Override
-        public Map<String, String> getProperties() {
-            if(properties == null) {
-                return new HashMap<>();
-            }
-            return properties;
-        }
-
-        @Override
-        public String toString() {
-            return "HttpUser{" +
-                    "username='" + username + '\'' +
-                    ", uuid=" + uuid +
-                    ", serverId='" + serverId + '\'' +
-                    ", accessToken='" + accessToken + '\'' +
-                    ", permissions=" + permissions +
-                    ", assets=" + getAssets() +
-                    ", properties=" + properties +
-                    ", hwidId=" + hwidId +
-                    '}';
-        }
-
-        @Override
-        public UserHardware getHardware() {
-            if (hardware != null) return hardware;
-            HttpAuthCoreProvider.HttpUserHardware result = (HttpUserHardware) getHardwareInfoById(String.valueOf(hwidId));
-            hardware = result;
-            return result;
-        }
     }
 
     public static class HttpUserSession implements UserSession {
@@ -644,6 +497,153 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
                     ", id=" + id +
                     ", banned=" + banned +
                     '}';
+        }
+    }
+
+    public class HttpUser implements User, UserSupportTextures, UserSupportProperties, UserSupportHardware {
+        private String username;
+        private UUID uuid;
+        private String serverId;
+        private String accessToken;
+        private ClientPermissions permissions;
+        @Deprecated
+        private Texture skin;
+        @Deprecated
+        private Texture cloak;
+        private Map<String, Texture> assets;
+        private Map<String, String> properties;
+        private long hwidId;
+        private transient HttpUserHardware hardware;
+
+        public HttpUser() {
+        }
+
+        public HttpUser(String username, UUID uuid, String serverId, String accessToken, ClientPermissions permissions, long hwidId) {
+            this.username = username;
+            this.uuid = uuid;
+            this.serverId = serverId;
+            this.accessToken = accessToken;
+            this.permissions = permissions;
+            this.hwidId = hwidId;
+        }
+
+        public HttpUser(String username, UUID uuid, String serverId, String accessToken, ClientPermissions permissions, Texture skin, Texture cloak, long hwidId) {
+            this.username = username;
+            this.uuid = uuid;
+            this.serverId = serverId;
+            this.accessToken = accessToken;
+            this.permissions = permissions;
+            this.skin = skin;
+            this.cloak = cloak;
+            this.hwidId = hwidId;
+        }
+
+        public HttpUser(String username, UUID uuid, String serverId, String accessToken, ClientPermissions permissions, Texture skin, Texture cloak, Map<String, String> properties, long hwidId) {
+            this.username = username;
+            this.uuid = uuid;
+            this.serverId = serverId;
+            this.accessToken = accessToken;
+            this.permissions = permissions;
+            this.skin = skin;
+            this.cloak = cloak;
+            this.properties = properties;
+            this.hwidId = hwidId;
+        }
+
+        public HttpUser(String username, UUID uuid, String serverId, String accessToken, ClientPermissions permissions, Map<String, Texture> assets, Map<String, String> properties, long hwidId) {
+            this.username = username;
+            this.uuid = uuid;
+            this.serverId = serverId;
+            this.accessToken = accessToken;
+            this.permissions = permissions;
+            this.assets = assets;
+            this.properties = properties;
+            this.hwidId = hwidId;
+        }
+
+        @Override
+        public String getUsername() {
+            return username;
+        }
+
+        @Override
+        public UUID getUUID() {
+            return uuid;
+        }
+
+        @Override
+        public String getServerId() {
+            return serverId;
+        }
+
+        @Override
+        public String getAccessToken() {
+            return accessToken;
+        }
+
+        @Override
+        public ClientPermissions getPermissions() {
+            return permissions;
+        }
+
+        @Override
+        public Texture getSkinTexture() {
+            if (assets == null) {
+                return skin;
+            }
+            return assets.get("SKIN");
+        }
+
+        @Override
+        public Texture getCloakTexture() {
+            if (assets == null) {
+                return cloak;
+            }
+            return assets.get("CAPE");
+        }
+
+        public Map<String, Texture> getAssets() {
+            if (assets == null) {
+                Map<String, Texture> map = new HashMap<>();
+                if (skin != null) {
+                    map.put("SKIN", skin);
+                }
+                if (cloak != null) {
+                    map.put("CAPE", cloak);
+                }
+                return map;
+            }
+            return assets;
+        }
+
+        @Override
+        public Map<String, String> getProperties() {
+            if (properties == null) {
+                return new HashMap<>();
+            }
+            return properties;
+        }
+
+        @Override
+        public String toString() {
+            return "HttpUser{" +
+                    "username='" + username + '\'' +
+                    ", uuid=" + uuid +
+                    ", serverId='" + serverId + '\'' +
+                    ", accessToken='" + accessToken + '\'' +
+                    ", permissions=" + permissions +
+                    ", assets=" + getAssets() +
+                    ", properties=" + properties +
+                    ", hwidId=" + hwidId +
+                    '}';
+        }
+
+        @Override
+        public UserHardware getHardware() {
+            if (hardware != null) return hardware;
+            HttpAuthCoreProvider.HttpUserHardware result = (HttpUserHardware) getHardwareInfoById(String.valueOf(hwidId));
+            hardware = result;
+            return result;
         }
     }
 }

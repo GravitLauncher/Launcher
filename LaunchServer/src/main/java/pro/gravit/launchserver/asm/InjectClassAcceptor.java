@@ -67,7 +67,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
         List<MethodNode> constructors = classNode.methods.stream().filter(method -> "<init>".equals(method.name))
                 .collect(Collectors.toList());
         MethodNode initMethod = constructors.stream().filter(method -> method.invisibleAnnotations != null
-                && method.invisibleAnnotations.stream().anyMatch(annotation -> INJECTED_CONSTRUCTOR_DESC.equals(annotation.desc))).findFirst()
+                        && method.invisibleAnnotations.stream().anyMatch(annotation -> INJECTED_CONSTRUCTOR_DESC.equals(annotation.desc))).findFirst()
                 .orElseGet(() -> constructors.stream().filter(method -> method.desc.equals("()V")).findFirst().orElse(null));
         classNode.fields.forEach(field -> {
             // Notice that fields that will be used with this algo should not have default
