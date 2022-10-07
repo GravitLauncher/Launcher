@@ -45,11 +45,23 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
         public String name;
         @LauncherNetworkAPI
         public String displayName;
+        @LauncherNetworkAPI
+        public String apiUrl;
+        @LauncherNetworkAPI
+        public List<String> apiFeatures;
 
         public AuthAvailability(String name, String displayName, List<AuthAvailabilityDetails> details) {
             this.name = name;
             this.displayName = displayName;
             this.details = details;
+        }
+
+        public AuthAvailability(String name, String displayName, List<AuthAvailabilityDetails> details, String apiUrl, List<String> apiFeatures) {
+            this.details = details;
+            this.name = name;
+            this.displayName = displayName;
+            this.apiUrl = apiUrl;
+            this.apiFeatures = apiFeatures;
         }
     }
 }
