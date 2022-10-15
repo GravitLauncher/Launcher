@@ -69,6 +69,10 @@ public final class HashedFile extends HashedEntry {
         return size;
     }
 
+    public byte[] getDigest() {
+        return digest;
+    }
+
     @Override
     public void write(HOutput output) throws IOException {
         output.writeVarLong(size);
