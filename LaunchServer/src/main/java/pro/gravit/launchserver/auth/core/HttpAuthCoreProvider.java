@@ -13,6 +13,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportRemoteClientAccess;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportProperties;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportTextures;
@@ -25,7 +26,7 @@ import pro.gravit.utils.helper.CommonHelper;
 import java.io.IOException;
 import java.util.*;
 
-public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSupportHardware {
+public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSupportHardware, AuthSupportRemoteClientAccess {
     private transient final Logger logger = LogManager.getLogger();
     private transient HttpRequester requester;
     public String bearerToken;
@@ -49,6 +50,8 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
     public String getUsersByHardwareInfoUrl;
     public String banHardwareUrl;
     public String unbanHardwareUrl;
+    public String apiUrl;
+    public List<String> apiFeatures;
 
     @Override
     public User getUserByUsername(String username) {
@@ -265,6 +268,16 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
         } catch (IOException e) {
             logger.error(e);
         }
+    }
+
+    @Override
+    public String getClientApiUrl() {
+        return apiUrl;
+    }
+
+    @Override
+    public List<String> getClientApiFeatures() {
+        return apiFeatures;
     }
 
     public record HttpAuthReport(String minecraftAccessToken, String oauthAccessToken,

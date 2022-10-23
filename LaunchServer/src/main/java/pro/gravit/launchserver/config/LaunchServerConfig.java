@@ -281,6 +281,7 @@ public final class LaunchServerConfig {
         public boolean ipForwarding;
         public boolean disableWebApiInterface;
         public boolean showHiddenFiles;
+        public boolean sendProfileUpdatesEvent = true;
         public String launcherURL;
         public String downloadURL;
         public String launcherEXEURL;
