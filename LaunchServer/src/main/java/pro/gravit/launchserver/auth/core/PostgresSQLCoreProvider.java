@@ -35,16 +35,22 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
     public String serverIDColumn;
     public String table;
 
+    public String permissionsTable;
+    public String permissionsPermissionColumn;
+    public String permissionsUUIDColumn;
+
     public PasswordVerifier passwordVerifier;
     public String customQueryByUUIDSQL;
     public String customQueryByUsernameSQL;
     public String customQueryByLoginSQL;
+    public String customQueryPermissionsByUUIDSQL;
     public String customUpdateAuthSQL;
     public String customUpdateServerIdSQL;
     // Prepared SQL queries
     private transient String queryByUUIDSQL;
     private transient String queryByUsernameSQL;
     private transient String queryByLoginSQL;
+    private transient String queryPermissionsByUUIDSQL;
     private transient String updateAuthSQL;
     private transient String updateServerIDSQL;
 
@@ -160,6 +166,9 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
                 userInfoCols, table, usernameColumn);
         queryByLoginSQL = customQueryByLoginSQL != null ? customQueryByLoginSQL : queryByUsernameSQL;
 
+        queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL : String.format("SELECT (%s) FROM %s WHERE %s=?",
+                permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
+
         updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=?",
                 table, accessTokenColumn, serverIDColumn, uuidColumn);
         updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=?",
@@ -202,7 +211,24 @@ public class PostgresSQLCoreProvider extends AuthCoreProvider {
 
     private PostgresSQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new PostgresSQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
-                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), new ClientPermissions()) : null;
+                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn))) : null;
+    }
+
+    private ClientPermissions requestPermissions (String uuid)  throws SQLException
+    {
+        try (Connection c = postgresSQLHolder.getConnection()) {
+            PreparedStatement s = c.prepareStatement(queryPermissionsByUUIDSQL);
+            s.setString(1, uuid);
+            s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
+            ResultSet set = s.executeQuery();
+            ClientPermissions perms = new ClientPermissions();
+            while (set.next()) {
+                perms.addPerm(set.getString(permissionsPermissionColumn));
+            }
+            return perms;
+        } catch (SQLException e) {
+            throw new SQLException(e);
+        }
     }
 
     private User query(String sql, String value) throws IOException {
