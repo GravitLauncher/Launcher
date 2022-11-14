@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public final class MySQLSourceConfig implements AutoCloseable {
+public final class MySQLSourceConfig implements AutoCloseable, SQLSourceConfig {
 
     public static final int TIMEOUT = VerifyHelper.verifyInt(
             Integer.parseUnsignedInt(System.getProperty("launcher.mysql.idleTimeout", Integer.toString(5000))),
