@@ -11,6 +11,7 @@ import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
+import pro.gravit.launchserver.auth.SQLSourceConfig;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
@@ -32,28 +33,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHardware {
-    private transient final Logger logger = LogManager.getLogger();
+public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupportHardware {
     public MySQLSourceConfig mySQLHolder;
 
-    public int expireSeconds = 3600;
-    public String uuidColumn;
-    public String usernameColumn;
-    public String accessTokenColumn;
-    public String passwordColumn;
-    public String serverIDColumn;
     public String hardwareIdColumn;
-    public String table;
-
     public String tableHWID = "hwids";
     public String tableHWIDLog = "hwidLog";
-    public PasswordVerifier passwordVerifier;
     public double criticalCompareLevel = 1.0;
-    public String customQueryByUUIDSQL;
-    public String customQueryByUsernameSQL;
-    public String customQueryByLoginSQL;
-    public String customUpdateAuthSQL;
-    public String customUpdateServerIdSQL;
     private transient String sqlFindHardwareByPublicKey;
     private transient String sqlFindHardwareByData;
     private transient String sqlFindHardwareById;
@@ -63,130 +49,16 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
     private transient String sqlUpdateHardwareBanned;
     private transient String sqlUpdateUsers;
     private transient String sqlUsersByHwidId;
-    // Prepared SQL queries
-    private transient String queryByUUIDSQL;
-    private transient String queryByUsernameSQL;
-    private transient String queryByLoginSQL;
-    private transient String updateAuthSQL;
-    private transient String updateServerIDSQL;
-
-    private transient LaunchServer server;
 
     @Override
-    public User getUserByUsername(String username) {
-        try {
-            return query(queryByUsernameSQL, username);
-        } catch (IOException e) {
-            logger.error("SQL error", e);
-            return null;
-        }
-    }
-
-    @Override
-    public User getUserByUUID(UUID uuid) {
-        try {
-            return query(queryByUUIDSQL, uuid.toString());
-        } catch (IOException e) {
-            logger.error("SQL error", e);
-            return null;
-        }
-    }
-
-    @Override
-    public User getUserByLogin(String login) {
-        try {
-            return query(queryByLoginSQL, login);
-        } catch (IOException e) {
-            logger.error("SQL error", e);
-            return null;
-        }
-    }
-
-    @Override
-    public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
-        try {
-            var info = LegacySessionHelper.getJwtInfoFromAccessToken(accessToken, server.keyAgreementManager.ecdsaPublicKey);
-            var user = (MySQLUser) getUserByUUID(info.uuid());
-            if(user == null) {
-                return null;
-            }
-            return new MySQLUserSession(user);
-        } catch (ExpiredJwtException e) {
-            throw new OAuthAccessTokenExpired();
-        } catch (JwtException e) {
-            return null;
-        }
-    }
-
-    @Override
-    public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context) {
-        String[] parts = refreshToken.split("\\.");
-        if(parts.length != 2) {
-            return null;
-        }
-        String username = parts[0];
-        String token = parts[1];
-        var user = (MySQLUser) getUserByUsername(username);
-        if(user == null || user.password == null) {
-            return null;
-        }
-        var realToken = LegacySessionHelper.makeRefreshTokenFromPassword(username, user.password, server.keyAgreementManager.legacySalt);
-        if(!token.equals(realToken)) {
-            return null;
-        }
-        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
-        return new AuthManager.AuthReport(null, accessToken, refreshToken, expireSeconds * 1000L, new MySQLUserSession(user));
-    }
-
-    @Override
-    public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
-        MySQLUser mySQLUser = (MySQLUser) getUserByLogin(login);
-        if(mySQLUser == null) {
-            throw AuthException.wrongPassword();
-        }
-        if(context != null) {
-            AuthPlainPassword plainPassword = (AuthPlainPassword) password;
-            if(plainPassword == null) {
-                throw AuthException.wrongPassword();
-            }
-            if(!passwordVerifier.check(mySQLUser.password, plainPassword.password)) {
-                throw AuthException.wrongPassword();
-            }
-        }
-        MySQLUserSession session = new MySQLUserSession(mySQLUser);
-        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(mySQLUser, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
-        var refreshToken = mySQLUser.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(mySQLUser.username, mySQLUser.password, server.keyAgreementManager.legacySalt));
-        if (minecraftAccess) {
-            String minecraftAccessToken = SecurityHelper.randomStringToken();
-            updateAuth(mySQLUser, minecraftAccessToken);
-            return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, expireSeconds * 1000L, session);
-        } else {
-            return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, expireSeconds * 1000L, session);
-        }
+    public SQLSourceConfig getSQLConfig() {
+        return mySQLHolder;
     }
 
     @Override
     public void init(LaunchServer server) {
-        this.server = server;
-        if (mySQLHolder == null) logger.error("mySQLHolder cannot be null");
-        if (uuidColumn == null) logger.error("uuidColumn cannot be null");
-        if (usernameColumn == null) logger.error("usernameColumn cannot be null");
-        if (accessTokenColumn == null) logger.error("accessTokenColumn cannot be null");
-        if (serverIDColumn == null) logger.error("serverIDColumn cannot be null");
-        if (hardwareIdColumn == null) logger.error("hardwareIdColumn cannot be null");
-        if (table == null) logger.error("table cannot be null");
-        // Prepare SQL queries
+        super.init(server);
         String userInfoCols = String.format("%s, %s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn, hardwareIdColumn);
-        queryByUUIDSQL = customQueryByUUIDSQL != null ? customQueryByUUIDSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1", userInfoCols,
-                table, uuidColumn);
-        queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
-                userInfoCols, table, usernameColumn);
-        queryByLoginSQL = customQueryByLoginSQL != null ? customQueryByLoginSQL : queryByUsernameSQL;
-
-        updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=?",
-                table, accessTokenColumn, serverIDColumn, uuidColumn);
-        updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=?",
-                table, serverIDColumn, uuidColumn);
         String hardwareInfoCols = "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, graphicCard, banned, publicKey";
         if (sqlFindHardwareByPublicKey == null)
             sqlFindHardwareByPublicKey = String.format("SELECT %s FROM %s WHERE `publicKey` = ?", hardwareInfoCols, tableHWID);
@@ -206,43 +78,9 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         sqlUpdateUsers = String.format("UPDATE %s SET `%s` = ? WHERE `%s` = ?", table, hardwareIdColumn, uuidColumn);
     }
 
-    protected boolean updateAuth(User user, String accessToken) throws IOException {
-        try (Connection c = mySQLHolder.getConnection()) {
-            MySQLUser mySQLUser = (MySQLUser) user;
-            mySQLUser.accessToken = accessToken;
-            PreparedStatement s = c.prepareStatement(updateAuthSQL);
-            s.setString(1, accessToken);
-            s.setString(2, user.getUUID().toString());
-            s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
-            return s.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-    }
-
-    @Override
-    protected boolean updateServerID(User user, String serverID) throws IOException {
-        try (Connection c = mySQLHolder.getConnection()) {
-            MySQLUser mySQLUser = (MySQLUser) user;
-            mySQLUser.serverId = serverID;
-            PreparedStatement s = c.prepareStatement(updateServerIDSQL);
-            s.setString(1, serverID);
-            s.setString(2, user.getUUID().toString());
-            s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
-            return s.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-    }
-
-    @Override
-    public void close() throws IOException {
-        mySQLHolder.close();
-    }
-
     private MySQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new MySQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
-                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), new ClientPermissions(), set.getLong(hardwareIdColumn)) : null;
+                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn)), set.getLong(hardwareIdColumn)) : null;
     }
 
     private MySQLUserHardware fetchHardwareInfo(ResultSet set) throws SQLException, IOException {
@@ -270,20 +108,6 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         s.setString(2, uuid.toString());
         s.executeUpdate();
     }
-
-    private User query(String sql, String value) throws IOException {
-        try (Connection c = mySQLHolder.getConnection()) {
-            PreparedStatement s = c.prepareStatement(sql);
-            s.setString(1, value);
-            s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
-            try (ResultSet set = s.executeQuery()) {
-                return constructUser(set);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-    }
-
     @Override
     public UserHardware getHardwareInfoByPublicKey(byte[] publicKey) {
         try (Connection connection = mySQLHolder.getConnection()) {
@@ -371,8 +195,8 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
 
     @Override
     public void connectUserAndHardware(UserSession userSession, UserHardware hardware) {
-        MySQLUserSession mySQLUserSession = (MySQLUserSession) userSession;
-        MySQLUser mySQLUser = mySQLUserSession.user;
+        SQLUserSession mySQLUserSession = (SQLUserSession) userSession;
+        MySQLUser mySQLUser = (MySQLUser) mySQLUserSession.getUser();
         MySQLUserHardware mySQLUserHardware = (MySQLUserHardware) hardware;
         if (mySQLUser.hwidId == mySQLUserHardware.id) return;
         mySQLUser.hwidId = mySQLUserHardware.id;
@@ -488,51 +312,14 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
         }
     }
 
-    public class MySQLUser implements User, UserSupportHardware {
-        protected UUID uuid;
-        protected String username;
-        protected String accessToken;
-        protected String serverId;
-        protected String password;
-        protected ClientPermissions permissions;
+    public class MySQLUser extends SQLUser implements UserSupportHardware {
         protected long hwidId;
         protected transient MySQLUserHardware hardware;
 
         public MySQLUser(UUID uuid, String username, String accessToken, String serverId, String password, ClientPermissions permissions, long hwidId) {
-            this.uuid = uuid;
-            this.username = username;
-            this.accessToken = accessToken;
-            this.serverId = serverId;
-            this.password = password;
-            this.permissions = permissions;
+            super(uuid, username, accessToken, serverId, password, permissions);
             this.hwidId = hwidId;
         }
-
-        @Override
-        public String getUsername() {
-            return username;
-        }
-
-        @Override
-        public UUID getUUID() {
-            return uuid;
-        }
-
-        @Override
-        public String getServerId() {
-            return serverId;
-        }
-
-        @Override
-        public String getAccessToken() {
-            return accessToken;
-        }
-
-        @Override
-        public ClientPermissions getPermissions() {
-            return permissions;
-        }
-
         @Override
         public UserHardware getHardware() {
             if (hardware != null) return hardware;
@@ -549,31 +336,6 @@ public class MySQLCoreProvider extends AuthCoreProvider implements AuthSupportHa
                     ", permissions=" + permissions +
                     ", hwidId=" + hwidId +
                     '}';
-        }
-    }
-
-    public static class MySQLUserSession implements UserSession {
-        private final MySQLUser user;
-        private final String id;
-
-        public MySQLUserSession(MySQLUser user) {
-            this.user = user;
-            this.id = user.username;
-        }
-
-        @Override
-        public String getID() {
-            return id;
-        }
-
-        @Override
-        public User getUser() {
-            return user;
-        }
-
-        @Override
-        public long getExpireIn() {
-            return 0;
         }
     }
 }
