@@ -13,20 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 public class ProfilesResponse extends SimpleResponse {
-    @Override
-    public String getType() {
-        return "profiles";
-    }
-
-    @Override
-    public void execute(ChannelHandlerContext ctx, Client client) {
-        if (server.config.protectHandler instanceof ProfilesProtectHandler && !((ProfilesProtectHandler) server.config.protectHandler).canGetProfiles(client)) {
-            sendError("Access denied");
-            return;
-        }
-        sendResult(new ProfilesRequestEvent(getListVisibleProfiles(server, client)));
-    }
-
     public static List<ClientProfile> getListVisibleProfiles(LaunchServer server, Client client) {
         List<ClientProfile> profileList;
         Set<ClientProfile> serverProfiles = server.getProfiles();
@@ -41,5 +27,19 @@ public class ProfilesResponse extends SimpleResponse {
             profileList = List.copyOf(serverProfiles);
         }
         return profileList;
+    }
+
+    @Override
+    public String getType() {
+        return "profiles";
+    }
+
+    @Override
+    public void execute(ChannelHandlerContext ctx, Client client) {
+        if (server.config.protectHandler instanceof ProfilesProtectHandler && !((ProfilesProtectHandler) server.config.protectHandler).canGetProfiles(client)) {
+            sendError("Access denied");
+            return;
+        }
+        sendResult(new ProfilesRequestEvent(getListVisibleProfiles(server, client)));
     }
 }

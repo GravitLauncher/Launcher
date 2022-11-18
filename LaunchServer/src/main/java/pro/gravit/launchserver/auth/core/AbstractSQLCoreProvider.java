@@ -231,7 +231,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     }
 
     public boolean isEnabledPermissions() {
-        return permissionsTable != null && permissionsPermissionColumn != null && permissionsUUIDColumn != null;
+        return permissionsPermissionColumn != null;
     }
 
     private User query(String sql, String value) throws IOException {

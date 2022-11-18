@@ -65,12 +65,12 @@ public class Client {
     }
 
     @SuppressWarnings("unchecked")
-    public<T> T getStaticProperty(String name) {
+    public <T> T getStaticProperty(String name) {
         if (staticProperties == null) staticProperties = new HashMap<>();
         return (T) staticProperties.get(name);
     }
 
-    public<T> void setStaticProperty(String name, T value) {
+    public <T> void setStaticProperty(String name, T value) {
         if (staticProperties == null) staticProperties = new HashMap<>();
         staticProperties.put(name, value);
     }

@@ -57,7 +57,7 @@ public class DebugMain {
         ConsoleManager.initConsole();
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         RequestService service;
-        if(offlineMode) {
+        if (offlineMode) {
             OfflineRequestService offlineRequestService = new OfflineRequestService();
             LauncherEngine.applyBasicOfflineProcessors(offlineRequestService);
             OfflineModeEvent event = new OfflineModeEvent(offlineRequestService);

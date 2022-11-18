@@ -121,7 +121,7 @@ public class ClientLauncherEntryPoint {
         List<URL> classpathURLs = classpath.stream().map(IOHelper::toURL).collect(Collectors.toList());
         // Start client with WatchService monitoring
         RequestService service;
-        if(params.offlineMode) {
+        if (params.offlineMode) {
             service = initOffline(LauncherEngine.modulesManager, params);
             Request.setRequestService(service);
         } else {
@@ -231,13 +231,13 @@ public class ClientLauncherEntryPoint {
 
     public static void applyClientOfflineProcessors(OfflineRequestService service, ClientLauncherProcess.ClientParams params) {
         service.registerRequestProcessor(ProfileByUsernameRequest.class, (r) -> {
-            if(params.playerProfile.username.equals(r.username)) {
+            if (params.playerProfile.username.equals(r.username)) {
                 return new ProfileByUsernameRequestEvent(params.playerProfile);
             }
             throw new RequestException("User not found");
         });
         service.registerRequestProcessor(ProfileByUUIDRequest.class, (r) -> {
-            if(params.playerProfile.uuid.equals(r.uuid)) {
+            if (params.playerProfile.uuid.equals(r.uuid)) {
                 return new ProfileByUUIDRequestEvent(params.playerProfile);
             }
             throw new RequestException("User not found");

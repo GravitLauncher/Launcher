@@ -10,9 +10,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.Downloader;
 import pro.gravit.utils.helper.IOHelper;
-import proguard.OutputWriter;
 
-import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,11 +20,9 @@ import java.util.Collections;
 import java.util.List;
 
 public final class DownloadAssetCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
-
     private static final String MINECRAFT_VERSIONS_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
-
     private static final String RESOURCES_DOWNLOAD_URL = "https://resources.download.minecraft.net/";
+    private transient final Logger logger = LogManager.getLogger();
 
     public DownloadAssetCommand(LaunchServer server) {
         super(server);
@@ -52,23 +48,23 @@ public final class DownloadAssetCommand extends Command {
         Path assetDir = server.updatesDir.resolve(dirName);
 
         // Create asset dir
-        if(Files.notExists(assetDir)) {
+        if (Files.notExists(assetDir)) {
             logger.info("Creating asset dir: '{}'", dirName);
             Files.createDirectory(assetDir);
         }
 
-        if(type.equals("mojang")) {
+        if (type.equals("mojang")) {
             HttpRequester requester = new HttpRequester();
             logger.info("Fetch versions from {}", MINECRAFT_VERSIONS_URL);
             var versions = requester.send(requester.get(MINECRAFT_VERSIONS_URL, null), MinecraftVersions.class).getOrThrow();
             String profileUrl = null;
-            for(var e : versions.versions) {
-                if(e.id.equals(versionName)) {
+            for (var e : versions.versions) {
+                if (e.id.equals(versionName)) {
                     profileUrl = e.url;
                     break;
                 }
             }
-            if(profileUrl == null) {
+            if (profileUrl == null) {
                 logger.error("Version {} not found", versionName);
                 return;
             }
@@ -76,30 +72,30 @@ public final class DownloadAssetCommand extends Command {
             var profileInfo = requester.send(requester.get(profileUrl, null), MiniVersion.class).getOrThrow();
             String assetsIndexUrl = profileInfo.assetIndex.url;
             String assetIndex = profileInfo.assetIndex.id;
-            Path indexPath = assetDir.resolve("indexes").resolve(assetIndex+".json");
+            Path indexPath = assetDir.resolve("indexes").resolve(assetIndex + ".json");
             logger.info("Fetch asset index {} from {}", assetIndex, assetsIndexUrl);
             JsonObject assets = requester.send(requester.get(assetsIndexUrl, null), JsonObject.class).getOrThrow();
             JsonObject objects = assets.get("objects").getAsJsonObject();
-            try(Writer writer = IOHelper.newWriter(indexPath)) {
+            try (Writer writer = IOHelper.newWriter(indexPath)) {
                 logger.info("Save {}", indexPath);
                 Launcher.gsonManager.configGson.toJson(assets, writer);
             }
-            if(!assetIndex.equals(versionName)) {
-                Path targetPath = assetDir.resolve("indexes").resolve(versionName+".json");
+            if (!assetIndex.equals(versionName)) {
+                Path targetPath = assetDir.resolve("indexes").resolve(versionName + ".json");
                 logger.info("Copy {} into {}", indexPath, targetPath);
                 Files.copy(indexPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
             }
             List<AsyncDownloader.SizedFile> toDownload = new ArrayList<>(128);
-            for(var e : objects.entrySet()) {
+            for (var e : objects.entrySet()) {
                 var value = e.getValue().getAsJsonObject();
                 var hash = value.get("hash").getAsString();
                 hash = hash.substring(0, 2) + "/" + hash;
                 var size = value.get("size").getAsLong();
                 var path = "objects/" + hash;
                 var target = assetDir.resolve(path);
-                if(Files.exists(target)) {
+                if (Files.exists(target)) {
                     long fileSize = Files.size(target);
-                    if(fileSize != size) {
+                    if (fileSize != size) {
                         logger.warn("File {} corrupted. Size {}, expected {}", target, size, fileSize);
                     } else {
                         continue;

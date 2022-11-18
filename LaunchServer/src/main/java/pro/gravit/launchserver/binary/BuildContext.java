@@ -211,7 +211,8 @@ public class BuildContext {
             try {
                 cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
                 cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, iKeySpec);
-            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
+            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
+                     InvalidAlgorithmParameterException e) {
                 throw new RuntimeException(e);
             }
             try (OutputStream stream = new CipherOutputStream(new NoCloseOutputStream(output), cipher)) {

@@ -8,7 +8,6 @@ import pro.gravit.launcher.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.request.Request;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
@@ -379,18 +378,18 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         // Sort and set new profiles
         newProfies.sort(Comparator.comparing(a -> a));
         profilesList = Set.copyOf(newProfies);
-        if(config.netty.sendProfileUpdatesEvent) {
+        if (config.netty.sendProfileUpdatesEvent) {
             sendUpdateProfilesEvent();
         }
     }
 
     private void sendUpdateProfilesEvent() {
-        if(nettyServerSocketHandler == null || nettyServerSocketHandler.nettyServer == null || nettyServerSocketHandler.nettyServer.service == null) {
+        if (nettyServerSocketHandler == null || nettyServerSocketHandler.nettyServer == null || nettyServerSocketHandler.nettyServer.service == null) {
             return;
         }
         nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((ch, handler) -> {
             Client client = handler.getClient();
-            if(client == null || !client.isAuth) {
+            if (client == null || !client.isAuth) {
                 return;
             }
             ProfilesRequestEvent event = new ProfilesRequestEvent(ProfilesResponse.getListVisibleProfiles(this, client));
