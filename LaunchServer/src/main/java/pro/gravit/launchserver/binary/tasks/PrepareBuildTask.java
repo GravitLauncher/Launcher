@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PrepareBuildTask implements LauncherBuildTask {
     private final LaunchServer server;
@@ -33,8 +35,19 @@ public class PrepareBuildTask implements LauncherBuildTask {
     public Path process(Path inputFile) throws IOException {
         server.launcherBinary.coreLibs.clear();
         server.launcherBinary.addonLibs.clear();
-        IOHelper.walk(server.launcherLibraries, new ListFileVisitor(server.launcherBinary.coreLibs), true);
-        IOHelper.walk(server.launcherLibrariesCompile, new ListFileVisitor(server.launcherBinary.addonLibs), true);
+        server.launcherBinary.files.clear();
+        IOHelper.walk(server.launcherLibraries, new ListFileVisitor(server.launcherBinary.coreLibs), false);
+        IOHelper.walk(server.launcherLibrariesCompile, new ListFileVisitor(server.launcherBinary.addonLibs), false);
+        try(Stream<Path> stream = Files.walk(server.launcherPack).filter((e) -> {
+            try {
+                return !Files.isDirectory(e) && !Files.isHidden(e);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        })) {
+            var map = stream.collect(Collectors.toMap(k -> server.launcherPack.relativize(k).toString(), (v) -> v));
+            server.launcherBinary.files.putAll(map);
+        }
         UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), result);
         tryUnpack();
         return result;

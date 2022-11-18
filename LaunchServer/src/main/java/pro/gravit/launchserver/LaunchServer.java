@@ -67,6 +67,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      * The path to the folder with compile-only libraries for the launcher
      */
     public final Path launcherLibrariesCompile;
+    public final Path launcherPack;
     /**
      * The path to the folder with updates/webroot
      */
@@ -137,6 +138,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.service = Executors.newScheduledThreadPool(config.netty.performance.schedulerThread);
         launcherLibraries = directories.launcherLibrariesDir;
         launcherLibrariesCompile = directories.launcherLibrariesCompileDir;
+        launcherPack = directories.launcherPackDir;
+        if(!Files.isDirectory(launcherPack)) {
+            Files.createDirectories(launcherPack);
+        }
 
         config.setLaunchServer(this);
 
@@ -486,11 +491,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public static class LaunchServerDirectories {
         public static final String UPDATES_NAME = "updates", PROFILES_NAME = "profiles",
                 TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
-                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", KEY_NAME = ".keys";
+                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack", KEY_NAME = ".keys";
         public Path updatesDir;
         public Path profilesDir;
         public Path launcherLibrariesDir;
         public Path launcherLibrariesCompileDir;
+        public Path launcherPackDir;
         public Path keyDirectory;
         public Path dir;
         public Path trustStore;
@@ -503,6 +509,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (launcherLibrariesDir == null) launcherLibrariesDir = getPath(LAUNCHERLIBRARIES_NAME);
             if (launcherLibrariesCompileDir == null)
                 launcherLibrariesCompileDir = getPath(LAUNCHERLIBRARIESCOMPILE_NAME);
+            if(launcherPackDir == null)
+                launcherPackDir = getPath(LAUNCHERPACK_NAME);
             if (keyDirectory == null) keyDirectory = getPath(KEY_NAME);
             if (tmpDir == null)
                 tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve(String.format("launchserver-%s", SecurityHelper.randomStringToken()));
