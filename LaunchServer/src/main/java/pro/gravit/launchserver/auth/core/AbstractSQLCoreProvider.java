@@ -166,14 +166,14 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
                 userInfoCols, table, usernameColumn);
         queryByLoginSQL = customQueryByLoginSQL != null ? customQueryByLoginSQL : queryByUsernameSQL;
-
-        queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL : String.format("SELECT (%s) FROM %s WHERE %s=?",
-                permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
-
         updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=?",
                 table, accessTokenColumn, serverIDColumn, uuidColumn);
         updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=?",
                 table, serverIDColumn, uuidColumn);
+        if(isEnabledPermissions()) {
+            queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL : String.format("SELECT (%s) FROM %s WHERE %s=?",
+                    permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
+        }
     }
 
     protected boolean updateAuth(User user, String accessToken) throws IOException {
@@ -212,7 +212,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
 
     private SQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new SQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
-                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn))) : null;
+                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), isEnabledPermissions() ? requestPermissions(set.getString(uuidColumn)) : new ClientPermissions()) : null;
     }
 
     public ClientPermissions requestPermissions (String uuid)  throws SQLException
@@ -230,6 +230,10 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         } catch (SQLException e) {
             throw new SQLException(e);
         }
+    }
+
+    public boolean isEnabledPermissions() {
+        return permissionsTable != null && permissionsPermissionColumn != null && permissionsUUIDColumn != null;
     }
 
     private User query(String sql, String value) throws IOException {
