@@ -51,8 +51,9 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     public String customQueryByUsernameSQL;
     public String customQueryByLoginSQL;
     public String customQueryPermissionsByUUIDSQL;
-    public String customQueryRoleByUUIDSQL;
-    public String customQueryRoleByNameSQL;
+    //public String customQueryRoleByUUIDSQL;
+    //public String customQueryRoleByNameSQL;
+    public String customQueryRolesByUserUUID;
     public String customUpdateAuthSQL;
     public String customUpdateServerIdSQL;
     // Prepared SQL queries
@@ -60,8 +61,10 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     public transient String queryByUsernameSQL;
     public transient String queryByLoginSQL;
     public transient String queryPermissionsByUUIDSQL;
-    public transient String queryRoleByUUIDSQL;
-    public transient String queryRoleByNameSQL;
+    //public transient String queryRoleByUUIDSQL;
+    //public transient String queryRoleByNameSQL;
+    public transient String queryRolesByUserUUID;
+
     public transient String updateAuthSQL;
     public transient String updateServerIDSQL;
 
@@ -176,16 +179,30 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
                 userInfoCols, table, usernameColumn);
         queryByLoginSQL = customQueryByLoginSQL != null ? customQueryByLoginSQL : queryByUsernameSQL;
-
+/*
         queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL : String.format("SELECT (%s) FROM %s WHERE %s=?",
                 permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
+*/
 
+        queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL :
+                "WITH RECURSIVE req AS (\n" +
+                "SELECT p."+permissionsPermissionColumn+" FROM "+permissionsTable+" p WHERE p."+permissionsUUIDColumn+" = ?\n" +
+                "UNION ALL\n" +
+                "SELECT p."+permissionsPermissionColumn+" FROM "+permissionsTable+" p\n" +
+                "INNER JOIN "+rolesTable+" r ON p."+permissionsUUIDColumn+" = r."+rolesUUIDColumn+"\n" +
+                "INNER JOIN req ON r."+rolesUUIDColumn+"=substring(req.permission from 6) or r.name=substring(req.permission from 6)\n" +
+                ") SELECT * FROM req";
+
+        queryRolesByUserUUID = customQueryRolesByUserUUID != null ? customQueryRolesByUserUUID : String.format("SELECT r.%s FROM %s r\n" +
+                "INNER JOIN %s pr ON r.%s=substring(pr.%s from 6) or r.%s=substring(pr.%s from 6)\n" +
+                "WHERE pr.%s = ?",rolesNameColumn,rolesTable,permissionsTable,rolesUUIDColumn,permissionsPermissionColumn,rolesNameColumn,permissionsPermissionColumn,permissionsUUIDColumn);
+/*
         queryRoleByUUIDSQL = customQueryRoleByUUIDSQL != null ? customQueryRoleByUUIDSQL : String.format("SELECT %s, %s FROM %s WHERE %s=? LIMIT 1",
                 rolesUUIDColumn, rolesNameColumn,rolesTable,rolesUUIDColumn);
 
         queryRoleByNameSQL = customQueryRoleByNameSQL != null ? customQueryRoleByNameSQL : String.format("SELECT %s, %s FROM %s WHERE %s=? LIMIT 1",
                 rolesUUIDColumn, rolesNameColumn,rolesTable,rolesNameColumn);
-
+*/
         updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=?",
                 table, accessTokenColumn, serverIDColumn, uuidColumn);
         updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=?",
@@ -228,9 +245,15 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
 
     private SQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new SQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
+                //set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn))) : null;
                 set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn))) : null;
     }
 
+    public ClientPermissions requestPermissions (String uuid)  throws SQLException
+    {
+        return new ClientPermissions(queryRolesNames(queryRolesByUserUUID,uuid),queryPermissions(queryPermissionsByUUIDSQL,uuid));
+    }
+    /*
     public ClientPermissions requestPermissions (String uuid)  throws SQLException
     {
         try{
@@ -263,7 +286,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             perms.addPerm(perm);
         return true;
     }
-
+*/
     private SQLUser queryUser(String sql, String value) throws SQLException {
         try (Connection c = getSQLConfig().getConnection()) {
             PreparedStatement s = c.prepareStatement(sql);
@@ -292,6 +315,23 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         }
     }
 
+    private List<String> queryRolesNames(String sql, String value) throws SQLException {
+        try (Connection c = getSQLConfig().getConnection()) {
+            PreparedStatement s = c.prepareStatement(sql);
+            s.setString(1, value);
+            s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
+            ResultSet set = s.executeQuery();
+            List<String> perms = new ArrayList<>();
+            while (set.next())
+                perms.add(set.getString(rolesNameColumn));
+            return perms;
+        } catch (SQLException e) {
+            throw new SQLException(e);
+        }
+    }
+
+
+/*
     private SQLRole queryRole(String sql, String value) throws SQLException {
         try (Connection c = getSQLConfig().getConnection()) {
             PreparedStatement s = c.prepareStatement(sql);
@@ -315,7 +355,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             this.name = name;
             this.uuid = uuid;
         }
-    }
+    }*/
 
     public static class SQLUser implements User {
         protected UUID uuid;
