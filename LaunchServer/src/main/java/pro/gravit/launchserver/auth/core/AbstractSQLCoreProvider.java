@@ -24,6 +24,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
@@ -38,11 +40,17 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     public String permissionsTable;
     public String permissionsPermissionColumn;
     public String permissionsUUIDColumn;
+
+    public String rolesTable;
+    public String rolesNameColumn;
+    public String rolesUUIDColumn;
+
     public PasswordVerifier passwordVerifier;
     public String customQueryByUUIDSQL;
     public String customQueryByUsernameSQL;
     public String customQueryByLoginSQL;
     public String customQueryPermissionsByUUIDSQL;
+    public String customQueryRolesByUserUUID;
     public String customUpdateAuthSQL;
     public String customUpdateServerIdSQL;
     // Prepared SQL queries
@@ -50,6 +58,8 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     public transient String queryByUsernameSQL;
     public transient String queryByLoginSQL;
     public transient String queryPermissionsByUUIDSQL;
+    public transient String queryRolesByUserUUID;
+
     public transient String updateAuthSQL;
     public transient String updateServerIDSQL;
     public transient LaunchServer server;
@@ -59,8 +69,8 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     @Override
     public User getUserByUsername(String username) {
         try {
-            return query(queryByUsernameSQL, username);
-        } catch (IOException e) {
+            return queryUser(queryByUsernameSQL, username);
+        } catch (Exception e) {
             logger.error("SQL error", e);
             return null;
         }
@@ -69,8 +79,8 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     @Override
     public User getUserByUUID(UUID uuid) {
         try {
-            return query(queryByUUIDSQL, uuid.toString());
-        } catch (IOException e) {
+            return queryUser(queryByUUIDSQL, uuid.toString());
+        } catch (Exception e) {
             logger.error("SQL error", e);
             return null;
         }
@@ -79,8 +89,8 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     @Override
     public User getUserByLogin(String login) {
         try {
-            return query(queryByLoginSQL, login);
-        } catch (IOException e) {
+            return queryUser(queryByLoginSQL, login);
+        } catch (Exception e) {
             logger.error("SQL error", e);
             return null;
         }
@@ -165,6 +175,20 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
                 userInfoCols, table, usernameColumn);
         queryByLoginSQL = customQueryByLoginSQL != null ? customQueryByLoginSQL : queryByUsernameSQL;
+
+        queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL :
+                "WITH RECURSIVE req AS (\n" +
+                "SELECT p."+permissionsPermissionColumn+" FROM "+permissionsTable+" p WHERE p."+permissionsUUIDColumn+" = ?\n" +
+                "UNION ALL\n" +
+                "SELECT p."+permissionsPermissionColumn+" FROM "+permissionsTable+" p\n" +
+                "INNER JOIN "+rolesTable+" r ON p."+permissionsUUIDColumn+" = r."+rolesUUIDColumn+"\n" +
+                "INNER JOIN req ON r."+rolesUUIDColumn+"=substring(req.permission from 6) or r.name=substring(req.permission from 6)\n" +
+                ") SELECT * FROM req";
+
+        queryRolesByUserUUID = customQueryRolesByUserUUID != null ? customQueryRolesByUserUUID : String.format("SELECT r.%s FROM %s r\n" +
+                "INNER JOIN %s pr ON r.%s=substring(pr.%s from 6) or r.%s=substring(pr.%s from 6)\n" +
+                "WHERE pr.%s = ?",rolesNameColumn,rolesTable,permissionsTable,rolesUUIDColumn,permissionsPermissionColumn,rolesNameColumn,permissionsPermissionColumn,permissionsUUIDColumn);
+                
         updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=?",
                 table, accessTokenColumn, serverIDColumn, uuidColumn);
         updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=?",
@@ -214,27 +238,12 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
                 set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), isEnabledPermissions() ? requestPermissions(set.getString(uuidColumn)) : new ClientPermissions()) : null;
     }
 
-    public ClientPermissions requestPermissions(String uuid) throws SQLException {
-        try (Connection c = getSQLConfig().getConnection()) {
-            PreparedStatement s = c.prepareStatement(queryPermissionsByUUIDSQL);
-            s.setString(1, uuid);
-            s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
-            ResultSet set = s.executeQuery();
-            ClientPermissions perms = new ClientPermissions();
-            while (set.next()) {
-                perms.addPerm(set.getString(permissionsPermissionColumn));
-            }
-            return perms;
-        } catch (SQLException e) {
-            throw new SQLException(e);
-        }
+    public ClientPermissions requestPermissions (String uuid)  throws SQLException
+    {
+        return new ClientPermissions(queryRolesNames(queryRolesByUserUUID,uuid),queryPermissions(queryPermissionsByUUIDSQL,uuid));
     }
 
-    public boolean isEnabledPermissions() {
-        return permissionsPermissionColumn != null;
-    }
-
-    private User query(String sql, String value) throws IOException {
+    private SQLUser queryUser(String sql, String value) throws SQLException {
         try (Connection c = getSQLConfig().getConnection()) {
             PreparedStatement s = c.prepareStatement(sql);
             s.setString(1, value);
@@ -242,8 +251,36 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             try (ResultSet set = s.executeQuery()) {
                 return constructUser(set);
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
+        }
+    }
+
+    private List<String> queryPermissions(String sql, String value) throws SQLException {
+        try (Connection c = getSQLConfig().getConnection()) {
+            PreparedStatement s = c.prepareStatement(sql);
+            s.setString(1, value);
+            s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
+            ResultSet set = s.executeQuery();
+            List<String> perms = new ArrayList<>();
+            while (set.next())
+                perms.add(set.getString(permissionsPermissionColumn));
+            return perms;
+        }
+    }
+
+    public boolean isEnabledPermissions() {
+        return permissionsPermissionColumn != null;
+    }
+
+    private List<String> queryRolesNames(String sql, String value) throws SQLException {
+        try (Connection c = getSQLConfig().getConnection()) {
+            PreparedStatement s = c.prepareStatement(sql);
+            s.setString(1, value);
+            s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
+            ResultSet set = s.executeQuery();
+            List<String> perms = new ArrayList<>();
+            while (set.next())
+                perms.add(set.getString(rolesNameColumn));
+            return perms;
         }
     }
 
