@@ -247,8 +247,6 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             try (ResultSet set = s.executeQuery()) {
                 return constructUser(set);
             }
-        } catch (SQLException e) {
-            throw new SQLException(e);
         }
     }
 
@@ -262,8 +260,6 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             while (set.next())
                 perms.add(set.getString(permissionsPermissionColumn));
             return perms;
-        } catch (SQLException e) {
-            throw new SQLException(e);
         }
     }
 
@@ -277,8 +273,6 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             while (set.next())
                 perms.add(set.getString(rolesNameColumn));
             return perms;
-        } catch (SQLException e) {
-            throw new SQLException(e);
         }
     }
 
