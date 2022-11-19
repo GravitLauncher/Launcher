@@ -26,6 +26,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
@@ -46,13 +47,13 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     public String rolesUUIDColumn;
 
     public PasswordVerifier passwordVerifier;
-    public String customQueryByUUIDSQL;
-    public String customQueryByUsernameSQL;
-    public String customQueryByLoginSQL;
-    public String customQueryPermissionsByUUIDSQL;
-    public String customQueryRolesByUserUUID;
-    public String customUpdateAuthSQL;
-    public String customUpdateServerIdSQL;
+    public Optional<String> customQueryByUUIDSQL;
+    public Optional<String> customQueryByUsernameSQL;
+    public Optional<String> customQueryByLoginSQL;
+    public Optional<String> customQueryPermissionsByUUIDSQL;
+    public Optional<String> customQueryRolesByUserUUID;
+    public Optional<String> customUpdateAuthSQL;
+    public Optional<String> customUpdateServerIdSQL;
     // Prepared SQL queries
     public transient String queryByUUIDSQL;
     public transient String queryByUsernameSQL;
@@ -167,35 +168,49 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         if (usernameColumn == null) logger.error("usernameColumn cannot be null");
         if (accessTokenColumn == null) logger.error("accessTokenColumn cannot be null");
         if (serverIDColumn == null) logger.error("serverIDColumn cannot be null");
+        if (passwordColumn == null) logger.error("passwordColumn cannot be null");
         if (table == null) logger.error("table cannot be null");
         // Prepare SQL queries
+        initPrepareSQL();
+    }
+
+    protected void initPrepareSQL() {
         String userInfoCols = String.format("%s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn);
-        queryByUUIDSQL = customQueryByUUIDSQL != null ? customQueryByUUIDSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1", userInfoCols,
-                table, uuidColumn);
-        queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
-                userInfoCols, table, usernameColumn);
-        queryByLoginSQL = customQueryByLoginSQL != null ? customQueryByLoginSQL : queryByUsernameSQL;
 
-        queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL :
-                "WITH RECURSIVE req AS (\n" +
-                "SELECT p."+permissionsPermissionColumn+" FROM "+permissionsTable+" p WHERE p."+permissionsUUIDColumn+" = ?\n" +
-                "UNION ALL\n" +
-                "SELECT p."+permissionsPermissionColumn+" FROM "+permissionsTable+" p\n" +
-                "INNER JOIN "+rolesTable+" r ON p."+permissionsUUIDColumn+" = r."+rolesUUIDColumn+"\n" +
-                "INNER JOIN req ON r."+rolesUUIDColumn+"=substring(req.permission from 6) or r.name=substring(req.permission from 6)\n" +
-                ") SELECT * FROM req";
+        queryByUUIDSQL = customQueryByUUIDSQL.orElse("SELECT %s FROM %s WHERE %s=? LIMIT 1").formatted(userInfoCols, table, uuidColumn);
 
-        queryRolesByUserUUID = customQueryRolesByUserUUID != null ? customQueryRolesByUserUUID : String.format("SELECT r.%s FROM %s r\n" +
-                "INNER JOIN %s pr ON r.%s=substring(pr.%s from 6) or r.%s=substring(pr.%s from 6)\n" +
-                "WHERE pr.%s = ?",rolesNameColumn,rolesTable,permissionsTable,rolesUUIDColumn,permissionsPermissionColumn,rolesNameColumn,permissionsPermissionColumn,permissionsUUIDColumn);
-                
-        updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=?",
-                table, accessTokenColumn, serverIDColumn, uuidColumn);
-        updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=?",
-                table, serverIDColumn, uuidColumn);
+        queryByUsernameSQL = customQueryByUsernameSQL.orElse("SELECT %s FROM %s WHERE %s=? LIMIT 1").formatted(userInfoCols, table, usernameColumn);
+
+        queryByLoginSQL = customQueryByLoginSQL.orElse(queryByUsernameSQL);
+
+        queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL.orElse("""
+                WITH RECURSIVE res AS (
+                SELECT p.%s FROM %s p WHERE p.%s = ?
+                UNION ALL
+                SELECT p.%s FROM %s p
+                INNER JOIN %s r ON p.%s = r.%s
+                INNER JOIN req ON r.%s =substring(req.permission from 6) or r.name = substring(req.permission from 6)
+                ) SELECT * FROM req;"""
+        ).formatted(permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn,
+                        permissionsPermissionColumn, permissionsTable,
+                        rolesTable, permissionsUUIDColumn, rolesUUIDColumn,
+                        rolesUUIDColumn);
+
+        queryRolesByUserUUID = customQueryRolesByUserUUID.orElse("""
+                SELECT r.%s FROM %s r
+                INNER JOIN %s pr ON r.%s=substring(pr.%s from 6) or r.%s=substring(pr.%s from 6)
+                WHERE pr.%s = ?"""
+        ).formatted(rolesNameColumn, rolesTable,
+                        permissionsTable, rolesUUIDColumn, permissionsPermissionColumn, rolesNameColumn, permissionsPermissionColumn,
+                        permissionsUUIDColumn);
+
+        updateAuthSQL = customUpdateAuthSQL.orElse(
+                "UPDATE %s SET %s=?, %s=NULL WHERE %s=?").formatted(table, accessTokenColumn, serverIDColumn, uuidColumn);
+        updateServerIDSQL = customUpdateServerIdSQL.orElse(
+                "UPDATE %s SET %s=? WHERE %s=?").formatted(table, serverIDColumn, uuidColumn);
         if (isEnabledPermissions()) {
-            queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL : String.format("SELECT (%s) FROM %s WHERE %s=?",
-                    permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
+            queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL.orElse(
+                    "SELECT %s FROM %s WHERE %s=?").formatted(permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
         }
     }
 
@@ -238,9 +253,8 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
                 set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), isEnabledPermissions() ? requestPermissions(set.getString(uuidColumn)) : new ClientPermissions()) : null;
     }
 
-    public ClientPermissions requestPermissions (String uuid)  throws SQLException
-    {
-        return new ClientPermissions(queryRolesNames(queryRolesByUserUUID,uuid),queryPermissions(queryPermissionsByUUIDSQL,uuid));
+    public ClientPermissions requestPermissions(String uuid) throws SQLException {
+        return new ClientPermissions(queryRolesNames(queryRolesByUserUUID, uuid), queryPermissions(queryPermissionsByUUIDSQL, uuid));
     }
 
     private SQLUser queryUser(String sql, String value) throws SQLException {
