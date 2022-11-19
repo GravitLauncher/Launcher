@@ -40,7 +40,7 @@ public class SignJarTask implements LauncherBuildTask {
             return SignHelper.createSignedDataGenerator(c,
                     config.keyAlias, config.signAlgo, config.keyPass);
         } catch (CertificateEncodingException | UnrecoverableKeyException | KeyStoreException
-                | OperatorCreationException | NoSuchAlgorithmException | CMSException e) {
+                 | OperatorCreationException | NoSuchAlgorithmException | CMSException e) {
             logger.error("Create signedDataGenerator failed", e);
             return null;
         }

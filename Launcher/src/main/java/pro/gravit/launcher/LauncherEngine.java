@@ -246,14 +246,14 @@ public class LauncherEngine {
             try {
                 service = StdWebSocketService.initWebSockets(address).get();
             } catch (Throwable e) {
-                if(LogHelper.isDebugEnabled()) {
+                if (LogHelper.isDebugEnabled()) {
                     LogHelper.error(e);
                 }
                 LogHelper.warning("Launcher in offline mode");
                 service = initOffline();
             }
             Request.setRequestService(service);
-            if(service instanceof StdWebSocketService) {
+            if (service instanceof StdWebSocketService) {
                 ((StdWebSocketService) service).reconnectCallback = () ->
                 {
                     LogHelper.debug("WebSocket connect closed. Try reconnect");

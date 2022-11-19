@@ -15,9 +15,10 @@ import java.util.Map;
 import java.util.UUID;
 
 public class JsonTextureProvider extends TextureProvider {
-    public String url;
+    private transient static final Type MAP_TYPE = new TypeToken<Map<String, Texture>>() {
+    }.getType();
     private transient final Logger logger = LogManager.getLogger();
-    private transient static final Type MAP_TYPE = new TypeToken<Map<String, Texture>>() {}.getType();
+    public String url;
 
     @Override
     public void close() throws IOException {
@@ -42,14 +43,14 @@ public class JsonTextureProvider extends TextureProvider {
             var result = HTTPRequest.jsonRequest(null, "GET", new URL(RequestTextureProvider.getTextureURL(url, uuid, username, client)));
 
             Map<String, Texture> map = Launcher.gsonManager.gson.fromJson(result, MAP_TYPE);
-            if(map == null) {
+            if (map == null) {
                 return new HashMap<>();
             }
-            if(map.get("skin") != null) { // Legacy script
+            if (map.get("skin") != null) { // Legacy script
                 map.put("SKIN", map.get("skin"));
                 map.remove("skin");
             }
-            if(map.get("cloak") != null) {
+            if (map.get("cloak") != null) {
                 map.put("CAPE", map.get("cloak"));
                 map.remove("cloak");
             }

@@ -21,7 +21,7 @@ public class GetAvailabilityAuthResponse extends SimpleResponse {
         List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>();
         for (AuthProviderPair pair : server.config.auth.values()) {
             var rca = pair.isSupport(AuthSupportRemoteClientAccess.class);
-            if(rca != null) {
+            if (rca != null) {
                 list.add(new GetAvailabilityAuthRequestEvent.AuthAvailability(pair.name, pair.displayName,
                         pair.core.getDetails(client), rca.getClientApiUrl(), rca.getClientApiFeatures()));
             } else {

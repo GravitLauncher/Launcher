@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.auth.core;
 
-import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.PostgreSQLSourceConfig;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
 

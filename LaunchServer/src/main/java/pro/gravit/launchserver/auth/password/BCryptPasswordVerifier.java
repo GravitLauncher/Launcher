@@ -5,6 +5,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 public class BCryptPasswordVerifier extends PasswordVerifier {
     public int cost = 10;
+
     @Override
     public boolean check(String encryptedPassword, String password) {
         return OpenBSDBCrypt.checkPassword(encryptedPassword, password.toCharArray());

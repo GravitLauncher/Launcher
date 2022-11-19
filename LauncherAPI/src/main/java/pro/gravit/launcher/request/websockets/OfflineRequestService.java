@@ -16,26 +16,27 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OfflineRequestService implements RequestService {
     private final HashSet<EventHandler> eventHandlers = new HashSet<>();
     private final Map<Class<?>, RequestProcessor<?, ?>> processors = new ConcurrentHashMap<>();
+
     @Override
     @SuppressWarnings("unchecked")
     public <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) throws IOException {
         RequestProcessor<T, Request<T>> processor = (RequestProcessor<T, Request<T>>) processors.get(request.getClass());
         CompletableFuture<T> future = new CompletableFuture<>();
-        if(processor == null) {
+        if (processor == null) {
             future.completeExceptionally(new RequestException(String.format("Offline mode not support '%s'", request.getType())));
             return future;
         }
-        if(LogHelper.isDevEnabled()) {
+        if (LogHelper.isDevEnabled()) {
             LogHelper.dev("Request %s: %s", request.getType(), Launcher.gsonManager.gson.toJson(request));
         }
         try {
             T event = processor.process(request);
-            if(LogHelper.isDevEnabled()) {
+            if (LogHelper.isDevEnabled()) {
                 LogHelper.dev("Response %s: %s", event.getType(), Launcher.gsonManager.gson.toJson(event));
             }
             future.complete(event);
         } catch (Throwable e) {
-            if(e instanceof RequestException) {
+            if (e instanceof RequestException) {
                 future.completeExceptionally(e);
             } else {
                 future.completeExceptionally(new RequestException(e));
@@ -59,11 +60,11 @@ public class OfflineRequestService implements RequestService {
         return false;
     }
 
-    public<T extends WebSocketEvent, V extends WebSocketRequest> void registerRequestProcessor(Class<V> requestClazz, RequestProcessor<T, V> function) {
+    public <T extends WebSocketEvent, V extends WebSocketRequest> void registerRequestProcessor(Class<V> requestClazz, RequestProcessor<T, V> function) {
         processors.put(requestClazz, function);
     }
 
-    public<T extends WebSocketEvent> void unregisterRequestProcessor(Class<Request<T>> requestClazz) {
+    public <T extends WebSocketEvent> void unregisterRequestProcessor(Class<Request<T>> requestClazz) {
         processors.remove(requestClazz);
     }
 

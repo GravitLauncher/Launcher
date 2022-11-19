@@ -34,17 +34,6 @@ public abstract class TextureProvider implements AutoCloseable {
     public abstract Texture getSkinTexture(UUID uuid, String username, String client) throws IOException;
 
     @Deprecated
-    public static class SkinAndCloakTextures {
-        public final Texture skin;
-        public final Texture cloak;
-
-        public SkinAndCloakTextures(Texture skin, Texture cloak) {
-            this.skin = skin;
-            this.cloak = cloak;
-        }
-    }
-
-    @Deprecated
     public SkinAndCloakTextures getTextures(UUID uuid, String username, String client) {
 
         Texture skin;
@@ -83,13 +72,24 @@ public abstract class TextureProvider implements AutoCloseable {
         }
 
         Map<String, Texture> map = new HashMap<>();
-        if(skin != null) {
+        if (skin != null) {
             map.put("SKIN", skin);
         }
-        if(cloak != null) {
+        if (cloak != null) {
             map.put("CAPE", cloak);
         }
 
         return map;
+    }
+
+    @Deprecated
+    public static class SkinAndCloakTextures {
+        public final Texture skin;
+        public final Texture cloak;
+
+        public SkinAndCloakTextures(Texture skin, Texture cloak) {
+            this.skin = skin;
+            this.cloak = cloak;
+        }
     }
 }

@@ -82,7 +82,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
 
     @SuppressWarnings("deprecation")
     public void registerResults() {
-        if(!resultsRegistered) {
+        if (!resultsRegistered) {
             results.register("auth", AuthRequestEvent.class);
             results.register("checkServer", CheckServerRequestEvent.class);
             results.register("joinServer", JoinServerRequestEvent.class);

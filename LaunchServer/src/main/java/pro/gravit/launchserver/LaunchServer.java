@@ -8,7 +8,6 @@ import pro.gravit.launcher.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.managers.ConfigManager;
 import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.request.Request;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
@@ -68,6 +67,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      * The path to the folder with compile-only libraries for the launcher
      */
     public final Path launcherLibrariesCompile;
+    public final Path launcherPack;
     /**
      * The path to the folder with updates/webroot
      */
@@ -138,6 +138,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.service = Executors.newScheduledThreadPool(config.netty.performance.schedulerThread);
         launcherLibraries = directories.launcherLibrariesDir;
         launcherLibrariesCompile = directories.launcherLibrariesCompileDir;
+        launcherPack = directories.launcherPackDir;
+        if(!Files.isDirectory(launcherPack)) {
+            Files.createDirectories(launcherPack);
+        }
 
         config.setLaunchServer(this);
 
@@ -379,18 +383,18 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         // Sort and set new profiles
         newProfies.sort(Comparator.comparing(a -> a));
         profilesList = Set.copyOf(newProfies);
-        if(config.netty.sendProfileUpdatesEvent) {
+        if (config.netty.sendProfileUpdatesEvent) {
             sendUpdateProfilesEvent();
         }
     }
 
     private void sendUpdateProfilesEvent() {
-        if(nettyServerSocketHandler == null || nettyServerSocketHandler.nettyServer == null || nettyServerSocketHandler.nettyServer.service == null) {
+        if (nettyServerSocketHandler == null || nettyServerSocketHandler.nettyServer == null || nettyServerSocketHandler.nettyServer.service == null) {
             return;
         }
         nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((ch, handler) -> {
             Client client = handler.getClient();
-            if(client == null || !client.isAuth) {
+            if (client == null || !client.isAuth) {
                 return;
             }
             ProfilesRequestEvent event = new ProfilesRequestEvent(ProfilesResponse.getListVisibleProfiles(this, client));
@@ -487,11 +491,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public static class LaunchServerDirectories {
         public static final String UPDATES_NAME = "updates", PROFILES_NAME = "profiles",
                 TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
-                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", KEY_NAME = ".keys";
+                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack", KEY_NAME = ".keys";
         public Path updatesDir;
         public Path profilesDir;
         public Path launcherLibrariesDir;
         public Path launcherLibrariesCompileDir;
+        public Path launcherPackDir;
         public Path keyDirectory;
         public Path dir;
         public Path trustStore;
@@ -504,6 +509,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (launcherLibrariesDir == null) launcherLibrariesDir = getPath(LAUNCHERLIBRARIES_NAME);
             if (launcherLibrariesCompileDir == null)
                 launcherLibrariesCompileDir = getPath(LAUNCHERLIBRARIESCOMPILE_NAME);
+            if(launcherPackDir == null)
+                launcherPackDir = getPath(LAUNCHERPACK_NAME);
             if (keyDirectory == null) keyDirectory = getPath(KEY_NAME);
             if (tmpDir == null)
                 tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve(String.format("launchserver-%s", SecurityHelper.randomStringToken()));

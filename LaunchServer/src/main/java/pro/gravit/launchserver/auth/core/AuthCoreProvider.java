@@ -91,7 +91,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
             public void invoke(String... args) throws Exception {
                 verifyArgs(args, 1);
                 AuthRequest.AuthPasswordInterface password = null;
-                if(args.length > 1) {
+                if (args.length > 1) {
                     if (args[1].startsWith("{")) {
                         password = Launcher.gsonManager.gson.fromJson(args[1], AuthRequest.AuthPasswordInterface.class);
                     } else {

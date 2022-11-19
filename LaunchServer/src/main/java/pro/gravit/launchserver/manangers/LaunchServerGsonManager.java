@@ -33,8 +33,8 @@ public class LaunchServerGsonManager extends GsonManager {
     public void registerAdapters(GsonBuilder builder) {
         super.registerAdapters(builder);
         builder.registerTypeAdapterFactory(RecordTypeAdapterFactory.builder()
-                        .allowMissingComponentValues()
-                        .create());
+                .allowMissingComponentValues()
+                .create());
         builder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
         builder.registerTypeAdapter(AuthCoreProvider.class, new UniversalJsonAdapter<>(AuthCoreProvider.providers));
         builder.registerTypeAdapter(PasswordVerifier.class, new UniversalJsonAdapter<>(PasswordVerifier.providers));

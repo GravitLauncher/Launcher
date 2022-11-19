@@ -1,33 +1,18 @@
 package pro.gravit.launchserver.auth.core;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
-import pro.gravit.launchserver.auth.password.PasswordVerifier;
-import pro.gravit.launchserver.helper.LegacySessionHelper;
-import pro.gravit.launchserver.manangers.AuthManager;
-import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
@@ -108,6 +93,7 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
         s.setString(2, uuid.toString());
         s.executeUpdate();
     }
+
     @Override
     public UserHardware getHardwareInfoByPublicKey(byte[] publicKey) {
         try (Connection connection = mySQLHolder.getConnection()) {
@@ -320,6 +306,7 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
             super(uuid, username, accessToken, serverId, password, permissions);
             this.hwidId = hwidId;
         }
+
         @Override
         public UserHardware getHardware() {
             if (hardware != null) return hardware;
