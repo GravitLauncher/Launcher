@@ -27,7 +27,7 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
 
     @Override
     public void init(LaunchServer server) {
-        if(profileWhitelist != null && profileWhitelist.size() > 0) {
+        if (profileWhitelist != null && profileWhitelist.size() > 0) {
             logger.warn("profileWhitelist deprecated. Please use permission 'launchserver.profile.PROFILE_UUID.show' and 'launchserver.profile.PROFILE_UUID.enter'");
         }
     }
@@ -48,13 +48,13 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
     }
 
     private boolean isWhitelisted(String property, ClientProfile profile, Client client) {
-        if(client.permissions != null) {
+        if (client.permissions != null) {
             String permByUUID = String.format(property, profile.getUUID());
-            if(client.permissions.hasPerm(permByUUID)) {
+            if (client.permissions.hasPerm(permByUUID)) {
                 return true;
             }
             String permByTitle = String.format(property, profile.getTitle().toLowerCase(Locale.ROOT));
-            if(client.permissions.hasPerm(permByTitle)) {
+            if (client.permissions.hasPerm(permByTitle)) {
                 return true;
             }
         }

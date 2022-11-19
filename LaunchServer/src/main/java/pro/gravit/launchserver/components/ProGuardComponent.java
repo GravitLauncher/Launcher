@@ -13,7 +13,6 @@ import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.UnpackHelper;
 import proguard.Configuration;
 import proguard.ConfigurationParser;
-import proguard.ParseException;
 import proguard.ProGuard;
 
 import java.io.IOException;

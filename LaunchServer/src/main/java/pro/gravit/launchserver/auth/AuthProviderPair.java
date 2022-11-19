@@ -38,15 +38,6 @@ public final class AuthProviderPair {
         return list;
     }
 
-    public void internalShowOAuthWarnMessage() {
-        if(!warnOAuthShow) {
-            if(!(core instanceof MySQLCoreProvider) && !(core instanceof PostgresSQLCoreProvider)) { // MySQL and PostgreSQL upgraded later
-                logger.warn("AuthCoreProvider {} ({}) not supported OAuth. Legacy session system may be removed in next release", name, core.getClass().getName());
-            }
-            warnOAuthShow = true;
-        }
-    }
-
     public static void getFeatures(Class<?> clazz, Set<String> list) {
         Features features = clazz.getAnnotation(Features.class);
         if (features != null) {
@@ -61,6 +52,15 @@ public final class AuthProviderPair {
         Class<?>[] interfaces = clazz.getInterfaces();
         for (Class<?> i : interfaces) {
             getFeatures(i, list);
+        }
+    }
+
+    public void internalShowOAuthWarnMessage() {
+        if (!warnOAuthShow) {
+            if (!(core instanceof MySQLCoreProvider) && !(core instanceof PostgresSQLCoreProvider)) { // MySQL and PostgreSQL upgraded later
+                logger.warn("AuthCoreProvider {} ({}) not supported OAuth. Legacy session system may be removed in next release", name, core.getClass().getName());
+            }
+            warnOAuthShow = true;
         }
     }
 

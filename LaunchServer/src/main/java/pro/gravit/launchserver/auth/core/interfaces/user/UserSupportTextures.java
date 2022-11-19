@@ -23,10 +23,10 @@ public interface UserSupportTextures {
         var skin = getSkinTexture();
         var cape = getCloakTexture();
         Map<String, Texture> map = new HashMap<>();
-        if(skin != null) {
+        if (skin != null) {
             map.put("SKIN", skin);
         }
-        if(cape != null) {
+        if (cape != null) {
             map.put("CAPE", cape);
         }
         return map;

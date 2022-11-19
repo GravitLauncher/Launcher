@@ -24,10 +24,10 @@ public class ModulesCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        for(LauncherModule module : LauncherEngine.modulesManager.getModules()) {
+        for (LauncherModule module : LauncherEngine.modulesManager.getModules()) {
             LauncherModuleInfo info = module.getModuleInfo();
             LauncherTrustManager.CheckClassResult checkStatus = module.getCheckResult();
-            if(!ConsoleManager.isConsoleUnlock) {
+            if (!ConsoleManager.isConsoleUnlock) {
                 LogHelper.info("[MODULE] %s v: %s", info.name, info.version.getVersionString());
             } else {
                 LogHelper.info("[MODULE] %s v: %s p: %d deps: %s sig: %s", info.name, info.version.getVersionString(), info.priority, Arrays.toString(info.dependencies), checkStatus == null ? "null" : checkStatus.type);

@@ -4,5 +4,6 @@ import java.util.List;
 
 public interface AuthSupportRemoteClientAccess {
     String getClientApiUrl();
+
     List<String> getClientApiFeatures();
 }

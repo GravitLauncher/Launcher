@@ -28,15 +28,15 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     public final UUID requestUUID = UUID.randomUUID();
     private transient final AtomicBoolean started = new AtomicBoolean(false);
 
-    public static void setRequestService(RequestService service) {
-        requestService = service;
-        if(service instanceof StdWebSocketService) {
-            Request.service = (StdWebSocketService) service;
-        }
-    }
-
     public static RequestService getRequestService() {
         return requestService;
+    }
+
+    public static void setRequestService(RequestService service) {
+        requestService = service;
+        if (service instanceof StdWebSocketService) {
+            Request.service = (StdWebSocketService) service;
+        }
     }
 
     public static boolean isAvailable() {
@@ -121,22 +121,10 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         return restore();
     }
 
-    public static class RequestRestoreReport {
-        public final boolean legacySession;
-        public final boolean refreshed;
-        public final List<String> invalidExtendedTokens;
-
-        public RequestRestoreReport(boolean legacySession, boolean refreshed, List<String> invalidExtendedTokens) {
-            this.legacySession = legacySession;
-            this.refreshed = refreshed;
-            this.invalidExtendedTokens = invalidExtendedTokens;
-        }
-    }
-
     public static RequestRestoreReport restore() throws Exception {
         boolean refreshed = false;
         RestoreRequest request;
-        if(oauth != null) {
+        if (oauth != null) {
             if (isTokenExpired() || oauth.accessToken == null) {
                 RefreshTokenRequest refreshRequest = new RefreshTokenRequest(authId, oauth.refreshToken);
                 RefreshTokenRequestEvent event = refreshRequest.request();
@@ -197,7 +185,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     public R request() throws Exception {
         if (!started.compareAndSet(false, true))
             throw new IllegalStateException("Request already started");
-        if(!isAvailable()) {
+        if (!isAvailable()) {
             throw new RequestException("RequestService not initialized");
         }
         return requestDo(requestService);
@@ -222,6 +210,18 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
 
     public interface ExtendedTokenCallback {
         String tryGetNewToken(String name);
+    }
+
+    public static class RequestRestoreReport {
+        public final boolean legacySession;
+        public final boolean refreshed;
+        public final List<String> invalidExtendedTokens;
+
+        public RequestRestoreReport(boolean legacySession, boolean refreshed, List<String> invalidExtendedTokens) {
+            this.legacySession = legacySession;
+            this.refreshed = refreshed;
+            this.invalidExtendedTokens = invalidExtendedTokens;
+        }
     }
 
 }
