@@ -176,26 +176,31 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
                 userInfoCols, table, usernameColumn);
         queryByLoginSQL = customQueryByLoginSQL != null ? customQueryByLoginSQL : queryByUsernameSQL;
 
-        queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL :
-                "WITH RECURSIVE req AS (\n" +
-                "SELECT p."+permissionsPermissionColumn+" FROM "+permissionsTable+" p WHERE p."+permissionsUUIDColumn+" = ?\n" +
-                "UNION ALL\n" +
-                "SELECT p."+permissionsPermissionColumn+" FROM "+permissionsTable+" p\n" +
-                "INNER JOIN "+rolesTable+" r ON p."+permissionsUUIDColumn+" = r."+rolesUUIDColumn+"\n" +
-                "INNER JOIN req ON r."+rolesUUIDColumn+"=substring(req."+permissionsPermissionColumn+" from 6) or r.name=substring(req."+permissionsPermissionColumn+" from 6)\n" +
-                ") SELECT * FROM req";
 
-        queryRolesByUserUUID = customQueryRolesByUserUUID != null ? customQueryRolesByUserUUID : String.format("SELECT r.%s FROM %s r\n" +
-                "INNER JOIN %s pr ON r.%s=substring(pr.%s from 6) or r.%s=substring(pr.%s from 6)\n" +
-                "WHERE pr.%s = ?",rolesNameColumn,rolesTable,permissionsTable,rolesUUIDColumn,permissionsPermissionColumn,rolesNameColumn,permissionsPermissionColumn,permissionsUUIDColumn);
+
+
                 
         updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=?",
                 table, accessTokenColumn, serverIDColumn, uuidColumn);
         updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=?",
                 table, serverIDColumn, uuidColumn);
         if (isEnabledPermissions()) {
-            queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL : String.format("SELECT (%s) FROM %s WHERE %s=?",
-                    permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
+            if(isEnabledRoles()) {
+                queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL :
+                        "WITH RECURSIVE req AS (\n" +
+                                "SELECT p."+permissionsPermissionColumn+" FROM "+permissionsTable+" p WHERE p."+permissionsUUIDColumn+" = ?\n" +
+                                "UNION ALL\n" +
+                                "SELECT p."+permissionsPermissionColumn+" FROM "+permissionsTable+" p\n" +
+                                "INNER JOIN "+rolesTable+" r ON p."+permissionsUUIDColumn+" = r."+rolesUUIDColumn+"\n" +
+                                "INNER JOIN req ON r."+rolesUUIDColumn+"=substring(req."+permissionsPermissionColumn+" from 6) or r.name=substring(req."+permissionsPermissionColumn+" from 6)\n" +
+                                ") SELECT * FROM req";
+                queryRolesByUserUUID = customQueryRolesByUserUUID != null ? customQueryRolesByUserUUID : "SELECT r." + rolesNameColumn + " FROM " + rolesTable + " r\n" +
+                        "INNER JOIN " + permissionsTable + " pr ON r." + rolesUUIDColumn + "=substring(pr." + permissionsPermissionColumn + " from 6) or r." + rolesNameColumn + "=substring(pr." + permissionsPermissionColumn + " from 6)\n" +
+                        "WHERE pr." + permissionsUUIDColumn + " = ?";
+            } else {
+                queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL : String.format("SELECT (%s) FROM %s WHERE %s=?",
+                        permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
+            }
         }
     }
 
@@ -235,12 +240,13 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
 
     private SQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new SQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
-                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), isEnabledPermissions() ? requestPermissions(set.getString(uuidColumn)) : new ClientPermissions()) : null;
+                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn))) : null;
     }
 
     public ClientPermissions requestPermissions (String uuid)  throws SQLException
     {
-        return new ClientPermissions(queryRolesNames(queryRolesByUserUUID,uuid),queryPermissions(queryPermissionsByUUIDSQL,uuid));
+        return new ClientPermissions(isEnabledRoles() ? queryRolesNames(queryRolesByUserUUID,uuid) : new ArrayList<>(),
+                isEnabledPermissions() ? queryPermissions(queryPermissionsByUUIDSQL,uuid) : new ArrayList<>());
     }
 
     private SQLUser queryUser(String sql, String value) throws SQLException {
@@ -269,6 +275,10 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
 
     public boolean isEnabledPermissions() {
         return permissionsPermissionColumn != null;
+    }
+
+    public boolean isEnabledRoles() {
+        return rolesNameColumn != null;
     }
 
     private List<String> queryRolesNames(String sql, String value) throws SQLException {
