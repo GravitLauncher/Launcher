@@ -182,7 +182,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
                 "UNION ALL\n" +
                 "SELECT p."+permissionsPermissionColumn+" FROM "+permissionsTable+" p\n" +
                 "INNER JOIN "+rolesTable+" r ON p."+permissionsUUIDColumn+" = r."+rolesUUIDColumn+"\n" +
-                "INNER JOIN req ON r."+rolesUUIDColumn+"=substring(req.permission from 6) or r.name=substring(req.permission from 6)\n" +
+                "INNER JOIN req ON r."+rolesUUIDColumn+"=substring(req."+permissionsPermissionColumn+" from 6) or r.name=substring(req."+permissionsPermissionColumn+" from 6)\n" +
                 ") SELECT * FROM req";
 
         queryRolesByUserUUID = customQueryRolesByUserUUID != null ? customQueryRolesByUserUUID : String.format("SELECT r.%s FROM %s r\n" +
