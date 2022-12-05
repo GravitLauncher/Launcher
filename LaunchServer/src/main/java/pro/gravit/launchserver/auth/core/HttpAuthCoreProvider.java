@@ -1,5 +1,6 @@
 package pro.gravit.launchserver.auth.core;
 
+import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.ClientPermissions;
@@ -232,14 +233,15 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
         }
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Iterable<User> getUsersByHardwareInfo(UserHardware hardware) {
         if (getUsersByHardwareInfoUrl == null) {
             return null;
         }
         try {
-            return requester.send(requester
-                    .post(getUsersByHardwareInfoUrl, new HardwareRequest((HttpUserHardware) hardware), bearerToken), List.class).getOrThrow();
+            return (List<User>) (List) requester.send(requester
+                    .post(getUsersByHardwareInfoUrl, new HardwareRequest((HttpUserHardware) hardware), bearerToken), GetHardwareListResponse.class).getOrThrow().list;
         } catch (IOException e) {
             logger.error(e);
             return null;
@@ -352,6 +354,10 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     public static class GetAuthDetailsResponse {
         public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> details;
+    }
+
+    public static class GetHardwareListResponse {
+        public List<HttpUser> list;
     }
 
     public static class JoinServerRequest {

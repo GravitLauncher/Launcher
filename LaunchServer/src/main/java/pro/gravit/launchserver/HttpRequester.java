@@ -59,6 +59,7 @@ public class HttpRequester {
         return HttpHelper.send(httpClient, request, makeEH(clazz));
     }
 
+
     public static class SimpleErrorHandler<T> implements HttpHelper.HttpJsonErrorHandler<T, SimpleError> {
         private final Type type;
 
