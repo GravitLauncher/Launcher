@@ -28,10 +28,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
@@ -148,9 +145,11 @@ public class LaunchServerStarter {
 
             @Override
             public void writeConfig(LaunchServerConfig config) throws IOException {
-                try (Writer writer = IOHelper.newWriter(configFile)) {
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                try (Writer writer = IOHelper.newWriter(output)) {
                     if (Launcher.gsonManager.configGson != null) {
                         Launcher.gsonManager.configGson.toJson(config, writer);
+                        IOHelper.write(configFile, output.toByteArray());
                     } else {
                         logger.error("Error writing LaunchServer runtime config file. Gson is null");
                     }
@@ -159,9 +158,11 @@ public class LaunchServerStarter {
 
             @Override
             public void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException {
-                try (Writer writer = IOHelper.newWriter(runtimeConfigFile)) {
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                try (Writer writer = IOHelper.newWriter(output)) {
                     if (Launcher.gsonManager.configGson != null) {
                         Launcher.gsonManager.configGson.toJson(config, writer);
+                        IOHelper.write(runtimeConfigFile, output.toByteArray());
                     } else {
                         logger.error("Error writing LaunchServer runtime config file. Gson is null");
                     }
