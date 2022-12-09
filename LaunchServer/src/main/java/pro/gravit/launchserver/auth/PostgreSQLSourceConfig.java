@@ -28,8 +28,8 @@ public final class PostgreSQLSourceConfig implements AutoCloseable, SQLSourceCon
     private String database;
 
     // Cache
-    private DataSource source;
-    private boolean hikari;
+    private transient DataSource source;
+    private transient boolean hikari;
 
     @Override
     public synchronized void close() {
