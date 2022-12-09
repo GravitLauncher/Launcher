@@ -150,6 +150,9 @@ public class LauncherModuleLoader {
                                     } else {
                                         try (Reader reader = IOHelper.newReader(configPath)) {
                                             targetConfig = Launcher.gsonManager.configGson.fromJson(reader, clazz);
+                                        } catch (Exception e) {
+                                            logger.error("Error when reading config {} in module {}: {}", configPath, file, e);
+                                            return super.visitFile(file, attrs);
                                         }
                                     }
                                     if (entity.propertyMap == null) entity.propertyMap = new HashMap<>();

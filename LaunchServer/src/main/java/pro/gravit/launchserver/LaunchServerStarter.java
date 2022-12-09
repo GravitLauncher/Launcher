@@ -149,10 +149,13 @@ public class LaunchServerStarter {
                 try (Writer writer = IOHelper.newWriter(output)) {
                     if (Launcher.gsonManager.configGson != null) {
                         Launcher.gsonManager.configGson.toJson(config, writer);
-                        IOHelper.write(configFile, output.toByteArray());
                     } else {
-                        logger.error("Error writing LaunchServer runtime config file. Gson is null");
+                        logger.error("Error writing LaunchServer config file. Gson is null");
                     }
+                }
+                byte[] bytes = output.toByteArray();
+                if(bytes.length > 0) {
+                    IOHelper.write(configFile, bytes);
                 }
             }
 
@@ -162,10 +165,13 @@ public class LaunchServerStarter {
                 try (Writer writer = IOHelper.newWriter(output)) {
                     if (Launcher.gsonManager.configGson != null) {
                         Launcher.gsonManager.configGson.toJson(config, writer);
-                        IOHelper.write(runtimeConfigFile, output.toByteArray());
                     } else {
                         logger.error("Error writing LaunchServer runtime config file. Gson is null");
                     }
+                }
+                byte[] bytes = output.toByteArray();
+                if(bytes.length > 0) {
+                    IOHelper.write(runtimeConfigFile, bytes);
                 }
             }
         };
