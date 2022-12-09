@@ -27,13 +27,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import javax.crypto.Cipher;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.security.KeyPair;
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 
 public class AuthManager {
@@ -60,38 +54,12 @@ public class AuthManager {
                 .compact();
     }
 
-    public record CheckServerTokenInfo(String serverName, String authId) {
-    }
-
     public CheckServerTokenInfo parseCheckServerToken(String token) {
         try {
             var jwt = checkServerTokenParser.parseClaimsJws(token).getBody();
             return new CheckServerTokenInfo(jwt.get("serverName", String.class), jwt.get("authId", String.class));
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    public static class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
-        private final LaunchServer server;
-
-        public CheckServerVerifier(LaunchServer server) {
-            this.server = server;
-        }
-
-        @Override
-        public boolean accept(Client client, AuthProviderPair pair, String extendedToken) {
-            var info = server.authManager.parseCheckServerToken(extendedToken);
-            if(info == null) {
-                return false;
-            }
-            client.auth_id = info.authId;
-            client.auth = server.config.getAuthProviderPair(info.authId);
-            if(client.permissions == null) client.permissions = new ClientPermissions();
-            client.permissions.addPerm("launchserver.checkserver");
-            client.permissions.addPerm(String.format("launchserver.profile.%s.show", info.serverName));
-            client.setProperty("launchserver.serverName", info.serverName);
-            return true;
         }
     }
 
@@ -154,7 +122,7 @@ public class AuthManager {
         String login = context.login;
         try {
             AuthReport result = provider.authorize(login, context, password, context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context));
-            if(result == null || result.session == null || result.session.getUser() == null) {
+            if (result == null || result.session == null || result.session.getUser() == null) {
                 logger.error("AuthCoreProvider {} method 'authorize' return null", context.pair.name);
                 throw new AuthException("Internal Auth Error");
             }
@@ -175,7 +143,7 @@ public class AuthManager {
      * Writing authorization information to the Client object
      */
     public void internalAuth(Client client, AuthResponse.ConnectTypes authType, AuthProviderPair pair, String username, UUID uuid, ClientPermissions permissions, boolean oauth) {
-        if(!oauth) {
+        if (!oauth) {
             throw new UnsupportedOperationException("Unsupported legacy session system");
         }
         client.isAuth = true;
@@ -265,7 +233,7 @@ public class AuthManager {
 
     public PlayerProfile getPlayerProfile(AuthProviderPair pair, User user) {
         Map<String, String> properties;
-        if(user instanceof UserSupportProperties userSupportProperties) {
+        if (user instanceof UserSupportProperties userSupportProperties) {
             properties = userSupportProperties.getProperties();
         } else {
             properties = new HashMap<>();
@@ -323,6 +291,32 @@ public class AuthManager {
             }
         }
         return password;
+    }
+
+    public record CheckServerTokenInfo(String serverName, String authId) {
+    }
+
+    public static class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
+        private final LaunchServer server;
+
+        public CheckServerVerifier(LaunchServer server) {
+            this.server = server;
+        }
+
+        @Override
+        public boolean accept(Client client, AuthProviderPair pair, String extendedToken) {
+            var info = server.authManager.parseCheckServerToken(extendedToken);
+            if (info == null) {
+                return false;
+            }
+            client.auth_id = info.authId;
+            client.auth = server.config.getAuthProviderPair(info.authId);
+            if (client.permissions == null) client.permissions = new ClientPermissions();
+            client.permissions.addPerm("launchserver.checkserver");
+            client.permissions.addPerm(String.format("launchserver.profile.%s.show", info.serverName));
+            client.setProperty("launchserver.serverName", info.serverName);
+            return true;
+        }
     }
 
     public static class CheckServerReport {

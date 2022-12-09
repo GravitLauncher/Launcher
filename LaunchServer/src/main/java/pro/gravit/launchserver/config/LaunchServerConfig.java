@@ -166,9 +166,9 @@ public final class LaunchServerConfig {
         // Mirror check
         {
             boolean updateMirror = Boolean.getBoolean("launchserver.config.disableUpdateMirror");
-            if(!updateMirror) {
-                for(int i=0;i < mirrors.length;++i) {
-                    if("https://mirror.gravit.pro/5.2.x/".equals(mirrors[i])) {
+            if (!updateMirror) {
+                for (int i = 0; i < mirrors.length; ++i) {
+                    if ("https://mirror.gravit.pro/5.2.x/".equals(mirrors[i])) {
                         logger.warn("Replace mirror 'https://mirror.gravit.pro/5.2.x/' to 'https://mirror.gravit.pro/5.3.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'");
                         mirrors[i] = "https://mirror.gravit.pro/5.3.x/";
                     }

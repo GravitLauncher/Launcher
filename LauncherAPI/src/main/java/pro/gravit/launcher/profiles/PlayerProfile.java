@@ -1,7 +1,6 @@
 package pro.gravit.launcher.profiles;
 
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.VerifyHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,10 +29,10 @@ public final class PlayerProfile {
         this.skin = skin;
         this.cloak = cloak;
         this.assets = new HashMap<>();
-        if(skin != null) {
+        if (skin != null) {
             this.assets.put("SKIN", skin);
         }
-        if(cloak != null) {
+        if (cloak != null) {
             this.assets.put("CAPE", cloak);
         }
         this.properties = properties;

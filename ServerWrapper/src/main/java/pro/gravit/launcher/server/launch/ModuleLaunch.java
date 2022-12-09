@@ -4,7 +4,7 @@ import pro.gravit.launcher.server.ServerWrapper;
 
 public class ModuleLaunch implements Launch {
     @Override
-    public void run(ServerWrapper.Config config, String[] args) throws Throwable {
+    public void run(String mainclass, ServerWrapper.Config config, String[] args) throws Throwable {
         throw new UnsupportedOperationException("Module system not supported");
     }
 }

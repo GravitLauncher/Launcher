@@ -9,8 +9,8 @@ import java.lang.invoke.MethodType;
 public class SimpleLaunch implements Launch {
     @Override
     @SuppressWarnings("ConfusingArgumentToVarargsMethod")
-    public void run(ServerWrapper.Config config, String[] args) throws Throwable {
-        Class<?> mainClass = Class.forName(config.mainclass);
+    public void run(String mainclass, ServerWrapper.Config config, String[] args) throws Throwable {
+        Class<?> mainClass = Class.forName(mainclass);
         MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         mainMethod.invoke(args);
     }

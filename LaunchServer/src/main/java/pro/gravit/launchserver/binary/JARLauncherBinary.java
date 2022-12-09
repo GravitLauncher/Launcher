@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class JARLauncherBinary extends LauncherBinary {
@@ -19,6 +21,8 @@ public final class JARLauncherBinary extends LauncherBinary {
     public final List<Path> coreLibs;
     public final List<Path> addonLibs;
 
+    public final Map<String, Path> files;
+
     public JARLauncherBinary(LaunchServer server) throws IOException {
         super(server, resolve(server, ".jar"), "Launcher-%s-%d.jar");
         count = new AtomicLong(0);
@@ -27,6 +31,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         buildDir = server.dir.resolve("build");
         coreLibs = new ArrayList<>();
         addonLibs = new ArrayList<>();
+        files = new HashMap<>();
         if (!Files.isDirectory(buildDir)) {
             Files.deleteIfExists(buildDir);
             Files.createDirectory(buildDir);

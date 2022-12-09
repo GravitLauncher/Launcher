@@ -12,8 +12,6 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.HookException;
 
-import java.util.UUID;
-
 public class AuthResponse extends SimpleResponse {
     private transient final Logger logger = LogManager.getLogger();
     public String login;
@@ -46,6 +44,7 @@ public class AuthResponse extends SimpleResponse {
             server.authHookManager.preHook.hook(context, clientData);
             context.report = server.authManager.auth(context, password);
             server.authHookManager.postHook.hook(context, clientData);
+            result.permissions = context.report.session() != null ? (context.report.session().getUser() != null ? context.report.session().getUser().getPermissions() : null) : null;
             if (context.report.isUsingOAuth()) {
                 result.oauth = new AuthRequestEvent.OAuthRequestEvent(context.report.oauthAccessToken(), context.report.oauthRefreshToken(), context.report.oauthExpire());
             }

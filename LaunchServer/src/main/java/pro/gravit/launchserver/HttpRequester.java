@@ -17,25 +17,6 @@ public class HttpRequester {
     public HttpRequester() {
     }
 
-    public static class SimpleErrorHandler<T> implements HttpHelper.HttpJsonErrorHandler<T, SimpleError> {
-        private final Type type;
-
-        private SimpleErrorHandler(Type type) {
-            this.type = type;
-        }
-
-        @Override
-        public HttpHelper.HttpOptional<T, SimpleError> applyJson(JsonElement response, int statusCode) {
-            if(statusCode < 200 || statusCode >= 300) {
-                return new HttpHelper.HttpOptional<>(null, Launcher.gsonManager.gson.fromJson(response, SimpleError.class), statusCode);
-            }
-            if(type == Void.class) {
-                return  new HttpHelper.HttpOptional<>(null, null, statusCode);
-            }
-            return new HttpHelper.HttpOptional<>(Launcher.gsonManager.gson.fromJson(response, type), null, statusCode);
-        }
-    }
-
     public <T> SimpleErrorHandler<T> makeEH(Class<T> clazz) {
         return new SimpleErrorHandler<>(clazz);
     }
@@ -48,7 +29,7 @@ public class HttpRequester {
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .header("Accept", "application/json")
                     .timeout(Duration.ofMillis(10000));
-            if(token != null) {
+            if (token != null) {
                 requestBuilder.header("Authorization", "Bearer ".concat(token));
             }
             return requestBuilder.build();
@@ -65,7 +46,7 @@ public class HttpRequester {
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .header("Accept", "application/json")
                     .timeout(Duration.ofMillis(10000));
-            if(token != null) {
+            if (token != null) {
                 requestBuilder.header("Authorization", "Bearer ".concat(token));
             }
             return requestBuilder.build();
@@ -76,6 +57,26 @@ public class HttpRequester {
 
     public <T> HttpHelper.HttpOptional<T, SimpleError> send(HttpRequest request, Class<T> clazz) throws IOException {
         return HttpHelper.send(httpClient, request, makeEH(clazz));
+    }
+
+
+    public static class SimpleErrorHandler<T> implements HttpHelper.HttpJsonErrorHandler<T, SimpleError> {
+        private final Type type;
+
+        private SimpleErrorHandler(Type type) {
+            this.type = type;
+        }
+
+        @Override
+        public HttpHelper.HttpOptional<T, SimpleError> applyJson(JsonElement response, int statusCode) {
+            if (statusCode < 200 || statusCode >= 300) {
+                return new HttpHelper.HttpOptional<>(null, Launcher.gsonManager.gson.fromJson(response, SimpleError.class), statusCode);
+            }
+            if (type == Void.class) {
+                return new HttpHelper.HttpOptional<>(null, null, statusCode);
+            }
+            return new HttpHelper.HttpOptional<>(Launcher.gsonManager.gson.fromJson(response, type), null, statusCode);
+        }
     }
 
     public static class SimpleError {

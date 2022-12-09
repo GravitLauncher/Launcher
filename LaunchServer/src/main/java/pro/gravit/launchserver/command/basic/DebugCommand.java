@@ -11,6 +11,7 @@ import pro.gravit.launchserver.command.Command;
 
 public class DebugCommand extends Command {
     private transient Logger logger = LogManager.getLogger();
+
     public DebugCommand(LaunchServer server) {
         super(server);
     }
@@ -34,7 +35,7 @@ public class DebugCommand extends Command {
         LoggerConfig loggerConfig = config.getLoggerConfig("pro.gravit");
         loggerConfig.setLevel(value ? Level.TRACE : Level.DEBUG);
         ctx.updateLoggers();
-        if(value) {
+        if (value) {
             logger.info("Log level TRACE enabled");
         } else {
             logger.info("Log level TRACE disabled");

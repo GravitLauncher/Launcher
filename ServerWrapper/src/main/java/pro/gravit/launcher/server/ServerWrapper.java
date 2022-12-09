@@ -180,9 +180,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 break;
         }
         LogHelper.info("Start Minecraft Server");
-        LogHelper.debug("Invoke main method %s with %s", config.mainclass, launch.getClass().getName());
+        LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
         try {
-            launch.run(config, real_args);
+            launch.run(classname, config, real_args);
         } catch (Throwable e) {
             LogHelper.error(e);
             System.exit(-1);

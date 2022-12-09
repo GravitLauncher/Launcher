@@ -140,7 +140,7 @@ public class ClientLauncherWrapper {
         if (context.memoryLimit != 0) {
             args.add(String.format("-Xmx%dM", context.memoryLimit));
         }
-        if(customJvmOptions != null) {
+        if (customJvmOptions != null) {
             args.addAll(customJvmOptions);
         }
         args.add("-cp");

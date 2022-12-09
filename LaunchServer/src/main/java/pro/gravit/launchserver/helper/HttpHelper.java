@@ -23,11 +23,61 @@ import java.util.function.Function;
 
 public final class HttpHelper {
     private static transient final Logger logger = LogManager.getLogger();
+
     private HttpHelper() {
         throw new UnsupportedOperationException();
     }
 
-    public static class HttpOptional<T,E> {
+    public static <T, E> HttpOptional<T, E> send(HttpClient client, HttpRequest request, HttpErrorHandler<T, E> handler) throws IOException {
+        try {
+            var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            return handler.apply(response);
+        } catch (InterruptedException e) {
+            throw new IOException(e);
+        }
+    }
+
+    public static <T, E> CompletableFuture<HttpOptional<T, E>> sendAsync(HttpClient client, HttpRequest request, HttpErrorHandler<T, E> handler) throws IOException {
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream()).thenApply(handler::apply);
+    }
+
+    public static <T> HttpResponse.BodyHandler<T> ofJsonResult(Class<T> type) {
+        return ofJsonResult((Type) type);
+    }
+
+    public static <T> HttpResponse.BodyHandler<T> ofJsonResult(Type type) {
+        return new JsonBodyHandler<>(HttpResponse.BodyHandlers.ofInputStream(), (input) -> {
+            try (Reader reader = new InputStreamReader(input)) {
+                return Launcher.gsonManager.gson.fromJson(reader, type);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public static <T> HttpRequest.BodyPublisher jsonBodyPublisher(T obj) {
+        return HttpRequest.BodyPublishers.ofString(Launcher.gsonManager.gson.toJson(obj));
+    }
+
+
+    public interface HttpErrorHandler<T, E> {
+        HttpOptional<T, E> apply(HttpResponse<InputStream> response);
+    }
+
+    public interface HttpJsonErrorHandler<T, E> extends HttpErrorHandler<T, E> {
+        HttpOptional<T, E> applyJson(JsonElement response, int statusCode);
+
+        default HttpOptional<T, E> apply(HttpResponse<InputStream> response) {
+            try (Reader reader = new InputStreamReader(response.body())) {
+                var element = Launcher.gsonManager.gson.fromJson(reader, JsonElement.class);
+                return applyJson(element, response.statusCode());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public static class HttpOptional<T, E> {
         protected final T result;
         protected final E error;
         protected final int statusCode;
@@ -41,36 +91,24 @@ public final class HttpHelper {
         public T result() {
             return result;
         }
+
         public E error() {
             return error;
         }
+
         public int statusCode() {
             return statusCode;
         }
+
         public boolean isSuccessful() {
             return statusCode >= 200 && statusCode < 300;
         }
+
         public T getOrThrow() throws RequestException {
-            if(isSuccessful()) {
+            if (isSuccessful()) {
                 return result;
             } else {
                 throw new RequestException(error == null ? String.format("statusCode %d", statusCode) : error.toString());
-            }
-        }
-    }
-
-    public interface HttpErrorHandler<T, E> {
-        HttpOptional<T,E> apply(HttpResponse<InputStream> response);
-    }
-
-    public interface HttpJsonErrorHandler<T, E> extends HttpErrorHandler<T,E> {
-        HttpOptional<T,E> applyJson(JsonElement response, int statusCode);
-        default HttpOptional<T,E> apply(HttpResponse<InputStream> response) {
-            try(Reader reader = new InputStreamReader(response.body())) {
-                var element = Launcher.gsonManager.gson.fromJson(reader, JsonElement.class);
-                return applyJson(element, response.statusCode());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         }
     }
@@ -86,38 +124,6 @@ public final class HttpHelper {
         public HttpOptional<T, Void> applyJson(JsonElement response, int statusCode) {
             return new HttpOptional<>(Launcher.gsonManager.gson.fromJson(response, type), null, statusCode);
         }
-    }
-
-    public static<T,E> HttpOptional<T,E> send(HttpClient client, HttpRequest request, HttpErrorHandler<T,E> handler) throws IOException {
-        try {
-            var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-            return handler.apply(response);
-        } catch (InterruptedException e) {
-            throw new IOException(e);
-        }
-    }
-
-
-    public static<T,E> CompletableFuture<HttpOptional<T,E>> sendAsync(HttpClient client, HttpRequest request, HttpErrorHandler<T,E> handler) throws IOException {
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream()).thenApply(handler::apply);
-    }
-
-    public static<T> HttpResponse.BodyHandler<T> ofJsonResult(Class<T> type) {
-        return ofJsonResult((Type) type);
-    }
-
-    public static<T> HttpResponse.BodyHandler<T> ofJsonResult(Type type) {
-        return new JsonBodyHandler<>(HttpResponse.BodyHandlers.ofInputStream(), (input) -> {
-            try(Reader reader = new InputStreamReader(input)) {
-                return Launcher.gsonManager.gson.fromJson(reader, type);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    public static<T> HttpRequest.BodyPublisher jsonBodyPublisher(T obj) {
-        return HttpRequest.BodyPublishers.ofString(Launcher.gsonManager.gson.toJson(obj));
     }
 
     private static class JsonBodyHandler<T> implements HttpResponse.BodyHandler<T> {
