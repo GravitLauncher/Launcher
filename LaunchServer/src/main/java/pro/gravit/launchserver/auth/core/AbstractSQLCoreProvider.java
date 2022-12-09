@@ -238,7 +238,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         getSQLConfig().close();
     }
 
-    private SQLUser constructUser(ResultSet set) throws SQLException {
+    protected SQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new SQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
                 set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn))) : null;
     }

@@ -63,7 +63,8 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
         sqlUpdateUsers = String.format("UPDATE %s SET `%s` = ? WHERE `%s` = ?", table, hardwareIdColumn, uuidColumn);
     }
 
-    private MySQLUser constructUser(ResultSet set) throws SQLException {
+    @Override
+    protected MySQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new MySQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
                 set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn)), set.getLong(hardwareIdColumn)) : null;
     }
