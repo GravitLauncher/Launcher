@@ -43,7 +43,7 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     @Override
     public void init(LaunchServer server) {
         super.init(server);
-        String userInfoCols = String.format("%s, %s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn, hardwareIdColumn);
+        String userInfoCols = makeUserCols();
         String hardwareInfoCols = "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, graphicCard, banned, publicKey";
         if (sqlFindHardwareByPublicKey == null)
             sqlFindHardwareByPublicKey = String.format("SELECT %s FROM %s WHERE `publicKey` = ?", hardwareInfoCols, tableHWID);
@@ -61,6 +61,11 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
             sqlUpdateHardwarePublicKey = String.format("UPDATE %s SET `publicKey` = ? WHERE `id` = ?", tableHWID);
         sqlUpdateHardwareBanned = String.format("UPDATE %s SET `banned` = ? WHERE `id` = ?", tableHWID);
         sqlUpdateUsers = String.format("UPDATE %s SET `%s` = ? WHERE `%s` = ?", table, hardwareIdColumn, uuidColumn);
+    }
+
+    @Override
+    protected String makeUserCols() {
+        return super.makeUserCols().concat(", ").concat(hardwareIdColumn);
     }
 
     @Override

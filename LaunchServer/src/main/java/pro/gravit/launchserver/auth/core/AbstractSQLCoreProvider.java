@@ -169,7 +169,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         if (serverIDColumn == null) logger.error("serverIDColumn cannot be null");
         if (table == null) logger.error("table cannot be null");
         // Prepare SQL queries
-        String userInfoCols = String.format("%s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn);
+        String userInfoCols = makeUserCols();
         queryByUUIDSQL = customQueryByUUIDSQL != null ? customQueryByUUIDSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1", userInfoCols,
                 table, uuidColumn);
         queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
@@ -202,6 +202,10 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
                         permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
             }
         }
+    }
+
+    protected String makeUserCols() {
+        return String.format("%s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn);
     }
 
     protected boolean updateAuth(User user, String accessToken) throws IOException {
