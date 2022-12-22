@@ -1,5 +1,5 @@
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 dependencies {
     compileOnly group: 'org.fusesource.jansi', name: 'jansi', version: rootProject['verJansi']
@@ -22,25 +22,9 @@ test {
     }
 }
 sourceSets {
-    java11 {
-        java {
-            srcDirs = ['src/main/java11']
-        }
-        dependencies {
-            java11Implementation group: 'com.google.code.gson', name: 'gson', version: rootProject['verGson']
-            java11Implementation files(sourceSets.main.output.classesDirs) { builtBy compileJava }
-        }
-    }
 }
 jar {
-    into('META-INF/versions/11') {
-        from sourceSets.java11.output
-    }
     archiveClassifier.set('clean')
-}
-compileJava11Java {
-    sourceCompatibility = 11
-    targetCompatibility = 11
 }
 
 task sourcesJar(type: Jar) {
