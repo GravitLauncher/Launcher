@@ -139,12 +139,11 @@ public final class IOHelper {
 
     public static Path getRoot() {
         switch (JVMHelper.OS_TYPE) {
-            case MUSTDIE: {
+            case MUSTDIE -> {
                 String drive = System.getenv("SystemDrive").concat("\\");
                 return Paths.get(drive);
             }
-            case LINUX:
-            case MACOSX: {
+            case LINUX, MACOSX -> {
                 return Paths.get("/");
             }
         }

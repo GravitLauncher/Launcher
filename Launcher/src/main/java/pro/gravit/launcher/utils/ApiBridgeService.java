@@ -18,8 +18,7 @@ public class ApiBridgeService {
     }
 
     public static String findLibrary(ClassLoader classLoader, String library) {
-        if (classLoader instanceof ClientClassLoader) {
-            ClientClassLoader clientClassLoader = (ClientClassLoader) classLoader;
+        if (classLoader instanceof ClientClassLoader clientClassLoader) {
             return clientClassLoader.findLibrary(library);
         }
         return null;

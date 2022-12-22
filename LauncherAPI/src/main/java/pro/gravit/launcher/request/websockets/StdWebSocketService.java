@@ -76,8 +76,7 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
 
     @SuppressWarnings({"unchecked", "deprecation"})
     public <T extends WebSocketEvent> void eventHandle(T webSocketEvent) {
-        if (webSocketEvent instanceof RequestEvent) {
-            RequestEvent event = (RequestEvent) webSocketEvent;
+        if (webSocketEvent instanceof RequestEvent event) {
             if (event.requestUUID == null) {
                 LogHelper.warning("Request event type %s.requestUUID is null", event.getType() == null ? "null" : event.getType());
                 return;

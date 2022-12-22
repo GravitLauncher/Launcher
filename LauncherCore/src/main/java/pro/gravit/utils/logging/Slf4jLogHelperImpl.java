@@ -33,21 +33,11 @@ public class Slf4jLogHelperImpl implements LogHelperAppender {
     @Override
     public void log(LogHelper.Level level, String message, boolean sub) {
         switch (level) {
-            case DEV:
-                logger.trace(message);
-                break;
-            case DEBUG:
-                logger.debug(message);
-                break;
-            case INFO:
-                logger.info(message);
-                break;
-            case WARNING:
-                logger.warn(message);
-                break;
-            case ERROR:
-                logger.error(message);
-                break;
+            case DEV -> logger.trace(message);
+            case DEBUG -> logger.debug(message);
+            case INFO -> logger.info(message);
+            case WARNING -> logger.warn(message);
+            case ERROR -> logger.error(message);
         }
     }
 

@@ -30,16 +30,11 @@ public final class HashedDir extends HashedEntry {
             // Read entry
             HashedEntry entry;
             Type type = Type.read(input);
-            switch (type) {
-                case FILE:
-                    entry = new HashedFile(input);
-                    break;
-                case DIR:
-                    entry = new HashedDir(input);
-                    break;
-                default:
-                    throw new AssertionError("Unsupported hashed entry type: " + type.name());
-            }
+            entry = switch (type) {
+                case FILE -> new HashedFile(input);
+                case DIR -> new HashedDir(input);
+                default -> throw new AssertionError("Unsupported hashed entry type: " + type.name());
+            };
 
             // Try add entry to map
             VerifyHelper.putIfAbsent(map, name, entry, String.format("Duplicate dir entry: '%s'", name));
@@ -157,13 +152,13 @@ public final class HashedDir extends HashedEntry {
 
             // Compare entries based on type
             switch (type) {
-                case FILE:
+                case FILE -> {
                     HashedFile file = (HashedFile) entry;
                     HashedFile otherFile = (HashedFile) otherEntry;
                     if (mismatchList && shouldUpdate && !file.isSame(otherFile))
                         diff.map.put(name, entry);
-                    break;
-                case DIR:
+                }
+                case DIR -> {
                     HashedDir dir = (HashedDir) entry;
                     HashedDir otherDir = (HashedDir) otherEntry;
                     if (mismatchList || shouldUpdate) { // Maybe isn't need to go deeper?
@@ -171,9 +166,8 @@ public final class HashedDir extends HashedEntry {
                         if (!mismatch.isEmpty())
                             diff.map.put(name, mismatch);
                     }
-                    break;
-                default:
-                    throw new AssertionError("Unsupported hashed entry type: " + type.name());
+                }
+                default -> throw new AssertionError("Unsupported hashed entry type: " + type.name());
             }
 
             // Remove this path entry
@@ -209,13 +203,13 @@ public final class HashedDir extends HashedEntry {
 
             // Compare entries based on type
             switch (type) {
-                case FILE:
+                case FILE -> {
                     HashedFile file = (HashedFile) entry;
                     HashedFile otherFile = (HashedFile) otherEntry;
                     if (mismatchList && shouldUpdate && file.isSame(otherFile))
                         diff.map.put(name, entry);
-                    break;
-                case DIR:
+                }
+                case DIR -> {
                     HashedDir dir = (HashedDir) entry;
                     HashedDir otherDir = (HashedDir) otherEntry;
                     if (mismatchList || shouldUpdate) { // Maybe isn't need to go deeper?
@@ -223,9 +217,8 @@ public final class HashedDir extends HashedEntry {
                         if (!mismatch.isEmpty())
                             diff.map.put(name, mismatch);
                     }
-                    break;
-                default:
-                    throw new AssertionError("Unsupported hashed entry type: " + type.name());
+                }
+                default -> throw new AssertionError("Unsupported hashed entry type: " + type.name());
             }
 
             // Remove this path entry

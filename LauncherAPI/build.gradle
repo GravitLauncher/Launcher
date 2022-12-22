@@ -21,12 +21,12 @@ jar {
     archiveClassifier.set('clean')
 }
 
-task sourcesJar(type: Jar) {
+tasks.register('sourcesJar') {
     from sourceSets.main.allJava
     archiveClassifier.set('sources')
 }
 
-task javadocJar(type: Jar) {
+tasks.register('javadocJar') {
     from javadoc
     archiveClassifier.set('javadoc')
 }

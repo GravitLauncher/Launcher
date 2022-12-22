@@ -167,18 +167,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             real_args = new String[args.length - 1];
             System.arraycopy(args, 1, real_args, 0, args.length - 1);
         } else real_args = args;
-        Launch launch;
-        switch (config.classLoaderConfig) {
-            case LAUNCHER:
-                launch = new ClasspathLaunch();
-                break;
-            case MODULE:
-                launch = new ModuleLaunch();
-                break;
-            default:
-                launch = new SimpleLaunch();
-                break;
-        }
+        Launch launch = switch (config.classLoaderConfig) {
+            case LAUNCHER -> new ClasspathLaunch();
+            case MODULE -> new ModuleLaunch();
+            default -> new SimpleLaunch();
+        };
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
         try {

@@ -84,20 +84,19 @@ public final class CommonHelper {
 
             // Append next char
             switch (ch) {
-                case '"': // "abc"de, "abc""de" also allowed
+                case '"' -> { // "abc"de, "abc""de" also allowed
                     quoted = !quoted;
                     wasQuoted = true;
-                    break;
-                case '\\': // All escapes, including spaces etc
+                }
+                case '\\' -> { // All escapes, including spaces etc
                     if (i + 1 >= line.length())
                         throw new CommandException("Escape character is not specified");
                     char next = line.charAt(i + 1);
                     builder.append(next);
                     i++;
-                    break;
-                default: // Default char, simply append
-                    builder.append(ch);
-                    break;
+                }
+                default -> // Default char, simply append
+                        builder.append(ch);
             }
         }
 

@@ -14,17 +14,12 @@ public class FormatHelper {
     public static Ansi rawAnsiFormat(LogHelper.Level level, String dateTime, boolean sub) {
         Ansi.Color levelColor;
         boolean bright = level != LogHelper.Level.DEBUG;
-        switch (level) {
-            case WARNING:
-                levelColor = Ansi.Color.YELLOW;
-                break;
-            case ERROR:
-                levelColor = Ansi.Color.RED;
-                break;
-            default: // INFO, DEBUG, Unknown
-                levelColor = Ansi.Color.WHITE;
-                break;
-        }
+        levelColor = switch (level) {
+            case WARNING -> Ansi.Color.YELLOW;
+            case ERROR -> Ansi.Color.RED;
+            default -> // INFO, DEBUG, Unknown
+                    Ansi.Color.WHITE;
+        };
 
         // Date-time
         Ansi ansi = new Ansi();

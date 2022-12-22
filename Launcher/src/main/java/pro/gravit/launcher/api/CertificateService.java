@@ -79,20 +79,14 @@ public class CertificateService {
 
         private static CheckClassResultTypeApi fromType(LauncherTrustManager.CheckClassResultType type) {
             if (type == null) return null;
-            switch (type) {
-                case NOT_SIGNED:
-                    return CheckClassResultTypeApi.NOT_SIGNED;
-                case SUCCESS:
-                    return CheckClassResultTypeApi.SUCCESS;
-                case UNTRUSTED:
-                    return CheckClassResultTypeApi.UNTRUSTED;
-                case UNVERIFED:
-                    return CheckClassResultTypeApi.UNVERIFED;
-                case UNCOMPAT:
-                    return CheckClassResultTypeApi.UNCOMPAT;
-                default:
-                    return CheckClassResultTypeApi.UNKNOWN;
-            }
+            return switch (type) {
+                case NOT_SIGNED -> CheckClassResultTypeApi.NOT_SIGNED;
+                case SUCCESS -> CheckClassResultTypeApi.SUCCESS;
+                case UNTRUSTED -> CheckClassResultTypeApi.UNTRUSTED;
+                case UNVERIFED -> CheckClassResultTypeApi.UNVERIFED;
+                case UNCOMPAT -> CheckClassResultTypeApi.UNCOMPAT;
+                default -> CheckClassResultTypeApi.UNKNOWN;
+            };
         }
     }
 }

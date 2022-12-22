@@ -154,13 +154,11 @@ public class LauncherEngine {
     }
 
     public static LauncherGuard tryGetStdGuard() {
-        switch (Launcher.getConfig().guardType) {
-            case "no":
-                return new LauncherNoGuard();
-            case "wrapper":
-                return new LauncherWrapperGuard();
-        }
-        return null;
+        return switch (Launcher.getConfig().guardType) {
+            case "no" -> new LauncherNoGuard();
+            case "wrapper" -> new LauncherWrapperGuard();
+            default -> null;
+        };
     }
 
     public static RequestService initOffline() {
