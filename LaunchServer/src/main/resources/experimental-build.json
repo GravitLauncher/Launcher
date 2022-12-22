@@ -1,4 +1,4 @@
 {
   "features": ["java17"],
-  "info": []
+  "info": ["Support only Java 17+ clients", "Required Java 17"]
 }
