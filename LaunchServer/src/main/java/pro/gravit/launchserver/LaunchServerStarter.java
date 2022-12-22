@@ -224,12 +224,15 @@ public class LaunchServerStarter {
             }
             logger.warn("This is experimental build. Please do not use this in production");
             logger.warn("Experimental features: [{}]", String.join(",", info.features));
+            for(var e : info.info) {
+                logger.warn(e);
+            }
         } catch (Throwable e) {
             logger.warn("Build information not found");
         }
     }
 
-    record ExperimentalBuild(List<String> features) {
+    record ExperimentalBuild(List<String> features, List<String> info) {
 
     }
 
