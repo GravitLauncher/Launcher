@@ -50,17 +50,17 @@ test {
     }
 }
 
-tasks.register('sourcesJar') {
+tasks.register('sourcesJar', Jar.class) {
     from sourceSets.main.allJava
     archiveClassifier.set('sources')
 }
 
-tasks.register('javadocJar') {
+tasks.register('javadocJar', Jar.class) {
     from javadoc
     archiveClassifier.set('javadoc')
 }
 
-tasks.register('cleanjar') {
+tasks.register('cleanjar', Jar.class) {
     archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
@@ -117,13 +117,13 @@ dependencies {
     compileOnlyA 'org.apache.logging.log4j:log4j-core:2.14.1'
 }
 
-tasks.register('hikari') {
+tasks.register('hikari', Copy.class) {
     duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries/hikaricp"
     from configurations.hikari
 }
 
-tasks.register('launch4j') {
+tasks.register('launch4j', Copy.class) {
     duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries/launch4j"
     from(configurations.launch4j.collect {
@@ -141,20 +141,20 @@ tasks.register('launch4j') {
     }
 }
 
-tasks.register('dumpLibs') {
+tasks.register('dumpLibs', Copy.class) {
     duplicatesStrategy = 'EXCLUDE'
     dependsOn tasks.hikari, tasks.launch4j
     into "$buildDir/libs/libraries"
     from configurations.bundleOnly
 }
 
-tasks.register('dumpCompileOnlyLibs') {
+tasks.register('dumpCompileOnlyLibs', Copy.class) {
     duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/launcher-libraries-compile"
     from configurations.compileOnlyA
 }
 
-tasks.register('bundle') {
+tasks.register('bundle', Zip.class) {
     duplicatesStrategy = 'EXCLUDE'
     dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.jar
     archiveFileName = 'LaunchServer.zip'
@@ -165,7 +165,7 @@ tasks.register('bundle') {
     from(parent.childProjects.Launcher.tasks.dumpLibs) { into 'launcher-libraries' }
 }
 
-tasks.register('dumpClientLibs') {
+tasks.register('dumpClientLibs', Copy.class) {
     dependsOn parent.childProjects.Launcher.tasks.build
     into "$buildDir/libs/launcher-libraries"
     from parent.childProjects.Launcher.tasks.dumpLibs

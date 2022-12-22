@@ -29,12 +29,12 @@ jar {
             "Multi-Release": "true")
 }
 
-tasks.register('sourcesJar') {
+tasks.register('sourcesJar', Jar.class) {
     from sourceSets.main.allJava
     archiveClassifier.set('sources')
 }
 
-tasks.register('javadocJar') {
+tasks.register('javadocJar', Jar.class) {
     from javadoc
     archiveClassifier.set('javadoc')
 }
@@ -53,14 +53,14 @@ dependencies {
     pack group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
 }
 
-tasks.register('genRuntimeJS') {
+tasks.register('genRuntimeJS', Zip.class) {
     duplicatesStrategy = 'EXCLUDE'
     archiveFileName = "runtime.zip"
     destinationDirectory = file("${buildDir}/tmp")
     from "runtime/"
 }
 
-tasks.register('dumpLibs') {
+tasks.register('dumpLibs', Copy.class) {
     duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries"
     from configurations.bundle
