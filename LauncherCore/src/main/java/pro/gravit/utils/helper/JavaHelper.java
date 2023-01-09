@@ -250,7 +250,6 @@ public class JavaHelper {
                     arch = null;
                 }
             } else {
-                LogHelper.dev("TEST3: " + jvmDir + " | Version: " + isExistExtJavaLibrary(jvmDir, "rt"));
                 versionAndBuild = new JavaVersionAndBuild(isExistExtJavaLibrary(jvmDir, "rt") ? 8 : 9, 0);
             }
             JavaVersion resultJavaVersion = new JavaVersion(jvmDir, versionAndBuild.version, versionAndBuild.build, arch, false);
