@@ -250,7 +250,8 @@ public class JavaHelper {
                     arch = null;
                 }
             } else {
-                versionAndBuild = new JavaVersionAndBuild(isExistExtJavaLibrary(jvmDir, "jfxrt") ? 8 : 9, 0);
+                LogHelper.dev("TEST3: " + jvmDir + " | Version: " + isExistExtJavaLibrary(jvmDir, "rt"));
+                versionAndBuild = new JavaVersionAndBuild(isExistExtJavaLibrary(jvmDir, "rt") ? 8 : 9, 0);
             }
             JavaVersion resultJavaVersion = new JavaVersion(jvmDir, versionAndBuild.version, versionAndBuild.build, arch, false);
             if (versionAndBuild.version <= 8) {
@@ -266,7 +267,8 @@ public class JavaHelper {
         public static boolean isExistExtJavaLibrary(Path jvmDir, String name) {
             Path jrePath = jvmDir.resolve("lib").resolve("ext").resolve(name.concat(".jar"));
             Path jdkPath = jvmDir.resolve("jre").resolve("lib").resolve("ext").resolve(name.concat(".jar"));
-            return IOHelper.isFile(jrePath) || IOHelper.isFile(jdkPath);
+            Path jdkPathLin = jvmDir.resolve("jre").resolve("lib").resolve(name.concat(".jar"));
+            return IOHelper.isFile(jrePath) || IOHelper.isFile(jdkPath) || IOHelper.isFile(jdkPathLin);
         }
     }
 }
