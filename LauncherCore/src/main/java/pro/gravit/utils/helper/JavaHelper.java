@@ -266,9 +266,10 @@ public class JavaHelper {
 
         public static boolean isExistExtJavaLibrary(Path jvmDir, String name) {
             Path jrePath = jvmDir.resolve("lib").resolve("ext").resolve(name.concat(".jar"));
+            Path jrePathLin = jvmDir.resolve("lib").resolve(name.concat(".jar"));
             Path jdkPath = jvmDir.resolve("jre").resolve("lib").resolve("ext").resolve(name.concat(".jar"));
             Path jdkPathLin = jvmDir.resolve("jre").resolve("lib").resolve(name.concat(".jar"));
-            return IOHelper.isFile(jrePath) || IOHelper.isFile(jdkPath) || IOHelper.isFile(jdkPathLin);
+            return IOHelper.isFile(jrePath) || IOHelper.isFile(jdkPath) || IOHelper.isFile(jdkPathLin) || IOHelper.isFile(jrePathLin);
         }
     }
 }
