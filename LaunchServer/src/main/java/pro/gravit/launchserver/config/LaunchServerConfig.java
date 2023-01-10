@@ -47,7 +47,7 @@ public final class LaunchServerConfig {
         LaunchServerConfig newConfig = new LaunchServerConfig();
         newConfig.mirrors = new String[]{"https://mirror.gravit.pro/5.3.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         newConfig.launch4j = new LaunchServerConfig.ExeConf();
-        newConfig.launch4j.enabled = false;
+        newConfig.launch4j.enabled = true;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
         newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
         newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
