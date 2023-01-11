@@ -4,7 +4,7 @@
 
 * [See license](LICENSE)
 * [See code of conduct](CODE_OF_CONDUCT.md)
-* [WIKI](https://launcher.gravit.pro)
+* [WIKI](https://gravitlauncher.com)
 * Get it (requires cURL):
 
 ```sh
