@@ -21,6 +21,7 @@ import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.WebSocketService;
+import pro.gravit.utils.Version;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
@@ -33,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.util.List;
 
 public class LaunchServerStarter {
     public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
@@ -86,6 +88,7 @@ public class LaunchServerStarter {
         modulesManager.initModules(null);
         registerAll();
         initGson(modulesManager);
+        printExperimentalBranch();
         if (IOHelper.exists(dir.resolve("LaunchServer.conf"))) {
             configFile = dir.resolve("LaunchServer.conf");
         } else {
@@ -211,6 +214,26 @@ public class LaunchServerStarter {
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
+    }
+
+    private static void printExperimentalBranch() {
+        try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("experimental-build.json"))) {
+            ExperimentalBuild info = Launcher.gsonManager.configGson.fromJson(reader, ExperimentalBuild.class);
+            if(info.features == null || info.features.isEmpty()) {
+                return;
+            }
+            logger.warn("This is experimental build. Please do not use this in production");
+            logger.warn("Experimental features: [{}]", String.join(",", info.features));
+            for(var e : info.info) {
+                logger.warn(e);
+            }
+        } catch (Throwable e) {
+            logger.warn("Build information not found");
+        }
+    }
+
+    record ExperimentalBuild(List<String> features, List<String> info) {
+
     }
 
     public static void generateConfigIfNotExists(Path configFile, CommandHandler commandHandler, LaunchServer.LaunchServerEnv env) throws IOException {

@@ -186,7 +186,7 @@ publishing {
             pom {
                 name = 'GravitLauncher LaunchServer API'
                 description = 'GravitLauncher LaunchServer Module API'
-                url = 'https://launcher.gravit.pro'
+                url = 'https://gravitlauncher.com'
                 licenses {
                     license {
                         name = 'GNU General Public License, Version 3.0'
@@ -209,7 +209,7 @@ publishing {
                 scm {
                     connection = 'scm:git:https://github.com/GravitLauncher/Launcher.git'
                     developerConnection = 'scm:git:ssh://git@github.com:GravitLauncher/Launcher.git'
-                    url = 'https://launcher.gravit.pro/'
+                    url = 'https://gravitlauncher.com/'
                 }
             }
         }
