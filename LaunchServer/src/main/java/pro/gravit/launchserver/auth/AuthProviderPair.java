@@ -22,6 +22,7 @@ public final class AuthProviderPair {
     public transient String name;
     public transient Set<String> features;
     public String displayName;
+    public boolean visible = true;
     private transient boolean warnOAuthShow = false;
 
     public AuthProviderPair() {
