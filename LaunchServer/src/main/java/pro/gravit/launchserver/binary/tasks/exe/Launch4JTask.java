@@ -83,8 +83,6 @@ public class Launch4JTask implements LauncherBuildTask, BuildExeMainTask {
         jre.setMinVersion(server.config.launch4j.minVersion);
         if (server.config.launch4j.setMaxVersion)
             jre.setMaxVersion(server.config.launch4j.maxVersion);
-        jre.setRuntimeBits(Jre.RUNTIME_BITS_64_AND_32);
-        jre.setJdkPreference(Jre.JDK_PREFERENCE_PREFER_JRE);
         config.setJre(jre);
 
         // Prepare version info (product)
