@@ -41,17 +41,13 @@ public final class DownloadClientCommand extends Command {
         verifyArgs(args, 2);
         //Version version = Version.byName(args[0]);
         String versionName = args[0];
-        String dirName = IOHelper.verifyFileName(args[1]);
-        Path clientDir = server.updatesDir.resolve(args[1]);
+        String dirName = IOHelper.verifyFileName(args[1] != null ? args[1] : args[0]);
+        Path clientDir = server.updatesDir.resolve(dirName);
 
         boolean isMirrorClientDownload = false;
         if (args.length > 2) {
             isMirrorClientDownload = args[2].equals("mirror");
         }
-
-        // Create client dir
-        logger.info("Creating client dir: '{}'", dirName);
-        Files.createDirectory(clientDir);
 
         // Download required client
         logger.info("Downloading client, it may take some time");
@@ -60,7 +56,25 @@ public final class DownloadClientCommand extends Command {
 
         // Create profile file
         logger.info("Creaing profile file: '{}'", dirName);
-        ClientProfile client = null;
+        ClientProfile clientProfile = null;
+        if (isMirrorClientDownload) {
+            try {
+                JsonElement clientJson = server.mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
+                clientProfile = Launcher.gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
+                clientProfile.setTitle(dirName);
+                clientProfile.setDir(dirName);
+                clientProfile.setUUID(UUID.randomUUID());
+                if (clientProfile.getServers() != null) {
+                    ClientProfile.ServerProfile serverProfile = clientProfile.getDefaultServerProfile();
+                    if (serverProfile != null) {
+                        serverProfile.name = dirName;
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Filed download clientProfile from mirror: '{}' Generation through MakeProfileHelper", versionName);
+                isMirrorClientDownload = false;
+            }
+        }
         if (!isMirrorClientDownload) {
             try {
                 String internalVersion = versionName;
@@ -75,27 +89,14 @@ public final class DownloadClientCommand extends Command {
                 for (MakeProfileHelper.MakeProfileOption option : options) {
                     logger.debug("Detected option {}", option.getClass().getSimpleName());
                 }
-                client = MakeProfileHelper.makeProfile(version, dirName, options);
+                clientProfile = MakeProfileHelper.makeProfile(version, dirName, options);
             } catch (Throwable e) {
                 isMirrorClientDownload = true;
             }
         }
-        if (isMirrorClientDownload) {
-            JsonElement clientJson = server.mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
-            client = Launcher.gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
-            client.setTitle(dirName);
-            client.setDir(dirName);
-            client.setUUID(UUID.randomUUID());
-            if (client.getServers() != null) {
-                ClientProfile.ServerProfile serverProfile = client.getDefaultServerProfile();
-                if (serverProfile != null) {
-                    serverProfile.name = dirName;
-                }
-            }
-        }
         try (BufferedWriter writer = IOHelper.newWriter(IOHelper.resolveIncremental(server.profilesDir,
                 dirName, "json"))) {
-            Launcher.gsonManager.configGson.toJson(client, writer);
+            Launcher.gsonManager.configGson.toJson(clientProfile, writer);
         }
 
         // Finished

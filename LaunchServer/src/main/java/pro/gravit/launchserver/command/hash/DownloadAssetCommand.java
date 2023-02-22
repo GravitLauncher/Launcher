@@ -40,11 +40,11 @@ public final class DownloadAssetCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        verifyArgs(args, 2);
+        verifyArgs(args, 1);
         //Version version = Version.byName(args[0]);
         String versionName = args[0];
+        String dirName = IOHelper.verifyFileName(args[1] != null ? args[1] : "assets");
         String type = args.length > 2 ? args[2] : "mojang";
-        String dirName = IOHelper.verifyFileName(args[1]);
         Path assetDir = server.updatesDir.resolve(dirName);
 
         // Create asset dir
