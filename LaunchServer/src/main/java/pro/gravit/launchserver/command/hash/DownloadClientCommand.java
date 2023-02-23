@@ -38,7 +38,7 @@ public final class DownloadClientCommand extends Command {
 
     @Override
     public void invoke(String... args) throws IOException, CommandException {
-        verifyArgs(args, 2);
+        verifyArgs(args, 1);
         //Version version = Version.byName(args[0]);
         String versionName = args[0];
         String dirName = IOHelper.verifyFileName(args[1] != null ? args[1] : args[0]);
