@@ -27,6 +27,21 @@ public class OptionalView {
         this.all = view.all;
     }
 
+    public OptionalView(ClientProfile profile, OptionalView old) {
+        this(profile);
+        for(OptionalFile oldFile : old.all) {
+            OptionalFile newFile = findByName(oldFile.name);
+            if(newFile == null) {
+                continue;
+            }
+            if(old.isEnabled(oldFile)) {
+                enable(newFile, old.installInfo.get(oldFile).isManual, (file, status) -> {});
+            } else {
+                disable(newFile, (file, status) -> {});
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends OptionalAction> Set<T> getActionsByClass(Class<T> clazz) {
         Set<T> results = new HashSet<>();
@@ -40,6 +55,19 @@ public class OptionalView {
             }
         }
         return results;
+    }
+
+    public OptionalFile findByName(String name) {
+        for(OptionalFile file : all) {
+            if(name.equals(file.name)) {
+                return file;
+            }
+        }
+        return null;
+    }
+
+    public boolean isEnabled(OptionalFile file) {
+        return enabled.contains(file);
     }
 
     public Set<OptionalAction> getEnabledActions() {
