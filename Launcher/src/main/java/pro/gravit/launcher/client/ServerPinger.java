@@ -1,5 +1,6 @@
 package pro.gravit.launcher.client;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import pro.gravit.launcher.profiles.ClientProfile;
@@ -162,9 +163,13 @@ public final class ServerPinger {
         }
 
         // Parse JSON response
-        JsonObject object = JsonParser.parseString(response).getAsJsonObject();
+        JsonElement element = JsonParser.parseString(response);
+        if(element.isJsonPrimitive()) {
+            throw new IOException(element.getAsString());
+        }
+        JsonObject object = element.getAsJsonObject();
         if (object.has("error")) {
-            throw new IOException(object.get("error").getAsString());
+            throw new IOException(object.get("error").getAsString()); // May be not needed?
         }
         JsonObject playersObject = object.get("players").getAsJsonObject();
         int online = playersObject.get("online").getAsInt();
