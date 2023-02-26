@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 public class ClientClassLoader extends URLClassLoader {
+    private static final ClassLoader SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
     public String nativePath;
 
     /**
@@ -56,6 +57,14 @@ public class ClientClassLoader extends URLClassLoader {
      */
     public ClientClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
+    }
+
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        if(name != null && (name.startsWith("pro.gravit.launcher.") || name.startsWith("pro.gravit.utils."))) {
+            return SYSTEM_CLASS_LOADER.loadClass(name);
+        }
+        return super.loadClass(name, resolve);
     }
 
     @Override
