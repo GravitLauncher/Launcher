@@ -133,7 +133,6 @@ public class ClientLauncherProcess {
 
     public void start(boolean pipeOutput) throws IOException, InterruptedException {
         if (isStarted) throw new IllegalStateException("Process already started");
-        if (LauncherEngine.guard != null) LauncherEngine.guard.applyGuardParams(this);
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderPreLaunchEvent(this));
         List<String> processArgs = new LinkedList<>();
         processArgs.add(executeFile.toString());
