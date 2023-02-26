@@ -19,10 +19,8 @@ public class ClientProfileBuilder {
     private List<String> compatClasses = new ArrayList<>();
     private Map<String, String> properties = new HashMap<>();
     private List<ClientProfile.ServerProfile> servers = new ArrayList<>();
-    private ClientProfile.SecurityManagerConfig securityManagerConfig = ClientProfile.SecurityManagerConfig.LAUNCHER;
     private ClientProfile.ClassLoaderConfig classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;
-    private ClientProfile.SignedClientConfig signedClientConfig = ClientProfile.SignedClientConfig.NONE;
-    private ClientProfile.RuntimeInClientConfig runtimeInClientConfig = ClientProfile.RuntimeInClientConfig.NONE;
+    private List<ClientProfile.CompatibilityFlags> flags = new ArrayList<>();
     private String version;
     private String assetIndex;
     private String dir;
@@ -30,7 +28,6 @@ public class ClientProfileBuilder {
     private int recommendJavaVersion = 8;
     private int minJavaVersion = 8;
     private int maxJavaVersion = 999;
-    private boolean warnMissJavaVersion = true;
     private ClientProfile.ProfileDefaultSettings settings = new ClientProfile.ProfileDefaultSettings();
     private int sortIndex;
     private UUID uuid;
@@ -98,23 +95,8 @@ public class ClientProfileBuilder {
         return this;
     }
 
-    public ClientProfileBuilder setSecurityManagerConfig(ClientProfile.SecurityManagerConfig securityManagerConfig) {
-        this.securityManagerConfig = securityManagerConfig;
-        return this;
-    }
-
     public ClientProfileBuilder setClassLoaderConfig(ClientProfile.ClassLoaderConfig classLoaderConfig) {
         this.classLoaderConfig = classLoaderConfig;
-        return this;
-    }
-
-    public ClientProfileBuilder setSignedClientConfig(ClientProfile.SignedClientConfig signedClientConfig) {
-        this.signedClientConfig = signedClientConfig;
-        return this;
-    }
-
-    public ClientProfileBuilder setRuntimeInClientConfig(ClientProfile.RuntimeInClientConfig runtimeInClientConfig) {
-        this.runtimeInClientConfig = runtimeInClientConfig;
         return this;
     }
 
@@ -163,11 +145,6 @@ public class ClientProfileBuilder {
         return this;
     }
 
-    public ClientProfileBuilder setWarnMissJavaVersion(boolean warnMissJavaVersion) {
-        this.warnMissJavaVersion = warnMissJavaVersion;
-        return this;
-    }
-
     public ClientProfileBuilder setSettings(ClientProfile.ProfileDefaultSettings settings) {
         this.settings = settings;
         return this;
@@ -198,7 +175,12 @@ public class ClientProfileBuilder {
         return this;
     }
 
+    public ClientProfileBuilder setFlags(List<ClientProfile.CompatibilityFlags> flags) {
+        this.flags = flags;
+        return this;
+    }
+
     public ClientProfile createClientProfile() {
-        return new ClientProfile(update, updateExclusions, updateShared, updateVerify, updateOptional, jvmArgs, classPath, modulePath, modules, altClassPath, clientArgs, compatClasses, properties, servers, securityManagerConfig, classLoaderConfig, signedClientConfig, runtimeInClientConfig, version, assetIndex, dir, assetDir, recommendJavaVersion, minJavaVersion, maxJavaVersion, warnMissJavaVersion, settings, sortIndex, uuid, title, info, mainClass);
+        return new ClientProfile(update, updateExclusions, updateShared, updateVerify, updateOptional, jvmArgs, classPath, modulePath, modules, altClassPath, clientArgs, compatClasses, properties, servers, classLoaderConfig, flags, version, assetIndex, dir, assetDir, recommendJavaVersion, minJavaVersion, maxJavaVersion, settings, sortIndex, uuid, title, info, mainClass);
     }
 }

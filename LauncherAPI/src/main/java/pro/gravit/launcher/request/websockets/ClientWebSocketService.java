@@ -28,6 +28,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
     private static boolean resultsRegistered = false;
     public final Gson gson;
     public final Boolean onConnect;
+    public final Object waitObject = new Object();
     public OnCloseCallback onCloseCallback;
     public ReconnectCallback reconnectCallback;
 
@@ -71,8 +72,8 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
 
     @Override
     void onOpen() {
-        synchronized (onConnect) {
-            onConnect.notifyAll();
+        synchronized (waitObject) {
+            waitObject.notifyAll();
         }
     }
 
@@ -80,7 +81,6 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
 
     }
 
-    @SuppressWarnings("deprecation")
     public void registerResults() {
         if (!resultsRegistered) {
             results.register("auth", AuthRequestEvent.class);

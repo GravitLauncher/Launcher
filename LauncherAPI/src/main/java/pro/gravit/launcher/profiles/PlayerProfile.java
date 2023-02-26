@@ -11,8 +11,6 @@ public final class PlayerProfile {
 
     public final UUID uuid;
     public final String username;
-    @Deprecated
-    public final Texture skin, cloak;
     public final Map<String, Texture> assets;
     public final Map<String, String> properties;
 
@@ -26,8 +24,6 @@ public final class PlayerProfile {
     public PlayerProfile(UUID uuid, String username, Texture skin, Texture cloak, Map<String, String> properties) {
         this.uuid = Objects.requireNonNull(uuid, "uuid");
         this.username = username;
-        this.skin = skin;
-        this.cloak = cloak;
         this.assets = new HashMap<>();
         if (skin != null) {
             this.assets.put("SKIN", skin);
@@ -43,8 +39,6 @@ public final class PlayerProfile {
         this.username = username;
         this.assets = assets;
         this.properties = properties;
-        this.skin = assets.get("SKIN");
-        this.cloak = assets.get("CAPE");
     }
 
     public static PlayerProfile newOfflineProfile(String username) {

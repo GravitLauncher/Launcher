@@ -107,7 +107,6 @@ public class ClientLauncherEntryPoint {
         } else if (params.session != null) {
             throw new UnsupportedOperationException("Legacy session not supported");
         }
-        checkJVMBitsAndVersion(params.profile.getMinJavaVersion(), params.profile.getRecommendJavaVersion(), params.profile.getMaxJavaVersion(), params.profile.isWarnMissJavaVersion());
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessInitPhase(engine, params));
 
         Path clientDir = Paths.get(params.clientDir);
@@ -174,15 +173,6 @@ public class ClientLauncherEntryPoint {
         AuthService.username = params.playerProfile.username;
         AuthService.uuid = params.playerProfile.uuid;
         KeyService.serverRsaPublicKey = Launcher.getConfig().rsaPublicKey;
-        if (params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
-            CommonHelper.newThread("Client Launcher Thread", true, () -> {
-                try {
-                    engine.start(args);
-                } catch (Throwable throwable) {
-                    LogHelper.error(throwable);
-                }
-            }).start();
-        }
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessReadyEvent(engine, params));
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
@@ -268,28 +258,6 @@ public class ClientLauncherEntryPoint {
         }
     }
 
-    public static boolean checkJVMBitsAndVersion(int minVersion, int recommendVersion, int maxVersion, boolean showMessage) {
-        boolean ok = true;
-        if (JVMHelper.JVM_BITS == 64 && JVMHelper.ARCH_TYPE == JVMHelper.ARCH.X86) {
-            String error = "У Вас установлена Java x64, но Ваша система определена как x32. Установите Java правильной разрядности";
-            LogHelper.error(error);
-            if (showMessage)
-                JOptionPane.showMessageDialog(null, error);
-            ok = false;
-        }
-        String jvmVersion = JVMHelper.RUNTIME_MXBEAN.getVmVersion();
-        LogHelper.info(jvmVersion);
-        int version = JVMHelper.getVersion();
-        if (version < minVersion || version > maxVersion) {
-            String error = String.format("У Вас установлена Java %d, но этот клиент требует Java %d", JVMHelper.getVersion(), recommendVersion);
-            LogHelper.error(error);
-            if (showMessage)
-                JOptionPane.showMessageDialog(null, error);
-            ok = false;
-        }
-        return ok;
-    }
-
     private static LinkedList<Path> resolveClassPathList(Path clientDir, String... classPath) throws IOException {
         return resolveClassPathStream(clientDir, classPath).collect(Collectors.toCollection(LinkedList::new));
     }
@@ -353,7 +321,7 @@ public class ClientLauncherEntryPoint {
                 List<String> compatClasses = profile.getCompatClasses();
                 for (String e : compatClasses) {
                     Class<?> clazz = classLoader.loadClass(e);
-                    MethodHandle runMethod = MethodHandles.publicLookup().findStatic(clazz, "run", MethodType.methodType(void.class));
+                    MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class));
                     runMethod.invoke();
                 }
             }

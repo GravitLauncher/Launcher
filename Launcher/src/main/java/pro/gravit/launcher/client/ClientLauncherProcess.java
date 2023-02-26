@@ -76,9 +76,14 @@ public class ClientLauncherProcess {
         this.params.clientDir = this.workDir.toString();
         this.params.resourcePackDir = resourcePackDir.toAbsolutePath().toString();
         this.params.assetDir = assetDir.toAbsolutePath().toString();
-        Path nativesPath = workDir.resolve("natives").resolve(JVMHelper.OS_TYPE.name).resolve(javaVersion.arch.name);
-        if (!Files.isDirectory(nativesPath)) {
+        Path nativesPath;
+        if(profile.hasFlag(ClientProfile.CompatibilityFlags.LEGACY_NATIVES_DIR)) {
             nativesPath = workDir.resolve("natives");
+        } else {
+            nativesPath = workDir.resolve("natives").resolve(JVMHelper.OS_TYPE.name).resolve(javaVersion.arch.name);
+        }
+        if (!Files.isDirectory(nativesPath)) {
+            throw new RuntimeException(String.format("Natives dir %s not exist! Your operating system or architecture not supported", nativesPath.toAbsolutePath()));
         }
         this.params.nativesDir = nativesPath.toString();
         this.params.profile = profile;
@@ -123,16 +128,6 @@ public class ClientLauncherProcess {
         }
         this.jvmModules.addAll(this.params.profile.getModules());
         this.jvmModulesPaths.addAll(this.params.profile.getModulePath());
-        if (this.params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
-            jvmModules.add("javafx.base");
-            jvmModules.add("javafx.graphics");
-            jvmModules.add("javafx.fxml");
-            jvmModules.add("javafx.controls");
-            jvmModules.add("javafx.swing");
-            jvmModules.add("javafx.media");
-            jvmModules.add("javafx.web");
-        }
-
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));
     }
 
