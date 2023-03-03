@@ -219,7 +219,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             });
             logger.debug("Init components successful");
         }
-
+        if(!type.equals(ReloadType.NO_AUTH)) {
+            nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((channel, wsHandler) -> {
+                Client client = wsHandler.getClient();
+                if(client.auth != null) {
+                    client.auth = config.getAuthProviderPair(client.auth_id);
+                }
+            });
+        }
     }
 
     @Override
@@ -236,7 +243,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                     case "full" -> reload(ReloadType.FULL);
                     case "no_auth" -> reload(ReloadType.NO_AUTH);
                     case "no_components" -> reload(ReloadType.NO_COMPONENTS);
-                    default -> reload(ReloadType.FULL);
+                    default -> reload(ReloadType.NO_AUTH);
                 }
             }
         };

@@ -5,9 +5,14 @@ import pro.gravit.utils.helper.JVMHelper;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientClassLoader extends URLClassLoader {
+    private static final ClassLoader SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
     public String nativePath;
+
+    private List<String> packages = new ArrayList<>();
 
     /**
      * Constructs a new URLClassLoader for the specified URLs using the
@@ -31,6 +36,8 @@ public class ClientClassLoader extends URLClassLoader {
      */
     public ClientClassLoader(URL[] urls) {
         super(urls);
+        packages.add("pro.gravit.launcher.");
+        packages.add("pro.gravit.utils.");
     }
 
     /**
@@ -59,6 +66,18 @@ public class ClientClassLoader extends URLClassLoader {
     }
 
     @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        if(name != null) {
+            for(String pkg : packages) {
+                if(name.startsWith(pkg)) {
+                    return SYSTEM_CLASS_LOADER.loadClass(name);
+                }
+            }
+        }
+        return super.loadClass(name, resolve);
+    }
+
+    @Override
     public String findLibrary(String name) {
         return nativePath.concat(IOHelper.PLATFORM_SEPARATOR).concat(getNativePrefix()).concat(name).concat(getNativeEx());
     }
@@ -79,6 +98,10 @@ public class ClientClassLoader extends URLClassLoader {
         else if (JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX)
             return "lib";
         return "";
+    }
+
+    public void addAllowedPackage(String pkg) {
+        packages.add(pkg);
     }
 
     @Override

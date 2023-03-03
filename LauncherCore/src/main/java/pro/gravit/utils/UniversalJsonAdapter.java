@@ -51,13 +51,16 @@ public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeseriali
 
     public R deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         String typename = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
+        if(typename == null) {
+            throw new JsonParseException(String.format("%s: missing type property", name));
+        }
         Class<? extends R> cls = providerMap.getClass(typename);
         if (cls == null) {
-            //if (printErrorIfUnknownType) LogHelper.error("%s %s not found", name, typename);
             if (defaultClass != null) {
                 return context.deserialize(json, defaultClass);
+            } else {
+                throw new JsonParseException(String.format("%s: type %s not registered", name, typename));
             }
-            return null;
         }
         return context.deserialize(json, cls);
     }
@@ -72,6 +75,8 @@ public class UniversalJsonAdapter<R> implements JsonSerializer<R>, JsonDeseriali
         }
         if (classPath != null) {
             jo.add(PROP_NAME, new JsonPrimitive(classPath));
+        } else {
+            throw new JsonParseException(String.format("Class %s not registered", src.getClass().getName()));
         }
         return jo;
     }

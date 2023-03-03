@@ -84,7 +84,6 @@ public final class LaunchServerConfig {
         newConfig.netty.performance.schedulerThread = 2;
 
         newConfig.launcher = new LauncherConf();
-        newConfig.launcher.guardType = "no";
         newConfig.launcher.compress = true;
         newConfig.launcher.deleteTempFiles = true;
         newConfig.launcher.stripLineNumbers = true;
@@ -269,7 +268,6 @@ public final class LaunchServerConfig {
     }
 
     public static class LauncherConf {
-        public String guardType;
         public boolean compress;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;

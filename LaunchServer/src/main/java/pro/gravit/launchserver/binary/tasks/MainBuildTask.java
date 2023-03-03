@@ -72,7 +72,6 @@ public class MainBuildTask implements LauncherBuildTask {
             } else {
                 context.pushDir(server.launcherBinary.runtimeDir, Launcher.RUNTIME_DIR, runtime, false);
             }
-            context.pushDir(server.launcherBinary.guardDir, Launcher.GUARD_DIR, runtime, false);
 
             LauncherConfig launcherConfig = new LauncherConfig(server.config.netty.address, server.keyAgreementManager.ecdsaPublicKey, server.keyAgreementManager.rsaPublicKey, runtime, server.config.projectName);
             context.pushFile(Launcher.CONFIG_FILE, launcherConfig);
@@ -108,7 +107,6 @@ public class MainBuildTask implements LauncherBuildTask {
         properties.put("launcher.projectName", server.config.projectName);
         properties.put("runtimeconfig.secretKeyClient", SecurityHelper.randomStringAESKey());
         properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
-        properties.put("launcher.guardType", server.config.launcher.guardType);
         properties.put("launchercore.env", server.config.env);
         properties.put("launcher.memory", server.config.launcher.memoryLimit);
         properties.put("launcher.customJvmOptions", server.config.launcher.customJvmOptions);

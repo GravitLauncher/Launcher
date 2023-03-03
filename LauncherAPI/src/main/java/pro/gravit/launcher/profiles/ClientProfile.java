@@ -62,21 +62,16 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private List<ServerProfile> servers;
     @LauncherNetworkAPI
-    private SecurityManagerConfig securityManagerConfig;
-    @LauncherNetworkAPI
     private ClassLoaderConfig classLoaderConfig;
+
     @LauncherNetworkAPI
-    private SignedClientConfig signedClientConfig;
-    @LauncherNetworkAPI
-    private RuntimeInClientConfig runtimeInClientConfig;
+    private List<CompatibilityFlags> flags;
     @LauncherNetworkAPI
     private int recommendJavaVersion = 8;
     @LauncherNetworkAPI
     private int minJavaVersion = 8;
     @LauncherNetworkAPI
     private int maxJavaVersion = 999;
-    @LauncherNetworkAPI
-    private boolean warnMissJavaVersion = true;
     @LauncherNetworkAPI
     private ProfileDefaultSettings settings = new ProfileDefaultSettings();
     @LauncherNetworkAPI
@@ -99,13 +94,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         compatClasses = new ArrayList<>();
         properties = new HashMap<>();
         servers = new ArrayList<>(1);
-        securityManagerConfig = SecurityManagerConfig.CLIENT;
         classLoaderConfig = ClassLoaderConfig.LAUNCHER;
-        signedClientConfig = SignedClientConfig.NONE;
-        runtimeInClientConfig = RuntimeInClientConfig.NONE;
+        flags = new ArrayList<>();
     }
 
-    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> modulePath, List<String> modules, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, SecurityManagerConfig securityManagerConfig, ClassLoaderConfig classLoaderConfig, SignedClientConfig signedClientConfig, RuntimeInClientConfig runtimeInClientConfig, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, boolean warnMissJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, String mainClass) {
+    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> modulePath, List<String> modules, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, ClassLoaderConfig classLoaderConfig, List<CompatibilityFlags> flags, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, String mainClass) {
         this.update = update;
         this.updateExclusions = updateExclusions;
         this.updateShared = updateShared;
@@ -120,10 +113,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.compatClasses = compatClasses;
         this.properties = properties;
         this.servers = servers;
-        this.securityManagerConfig = securityManagerConfig;
         this.classLoaderConfig = classLoaderConfig;
-        this.signedClientConfig = signedClientConfig;
-        this.runtimeInClientConfig = runtimeInClientConfig;
         this.version = version;
         this.assetIndex = assetIndex;
         this.dir = dir;
@@ -131,13 +121,13 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.recommendJavaVersion = recommendJavaVersion;
         this.minJavaVersion = minJavaVersion;
         this.maxJavaVersion = maxJavaVersion;
-        this.warnMissJavaVersion = warnMissJavaVersion;
         this.settings = settings;
         this.sortIndex = sortIndex;
         this.uuid = uuid;
         this.title = title;
         this.info = info;
         this.mainClass = mainClass;
+        this.flags = flags;
     }
 
     public ServerProfile getDefaultServerProfile() {
@@ -245,10 +235,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return maxJavaVersion;
     }
 
-    public boolean isWarnMissJavaVersion() {
-        return warnMissJavaVersion;
-    }
-
     public ProfileDefaultSettings getSettings() {
         return settings;
     }
@@ -329,6 +315,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public void setUUID(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public boolean hasFlag(CompatibilityFlags flag) {
+        return flags.contains(flag);
     }
 
     public void verify() {
@@ -432,16 +422,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.classLoaderConfig = classLoaderConfig;
     }
 
-    public RuntimeInClientConfig getRuntimeInClientConfig() {
-        return runtimeInClientConfig;
-    }
-
-    public void setRuntimeInClientConfig(RuntimeInClientConfig runtimeInClientConfig) {
-        this.runtimeInClientConfig = runtimeInClientConfig;
-    }
-
     public boolean isLimited() {
         return limited;
+    }
+
+    public List<CompatibilityFlags> getFlags() {
+        return flags;
     }
 
     public enum Version {
@@ -513,20 +499,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    public enum SecurityManagerConfig {
-        NONE, CLIENT, LAUNCHER, MIXED
-    }
-
     public enum ClassLoaderConfig {
         AGENT, LAUNCHER, MODULE, SYSTEM_ARGS
     }
 
-    public enum SignedClientConfig {
-        NONE, SIGNED
-    }
-
-    public enum RuntimeInClientConfig {
-        NONE, BASIC, FULL
+    public enum CompatibilityFlags {
+        LEGACY_NATIVES_DIR
     }
 
     @FunctionalInterface
