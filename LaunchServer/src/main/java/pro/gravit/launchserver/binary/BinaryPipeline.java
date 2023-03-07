@@ -86,7 +86,7 @@ public class BinaryPipeline {
             long time_task_end = System.currentTimeMillis();
             long time_task = time_task_end - time_this;
             time_this = time_task_end;
-            if (isNeedDelete && deleteTempFiles) Files.deleteIfExists(oldPath);
+            if (isNeedDelete && deleteTempFiles && oldPath != thisPath) Files.deleteIfExists(oldPath);
             isNeedDelete = task.allowDelete();
             logger.info("Task {} processed from {} millis", task.getName(), time_task);
         }
