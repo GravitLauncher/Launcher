@@ -23,10 +23,10 @@ public class GetAvailabilityAuthResponse extends SimpleResponse {
             var rca = pair.isSupport(AuthSupportRemoteClientAccess.class);
             if (rca != null) {
                 list.add(new GetAvailabilityAuthRequestEvent.AuthAvailability(pair.name, pair.displayName,
-                        pair.core.getDetails(client), rca.getClientApiUrl(), rca.getClientApiFeatures()));
+                        pair.visible, pair.core.getDetails(client), rca.getClientApiUrl(), rca.getClientApiFeatures()));
             } else {
                 list.add(new GetAvailabilityAuthRequestEvent.AuthAvailability(pair.name, pair.displayName,
-                        pair.core.getDetails(client)));
+                        pair.visible, pair.core.getDetails(client)));
             }
         }
         sendResult(new GetAvailabilityAuthRequestEvent(list));

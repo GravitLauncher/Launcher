@@ -179,7 +179,7 @@ public class LauncherEngine {
         service.registerRequestProcessor(GetAvailabilityAuthRequest.class, (r) -> {
             List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> details = new ArrayList<>();
             details.add(new AuthLoginOnlyDetails());
-            GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability = new GetAvailabilityAuthRequestEvent.AuthAvailability("offline", "Offline Mode", details);
+            GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability = new GetAvailabilityAuthRequestEvent.AuthAvailability("offline", "Offline Mode", true, details);
             List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>(1);
             list.add(authAvailability);
             return new GetAvailabilityAuthRequestEvent(list);

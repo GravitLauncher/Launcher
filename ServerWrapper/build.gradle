@@ -64,7 +64,7 @@ dependencies {
 
 shadowJar {
     duplicatesStrategy = 'EXCLUDE'
-    classifier = null
+    archiveClassifier = null
     relocate 'io.netty', 'pro.gravit.repackage.io.netty'
     configurations = [project.configurations.pack]
     exclude 'module-info.class'
