@@ -38,10 +38,16 @@ public final class DownloadClientCommand extends Command {
 
     @Override
     public void invoke(String... args) throws IOException, CommandException {
-        verifyArgs(args, 2);
-        //Version version = Version.byName(args[0]);
+        verifyArgs(args, 1);
+
         String versionName = args[0];
-        String dirName = IOHelper.verifyFileName(args[1] != null ? args[1] : args[0]);
+        String dirName;
+        try {
+            dirName = IOHelper.verifyFileName(args[1]);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            dirName = IOHelper.verifyFileName(args[0]);
+            logger.warn("There is no specified profile name, the default value is set as the name of the downloaded client archive: " + dirName);
+        }
         Path clientDir = server.updatesDir.resolve(dirName);
 
         boolean isMirrorClientDownload = false;
