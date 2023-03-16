@@ -76,10 +76,13 @@ public class JavaHelper {
                 if (Files.exists(javaExecPath)) {
                     javaExecPath = javaExecPath.toRealPath();
                     p1 = javaExecPath.getParent().getParent();
+                    if(p1 == null) {
+                        continue;
+                    }
                     tryAddJava(javaPaths, result, JavaVersion.getByPath(p1));
                     trySearchJava(javaPaths, result, p1.getParent());
                 }
-            } catch (InvalidPathException ignored) {
+            } catch (InvalidPathException | NullPointerException ignored) {
 
             } catch (IOException e) {
                 LogHelper.error(e);
@@ -128,7 +131,7 @@ public class JavaHelper {
     }
 
     public static void trySearchJava(List<String> javaPaths, List<JavaVersion> result, Path path) throws IOException {
-        if (!Files.isDirectory(path)) return;
+        if (path == null || !Files.isDirectory(path)) return;
         Files.list(path).filter(p -> Files.exists(p.resolve("bin").resolve(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? "java.exe" : "java"))).forEach(e -> {
             try {
                 tryAddJava(javaPaths, result, JavaVersion.getByPath(e));
