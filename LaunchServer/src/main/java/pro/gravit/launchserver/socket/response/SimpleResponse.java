@@ -17,7 +17,7 @@ public abstract class SimpleResponse implements WebSocketServerResponse {
 
     public void sendResult(RequestEvent result) {
         result.requestUUID = requestUUID;
-        service.sendObject(ctx, result);
+        service.sendObject(ctx.channel(), result);
     }
 
     public void sendResultAndClose(RequestEvent result) {
@@ -28,6 +28,6 @@ public abstract class SimpleResponse implements WebSocketServerResponse {
     public void sendError(String errorMessage) {
         ErrorRequestEvent event = new ErrorRequestEvent(errorMessage);
         event.requestUUID = requestUUID;
-        service.sendObject(ctx, event);
+        service.sendObject(ctx.channel(), event);
     }
 }
