@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class Downloader {
@@ -28,7 +29,7 @@ public class Downloader {
     private static boolean isNoHttp2;
     protected final HttpClient client;
     protected final ExecutorService executor;
-    protected final LinkedList<DownloadTask> tasks = new LinkedList<>();
+    protected final Queue<DownloadTask> tasks = new ConcurrentLinkedDeque<>();
     protected CompletableFuture<Void> future;
     protected Downloader(HttpClient client, ExecutorService executor) {
         this.client = client;
@@ -128,15 +129,13 @@ public class Downloader {
         IOHelper.createParentDirs(targetDir.resolve(file.filePath));
         ProgressTrackingBodyHandler<Path> bodyHandler = makeBodyHandler(targetDir.resolve(file.filePath), callback);
         CompletableFuture<HttpResponse<Path>> future = client.sendAsync(makeHttpRequest(baseUri, file.urlPath), bodyHandler);
-        var ref = new Object() {
-            DownloadTask task = null;
-        };
-        ref.task = new DownloadTask(bodyHandler, future.thenApply((e) -> {
-            tasks.remove(ref.task);
+        AtomicReference<DownloadTask> task = new AtomicReference<>(null);
+        task.set(new DownloadTask(bodyHandler, future.thenApply((e) -> {
+            tasks.remove(task.get());
             return e;
-        }));
-        tasks.add(ref.task);
-        return ref.task;
+        })));
+        tasks.add(task.get());
+        return task.get();
     }
 
     protected HttpRequest makeHttpRequest(URI baseUri, String filePath) throws URISyntaxException {
