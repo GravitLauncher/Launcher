@@ -33,7 +33,6 @@ import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.utils.DirWatcher;
 import pro.gravit.utils.helper.*;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -46,6 +45,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -241,20 +241,23 @@ public class ClientLauncherEntryPoint {
         // Hash directory and compare (ignore update-only matcher entries, it will break offline-mode)
         HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);
         HashedDir.Diff diff = hdir.diff(currentHDir, matcher);
+        AtomicReference<String> latestPath = new AtomicReference<>("unknown");
         if (!diff.mismatch.isEmpty() || (checkExtra && !diff.extra.isEmpty())) {
             diff.extra.walk(File.separator, (e, k, v) -> {
                 if (v.getType().equals(HashedEntry.Type.FILE)) {
                     LogHelper.error("Extra file %s", e);
+                    latestPath.set(e);
                 } else LogHelper.error("Extra %s", e);
                 return HashedDir.WalkAction.CONTINUE;
             });
             diff.mismatch.walk(File.separator, (e, k, v) -> {
                 if (v.getType().equals(HashedEntry.Type.FILE)) {
                     LogHelper.error("Mismatch file %s", e);
+                    latestPath.set(e);
                 } else LogHelper.error("Mismatch %s", e);
                 return HashedDir.WalkAction.CONTINUE;
             });
-            throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
+            throw new SecurityException(String.format("Forbidden modification: '%s' file '%s'", IOHelper.getFileName(dir), latestPath.get()));
         }
     }
 
