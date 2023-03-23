@@ -130,11 +130,12 @@ public class Downloader {
         ProgressTrackingBodyHandler<Path> bodyHandler = makeBodyHandler(targetDir.resolve(file.filePath), callback);
         CompletableFuture<HttpResponse<Path>> future = client.sendAsync(makeHttpRequest(baseUri, file.urlPath), bodyHandler);
         AtomicReference<DownloadTask> task = new AtomicReference<>(null);
-        task.set(new DownloadTask(bodyHandler, future.thenApply((e) -> {
-            tasks.remove(task.get());
-            return e;
-        })));
+        task.set(new DownloadTask(bodyHandler, null /* fix NPE (future already completed) */));
         tasks.add(task.get());
+        task.get().completableFuture = future.thenApply((e) -> {
+                    tasks.remove(task.get());
+                    return e;
+                });
         return task.get();
     }
 
@@ -168,7 +169,7 @@ public class Downloader {
 
     public static class DownloadTask {
         public final ProgressTrackingBodyHandler<Path> bodyHandler;
-        public final CompletableFuture<HttpResponse<Path>> completableFuture;
+        public CompletableFuture<HttpResponse<Path>> completableFuture;
 
         public DownloadTask(ProgressTrackingBodyHandler<Path> bodyHandler, CompletableFuture<HttpResponse<Path>> completableFuture) {
             this.bodyHandler = bodyHandler;
