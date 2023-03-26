@@ -60,7 +60,8 @@ public final class RequestTextureProvider extends TextureProvider {
         if (cloakLocalPath == null) {
             return getTexture(textureUrl, true);
         } else {
-            return getTexture(textureUrl, Paths.get(cloakLocalPath), true);
+            String path = getTextureURL(cloakLocalPath, uuid, username, client);
+            return getTexture(textureUrl, Paths.get(path), true);
         }
     }
 
@@ -70,7 +71,8 @@ public final class RequestTextureProvider extends TextureProvider {
         if (skinLocalPath == null) {
             return getTexture(textureUrl, false);
         } else {
-            return getTexture(textureUrl, Paths.get(skinLocalPath), false);
+            String path = getTextureURL(skinLocalPath, uuid, username, client);
+            return getTexture(textureUrl, Paths.get(path), false);
         }
     }
 }
