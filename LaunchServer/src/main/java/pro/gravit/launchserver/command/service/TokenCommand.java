@@ -11,6 +11,7 @@ import pro.gravit.utils.command.SubCommand;
 
 public class TokenCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
+
     public TokenCommand(LaunchServer server) {
         super(server);
         this.childCommands.put("info", new SubCommand("[token]", "print token info") {
@@ -27,16 +28,16 @@ public class TokenCommand extends Command {
             public void invoke(String... args) throws Exception {
                 AuthProviderPair pair = args.length > 1 ? server.config.getAuthProviderPair(args[1]) : server.config.getAuthProviderPair();
                 ClientProfile profile = null;
-                for(ClientProfile p : server.getProfiles()) {
-                    if(p.getTitle().equals(args[0]) || p.getUUID().toString().equals(args[0])) {
+                for (ClientProfile p : server.getProfiles()) {
+                    if (p.getTitle().equals(args[0]) || p.getUUID().toString().equals(args[0])) {
                         profile = p;
                         break;
                     }
                 }
-                if(profile == null) {
+                if (profile == null) {
                     logger.warn("Profile {} not found", args[0]);
                 }
-                if(pair == null) {
+                if (pair == null) {
                     logger.error("AuthId {} not found", args[1]);
                     return;
                 }

@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.manangers.hook;
 
-import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;

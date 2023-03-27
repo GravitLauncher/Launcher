@@ -13,12 +13,11 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ModuleLaunch implements Launch {
     @Override
     @SuppressWarnings("ConfusingArgumentToVarargsMethod")
-    public void run(ServerWrapper.Config config, String[] args) throws Throwable {
+    public void run(String mainclass, ServerWrapper.Config config, String[] args) throws Throwable {
         URL[] urls = config.classpath.stream().map(Paths::get).map(IOHelper::toURL).toArray(URL[]::new);
         ClassLoader ucl = new PublicURLClassLoader(urls);
         // Create Module Layer
@@ -55,7 +54,7 @@ public class ModuleLaunch implements Launch {
         }
         // Start main class
         ClassLoader loader = mainModule.getClassLoader();
-        Class<?> mainClass = Class.forName(config.mainclass, true, loader);
+        Class<?> mainClass = Class.forName(mainclass, true, loader);
         MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         mainMethod.invoke(args);
     }

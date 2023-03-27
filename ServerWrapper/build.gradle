@@ -64,7 +64,7 @@ dependencies {
 
 shadowJar {
     duplicatesStrategy = 'EXCLUDE'
-    classifier = null
+    archiveClassifier = null
     relocate 'io.netty', 'pro.gravit.repackage.io.netty'
     configurations = [project.configurations.pack]
     exclude 'module-info.class'
@@ -82,7 +82,7 @@ publishing {
             pom {
                 name = 'GravitLauncher ServerWrapper API'
                 description = 'GravitLauncher ServerWrapper Module API'
-                url = 'https://launcher.gravit.pro'
+                url = 'https://gravitlauncher.com'
                 licenses {
                     license {
                         name = 'GNU General Public License, Version 3.0'
@@ -105,7 +105,7 @@ publishing {
                 scm {
                     connection = 'scm:git:https://github.com/GravitLauncher/Launcher.git'
                     developerConnection = 'scm:git:ssh://git@github.com:GravitLauncher/Launcher.git'
-                    url = 'https://launcher.gravit.pro/'
+                    url = 'https://gravitlauncher.com/'
                 }
             }
         }

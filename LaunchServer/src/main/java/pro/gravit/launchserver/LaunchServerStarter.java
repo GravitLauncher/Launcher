@@ -21,6 +21,7 @@ import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.WebSocketService;
+import pro.gravit.utils.Version;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
@@ -28,14 +29,12 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.util.List;
 
 public class LaunchServerStarter {
     public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
@@ -89,6 +88,7 @@ public class LaunchServerStarter {
         modulesManager.initModules(null);
         registerAll();
         initGson(modulesManager);
+        printExperimentalBranch();
         if (IOHelper.exists(dir.resolve("LaunchServer.conf"))) {
             configFile = dir.resolve("LaunchServer.conf");
         } else {
@@ -148,23 +148,33 @@ public class LaunchServerStarter {
 
             @Override
             public void writeConfig(LaunchServerConfig config) throws IOException {
-                try (Writer writer = IOHelper.newWriter(configFile)) {
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                try (Writer writer = IOHelper.newWriter(output)) {
+                    if (Launcher.gsonManager.configGson != null) {
+                        Launcher.gsonManager.configGson.toJson(config, writer);
+                    } else {
+                        logger.error("Error writing LaunchServer config file. Gson is null");
+                    }
+                }
+                byte[] bytes = output.toByteArray();
+                if(bytes.length > 0) {
+                    IOHelper.write(configFile, bytes);
+                }
+            }
+
+            @Override
+            public void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException {
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                try (Writer writer = IOHelper.newWriter(output)) {
                     if (Launcher.gsonManager.configGson != null) {
                         Launcher.gsonManager.configGson.toJson(config, writer);
                     } else {
                         logger.error("Error writing LaunchServer runtime config file. Gson is null");
                     }
                 }
-            }
-
-            @Override
-            public void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException {
-                try (Writer writer = IOHelper.newWriter(runtimeConfigFile)) {
-                    if (Launcher.gsonManager.configGson != null) {
-                        Launcher.gsonManager.configGson.toJson(config, writer);
-                    } else {
-                        logger.error("Error writing LaunchServer runtime config file. Gson is null");
-                    }
+                byte[] bytes = output.toByteArray();
+                if(bytes.length > 0) {
+                    IOHelper.write(runtimeConfigFile, bytes);
                 }
             }
         };
@@ -204,6 +214,26 @@ public class LaunchServerStarter {
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
+    }
+
+    private static void printExperimentalBranch() {
+        try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("experimental-build.json"))) {
+            ExperimentalBuild info = Launcher.gsonManager.configGson.fromJson(reader, ExperimentalBuild.class);
+            if(info.features == null || info.features.isEmpty()) {
+                return;
+            }
+            logger.warn("This is experimental build. Please do not use this in production");
+            logger.warn("Experimental features: [{}]", String.join(",", info.features));
+            for(var e : info.info) {
+                logger.warn(e);
+            }
+        } catch (Throwable e) {
+            logger.warn("Build information not found");
+        }
+    }
+
+    record ExperimentalBuild(List<String> features, List<String> info) {
+
     }
 
     public static void generateConfigIfNotExists(Path configFile, CommandHandler commandHandler, LaunchServer.LaunchServerEnv env) throws IOException {

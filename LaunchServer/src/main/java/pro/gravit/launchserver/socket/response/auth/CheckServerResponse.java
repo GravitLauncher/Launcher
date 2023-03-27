@@ -31,7 +31,7 @@ public class CheckServerResponse extends SimpleResponse {
         try {
             server.authHookManager.checkServerHook.hook(this, pClient);
             AuthManager.CheckServerReport report = server.authManager.checkServer(pClient, username, serverID);
-            if(report == null) {
+            if (report == null) {
                 sendError("User not verified");
                 return;
             }

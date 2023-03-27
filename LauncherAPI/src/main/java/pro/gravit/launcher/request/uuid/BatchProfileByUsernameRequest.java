@@ -5,7 +5,6 @@ import pro.gravit.launcher.events.request.BatchProfileByUsernameRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 

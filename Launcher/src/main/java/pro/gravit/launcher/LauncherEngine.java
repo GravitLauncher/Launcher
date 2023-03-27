@@ -179,7 +179,7 @@ public class LauncherEngine {
         service.registerRequestProcessor(GetAvailabilityAuthRequest.class, (r) -> {
             List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> details = new ArrayList<>();
             details.add(new AuthLoginOnlyDetails());
-            GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability = new GetAvailabilityAuthRequestEvent.AuthAvailability("offline", "Offline Mode", details);
+            GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability = new GetAvailabilityAuthRequestEvent.AuthAvailability("offline", "Offline Mode", true, details);
             List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>(1);
             list.add(authAvailability);
             return new GetAvailabilityAuthRequestEvent(list);
@@ -246,14 +246,14 @@ public class LauncherEngine {
             try {
                 service = StdWebSocketService.initWebSockets(address).get();
             } catch (Throwable e) {
-                if(LogHelper.isDebugEnabled()) {
+                if (LogHelper.isDebugEnabled()) {
                     LogHelper.error(e);
                 }
                 LogHelper.warning("Launcher in offline mode");
                 service = initOffline();
             }
             Request.setRequestService(service);
-            if(service instanceof StdWebSocketService) {
+            if (service instanceof StdWebSocketService) {
                 ((StdWebSocketService) service).reconnectCallback = () ->
                 {
                     LogHelper.debug("WebSocket connect closed. Try reconnect");

@@ -4,9 +4,12 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -48,6 +51,11 @@ public class AttachJarsTask implements LauncherBuildTask {
             }
             attach(output, inputFile, srv.launcherBinary.coreLibs);
             attach(output, inputFile, jars);
+            for(var entry : srv.launcherBinary.files.entrySet()) {
+                ZipEntry newEntry = IOHelper.newZipEntry(entry.getKey());
+                output.putNextEntry(newEntry);
+                IOHelper.transfer(entry.getValue(), output);
+            }
         }
         return outputFile;
     }

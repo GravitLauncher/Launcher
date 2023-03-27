@@ -12,6 +12,7 @@ import java.util.Properties;
 
 public class JavaHelper {
     private static List<JavaVersion> javaVersionsCache;
+
     public static Path tryGetOpenJFXPath(Path jvmDir) {
         String dirName = jvmDir.getFileName().toString();
         Path parent = jvmDir.getParent();
@@ -57,7 +58,7 @@ public class JavaHelper {
     }
 
     public synchronized static List<JavaVersion> findJava() {
-        if(javaVersionsCache != null) {
+        if (javaVersionsCache != null) {
             return javaVersionsCache;
         }
         List<String> javaPaths = new ArrayList<>(4);
@@ -106,11 +107,11 @@ public class JavaHelper {
     }
 
     private static JavaVersion tryFindJavaByPath(Path path) {
-        if(javaVersionsCache == null) {
+        if (javaVersionsCache == null) {
             return null;
         }
-        for(JavaVersion version : javaVersionsCache) {
-            if(version.jvmDir.equals(path)) {
+        for (JavaVersion version : javaVersionsCache) {
+            if (version.jvmDir.equals(path)) {
                 return version;
             }
         }
@@ -156,8 +157,8 @@ public class JavaHelper {
                 result.build = Integer.parseInt(version.substring(dot + 1));
             } else {
                 try {
-                    if(version.endsWith("-ea")) {
-                        version = version.substring(0, version.length()-3);
+                    if (version.endsWith("-ea")) {
+                        version = version.substring(0, version.length() - 3);
                     }
                     result.version = Integer.parseInt(version);
                     result.build = 0;
@@ -232,7 +233,7 @@ public class JavaHelper {
         public static JavaVersion getByPath(Path jvmDir) throws IOException {
             {
                 JavaVersion version = JavaHelper.tryFindJavaByPath(jvmDir);
-                if(version != null) {
+                if (version != null) {
                     return version;
                 }
             }
@@ -249,7 +250,7 @@ public class JavaHelper {
                     arch = null;
                 }
             } else {
-                versionAndBuild = new JavaVersionAndBuild(isExistExtJavaLibrary(jvmDir, "jfxrt") ? 8 : 9, 0);
+                versionAndBuild = new JavaVersionAndBuild(isExistExtJavaLibrary(jvmDir, "rt") ? 8 : 9, 0);
             }
             JavaVersion resultJavaVersion = new JavaVersion(jvmDir, versionAndBuild.version, versionAndBuild.build, arch, false);
             if (versionAndBuild.version <= 8) {
@@ -264,8 +265,10 @@ public class JavaHelper {
 
         public static boolean isExistExtJavaLibrary(Path jvmDir, String name) {
             Path jrePath = jvmDir.resolve("lib").resolve("ext").resolve(name.concat(".jar"));
+            Path jrePathLin = jvmDir.resolve("lib").resolve(name.concat(".jar"));
             Path jdkPath = jvmDir.resolve("jre").resolve("lib").resolve("ext").resolve(name.concat(".jar"));
-            return IOHelper.isFile(jrePath) || IOHelper.isFile(jdkPath);
+            Path jdkPathLin = jvmDir.resolve("jre").resolve("lib").resolve(name.concat(".jar"));
+            return IOHelper.isFile(jrePath) || IOHelper.isFile(jdkPath) || IOHelper.isFile(jdkPathLin) || IOHelper.isFile(jrePathLin);
         }
     }
 }

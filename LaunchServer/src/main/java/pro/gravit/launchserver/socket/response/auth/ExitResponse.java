@@ -22,7 +22,7 @@ public class ExitResponse extends SimpleResponse {
         Client chClient = wsHandler.getClient();
         Client newCusClient = new Client();
         newCusClient.checkSign = chClient.checkSign;
-        if(chClient.staticProperties != null) {
+        if (chClient.staticProperties != null) {
             newCusClient.staticProperties = new HashMap<>(chClient.staticProperties);
         }
         wsHandler.setClient(newCusClient);

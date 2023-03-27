@@ -13,10 +13,10 @@ import java.nio.file.Paths;
 public class ClasspathLaunch implements Launch {
     @Override
     @SuppressWarnings("ConfusingArgumentToVarargsMethod")
-    public void run(ServerWrapper.Config config, String[] args) throws Throwable {
+    public void run(String mainclass, ServerWrapper.Config config, String[] args) throws Throwable {
         URL[] urls = config.classpath.stream().map(Paths::get).map(IOHelper::toURL).toArray(URL[]::new);
         ClassLoader ucl = new PublicURLClassLoader(urls);
-        Class<?> mainClass = Class.forName(config.mainclass, true, ucl);
+        Class<?> mainClass = Class.forName(mainclass, true, ucl);
         MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class));
         mainMethod.invoke(args);
     }

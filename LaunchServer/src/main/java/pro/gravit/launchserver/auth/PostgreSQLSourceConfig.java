@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public final class PostgreSQLSourceConfig implements AutoCloseable {
+public final class PostgreSQLSourceConfig implements AutoCloseable, SQLSourceConfig {
     public static final int TIMEOUT = VerifyHelper.verifyInt(
             Integer.parseUnsignedInt(System.getProperty("launcher.postgresql.idleTimeout", Integer.toString(5000))),
             VerifyHelper.POSITIVE, "launcher.postgresql.idleTimeout can't be <= 5000");
@@ -28,8 +28,8 @@ public final class PostgreSQLSourceConfig implements AutoCloseable {
     private String database;
 
     // Cache
-    private DataSource source;
-    private boolean hikari;
+    private transient DataSource source;
+    private transient boolean hikari;
 
     @Override
     public synchronized void close() {

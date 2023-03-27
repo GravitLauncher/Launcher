@@ -56,6 +56,7 @@ public final class HttpDownloader {
 
     public static void downloadZip(URL url, Path dir) throws IOException {
         try (ZipInputStream input = IOHelper.newZipInput(url)) {
+            Files.createDirectory(dir);
             for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
                 if (entry.isDirectory()) {
                     Files.createDirectory(dir.resolve(IOHelper.toPath(entry.getName())));
