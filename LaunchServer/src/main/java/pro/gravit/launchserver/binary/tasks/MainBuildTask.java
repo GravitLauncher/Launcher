@@ -124,7 +124,8 @@ public class MainBuildTask implements LauncherBuildTask {
         properties.put("runtimeconfig.secureCheckSalt", launcherSalt);
         if (server.runtime.unlockSecret == null) server.runtime.unlockSecret = SecurityHelper.randomStringToken();
         properties.put("runtimeconfig.unlockSecret", server.runtime.unlockSecret);
-
+        server.runtime.buildNumber++;
+        properties.put("runtimeconfig.buildNumber", server.runtime.buildNumber);
     }
 
     public byte[] transformClass(byte[] bytes, String classname, BuildContext context) {

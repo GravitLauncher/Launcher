@@ -48,6 +48,8 @@ public final class LauncherConfig extends StreamObject {
     public String unlockSecret;
     @LauncherInject("launchercore.env")
     public LauncherEnvironment environment;
+    @LauncherInject("runtimeconfig.buildNumber")
+    public long buildNumber;
 
 
     @LauncherInjectionConstructor
