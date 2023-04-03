@@ -25,7 +25,7 @@ public class TokenCommand extends Command {
         });
         this.childCommands.put("server", new SubCommand("[profileName] (authId)", "generate new server token") {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 AuthProviderPair pair = args.length > 1 ? server.config.getAuthProviderPair(args[1]) : server.config.getAuthProviderPair();
                 ClientProfile profile = null;
                 for (ClientProfile p : server.getProfiles()) {

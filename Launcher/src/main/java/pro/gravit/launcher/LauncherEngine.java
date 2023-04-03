@@ -130,8 +130,6 @@ public class LauncherEngine {
         }
         long endTime = System.currentTimeMillis();
         LogHelper.debug("Launcher started in %dms", endTime - startTime);
-        //Request.service.close();
-        //FunctionalBridge.close();
         LauncherEngine.exitLauncher(0);
     }
 

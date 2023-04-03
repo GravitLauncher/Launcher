@@ -53,7 +53,7 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
+    public UserSession getUserSessionByOAuthAccessToken(String accessToken) {
         synchronized (memory) {
             for (MemoryUser u : memory) {
                 if (u.accessToken.equals(accessToken)) {
@@ -95,14 +95,14 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    protected boolean updateServerID(User user, String serverID) throws IOException {
+    protected boolean updateServerID(User user, String serverID) {
         MemoryUser memoryUser = (MemoryUser) user;
         memoryUser.serverId = serverID;
         return true;
     }
 
     @Override
-    public User checkServer(Client client, String username, String serverID) throws IOException {
+    public User checkServer(Client client, String username, String serverID) {
         synchronized (memory) {
             for (MemoryUser u : memory) {
                 if (u.username.equals(username)) {
@@ -116,7 +116,7 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
+    public boolean joinServer(Client client, String username, String accessToken, String serverID) {
         return true;
     }
 
@@ -126,16 +126,16 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
     }
 
     public static class MemoryUser implements User {
-        private String username;
-        private UUID uuid;
+        private final String username;
+        private final UUID uuid;
         private String serverId;
-        private String accessToken;
-        private ClientPermissions permissions;
+        private final String accessToken;
+        private final ClientPermissions permissions;
 
         public MemoryUser(String username) {
             this.username = username;
@@ -188,9 +188,9 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     public static class MemoryUserSession implements UserSession {
-        private String id;
-        private MemoryUser user;
-        private long expireIn;
+        private final String id;
+        private final MemoryUser user;
+        private final long expireIn;
 
         public MemoryUserSession(MemoryUser user) {
             this.id = SecurityHelper.randomStringToken();

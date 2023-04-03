@@ -18,7 +18,7 @@ public class RefreshTokenResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (refreshToken == null) {
             sendError("Invalid request");
             return;

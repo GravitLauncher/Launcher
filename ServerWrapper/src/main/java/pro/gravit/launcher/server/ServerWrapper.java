@@ -70,7 +70,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         Request.restore();
     }
 
-    public ProfilesRequestEvent getProfiles() throws Exception {
+    public void getProfiles() throws Exception {
         ProfilesRequestEvent result = new ProfilesRequest().request();
         for (ClientProfile p : result.profiles) {
             LogHelper.debug("Get profile: %s", p.getTitle());
@@ -90,10 +90,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         if (profile == null) {
             LogHelper.warning("Not connected to ServerProfile. May be serverName incorrect?");
         }
-        return result;
     }
 
-    @SuppressWarnings("ConfusingArgumentToVarargsMethod")
     public void run(String... args) throws Throwable {
         initGson();
         AuthRequest.registerProviders();

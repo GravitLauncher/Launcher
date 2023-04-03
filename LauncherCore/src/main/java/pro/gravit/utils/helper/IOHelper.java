@@ -384,7 +384,7 @@ public final class IOHelper {
         return Files.readAttributes(path, BasicFileAttributes.class, LINK_OPTIONS);
     }
 
-    public static BufferedImage readTexture(Object input, boolean cloak) throws IOException {
+    public static void readTexture(Object input, boolean cloak) throws IOException {
         ImageReader reader = ImageIO.getImageReadersByMIMEType("image/png").next();
         try {
             reader.setInput(ImageIO.createImageInputStream(input), false, false);
@@ -396,7 +396,7 @@ public final class IOHelper {
                 throw new IOException(String.format("Invalid texture bounds: %dx%d", width, height));
 
             // Read image
-            return reader.read(0);
+            reader.read(0);
         } finally {
             reader.dispose();
         }
@@ -528,8 +528,8 @@ public final class IOHelper {
         return transferred;
     }
 
-    public static long transfer(InputStream input, Path file) throws IOException {
-        return transfer(input, file, false);
+    public static void transfer(InputStream input, Path file) throws IOException {
+        transfer(input, file, false);
     }
 
     public static long transfer(InputStream input, Path file, boolean append) throws IOException {

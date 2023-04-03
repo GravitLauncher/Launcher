@@ -18,7 +18,7 @@ public class RestoreSessionResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         sendError("Legacy session system removed");
     }
 }

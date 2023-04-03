@@ -9,18 +9,6 @@ import java.io.IOException;
 import java.util.List;
 
 public class JLineCommandHandler extends CommandHandler {
-    /*private final class JLineOutput implements Output {
-        @Override
-        public void println(String message) {
-            try {
-                reader.println(ConsoleReader.RESET_LINE + message);
-                reader.drawLine();
-                reader.flush();
-            } catch (IOException ignored) {
-                // Ignored
-            }
-        }
-    }*/
 
     private final Terminal terminal;
     private final LineReader reader;
@@ -40,8 +28,6 @@ public class JLineCommandHandler extends CommandHandler {
         //reader.setExpandEvents(false);
 
         // Replace writer
-        //LogHelper.removeStdOutput();
-        //LogHelper.addOutput(new JLineOutput(), LogHelper.OutputTypes.JANSI);
     }
 
     @Override

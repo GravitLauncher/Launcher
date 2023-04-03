@@ -4,12 +4,12 @@ import javax.swing.*;
 
 public class NoRuntimeProvider implements RuntimeProvider {
     @Override
-    public void run(String[] args) throws Exception {
+    public void run(String[] args) {
         JOptionPane.showMessageDialog(null, "GUI часть лаунчера не найдена.\nС 5.1.0 вам необходимо самостоятельно установить модуль, отвечающий за GUI. Рантайм на JS более не поддерживается");
     }
 
     @Override
-    public void preLoad() throws Exception {
+    public void preLoad() {
 
     }
 

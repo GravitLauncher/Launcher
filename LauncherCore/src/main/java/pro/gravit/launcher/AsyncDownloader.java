@@ -101,7 +101,7 @@ public class AsyncDownloader {
         }
     }
 
-    public void downloadListInOneThreadSimple(List<SizedFile> files, String baseURL, Path targetDir) throws URISyntaxException, IOException {
+    public void downloadListInOneThreadSimple(List<SizedFile> files, String baseURL, Path targetDir) throws IOException {
 
         for (AsyncDownloader.SizedFile currentFile : files) {
             downloadFile(new URL(baseURL + currentFile.urlPath), targetDir.resolve(currentFile.filePath), currentFile.size);
@@ -157,7 +157,7 @@ public class AsyncDownloader {
             futures[i] = CompletableFuture.runAsync(() -> {
                 try {
                     downloadListInOneThreadSimple(currentTasks, baseURL, targetDir);
-                } catch (URISyntaxException | IOException e) {
+                } catch (IOException e) {
                     throw new CompletionException(e);
                 }
             }, executor);

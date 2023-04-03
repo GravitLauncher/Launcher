@@ -35,9 +35,8 @@ public class ClientProfileBuilder {
     private String info;
     private String mainClass;
 
-    public ClientProfileBuilder setUpdate(List<String> update) {
+    public void setUpdate(List<String> update) {
         this.update = update;
-        return this;
     }
 
     public ClientProfileBuilder setUpdateExclusions(List<String> updateExclusions) {
@@ -50,34 +49,28 @@ public class ClientProfileBuilder {
         return this;
     }
 
-    public ClientProfileBuilder setUpdateVerify(List<String> updateVerify) {
+    public void setUpdateVerify(List<String> updateVerify) {
         this.updateVerify = updateVerify;
-        return this;
     }
 
-    public ClientProfileBuilder setUpdateOptional(Set<OptionalFile> updateOptional) {
+    public void setUpdateOptional(Set<OptionalFile> updateOptional) {
         this.updateOptional = updateOptional;
-        return this;
     }
 
-    public ClientProfileBuilder setJvmArgs(List<String> jvmArgs) {
+    public void setJvmArgs(List<String> jvmArgs) {
         this.jvmArgs = jvmArgs;
-        return this;
     }
 
-    public ClientProfileBuilder setClassPath(List<String> classPath) {
+    public void setClassPath(List<String> classPath) {
         this.classPath = classPath;
-        return this;
     }
 
-    public ClientProfileBuilder setAltClassPath(List<String> altClassPath) {
+    public void setAltClassPath(List<String> altClassPath) {
         this.altClassPath = altClassPath;
-        return this;
     }
 
-    public ClientProfileBuilder setClientArgs(List<String> clientArgs) {
+    public void setClientArgs(List<String> clientArgs) {
         this.clientArgs = clientArgs;
-        return this;
     }
 
     public ClientProfileBuilder setCompatClasses(List<String> compatClasses) {
@@ -90,39 +83,32 @@ public class ClientProfileBuilder {
         return this;
     }
 
-    public ClientProfileBuilder setServers(List<ClientProfile.ServerProfile> servers) {
+    public void setServers(List<ClientProfile.ServerProfile> servers) {
         this.servers = servers;
-        return this;
     }
 
-    public ClientProfileBuilder setClassLoaderConfig(ClientProfile.ClassLoaderConfig classLoaderConfig) {
+    public void setClassLoaderConfig(ClientProfile.ClassLoaderConfig classLoaderConfig) {
         this.classLoaderConfig = classLoaderConfig;
-        return this;
     }
 
-    public ClientProfileBuilder setVersion(String version) {
+    public void setVersion(String version) {
         this.version = version;
-        return this;
     }
 
-    public ClientProfileBuilder setAssetIndex(String assetIndex) {
+    public void setAssetIndex(String assetIndex) {
         this.assetIndex = assetIndex;
-        return this;
     }
 
-    public ClientProfileBuilder setDir(String dir) {
+    public void setDir(String dir) {
         this.dir = dir;
-        return this;
     }
 
-    public ClientProfileBuilder setAssetDir(String assetDir) {
+    public void setAssetDir(String assetDir) {
         this.assetDir = assetDir;
-        return this;
     }
 
-    public ClientProfileBuilder setRecommendJavaVersion(int recommendJavaVersion) {
+    public void setRecommendJavaVersion(int recommendJavaVersion) {
         this.recommendJavaVersion = recommendJavaVersion;
-        return this;
     }
 
     public ClientProfileBuilder setModulePath(List<String> modulePath) {
@@ -135,14 +121,12 @@ public class ClientProfileBuilder {
         return this;
     }
 
-    public ClientProfileBuilder setMinJavaVersion(int minJavaVersion) {
+    public void setMinJavaVersion(int minJavaVersion) {
         this.minJavaVersion = minJavaVersion;
-        return this;
     }
 
-    public ClientProfileBuilder setMaxJavaVersion(int maxJavaVersion) {
+    public void setMaxJavaVersion(int maxJavaVersion) {
         this.maxJavaVersion = maxJavaVersion;
-        return this;
     }
 
     public ClientProfileBuilder setSettings(ClientProfile.ProfileDefaultSettings settings) {
@@ -155,24 +139,20 @@ public class ClientProfileBuilder {
         return this;
     }
 
-    public ClientProfileBuilder setUuid(UUID uuid) {
+    public void setUuid(UUID uuid) {
         this.uuid = uuid;
-        return this;
     }
 
-    public ClientProfileBuilder setTitle(String title) {
+    public void setTitle(String title) {
         this.title = title;
-        return this;
     }
 
-    public ClientProfileBuilder setInfo(String info) {
+    public void setInfo(String info) {
         this.info = info;
-        return this;
     }
 
-    public ClientProfileBuilder setMainClass(String mainClass) {
+    public void setMainClass(String mainClass) {
         this.mainClass = mainClass;
-        return this;
     }
 
     public ClientProfileBuilder setFlags(List<ClientProfile.CompatibilityFlags> flags) {

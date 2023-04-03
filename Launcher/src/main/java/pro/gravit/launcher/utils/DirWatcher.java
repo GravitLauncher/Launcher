@@ -115,10 +115,6 @@ public final class DirWatcher implements Runnable, AutoCloseable {
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             FileVisitResult result = super.preVisitDirectory(dir, attrs);
-            if (DirWatcher.this.dir.equals(dir)) {
-                dir.register(service, KINDS);
-                return result;
-            }
 
             // Maybe it's unnecessary to go deeper
             //if (matcher != null && !matcher.shouldVerify(path)) {

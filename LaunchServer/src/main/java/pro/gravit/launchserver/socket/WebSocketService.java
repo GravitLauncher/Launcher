@@ -56,7 +56,6 @@ public class WebSocketService {
         this.gson = Launcher.gsonManager.gson;
     }
 
-    @SuppressWarnings("deprecation")
     public static void registerResponses() {
         providers.register("auth", AuthResponse.class);
         providers.register("checkServer", CheckServerResponse.class);

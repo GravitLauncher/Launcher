@@ -29,7 +29,7 @@ public interface RequestService {
     boolean isClosed();
 
     @FunctionalInterface
-    public interface EventHandler {
+    interface EventHandler {
         /**
          * @param event processing event
          * @param <T>   event type

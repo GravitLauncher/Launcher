@@ -31,7 +31,6 @@ public class JavaTrigger extends OptionalTrigger {
         JavaHelper.JavaVersion version = context.getJavaVersion();
         if (version.version < minVersion) return false;
         if (version.version > maxVersion) return false;
-        if (requireJavaFX && !version.enabledJavaFX) return false;
-        return true;
+        return !requireJavaFX || version.enabledJavaFX;
     }
 }

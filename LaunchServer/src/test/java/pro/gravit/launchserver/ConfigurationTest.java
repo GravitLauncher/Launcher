@@ -2,6 +2,7 @@ package pro.gravit.launchserver;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launchserver.config.LaunchServerConfig;
@@ -44,5 +45,10 @@ public class ConfigurationTest {
                 .setModulesManager(modulesManager)
                 .setCommandHandler(new StdCommandHandler(false));
         launchServer = builder.build();
+    }
+
+    @Test
+    public void test() {
+
     }
 }

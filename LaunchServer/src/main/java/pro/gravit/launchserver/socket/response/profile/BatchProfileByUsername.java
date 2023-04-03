@@ -16,7 +16,7 @@ public class BatchProfileByUsername extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         BatchProfileByUsernameRequestEvent result = new BatchProfileByUsernameRequestEvent();
         if (list == null) {
             sendError("Invalid request");

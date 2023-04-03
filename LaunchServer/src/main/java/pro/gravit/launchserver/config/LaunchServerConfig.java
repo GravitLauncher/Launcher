@@ -106,9 +106,8 @@ public final class LaunchServerConfig {
         return newConfig;
     }
 
-    public LaunchServerConfig setLaunchServer(LaunchServer server) {
+    public void setLaunchServer(LaunchServer server) {
         this.server = server;
-        return this;
     }
 
     public AuthProviderPair getAuthProviderPair(String name) {
@@ -187,7 +186,6 @@ public final class LaunchServerConfig {
         if (protectHandler != null) {
             server.registerObject("protectHandler", protectHandler);
             protectHandler.init(server);
-            protectHandler.checkLaunchServerLicense();
         }
         if (components != null) {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));

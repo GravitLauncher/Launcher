@@ -30,7 +30,7 @@ import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 public class SecurityCheckCommand extends Command {
-    private static transient final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
 
     public SecurityCheckCommand(LaunchServer server) {
         super(server);
@@ -110,7 +110,7 @@ public class SecurityCheckCommand extends Command {
             try {
                 KeyStore keyStore = SignHelper.getStore(new File(config.sign.keyStore).toPath(), config.sign.keyStorePass, config.sign.keyStoreType);
                 Certificate[] certChainPlain = keyStore.getCertificateChain(config.sign.keyAlias);
-                List<X509Certificate> certChain = Arrays.stream(certChainPlain).map(e -> (X509Certificate) e).collect(Collectors.toList());
+                List<X509Certificate> certChain = Arrays.stream(certChainPlain).map(e -> (X509Certificate) e).toList();
                 X509Certificate cert = certChain.get(0);
                 cert.checkValidity();
                 if (certChain.size() <= 1) {

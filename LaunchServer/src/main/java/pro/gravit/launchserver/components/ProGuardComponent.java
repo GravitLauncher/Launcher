@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ProGuardComponent extends Component implements AutoCloseable, Reconfigurable {
-    private transient static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
     public String modeAfter = "MainBuild";
     public String dir = "proguard";
     public boolean enabled = true;
@@ -79,7 +79,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (launchServer != null && buildTask != null) {
             launchServer.launcherBinary.tasks.remove(buildTask);
         }

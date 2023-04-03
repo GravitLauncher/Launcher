@@ -76,6 +76,10 @@ public class RestoreResponse extends SimpleResponse {
                 return;
             }
             User user = session.getUser();
+            if(user == null) {
+                sendError("Internal Auth error: UserSession is broken");
+                return;
+            }
             client.coreObject = user;
             client.sessionObject = session;
             server.authManager.internalAuth(client, client.type == null ? AuthResponse.ConnectTypes.API : client.type, pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);

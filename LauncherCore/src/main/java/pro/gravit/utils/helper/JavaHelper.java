@@ -63,11 +63,7 @@ public class JavaHelper {
         }
         List<String> javaPaths = new ArrayList<>(4);
         List<JavaVersion> result = new ArrayList<>(4);
-        try {
-            tryAddJava(javaPaths, result, JavaVersion.getCurrentJavaVersion());
-        } catch (IOException e) {
-            LogHelper.error(e);
-        }
+        tryAddJava(javaPaths, result, JavaVersion.getCurrentJavaVersion());
         String[] path = System.getenv("PATH").split(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? ";" : ":");
         for (String p : path) {
             try {
@@ -121,25 +117,20 @@ public class JavaHelper {
         return null;
     }
 
-    public static boolean tryAddJava(List<String> javaPaths, List<JavaVersion> result, JavaVersion version) throws IOException {
-        if (version == null) return false;
+    public static void tryAddJava(List<String> javaPaths, List<JavaVersion> result, JavaVersion version) {
+        if (version == null) return;
         String path = version.jvmDir.toAbsolutePath().toString();
-        if (javaPaths.contains(path)) return false;
+        if (javaPaths.contains(path)) return;
         javaPaths.add(path);
         result.add(version);
-        return true;
     }
 
     public static void trySearchJava(List<String> javaPaths, List<JavaVersion> result, Path path) throws IOException {
         if (path == null || !Files.isDirectory(path)) return;
         Files.list(path).filter(p -> Files.exists(p.resolve("bin").resolve(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? "java.exe" : "java"))).forEach(e -> {
-            try {
-                tryAddJava(javaPaths, result, JavaVersion.getByPath(e));
-                if (Files.exists(e.resolve("jre"))) {
-                    tryAddJava(javaPaths, result, JavaVersion.getByPath(e.resolve("jre")));
-                }
-            } catch (IOException ioException) {
-                LogHelper.error(ioException);
+            tryAddJava(javaPaths, result, JavaVersion.getByPath(e));
+            if (Files.exists(e.resolve("jre"))) {
+                tryAddJava(javaPaths, result, JavaVersion.getByPath(e.resolve("jre")));
             }
         });
     }
@@ -233,7 +224,7 @@ public class JavaHelper {
             }
         }
 
-        public static JavaVersion getByPath(Path jvmDir) throws IOException {
+        public static JavaVersion getByPath(Path jvmDir) {
             {
                 JavaVersion version = JavaHelper.tryFindJavaByPath(jvmDir);
                 if (version != null) {
@@ -241,18 +232,23 @@ public class JavaHelper {
                 }
             }
             Path releaseFile = jvmDir.resolve("release");
-            JavaVersionAndBuild versionAndBuild;
+            JavaVersionAndBuild versionAndBuild = null;
             JVMHelper.ARCH arch = JVMHelper.ARCH_TYPE;
             if (IOHelper.isFile(releaseFile)) {
-                Properties properties = new Properties();
-                properties.load(IOHelper.newReader(releaseFile));
-                versionAndBuild = getJavaVersion(properties.getProperty("JAVA_VERSION").replaceAll("\"", ""));
                 try {
-                    arch = JVMHelper.getArch(properties.getProperty("OS_ARCH").replaceAll("\"", ""));
-                } catch (Throwable ignored) {
-                    arch = null;
+                    Properties properties = new Properties();
+                    properties.load(IOHelper.newReader(releaseFile));
+                    versionAndBuild = getJavaVersion(properties.getProperty("JAVA_VERSION").replaceAll("\"", ""));
+                    try {
+                        arch = JVMHelper.getArch(properties.getProperty("OS_ARCH").replaceAll("\"", ""));
+                    } catch (Throwable ignored) {
+                        arch = null;
+                    }
+                } catch (IOException ignored) {
+
                 }
-            } else {
+            }
+            if(versionAndBuild == null) {
                 versionAndBuild = new JavaVersionAndBuild(isExistExtJavaLibrary(jvmDir, "rt") ? 8 : 9, 0);
             }
             JavaVersion resultJavaVersion = new JavaVersion(jvmDir, versionAndBuild.version, versionAndBuild.build, arch, false);

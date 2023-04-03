@@ -4,8 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
-import pro.gravit.launchserver.auth.core.MySQLCoreProvider;
-import pro.gravit.launchserver.auth.core.PostgresSQLCoreProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 
 import java.io.IOException;
@@ -23,7 +21,6 @@ public final class AuthProviderPair {
     public transient Set<String> features;
     public String displayName;
     public boolean visible = true;
-    private transient boolean warnOAuthShow = false;
 
     public AuthProviderPair() {
     }
@@ -53,15 +50,6 @@ public final class AuthProviderPair {
         Class<?>[] interfaces = clazz.getInterfaces();
         for (Class<?> i : interfaces) {
             getFeatures(i, list);
-        }
-    }
-
-    public void internalShowOAuthWarnMessage() {
-        if (!warnOAuthShow) {
-            if (!(core instanceof MySQLCoreProvider) && !(core instanceof PostgresSQLCoreProvider)) { // MySQL and PostgreSQL upgraded later
-                logger.warn("AuthCoreProvider {} ({}) not supported OAuth. Legacy session system may be removed in next release", name, core.getClass().getName());
-            }
-            warnOAuthShow = true;
         }
     }
 

@@ -16,7 +16,7 @@ public class PrintHardwareInfoCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         LogHelper.info("Your Hardware ID:");
         long startTime = System.currentTimeMillis();
         long currentTime;

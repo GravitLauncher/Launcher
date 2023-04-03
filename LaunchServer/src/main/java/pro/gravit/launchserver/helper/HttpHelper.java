@@ -22,7 +22,7 @@ import java.util.concurrent.Flow;
 import java.util.function.Function;
 
 public final class HttpHelper {
-    private static transient final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
 
     private HttpHelper() {
         throw new UnsupportedOperationException();
@@ -37,7 +37,7 @@ public final class HttpHelper {
         }
     }
 
-    public static <T, E> CompletableFuture<HttpOptional<T, E>> sendAsync(HttpClient client, HttpRequest request, HttpErrorHandler<T, E> handler) throws IOException {
+    public static <T, E> CompletableFuture<HttpOptional<T, E>> sendAsync(HttpClient client, HttpRequest request, HttpErrorHandler<T, E> handler) {
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream()).thenApply(handler::apply);
     }
 

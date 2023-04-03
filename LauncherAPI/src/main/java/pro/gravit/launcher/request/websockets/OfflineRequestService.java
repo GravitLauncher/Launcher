@@ -7,7 +7,6 @@ import pro.gravit.launcher.request.RequestService;
 import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.utils.helper.LogHelper;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -19,7 +18,7 @@ public class OfflineRequestService implements RequestService {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) throws IOException {
+    public <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) {
         RequestProcessor<T, Request<T>> processor = (RequestProcessor<T, Request<T>>) processors.get(request.getClass());
         CompletableFuture<T> future = new CompletableFuture<>();
         if (processor == null) {

@@ -15,7 +15,6 @@ import pro.gravit.launchserver.auth.protect.interfaces.HardwareProtectHandler;
 import pro.gravit.launchserver.auth.protect.interfaces.JoinServerProtectHandler;
 import pro.gravit.launchserver.auth.protect.interfaces.SecureProtectHandler;
 import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
 import pro.gravit.launchserver.socket.response.secure.HardwareReportResponse;
 
@@ -26,16 +25,6 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     private transient final Logger logger = LogManager.getLogger();
     public boolean enableHardwareFeature;
     private transient LaunchServer server;
-
-    @Override
-    public boolean allowGetAccessToken(AuthResponse.AuthContext context) {
-        return (context.authType == AuthResponse.ConnectTypes.CLIENT) && context.client.checkSign;
-    }
-
-    @Override
-    public void checkLaunchServerLicense() {
-
-    }
 
     @Override
     public GetSecureLevelInfoRequestEvent onGetSecureLevelInfo(GetSecureLevelInfoRequestEvent event) {
@@ -73,11 +62,9 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 }
                 client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
                 response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, hardware)));
-                return;
             } else {
                 logger.error("AuthCoreProvider not supported hardware");
                 response.sendError("AuthCoreProvider not supported hardware");
-                return;
             }
         }
     }
@@ -113,10 +100,6 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         this.server = server;
     }
 
-    @Override
-    public void close() {
-    }
-
     public String createHardwareToken(String username, UserHardware hardware) {
         return Jwts.builder()
                 .setIssuer("LaunchServer")
@@ -138,12 +121,10 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     }
 
     public static class HardwareInfoTokenVerifier implements RestoreResponse.ExtendedTokenProvider {
-        private transient final LaunchServer server;
         private transient final Logger logger = LogManager.getLogger();
         private final JwtParser parser;
 
         public HardwareInfoTokenVerifier(LaunchServer server) {
-            this.server = server;
             this.parser = Jwts.parserBuilder()
                     .requireIssuer("LaunchServer")
                     .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
@@ -172,12 +153,10 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     }
 
     public static class PublicKeyTokenVerifier implements RestoreResponse.ExtendedTokenProvider {
-        private transient final LaunchServer server;
         private transient final Logger logger = LogManager.getLogger();
         private final JwtParser parser;
 
         public PublicKeyTokenVerifier(LaunchServer server) {
-            this.server = server;
             this.parser = Jwts.parserBuilder()
                     .requireIssuer("LaunchServer")
                     .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)

@@ -8,7 +8,6 @@ import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
 
@@ -510,7 +509,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     @FunctionalInterface
     public interface pushOptionalClassPathCallback {
-        void run(String[] opt) throws IOException;
+        void run(String[] opt);
     }
 
     public static class ServerProfile {

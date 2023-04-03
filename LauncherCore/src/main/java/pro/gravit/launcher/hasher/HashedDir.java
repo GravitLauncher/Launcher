@@ -288,7 +288,7 @@ public final class HashedDir extends HashedEntry {
 
     @FunctionalInterface
     public interface WalkCallback {
-        WalkAction walked(String path, String name, HashedEntry entry) throws IOException;
+        WalkAction walked(String path, String name, HashedEntry entry);
     }
 
     public static class FindRecursiveResult {

@@ -10,8 +10,8 @@ public class BiHookSet<V, R> {
         list.add(hook);
     }
 
-    public boolean unregisterHook(Hook<V, R> hook) {
-        return list.remove(hook);
+    public void unregisterHook(Hook<V, R> hook) {
+        list.remove(hook);
     }
 
     /**

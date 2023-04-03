@@ -23,7 +23,6 @@ public class PublicURLClassLoader extends URLClassLoader {
      *                              {@code checkCreateClassLoader} method doesn't allow
      *                              creation of a class loader.
      * @throws NullPointerException if {@code urls} is {@code null}.
-     * @see SecurityManager#checkCreateClassLoader
      */
     public PublicURLClassLoader(URL[] urls) {
         super(urls);
@@ -48,7 +47,6 @@ public class PublicURLClassLoader extends URLClassLoader {
      *                              {@code checkCreateClassLoader} method doesn't allow
      *                              creation of a class loader.
      * @throws NullPointerException if {@code urls} is {@code null}.
-     * @see SecurityManager#checkCreateClassLoader
      */
     public PublicURLClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);

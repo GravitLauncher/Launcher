@@ -14,7 +14,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class InstallAuthlib {
-    private static Map<String, LibrariesHashFileModifier> modifierMap;
+    private static final Map<String, LibrariesHashFileModifier> modifierMap;
     static {
         modifierMap = new HashMap<>();
         modifierMap.put("META-INF/libraries.list", new LibrariesLstModifier());
@@ -43,7 +43,7 @@ public class InstallAuthlib {
         LogHelper.info("Search .jar files in %s", context.workdir.toAbsolutePath());
         IOHelper.walk(context.workdir, new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 if(file.getFileName().toString().endsWith(".jar")) {
                     context.files.add(file);
                 }

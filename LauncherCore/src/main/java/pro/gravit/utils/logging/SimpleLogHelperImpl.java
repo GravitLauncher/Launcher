@@ -31,7 +31,6 @@ public class SimpleLogHelperImpl implements LogHelperAppender {
     // Output settings
     private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US);
     private final Set<LogHelper.OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
-    private final LogHelper.OutputEnity STD_OUTPUT;
 
     public SimpleLogHelperImpl() {
         // Use JAnsi if available
@@ -50,7 +49,7 @@ public class SimpleLogHelperImpl implements LogHelperAppender {
         JANSI = jansi;
 
         // Add std writer
-        STD_OUTPUT = new LogHelper.OutputEnity(System.out::println, JANSI ? LogHelper.OutputTypes.JANSI : LogHelper.OutputTypes.PLAIN);
+        OutputEnity STD_OUTPUT = new OutputEnity(System.out::println, JANSI ? OutputTypes.JANSI : OutputTypes.PLAIN);
         addOutput(STD_OUTPUT);
 
         // Add file log writer

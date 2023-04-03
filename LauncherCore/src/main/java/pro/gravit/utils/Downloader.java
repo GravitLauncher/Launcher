@@ -17,7 +17,7 @@ public class Downloader {
         this.asyncDownloader = downloader;
     }
 
-    public static Downloader downloadList(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
+    public static Downloader downloadList(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) {
         final boolean closeExecutor;
         LogHelper.info("Download with legacy mode");
         if (executor == null) {

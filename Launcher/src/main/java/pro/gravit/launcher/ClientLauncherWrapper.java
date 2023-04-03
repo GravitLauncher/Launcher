@@ -83,8 +83,6 @@ public class ClientLauncherWrapper {
         }
 
         context.executePath = IOHelper.resolveJavaBin(context.javaVersion.jvmDir);
-        //List<String> args = new LinkedList<>();
-        //args.add(javaBin.toString());
         String pathLauncher = IOHelper.getCodeSource(LauncherEngine.class).toString();
         context.mainClass = LauncherEngine.class.getName();
         context.memoryLimit = launcherMemoryLimit;

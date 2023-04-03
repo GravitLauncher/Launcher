@@ -121,7 +121,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     // Updates and profiles
     private volatile Set<ClientProfile> profilesList;
 
-    @SuppressWarnings("deprecation")
     public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager) throws IOException {
         this.dir = directories.dir;
         this.tmpDir = directories.tmpDir;

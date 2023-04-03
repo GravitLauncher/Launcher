@@ -21,11 +21,6 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
     }
 
     @Override
-    public void checkLaunchServerLicense() {
-
-    }
-
-    @Override
     public void init(LaunchServer server) {
         if (profileWhitelist != null && profileWhitelist.size() > 0) {
             logger.warn("profileWhitelist deprecated. Please use permission 'launchserver.profile.PROFILE_UUID.show' and 'launchserver.profile.PROFILE_UUID.enter'");
@@ -59,7 +54,6 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
             }
         }
         List<String> allowedUsername = profileWhitelist.get(profile.getTitle());
-        if (allowedUsername != null && allowedUsername.contains(client.username)) return true;
-        return false;
+        return allowedUsername != null && allowedUsername.contains(client.username);
     }
 }

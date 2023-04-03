@@ -114,33 +114,17 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
     }
 
     public void waitIfNotConnected() {
-        /*if(!isOpen() && !isClosed() && !isClosing())
-        {
-            LogHelper.warning("WebSocket not connected. Try wait onConnect object");
-            synchronized (onConnect)
-            {
-                try {
-                    onConnect.wait(5000);
-                } catch (InterruptedException e) {
-                    LogHelper.error(e);
-                }
-            }
-        }*/
     }
 
     public void sendObject(Object obj) throws IOException {
         waitIfNotConnected();
         if (ch == null || !ch.isActive()) reconnectCallback.onReconnect();
-        //if(isClosed() && reconnectCallback != null)
-        //    reconnectCallback.onReconnect();
         send(gson.toJson(obj, WebSocketRequest.class));
     }
 
     public void sendObject(Object obj, Type type) throws IOException {
         waitIfNotConnected();
         if (ch == null || !ch.isActive()) reconnectCallback.onReconnect();
-        //if(isClosed() && reconnectCallback != null)
-        //    reconnectCallback.onReconnect();
         send(gson.toJson(obj, type));
     }
 

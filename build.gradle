@@ -43,10 +43,12 @@ configure(subprojects.findAll { it.name != 'modules' }) {
         }
     }
 
-    tasks.withType(JavaCompile) {
-        options.encoding = "UTF-8"
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-        options.incremental = true // one flag, and things will get MUCH faster    
+    tasks.withType(JavaCompile).tap {
+        configureEach {
+            options.encoding = "UTF-8"
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+            options.incremental = true // one flag, and things will get MUCH faster
+        }
     }
 }
 

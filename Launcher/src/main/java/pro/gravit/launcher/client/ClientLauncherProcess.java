@@ -186,20 +186,10 @@ public class ClientLauncherProcess {
     }
 
     private void applyJava9Params(List<String> processArgs) {
-        /*jvmModulesPaths.add(javaVersion.jvmDir);
-        jvmModulesPaths.add(javaVersion.jvmDir.resolve("jre"));
-        Path openjfxPath = JavaHelper.tryGetOpenJFXPath(javaVersion.jvmDir);
-        if (openjfxPath != null) {
-            jvmModulesPaths.add(openjfxPath);
-        }*/ // TODO: fix runtime in client
+        // TODO: fix runtime in client
         StringBuilder modulesPath = new StringBuilder();
         StringBuilder modulesAdd = new StringBuilder();
         for (String moduleName : jvmModules) {
-            /*boolean success = JavaHelper.tryAddModule(jvmModulesPaths, moduleName, modulesPath);
-            if (success) {
-                if (modulesAdd.length() > 0) modulesAdd.append(",");
-                modulesAdd.append(moduleName);
-            }*/
             if (modulesAdd.length() > 0) modulesAdd.append(",");
             modulesAdd.append(moduleName);
         }

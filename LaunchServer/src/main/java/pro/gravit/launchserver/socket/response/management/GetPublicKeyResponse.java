@@ -12,7 +12,7 @@ public class GetPublicKeyResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         sendResult(new GetPublicKeyRequestEvent(server.keyAgreementManager.rsaPublicKey, server.keyAgreementManager.ecdsaPublicKey));
     }
 }

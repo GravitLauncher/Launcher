@@ -28,7 +28,7 @@ public class AuthResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client clientData) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client clientData) {
         try {
             AuthRequestEvent result = new AuthRequestEvent();
             AuthProviderPair pair;

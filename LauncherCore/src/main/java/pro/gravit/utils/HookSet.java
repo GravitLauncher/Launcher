@@ -10,8 +10,8 @@ public class HookSet<R> {
         list.add(hook);
     }
 
-    public boolean unregisterHook(Hook<R> hook) {
-        return list.remove(hook);
+    public void unregisterHook(Hook<R> hook) {
+        list.remove(hook);
     }
 
     /**

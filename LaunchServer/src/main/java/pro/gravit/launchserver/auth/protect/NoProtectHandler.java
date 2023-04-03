@@ -9,8 +9,4 @@ public class NoProtectHandler extends ProtectHandler {
         return true;
     }
 
-    @Override
-    public void checkLaunchServerLicense() {
-        // None
-    }
 }
