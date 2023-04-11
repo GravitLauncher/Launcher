@@ -31,6 +31,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientLauncherProcess {
+
+    public final List<String> pre = new LinkedList<>();
     public final ClientParams params = new ClientParams();
     public final List<String> jvmArgs = new LinkedList<>();
     public final List<String> jvmModules = new LinkedList<>();
@@ -134,7 +136,7 @@ public class ClientLauncherProcess {
     public void start(boolean pipeOutput) throws IOException, InterruptedException {
         if (isStarted) throw new IllegalStateException("Process already started");
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderPreLaunchEvent(this));
-        List<String> processArgs = new LinkedList<>();
+        List<String> processArgs = new LinkedList<>(pre);
         processArgs.add(executeFile.toString());
         processArgs.addAll(jvmArgs);
         if (javaVersion.version >= 9) {
