@@ -119,17 +119,6 @@ public class LauncherModuleLoader {
                         ModuleEntity entity = new ModuleEntity();
                         entity.path = file;
                         entity.moduleMainClass = mainClass;
-                        try {
-                            Class<? extends LauncherModule> mainClazz = (Class<? extends LauncherModule>) classLoader.loadClass(entity.moduleMainClass);
-                            entity.checkResult = server.modulesManager.checkModuleClass(mainClazz);
-                        } catch (Throwable e) {
-                            if (e instanceof ClassNotFoundException || e instanceof NoClassDefFoundError) {
-                                logger.error("Module-MainClass in module {} incorrect", file.toString());
-                            } else {
-                                logger.error(e);
-                            }
-                            return super.visitFile(file, attrs);
-                        }
                         entity.moduleConfigClass = attributes.getValue("Module-Config-Class");
                         if (entity.moduleConfigClass != null) {
                             entity.moduleConfigName = attributes.getValue("Module-Config-Name");
