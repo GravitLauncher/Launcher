@@ -113,7 +113,7 @@ public class DirBridge {
     }
 
     public static Path getGuardDir(JVMHelper.ARCH arch, JVMHelper.OS os) {
-        Path dir = getGuardDir().resolve(makeSpecialGuardDirName(arch, os));
+        Path dir = getGuardDir().resolve(Launcher.makeSpecialGuardDirName(arch, os));
         try {
             IOHelper.createParentDirs(dir);
         } catch (Throwable e) {
@@ -122,11 +122,6 @@ public class DirBridge {
         return dir;
     }
 
-
-
-    public static String makeSpecialGuardDirName(JVMHelper.ARCH arch, JVMHelper.OS os) {
-        return String.format("%s-%s", arch.name, os.name);
-    }
 
     public static Path getLegacyLauncherDir(String projectname) {
         return IOHelper.HOME_DIR.resolve(projectname);

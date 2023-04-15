@@ -4,6 +4,7 @@ import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -121,5 +122,9 @@ public final class Launcher {
                 LogHelper.setDevEnabled(false);
                 break;
         }
+    }
+
+    public static String makeSpecialGuardDirName(JVMHelper.ARCH arch, JVMHelper.OS os) {
+        return String.format("%s-%s", arch.name, os.name);
     }
 }
