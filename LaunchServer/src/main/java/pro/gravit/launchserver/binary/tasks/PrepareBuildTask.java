@@ -45,7 +45,7 @@ public class PrepareBuildTask implements LauncherBuildTask {
                 throw new RuntimeException(ex);
             }
         })) {
-            var map = stream.collect(Collectors.toMap(k -> server.launcherPack.relativize(k).toString(), (v) -> v));
+            var map = stream.collect(Collectors.toMap(k -> server.launcherPack.relativize(k).toString().replace("\\", "/"), (v) -> v));
             server.launcherBinary.files.putAll(map);
         }
         UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), result);
