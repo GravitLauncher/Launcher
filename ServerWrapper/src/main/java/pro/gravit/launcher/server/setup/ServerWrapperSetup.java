@@ -2,6 +2,7 @@ package pro.gravit.launcher.server.setup;
 
 import pro.gravit.launcher.events.request.GetPublicKeyRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.ClientProfileVersions;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.auth.GetPublicKeyRequest;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
@@ -90,7 +91,7 @@ public class ServerWrapperSetup {
                 }
             }
         }
-        if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfile.Version.MC118) >= 0) {
+        if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_18) >= 0) {
             LogHelper.info("Switch to alternative start mode (1.18)");
             wrapper.config.classpath.add(jarName);
             wrapper.config.classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;

@@ -21,7 +21,7 @@ public class ClientProfileBuilder {
     private List<ClientProfile.ServerProfile> servers = new ArrayList<>();
     private ClientProfile.ClassLoaderConfig classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;
     private List<ClientProfile.CompatibilityFlags> flags = new ArrayList<>();
-    private String version;
+    private ClientProfile.Version version;
     private String assetIndex;
     private String dir;
     private String assetDir;
@@ -91,7 +91,7 @@ public class ClientProfileBuilder {
         this.classLoaderConfig = classLoaderConfig;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(ClientProfile.Version version) {
         this.version = version;
     }
 

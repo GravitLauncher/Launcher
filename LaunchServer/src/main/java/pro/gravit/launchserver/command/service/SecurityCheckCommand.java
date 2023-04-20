@@ -169,7 +169,7 @@ public class SecurityCheckCommand extends Command {
                             bad = true;
                         }
                     } else {
-                        if (nextToken.equals("memory_repo") || nextToken.equals(profile.getVersion().name)) {
+                        if (nextToken.equals("memory_repo") || nextToken.equals(profile.getVersion().toString())) {
                             printCheckResult(profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
                             bad = true;
                         }

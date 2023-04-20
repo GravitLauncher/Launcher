@@ -10,6 +10,7 @@ import pro.gravit.launcher.client.events.client.ClientProcessBuilderPreLaunchEve
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.ClientProfileVersions;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.optional.OptionalView;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
@@ -289,7 +290,7 @@ public class ClientLauncherProcess {
         public transient HashedDir javaHDir;
 
         public void addClientArgs(Collection<String> args) {
-            if (profile.getVersion().compareTo(ClientProfile.Version.MC164) >= 0)
+            if (profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_6_4) >= 0)
                 addModernClientArgs(args);
             else
                 addClientLegacyArgs(args);
@@ -300,7 +301,7 @@ public class ClientLauncherProcess {
             args.add(accessToken);
 
             // Add args for tweaker
-            Collections.addAll(args, "--version", profile.getVersion().name);
+            Collections.addAll(args, "--version", profile.getVersion().toString());
             Collections.addAll(args, "--gameDir", clientDir);
             Collections.addAll(args, "--assetsDir", assetDir);
         }
@@ -310,12 +311,12 @@ public class ClientLauncherProcess {
             // Add version-dependent args
             ClientProfile.Version version = profile.getVersion();
             Collections.addAll(args, "--username", playerProfile.username);
-            if (version.compareTo(ClientProfile.Version.MC172) >= 0) {
+            if (version.compareTo(ClientProfileVersions.MINECRAFT_1_7_2) >= 0) {
                 Collections.addAll(args, "--uuid", Launcher.toHash(playerProfile.uuid));
                 Collections.addAll(args, "--accessToken", accessToken);
 
                 // Add 1.7.10+ args (user properties, asset index)
-                if (version.compareTo(ClientProfile.Version.MC1710) >= 0) {
+                if (version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) >= 0) {
                     // Add user properties
                     Collections.addAll(args, "--userType", "mojang");
                     Collections.addAll(args, "--userProperties", "{}");
@@ -327,11 +328,11 @@ public class ClientLauncherProcess {
                 Collections.addAll(args, "--session", accessToken);
 
             // Add version and dirs args
-            Collections.addAll(args, "--version", profile.getVersion().name);
+            Collections.addAll(args, "--version", profile.getVersion().toString());
             Collections.addAll(args, "--gameDir", clientDir);
             Collections.addAll(args, "--assetsDir", assetDir);
             Collections.addAll(args, "--resourcePackDir", resourcePackDir);
-            if (version.compareTo(ClientProfile.Version.MC194) >= 0)
+            if (version.compareTo(ClientProfileVersions.MINECRAFT_1_9_4) >= 0)
                 Collections.addAll(args, "--versionType", "Launcher v" + Version.getVersion().getVersionString());
 
             // Add server args

@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.ClientProfileVersions;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.utils.helper.IOHelper;
@@ -64,7 +65,7 @@ public final class ServerPinger {
             socket.connect(IOHelper.resolve(address), IOHelper.SOCKET_TIMEOUT);
             try (HInput input = new HInput(socket.getInputStream());
                  HOutput output = new HOutput(socket.getOutputStream())) {
-                return version.compareTo(ClientProfile.Version.MC172) >= 0 ? modernPing(input, output) : legacyPing(input, output, version.compareTo(ClientProfile.Version.MC164) >= 0);
+                return version.compareTo(ClientProfileVersions.MINECRAFT_1_7_2) >= 0 ? modernPing(input, output) : legacyPing(input, output, version.compareTo(ClientProfileVersions.MINECRAFT_1_6_4) >= 0);
             }
         }
     }
@@ -80,7 +81,7 @@ public final class ServerPinger {
             byte[] customPayloadPacket;
             try (ByteArrayOutputStream packetArray = IOHelper.newByteArrayOutput()) {
                 try (HOutput packetOutput = new HOutput(packetArray)) {
-                    packetOutput.writeUnsignedByte(version.protocol); // Protocol version
+                    packetOutput.writeUnsignedByte(0x4a); // Protocol version
                     writeUTF16String(packetOutput, address.getHostString()); // Server address
                     packetOutput.writeInt(address.getPort()); // Server port
                 }
@@ -110,11 +111,7 @@ public final class ServerPinger {
         if (!magic.equals(LEGACY_PING_HOST_MAGIC))
             throw new IOException("Magic file mismatch: " + magic);
         int protocol = Integer.parseInt(splitted[1]);
-        if (protocol != version.protocol)
-            throw new IOException("Protocol mismatch: " + protocol);
         String clientVersion = splitted[2];
-        if (!clientVersion.equals(version.name))
-            throw new IOException(String.format("Version mismatch: '%s'", clientVersion));
         int onlinePlayers = VerifyHelper.verifyInt(Integer.parseInt(splitted[4]),
                 VerifyHelper.NOT_NEGATIVE, "onlinePlayers can't be < 0");
         int maxPlayers = VerifyHelper.verifyInt(Integer.parseInt(splitted[5]),
@@ -130,7 +127,7 @@ public final class ServerPinger {
         try (ByteArrayOutputStream packetArray = IOHelper.newByteArrayOutput()) {
             try (HOutput packetOutput = new HOutput(packetArray)) {
                 packetOutput.writeVarInt(0x0); // Handshake packet ID
-                packetOutput.writeVarInt(version.protocol); // Protocol version
+                packetOutput.writeVarInt(0x4); // Protocol version
                 packetOutput.writeString(address.getHostString(), 0); // Server address
                 packetOutput.writeShort((short) address.getPort()); // Server port
                 packetOutput.writeVarInt(0x1); // Next state - status

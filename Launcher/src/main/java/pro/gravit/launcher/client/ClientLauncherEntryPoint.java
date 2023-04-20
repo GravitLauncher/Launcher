@@ -16,6 +16,7 @@ import pro.gravit.launcher.modules.LauncherModulesManager;
 import pro.gravit.launcher.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.ClientProfileVersions;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionClassPath;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionClientArgs;
@@ -290,7 +291,7 @@ public class ClientLauncherEntryPoint {
     private static void launch(ClientProfile profile, ClientLauncherProcess.ClientParams params) throws Throwable {
         // Add client args
         Collection<String> args = new LinkedList<>();
-        if (profile.getVersion().compareTo(ClientProfile.Version.MC164) >= 0)
+        if (profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_6_4) >= 0)
             params.addClientArgs(args);
         else {
             params.addClientLegacyArgs(args);

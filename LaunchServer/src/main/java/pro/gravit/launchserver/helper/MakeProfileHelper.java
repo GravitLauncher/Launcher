@@ -2,6 +2,7 @@ package pro.gravit.launchserver.helper;
 
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.ClientProfileBuilder;
+import pro.gravit.launcher.profiles.ClientProfileVersions;
 import pro.gravit.launcher.profiles.optional.OptionalFile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionFile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionJvmArgs;
@@ -16,14 +17,14 @@ import java.util.*;
 public class MakeProfileHelper {
     public static ClientProfile makeProfile(ClientProfile.Version version, String title, MakeProfileOption... options) {
         ClientProfileBuilder builder = new ClientProfileBuilder();
-        builder.setVersion(version.name);
+        builder.setVersion(version);
         builder.setDir(title);
         if (findOption(options, MakeProfileOptionGlobalAssets.class).isPresent()) {
             builder.setAssetDir("assets");
         } else {
-            builder.setAssetDir("asset" + version.name);
+            builder.setAssetDir("asset" + version.toCleanString());
         }
-        builder.setAssetIndex(version.name);
+        builder.setAssetIndex(version.toString());
         builder.setInfo("Информация о сервере");
         builder.setTitle(title);
         builder.setUuid(UUID.randomUUID());
@@ -35,7 +36,7 @@ public class MakeProfileHelper {
             List<String> classPath = new ArrayList<>(5);
             classPath.add("libraries");
             classPath.add("minecraft.jar");
-            if (version.compareTo(ClientProfile.Version.MC1122) <= 0) {
+            if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) <= 0) {
                 findOption(options, MakeProfileOptionForge.class).ifPresent(e -> classPath.add("forge.jar"));
                 findOption(options, MakeProfileOptionLiteLoader.class).ifPresent(e -> classPath.add("liteloader.jar"));
             }
@@ -46,20 +47,20 @@ public class MakeProfileHelper {
         Set<OptionalFile> optionals = new HashSet<>();
         jvmArgs.add("-XX:+DisableAttachMechanism");
         // Official Mojang launcher java arguments
-        if (version.compareTo(ClientProfile.Version.MC112) <= 0) {
+        if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) <= 0) {
             jvmArgs.add("-XX:+UseConcMarkSweepGC");
             jvmArgs.add("-XX:+CMSIncrementalMode");
-        } else if (version.compareTo(ClientProfile.Version.MC118) <= 0) { // 1.13 - 1.16.5
+        } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_18) <= 0) { // 1.13 - 1.16.5
             jvmArgs.add("-XX:+UseG1GC");
             jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
         } else { // 1.18+
-            jvmArgs.add("-XX:+UseShenandoahGC");
-            jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
+            //jvmArgs.add("-XX:+UseShenandoahGC");
+            //jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
         }
         // -----------
         Optional<MakeProfileOptionForge> forge = findOption(options, MakeProfileOptionForge.class);
         Optional<MakeProfileOptionFabric> fabric = findOption(options, MakeProfileOptionFabric.class);
-        if (version.compareTo(ClientProfile.Version.MC1122) > 0) {
+        if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) > 0) {
             jvmArgs.add("-Djava.library.path=natives");
             OptionalFile optionalMacOs = new OptionalFile();
             optionalMacOs.name = "MacOSArgs";
@@ -112,16 +113,16 @@ public class MakeProfileHelper {
             if (log4jOption.logFile != null) {
                 jvmArgs.add("-Dlog4j.configurationFile=".concat(logFile.get().logFile));
             } else if (log4jOption.affected) {
-                if (version.compareTo(ClientProfile.Version.MC117) >= 0 && version.compareTo(ClientProfile.Version.MC118) < 0) {
+                if (version.compareTo(ClientProfileVersions.MINECRAFT_1_17) >= 0 && version.compareTo(ClientProfileVersions.MINECRAFT_1_18) < 0) {
                     jvmArgs.add("-Dlog4j2.formatMsgNoLookups=true");
                 }
             }
         }
-        if (version.compareTo(ClientProfile.Version.MC117) >= 0 && version.compareTo(ClientProfile.Version.MC118) < 0) {
+        if (version.compareTo(ClientProfileVersions.MINECRAFT_1_17) >= 0 && version.compareTo(ClientProfileVersions.MINECRAFT_1_18) < 0) {
             builder.setMinJavaVersion(16);
             builder.setRecommendJavaVersion(16);
         }
-        if (version.compareTo(ClientProfile.Version.MC118) >= 0) {
+        if (version.compareTo(ClientProfileVersions.MINECRAFT_1_18) >= 0) {
             builder.setMinJavaVersion(17);
             builder.setRecommendJavaVersion(17);
         }
@@ -137,22 +138,22 @@ public class MakeProfileHelper {
             }
             if (forge.isPresent()) {
                 clientArgs.add("--tweakClass");
-                if (version.compareTo(ClientProfile.Version.MC1710) > 0) {
+                if (version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) > 0) {
                     clientArgs.add("net.minecraftforge.fml.common.launcher.FMLTweaker");
                 } else {
                     clientArgs.add("cpw.mods.fml.common.launcher.FMLTweaker");
                 }
-                if (version.compareTo(ClientProfile.Version.MC1122) <= 0) {
+                if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) <= 0) {
                     builder.setMinJavaVersion(8);
                     builder.setRecommendJavaVersion(8);
                     builder.setMaxJavaVersion(8);
                 }
             }
-        } else if (version.compareTo(ClientProfile.Version.MC1122) > 0) {
+        } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) > 0) {
             if (forge.isPresent()) {
                 clientArgs.addAll(forge.get().makeClientArgs());
                 builder.setClassLoaderConfig(ClientProfile.ClassLoaderConfig.AGENT);
-                if (version.compareTo(ClientProfile.Version.MC1165) <= 0) {
+                if (version.compareTo(ClientProfileVersions.MINECRAFT_1_16_5) <= 0) {
                     builder.setMaxJavaVersion(15);
                 }
             }
@@ -171,7 +172,7 @@ public class MakeProfileHelper {
         if (findOption(options, MakeProfileOptionLaunchWrapper.class).isPresent()) {
             return "net.minecraft.launchwrapper.Launch";
         }
-        if (findOption(options, MakeProfileOptionForge.class).isPresent() && version.compareTo(ClientProfile.Version.MC1122) > 0) {
+        if (findOption(options, MakeProfileOptionForge.class).isPresent() && version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) > 0) {
             return "cpw.mods.modlauncher.Launcher";
         }
         if (findOption(options, MakeProfileOptionFabric.class).isPresent()) {
@@ -206,7 +207,7 @@ public class MakeProfileHelper {
         if (Files.exists(dir.resolve("forge.jar"))) {
             options.add(new MakeProfileOptionForge());
         } else if (Files.exists(dir.resolve("libraries/net/minecraftforge/forge"))) {
-            if (version.compareTo(ClientProfile.Version.MC1122) > 0) {
+            if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) > 0) {
                 options.add(new MakeProfileOptionForge(dir));
             } else {
                 options.add(new MakeProfileOptionForge());
