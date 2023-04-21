@@ -30,6 +30,7 @@ public final class ServerPinger {
     private static final int PACKET_LENGTH = 65535;
     // Instance
     private final InetSocketAddress address;
+    private final int protocol;
     private final ClientProfile.Version version;
     // Cache
     private final Object cacheLock = new Object();
@@ -47,6 +48,7 @@ public final class ServerPinger {
         }
         this.address = profile.toSocketAddress();
         this.version = Objects.requireNonNull(version, "version");
+        this.protocol = profile.protocol;
     }
 
     private static String readUTF16String(HInput input) throws IOException {
@@ -65,7 +67,7 @@ public final class ServerPinger {
             socket.connect(IOHelper.resolve(address), IOHelper.SOCKET_TIMEOUT);
             try (HInput input = new HInput(socket.getInputStream());
                  HOutput output = new HOutput(socket.getOutputStream())) {
-                return version.compareTo(ClientProfileVersions.MINECRAFT_1_7_2) >= 0 ? modernPing(input, output) : legacyPing(input, output, version.compareTo(ClientProfileVersions.MINECRAFT_1_6_4) >= 0);
+                return version.compareTo(ClientProfileVersions.MINECRAFT_1_7_2) >= 0 ? modernPing(input, output, protocol) : legacyPing(input, output, version.compareTo(ClientProfileVersions.MINECRAFT_1_6_4) >= 0);
             }
         }
     }
@@ -121,13 +123,13 @@ public final class ServerPinger {
         return new Result(onlinePlayers, maxPlayers, response);
     }
 
-    private Result modernPing(HInput input, HOutput output) throws IOException {
+    private Result modernPing(HInput input, HOutput output, int protocol) throws IOException {
         // Prepare handshake packet
         byte[] handshakePacket;
         try (ByteArrayOutputStream packetArray = IOHelper.newByteArrayOutput()) {
             try (HOutput packetOutput = new HOutput(packetArray)) {
                 packetOutput.writeVarInt(0x0); // Handshake packet ID
-                packetOutput.writeVarInt(0x4); // Protocol version
+                packetOutput.writeVarInt(protocol > 0 ? protocol : 0x4); // Protocol version
                 packetOutput.writeString(address.getHostString(), 0); // Server address
                 packetOutput.writeShort((short) address.getPort()); // Server port
                 packetOutput.writeVarInt(0x1); // Next state - status

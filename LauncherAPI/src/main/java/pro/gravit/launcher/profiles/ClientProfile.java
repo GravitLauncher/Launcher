@@ -544,6 +544,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         public String serverAddress;
         public int serverPort;
         public boolean isDefault = true;
+        public int protocol = -1;
         public boolean socketPing = true;
 
         public ServerProfile() {
