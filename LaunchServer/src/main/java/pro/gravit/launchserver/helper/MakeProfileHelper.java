@@ -60,6 +60,7 @@ public class MakeProfileHelper {
         // -----------
         Optional<MakeProfileOptionForge> forge = findOption(options, MakeProfileOptionForge.class);
         Optional<MakeProfileOptionFabric> fabric = findOption(options, MakeProfileOptionFabric.class);
+        Optional<MakeProfilesOptionsQuilt> quilt = findOption(options, MakeProfilesOptionsQuilt.class);
         if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) > 0) {
             jvmArgs.add("-Djava.library.path=natives");
             OptionalFile optionalMacOs = new OptionalFile();
@@ -72,6 +73,9 @@ public class MakeProfileHelper {
         }
         if (fabric.isPresent()) {
             builder.setAltClassPath(fabric.orElseThrow().getAltClassPath());
+        }
+        if(quilt.isPresent()) {
+            builder.setClassLoaderConfig(ClientProfile.ClassLoaderConfig.SYSTEM_ARGS);
         }
         if (findOption(options, MakeProfileOptionLwjgl.class).isPresent()) {
             OptionalFile optionalMac = new OptionalFile();
@@ -152,7 +156,7 @@ public class MakeProfileHelper {
         } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) > 0) {
             if (forge.isPresent()) {
                 clientArgs.addAll(forge.get().makeClientArgs());
-                builder.setClassLoaderConfig(ClientProfile.ClassLoaderConfig.AGENT);
+                builder.setClassLoaderConfig(ClientProfile.ClassLoaderConfig.SYSTEM_ARGS);
                 if (version.compareTo(ClientProfileVersions.MINECRAFT_1_16_5) <= 0) {
                     builder.setMaxJavaVersion(15);
                 }
@@ -177,6 +181,9 @@ public class MakeProfileHelper {
         }
         if (findOption(options, MakeProfileOptionFabric.class).isPresent()) {
             return "net.fabricmc.loader.launch.knot.KnotClient";
+        }
+        if(findOption(options, MakeProfilesOptionsQuilt.class).isPresent()) {
+            return "org.quiltmc.loader.impl.launch.knot.KnotClient";
         }
         return "net.minecraft.client.main.Main";
     }
@@ -215,6 +222,9 @@ public class MakeProfileHelper {
         }
         if (Files.exists(dir.resolve("libraries/net/fabricmc/fabric-loader"))) {
             options.add(new MakeProfileOptionFabric(dir));
+        }
+        if (Files.exists(dir.resolve("libraries/org/quiltmc/quilt-loader"))) {
+            options.add(new MakeProfilesOptionsQuilt());
         }
         {
             String log4jVersion = getLog4jVersion(dir);
@@ -342,6 +352,10 @@ public class MakeProfileHelper {
             if (jimfsPath == null || guavaPath == null) return List.of();
             return List.of(jimfsPath, guavaPath);
         }
+    }
+
+    public static class MakeProfilesOptionsQuilt implements MakeProfileOption {
+
     }
 
     public static class MakeProfileOptionLiteLoader implements MakeProfileOption {

@@ -467,10 +467,27 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         @Override
         public int compareTo(Version some) {
             int result = 0;
-            for (int i = 0; i < data.length; ++i) {
-                if (i > some.data.length) break;
-                result = Long.compare(data[i], some.data[i]);
-                if (result != 0) return result;
+            if(data.length == some.data.length) {
+                for (int i = 0; i < data.length; ++i) {
+                    result = Long.compare(data[i], some.data[i]);
+                    if (result != 0) return result;
+                }
+            } else if(data.length < some.data.length) {
+                for (int i = 0; i < data.length; ++i) {
+                    result = Long.compare(data[i], some.data[i]);
+                    if (result != 0) return result;
+                }
+                for(int i = data.length; i < some.data.length;++i) {
+                    if(some.data[i] > 0) return -1;
+                }
+            } else {
+                for (int i = 0; i < some.data.length; ++i) {
+                    result = Long.compare(data[i], some.data[i]);
+                    if (result != 0) return result;
+                }
+                for(int i = some.data.length; i < data.length;++i) {
+                    if(data[i] > 0) return 1;
+                }
             }
             return result;
         }
