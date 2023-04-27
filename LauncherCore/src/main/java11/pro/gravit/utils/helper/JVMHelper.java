@@ -23,7 +23,6 @@ public final class JVMHelper {
     // System properties
     public static final String OS_VERSION = OPERATING_SYSTEM_MXBEAN.getVersion();
 
-    @Deprecated
     public static final int OS_BITS = getCorrectOSArch();
 
     public static final ARCH ARCH_TYPE = getArch(System.getProperty("os.arch"));
@@ -131,7 +130,6 @@ public final class JVMHelper {
         }
     }
 
-    @Deprecated
     private static int getCorrectOSArch() {
         // As always, mustdie must die
         if (OS_TYPE == OS.MUSTDIE)
@@ -147,7 +145,6 @@ public final class JVMHelper {
     }
 
 
-    @Deprecated
     public static boolean isJVMMatchesSystemArch() {
         return JVM_BITS == OS_BITS;
     }

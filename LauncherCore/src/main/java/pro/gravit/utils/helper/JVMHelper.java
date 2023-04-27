@@ -20,7 +20,6 @@ public final class JVMHelper {
     public static final OperatingSystemMXBean OPERATING_SYSTEM_MXBEAN =
             ManagementFactory.getOperatingSystemMXBean();
     public static final OS OS_TYPE = OS.byName(OPERATING_SYSTEM_MXBEAN.getName());
-    @Deprecated
     public static final int OS_BITS = getCorrectOSArch();
     // System properties
     public static final String OS_VERSION = OPERATING_SYSTEM_MXBEAN.getVersion();
@@ -138,7 +137,6 @@ public final class JVMHelper {
         }
     }
 
-    @Deprecated
     private static int getCorrectOSArch() {
         // As always, mustdie must die
         if (OS_TYPE == OS.MUSTDIE)
@@ -152,7 +150,6 @@ public final class JVMHelper {
         return System.getenv().get(name);
     }
 
-    @Deprecated
     public static boolean isJVMMatchesSystemArch() {
         return JVM_BITS == OS_BITS;
     }
