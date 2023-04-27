@@ -29,7 +29,7 @@ public final class RequestTextureProvider extends TextureProvider {
 
     private static Texture getTexture(String url, boolean cloak) throws IOException {
         try {
-            return new Texture(url, cloak);
+            return new Texture(url, cloak, null);
         } catch (FileNotFoundException ignored) {
             return null; // Simply not found
         }
@@ -37,7 +37,7 @@ public final class RequestTextureProvider extends TextureProvider {
 
     private static Texture getTexture(String url, Path local, boolean cloak) throws IOException {
         try {
-            return new Texture(url, local, cloak);
+            return new Texture(url, local, cloak, null);
         } catch (FileNotFoundException ignored) {
             return null; // Simply not found
         }

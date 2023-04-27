@@ -24,7 +24,7 @@ public final class Texture extends StreamObject {
 
     public final Map<String, String> metadata;
 
-    public Texture(String url, boolean cloak) throws IOException {
+    public Texture(String url, boolean cloak, Map<String, String> metadata) throws IOException {
         this.url = IOHelper.verifyURL(url);
 
         // Fetch texture
@@ -38,19 +38,20 @@ public final class Texture extends StreamObject {
 
         // Get digest of texture
         digest = SecurityHelper.digest(DIGEST_ALGO, new URL(url));
-        metadata = null; // May be auto-detect?
+        this.metadata = metadata; // May be auto-detect?
     }
 
-    public Texture(String url, Path local, boolean cloak) throws IOException {
+    public Texture(String url, Path local, boolean cloak, Map<String, String> metadata) throws IOException {
         this.url = IOHelper.verifyURL(url);
         try (InputStream input = IOHelper.newInput(local)) {
             IOHelper.readTexture(input, cloak); // Verify texture
         }
         this.digest = SecurityHelper.digest(DIGEST_ALGO, local);
-        this.metadata = null;
+        this.metadata = metadata;
     }
 
 
+    @Deprecated
     public Texture(String url, byte[] digest) {
         this.url = IOHelper.verifyURL(url);
         this.digest = digest == null ? new byte[0] : digest;
