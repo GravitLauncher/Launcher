@@ -37,16 +37,20 @@ public final class Texture extends StreamObject {
         }
 
         // Get digest of texture
-        digest = SecurityHelper.digest(DIGEST_ALGO, new URL(url));
+        digest = SecurityHelper.digest(DIGEST_ALGO, texture);
         this.metadata = metadata; // May be auto-detect?
     }
 
     public Texture(String url, Path local, boolean cloak, Map<String, String> metadata) throws IOException {
         this.url = IOHelper.verifyURL(url);
+        byte[] texture;
         try (InputStream input = IOHelper.newInput(local)) {
+            texture = IOHelper.read(input);
+        }
+        try (ByteArrayInputStream input = new ByteArrayInputStream(texture)) {
             IOHelper.readTexture(input, cloak); // Verify texture
         }
-        this.digest = SecurityHelper.digest(DIGEST_ALGO, local);
+        this.digest = SecurityHelper.digest(DIGEST_ALGO, texture);
         this.metadata = metadata;
     }
 
