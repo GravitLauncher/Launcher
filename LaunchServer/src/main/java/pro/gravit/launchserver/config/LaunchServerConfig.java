@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.*;
 
 public final class LaunchServerConfig {
+    private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/", "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/");
     private transient final Logger logger = LogManager.getLogger();
     public String projectName;
     public String[] mirrors;
@@ -166,12 +167,9 @@ public final class LaunchServerConfig {
             boolean updateMirror = Boolean.getBoolean("launchserver.config.disableUpdateMirror");
             if (!updateMirror) {
                 for (int i = 0; i < mirrors.length; ++i) {
-                    if ("https://mirror.gravit.pro/5.2.x/".equals(mirrors[i])) {
-                        logger.warn("Replace mirror 'https://mirror.gravit.pro/5.2.x/' to 'https://mirror.gravitlauncher.com/5.3.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'");
-                        mirrors[i] = "https://mirror.gravitlauncher.com/5.3.x/";
-                    } else if ("https://mirror.gravit.pro/5.3.x/".equals(mirrors[i])) {
-                        logger.warn("Replace mirror 'https://mirror.gravit.pro/5.3.x/' to 'https://mirror.gravitlauncher.com/5.3.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'");
-                        mirrors[i] = "https://mirror.gravitlauncher.com/5.3.x/";
+                    if (mirrors[i] != null && oldMirrorList.contains(mirrors[i])) {
+                        logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.4.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
+                        mirrors[i] = "https://mirror.gravitlauncher.com/5.4.x/";
                     }
                 }
             }
