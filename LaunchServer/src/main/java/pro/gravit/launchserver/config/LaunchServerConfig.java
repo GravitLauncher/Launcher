@@ -45,7 +45,7 @@ public final class LaunchServerConfig {
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
-        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.3.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
+        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.4.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         newConfig.launch4j = new LaunchServerConfig.ExeConf();
         newConfig.launch4j.enabled = false;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
@@ -84,7 +84,6 @@ public final class LaunchServerConfig {
         newConfig.netty.performance.schedulerThread = 2;
 
         newConfig.launcher = new LauncherConf();
-        newConfig.launcher.guardType = "no";
         newConfig.launcher.compress = true;
         newConfig.launcher.deleteTempFiles = true;
         newConfig.launcher.stripLineNumbers = true;
@@ -107,9 +106,8 @@ public final class LaunchServerConfig {
         return newConfig;
     }
 
-    public LaunchServerConfig setLaunchServer(LaunchServer server) {
+    public void setLaunchServer(LaunchServer server) {
         this.server = server;
-        return this;
     }
 
     public AuthProviderPair getAuthProviderPair(String name) {
@@ -188,7 +186,6 @@ public final class LaunchServerConfig {
         if (protectHandler != null) {
             server.registerObject("protectHandler", protectHandler);
             protectHandler.init(server);
-            protectHandler.checkLaunchServerLicense();
         }
         if (components != null) {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
@@ -269,7 +266,6 @@ public final class LaunchServerConfig {
     }
 
     public static class LauncherConf {
-        public String guardType;
         public boolean compress;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;

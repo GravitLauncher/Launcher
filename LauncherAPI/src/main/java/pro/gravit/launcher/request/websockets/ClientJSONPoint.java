@@ -126,9 +126,9 @@ public abstract class ClientJSONPoint {
         });
     }
 
-    public ChannelFuture send(String text) {
+    public void send(String text) {
         LogHelper.dev("Send: %s", text);
-        return ch.writeAndFlush(new TextWebSocketFrame(text), ch.voidPromise());
+        ch.writeAndFlush(new TextWebSocketFrame(text), ch.voidPromise());
     }
 
     abstract void onMessage(String message);

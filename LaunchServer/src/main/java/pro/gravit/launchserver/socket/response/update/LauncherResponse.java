@@ -85,12 +85,10 @@ public class LauncherResponse extends SimpleResponse {
     }
 
     public static class LauncherTokenVerifier implements RestoreResponse.ExtendedTokenProvider {
-        private final LaunchServer server;
         private final JwtParser parser;
         private final Logger logger = LogManager.getLogger();
 
         public LauncherTokenVerifier(LaunchServer server) {
-            this.server = server;
             parser = Jwts.parserBuilder()
                     .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
                     .requireIssuer("LaunchServer")

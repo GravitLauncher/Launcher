@@ -21,7 +21,7 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
+    public UserSession getUserSessionByOAuthAccessToken(String accessToken) {
         return null;
     }
 
@@ -46,12 +46,12 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    protected boolean updateServerID(User user, String serverID) throws IOException {
+    protected boolean updateServerID(User user, String serverID) {
         return false;
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
     }
 }

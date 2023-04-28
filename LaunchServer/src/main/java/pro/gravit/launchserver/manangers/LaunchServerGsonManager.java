@@ -5,6 +5,7 @@ import marcono1234.gson.recordadapter.RecordTypeAdapterFactory;
 import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.modules.events.PreGsonPhase;
+import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.JsonResultSerializeAdapter;
@@ -35,6 +36,7 @@ public class LaunchServerGsonManager extends GsonManager {
         builder.registerTypeAdapterFactory(RecordTypeAdapterFactory.builder()
                 .allowMissingComponentValues()
                 .create());
+        builder.registerTypeAdapter(ClientProfile.Version.class, new ClientProfile.Version.GsonSerializer());
         builder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
         builder.registerTypeAdapter(AuthCoreProvider.class, new UniversalJsonAdapter<>(AuthCoreProvider.providers));
         builder.registerTypeAdapter(PasswordVerifier.class, new UniversalJsonAdapter<>(PasswordVerifier.providers));

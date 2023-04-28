@@ -7,6 +7,7 @@ import pro.gravit.launcher.events.NotificationEvent;
 import pro.gravit.launcher.events.request.*;
 import pro.gravit.launcher.hasher.HashedEntry;
 import pro.gravit.launcher.hasher.HashedEntryAdapter;
+import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.WebSocketEvent;
@@ -28,6 +29,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
     private static boolean resultsRegistered = false;
     public final Gson gson;
     public final Boolean onConnect;
+    public final Object waitObject = new Object();
     public OnCloseCallback onCloseCallback;
     public ReconnectCallback reconnectCallback;
 
@@ -39,6 +41,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
 
     public static void appendTypeAdapters(GsonBuilder builder) {
         builder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
+        builder.registerTypeAdapter(ClientProfile.Version.class, new ClientProfile.Version.GsonSerializer());
         builder.registerTypeAdapter(WebSocketEvent.class, new UniversalJsonAdapter<>(ClientWebSocketService.results));
         builder.registerTypeAdapter(WebSocketRequest.class, new UniversalJsonAdapter<>(ClientWebSocketService.requests));
         builder.registerTypeAdapter(AuthRequest.AuthPasswordInterface.class, new UniversalJsonAdapter<>(AuthRequest.providers));
@@ -71,8 +74,8 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
 
     @Override
     void onOpen() {
-        synchronized (onConnect) {
-            onConnect.notifyAll();
+        synchronized (waitObject) {
+            waitObject.notifyAll();
         }
     }
 
@@ -80,7 +83,6 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
 
     }
 
-    @SuppressWarnings("deprecation")
     public void registerResults() {
         if (!resultsRegistered) {
             results.register("auth", AuthRequestEvent.class);
@@ -102,7 +104,6 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
             results.register("verifySecureLevelKey", VerifySecureLevelKeyRequestEvent.class);
             results.register("securityReport", SecurityReportRequestEvent.class);
             results.register("hardwareReport", HardwareReportRequestEvent.class);
-            results.register("serverStatus", ServerStatusRequestEvent.class);
             results.register("currentUser", CurrentUserRequestEvent.class);
             results.register("features", FeaturesRequestEvent.class);
             results.register("refreshToken", RefreshTokenRequestEvent.class);
@@ -115,33 +116,17 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
     }
 
     public void waitIfNotConnected() {
-        /*if(!isOpen() && !isClosed() && !isClosing())
-        {
-            LogHelper.warning("WebSocket not connected. Try wait onConnect object");
-            synchronized (onConnect)
-            {
-                try {
-                    onConnect.wait(5000);
-                } catch (InterruptedException e) {
-                    LogHelper.error(e);
-                }
-            }
-        }*/
     }
 
     public void sendObject(Object obj) throws IOException {
         waitIfNotConnected();
         if (ch == null || !ch.isActive()) reconnectCallback.onReconnect();
-        //if(isClosed() && reconnectCallback != null)
-        //    reconnectCallback.onReconnect();
         send(gson.toJson(obj, WebSocketRequest.class));
     }
 
     public void sendObject(Object obj, Type type) throws IOException {
         waitIfNotConnected();
         if (ch == null || !ch.isActive()) reconnectCallback.onReconnect();
-        //if(isClosed() && reconnectCallback != null)
-        //    reconnectCallback.onReconnect();
         send(gson.toJson(obj, type));
     }
 

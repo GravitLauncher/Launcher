@@ -83,8 +83,6 @@ public class ClientLauncherWrapper {
         }
 
         context.executePath = IOHelper.resolveJavaBin(context.javaVersion.jvmDir);
-        //List<String> args = new LinkedList<>();
-        //args.add(javaBin.toString());
         String pathLauncher = IOHelper.getCodeSource(LauncherEngine.class).toString();
         context.mainClass = LauncherEngine.class.getName();
         context.memoryLimit = launcherMemoryLimit;
@@ -143,8 +141,12 @@ public class ClientLauncherWrapper {
         if (customJvmOptions != null) {
             args.addAll(customJvmOptions);
         }
-        args.add("-cp");
-        args.add(String.join(IOHelper.PLATFORM_SEPARATOR, context.classpath));
+        if(context.useLegacyClasspathProperty) {
+            args.add(String.format("-Djava.class.path=%s", String.join(IOHelper.PLATFORM_SEPARATOR, context.classpath)));
+        } else {
+            args.add("-cp");
+            args.add(String.join(IOHelper.PLATFORM_SEPARATOR, context.classpath));
+        }
         args.add(context.mainClass);
         args.addAll(context.clientArgs);
         LogHelper.debug("Commandline: " + args);
@@ -172,6 +174,7 @@ public class ClientLauncherWrapper {
         public Path executePath;
         public String mainClass;
         public int memoryLimit;
+        public boolean useLegacyClasspathProperty;
         public ProcessBuilder processBuilder;
         public List<String> args = new ArrayList<>(8);
         public Map<String, String> jvmProperties = new HashMap<>();

@@ -31,9 +31,8 @@ public abstract class LauncherModule {
         return initStatus;
     }
 
-    public LauncherModule setInitStatus(InitStatus initStatus) {
+    public void setInitStatus(InitStatus initStatus) {
         this.initStatus = initStatus;
-        return this;
     }
 
     /**
@@ -71,11 +70,10 @@ public abstract class LauncherModule {
         this.checkResult = result;
     }
 
-    protected final LauncherModule requireModule(String name, Version minVersion) {
+    protected final void requireModule(String name, Version minVersion) {
         if (context == null) throw new IllegalStateException("requireModule must be used in init() phase");
         LauncherModule module = context.getModulesManager().getModule(name);
         requireModule(module, minVersion, name);
-        return module;
     }
 
     protected final <T extends LauncherModule> T requireModule(Class<? extends T> clazz, Version minVersion) {
@@ -107,13 +105,12 @@ public abstract class LauncherModule {
         //NOP
     }
 
-    public final LauncherModule preInit() {
+    public final void preInit() {
         if (!initStatus.equals(InitStatus.PRE_INIT_WAIT))
             throw new IllegalStateException("PreInit not allowed in current state");
         initStatus = InitStatus.PRE_INIT;
         preInitAction();
         initStatus = InitStatus.INIT_WAIT;
-        return this;
     }
 
     /**
@@ -225,9 +222,8 @@ public abstract class LauncherModule {
             return cancel;
         }
 
-        public Event cancel() {
+        public void cancel() {
             this.cancel = true;
-            return this;
         }
     }
 }

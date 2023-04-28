@@ -87,7 +87,7 @@ public class JarHelper {
         return getClassBytesStream(clazz, clazz.getClassLoader());
     }
 
-    public static InputStream getClassBytesStream(Class<?> clazz, ClassLoader classLoader) throws IOException {
+    public static InputStream getClassBytesStream(Class<?> clazz, ClassLoader classLoader) {
         return classLoader.getResourceAsStream(getClassFile(clazz));
     }
 
@@ -107,7 +107,7 @@ public class JarHelper {
 
     @FunctionalInterface
     public interface ZipWalkCallback {
-        void process(ZipInputStream input, ZipEntry e) throws IOException;
+        void process(ZipInputStream input, ZipEntry e);
     }
 
     @FunctionalInterface

@@ -1,5 +1,6 @@
 package pro.gravit.launcher.profiles;
 
+import com.google.gson.*;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.profiles.optional.OptionalDepend;
@@ -8,7 +9,7 @@ import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
-import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.util.*;
 
@@ -21,7 +22,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private UUID uuid;
     @LauncherNetworkAPI
-    private String version;
+    private Version version;
     @LauncherNetworkAPI
     private String info;
     @LauncherNetworkAPI
@@ -62,21 +63,16 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private List<ServerProfile> servers;
     @LauncherNetworkAPI
-    private SecurityManagerConfig securityManagerConfig;
-    @LauncherNetworkAPI
     private ClassLoaderConfig classLoaderConfig;
+
     @LauncherNetworkAPI
-    private SignedClientConfig signedClientConfig;
-    @LauncherNetworkAPI
-    private RuntimeInClientConfig runtimeInClientConfig;
+    private List<CompatibilityFlags> flags;
     @LauncherNetworkAPI
     private int recommendJavaVersion = 8;
     @LauncherNetworkAPI
     private int minJavaVersion = 8;
     @LauncherNetworkAPI
     private int maxJavaVersion = 999;
-    @LauncherNetworkAPI
-    private boolean warnMissJavaVersion = true;
     @LauncherNetworkAPI
     private ProfileDefaultSettings settings = new ProfileDefaultSettings();
     @LauncherNetworkAPI
@@ -99,13 +95,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         compatClasses = new ArrayList<>();
         properties = new HashMap<>();
         servers = new ArrayList<>(1);
-        securityManagerConfig = SecurityManagerConfig.CLIENT;
         classLoaderConfig = ClassLoaderConfig.LAUNCHER;
-        signedClientConfig = SignedClientConfig.NONE;
-        runtimeInClientConfig = RuntimeInClientConfig.NONE;
+        flags = new ArrayList<>();
     }
 
-    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> modulePath, List<String> modules, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, SecurityManagerConfig securityManagerConfig, ClassLoaderConfig classLoaderConfig, SignedClientConfig signedClientConfig, RuntimeInClientConfig runtimeInClientConfig, String version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, boolean warnMissJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, String mainClass) {
+    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> modulePath, List<String> modules, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, ClassLoaderConfig classLoaderConfig, List<CompatibilityFlags> flags, Version version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, String mainClass) {
         this.update = update;
         this.updateExclusions = updateExclusions;
         this.updateShared = updateShared;
@@ -120,10 +114,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.compatClasses = compatClasses;
         this.properties = properties;
         this.servers = servers;
-        this.securityManagerConfig = securityManagerConfig;
         this.classLoaderConfig = classLoaderConfig;
-        this.signedClientConfig = signedClientConfig;
-        this.runtimeInClientConfig = runtimeInClientConfig;
         this.version = version;
         this.assetIndex = assetIndex;
         this.dir = dir;
@@ -131,13 +122,13 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.recommendJavaVersion = recommendJavaVersion;
         this.minJavaVersion = minJavaVersion;
         this.maxJavaVersion = maxJavaVersion;
-        this.warnMissJavaVersion = warnMissJavaVersion;
         this.settings = settings;
         this.sortIndex = sortIndex;
         this.uuid = uuid;
         this.title = title;
         this.info = info;
         this.mainClass = mainClass;
+        this.flags = flags;
     }
 
     public ServerProfile getDefaultServerProfile() {
@@ -157,7 +148,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public FileNameMatcher getAssetUpdateMatcher() {
-        return getVersion().compareTo(Version.MC1710) >= 0 ? ASSET_MATCHER : null;
+        return getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_7_10) >= 0 ? ASSET_MATCHER : null;
     }
 
     public String[] getClassPath() {
@@ -245,10 +236,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return maxJavaVersion;
     }
 
-    public boolean isWarnMissJavaVersion() {
-        return warnMissJavaVersion;
-    }
-
     public ProfileDefaultSettings getSettings() {
         return settings;
     }
@@ -306,11 +293,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public Version getVersion() {
-        return Version.byName(version);
+        return version;
     }
 
     public void setVersion(Version version) {
-        this.version = version.name;
+        this.version = version;
     }
 
     @Deprecated
@@ -329,6 +316,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public void setUUID(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public boolean hasFlag(CompatibilityFlags flag) {
+        return flags.contains(flag);
     }
 
     public void verify() {
@@ -432,106 +423,120 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         this.classLoaderConfig = classLoaderConfig;
     }
 
-    public RuntimeInClientConfig getRuntimeInClientConfig() {
-        return runtimeInClientConfig;
-    }
-
-    public void setRuntimeInClientConfig(RuntimeInClientConfig runtimeInClientConfig) {
-        this.runtimeInClientConfig = runtimeInClientConfig;
-    }
-
     public boolean isLimited() {
         return limited;
     }
 
-    public enum Version {
-        MC125("1.2.5", 29),
-        MC147("1.4.7", 51),
-        MC152("1.5.2", 61),
-        MC164("1.6.4", 78),
-        MC172("1.7.2", 4),
-        MC1710("1.7.10", 5),
-        MC189("1.8.9", 47),
-        MC19("1.9", 107),
-        MC192("1.9.2", 109),
-        MC194("1.9.4", 110),
-        MC1102("1.10.2", 210),
-        MC111("1.11", 315),
-        MC1112("1.11.2", 316),
-        MC112("1.12", 335),
-        MC1121("1.12.1", 338),
-        MC1122("1.12.2", 340),
-        MC113("1.13", 393),
-        MC1131("1.13.1", 401),
-        MC1132("1.13.2", 402),
-        MC114("1.14", 477),
-        MC1141("1.14.1", 480),
-        MC1142("1.14.2", 485),
-        MC1143("1.14.3", 490),
-        MC1144("1.14.4", 498),
-        MC115("1.15", 573),
-        MC1151("1.15.1", 575),
-        MC1152("1.15.2", 578),
-        MC1161("1.16.1", 736),
-        MC1162("1.16.2", 751),
-        MC1163("1.16.3", 753),
-        MC1164("1.16.4", 754),
-        MC1165("1.16.5", 754),
-        MC117("1.17", 755),
-        MC1171("1.17.1", 756),
-        MC118("1.18", 757),
-        MC1181("1.18.1", 757),
-        MC1182("1.18.2", 758),
-        MC119("1.19", 759),
-        MC1191("1.19.1", 760),
-        MC1192("1.19.2", 760),
-        MC1193("1.19.3", 761);
-        private static final Map<String, Version> VERSIONS;
-
-        static {
-            Version[] versionsValues = values();
-            VERSIONS = new HashMap<>(versionsValues.length);
-            for (Version version : versionsValues)
-                VERSIONS.put(version.name, version);
-        }
-
-        public final String name;
-        public final int protocol;
-
-        Version(String name, int protocol) {
-            this.name = name;
-            this.protocol = protocol;
-        }
-
-        public static Version byName(String name) {
-            return VerifyHelper.getMapValue(VERSIONS, name, String.format("Unknown client version: '%s'", name));
-        }
-
-        @Override
-        public String toString() {
-            return "Minecraft " + name;
-        }
-    }
-
-    public enum SecurityManagerConfig {
-        NONE, CLIENT, LAUNCHER, MIXED
+    public List<CompatibilityFlags> getFlags() {
+        return flags;
     }
 
     public enum ClassLoaderConfig {
         AGENT, LAUNCHER, MODULE, SYSTEM_ARGS
     }
 
-    public enum SignedClientConfig {
-        NONE, SIGNED
+    public enum CompatibilityFlags {
+        LEGACY_NATIVES_DIR
     }
 
-    public enum RuntimeInClientConfig {
-        NONE, BASIC, FULL
-    }
+    public static class Version implements Comparable<Version> {
+        private final long[] data;
+        private final String original;
+        private final boolean isObjectSerialized;
 
-    @FunctionalInterface
-    public interface pushOptionalClassPathCallback {
-        void run(String[] opt) throws IOException;
+        public static Version of(String string) {
+            String tmp = string.replaceAll("[^.0-9]", "."); // Replace any non-digit character to .
+            String[] list = tmp.split("\\.");
+            return new Version(Arrays.stream(list)
+                    .filter(e -> !e.isEmpty()) // Filter ".."
+                    .mapToLong(Long::parseLong).toArray(), string);
+        }
+
+        private Version(long[] data, String str) {
+            this.data = data;
+            this.original = str;
+            this.isObjectSerialized = false;
+        }
+
+        public Version(long[] data, String original, boolean isObjectSerialized) {
+            this.data = data;
+            this.original = original;
+            this.isObjectSerialized = isObjectSerialized;
+        }
+
+        @Override
+        public int compareTo(Version some) {
+            int result = 0;
+            if(data.length == some.data.length) {
+                for (int i = 0; i < data.length; ++i) {
+                    result = Long.compare(data[i], some.data[i]);
+                    if (result != 0) return result;
+                }
+            } else if(data.length < some.data.length) {
+                for (int i = 0; i < data.length; ++i) {
+                    result = Long.compare(data[i], some.data[i]);
+                    if (result != 0) return result;
+                }
+                for(int i = data.length; i < some.data.length;++i) {
+                    if(some.data[i] > 0) return -1;
+                }
+            } else {
+                for (int i = 0; i < some.data.length; ++i) {
+                    result = Long.compare(data[i], some.data[i]);
+                    if (result != 0) return result;
+                }
+                for(int i = some.data.length; i < data.length;++i) {
+                    if(data[i] > 0) return 1;
+                }
+            }
+            return result;
+        }
+
+        public String toCleanString() {
+            return join(data);
+        }
+
+        private static String join(long[] data) {
+            return String.join(".", Arrays.stream(data).mapToObj(String::valueOf).toArray(String[]::new));
+        }
+
+        @Override
+        public String toString() {
+            return original;
+        }
+
+        public static class GsonSerializer implements JsonSerializer<Version>, JsonDeserializer<Version> {
+
+            @Override
+            public Version deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                if(json.isJsonObject()) {
+                    JsonObject object = json.getAsJsonObject();
+                    String name = object.get("name").getAsString();
+                    long[] list = context.deserialize(object.get("data"), long[].class);
+                    return new Version(list, name, true);
+                } else if(json.isJsonArray()) {
+                    long[] list = context.deserialize(json, long[].class);
+                    return new Version(list, join(list), false);
+                } else {
+                    return Version.of(json.getAsString());
+                }
+            }
+
+            @Override
+            public JsonElement serialize(Version src, Type typeOfSrc, JsonSerializationContext context) {
+                if(src.isObjectSerialized) {
+                    JsonObject object = new JsonObject();
+                    object.add("name", new JsonPrimitive(src.original));
+                    JsonArray array = new JsonArray();
+                    for(long l : src.data) {
+                        array.add(l);
+                    }
+                    object.add("data", array);
+                    return object;
+                }
+                return new JsonPrimitive(src.toString());
+            }
+        }
     }
 
     public static class ServerProfile {
@@ -539,6 +544,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         public String serverAddress;
         public int serverPort;
         public boolean isDefault = true;
+        public int protocol = -1;
         public boolean socketPing = true;
 
         public ServerProfile() {

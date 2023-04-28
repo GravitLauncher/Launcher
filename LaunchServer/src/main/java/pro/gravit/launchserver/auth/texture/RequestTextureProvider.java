@@ -29,7 +29,7 @@ public final class RequestTextureProvider extends TextureProvider {
 
     private static Texture getTexture(String url, boolean cloak) throws IOException {
         try {
-            return new Texture(url, cloak);
+            return new Texture(url, cloak, null);
         } catch (FileNotFoundException ignored) {
             return null; // Simply not found
         }
@@ -37,7 +37,7 @@ public final class RequestTextureProvider extends TextureProvider {
 
     private static Texture getTexture(String url, Path local, boolean cloak) throws IOException {
         try {
-            return new Texture(url, local, cloak);
+            return new Texture(url, local, cloak, null);
         } catch (FileNotFoundException ignored) {
             return null; // Simply not found
         }
@@ -60,7 +60,8 @@ public final class RequestTextureProvider extends TextureProvider {
         if (cloakLocalPath == null) {
             return getTexture(textureUrl, true);
         } else {
-            return getTexture(textureUrl, Paths.get(cloakLocalPath), true);
+            String path = getTextureURL(cloakLocalPath, uuid, username, client);
+            return getTexture(textureUrl, Paths.get(path), true);
         }
     }
 
@@ -70,7 +71,8 @@ public final class RequestTextureProvider extends TextureProvider {
         if (skinLocalPath == null) {
             return getTexture(textureUrl, false);
         } else {
-            return getTexture(textureUrl, Paths.get(skinLocalPath), false);
+            String path = getTextureURL(skinLocalPath, uuid, username, client);
+            return getTexture(textureUrl, Paths.get(path), false);
         }
     }
 }

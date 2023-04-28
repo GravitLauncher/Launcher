@@ -65,7 +65,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
                     return newClinitMethod;
                 });
         List<MethodNode> constructors = classNode.methods.stream().filter(method -> "<init>".equals(method.name))
-                .collect(Collectors.toList());
+                .toList();
         MethodNode initMethod = constructors.stream().filter(method -> method.invisibleAnnotations != null
                         && method.invisibleAnnotations.stream().anyMatch(annotation -> INJECTED_CONSTRUCTOR_DESC.equals(annotation.desc))).findFirst()
                 .orElseGet(() -> constructors.stream().filter(method -> method.desc.equals("()V")).findFirst().orElse(null));
@@ -112,7 +112,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
             }
             List<FieldInsnNode> putStaticNodes = Arrays.stream(initMethod.instructions.toArray())
                     .filter(node -> node instanceof FieldInsnNode && node.getOpcode() == Opcodes.PUTSTATIC).map(p -> (FieldInsnNode) p)
-                    .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).collect(Collectors.toList());
+                    .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).toList();
             InsnList setter = serializeValue(value);
             if (putStaticNodes.isEmpty()) {
                 setter.add(new FieldInsnNode(Opcodes.PUTSTATIC, classNode.name, field.name, field.desc));
@@ -130,7 +130,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
             }
             List<FieldInsnNode> putFieldNodes = Arrays.stream(initMethod.instructions.toArray())
                     .filter(node -> node instanceof FieldInsnNode && node.getOpcode() == Opcodes.PUTFIELD).map(p -> (FieldInsnNode) p)
-                    .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).collect(Collectors.toList());
+                    .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).toList();
             InsnList setter = serializeValue(value);
             if (putFieldNodes.isEmpty()) {
                 setter.insert(new VarInsnNode(Opcodes.ALOAD, 0));

@@ -36,10 +36,9 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
         this.context = context;
     }
 
-    public static SeverletPathPair addNewSeverlet(String path, SimpleSeverletHandler callback) {
+    public static void addNewSeverlet(String path, SimpleSeverletHandler callback) {
         SeverletPathPair pair = new SeverletPathPair("/webapi/".concat(path), callback);
         severletList.add(pair);
-        return pair;
     }
 
     public static SeverletPathPair addUnsafeSeverlet(String path, SimpleSeverletHandler callback) {
@@ -53,7 +52,7 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) {
         boolean isNext = true;
         for (SeverletPathPair pair : severletList) {
             if (msg.uri().startsWith(pair.key)) {
@@ -75,7 +74,7 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     @FunctionalInterface
     public interface SimpleSeverletHandler {
-        void handle(ChannelHandlerContext ctx, FullHttpRequest msg, NettyConnectContext context) throws Exception;
+        void handle(ChannelHandlerContext ctx, FullHttpRequest msg, NettyConnectContext context);
 
         default Map<String, String> getParamsFromUri(String uri) {
             int ind = uri.indexOf("?");

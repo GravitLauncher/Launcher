@@ -15,24 +15,24 @@ import java.util.Map;
 import java.util.UUID;
 
 public class JsonTextureProvider extends TextureProvider {
-    private transient static final Type MAP_TYPE = new TypeToken<Map<String, Texture>>() {
+    private static final Type MAP_TYPE = new TypeToken<Map<String, Texture>>() {
     }.getType();
     private transient final Logger logger = LogManager.getLogger();
     public String url;
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         //None
     }
 
     @Override
-    public Texture getCloakTexture(UUID uuid, String username, String client) throws IOException {
+    public Texture getCloakTexture(UUID uuid, String username, String client) {
         logger.warn("Ineffective get cloak texture for {}", username);
         return getAssets(uuid, username, client).get("CAPE");
     }
 
     @Override
-    public Texture getSkinTexture(UUID uuid, String username, String client) throws IOException {
+    public Texture getSkinTexture(UUID uuid, String username, String client) {
         logger.warn("Ineffective get skin texture for {}", username);
         return getAssets(uuid, username, client).get("SKIN");
     }

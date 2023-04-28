@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.auth.core;
 
-import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.ClientPermissions;
@@ -318,7 +317,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
     }
 
@@ -525,10 +524,6 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
         private String serverId;
         private String accessToken;
         private ClientPermissions permissions;
-        @Deprecated
-        private Texture skin;
-        @Deprecated
-        private Texture cloak;
         private Map<String, Texture> assets;
         private Map<String, String> properties;
         private long hwidId;
@@ -552,8 +547,6 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             this.serverId = serverId;
             this.accessToken = accessToken;
             this.permissions = permissions;
-            this.skin = skin;
-            this.cloak = cloak;
             this.hwidId = hwidId;
         }
 
@@ -563,8 +556,6 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             this.serverId = serverId;
             this.accessToken = accessToken;
             this.permissions = permissions;
-            this.skin = skin;
-            this.cloak = cloak;
             this.properties = properties;
             this.hwidId = hwidId;
         }
@@ -607,30 +598,17 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
         @Override
         public Texture getSkinTexture() {
-            if (assets == null) {
-                return skin;
-            }
             return assets.get("SKIN");
         }
 
         @Override
         public Texture getCloakTexture() {
-            if (assets == null) {
-                return cloak;
-            }
             return assets.get("CAPE");
         }
 
         public Map<String, Texture> getAssets() {
             if (assets == null) {
-                Map<String, Texture> map = new HashMap<>();
-                if (skin != null) {
-                    map.put("SKIN", skin);
-                }
-                if (cloak != null) {
-                    map.put("CAPE", cloak);
-                }
-                return map;
+                return new HashMap<>();
             }
             return assets;
         }

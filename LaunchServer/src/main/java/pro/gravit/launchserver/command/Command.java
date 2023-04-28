@@ -4,8 +4,11 @@ import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import pro.gravit.launcher.AsyncDownloader;
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.Downloader;
+import pro.gravit.utils.command.CommandException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -27,6 +30,13 @@ public abstract class Command extends pro.gravit.utils.command.Command {
     public Command(Map<String, pro.gravit.utils.command.Command> childCommands, LaunchServer server) {
         super(childCommands);
         this.server = server;
+    }
+
+    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException {
+        if(arg.isEmpty()) {
+            throw new CommandException("ClientVersion can't be empty");
+        }
+        return Launcher.gsonManager.gson.fromJson(arg, ClientProfile.Version.class);
     }
 
     protected boolean showApplyDialog(String text) throws IOException {

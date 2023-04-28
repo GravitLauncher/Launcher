@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
-    public transient Logger logger = LogManager.getLogger();
+    public final transient Logger logger = LogManager.getLogger();
     public int expireSeconds = 3600;
     public String uuidColumn;
     public String usernameColumn;
@@ -208,7 +208,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         return String.format("%s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn);
     }
 
-    protected boolean updateAuth(User user, String accessToken) throws IOException {
+    protected void updateAuth(User user, String accessToken) throws IOException {
         try (Connection c = getSQLConfig().getConnection()) {
             SQLUser SQLUser = (SQLUser) user;
             SQLUser.accessToken = accessToken;
@@ -216,7 +216,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             s.setString(1, accessToken);
             s.setString(2, user.getUUID().toString());
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
-            return s.executeUpdate() > 0;
+            s.executeUpdate();
         } catch (SQLException e) {
             throw new IOException(e);
         }
@@ -238,7 +238,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         getSQLConfig().close();
     }
 
@@ -299,12 +299,12 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     }
 
     public static class SQLUser implements User {
-        protected UUID uuid;
-        protected String username;
+        protected final UUID uuid;
+        protected final String username;
         protected String accessToken;
         protected String serverId;
-        protected String password;
-        protected ClientPermissions permissions;
+        protected final String password;
+        protected final ClientPermissions permissions;
 
         public SQLUser(UUID uuid, String username, String accessToken, String serverId, String password, ClientPermissions permissions) {
             this.uuid = uuid;

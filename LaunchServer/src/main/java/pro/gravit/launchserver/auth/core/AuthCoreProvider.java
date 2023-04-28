@@ -140,7 +140,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
             if (instance != null) {
                 map.put("getallusers", new SubCommand("(limit)", "print all users information") {
                     @Override
-                    public void invoke(String... args) throws Exception {
+                    public void invoke(String... args) {
                         int max = Integer.MAX_VALUE;
                         if (args.length > 0) max = Integer.parseInt(args[0]);
                         Iterable<User> users = instance.getAllUsers();
@@ -316,7 +316,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
     }
 
     @Override
-    public abstract void close() throws IOException;
+    public abstract void close();
 
     public static class PasswordVerifyReport {
         public static final PasswordVerifyReport REQUIRED_2FA = new PasswordVerifyReport(-1);

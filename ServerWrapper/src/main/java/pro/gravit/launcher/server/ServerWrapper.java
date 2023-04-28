@@ -70,7 +70,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         Request.restore();
     }
 
-    public ProfilesRequestEvent getProfiles() throws Exception {
+    public void getProfiles() throws Exception {
         ProfilesRequestEvent result = new ProfilesRequest().request();
         for (ClientProfile p : result.profiles) {
             LogHelper.debug("Get profile: %s", p.getTitle());
@@ -90,10 +90,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         if (profile == null) {
             LogHelper.warning("Not connected to ServerProfile. May be serverName incorrect?");
         }
-        return result;
     }
 
-    @SuppressWarnings("ConfusingArgumentToVarargsMethod")
     public void run(String... args) throws Throwable {
         initGson();
         AuthRequest.registerProviders();
@@ -159,7 +157,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             ServerAgent.loadLibraries(librariesDir);
         }
         LogHelper.info("ServerWrapper: LaunchServer address: %s. Title: %s", config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
-        LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().name);
+        LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().toString());
         String[] real_args;
         if(config.args != null && config.args.size() > 0) {
             real_args = config.args.toArray(new String[0]);

@@ -4,8 +4,6 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 
-import java.io.IOException;
-
 public class TestLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
     public LaunchServerConfig config;
     public LaunchServerRuntimeConfig runtimeConfig;
@@ -17,22 +15,22 @@ public class TestLaunchServerConfigManager implements LaunchServer.LaunchServerC
     }
 
     @Override
-    public LaunchServerConfig readConfig() throws IOException {
+    public LaunchServerConfig readConfig() {
         return config;
     }
 
     @Override
-    public LaunchServerRuntimeConfig readRuntimeConfig() throws IOException {
+    public LaunchServerRuntimeConfig readRuntimeConfig() {
         return runtimeConfig;
     }
 
     @Override
-    public void writeConfig(LaunchServerConfig config) throws IOException {
+    public void writeConfig(LaunchServerConfig config) {
 
     }
 
     @Override
-    public void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException {
+    public void writeRuntimeConfig(LaunchServerRuntimeConfig config) {
 
     }
 }

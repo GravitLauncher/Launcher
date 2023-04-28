@@ -17,7 +17,6 @@ public final class NativeJVMHalt {
     }
 
     public static void haltA(int code) {
-        Throwable[] th = new Throwable[3];
         NativeJVMHalt halt = new NativeJVMHalt(code);
         try {
             LogHelper.dev("Try invoke Shutdown.exit");
@@ -26,7 +25,6 @@ public final class NativeJVMHalt {
             exitMethod.setAccessible(true);
             exitMethod.invoke(null, code);
         } catch (Throwable e) {
-            th[1] = e;
             if (LogHelper.isDevEnabled()) {
                 LogHelper.error(e);
             }

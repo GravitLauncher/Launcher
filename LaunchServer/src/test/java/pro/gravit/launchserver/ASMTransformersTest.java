@@ -21,7 +21,7 @@ public class ASMTransformersTest {
     public static ASMClassLoader classLoader;
 
     @BeforeAll
-    public static void prepare() throws Throwable {
+    public static void prepare() {
         classLoader = new ASMClassLoader(ASMTransformersTest.class.getClassLoader());
     }
 

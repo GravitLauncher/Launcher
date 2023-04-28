@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.ClientProfileVersions;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.helper.MakeProfileHelper;
@@ -81,9 +82,9 @@ public final class DownloadClientCommand extends Command {
                 if (internalVersion.contains("-")) {
                     internalVersion = internalVersion.substring(0, versionName.indexOf('-'));
                 }
-                ClientProfile.Version version = ClientProfile.Version.byName(internalVersion);
-                if (version.compareTo(ClientProfile.Version.MC164) <= 0) {
-                    logger.warn("Minecraft 1.6.4 and below not supported. Use at your own risk");
+                ClientProfile.Version version = ClientProfile.Version.of(internalVersion);
+                if (version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) <= 0) {
+                    logger.warn("Minecraft 1.7.9 and below not supported. Use at your own risk");
                 }
                 MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(clientDir, version, Files.exists(server.updatesDir.resolve("assets")));
                 for (MakeProfileHelper.MakeProfileOption option : options) {

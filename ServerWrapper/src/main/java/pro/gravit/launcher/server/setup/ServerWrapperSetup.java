@@ -2,6 +2,7 @@ package pro.gravit.launcher.server.setup;
 
 import pro.gravit.launcher.events.request.GetPublicKeyRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.ClientProfileVersions;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.auth.GetPublicKeyRequest;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
@@ -11,14 +12,12 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.jar.JarFile;
 
 public class ServerWrapperSetup {
@@ -92,7 +91,7 @@ public class ServerWrapperSetup {
                 }
             }
         }
-        if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfile.Version.MC118) >= 0) {
+        if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_18) >= 0) {
             LogHelper.info("Switch to alternative start mode (1.18)");
             wrapper.config.classpath.add(jarName);
             wrapper.config.classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;

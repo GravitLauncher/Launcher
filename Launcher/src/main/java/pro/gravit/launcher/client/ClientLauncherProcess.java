@@ -10,6 +10,7 @@ import pro.gravit.launcher.client.events.client.ClientProcessBuilderPreLaunchEve
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.ClientProfileVersions;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.optional.OptionalView;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
@@ -31,6 +32,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientLauncherProcess {
+
+    public final List<String> pre = new LinkedList<>();
     public final ClientParams params = new ClientParams();
     public final List<String> jvmArgs = new LinkedList<>();
     public final List<String> jvmModules = new LinkedList<>();
@@ -76,9 +79,14 @@ public class ClientLauncherProcess {
         this.params.clientDir = this.workDir.toString();
         this.params.resourcePackDir = resourcePackDir.toAbsolutePath().toString();
         this.params.assetDir = assetDir.toAbsolutePath().toString();
-        Path nativesPath = workDir.resolve("natives").resolve(JVMHelper.OS_TYPE.name).resolve(javaVersion.arch.name);
-        if (!Files.isDirectory(nativesPath)) {
+        Path nativesPath;
+        if(profile.hasFlag(ClientProfile.CompatibilityFlags.LEGACY_NATIVES_DIR)) {
             nativesPath = workDir.resolve("natives");
+        } else {
+            nativesPath = workDir.resolve("natives").resolve(JVMHelper.OS_TYPE.name).resolve(javaVersion.arch.name);
+        }
+        if (!Files.isDirectory(nativesPath)) {
+            throw new RuntimeException(String.format("Natives dir %s not exist! Your operating system or architecture not supported", nativesPath.toAbsolutePath()));
         }
         this.params.nativesDir = nativesPath.toString();
         this.params.profile = profile;
@@ -123,24 +131,13 @@ public class ClientLauncherProcess {
         }
         this.jvmModules.addAll(this.params.profile.getModules());
         this.jvmModulesPaths.addAll(this.params.profile.getModulePath());
-        if (this.params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
-            jvmModules.add("javafx.base");
-            jvmModules.add("javafx.graphics");
-            jvmModules.add("javafx.fxml");
-            jvmModules.add("javafx.controls");
-            jvmModules.add("javafx.swing");
-            jvmModules.add("javafx.media");
-            jvmModules.add("javafx.web");
-        }
-
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));
     }
 
     public void start(boolean pipeOutput) throws IOException, InterruptedException {
         if (isStarted) throw new IllegalStateException("Process already started");
-        if (LauncherEngine.guard != null) LauncherEngine.guard.applyGuardParams(this);
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderPreLaunchEvent(this));
-        List<String> processArgs = new LinkedList<>();
+        List<String> processArgs = new LinkedList<>(pre);
         processArgs.add(executeFile.toString());
         processArgs.addAll(jvmArgs);
         if (javaVersion.version >= 9) {
@@ -192,20 +189,10 @@ public class ClientLauncherProcess {
     }
 
     private void applyJava9Params(List<String> processArgs) {
-        /*jvmModulesPaths.add(javaVersion.jvmDir);
-        jvmModulesPaths.add(javaVersion.jvmDir.resolve("jre"));
-        Path openjfxPath = JavaHelper.tryGetOpenJFXPath(javaVersion.jvmDir);
-        if (openjfxPath != null) {
-            jvmModulesPaths.add(openjfxPath);
-        }*/ // TODO: fix runtime in client
+        // TODO: fix runtime in client
         StringBuilder modulesPath = new StringBuilder();
         StringBuilder modulesAdd = new StringBuilder();
         for (String moduleName : jvmModules) {
-            /*boolean success = JavaHelper.tryAddModule(jvmModulesPaths, moduleName, modulesPath);
-            if (success) {
-                if (modulesAdd.length() > 0) modulesAdd.append(",");
-                modulesAdd.append(moduleName);
-            }*/
             if (modulesAdd.length() > 0) modulesAdd.append(",");
             modulesAdd.append(moduleName);
         }
@@ -303,7 +290,7 @@ public class ClientLauncherProcess {
         public transient HashedDir javaHDir;
 
         public void addClientArgs(Collection<String> args) {
-            if (profile.getVersion().compareTo(ClientProfile.Version.MC164) >= 0)
+            if (profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_6_4) >= 0)
                 addModernClientArgs(args);
             else
                 addClientLegacyArgs(args);
@@ -314,7 +301,7 @@ public class ClientLauncherProcess {
             args.add(accessToken);
 
             // Add args for tweaker
-            Collections.addAll(args, "--version", profile.getVersion().name);
+            Collections.addAll(args, "--version", profile.getVersion().toString());
             Collections.addAll(args, "--gameDir", clientDir);
             Collections.addAll(args, "--assetsDir", assetDir);
         }
@@ -324,12 +311,12 @@ public class ClientLauncherProcess {
             // Add version-dependent args
             ClientProfile.Version version = profile.getVersion();
             Collections.addAll(args, "--username", playerProfile.username);
-            if (version.compareTo(ClientProfile.Version.MC172) >= 0) {
+            if (version.compareTo(ClientProfileVersions.MINECRAFT_1_7_2) >= 0) {
                 Collections.addAll(args, "--uuid", Launcher.toHash(playerProfile.uuid));
                 Collections.addAll(args, "--accessToken", accessToken);
 
                 // Add 1.7.10+ args (user properties, asset index)
-                if (version.compareTo(ClientProfile.Version.MC1710) >= 0) {
+                if (version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) >= 0) {
                     // Add user properties
                     Collections.addAll(args, "--userType", "mojang");
                     Collections.addAll(args, "--userProperties", "{}");
@@ -341,11 +328,11 @@ public class ClientLauncherProcess {
                 Collections.addAll(args, "--session", accessToken);
 
             // Add version and dirs args
-            Collections.addAll(args, "--version", profile.getVersion().name);
+            Collections.addAll(args, "--version", profile.getVersion().toString());
             Collections.addAll(args, "--gameDir", clientDir);
             Collections.addAll(args, "--assetsDir", assetDir);
             Collections.addAll(args, "--resourcePackDir", resourcePackDir);
-            if (version.compareTo(ClientProfile.Version.MC194) >= 0)
+            if (version.compareTo(ClientProfileVersions.MINECRAFT_1_9_4) >= 0)
                 Collections.addAll(args, "--versionType", "Launcher v" + Version.getVersion().getVersionString());
 
             // Add server args

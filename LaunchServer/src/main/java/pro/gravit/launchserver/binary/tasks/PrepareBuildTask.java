@@ -45,7 +45,7 @@ public class PrepareBuildTask implements LauncherBuildTask {
                 throw new RuntimeException(ex);
             }
         })) {
-            var map = stream.collect(Collectors.toMap(k -> server.launcherPack.relativize(k).toString(), (v) -> v));
+            var map = stream.collect(Collectors.toMap(k -> server.launcherPack.relativize(k).toString().replace("\\", "/"), (v) -> v));
             server.launcherBinary.files.putAll(map);
         }
         UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), result);
@@ -60,7 +60,6 @@ public class PrepareBuildTask implements LauncherBuildTask {
 
     public void tryUnpack() throws IOException {
         logger.info("Unpacking launcher native guard list and runtime");
-        UnpackHelper.unpackZipNoCheck("guard.zip", server.launcherBinary.guardDir);
         UnpackHelper.unpackZipNoCheck("runtime.zip", server.launcherBinary.runtimeDir);
     }
 

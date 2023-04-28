@@ -17,7 +17,7 @@ public class ProfileByUsername extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         AuthProviderPair pair = client.auth;
         if (pair == null) pair = server.config.getAuthProviderPair();
         PlayerProfile profile = server.authManager.getPlayerProfile(pair, username);

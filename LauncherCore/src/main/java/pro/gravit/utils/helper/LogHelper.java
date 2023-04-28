@@ -25,7 +25,7 @@ public final class LogHelper {
     public static final String NO_JANSI_PROPERTY = "launcher.noJAnsi";
     public static final String NO_SLF4J_PROPERTY = "launcher.noSlf4j";
     private static final Set<Consumer<Throwable>> EXCEPTIONS_CALLBACKS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
-    private static LogHelperAppender impl;
+    private static final LogHelperAppender impl;
 
     static {
         boolean useSlf4j = false;

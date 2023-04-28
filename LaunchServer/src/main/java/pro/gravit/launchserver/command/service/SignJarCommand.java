@@ -41,7 +41,7 @@ public class SignJarCommand extends Command {
         Optional<SignJarTask> task = server.launcherBinary.getTaskByClass(SignJarTask.class);
         if (task.isEmpty()) throw new IllegalStateException("SignJarTask not found");
         task.get().sign(server.config.sign, target, tmpSign);
-        if (args.length <= 1) {
+        if (args.length == 1) {
             logger.info("Move temp jar {} to {}", tmpSign.toString(), target.toString());
             Files.deleteIfExists(target);
             Files.move(tmpSign, target);

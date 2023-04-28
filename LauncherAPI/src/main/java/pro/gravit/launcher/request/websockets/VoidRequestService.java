@@ -5,7 +5,6 @@ import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.RequestService;
 import pro.gravit.launcher.request.WebSocketEvent;
 
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 public class VoidRequestService implements RequestService {
@@ -20,7 +19,7 @@ public class VoidRequestService implements RequestService {
     }
 
     @Override
-    public <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) throws IOException {
+    public <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) {
         CompletableFuture<T> future = new CompletableFuture<>();
         future.completeExceptionally(ex != null ? ex : new RequestException("Connection fail"));
         return future;

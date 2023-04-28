@@ -19,7 +19,7 @@ public class ProfileByUUIDResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         AuthProviderPair pair;
         if (client.auth == null) {
             pair = server.config.getAuthProviderPair();

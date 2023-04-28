@@ -14,7 +14,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 public class JsonPasswordVerifier extends PasswordVerifier {
-    private static transient final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
     private transient final HttpClient client = HttpClient.newBuilder().build();
     public String url;
     public String bearerToken;

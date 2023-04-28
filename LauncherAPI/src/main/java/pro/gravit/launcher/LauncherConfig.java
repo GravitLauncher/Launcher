@@ -32,8 +32,6 @@ public final class LauncherConfig extends StreamObject {
     public final ECPublicKey ecdsaPublicKey;
     public final RSAPublicKey rsaPublicKey;
     public final Map<String, byte[]> runtime;
-    @LauncherInject("launcher.guardType")
-    public final String guardType;
     @LauncherInject("runtimeconfig.secureCheckHash")
     public final String secureCheckHash;
     @LauncherInject("runtimeconfig.secureCheckSalt")
@@ -50,6 +48,8 @@ public final class LauncherConfig extends StreamObject {
     public String unlockSecret;
     @LauncherInject("launchercore.env")
     public LauncherEnvironment environment;
+    @LauncherInject("runtimeconfig.buildNumber")
+    public long buildNumber;
 
 
     @LauncherInjectionConstructor
@@ -68,7 +68,6 @@ public final class LauncherConfig extends StreamObject {
         } catch (CertificateException e) {
             throw new IOException(e);
         }
-        guardType = null;
         address = null;
         environment = LauncherEnvironment.STD;
         Launcher.applyLauncherEnv(environment);
@@ -91,7 +90,6 @@ public final class LauncherConfig extends StreamObject {
         this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
         this.projectName = projectName;
         this.clientPort = 32148;
-        guardType = "no";
         environment = LauncherEnvironment.STD;
         secureCheckSalt = null;
         secureCheckHash = null;
@@ -109,7 +107,6 @@ public final class LauncherConfig extends StreamObject {
         this.rsaPublicKey = null;
         this.ecdsaPublicKey = null;
         environment = env;
-        guardType = "no";
         secureCheckSalt = null;
         secureCheckHash = null;
         passwordEncryptKey = null;

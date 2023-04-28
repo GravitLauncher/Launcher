@@ -8,9 +8,6 @@ import pro.gravit.launcher.console.GetPublicKeyCommand;
 import pro.gravit.launcher.console.ModulesCommand;
 import pro.gravit.launcher.console.SignDataCommand;
 import pro.gravit.launcher.events.request.*;
-import pro.gravit.launcher.guard.LauncherGuard;
-import pro.gravit.launcher.guard.LauncherNoGuard;
-import pro.gravit.launcher.guard.LauncherWrapperGuard;
 import pro.gravit.launcher.gui.NoRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
 import pro.gravit.launcher.managers.ClientGsonManager;
@@ -49,7 +46,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LauncherEngine {
     public static ClientLauncherProcess.ClientParams clientParams;
-    public static LauncherGuard guard;
     public static ClientModuleManager modulesManager;
     public final boolean clientInstance;
     // Instance
@@ -134,8 +130,6 @@ public class LauncherEngine {
         }
         long endTime = System.currentTimeMillis();
         LogHelper.debug("Launcher started in %dms", endTime - startTime);
-        //Request.service.close();
-        //FunctionalBridge.close();
         LauncherEngine.exitLauncher(0);
     }
 
@@ -151,16 +145,6 @@ public class LauncherEngine {
     public static void verifyNoAgent() {
         if (JVMHelper.RUNTIME_MXBEAN.getInputArguments().stream().filter(e -> e != null && !e.isEmpty()).anyMatch(e -> e.contains("javaagent")))
             throw new SecurityException("JavaAgent found");
-    }
-
-    public static LauncherGuard tryGetStdGuard() {
-        switch (Launcher.getConfig().guardType) {
-            case "no":
-                return new LauncherNoGuard();
-            case "wrapper":
-                return new LauncherWrapperGuard();
-        }
-        return null;
     }
 
     public static RequestService initOffline() {
@@ -232,7 +216,6 @@ public class LauncherEngine {
 
     public void start(String... args) throws Throwable {
         //Launcher.modulesManager = new ClientModuleManager(this);
-        LauncherEngine.guard = tryGetStdGuard();
         ClientPreGuiPhase event = new ClientPreGuiPhase(null);
         LauncherEngine.modulesManager.invokeEvent(event);
         runtimeProvider = event.runtimeProvider;

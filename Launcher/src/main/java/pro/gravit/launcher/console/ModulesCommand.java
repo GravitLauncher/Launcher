@@ -23,7 +23,7 @@ public class ModulesCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         for (LauncherModule module : LauncherEngine.modulesManager.getModules()) {
             LauncherModuleInfo info = module.getModuleInfo();
             LauncherTrustManager.CheckClassResult checkStatus = module.getCheckResult();

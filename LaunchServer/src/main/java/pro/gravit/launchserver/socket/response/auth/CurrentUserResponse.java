@@ -6,11 +6,9 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
-import java.io.IOException;
-
 public class CurrentUserResponse extends SimpleResponse {
 
-    public static CurrentUserRequestEvent.UserInfo collectUserInfoFromClient(LaunchServer server, Client client) throws IOException {
+    public static CurrentUserRequestEvent.UserInfo collectUserInfoFromClient(LaunchServer server, Client client) {
         CurrentUserRequestEvent.UserInfo result = new CurrentUserRequestEvent.UserInfo();
         if (client.auth != null && client.isAuth && client.username != null) {
             result.playerProfile = server.authManager.getPlayerProfile(client);

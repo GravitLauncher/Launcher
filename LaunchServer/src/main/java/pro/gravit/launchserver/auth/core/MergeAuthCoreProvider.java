@@ -17,7 +17,7 @@ import java.util.UUID;
 public class MergeAuthCoreProvider extends AuthCoreProvider {
     private transient final Logger logger = LogManager.getLogger(MergeAuthCoreProvider.class);
     public List<String> list = new ArrayList<>();
-    private transient List<AuthCoreProvider> providers = new ArrayList<>();
+    private final transient List<AuthCoreProvider> providers = new ArrayList<>();
     @Override
     public User getUserByUsername(String username) {
         for(var core : providers) {
@@ -67,7 +67,7 @@ public class MergeAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
+    public boolean joinServer(Client client, String username, String accessToken, String serverID) {
         return false; // Authorization not supported
     }
 
@@ -84,7 +84,7 @@ public class MergeAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         // Providers closed automatically
     }
 }

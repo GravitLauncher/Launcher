@@ -116,9 +116,9 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         return oauth == null ? null : oauth.refreshToken;
     }
 
-    public static RequestRestoreReport reconnect() throws Exception {
+    public static void reconnect() throws Exception {
         service.open();
-        return restore();
+        restore();
     }
 
     public static RequestRestoreReport restore() throws Exception {

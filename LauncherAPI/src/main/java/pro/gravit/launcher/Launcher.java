@@ -4,6 +4,7 @@ import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -41,7 +42,6 @@ public final class Launcher {
     public static final String RUNTIME_DIR = "runtime";
 
     // Constants
-    public static final String GUARD_DIR = "guard";
     public static final String CONFIG_FILE = "config.bin";
     private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
@@ -122,5 +122,9 @@ public final class Launcher {
                 LogHelper.setDevEnabled(false);
                 break;
         }
+    }
+
+    public static String makeSpecialGuardDirName(JVMHelper.ARCH arch, JVMHelper.OS os) {
+        return String.format("%s-%s", arch.name, os.name);
     }
 }

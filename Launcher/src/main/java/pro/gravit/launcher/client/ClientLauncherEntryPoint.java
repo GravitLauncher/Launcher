@@ -16,6 +16,7 @@ import pro.gravit.launcher.modules.LauncherModulesManager;
 import pro.gravit.launcher.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.profiles.ClientProfileVersions;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionClassPath;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionClientArgs;
@@ -33,7 +34,6 @@ import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.utils.DirWatcher;
 import pro.gravit.utils.helper.*;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -46,6 +46,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -107,7 +108,6 @@ public class ClientLauncherEntryPoint {
         } else if (params.session != null) {
             throw new UnsupportedOperationException("Legacy session not supported");
         }
-        checkJVMBitsAndVersion(params.profile.getMinJavaVersion(), params.profile.getRecommendJavaVersion(), params.profile.getMaxJavaVersion(), params.profile.isWarnMissJavaVersion());
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessInitPhase(engine, params));
 
         Path clientDir = Paths.get(params.clientDir);
@@ -144,7 +144,7 @@ public class ClientLauncherEntryPoint {
         LogHelper.debug("Natives dir %s", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
-            ClientClassLoader classLoader = new ClientClassLoader(classpathURLs.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
+            ClientClassLoader classLoader = new ClientClassLoader(classpathURLs.toArray(new URL[0]), ClientLauncherEntryPoint.class.getClassLoader());
             System.setProperty("java.class.path", classpath.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator)));
             ClientLauncherEntryPoint.classLoader = classLoader;
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -174,15 +174,6 @@ public class ClientLauncherEntryPoint {
         AuthService.username = params.playerProfile.username;
         AuthService.uuid = params.playerProfile.uuid;
         KeyService.serverRsaPublicKey = Launcher.getConfig().rsaPublicKey;
-        if (params.profile.getRuntimeInClientConfig() != ClientProfile.RuntimeInClientConfig.NONE) {
-            CommonHelper.newThread("Client Launcher Thread", true, () -> {
-                try {
-                    engine.start(args);
-                } catch (Throwable throwable) {
-                    LogHelper.error(throwable);
-                }
-            }).start();
-        }
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessReadyEvent(engine, params));
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
@@ -251,43 +242,24 @@ public class ClientLauncherEntryPoint {
         // Hash directory and compare (ignore update-only matcher entries, it will break offline-mode)
         HashedDir currentHDir = new HashedDir(dir, matcher, true, digest);
         HashedDir.Diff diff = hdir.diff(currentHDir, matcher);
+        AtomicReference<String> latestPath = new AtomicReference<>("unknown");
         if (!diff.mismatch.isEmpty() || (checkExtra && !diff.extra.isEmpty())) {
             diff.extra.walk(File.separator, (e, k, v) -> {
                 if (v.getType().equals(HashedEntry.Type.FILE)) {
                     LogHelper.error("Extra file %s", e);
+                    latestPath.set(e);
                 } else LogHelper.error("Extra %s", e);
                 return HashedDir.WalkAction.CONTINUE;
             });
             diff.mismatch.walk(File.separator, (e, k, v) -> {
                 if (v.getType().equals(HashedEntry.Type.FILE)) {
                     LogHelper.error("Mismatch file %s", e);
+                    latestPath.set(e);
                 } else LogHelper.error("Mismatch %s", e);
                 return HashedDir.WalkAction.CONTINUE;
             });
-            throw new SecurityException(String.format("Forbidden modification: '%s'", IOHelper.getFileName(dir)));
+            throw new SecurityException(String.format("Forbidden modification: '%s' file '%s'", IOHelper.getFileName(dir), latestPath.get()));
         }
-    }
-
-    public static boolean checkJVMBitsAndVersion(int minVersion, int recommendVersion, int maxVersion, boolean showMessage) {
-        boolean ok = true;
-        if (JVMHelper.JVM_BITS == 64 && JVMHelper.ARCH_TYPE == JVMHelper.ARCH.X86) {
-            String error = "У Вас установлена Java x64, но Ваша система определена как x32. Установите Java правильной разрядности";
-            LogHelper.error(error);
-            if (showMessage)
-                JOptionPane.showMessageDialog(null, error);
-            ok = false;
-        }
-        String jvmVersion = JVMHelper.RUNTIME_MXBEAN.getVmVersion();
-        LogHelper.info(jvmVersion);
-        int version = JVMHelper.getVersion();
-        if (version < minVersion || version > maxVersion) {
-            String error = String.format("У Вас установлена Java %d, но этот клиент требует Java %d", JVMHelper.getVersion(), recommendVersion);
-            LogHelper.error(error);
-            if (showMessage)
-                JOptionPane.showMessageDialog(null, error);
-            ok = false;
-        }
-        return ok;
     }
 
     private static LinkedList<Path> resolveClassPathList(Path clientDir, String... classPath) throws IOException {
@@ -319,7 +291,7 @@ public class ClientLauncherEntryPoint {
     private static void launch(ClientProfile profile, ClientLauncherProcess.ClientParams params) throws Throwable {
         // Add client args
         Collection<String> args = new LinkedList<>();
-        if (profile.getVersion().compareTo(ClientProfile.Version.MC164) >= 0)
+        if (profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_6_4) >= 0)
             params.addClientArgs(args);
         else {
             params.addClientLegacyArgs(args);
@@ -353,7 +325,7 @@ public class ClientLauncherEntryPoint {
                 List<String> compatClasses = profile.getCompatClasses();
                 for (String e : compatClasses) {
                     Class<?> clazz = classLoader.loadClass(e);
-                    MethodHandle runMethod = MethodHandles.publicLookup().findStatic(clazz, "run", MethodType.methodType(void.class));
+                    MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class));
                     runMethod.invoke();
                 }
             }
