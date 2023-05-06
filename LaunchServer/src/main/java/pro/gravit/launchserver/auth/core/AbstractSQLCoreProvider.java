@@ -136,7 +136,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
         SQLUser SQLUser = (SQLUser) getUserByLogin(login);
         if (SQLUser == null) {
-            throw AuthException.wrongPassword();
+            throw AuthException.userNotFound();
         }
         if (context != null) {
             AuthPlainPassword plainPassword = (AuthPlainPassword) password;
