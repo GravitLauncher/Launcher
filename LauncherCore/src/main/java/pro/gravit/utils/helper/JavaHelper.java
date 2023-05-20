@@ -119,7 +119,13 @@ public class JavaHelper {
 
     public static void tryAddJava(List<String> javaPaths, List<JavaVersion> result, JavaVersion version) {
         if (version == null) return;
-        String path = version.jvmDir.toAbsolutePath().toString();
+        Path realPath = version.jvmDir.toAbsolutePath();
+        try {
+            realPath = realPath.toRealPath();
+        } catch (IOException ignored) {
+
+        }
+        String path = realPath.toString();
         if (javaPaths.contains(path)) return;
         javaPaths.add(path);
         result.add(version);

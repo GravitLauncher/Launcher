@@ -76,8 +76,6 @@ public final class Launcher {
 
         // Resolve URL and verify digest
         URL url = IOHelper.getResourceURL(RUNTIME_DIR + '/' + name);
-        if (!Arrays.equals(validDigest, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, url)))
-            throw new NoSuchFileException(name); // Digest mismatch
 
         // Return verified URL
         return url;
@@ -91,8 +89,6 @@ public final class Launcher {
 
         // Resolve URL and verify digest
         URL url = IOHelper.getResourceURL(prefix + '/' + name);
-        if (!Arrays.equals(validDigest, SecurityHelper.digest(SecurityHelper.DigestAlgorithm.MD5, url)))
-            throw new NoSuchFileException(name); // Digest mismatch
 
         // Return verified URL
         return url;
