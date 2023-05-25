@@ -95,8 +95,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      * Pipeline for building EXE
      */
     public final LauncherBinary launcherEXEBinary;
-    //public static LaunchServer server = null;
-    public final Class<? extends LauncherBinary> launcherEXEBinaryClass;
     // Server config
     public final AuthHookManager authHookManager;
     public final LaunchServerModulesManager modulesManager;
@@ -147,9 +145,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         modulesManager.invokeEvent(new NewLaunchServerInstanceEvent(this));
 
         // Print keypair fingerprints
-
-        // Load class bindings.
-        launcherEXEBinaryClass = defaultLauncherEXEBinaryClass;
 
         runtime.verify();
         config.verify();
@@ -276,12 +271,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
     private LauncherBinary binary() {
-        if (launcherEXEBinaryClass != null) {
-            try {
-                return (LauncherBinary) MethodHandles.publicLookup().findConstructor(launcherEXEBinaryClass, MethodType.methodType(void.class, LaunchServer.class)).invoke(this);
-            } catch (Throwable e) {
-                logger.error(e);
-            }
+        LaunchServerLauncherExeInit event = new LaunchServerLauncherExeInit(this, null);
+        modulesManager.invokeEvent(event);
+        if(event.binary != null) {
+            return event.binary;
         }
         try {
             Class.forName("net.sf.launch4j.Builder");

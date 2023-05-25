@@ -4,11 +4,11 @@ import org.fusesource.jansi.Ansi;
 import pro.gravit.utils.Version;
 
 /*
- * Nashorn при инициализации LogHelper пытается инициализировтаь все доступные в нем методы.
- * При попытке инициализировать rawAnsiFormat он пытается найти класс org.fusesource.jansi.Ansi
- * И есстественно крашится с ClassNotFound
- * В итоге любой вызов LogHelper.* приводит к ClassNotFound org.fusesource.jansi.Ansi
- * Поэтому rawAnsiFormat вынесен в отдельный Helper
+ * Nashorn when initializing LogHelper tries to initialize all methods available in it.
+ * When trying to initialize rawAnsiFormat , it tries to find the org.fusesource.jansi.Ansi class
+ * And naturally crashes with ClassNotFound
+ * As a result, any call to LogHelper.* results in ClassNotFound org.fusesource.jansi.Ansi
+ * Therefore, rawAnsiFormat is moved to a separate Helper
  */
 public class FormatHelper {
     public static Ansi rawAnsiFormat(LogHelper.Level level, String dateTime, boolean sub) {

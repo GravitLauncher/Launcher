@@ -25,7 +25,7 @@ public class MakeProfileHelper {
             builder.setAssetDir("asset" + version.toCleanString());
         }
         builder.setAssetIndex(version.toString());
-        builder.setInfo("Информация о сервере");
+        builder.setInfo("Server description");
         builder.setTitle(title);
         builder.setUuid(UUID.randomUUID());
         builder.setMainClass(getMainClassByVersion(version, options));

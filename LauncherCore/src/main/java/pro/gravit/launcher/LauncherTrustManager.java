@@ -65,13 +65,13 @@ public class LauncherTrustManager {
             // добавление стандартных сертификатов в новый KeyStore
             jdkTrustStore.keySet().forEach(key -> setCertificateEntry(mergedTrustStore, key, jdkTrustStore.get(key)));
 
-            // Инициализация контекста. В случае неудачи допустимо прерывание процесса, но сертификаты добавлены не будут
+            // Context initialization. In case of failure, the process is allowed to be interrupted, but certificates will not be added
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(mergedTrustStore);
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
 
-            // Установка контекста по умолчанию
+            // Setting the default context
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
             LogHelper.info("Successfully injected certificates to truststore");
         } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | IOException | CertificateException e) {
@@ -99,7 +99,7 @@ public class LauncherTrustManager {
     }
 
     /**
-     * Извлечение существующих сертификатов из стандартного KeyStore текущий сессии JVM. Процесс не должен прерываться в случае неудачи
+     * Retrieve existing certificates from the standard KeyStore of the current JVM session. The process should not be interrupted in case of failure
      */
     private static void extractAllCertsAndPutInMap(KeyStore keyStore, Map<String, Certificate> placeToExport) {
         try {
@@ -121,7 +121,7 @@ public class LauncherTrustManager {
     }
 
     /**
-     * Извлечение существующего сертификата из стандартного KeyStore текущий сессии JVM. Процесс не должен прерываться в случае неудачи
+     * Retrieve an existing certificate from the standard KeyStore of the current JVM session. The process should not be interrupted in case of failure
      */
     private static void extractCertAndPutInMap(KeyStore keyStoreFromExtract, String key, Map<String, Certificate> placeToExtract) {
         try {
