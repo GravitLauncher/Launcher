@@ -1,4 +1,4 @@
 {
-  "features": [],
+  "features": ["sha1-hash"],
   "info": []
 }
