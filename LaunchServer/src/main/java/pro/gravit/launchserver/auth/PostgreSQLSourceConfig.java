@@ -27,6 +27,8 @@ public final class PostgreSQLSourceConfig implements AutoCloseable, SQLSourceCon
     private String password;
     private String database;
 
+    private long hikariMaxLifetime = 30*60*1000; // 30 minutes
+
     // Cache
     private transient DataSource source;
     private transient boolean hikari;
@@ -66,6 +68,7 @@ public final class PostgreSQLSourceConfig implements AutoCloseable, SQLSourceCon
                 hikariSource.setMinimumIdle(0);
                 hikariSource.setMaximumPoolSize(MAX_POOL_SIZE);
                 hikariSource.setIdleTimeout(TIMEOUT * 1000L);
+                hikariSource.setMaxLifetime(hikariMaxLifetime);
 
                 // Replace source with hds
                 source = hikariSource;

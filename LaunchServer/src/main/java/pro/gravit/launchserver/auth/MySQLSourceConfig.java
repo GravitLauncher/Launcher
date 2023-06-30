@@ -33,6 +33,7 @@ public final class MySQLSourceConfig implements AutoCloseable, SQLSourceConfig {
     private String password;
     private String database;
     private String timezone;
+    private long hikariMaxLifetime = 30*60*1000; // 30 minutes
     private boolean useHikari;
 
     // Cache
@@ -110,6 +111,7 @@ public final class MySQLSourceConfig implements AutoCloseable, SQLSourceConfig {
                     hikariConfig.setConnectionTimeout(1000);
                     hikariConfig.setAutoCommit(true);
                     hikariConfig.setLeakDetectionThreshold(2000);
+                    hikariConfig.setMaxLifetime(hikariMaxLifetime);
                     // Set HikariCP pool
                     // Replace source with hds
                     source = new HikariDataSource(hikariConfig);
