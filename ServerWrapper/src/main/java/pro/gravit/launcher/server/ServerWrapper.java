@@ -1,28 +1,31 @@
 package pro.gravit.launcher.server;
 
-import pro.gravit.launcher.ClientPermissions;
+import com.google.gson.GsonBuilder;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.api.KeyService;
 import pro.gravit.launcher.config.JsonConfigurable;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.events.request.ProfilesRequestEvent;
+import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
-import pro.gravit.launcher.request.update.ProfilesRequest;
+import pro.gravit.launcher.request.websockets.ClientWebSocketService;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
-import pro.gravit.launcher.server.authlib.InstallAuthlib;
+import pro.gravit.launcher.server.commands.InstallAuthLib;
+import pro.gravit.launcher.server.commands.SetupCommand;
 import pro.gravit.launcher.server.launch.ClasspathLaunch;
 import pro.gravit.launcher.server.launch.Launch;
 import pro.gravit.launcher.server.launch.ModuleLaunch;
 import pro.gravit.launcher.server.launch.SimpleLaunch;
-import pro.gravit.launcher.server.setup.ServerWrapperSetup;
-import pro.gravit.utils.PublicURLClassLoader;
+import pro.gravit.utils.command.Command;
+import pro.gravit.utils.command.CommandHandler;
+import pro.gravit.utils.command.JLineCommandHandler;
+import pro.gravit.utils.command.StdCommandHandler;
+import pro.gravit.utils.command.basic.HelpCommand;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -35,136 +38,119 @@ import java.util.*;
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
     public static final boolean disableSetup = Boolean.parseBoolean(System.getProperty("serverwrapper.disableSetup", "false"));
-    public static ServerWrapper wrapper;
+    public CommandHandler commandHandler;
     public Config config;
-    public PublicURLClassLoader ucp;
-    public ClassLoader loader;
-    public ClientPermissions permissions;
-    public ClientProfile profile;
-    public PlayerProfile playerProfile;
-    public ClientProfile.ServerProfile serverProfile;
 
+    @Deprecated
     public ServerWrapper(Type type, Path configPath) {
         super(type, configPath);
-    }
-
-    public static void initGson() {
-        Launcher.gsonManager = new ServerWrapperGsonManager();
-        Launcher.gsonManager.initGson();
     }
 
     public static void main(String... args) throws Throwable {
         LogHelper.printVersion("ServerWrapper");
         LogHelper.printLicense("ServerWrapper");
-        ServerWrapper.wrapper = new ServerWrapper(ServerWrapper.Config.class, configFile);
-        ServerWrapper.wrapper.run(args);
-    }
 
-    public void restore() throws Exception {
-        if(config.oauth != null) {
-            Request.setOAuth(config.authId, config.oauth, config.oauthExpireTime);
-        }
-        if(config.extendedTokens != null) {
-            Request.addAllExtendedToken(config.extendedTokens);
-        }
-        Request.restore();
-    }
-
-    public void getProfiles() throws Exception {
-        ProfilesRequestEvent result = new ProfilesRequest().request();
-        for (ClientProfile p : result.profiles) {
-            LogHelper.debug("Get profile: %s", p.getTitle());
-            boolean isFound = false;
-            for (ClientProfile.ServerProfile srv : p.getServers()) {
-                if (srv != null && srv.name.equals(config.serverName)) {
-                    this.serverProfile = srv;
-                    this.profile = p;
-                    Launcher.profile = p;
-                    LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
-                    isFound = true;
-                    break;
-                }
+        Launcher.gsonManager = new GsonManager() {
+            @Override
+            public void registerAdapters(GsonBuilder builder) {
+                super.registerAdapters(builder);
+                ClientWebSocketService.appendTypeAdapters(builder);
             }
-            if (isFound) break;
-        }
-        if (profile == null) {
-            LogHelper.warning("Not connected to ServerProfile. May be serverName incorrect?");
-        }
+        };
+        Launcher.gsonManager.initGson();
+
+        new ServerWrapper(args);
     }
 
-    public void run(String... args) throws Throwable {
-        initGson();
+    public ServerWrapper(String[] args) throws Exception {
+        super(ServerWrapper.Config.class, configFile);
+
+        LogHelper.debug("Read ServerWrapperConfig.json");
+        loadConfig();
+
+        Launcher.applyLauncherEnv(config.env == null ? LauncherConfig.LauncherEnvironment.STD : config.env);
+
+        if (config.logFile != null)
+            LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
+
         AuthRequest.registerProviders();
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
-        if (args.length > 0 && args[0].equalsIgnoreCase("setup") && !disableSetup) {
-            LogHelper.debug("Read ServerWrapperConfig.json");
-            loadConfig();
-            ServerWrapperSetup setup = new ServerWrapperSetup();
-            setup.run();
-            System.exit(0);
+
+        if (args.length > 0 && !disableSetup) {
+            try {
+                Class.forName("org.jline.terminal.Terminal");
+
+                this.commandHandler = new JLineCommandHandler();
+                LogHelper.debug("JLine2 terminal enabled");
+            } catch (ClassNotFoundException ignored) {
+                this.commandHandler = new StdCommandHandler(true);
+                LogHelper.debug("JLine2 isn't in classpath, using std");
+            }
+
+            this.commandHandler.registerCommand("help", new HelpCommand(this.commandHandler));
+            this.commandHandler.registerCommand("setup", new SetupCommand(this));
+            this.commandHandler.registerCommand("installauthlib", new InstallAuthLib());
         }
-        if (args.length > 1 && args[0].equalsIgnoreCase("installAuthlib") && !disableSetup) {
-            LogHelper.debug("Read ServerWrapperConfig.json");
-            loadConfig();
-            InstallAuthlib command = new InstallAuthlib();
-            command. run(args[1]);
-            System.exit(0);
+
+        if (this.commandHandler != null) {
+            Command command = this.commandHandler.findCommand(args[0].toLowerCase());
+
+            if (command != null) {
+                command.invoke(Arrays.copyOfRange(args, 1, args.length));
+
+                System.exit(0);
+            }
         }
-        LogHelper.debug("Read ServerWrapperConfig.json");
-        loadConfig();
-        updateLauncherConfig();
-        if (config.env != null) Launcher.applyLauncherEnv(config.env);
-        else Launcher.applyLauncherEnv(LauncherConfig.LauncherEnvironment.STD);
+
         StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
-        service.reconnectCallback = () ->
-        {
+        service.reconnectCallback = () -> {
             LogHelper.debug("WebSocket connect closed. Try reconnect");
+
             try {
                 Request.reconnect();
-                getProfiles();
             } catch (Exception e) {
                 LogHelper.error(e);
             }
         };
+
         Request.setRequestService(service);
-        if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
-        {
-            restore();
-            getProfiles();
-        }
-        if(config.encodedServerRsaPublicKey != null) {
+
+        restore();
+
+        if (config.encodedServerRsaPublicKey != null)
             KeyService.serverRsaPublicKey = SecurityHelper.toPublicRSAKey(config.encodedServerRsaPublicKey);
-        }
+
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
         if (classname.length() == 0) {
             LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.json or first commandline argument");
             System.exit(-1);
         }
-        if(config.oauth == null && ( config.extendedTokens == null || config.extendedTokens.isEmpty())) {
+
+        if (config.oauth == null && (config.extendedTokens == null || config.extendedTokens.isEmpty())) {
             LogHelper.error("Auth not configured. Please use 'java -jar ServerWrapper.jar setup'");
             System.exit(-1);
         }
+
         if (config.autoloadLibraries) {
-            if (!ServerAgent.isAgentStarted()) {
-                throw new UnsupportedOperationException("JavaAgent not found, autoloadLibraries not available");
-            }
+            if (!ServerAgent.isAgentStarted)
+                throw new UnsupportedOperationException("JavaAgent not found, autoLoadLibraries not available");
+
             if (config.librariesDir == null)
-                throw new UnsupportedOperationException("librariesDir is null, autoloadLibraries not available");
-            Path librariesDir = Paths.get(config.librariesDir);
-            LogHelper.info("Load libraries");
-            ServerAgent.loadLibraries(librariesDir);
+                throw new UnsupportedOperationException("librariesDir is null, autoLoadLibraries not available");
+
+            LogHelper.info("Loading libraries");
+            ServerAgent.loadLibraries(Paths.get(config.librariesDir));
         }
-        LogHelper.info("ServerWrapper: LaunchServer address: %s. Title: %s", config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
-        LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().toString());
-        String[] real_args;
-        if(config.args != null && config.args.size() > 0) {
-            real_args = config.args.toArray(new String[0]);
-        } else if (args.length > 0) {
-            real_args = new String[args.length - 1];
-            System.arraycopy(args, 1, real_args, 0, args.length - 1);
-        } else real_args = args;
+
+        LogHelper.info("Start Minecraft Server");
+
+        List<String> real_args = Arrays.asList(args);
+        if (config.args != null) {
+            real_args.addAll(config.args);
+        }
+
         Launch launch;
         switch (config.classLoaderConfig) {
             case LAUNCHER:
@@ -177,19 +163,25 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 launch = new SimpleLaunch();
                 break;
         }
-        LogHelper.info("Start Minecraft Server");
-        LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
+
+        LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getCanonicalName());
+
         try {
-            launch.run(classname, config, real_args);
+            launch.run(classname, config, real_args.toArray(new String[0]));
         } catch (Throwable e) {
             LogHelper.error(e);
             System.exit(-1);
         }
     }
 
-    public void updateLauncherConfig() {
-        LauncherConfig cfg = new LauncherConfig(config.address, null, null, new HashMap<>(), "ServerWrapper");
-        Launcher.setConfig(cfg);
+    public void restore() throws Exception {
+        if (config.oauth != null)
+            Request.setOAuth(config.authId, config.oauth, config.oauthExpireTime);
+
+        if (config.extendedTokens != null)
+            Request.addAllExtendedToken(config.extendedTokens);
+
+        Request.restore();
     }
 
     @Override
@@ -205,7 +197,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     @Override
     public Config getDefaultConfig() {
         Config newConfig = new Config();
-        newConfig.serverName = "your server name";
         newConfig.mainclass = "";
         newConfig.extendedTokens = new HashMap<>();
         newConfig.args = new ArrayList<>();
@@ -217,10 +208,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public static final class Config {
-        @Deprecated
-        public String projectname;
         public String address;
-        public String serverName;
         public boolean autoloadLibraries;
         public String logFile;
         public List<String> classpath;
