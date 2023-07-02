@@ -139,9 +139,7 @@ public class SetupCommand extends Command {
                 writer.append(" ");
             }
 
-            writer.append("-Dserverwrapper.disableSetup=true ");
-
-            writer.append("-cp ");
+            writer.append("-Dserverwrapper.disableSetup=true -cp ");
             writer.append(IOHelper.getCodeSource(ServerWrapper.class).getFileName().toString());
 
             if(!altMode) {
