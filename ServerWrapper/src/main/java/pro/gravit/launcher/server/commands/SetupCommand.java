@@ -43,32 +43,29 @@ public class SetupCommand extends Command {
         String jarName = this.wrapper.commandHandler.readLine();
         Path jarPath = Paths.get(jarName);
 
-        String mainClassName;
         String agentClassName;
 
         try (JarFile file = new JarFile(jarPath.toFile())) {
             LogHelper.info("Check server jar MainClass");
-            mainClassName = file.getManifest().getMainAttributes().getValue("Main-Class");
+            this.wrapper.config.mainclass = file.getManifest().getMainAttributes().getValue("Main-Class");
             agentClassName = file.getManifest().getMainAttributes().getValue("Premain-Class");
 
-            if (mainClassName == null) {
+            if (this.wrapper.config.mainclass == null) {
                 LogHelper.error("Main-Class not found in MANIFEST");
                 return;
             }
 
             try {
-                Class.forName(mainClassName, false, new PublicURLClassLoader(new URL[] { jarPath.toUri().toURL() }));
+                Class.forName(this.wrapper.config.mainclass, false, new PublicURLClassLoader(new URL[] { jarPath.toUri().toURL() }));
             } catch (ClassNotFoundException e) {
                 LogHelper.error(e);
                 return;
             }
         }
 
-        LogHelper.info("Found MainClass %s", mainClassName);
+        LogHelper.info("Found MainClass %s", this.wrapper.config.mainclass);
         if (agentClassName != null)
             LogHelper.info("Found PremainClass %s", agentClassName);
-
-        this.wrapper.config.mainclass = mainClassName;
 
         for (int i = 0; i < 10; ++i) {
             if(!Request.isAvailable() || Request.getRequestService().isClosed()) {
