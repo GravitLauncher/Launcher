@@ -1,5 +1,7 @@
-package pro.gravit.launcher.server.authlib;
+package pro.gravit.launcher.server.commands;
 
+import pro.gravit.launcher.server.authlib.*;
+import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -13,16 +15,30 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public class InstallAuthlib {
-    private static final Map<String, LibrariesHashFileModifier> modifierMap;
-    static {
-        modifierMap = new HashMap<>();
+public class InstallAuthLib extends Command {
+    private final Map<String, LibrariesHashFileModifier> modifierMap = new HashMap<>();
+
+    public InstallAuthLib() {
         modifierMap.put("META-INF/libraries.list", new LibrariesLstModifier());
         modifierMap.put("patch.properties", new PatchPropertiesModifier());
         modifierMap.put("META-INF/download-context", new DownloadContextModifier());
         modifierMap.put("META-INF/patches.list", new PatchesLstModifier());
     }
-    public void run(String... args) throws Exception {
+
+    @Override
+    public String getArgsDescription() {
+        return "[Local/Url path to AuthLib]";
+    }
+
+    @Override
+    public String getUsageDescription() {
+        return "Patch authlib";
+    }
+
+    @Override
+    public void invoke(String... args) throws Exception {
+        verifyArgs(args, 1);
+
         boolean deleteAuthlibAfterInstall = false;
         InstallAuthlibContext context = new InstallAuthlibContext();
         if(args[0].startsWith("http://") || args[0].startsWith("https://")) {

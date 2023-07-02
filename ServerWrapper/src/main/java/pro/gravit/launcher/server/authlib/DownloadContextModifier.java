@@ -1,5 +1,6 @@
 package pro.gravit.launcher.server.authlib;
 
+import pro.gravit.launcher.server.commands.InstallAuthLib;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -10,7 +11,7 @@ import java.nio.file.Path;
 
 public class DownloadContextModifier implements LibrariesHashFileModifier {
     @Override
-    public byte[] apply(byte[] data, InstallAuthlib.InstallAuthlibContext context) throws IOException {
+    public byte[] apply(byte[] data, InstallAuthLib.InstallAuthlibContext context) throws IOException {
         String[] lines = new String(data).split("\n");
         for(int i=0;i<lines.length;++i) {
             if(lines[i].contains("mojang_")) {
