@@ -122,15 +122,12 @@ public class SetupCommand extends Command {
 
         try (Writer writer = IOHelper.newWriter(startScript)) {
             if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
-                writer.append("#!/bin/bash");
-                writer.append(System.lineSeparator());
-                writer.append(System.lineSeparator());
+                writer.append("#!/bin/bash\n\n");
             }
 
-            writer.append(System.lineSeparator());
+            writer.append("\"");
             writer.append(IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")), true).toAbsolutePath().toString());
-            writer.append(System.lineSeparator());
-            writer.append(" ");
+            writer.append("\" ");
 
             if (agentClassName != null) {
                 writer.append("-javaagent:ServerWrapper.jar ");
@@ -149,7 +146,7 @@ public class SetupCommand extends Command {
 
             writer.append(" ");
             writer.append(ServerWrapper.class.getName());
-            writer.append(System.lineSeparator());
+            writer.append("\n");
         }
 
         if (JVMHelper.OS_TYPE != JVMHelper.OS.MUSTDIE) {
