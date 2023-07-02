@@ -23,7 +23,6 @@ import pro.gravit.launcher.server.launch.ModuleLaunch;
 import pro.gravit.launcher.server.launch.SimpleLaunch;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandHandler;
-import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
 import pro.gravit.utils.command.basic.HelpCommand;
 import pro.gravit.utils.helper.IOHelper;
@@ -50,13 +49,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LogHelper.printVersion("ServerWrapper");
         LogHelper.printLicense("ServerWrapper");
 
-        Launcher.gsonManager = new GsonManager() {
-            @Override
-            public void registerAdapters(GsonBuilder builder) {
-                super.registerAdapters(builder);
-                ClientWebSocketService.appendTypeAdapters(builder);
-            }
-        };
+        Launcher.gsonManager = new ServerWrapperGsonManager();
         Launcher.gsonManager.initGson();
 
         new ServerWrapper(args);
@@ -79,22 +72,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         OptionalTrigger.registerProviders();
 
         if (args.length > 0 && !disableSetup) {
-            try {
-                Class.forName("org.jline.terminal.Terminal");
-
-                this.commandHandler = new JLineCommandHandler();
-                LogHelper.debug("JLine2 terminal enabled");
-            } catch (ClassNotFoundException ignored) {
-                this.commandHandler = new StdCommandHandler(true);
-                LogHelper.debug("JLine2 isn't in classpath, using std");
-            }
-
+            this.commandHandler = new StdCommandHandler(true);
             this.commandHandler.registerCommand("help", new HelpCommand(this.commandHandler));
             this.commandHandler.registerCommand("setup", new SetupCommand(this));
             this.commandHandler.registerCommand("installauthlib", new InstallAuthLib());
-        }
 
-        if (this.commandHandler != null) {
             Command command = this.commandHandler.findCommand(args[0].toLowerCase());
 
             if (command != null) {
