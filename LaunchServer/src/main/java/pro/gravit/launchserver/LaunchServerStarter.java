@@ -278,8 +278,8 @@ public class LaunchServerStarter {
 
         newConfig.netty.address = "ws://" + address + ":9274/api";
         newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
-        newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
-        newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
+        newConfig.netty.launcherURL = "http://" + address + ":9274/%binaryName%.jar";
+        newConfig.netty.launcherEXEURL = "http://" + address + ":9274/%binaryName%.exe";
 
         // Write LaunchServer config
         logger.info("Writing LaunchServer config file");

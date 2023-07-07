@@ -21,6 +21,8 @@ import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
 
 import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public final class LaunchServerConfig {
@@ -132,6 +134,14 @@ public final class LaunchServerConfig {
 
     public void setBinaryName(String binaryName) {
         this.binaryName = binaryName;
+    }
+
+    public String getLauncherURL() {
+        return URLEncoder.encode(this.netty.launcherURL.replaceAll("%binaryName%", this.binaryName), StandardCharsets.UTF_8);
+    }
+
+    public String getLauncherEXEURL() {
+        return URLEncoder.encode(this.netty.launcherEXEURL.replaceAll("%binaryName%", this.binaryName), StandardCharsets.UTF_8);
     }
 
     public void setEnv(LauncherConfig.LauncherEnvironment env) {

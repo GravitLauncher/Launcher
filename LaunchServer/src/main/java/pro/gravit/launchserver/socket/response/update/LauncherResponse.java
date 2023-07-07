@@ -47,22 +47,22 @@ public class LauncherResponse extends SimpleResponse {
         {
             byte[] hash = server.launcherBinary.getDigest();
             if (hash == null)
-                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, server.config.netty.launcherURL));
+                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, server.config.getLauncherURL()));
             if (Arrays.equals(bytes, hash) && checkSecure(secureHash, secureSalt)) {
                 client.checkSign = true;
-                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherURL, createLauncherExtendedToken()));
+                sendResult(new LauncherRequestEvent(false, server.config.getLauncherURL(), createLauncherExtendedToken()));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherURL, createLauncherExtendedToken()));
+                sendResultAndClose(new LauncherRequestEvent(true, server.config.getLauncherURL(), createLauncherExtendedToken()));
             }
         } else if (launcher_type == 2) //EXE
         {
             byte[] hash = server.launcherEXEBinary.getDigest();
-            if (hash == null) sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL));
+            if (hash == null) sendResultAndClose(new LauncherRequestEvent(true, server.config.getLauncherEXEURL()));
             if (Arrays.equals(bytes, hash) && checkSecure(secureHash, secureSalt)) {
                 client.checkSign = true;
-                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherEXEURL, createLauncherExtendedToken()));
+                sendResult(new LauncherRequestEvent(false, server.config.getLauncherEXEURL(), createLauncherExtendedToken()));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL, createLauncherExtendedToken()));
+                sendResultAndClose(new LauncherRequestEvent(true, server.config.getLauncherEXEURL(), createLauncherExtendedToken()));
             }
         } else sendError("Request launcher type error");
     }
