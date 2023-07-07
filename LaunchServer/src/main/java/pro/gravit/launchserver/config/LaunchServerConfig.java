@@ -1,5 +1,6 @@
 package pro.gravit.launchserver.config;
 
+import com.google.common.net.UrlEscapers;
 import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
 import org.apache.logging.log4j.LogManager;
@@ -137,11 +138,11 @@ public final class LaunchServerConfig {
     }
 
     public String getLauncherURL() {
-        return URLEncoder.encode(this.netty.launcherURL.replaceAll("%binaryName%", this.binaryName), StandardCharsets.UTF_8);
+        return UrlEscapers.urlFragmentEscaper().escape(this.netty.launcherURL.replaceAll("%binaryName%",this.binaryName));
     }
 
     public String getLauncherEXEURL() {
-        return URLEncoder.encode(this.netty.launcherEXEURL.replaceAll("%binaryName%", this.binaryName), StandardCharsets.UTF_8);
+        return UrlEscapers.urlFragmentEscaper().escape(this.netty.launcherEXEURL.replaceAll("%binaryName%",this.binaryName));
     }
 
     public void setEnv(LauncherConfig.LauncherEnvironment env) {
