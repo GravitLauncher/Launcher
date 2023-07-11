@@ -24,9 +24,13 @@ public class OptionalFile {
     @LauncherNetworkAPI
     public OptionalDepend[] conflictFile;
     @LauncherNetworkAPI
+    public OptionalDepend[] xorConflictFile;
+    @LauncherNetworkAPI
     public transient OptionalFile[] dependencies;
     @LauncherNetworkAPI
     public transient OptionalFile[] conflict;
+    @LauncherNetworkAPI
+    public transient OptionalFile[] xorConflict;
     @LauncherNetworkAPI
     public int subTreeLevel = 1;
     @LauncherNetworkAPI

@@ -254,6 +254,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
                     file.conflict[i] = getOptionalFile(file.conflictFile[i].name);
                 }
             }
+            if(file.xorConflictFile != null) {
+                file.xorConflict = new OptionalFile[file.xorConflictFile.length];
+                for(int i = 0; i < file.xorConflictFile.length; ++i) {
+                    file.xorConflict[i] = getOptionalFile(file.xorConflictFile[i].name);
+                }
+            }
         }
     }
 
@@ -368,6 +374,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
             if (f.dependenciesFile != null) for (OptionalDepend s : f.dependenciesFile) {
                 if (s == null)
                     throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.dependenciesFile", f.name));
+            }
+            if(f.xorConflictFile != null) for (OptionalDepend s : f.xorConflictFile) {
+                if (s == null)
+                    throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.xorConflictFile", f.name));
             }
             if (f.triggersList != null) {
                 for (OptionalTrigger trigger : f.triggersList) {

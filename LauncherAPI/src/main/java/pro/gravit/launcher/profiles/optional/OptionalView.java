@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 public class OptionalView {
@@ -111,6 +112,11 @@ public class OptionalView {
                 disable(conflict, callback);
             }
         }
+        if(file.xorConflict != null) {
+            for(OptionalFile xorConflict : file.xorConflict) {
+                disable(xorConflict, callback);
+            }
+        }
     }
 
     public void disable(OptionalFile file, BiConsumer<OptionalFile, Boolean> callback) {
@@ -127,6 +133,11 @@ public class OptionalView {
                 if (installInfo != null && !installInfo.isManual) {
                     disable(file, callback);
                 }
+            }
+        }
+        if (file.xorConflict != null) {
+            if (Arrays.stream(file.xorConflict).noneMatch(this::isEnabled)) {
+                enable(file.xorConflict[0], false, callback);
             }
         }
     }
