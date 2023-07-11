@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class OptionalView {
     public Set<OptionalFile> enabled = new HashSet<>();
@@ -26,6 +27,7 @@ public class OptionalView {
         this.enabled = new HashSet<>(view.enabled);
         this.installInfo = new HashMap<>(view.installInfo);
         this.all = view.all;
+        fixDependencies();
     }
 
     public OptionalView(ClientProfile profile, OptionalView old) {
@@ -41,6 +43,7 @@ public class OptionalView {
                 disable(newFile, (file, status) -> {});
             }
         }
+        fixDependencies();
     }
 
     @SuppressWarnings("unchecked")
@@ -79,6 +82,33 @@ public class OptionalView {
             }
         }
         return results;
+    }
+
+    //Needed if dependency/conflict was added after mod declaring it and clients have their profiles with this mod enabled
+    public void fixDependencies() {
+        Set<OptionalFile> disabled = all.stream().filter(t -> !isEnabled(t)).collect(Collectors.toSet());
+        for (OptionalFile file : disabled) {
+            if (file.xorConflict != null && Arrays.stream(file.xorConflict).noneMatch(this::isEnabled)) {
+                enable(file.xorConflict[0], false, null);
+            }
+        }
+        for (OptionalFile file : enabled) {
+            if (file.dependencies != null) {
+                for (OptionalFile dep : file.dependencies) {
+                    enable(dep, false, null);
+                }
+            }
+            if (file.conflict != null) {
+                for (OptionalFile conflict : file.conflict) {
+                    disable(conflict, null);
+                }
+            }
+            if (file.xorConflict != null) {
+                for (OptionalFile xorConflict : file.xorConflict) {
+                    disable(xorConflict, null);
+                }
+            }
+        }
     }
 
     public Set<OptionalAction> getDisabledActions() {
