@@ -209,9 +209,9 @@ public final class LaunchServerConfig {
             if (type.equals(LaunchServer.ReloadType.FULL)) {
                 components.forEach((k, component) -> {
                     server.unregisterObject("component.".concat(k), component);
-                    if (component instanceof AutoCloseable) {
+                    if (component instanceof AutoCloseable autoCloseable) {
                         try {
-                            ((AutoCloseable) component).close();
+                            autoCloseable.close();
                         } catch (Exception e) {
                             logger.error(e);
                         }

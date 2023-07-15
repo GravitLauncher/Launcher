@@ -60,8 +60,8 @@ public class ComponentCommand extends Command {
                 logger.error("Component {} not found", componentName);
                 return;
             }
-            if (component instanceof AutoCloseable) {
-                ((AutoCloseable) component).close();
+            if (component instanceof AutoCloseable autoCloseable) {
+                autoCloseable.close();
             }
             server.unregisterObject("component." + componentName, component);
             server.config.components.remove(componentName);

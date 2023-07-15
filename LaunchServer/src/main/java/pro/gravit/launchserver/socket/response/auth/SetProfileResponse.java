@@ -28,8 +28,8 @@ public class SetProfileResponse extends SimpleResponse {
         Collection<ClientProfile> profiles = server.getProfiles();
         for (ClientProfile p : profiles) {
             if (p.getTitle().equals(this.client)) {
-                if (server.config.protectHandler instanceof ProfilesProtectHandler &&
-                        !((ProfilesProtectHandler) server.config.protectHandler).canChangeProfile(p, client)) {
+                if (server.config.protectHandler instanceof ProfilesProtectHandler profilesProtectHandler &&
+                        !profilesProtectHandler.canChangeProfile(p, client)) {
                     sendError("Access denied");
                     return;
                 }

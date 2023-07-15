@@ -34,8 +34,8 @@ public class JoinServerResponse extends SimpleResponse {
         boolean success;
         try {
             server.authHookManager.joinServerHook.hook(this, client);
-            if (server.config.protectHandler instanceof JoinServerProtectHandler) {
-                success = ((JoinServerProtectHandler) server.config.protectHandler).onJoinServer(serverID, username, client);
+            if (server.config.protectHandler instanceof JoinServerProtectHandler joinServerProtectHandler) {
+                success = joinServerProtectHandler.onJoinServer(serverID, username, client);
                 if (!success) {
                     sendResult(new JoinServerRequestEvent(false));
                     return;

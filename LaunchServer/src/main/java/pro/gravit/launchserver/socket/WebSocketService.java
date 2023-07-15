@@ -145,9 +145,7 @@ public class WebSocketService {
             logger.error("WebSocket request processing failed", e);
             RequestEvent event;
             event = new ErrorRequestEvent("Fatal server error. Contact administrator");
-            if (response instanceof SimpleResponse) {
-                event.requestUUID = ((SimpleResponse) response).requestUUID;
-            }
+            if (response instanceof SimpleResponse simpleResponse) event.requestUUID = simpleResponse.requestUUID;
             sendObject(ctx.channel(), event);
         }
         hookComplete.hook(context);
