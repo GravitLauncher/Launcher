@@ -27,7 +27,7 @@ public class Launch4JTask implements LauncherBuildTask, BuildExeMainTask {
     }
 
     public static String formatVars(String mask) {
-        return String.format(mask, VERSION, BUILD);
+        return mask.formatted(VERSION, BUILD);
     }
 
     @Override

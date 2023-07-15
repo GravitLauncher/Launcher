@@ -512,7 +512,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 launcherPackDir = getPath(LAUNCHERPACK_NAME);
             if (keyDirectory == null) keyDirectory = getPath(KEY_NAME);
             if (tmpDir == null)
-                tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve(String.format("launchserver-%s", SecurityHelper.randomStringToken()));
+                tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("launchserver-%s".formatted(SecurityHelper.randomStringToken()));
         }
 
         private Path getPath(String dirName) {

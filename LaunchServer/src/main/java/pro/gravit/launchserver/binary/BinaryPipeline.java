@@ -98,7 +98,7 @@ public class BinaryPipeline {
     }
 
     public String nextName(String taskName) {
-        return String.format(nameFormat, taskName, count.getAndIncrement());
+        return nameFormat.formatted(taskName, count.getAndIncrement());
     }
 
     public Path nextPath(String taskName) {

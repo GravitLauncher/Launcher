@@ -313,7 +313,7 @@ public class AuthManager {
             client.auth = server.config.getAuthProviderPair(info.authId);
             if (client.permissions == null) client.permissions = new ClientPermissions();
             client.permissions.addPerm("launchserver.checkserver");
-            client.permissions.addPerm(String.format("launchserver.profile.%s.show", info.serverName));
+            client.permissions.addPerm("launchserver.profile.%s.show".formatted(info.serverName));
             client.setProperty("launchserver.serverName", info.serverName);
             return true;
         }

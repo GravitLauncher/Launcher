@@ -72,11 +72,11 @@ public final class AuthProviderPair {
         links.forEach((k, v) -> {
             AuthProviderPair pair = srv.config.getAuthProviderPair(v);
             if (pair == null) {
-                throw new NullPointerException(String.format("Auth %s link failed. Pair %s not found", name, v));
+                throw new NullPointerException("Auth %s link failed. Pair %s not found".formatted(name, v));
             }
             if ("core".equals(k)) {
                 if (pair.core == null)
-                    throw new NullPointerException(String.format("Auth %s link failed. %s.core is null", name, v));
+                    throw new NullPointerException("Auth %s link failed. %s.core is null".formatted(name, v));
                 core = pair.core;
             }
         });

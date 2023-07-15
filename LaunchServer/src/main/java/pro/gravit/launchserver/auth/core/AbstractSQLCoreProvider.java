@@ -170,20 +170,20 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         if (table == null) logger.error("table cannot be null");
         // Prepare SQL queries
         String userInfoCols = makeUserCols();
-        queryByUUIDSQL = customQueryByUUIDSQL != null ? customQueryByUUIDSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1", userInfoCols,
-                table, uuidColumn);
-        queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
-                userInfoCols, table, usernameColumn);
+        queryByUUIDSQL = customQueryByUUIDSQL != null ? customQueryByUUIDSQL :
+                "SELECT %s FROM %s WHERE %s=? LIMIT 1".formatted(userInfoCols, table, uuidColumn);
+        queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL :
+                "SELECT %s FROM %s WHERE %s=? LIMIT 1".formatted(userInfoCols, table, usernameColumn);
         queryByLoginSQL = customQueryByLoginSQL != null ? customQueryByLoginSQL : queryByUsernameSQL;
 
 
 
 
                 
-        updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=?",
-                table, accessTokenColumn, serverIDColumn, uuidColumn);
-        updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=?",
-                table, serverIDColumn, uuidColumn);
+        updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL :
+                "UPDATE %s SET %s=?, %s=NULL WHERE %s=?".formatted(table, accessTokenColumn, serverIDColumn, uuidColumn);
+        updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL :
+                "UPDATE %s SET %s=? WHERE %s=?".formatted(table, serverIDColumn, uuidColumn);
         if (isEnabledPermissions()) {
             if(isEnabledRoles()) {
                 queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL :
@@ -198,14 +198,14 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
                         "INNER JOIN " + permissionsTable + " pr ON r." + rolesUUIDColumn + "=substring(pr." + permissionsPermissionColumn + " from 6) or r." + rolesNameColumn + "=substring(pr." + permissionsPermissionColumn + " from 6)\n" +
                         "WHERE pr." + permissionsUUIDColumn + " = ?";
             } else {
-                queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL : String.format("SELECT (%s) FROM %s WHERE %s=?",
-                        permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
+                queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL :
+                        "SELECT (%s) FROM %s WHERE %s=?".formatted(permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
             }
         }
     }
 
     protected String makeUserCols() {
-        return String.format("%s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn);
+        return "%s, %s, %s, %s, %s".formatted(uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn);
     }
 
     protected void updateAuth(User user, String accessToken) throws IOException {

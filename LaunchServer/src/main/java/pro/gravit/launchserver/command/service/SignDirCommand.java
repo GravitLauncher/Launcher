@@ -34,7 +34,7 @@ public class SignDirCommand extends Command {
         verifyArgs(args, 1);
         Path targetDir = Paths.get(args[0]);
         if (!IOHelper.isDir(targetDir))
-            throw new IllegalArgumentException(String.format("%s not directory", targetDir));
+            throw new IllegalArgumentException("%s not directory".formatted(targetDir));
         Optional<SignJarTask> task = server.launcherBinary.getTaskByClass(SignJarTask.class);
         if (task.isEmpty()) throw new IllegalStateException("SignJarTask not found");
         IOHelper.walk(targetDir, new SignJarVisitor(task.get()), true);

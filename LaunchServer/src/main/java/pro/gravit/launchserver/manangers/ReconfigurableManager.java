@@ -14,7 +14,7 @@ public class ReconfigurableManager {
 
     public void registerReconfigurable(String name, Reconfigurable reconfigurable) {
         VerifyHelper.putIfAbsent(RECONFIGURABLE, name.toLowerCase(), new ReconfigurableVirtualCommand(reconfigurable.getCommands()),
-                String.format("Reconfigurable has been already registered: '%s'", name));
+                "Reconfigurable has been already registered: '%s'".formatted(name));
     }
 
     public void unregisterReconfigurable(String name) {
@@ -23,15 +23,15 @@ public class ReconfigurableManager {
 
     public void call(String name, String action, String[] args) throws Exception {
         Command commands = RECONFIGURABLE.get(name);
-        if (commands == null) throw new CommandException(String.format("Reconfigurable %s not found", name));
+        if (commands == null) throw new CommandException("Reconfigurable %s not found".formatted(name));
         Command command = commands.childCommands.get(action);
-        if (command == null) throw new CommandException(String.format("Action %s.%s not found", name, action));
+        if (command == null) throw new CommandException("Action %s.%s not found".formatted(name, action));
         command.invoke(args);
     }
 
     public void printHelp(String name) throws CommandException {
         Command commands = RECONFIGURABLE.get(name);
-        if (commands == null) throw new CommandException(String.format("Reconfigurable %s not found", name));
+        if (commands == null) throw new CommandException("Reconfigurable %s not found".formatted(name));
         HelpCommand.printSubCommandsHelp(name, commands);
     }
 
