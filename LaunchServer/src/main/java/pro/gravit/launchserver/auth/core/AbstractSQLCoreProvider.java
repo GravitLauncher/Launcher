@@ -28,9 +28,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     public final transient Logger logger = LogManager.getLogger();
-    public int expireSeconds = 3600;
+    public long expireSeconds = HOURS.toSeconds(1);
     public String uuidColumn;
     public String usernameColumn;
     public String accessTokenColumn;
@@ -129,7 +132,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             return null;
         }
         var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
-        return new AuthManager.AuthReport(null, accessToken, refreshToken, expireSeconds * 1000L, new SQLUserSession(user));
+        return new AuthManager.AuthReport(null, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), new SQLUserSession(user));
     }
 
     @Override
@@ -153,9 +156,9 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();
             updateAuth(SQLUser, minecraftAccessToken);
-            return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, expireSeconds * 1000L, session);
+            return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
         } else {
-            return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, expireSeconds * 1000L, session);
+            return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
         }
     }
 

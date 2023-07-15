@@ -11,6 +11,8 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 public final class MySQLSourceConfig implements AutoCloseable, SQLSourceConfig {
 
     public static final int TIMEOUT = VerifyHelper.verifyInt(
@@ -33,7 +35,7 @@ public final class MySQLSourceConfig implements AutoCloseable, SQLSourceConfig {
     private String password;
     private String database;
     private String timezone;
-    private long hikariMaxLifetime = 30*60*1000; // 30 minutes
+    private long hikariMaxLifetime = MINUTES.toMillis(30);
     private boolean useHikari;
 
     // Cache
@@ -109,7 +111,6 @@ public final class MySQLSourceConfig implements AutoCloseable, SQLSourceConfig {
                     hikariConfig.setMaximumPoolSize(MAX_POOL_SIZE);
                     hikariConfig.setConnectionTestQuery("SELECT 1");
                     hikariConfig.setConnectionTimeout(1000);
-                    hikariConfig.setAutoCommit(true);
                     hikariConfig.setLeakDetectionThreshold(2000);
                     hikariConfig.setMaxLifetime(hikariMaxLifetime);
                     // Set HikariCP pool
