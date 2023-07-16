@@ -108,7 +108,7 @@ public final class HttpHelper {
             if (isSuccessful()) {
                 return result;
             } else {
-                throw new RequestException(error == null ? String.format("statusCode %d", statusCode) : error.toString());
+                throw new RequestException(error == null ? "statusCode %d".formatted(statusCode) : error.toString());
             }
         }
     }

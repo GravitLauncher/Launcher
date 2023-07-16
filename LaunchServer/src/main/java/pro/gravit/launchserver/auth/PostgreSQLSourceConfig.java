@@ -10,6 +10,9 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public final class PostgreSQLSourceConfig implements AutoCloseable, SQLSourceConfig {
     public static final int TIMEOUT = VerifyHelper.verifyInt(
             Integer.parseUnsignedInt(System.getProperty("launcher.postgresql.idleTimeout", Integer.toString(5000))),
@@ -26,6 +29,8 @@ public final class PostgreSQLSourceConfig implements AutoCloseable, SQLSourceCon
     private String username;
     private String password;
     private String database;
+
+    private long hikariMaxLifetime = MINUTES.toMillis(30); // 30 minutes
 
     // Cache
     private transient DataSource source;
@@ -65,7 +70,8 @@ public final class PostgreSQLSourceConfig implements AutoCloseable, SQLSourceCon
                 hikariSource.setPoolName(poolName);
                 hikariSource.setMinimumIdle(0);
                 hikariSource.setMaximumPoolSize(MAX_POOL_SIZE);
-                hikariSource.setIdleTimeout(TIMEOUT * 1000L);
+                hikariSource.setIdleTimeout(SECONDS.toMillis(TIMEOUT));
+                hikariSource.setMaxLifetime(hikariMaxLifetime);
 
                 // Replace source with hds
                 source = hikariSource;

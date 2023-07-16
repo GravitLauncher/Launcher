@@ -19,13 +19,9 @@ public class MakeProfileHelper {
         ClientProfileBuilder builder = new ClientProfileBuilder();
         builder.setVersion(version);
         builder.setDir(title);
-        if (findOption(options, MakeProfileOptionGlobalAssets.class).isPresent()) {
-            builder.setAssetDir("assets");
-        } else {
-            builder.setAssetDir("asset" + version.toCleanString());
-        }
+        builder.setAssetDir("assets");
         builder.setAssetIndex(version.toString());
-        builder.setInfo("Информация о сервере");
+        builder.setInfo("Server description");
         builder.setTitle(title);
         builder.setUuid(UUID.randomUUID());
         builder.setMainClass(getMainClassByVersion(version, options));
@@ -209,7 +205,7 @@ public class MakeProfileHelper {
         return null;
     }
 
-    public static MakeProfileOption[] getMakeProfileOptionsFromDir(Path dir, ClientProfile.Version version, boolean globalAssets) throws IOException {
+    public static MakeProfileOption[] getMakeProfileOptionsFromDir(Path dir, ClientProfile.Version version) throws IOException {
         List<MakeProfileOption> options = new ArrayList<>(2);
         if (Files.exists(dir.resolve("forge.jar"))) {
             options.add(new MakeProfileOptionForge());
@@ -246,9 +242,6 @@ public class MakeProfileHelper {
         }
         if (Files.exists(dir.resolve("libraries/forge/launchwrapper-1.12-launcherfixed.jar.jar")) || Files.exists(dir.resolve("libraries/net/minecraft/launchwrapper"))) {
             options.add(new MakeProfileOptionLaunchWrapper());
-        }
-        if (globalAssets) {
-            options.add(new MakeProfileOptionGlobalAssets());
         }
         return options.toArray(new MakeProfileOption[0]);
     }
@@ -322,10 +315,6 @@ public class MakeProfileHelper {
     }
 
     public static class MakeProfileOptionLaunchWrapper implements MakeProfileOption {
-
-    }
-
-    public static class MakeProfileOptionGlobalAssets implements MakeProfileOption {
 
     }
 

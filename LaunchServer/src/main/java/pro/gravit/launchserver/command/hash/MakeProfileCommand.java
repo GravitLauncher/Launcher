@@ -33,7 +33,7 @@ public class MakeProfileCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 3);
         ClientProfile.Version version = parseClientVersion(args[1]);
-        MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(server.updatesDir.resolve(args[2]), version, Files.exists(server.updatesDir.resolve("assets")));
+        MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(server.updatesDir.resolve(args[2]), version);
         for (MakeProfileHelper.MakeProfileOption option : options) {
             logger.info("Detected option {}", option);
         }

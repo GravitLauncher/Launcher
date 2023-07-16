@@ -19,8 +19,8 @@ public class NettyIpForwardHandler extends MessageToMessageDecoder<HttpRequest> 
 
     @Override
     protected void decode(ChannelHandlerContext ctx, HttpRequest msg, List<Object> out) {
-        if (msg instanceof ReferenceCounted) {
-            ((ReferenceCounted) msg).retain();
+        if (msg instanceof ReferenceCounted referenceCounted) {
+            referenceCounted.retain();
         }
         if (context.ip != null) {
             out.add(msg);

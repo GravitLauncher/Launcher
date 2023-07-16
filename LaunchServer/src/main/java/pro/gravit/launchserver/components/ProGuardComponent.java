@@ -133,7 +133,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             if (component.enabled) {
                 Configuration proguard_cfg = new Configuration();
                 if (!checkJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
-                    throw new RuntimeException(String.format("Java path: %s is not JDK! Please install JDK", IOHelper.JVM_DIR));
+                    throw new RuntimeException("Java path: %s is not JDK! Please install JDK".formatted(IOHelper.JVM_DIR));
                 }
                 Path jfxPath = tryFindOpenJFXPath(IOHelper.JVM_DIR);
                 if (checkFXJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
@@ -212,7 +212,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             Collections.addAll(confStrs, JAVA9_OPTS);
             if (jfxPath != null) {
                 for (Path path : jfxPath) {
-                    confStrs.add(String.format("-libraryjars '%s'", path.toAbsolutePath()));
+                    confStrs.add("-libraryjars '%s'".formatted(path.toAbsolutePath()));
                 }
             }
             srv.launcherBinary.coreLibs.stream()

@@ -21,9 +21,9 @@ public class HardwareReportResponse extends SimpleResponse {
             sendError("Invalid request");
             return;
         }
-        if (server.config.protectHandler instanceof HardwareProtectHandler) {
+        if (server.config.protectHandler instanceof HardwareProtectHandler hardwareProtectHandler) {
             try {
-                ((HardwareProtectHandler) server.config.protectHandler).onHardwareReport(this, client);
+                hardwareProtectHandler.onHardwareReport(this, client);
             } catch (SecurityException e) {
                 sendError(e.getMessage());
             }

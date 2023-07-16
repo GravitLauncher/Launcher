@@ -98,14 +98,14 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
-        if (args.length > 0 && args[0].equals("setup") && !disableSetup) {
+        if (args.length > 0 && args[0].equalsIgnoreCase("setup") && !disableSetup) {
             LogHelper.debug("Read ServerWrapperConfig.json");
             loadConfig();
             ServerWrapperSetup setup = new ServerWrapperSetup();
             setup.run();
             System.exit(0);
         }
-        if (args.length > 1 && args[0].equals("installAuthlib") && !disableSetup) {
+        if (args.length > 1 && args[0].equalsIgnoreCase("installAuthlib") && !disableSetup) {
             LogHelper.debug("Read ServerWrapperConfig.json");
             loadConfig();
             InstallAuthlib command = new InstallAuthlib();

@@ -23,6 +23,9 @@ import pro.gravit.utils.helper.JVMHelper;
 import java.io.File;
 import java.util.*;
 
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public final class LaunchServerConfig {
     private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/", "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/");
     private transient final Logger logger = LogManager.getLogger();
@@ -94,12 +97,12 @@ public final class LaunchServerConfig {
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
         authLimiterComponent.rateLimit = 3;
-        authLimiterComponent.rateLimitMillis = 8000;
+        authLimiterComponent.rateLimitMillis = SECONDS.toMillis(8);
         authLimiterComponent.message = "Превышен лимит авторизаций";
         newConfig.components.put("authLimiter", authLimiterComponent);
         RegLimiterComponent regLimiterComponent = new RegLimiterComponent();
         regLimiterComponent.rateLimit = 3;
-        regLimiterComponent.rateLimitMillis = 1000 * 60 * 60 * 10; //Блок на 10 часов
+        regLimiterComponent.rateLimitMillis = HOURS.toMillis(10);
         regLimiterComponent.message = "Превышен лимит регистраций";
         newConfig.components.put("regLimiter", regLimiterComponent);
         ProGuardComponent proGuardComponent = new ProGuardComponent();
@@ -209,9 +212,9 @@ public final class LaunchServerConfig {
             if (type.equals(LaunchServer.ReloadType.FULL)) {
                 components.forEach((k, component) -> {
                     server.unregisterObject("component.".concat(k), component);
-                    if (component instanceof AutoCloseable) {
+                    if (component instanceof AutoCloseable autoCloseable) {
                         try {
-                            ((AutoCloseable) component).close();
+                            autoCloseable.close();
                         } catch (Exception e) {
                             logger.error(e);
                         }
@@ -310,9 +313,9 @@ public final class LaunchServerConfig {
     }
 
     public static class NettySecurityConfig {
-        public long hardwareTokenExpire = 60 * 60 * 8;
-        public long publicKeyTokenExpire = 60 * 60 * 8;
+        public long hardwareTokenExpire = HOURS.toSeconds(8);
+        public long publicKeyTokenExpire = HOURS.toSeconds(8);
 
-        public long launcherTokenExpire = 60 * 60 * 8;
+        public long launcherTokenExpire = HOURS.toSeconds(8);
     }
 }

@@ -5,7 +5,7 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.10' apply false
 }
 group = 'pro.gravit.launcher'
-version = '5.4.2'
+version = '5.4.3'
 
 apply from: 'props.gradle'
 
@@ -48,6 +48,8 @@ configure(subprojects.findAll { it.name != 'modules' }) {
             options.encoding = "UTF-8"
             options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
             options.incremental = true // one flag, and things will get MUCH faster
+            compileJava.options.encoding = 'UTF-8'
+            compileTestJava.options.encoding = 'UTF-8'
         }
     }
 }

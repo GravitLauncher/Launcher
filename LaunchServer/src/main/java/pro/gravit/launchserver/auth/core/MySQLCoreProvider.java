@@ -46,21 +46,21 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
         String userInfoCols = makeUserCols();
         String hardwareInfoCols = "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, graphicCard, banned, publicKey";
         if (sqlFindHardwareByPublicKey == null)
-            sqlFindHardwareByPublicKey = String.format("SELECT %s FROM %s WHERE `publicKey` = ?", hardwareInfoCols, tableHWID);
+            sqlFindHardwareByPublicKey = "SELECT %s FROM %s WHERE `publicKey` = ?".formatted(hardwareInfoCols, tableHWID);
         if (sqlFindHardwareById == null)
-            sqlFindHardwareById = String.format("SELECT %s FROM %s WHERE `id` = ?", hardwareInfoCols, tableHWID);
+            sqlFindHardwareById = "SELECT %s FROM %s WHERE `id` = ?".formatted(hardwareInfoCols, tableHWID);
         if (sqlUsersByHwidId == null)
-            sqlUsersByHwidId = String.format("SELECT %s FROM %s WHERE `%s` = ?", userInfoCols, table, hardwareIdColumn);
+            sqlUsersByHwidId = "SELECT %s FROM %s WHERE `%s` = ?".formatted(userInfoCols, table, hardwareIdColumn);
         if (sqlFindHardwareByData == null)
-            sqlFindHardwareByData = String.format("SELECT %s FROM %s", hardwareInfoCols, tableHWID);
+            sqlFindHardwareByData = "SELECT %s FROM %s".formatted(hardwareInfoCols, tableHWID);
         if (sqlCreateHardware == null)
-            sqlCreateHardware = String.format("INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `graphicCard`, `battery`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')", tableHWID);
+            sqlCreateHardware = "INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `graphicCard`, `battery`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')".formatted(tableHWID);
         if (sqlCreateHWIDLog == null)
-            sqlCreateHWIDLog = String.format("INSERT INTO %s (`hwidId`, `newPublicKey`) VALUES (?, ?)", tableHWIDLog);
+            sqlCreateHWIDLog = "INSERT INTO %s (`hwidId`, `newPublicKey`) VALUES (?, ?)".formatted(tableHWIDLog);
         if (sqlUpdateHardwarePublicKey == null)
-            sqlUpdateHardwarePublicKey = String.format("UPDATE %s SET `publicKey` = ? WHERE `id` = ?", tableHWID);
-        sqlUpdateHardwareBanned = String.format("UPDATE %s SET `banned` = ? WHERE `id` = ?", tableHWID);
-        sqlUpdateUsers = String.format("UPDATE %s SET `%s` = ? WHERE `%s` = ?", table, hardwareIdColumn, uuidColumn);
+            sqlUpdateHardwarePublicKey = "UPDATE %s SET `publicKey` = ? WHERE `id` = ?".formatted(tableHWID);
+        sqlUpdateHardwareBanned = "UPDATE %s SET `banned` = ? WHERE `id` = ?".formatted(tableHWID);
+        sqlUpdateUsers = "UPDATE %s SET `%s` = ? WHERE `%s` = ?".formatted(table, hardwareIdColumn, uuidColumn);
     }
 
     @Override

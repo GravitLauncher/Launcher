@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 public final class HashedFile extends HashedEntry {
-    public static final DigestAlgorithm DIGEST_ALGO = DigestAlgorithm.MD5;
+    public static final DigestAlgorithm DIGEST_ALGO = DigestAlgorithm.SHA1;
 
     // Instance
     @LauncherNetworkAPI
