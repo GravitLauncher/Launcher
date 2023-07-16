@@ -59,7 +59,7 @@ public abstract class Command extends pro.gravit.utils.command.Command {
                 .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BLOCK)
                 .setUnit("MB", 1024 * 1024)
                 .build();
-        bar.setExtraMessage(String.format(" [0/%d]", totalFiles));
+        bar.setExtraMessage(" [0/%d]".formatted(totalFiles));
         Downloader downloader = Downloader.downloadList(list, baseUrl, targetDir, new Downloader.DownloadCallback() {
             @Override
             public void apply(long fullDiff) {
@@ -69,7 +69,7 @@ public abstract class Command extends pro.gravit.utils.command.Command {
 
             @Override
             public void onComplete(Path path) {
-                bar.setExtraMessage(String.format(" [%d/%d]", currentFiles.incrementAndGet(), totalFiles));
+                bar.setExtraMessage(" [%d/%d]".formatted(currentFiles.incrementAndGet(), totalFiles));
             }
         }, null, 4);
         downloader.getFuture().handle((v, e) -> {

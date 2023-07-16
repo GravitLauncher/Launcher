@@ -29,7 +29,7 @@ public class UpdateResponse extends SimpleResponse {
         }
         HashedDir dir = server.updatesManager.getUpdate(dirName);
         if (dir == null) {
-            sendError(String.format("Directory %s not found", dirName));
+            sendError("Directory %s not found".formatted(dirName));
             return;
         }
         String url = server.config.netty.downloadURL.replace("%dirname%", IOHelper.urlEncode(dirName));

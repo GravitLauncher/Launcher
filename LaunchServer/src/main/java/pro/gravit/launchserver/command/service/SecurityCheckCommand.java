@@ -38,11 +38,11 @@ public class SecurityCheckCommand extends Command {
 
     public static void printCheckResult(String module, String comment, Boolean status) {
         if (status == null) {
-            logger.warn(String.format("[%s] %s", module, comment));
+            logger.warn("[%s] %s".formatted(module, comment));
         } else if (status) {
-            logger.info(String.format("[%s] %s OK", module, comment));
+            logger.info("[%s] %s OK".formatted(module, comment));
         } else {
-            logger.error(String.format("[%s] %s", module, comment));
+            logger.error("[%s] %s".formatted(module, comment));
         }
     }
 
@@ -153,11 +153,11 @@ public class SecurityCheckCommand extends Command {
         //Profiles
         for (ClientProfile profile : server.getProfiles()) {
             boolean bad = false;
-            String profileModuleName = String.format("profiles.%s", profile.getTitle());
+            String profileModuleName = "profiles.%s".formatted(profile.getTitle());
             for (String exc : profile.getUpdateExclusions()) {
                 StringTokenizer tokenizer = new StringTokenizer(exc, "/");
                 if (exc.endsWith(".jar")) {
-                    printCheckResult(profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
+                    printCheckResult(profileModuleName, "updateExclusions %s not safe. Cheats may be injected very easy!".formatted(exc), false);
                     bad = true;
                     continue;
                 }
@@ -165,12 +165,12 @@ public class SecurityCheckCommand extends Command {
                     String nextToken = tokenizer.nextToken();
                     if (!tokenizer.hasMoreTokens()) {
                         if (!exc.endsWith("/")) {
-                            printCheckResult(profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
+                            printCheckResult(profileModuleName, "updateExclusions %s not safe. Cheats may be injected very easy!".formatted(exc), false);
                             bad = true;
                         }
                     } else {
                         if (nextToken.equals("memory_repo") || nextToken.equals(profile.getVersion().toString())) {
-                            printCheckResult(profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
+                            printCheckResult(profileModuleName, "updateExclusions %s not safe. Cheats may be injected very easy!".formatted(exc), false);
                             bad = true;
                         }
                     }

@@ -44,11 +44,11 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
 
     private boolean isWhitelisted(String property, ClientProfile profile, Client client) {
         if (client.permissions != null) {
-            String permByUUID = String.format(property, profile.getUUID());
+            String permByUUID = property.formatted(profile.getUUID());
             if (client.permissions.hasPerm(permByUUID)) {
                 return true;
             }
-            String permByTitle = String.format(property, profile.getTitle().toLowerCase(Locale.ROOT));
+            String permByTitle = property.formatted(profile.getTitle().toLowerCase(Locale.ROOT));
             if (client.permissions.hasPerm(permByTitle)) {
                 return true;
             }

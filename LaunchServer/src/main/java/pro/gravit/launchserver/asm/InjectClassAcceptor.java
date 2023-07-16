@@ -92,7 +92,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
                 if ("value".equals(name)) {
                     if (value.getClass() != String.class)
                         throw new IllegalArgumentException(
-                                String.format("Invalid annotation with value class %s", field.getClass().getName()));
+                                "Invalid annotation with value class %s".formatted(field.getClass().getName()));
                     valueName.set(value.toString());
                 }
             }
@@ -126,7 +126,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
             }
         } else {
             if (initMethod == null) {
-                throw new IllegalArgumentException(String.format("Not found init in target: %s", classNode.name));
+                throw new IllegalArgumentException("Not found init in target: %s".formatted(classNode.name));
             }
             List<FieldInsnNode> putFieldNodes = Arrays.stream(initMethod.instructions.toArray())
                     .filter(node -> node instanceof FieldInsnNode && node.getOpcode() == Opcodes.PUTFIELD).map(p -> (FieldInsnNode) p)
@@ -173,8 +173,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
                 return ((Serializer) serializerEntry.getValue()).serialize(value);
             }
         }
-        throw new UnsupportedOperationException(String.format("Serialization of type %s is not supported",
-                value.getClass()));
+        throw new UnsupportedOperationException("Serialization of type %s is not supported".formatted(value.getClass()));
     }
 
     public static boolean isSerializableValue(Object value) {

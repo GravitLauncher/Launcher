@@ -41,7 +41,7 @@ public class LegacySessionHelper {
             rawPassword = "";
         }
         return SecurityHelper.toHex(SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
-                String.format("%s.%s.%s.%s", secretSalt, username, rawPassword, secretSalt)));
+                "%s.%s.%s.%s".formatted(secretSalt, username, rawPassword, secretSalt)));
     }
 
     public record JwtTokenInfo(String username, UUID uuid) {

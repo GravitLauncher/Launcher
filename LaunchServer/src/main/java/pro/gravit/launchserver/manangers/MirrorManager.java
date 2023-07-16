@@ -75,7 +75,7 @@ public class MirrorManager {
                 if (downloadZip(mirror, path, mask, args)) return;
             }
         }
-        throw new IOException(String.format("Error download %s. All mirrors return error", path.toString()));
+        throw new IOException("Error download %s. All mirrors return error".formatted(path.toString()));
     }
 
     public JsonElement jsonRequest(Mirror mirror, JsonElement request, String method, String mask, Object... args) throws IOException {
@@ -111,7 +111,7 @@ public class MirrorManager {
 
         private URL formatArgs(String mask, Object... args) throws MalformedURLException {
             Object[] data = Arrays.stream(args).map(e -> IOHelper.urlEncode(e.toString())).toArray();
-            return new URL(baseUrl.concat(String.format(mask, data)));
+            return new URL(baseUrl.concat(mask.formatted(data)));
         }
 
         public URL getURL(String mask, Object... args) throws MalformedURLException {
