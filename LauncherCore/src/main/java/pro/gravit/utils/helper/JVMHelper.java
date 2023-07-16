@@ -24,6 +24,8 @@ public final class JVMHelper {
     // System properties
     public static final String OS_VERSION = OPERATING_SYSTEM_MXBEAN.getVersion();
     public static final ARCH ARCH_TYPE = getArch(System.getProperty("os.arch"));
+    public static final String NATIVE_EXTENSION = getNativeExtension(OS_TYPE);
+    public static final String NATIVE_PREFIX = getNativePrefix(OS_TYPE);
     public static final int JVM_BITS = Integer.parseInt(System.getProperty("sun.arch.data.model"));
     // Public static fields
     public static final Runtime RUNTIME = Runtime.getRuntime();
@@ -80,6 +82,29 @@ public final class JVMHelper {
             return 0;
         }
 
+    }
+
+    public static String getNativeExtension(JVMHelper.OS OS_TYPE) {
+        switch (OS_TYPE) {
+            case MUSTDIE:
+                return ".dll";
+            case LINUX:
+                return ".so";
+            case MACOSX:
+                return ".dylib";
+            default:
+                throw new InternalError(String.format("Unsupported OS TYPE '%s'", OS_TYPE));
+        }
+    }
+
+    public static String getNativePrefix(JVMHelper.OS OS_TYPE) {
+        switch (OS_TYPE) {
+            case LINUX:
+            case MACOSX:
+                return "lib";
+            default:
+                return "";
+        }
     }
 
     public static void appendVars(ProcessBuilder builder, Map<String, String> vars) {
@@ -178,7 +203,6 @@ public final class JVMHelper {
         // Verify system and java architecture
         LogHelper.debug("Verifying JVM architecture");
     }
-
 
     public enum ARCH {
         X86("x86"), X86_64("x86-64"), ARM64("arm64"), ARM32("arm32");

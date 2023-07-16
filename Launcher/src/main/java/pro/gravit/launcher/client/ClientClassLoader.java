@@ -77,25 +77,7 @@ public class ClientClassLoader extends URLClassLoader {
 
     @Override
     public String findLibrary(String name) {
-        return nativePath.concat(IOHelper.PLATFORM_SEPARATOR).concat(getNativePrefix()).concat(name).concat(getNativeEx());
-    }
-
-    public String getNativeEx() {
-        if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
-            return ".dll";
-        else if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
-            return ".so";
-        else if (JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX)
-            return ".dylib";
-        return "";
-    }
-
-    public String getNativePrefix() {
-        if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
-            return "lib";
-        else if (JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX)
-            return "lib";
-        return "";
+        return nativePath.concat(IOHelper.PLATFORM_SEPARATOR).concat(JVMHelper.NATIVE_PREFIX).concat(name).concat(JVMHelper.NATIVE_EXTENSION);
     }
 
     public void addAllowedPackage(String pkg) {
