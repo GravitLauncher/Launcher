@@ -1,5 +1,5 @@
 project.ext {
-    verAsm = '9.4'
+    verAsm = '9.5'
     verNetty = '4.1.94.Final'
     verOshiCore = '6.4.4'
     verJunit = '5.9.3'
