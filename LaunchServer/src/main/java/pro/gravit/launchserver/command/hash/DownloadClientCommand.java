@@ -86,7 +86,7 @@ public final class DownloadClientCommand extends Command {
                 if (version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) <= 0) {
                     logger.warn("Minecraft 1.7.9 and below not supported. Use at your own risk");
                 }
-                MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(clientDir, version, Files.exists(server.updatesDir.resolve("assets")));
+                MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(clientDir, version);
                 for (MakeProfileHelper.MakeProfileOption option : options) {
                     logger.debug("Detected option {}", option.getClass().getSimpleName());
                 }
