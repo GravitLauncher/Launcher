@@ -50,7 +50,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Not a singletron
  */
 public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurable {
-    public static final Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
     /**
      * Working folder path
      */
