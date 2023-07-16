@@ -21,6 +21,8 @@ import pro.gravit.launchserver.socket.response.secure.HardwareReportResponse;
 import java.util.Base64;
 import java.util.Date;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, HardwareProtectHandler, JoinServerProtectHandler {
     private transient final Logger logger = LogManager.getLogger();
     public boolean enableHardwareFeature;
@@ -104,7 +106,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * server.config.netty.security.hardwareTokenExpire))
+                .setExpiration(new Date(System.currentTimeMillis() + SECONDS.toMillis(server.config.netty.security.hardwareTokenExpire)))
                 .claim("hardware", hardware.getId())
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
@@ -114,7 +116,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * server.config.netty.security.publicKeyTokenExpire))
+                .setExpiration(new Date(System.currentTimeMillis() + SECONDS.toMillis(server.config.netty.security.publicKeyTokenExpire)))
                 .claim("publicKey", Base64.getEncoder().encodeToString(publicKey))
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
