@@ -165,7 +165,7 @@ public class OptionalView {
                 }
             }
         }
-        if (file.xorConflict != null) {
+        if (file.xorConflict != null && file.xorConflict.length != 0) {
             if (Arrays.stream(file.xorConflict).noneMatch(this::isEnabled)) {
                 enable(file.xorConflict[0], false, callback);
             }
