@@ -88,8 +88,8 @@ public class OptionalView {
     public void fixDependencies() {
         Set<OptionalFile> disabled = all.stream().filter(t -> !isEnabled(t)).collect(Collectors.toSet());
         for (OptionalFile file : disabled) {
-            if (file.xorConflict != null && Arrays.stream(file.xorConflict).noneMatch(this::isEnabled)) {
-                enable(file.xorConflict[0], false, null);
+            if (file.group != null && Arrays.stream(file.group).noneMatch(this::isEnabled)) {
+                enable(file.group[0], false, null);
             }
         }
         for (OptionalFile file : enabled) {
@@ -103,9 +103,9 @@ public class OptionalView {
                     disable(conflict, null);
                 }
             }
-            if (file.xorConflict != null) {
-                for (OptionalFile xorConflict : file.xorConflict) {
-                    disable(xorConflict, null);
+            if (file.group != null) {
+                for (OptionalFile member : file.group) {
+                    disable(member, null);
                 }
             }
         }
@@ -142,9 +142,9 @@ public class OptionalView {
                 disable(conflict, callback);
             }
         }
-        if(file.xorConflict != null) {
-            for(OptionalFile xorConflict : file.xorConflict) {
-                disable(xorConflict, callback);
+        if(file.group != null) {
+            for(OptionalFile member : file.group) {
+                disable(member, callback);
             }
         }
     }
@@ -165,9 +165,9 @@ public class OptionalView {
                 }
             }
         }
-        if (file.xorConflict != null && file.xorConflict.length != 0) {
-            if (Arrays.stream(file.xorConflict).noneMatch(this::isEnabled)) {
-                enable(file.xorConflict[0], false, callback);
+        if (file.group != null && file.group.length != 0) {
+            if (Arrays.stream(file.group).noneMatch(this::isEnabled)) {
+                enable(file.group[0], false, callback);
             }
         }
     }

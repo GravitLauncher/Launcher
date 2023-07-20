@@ -24,13 +24,13 @@ public class OptionalFile {
     @LauncherNetworkAPI
     public OptionalDepend[] conflictFile;
     @LauncherNetworkAPI
-    public OptionalDepend[] xorConflictFile;
+    public OptionalDepend[] groupFile;
     @LauncherNetworkAPI
     public transient OptionalFile[] dependencies;
     @LauncherNetworkAPI
     public transient OptionalFile[] conflict;
     @LauncherNetworkAPI
-    public transient OptionalFile[] xorConflict;
+    public transient OptionalFile[] group;
     @LauncherNetworkAPI
     public int subTreeLevel = 1;
     @LauncherNetworkAPI
