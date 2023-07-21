@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class OptionalView {
     public Set<OptionalFile> enabled = new HashSet<>();
@@ -25,6 +27,7 @@ public class OptionalView {
         this.enabled = new HashSet<>(view.enabled);
         this.installInfo = new HashMap<>(view.installInfo);
         this.all = view.all;
+        fixDependencies();
     }
 
     public OptionalView(ClientProfile profile, OptionalView old) {
@@ -40,6 +43,7 @@ public class OptionalView {
                 disable(newFile, (file, status) -> {});
             }
         }
+        fixDependencies();
     }
 
     @SuppressWarnings("unchecked")
@@ -80,6 +84,33 @@ public class OptionalView {
         return results;
     }
 
+    //Needed if dependency/conflict was added after mod declaring it and clients have their profiles with this mod enabled
+    public void fixDependencies() {
+        Set<OptionalFile> disabled = all.stream().filter(t -> !isEnabled(t)).collect(Collectors.toSet());
+        for (OptionalFile file : disabled) {
+            if (file.group != null && Arrays.stream(file.group).noneMatch(this::isEnabled)) {
+                enable(file.group[0], false, null);
+            }
+        }
+        for (OptionalFile file : enabled) {
+            if (file.dependencies != null) {
+                for (OptionalFile dep : file.dependencies) {
+                    enable(dep, false, null);
+                }
+            }
+            if (file.conflict != null) {
+                for (OptionalFile conflict : file.conflict) {
+                    disable(conflict, null);
+                }
+            }
+            if (file.group != null) {
+                for (OptionalFile member : file.group) {
+                    disable(member, null);
+                }
+            }
+        }
+    }
+
     public Set<OptionalAction> getDisabledActions() {
         Set<OptionalAction> results = new HashSet<>();
         for (OptionalFile e : all) {
@@ -111,6 +142,11 @@ public class OptionalView {
                 disable(conflict, callback);
             }
         }
+        if(file.group != null) {
+            for(OptionalFile member : file.group) {
+                disable(member, callback);
+            }
+        }
     }
 
     public void disable(OptionalFile file, BiConsumer<OptionalFile, Boolean> callback) {
@@ -127,6 +163,11 @@ public class OptionalView {
                 if (installInfo != null && !installInfo.isManual) {
                     disable(file, callback);
                 }
+            }
+        }
+        if (file.group != null && file.group.length != 0) {
+            if (Arrays.stream(file.group).noneMatch(this::isEnabled)) {
+                enable(file.group[0], false, callback);
             }
         }
     }
