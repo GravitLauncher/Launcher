@@ -16,6 +16,7 @@ import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.LauncherBinary;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
+import pro.gravit.launchserver.helper.SignHelper;
 import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
 import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
@@ -40,9 +41,14 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.KeyStore;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -185,6 +191,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
         launcherModuleLoader.init();
         nettyServerSocketHandler = new NettyServerSocketHandler(this);
+        if(config.sign.checkCertificateExpired) {
+            checkCertificateExpired();
+            service.scheduleAtFixedRate(this::checkCertificateExpired, 24, 24, TimeUnit.HOURS);
+        }
         // post init modules
         modulesManager.invokeEvent(new LaunchServerPostInitPhase(this));
     }
@@ -267,6 +277,25 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         };
         commands.put("resetauth", resetauth);
         return commands;
+    }
+
+    public void checkCertificateExpired() {
+        if(!config.sign.enabled) {
+            return;
+        }
+        try {
+            KeyStore keyStore = SignHelper.getStore(Paths.get(config.sign.keyStore), config.sign.keyStorePass, config.sign.keyStoreType);
+            Instant date = SignHelper.getCertificateExpired(keyStore, config.sign.keyAlias);
+            if(date == null) {
+                logger.debug("The certificate will expire at unlimited");
+            } else if(date.minus(Duration.ofDays(30)).isBefore(Instant.now())) {
+                logger.warn("The certificate will expire at {}", date.toString());
+            } else {
+                logger.debug("The certificate will expire at {}", date.toString());
+            }
+        } catch (Throwable e) {
+            logger.error("Can't get certificate expire date", e);
+        }
     }
 
     private LauncherBinary binary() {

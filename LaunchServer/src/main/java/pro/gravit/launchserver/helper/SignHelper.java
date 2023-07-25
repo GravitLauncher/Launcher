@@ -21,8 +21,11 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class SignHelper {
@@ -44,6 +47,24 @@ public class SignHelper {
         } catch (NoSuchAlgorithmException | CertificateException | KeyStoreException e) {
             throw new IOException(e);
         }
+    }
+
+
+
+    public static Instant getCertificateExpired(KeyStore keyStore, String keyAlias) throws KeyStoreException {
+        List<Certificate> certChain = new ArrayList<>(Arrays.asList(keyStore.getCertificateChain(keyAlias)));
+        Date date = null;
+        for(var e : certChain) {
+            if(e instanceof X509Certificate x509Certificate) {
+                if(x509Certificate.getNotAfter() == null) {
+                    continue;
+                }
+                if(date == null || date.before(x509Certificate.getNotAfter())) {
+                    date = x509Certificate.getNotAfter();
+                }
+            }
+        }
+        return date == null ? null : date.toInstant();
     }
 
     /**

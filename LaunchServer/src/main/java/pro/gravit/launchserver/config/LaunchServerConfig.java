@@ -259,6 +259,7 @@ public final class LaunchServerConfig {
         public String metaInfKeyName = "SIGNUMO.RSA";
         public String metaInfSfName = "SIGNUMO.SF";
         public String signAlgo = "SHA256WITHRSA";
+        public boolean checkCertificateExpired = true;
     }
 
     public static class NettyUpdatesBind {
