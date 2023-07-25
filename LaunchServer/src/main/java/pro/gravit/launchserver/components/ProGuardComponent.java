@@ -174,7 +174,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                 "-libraryjars '<java.home>/lib/ext/nashorn.jar'",
                 "-libraryjars '<java.home>/lib/ext/jfxrt.jar'"
         };
-        private static final char[] chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ".toCharArray();
+        private static final char[] chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKlL5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ".toCharArray();
         public final Path proguard;
         public final Path config;
         public final Path mappings;

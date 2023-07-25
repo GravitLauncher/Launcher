@@ -158,7 +158,7 @@ public final class ServerPinger {
             if (statusPacketID != 0x0)
                 throw new IOException("Illegal status packet ID: " + statusPacketID);
             response = packetInput.readString(PACKET_LENGTH);
-            LogHelper.debug("Ping response (modern): '%s'", response);
+            LogHelper.dev("Ping response (modern): '%s'", response);
         }
 
         // Parse JSON response
