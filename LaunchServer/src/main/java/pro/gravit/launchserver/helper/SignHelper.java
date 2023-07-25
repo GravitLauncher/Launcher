@@ -59,7 +59,7 @@ public class SignHelper {
                 if(x509Certificate.getNotAfter() == null) {
                     continue;
                 }
-                if(date == null || date.before(x509Certificate.getNotAfter())) {
+                if(date == null || date.after(x509Certificate.getNotAfter())) {
                     date = x509Certificate.getNotAfter();
                 }
             }
