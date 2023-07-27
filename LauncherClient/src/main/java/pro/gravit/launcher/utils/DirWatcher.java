@@ -1,6 +1,7 @@
 package pro.gravit.launcher.utils;
 
-import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.ClientLauncherMethods;
+import pro.gravit.launcher.client.ClientLauncherEntryPoint;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
@@ -47,7 +48,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
 
     private static void handleError(Throwable e) {
         LogHelper.error(e);
-        LauncherEngine.exitLauncher(-123);
+        ClientLauncherMethods.exitLauncher(-123);
     }
 
     private static Deque<String> toPath(Iterable<Path> path) {

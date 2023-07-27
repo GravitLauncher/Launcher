@@ -4,14 +4,13 @@ import pro.gravit.launcher.*;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
 import pro.gravit.launcher.api.KeyService;
+import pro.gravit.launcher.client.events.ClientExitPhase;
 import pro.gravit.launcher.client.events.client.*;
 import pro.gravit.launcher.events.request.ProfileByUUIDRequestEvent;
 import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
-import pro.gravit.launcher.managers.ClientGsonManager;
-import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.modules.LauncherModulesManager;
 import pro.gravit.launcher.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
@@ -32,6 +31,7 @@ import pro.gravit.launcher.request.websockets.OfflineRequestService;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.utils.DirWatcher;
+import pro.gravit.launcher.utils.NativeJVMHalt;
 import pro.gravit.utils.helper.*;
 
 import java.io.File;
@@ -45,6 +45,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -52,13 +53,15 @@ import java.util.stream.Stream;
 
 public class ClientLauncherEntryPoint {
     private static ClassLoader classLoader;
+    public static ClientModuleManager modulesManager;
+    public static ClientParams clientParams;
 
-    private static ClientLauncherProcess.ClientParams readParams(SocketAddress address) throws IOException {
+    private static ClientParams readParams(SocketAddress address) throws IOException {
         try (Socket socket = IOHelper.newSocket()) {
             socket.connect(address);
             try (HInput input = new HInput(socket.getInputStream())) {
                 byte[] serialized = input.readByteArray(0);
-                ClientLauncherProcess.ClientParams params = Launcher.gsonManager.gson.fromJson(IOHelper.decode(serialized), ClientLauncherProcess.ClientParams.class);
+                ClientParams params = Launcher.gsonManager.gson.fromJson(IOHelper.decode(serialized), ClientParams.class);
                 params.clientHDir = new HashedDir(input);
                 params.assetHDir = new HashedDir(input);
                 boolean isNeedReadJavaDir = input.readBoolean();
@@ -70,31 +73,26 @@ public class ClientLauncherEntryPoint {
     }
 
     public static void main(String[] args) throws Throwable {
-        LauncherEngine engine = LauncherEngine.clientInstance();
         JVMHelper.verifySystemProperties(ClientLauncherEntryPoint.class, true);
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncherEntryPoint.class);
         LogHelper.printVersion("Client Launcher");
-        LauncherEngine.checkClass(LauncherEngine.class);
-        LauncherEngine.checkClass(LauncherAgent.class);
-        LauncherEngine.checkClass(ClientLauncherEntryPoint.class);
-        LauncherEngine.modulesManager = new ClientModuleManager();
-        LauncherEngine.modulesManager.loadModule(new ClientLauncherCoreModule());
-        LauncherConfig.initModules(LauncherEngine.modulesManager); //INIT
-        LauncherEngine.modulesManager.initModules(null);
-        initGson(LauncherEngine.modulesManager);
-        ConsoleManager.initConsole();
-        LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
-        engine.readKeys();
+        ClientLauncherMethods.checkClass(ClientLauncherEntryPoint.class);
+        modulesManager = new ClientModuleManager();
+        modulesManager.loadModule(new ClientLauncherCoreModule());
+        LauncherConfig.initModules(modulesManager); //INIT
+        modulesManager.initModules(null);
+        ClientLauncherMethods.initGson(modulesManager);
+        modulesManager.invokeEvent(new PreConfigPhase());
         LogHelper.debug("Reading ClientLauncher params");
-        ClientLauncherProcess.ClientParams params = readParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
+        ClientParams params = readParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
         if (params.profile.getClassLoaderConfig() != ClientProfile.ClassLoaderConfig.AGENT) {
-            LauncherEngine.verifyNoAgent();
+            ClientLauncherMethods.verifyNoAgent();
         }
         ClientProfile profile = params.profile;
         Launcher.profile = profile;
         AuthService.profile = profile;
-        LauncherEngine.clientParams = params;
+        clientParams = params;
         if (params.oauth != null) {
             LogHelper.info("Using OAuth");
             if (params.oauthExpiredTime != 0) {
@@ -108,7 +106,7 @@ public class ClientLauncherEntryPoint {
         } else if (params.session != null) {
             throw new UnsupportedOperationException("Legacy session not supported");
         }
-        LauncherEngine.modulesManager.invokeEvent(new ClientProcessInitPhase(engine, params));
+        modulesManager.invokeEvent(new ClientProcessInitPhase(params));
 
         Path clientDir = Paths.get(params.clientDir);
         Path assetDir = Paths.get(params.assetDir);
@@ -122,7 +120,7 @@ public class ClientLauncherEntryPoint {
         // Start client with WatchService monitoring
         RequestService service;
         if (params.offlineMode) {
-            service = initOffline(LauncherEngine.modulesManager, params);
+            service = ClientLauncherMethods.initOffline(modulesManager, params);
             Request.setRequestService(service);
         } else {
             service = StdWebSocketService.initWebSockets(Launcher.getConfig().address).get();
@@ -149,7 +147,7 @@ public class ClientLauncherEntryPoint {
             ClientLauncherEntryPoint.classLoader = classLoader;
             Thread.currentThread().setContextClassLoader(classLoader);
             classLoader.nativePath = params.nativesDir;
-            LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
+            modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(classLoader, profile));
             ClientService.classLoader = classLoader;
             ClientService.nativePath = classLoader.nativePath;
             classLoader.addURL(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
@@ -162,7 +160,7 @@ public class ClientLauncherEntryPoint {
             }
             ClientService.instrumentation = LauncherAgent.inst;
             ClientService.nativePath = params.nativesDir;
-            LauncherEngine.modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(engine, classLoader, profile));
+            modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(classLoader, profile));
             ClientService.classLoader = classLoader;
             ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
         } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
@@ -174,7 +172,7 @@ public class ClientLauncherEntryPoint {
         AuthService.username = params.playerProfile.username;
         AuthService.uuid = params.playerProfile.uuid;
         KeyService.serverRsaPublicKey = Launcher.getConfig().rsaPublicKey;
-        LauncherEngine.modulesManager.invokeEvent(new ClientProcessReadyEvent(engine, params));
+        modulesManager.invokeEvent(new ClientProcessReadyEvent(params));
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
@@ -197,42 +195,9 @@ public class ClientLauncherEntryPoint {
             verifyHDir(clientDir, params.clientHDir, clientMatcher, false, true);
             if (javaWatcher != null)
                 verifyHDir(javaDir, params.javaHDir, null, false, true);
-            LauncherEngine.modulesManager.invokeEvent(new ClientProcessLaunchEvent(engine, params));
+            modulesManager.invokeEvent(new ClientProcessLaunchEvent(params));
             launch(profile, params);
         }
-    }
-
-    private static void initGson(ClientModuleManager moduleManager) {
-        AuthRequest.registerProviders();
-        GetAvailabilityAuthRequest.registerProviders();
-        OptionalAction.registerProviders();
-        OptionalTrigger.registerProviders();
-        Launcher.gsonManager = new ClientGsonManager(moduleManager);
-        Launcher.gsonManager.initGson();
-    }
-
-    public static RequestService initOffline(LauncherModulesManager modulesManager, ClientLauncherProcess.ClientParams params) {
-        OfflineRequestService service = new OfflineRequestService();
-        LauncherEngine.applyBasicOfflineProcessors(service);
-        applyClientOfflineProcessors(service, params);
-        OfflineModeEvent event = new OfflineModeEvent(service);
-        modulesManager.invokeEvent(event);
-        return event.service;
-    }
-
-    public static void applyClientOfflineProcessors(OfflineRequestService service, ClientLauncherProcess.ClientParams params) {
-        service.registerRequestProcessor(ProfileByUsernameRequest.class, (r) -> {
-            if (params.playerProfile.username.equals(r.username)) {
-                return new ProfileByUsernameRequestEvent(params.playerProfile);
-            }
-            throw new RequestException("User not found");
-        });
-        service.registerRequestProcessor(ProfileByUUIDRequest.class, (r) -> {
-            if (params.playerProfile.uuid.equals(r.uuid)) {
-                return new ProfileByUUIDRequestEvent(params.playerProfile);
-            }
-            throw new RequestException("User not found");
-        });
     }
 
     public static void verifyHDir(Path dir, HashedDir hdir, FileNameMatcher matcher, boolean digest, boolean checkExtra) throws IOException {
@@ -288,7 +253,7 @@ public class ClientLauncherEntryPoint {
         return result;
     }
 
-    private static void launch(ClientProfile profile, ClientLauncherProcess.ClientParams params) throws Throwable {
+    private static void launch(ClientProfile profile, ClientParams params) throws Throwable {
         // Add client args
         Collection<String> args = new LinkedList<>();
         if (profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_6_4) >= 0)
@@ -318,7 +283,7 @@ public class ClientLauncherEntryPoint {
                 LogHelper.dev("ClassLoader URL: %s", u.toString());
             }
         }
-        LauncherEngine.modulesManager.invokeEvent(new ClientProcessPreInvokeMainClassEvent(params, profile, args));
+        modulesManager.invokeEvent(new ClientProcessPreInvokeMainClassEvent(params, profile, args));
         // Invoke main method
         try {
             {
@@ -338,7 +303,7 @@ public class ClientLauncherEntryPoint {
             LogHelper.error(e);
             throw e;
         } finally {
-            LauncherEngine.exitLauncher(0);
+            ClientLauncherMethods.exitLauncher(0);
         }
 
     }

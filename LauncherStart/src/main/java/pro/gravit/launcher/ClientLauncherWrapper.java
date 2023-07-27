@@ -1,6 +1,6 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.client.ClientModuleManager;
+import pro.gravit.launcher.client.RuntimeModuleManager;
 import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.launcher.utils.DirWatcher;
 import pro.gravit.utils.helper.*;
@@ -22,6 +22,7 @@ public class ClientLauncherWrapper {
     public static int launcherMemoryLimit;
     @LauncherInject("launcher.customJvmOptions")
     public static List<String> customJvmOptions;
+    public static RuntimeModuleManager modulesManager;
 
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
@@ -30,8 +31,8 @@ public class ClientLauncherWrapper {
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
         LauncherConfig config = Launcher.getConfig();
-        LauncherEngine.modulesManager = new ClientModuleManager();
-        LauncherConfig.initModules(LauncherEngine.modulesManager);
+        modulesManager = new RuntimeModuleManager();
+        LauncherConfig.initModules(modulesManager);
 
         LogHelper.info("Launcher for project %s", config.projectName);
         if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {
@@ -83,8 +84,8 @@ public class ClientLauncherWrapper {
         }
 
         context.executePath = IOHelper.resolveJavaBin(context.javaVersion.jvmDir);
-        String pathLauncher = IOHelper.getCodeSource(LauncherEngine.class).toString();
-        context.mainClass = LauncherEngine.class.getName();
+        String pathLauncher = IOHelper.getCodeSource(ClientLauncherWrapper.class).toString();
+        context.mainClass = "pro.gravit.launcher.LauncherEngineWrapper";
         context.memoryLimit = launcherMemoryLimit;
         context.classpath.add(pathLauncher);
         context.jvmProperties.put(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled()));
@@ -104,7 +105,7 @@ public class ClientLauncherWrapper {
         context.args.add(MAGIC_ARG);
         context.args.add("-XX:+DisableAttachMechanism");
         EnvHelper.addEnv(context.processBuilder);
-        LauncherEngine.modulesManager.callWrapper(context);
+        modulesManager.callWrapper(context);
         // ---------
         List<String> args = new ArrayList<>(16);
         args.add(context.executePath.toAbsolutePath().toString());

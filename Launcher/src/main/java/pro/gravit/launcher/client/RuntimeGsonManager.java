@@ -1,16 +1,15 @@
-package pro.gravit.launcher.managers;
+package pro.gravit.launcher.client;
 
 import com.google.gson.GsonBuilder;
-import pro.gravit.launcher.client.ClientModuleManager;
-import pro.gravit.launcher.client.UserSettings;
+import pro.gravit.launcher.managers.GsonManager;
 import pro.gravit.launcher.modules.events.PreGsonPhase;
 import pro.gravit.launcher.request.websockets.ClientWebSocketService;
 import pro.gravit.utils.UniversalJsonAdapter;
 
-public class ClientGsonManager extends GsonManager {
-    private final ClientModuleManager moduleManager;
+public class RuntimeGsonManager extends GsonManager {
+    private final RuntimeModuleManager moduleManager;
 
-    public ClientGsonManager(ClientModuleManager moduleManager) {
+    public RuntimeGsonManager(RuntimeModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 

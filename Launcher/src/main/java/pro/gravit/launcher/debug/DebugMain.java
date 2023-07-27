@@ -1,10 +1,11 @@
 package pro.gravit.launcher.debug;
 
+import pro.gravit.launcher.ClientLauncherMethods;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.LauncherEngine;
-import pro.gravit.launcher.client.ClientLauncherCoreModule;
-import pro.gravit.launcher.client.ClientModuleManager;
+import pro.gravit.launcher.client.RuntimeLauncherCoreModule;
+import pro.gravit.launcher.client.RuntimeModuleManager;
 import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.events.OfflineModeEvent;
@@ -42,8 +43,8 @@ public class DebugMain {
         config.unlockSecret = unlockSecret;
         Launcher.setConfig(config);
         Launcher.applyLauncherEnv(environment);
-        LauncherEngine.modulesManager = new ClientModuleManager();
-        LauncherEngine.modulesManager.loadModule(new ClientLauncherCoreModule());
+        LauncherEngine.modulesManager = new RuntimeModuleManager();
+        LauncherEngine.modulesManager.loadModule(new RuntimeLauncherCoreModule());
         for (String moduleClassName : moduleClasses) {
             if (moduleClassName.isEmpty()) continue;
             LauncherEngine.modulesManager.loadModule(newModule(moduleClassName));
@@ -59,7 +60,7 @@ public class DebugMain {
         RequestService service;
         if (offlineMode) {
             OfflineRequestService offlineRequestService = new OfflineRequestService();
-            LauncherEngine.applyBasicOfflineProcessors(offlineRequestService);
+            ClientLauncherMethods.applyBasicOfflineProcessors(offlineRequestService);
             OfflineModeEvent event = new OfflineModeEvent(offlineRequestService);
             LauncherEngine.modulesManager.invokeEvent(event);
             service = event.service;

@@ -10,7 +10,7 @@ import pro.gravit.launcher.console.SignDataCommand;
 import pro.gravit.launcher.events.request.*;
 import pro.gravit.launcher.gui.NoRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
-import pro.gravit.launcher.managers.ClientGsonManager;
+import pro.gravit.launcher.client.RuntimeGsonManager;
 import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
@@ -45,8 +45,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LauncherEngine {
-    public static ClientLauncherProcess.ClientParams clientParams;
-    public static ClientModuleManager modulesManager;
+    public static ClientParams clientParams;
+    public static RuntimeModuleManager modulesManager;
     public final boolean clientInstance;
     // Instance
     private final AtomicBoolean started = new AtomicBoolean(false);
@@ -102,18 +102,19 @@ public class LauncherEngine {
     }
 
     public static void main(String... args) throws Throwable {
-        JVMHelper.checkStackTrace(LauncherEngine.class);
+        JVMHelper.checkStackTrace(LauncherEngineWrapper.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
         //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         verifyNoAgent();
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
+        LauncherEngine.checkClass(LauncherEngineWrapper.class);
         LauncherEngine.checkClass(LauncherEngine.class);
         LauncherEngine.checkClass(LauncherAgent.class);
         LauncherEngine.checkClass(ClientLauncherEntryPoint.class);
-        LauncherEngine.modulesManager = new ClientModuleManager();
-        LauncherEngine.modulesManager.loadModule(new ClientLauncherCoreModule());
+        LauncherEngine.modulesManager = new RuntimeModuleManager();
+        LauncherEngine.modulesManager.loadModule(new RuntimeLauncherCoreModule());
         LauncherConfig.initModules(LauncherEngine.modulesManager);
         LauncherEngine.modulesManager.initModules(null);
         // Start Launcher
@@ -133,12 +134,12 @@ public class LauncherEngine {
         LauncherEngine.exitLauncher(0);
     }
 
-    public static void initGson(ClientModuleManager modulesManager) {
+    public static void initGson(RuntimeModuleManager modulesManager) {
         AuthRequest.registerProviders();
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
-        Launcher.gsonManager = new ClientGsonManager(modulesManager);
+        Launcher.gsonManager = new RuntimeGsonManager(modulesManager);
         Launcher.gsonManager.initGson();
     }
 
@@ -149,35 +150,10 @@ public class LauncherEngine {
 
     public static RequestService initOffline() {
         OfflineRequestService service = new OfflineRequestService();
-        applyBasicOfflineProcessors(service);
+        ClientLauncherMethods.applyBasicOfflineProcessors(service);
         OfflineModeEvent event = new OfflineModeEvent(service);
         modulesManager.invokeEvent(event);
         return event.service;
-    }
-
-    public static void applyBasicOfflineProcessors(OfflineRequestService service) {
-        service.registerRequestProcessor(LauncherRequest.class, (r) -> new LauncherRequestEvent(false, (String) null));
-        service.registerRequestProcessor(CheckServerRequest.class, (r) -> {
-            throw new RequestException("CheckServer disabled in offline mode");
-        });
-        service.registerRequestProcessor(GetAvailabilityAuthRequest.class, (r) -> {
-            List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> details = new ArrayList<>();
-            details.add(new AuthLoginOnlyDetails());
-            GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability = new GetAvailabilityAuthRequestEvent.AuthAvailability("offline", "Offline Mode", true, details);
-            List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>(1);
-            list.add(authAvailability);
-            return new GetAvailabilityAuthRequestEvent(list);
-        });
-        service.registerRequestProcessor(JoinServerRequest.class, (r) -> new JoinServerRequestEvent(false));
-        service.registerRequestProcessor(ExitRequest.class, (r) -> new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
-        service.registerRequestProcessor(SetProfileRequest.class, (r) -> new SetProfileRequestEvent(null));
-        service.registerRequestProcessor(FeaturesRequest.class, (r) -> new FeaturesRequestEvent());
-        service.registerRequestProcessor(GetSecureLevelInfoRequest.class, (r) -> new GetSecureLevelInfoRequestEvent(null, false));
-        service.registerRequestProcessor(SecurityReportRequest.class, (r) -> new SecurityReportRequestEvent(SecurityReportRequestEvent.ReportAction.NONE));
-    }
-
-    public static LauncherEngine clientInstance() {
-        return new LauncherEngine(true);
     }
 
     public static LauncherEngine newInstance(boolean clientInstance) {

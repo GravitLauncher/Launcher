@@ -1,6 +1,6 @@
 package pro.gravit.launcher.api;
 
-import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.ClientLauncherMethods;
 
 public class SystemService {
     private SystemService() {
@@ -8,6 +8,6 @@ public class SystemService {
     }
 
     public static void exit(int code) {
-        LauncherEngine.exitLauncher(code);
+        ClientLauncherMethods.exitLauncher(code);
     }
 }

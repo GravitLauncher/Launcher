@@ -31,6 +31,7 @@ public class SecurityReportRequestEvent extends RequestEvent {
         LOGOUT,
         TOKEN_EXPIRED,
         EXIT,
+        @Deprecated
         CRASH,
         OTHER
     }

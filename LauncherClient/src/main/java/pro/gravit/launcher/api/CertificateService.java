@@ -1,11 +1,11 @@
 package pro.gravit.launcher.api;
 
+import pro.gravit.launcher.ClientLauncherMethods;
 import pro.gravit.launcher.LauncherTrustManager;
+import pro.gravit.launcher.client.ClientLauncherEntryPoint;
 import pro.gravit.launcher.utils.ApiBridgeService;
 
 import java.security.cert.X509Certificate;
-
-import static pro.gravit.launcher.LauncherEngine.getCertificates;
 
 public class CertificateService {
     private CertificateService() {
@@ -13,7 +13,7 @@ public class CertificateService {
     }
 
     public static CheckClassResultApi checkClass(Class<?> clazz) throws SecurityException {
-        X509Certificate[] certificates = getCertificates(clazz);
+        X509Certificate[] certificates = ClientLauncherMethods.getCertificates(clazz);
         if (certificates == null) {
             return new CheckClassResultApi(CheckClassResultTypeApi.NOT_SIGNED, null, null);
         }
@@ -25,7 +25,7 @@ public class CertificateService {
     }
 
     public static void checkClassSuccess(Class<?> clazz) {
-        X509Certificate[] certificates = getCertificates(clazz);
+        X509Certificate[] certificates = ClientLauncherMethods.getCertificates(clazz);
         if (certificates == null) {
             throw new SecurityException(String.format("Class %s not signed", clazz.getName()));
         }

@@ -15,9 +15,7 @@ public class BasicLauncherEventHandler implements RequestService.EventHandler {
     public <T extends WebSocketEvent> boolean eventHandle(T event) {
         if (event instanceof SecurityReportRequestEvent) {
             SecurityReportRequestEvent event1 = (SecurityReportRequestEvent) event;
-            if (event1.action == SecurityReportRequestEvent.ReportAction.CRASH) {
-                LauncherEngine.exitLauncher(80);
-            } else if (event1.action == SecurityReportRequestEvent.ReportAction.TOKEN_EXPIRED) {
+            if (event1.action == SecurityReportRequestEvent.ReportAction.TOKEN_EXPIRED) {
                 try {
                     Request.restore();
                 } catch (Exception e) {
