@@ -56,6 +56,7 @@ public class MainBuildTask implements LauncherBuildTask {
             BuildContext context = new BuildContext(output, reader.getCp(), this);
             initProps();
             preBuildHook.hook(context);
+            properties.put("launcher.legacymodules", context.legacyClientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             postInitProps();
             reader.getCp().add(new JarFile(inputJar.toFile()));

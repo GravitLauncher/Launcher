@@ -224,8 +224,8 @@ public class LauncherEngine {
                     }
                 };
             }
-            service.registerEventHandler(new BasicLauncherEventHandler());
         }
+        Request.getRequestService().registerEventHandler(new BasicLauncherEventHandler());
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");

@@ -50,7 +50,11 @@ public class LauncherModuleLoader {
         mainTask.preBuildHook.registerHook((buildContext) -> {
             for (ModuleEntity e : launcherModules) {
                 if (e.propertyMap != null) buildContext.task.properties.putAll(e.propertyMap);
-                buildContext.clientModules.add(e.moduleMainClass);
+                if(e.modernModule) {
+                    buildContext.clientModules.add(e.moduleMainClass);
+                } else {
+                    buildContext.legacyClientModules.add(e.moduleMainClass);
+                }
                 buildContext.readerClassPath.add(new JarFile(e.path.toFile()));
             }
         });
@@ -94,6 +98,7 @@ public class LauncherModuleLoader {
         public String moduleMainClass;
         public String moduleConfigClass;
         public String moduleConfigName;
+        public boolean modernModule;
         public Map<String, Object> propertyMap;
     }
 
@@ -120,6 +125,8 @@ public class LauncherModuleLoader {
                         entity.path = file;
                         entity.moduleMainClass = mainClass;
                         entity.moduleConfigClass = attributes.getValue("Module-Config-Class");
+                        String requiredModernJava = attributes.getValue("Required-Modern-Java");
+                        entity.modernModule = Boolean.parseBoolean(requiredModernJava);
                         if (entity.moduleConfigClass != null) {
                             entity.moduleConfigName = attributes.getValue("Module-Config-Name");
                             if (entity.moduleConfigName == null) {

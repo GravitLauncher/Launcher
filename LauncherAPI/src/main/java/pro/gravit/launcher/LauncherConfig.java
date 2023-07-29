@@ -5,6 +5,7 @@ import pro.gravit.launcher.modules.LauncherModulesManager;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.serialize.HOutput;
 import pro.gravit.launcher.serialize.stream.StreamObject;
+import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
@@ -21,7 +22,7 @@ import java.util.*;
 public final class LauncherConfig extends StreamObject {
     @LauncherInject("launchercore.certificates")
     private static final List<byte[]> secureConfigCertificates = null;
-    @LauncherInject("launcher.modules")
+    @LauncherInject("launcher.legacymodules")
     private static final List<Class<?>> modulesClasses = null;
     private static final MethodType VOID_TYPE = MethodType.methodType(void.class);
     @LauncherInject("launcher.projectName")
@@ -50,6 +51,11 @@ public final class LauncherConfig extends StreamObject {
     public LauncherEnvironment environment;
     @LauncherInject("runtimeconfig.buildNumber")
     public long buildNumber;
+
+    private static class ModernModulesClass {
+        @LauncherInject("launcher.modules")
+        private static final List<Class<?>> modulesClasses = null;
+    }
 
 
     @LauncherInjectionConstructor
@@ -114,6 +120,9 @@ public final class LauncherConfig extends StreamObject {
     }
 
     public static void initModules(LauncherModulesManager modulesManager) {
+        if(JVMHelper.JVM_VERSION >= 17) {
+            modulesClasses.addAll(ModernModulesClass.modulesClasses);
+        }
         for (Class<?> clazz : modulesClasses)
             try {
                 modulesManager.loadModule((LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invokeWithArguments(Collections.emptyList()));
