@@ -37,6 +37,7 @@ jar {
         from sourceSets.java11.output
     }
     archiveClassifier.set('clean')
+    manifest.attributes("Multi-Release": "true")
 }
 compileJava11Java {
     sourceCompatibility = 11
