@@ -2,6 +2,7 @@ package pro.gravit.launcher.request;
 
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
+import pro.gravit.launcher.events.request.CurrentUserRequestEvent;
 import pro.gravit.launcher.events.request.RefreshTokenRequestEvent;
 import pro.gravit.launcher.events.request.RestoreRequestEvent;
 import pro.gravit.launcher.request.auth.RefreshTokenRequest;
@@ -122,6 +123,10 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     }
 
     public static RequestRestoreReport restore() throws Exception {
+        return restore(false);
+    }
+
+    public static RequestRestoreReport restore(boolean needUserInfo) throws Exception {
         boolean refreshed = false;
         RestoreRequest request;
         if (oauth != null) {
@@ -131,7 +136,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
                 setOAuth(authId, event.oauth);
                 refreshed = true;
             }
-            request = new RestoreRequest(authId, oauth.accessToken, extendedTokens, false);
+            request = new RestoreRequest(authId, oauth.accessToken, extendedTokens, needUserInfo);
         } else {
             request = new RestoreRequest(authId, null, extendedTokens, false);
         }
@@ -159,7 +164,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
             }
             invalidTokens = event.invalidTokens;
         }
-        return new RequestRestoreReport(false, refreshed, invalidTokens);
+        return new RequestRestoreReport(false, refreshed, invalidTokens, event.userInfo);
     }
 
     public static void requestError(String message) throws RequestException {
@@ -216,11 +221,13 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         public final boolean legacySession;
         public final boolean refreshed;
         public final List<String> invalidExtendedTokens;
+        public final CurrentUserRequestEvent.UserInfo userInfo;
 
-        public RequestRestoreReport(boolean legacySession, boolean refreshed, List<String> invalidExtendedTokens) {
+        public RequestRestoreReport(boolean legacySession, boolean refreshed, List<String> invalidExtendedTokens, CurrentUserRequestEvent.UserInfo userInfo) {
             this.legacySession = legacySession;
             this.refreshed = refreshed;
             this.invalidExtendedTokens = invalidExtendedTokens;
+            this.userInfo = userInfo;
         }
     }
 

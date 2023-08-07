@@ -53,10 +53,11 @@ public class LauncherEngine {
     public RuntimeProvider runtimeProvider;
     public ECPublicKey publicKey;
     public ECPrivateKey privateKey;
+    public Class<? extends RuntimeProvider> basicRuntimeProvider;
 
-    private LauncherEngine(boolean clientInstance) {
-
+    private LauncherEngine(boolean clientInstance, Class<? extends RuntimeProvider> basicRuntimeProvider) {
         this.clientInstance = clientInstance;
+        this.basicRuntimeProvider = basicRuntimeProvider;
     }
 
     //JVMHelper.getCertificates
@@ -124,7 +125,7 @@ public class LauncherEngine {
         Launcher.getConfig(); // init config
         long startTime = System.currentTimeMillis();
         try {
-            new LauncherEngine(false).start(args);
+            newInstance(false).start(args);
         } catch (Exception e) {
             LogHelper.error(e);
             return;
@@ -157,7 +158,11 @@ public class LauncherEngine {
     }
 
     public static LauncherEngine newInstance(boolean clientInstance) {
-        return new LauncherEngine(clientInstance);
+        return new LauncherEngine(clientInstance, NoRuntimeProvider.class);
+    }
+
+    public static LauncherEngine newInstance(boolean clientInstance, Class<? extends RuntimeProvider> basicRuntimeProvider) {
+        return new LauncherEngine(clientInstance, basicRuntimeProvider);
     }
 
     public ECPublicKey getClientPublicKey() {
@@ -195,7 +200,7 @@ public class LauncherEngine {
         ClientPreGuiPhase event = new ClientPreGuiPhase(null);
         LauncherEngine.modulesManager.invokeEvent(event);
         runtimeProvider = event.runtimeProvider;
-        if (runtimeProvider == null) runtimeProvider = new NoRuntimeProvider();
+        if (runtimeProvider == null) runtimeProvider = basicRuntimeProvider.getConstructor().newInstance();
         runtimeProvider.init(clientInstance);
         //runtimeProvider.preLoad();
         if (!Request.isAvailable()) {

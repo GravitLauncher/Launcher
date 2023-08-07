@@ -69,7 +69,7 @@ public class DebugMain {
         }
         Request.setRequestService(service);
         LogHelper.debug("Initialization LauncherEngine");
-        LauncherEngine instance = LauncherEngine.newInstance(false);
+        LauncherEngine instance = LauncherEngine.newInstance(false, ClientRuntimeProvider.class);
         instance.start(args);
     }
 
