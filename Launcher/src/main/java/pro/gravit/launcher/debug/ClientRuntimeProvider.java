@@ -97,6 +97,7 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             if(value != null) {
                 args.add(value);
             }
+            return;
         }
         if(value != null) {
             int valueIndex = index+1;
