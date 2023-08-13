@@ -12,6 +12,7 @@ import pro.gravit.launcher.request.websockets.WebSocketRequest;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -22,11 +23,11 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     private static final List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
     private static final List<BiConsumer<String, AuthRequestEvent.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
 
-    private static RequestService requestService;
-    private static AuthRequestEvent.OAuthRequestEvent oauth;
-    private static Map<String, ExtendedToken> extendedTokens;
-    private static String authId;
-    private static long tokenExpiredTime;
+    private static volatile RequestService requestService;
+    private static volatile AuthRequestEvent.OAuthRequestEvent oauth;
+    private static volatile Map<String, ExtendedToken> extendedTokens;
+    private static volatile String authId;
+    private static volatile long tokenExpiredTime;
     private static ScheduledExecutorService executorService;
     @LauncherNetworkAPI
     public final UUID requestUUID = UUID.randomUUID();
@@ -104,14 +105,14 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
 
     public static void addExtendedToken(String name, ExtendedToken token) {
         if (extendedTokens == null) {
-            extendedTokens = new HashMap<>();
+            extendedTokens = new ConcurrentHashMap<>();
         }
         extendedTokens.put(name, token);
     }
 
     public static void addAllExtendedToken(Map<String, ExtendedToken> map) {
         if (extendedTokens == null) {
-            extendedTokens = new HashMap<>();
+            extendedTokens = new ConcurrentHashMap<>();
         }
         extendedTokens.putAll(map);
     }
@@ -150,14 +151,17 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         return restore(false, false);
     }
 
-    private static Map<String, String> getExpiredExtendedTokens() {
-        Map<String, String> map = new HashMap<>();
+    private synchronized static Map<String, String> getExpiredExtendedTokens() {
+        Set<String> set = new HashSet<>();
         for(Map.Entry<String, ExtendedToken> e : extendedTokens.entrySet()) {
             if(e.getValue().expire != 0 && e.getValue().expire < System.currentTimeMillis()) {
-                map.put(e.getKey(), e.getValue().token);
+                set.add(e.getKey());
             }
         }
-        return map;
+        if(set.isEmpty()) {
+            return new HashMap<>();
+        }
+        return makeNewTokens(set);
     }
 
     public static synchronized RequestRestoreReport restore(boolean needUserInfo, boolean refreshOnly) throws Exception {
@@ -180,19 +184,8 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         RestoreRequestEvent event = request.request();
         List<String> invalidTokens = null;
         if (event.invalidTokens != null && event.invalidTokens.size() > 0) {
-            boolean needRequest = false;
-            Map<String, String> tokens = new HashMap<>();
-            for (ExtendedTokenCallback cb : extendedTokenCallbacks) {
-                for (String tokenName : event.invalidTokens) {
-                    ExtendedToken newToken = cb.tryGetNewToken(tokenName);
-                    if (newToken != null) {
-                        needRequest = true;
-                        tokens.put(tokenName, newToken.token);
-                        addExtendedToken(tokenName, newToken);
-                    }
-                }
-            }
-            if (needRequest) {
+            Map<String, String> tokens = makeNewTokens(event.invalidTokens);
+            if (!tokens.isEmpty()) {
                 request = new RestoreRequest(authId, null, tokens, false);
                 event = request.request();
                 if (event.invalidTokens != null && event.invalidTokens.size() > 0) {
@@ -202,6 +195,20 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
             invalidTokens = event.invalidTokens;
         }
         return new RequestRestoreReport(refreshed, invalidTokens, event.userInfo);
+    }
+
+    private synchronized static Map<String, String> makeNewTokens(Collection<String> keys) {
+        Map<String, String> tokens = new HashMap<>();
+        for (ExtendedTokenCallback cb : extendedTokenCallbacks) {
+            for (String tokenName : keys) {
+                ExtendedToken newToken = cb.tryGetNewToken(tokenName);
+                if (newToken != null) {
+                    tokens.put(tokenName, newToken.token);
+                    addExtendedToken(tokenName, newToken);
+                }
+            }
+        }
+        return tokens;
     }
 
     public static void requestError(String message) throws RequestException {
@@ -272,7 +279,8 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
 
         public ExtendedToken(String token, long expire) {
             this.token = token;
-            this.expire = expire;
+            long time = System.currentTimeMillis();
+            this.expire = expire < time/2 ? time+expire : expire;
         }
     }
 
