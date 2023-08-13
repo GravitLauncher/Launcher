@@ -152,6 +152,9 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     }
 
     private synchronized static Map<String, String> getExpiredExtendedTokens() {
+        if(extendedTokens == null) {
+            return new HashMap<>();
+        }
         Set<String> set = new HashSet<>();
         for(Map.Entry<String, ExtendedToken> e : extendedTokens.entrySet()) {
             if(e.getValue().expire != 0 && e.getValue().expire < System.currentTimeMillis()) {
