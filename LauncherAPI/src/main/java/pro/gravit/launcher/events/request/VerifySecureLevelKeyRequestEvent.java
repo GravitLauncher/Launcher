@@ -1,12 +1,13 @@
 package pro.gravit.launcher.events.request;
 
+import pro.gravit.launcher.events.ExtendedTokenRequestEvent;
 import pro.gravit.launcher.events.RequestEvent;
 
-public class VerifySecureLevelKeyRequestEvent extends RequestEvent {
+public class VerifySecureLevelKeyRequestEvent extends RequestEvent implements ExtendedTokenRequestEvent {
     public boolean needHardwareInfo;
     public boolean onlyStatisticInfo;
     public String extendedToken;
-    public String hardwareExtendedToken;
+    public long expire;
 
     public VerifySecureLevelKeyRequestEvent() {
     }
@@ -15,21 +16,30 @@ public class VerifySecureLevelKeyRequestEvent extends RequestEvent {
         this.needHardwareInfo = needHardwareInfo;
     }
 
-    public VerifySecureLevelKeyRequestEvent(boolean needHardwareInfo, boolean onlyStatisticInfo, String extendedToken) {
+    public VerifySecureLevelKeyRequestEvent(boolean needHardwareInfo, boolean onlyStatisticInfo, String extendedToken, long expire) {
         this.needHardwareInfo = needHardwareInfo;
         this.onlyStatisticInfo = onlyStatisticInfo;
         this.extendedToken = extendedToken;
-    }
-
-    public VerifySecureLevelKeyRequestEvent(boolean needHardwareInfo, boolean onlyStatisticInfo, String extendedToken, String hardwareExtendedToken) {
-        this.needHardwareInfo = needHardwareInfo;
-        this.onlyStatisticInfo = onlyStatisticInfo;
-        this.extendedToken = extendedToken;
-        this.hardwareExtendedToken = hardwareExtendedToken;
+        this.expire = expire;
     }
 
     @Override
     public String getType() {
         return "verifySecureLevelKey";
+    }
+
+    @Override
+    public String getExtendedTokenName() {
+        return "publicKey";
+    }
+
+    @Override
+    public String getExtendedToken() {
+        return extendedToken;
+    }
+
+    @Override
+    public long getExtendedTokenExpire() {
+        return expire;
     }
 }

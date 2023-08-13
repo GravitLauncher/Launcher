@@ -26,7 +26,7 @@ public class BasicLauncherEventHandler implements RequestService.EventHandler {
             ExtendedTokenRequestEvent event1 = (ExtendedTokenRequestEvent) event;
             String token = event1.getExtendedToken();
             if (token != null) {
-                Request.addExtendedToken(event1.getExtendedTokenName(), token);
+                Request.addExtendedToken(event1.getExtendedTokenName(), new Request.ExtendedToken(event1.getExtendedToken(), event1.getExtendedTokenExpire()));
             }
         } else if (event instanceof NotificationEvent) {
             NotificationEvent n = (NotificationEvent) event;

@@ -8,6 +8,7 @@ import pro.gravit.launcher.profiles.ClientProfileVersions;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.profiles.optional.actions.OptionalActionClientArgs;
+import pro.gravit.launcher.request.Request;
 import pro.gravit.utils.Version;
 
 import java.util.*;
@@ -53,7 +54,7 @@ public class ClientParams {
 
     public long oauthExpiredTime;
 
-    public Map<String, String> extendedTokens;
+    public Map<String, Request.ExtendedToken> extendedTokens;
 
     public boolean offlineMode;
 

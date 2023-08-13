@@ -75,7 +75,7 @@ public class ServerWrapperSetup {
             }
             System.out.println("Print server token:");
             String checkServerToken = commands.commandHandler.readLine();
-            wrapper.config.extendedTokens.put("checkServer", checkServerToken);
+            wrapper.config.extendedTokens.put("checkServer", new Request.ExtendedToken(checkServerToken, 0));
             wrapper.updateLauncherConfig();
             try {
                 wrapper.restore();

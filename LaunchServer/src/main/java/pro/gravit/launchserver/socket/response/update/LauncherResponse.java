@@ -50,9 +50,9 @@ public class LauncherResponse extends SimpleResponse {
                 service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, server.config.netty.launcherURL));
             if (Arrays.equals(bytes, hash) && checkSecure(secureHash, secureSalt)) {
                 client.checkSign = true;
-                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherURL, createLauncherExtendedToken()));
+                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherURL, createLauncherExtendedToken()));
+                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
             }
         } else if (launcher_type == 2) //EXE
         {
@@ -60,9 +60,9 @@ public class LauncherResponse extends SimpleResponse {
             if (hash == null) sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL));
             if (Arrays.equals(bytes, hash) && checkSecure(secureHash, secureSalt)) {
                 client.checkSign = true;
-                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherEXEURL, createLauncherExtendedToken()));
+                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherEXEURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL, createLauncherExtendedToken()));
+                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
             }
         } else sendError("Request launcher type error");
     }

@@ -29,6 +29,7 @@ public class DebugMain {
     public static String projectName = System.getProperty("launcherdebug.projectname", "Minecraft");
     public static String unlockSecret = System.getProperty("launcherdebug.unlocksecret", "");
     public static boolean offlineMode = Boolean.getBoolean("launcherdebug.offlinemode");
+    public static boolean autoRefresh = Boolean.getBoolean("launcherdebug.autorefresh");
     public static String[] moduleClasses = System.getProperty("launcherdebug.modules", "").split(",");
     public static String[] moduleFiles = System.getProperty("launcherdebug.modulefiles", "").split(",");
     public static LauncherConfig.LauncherEnvironment environment = LauncherConfig.LauncherEnvironment.valueOf(System.getProperty("launcherdebug.env", "STD"));
@@ -68,6 +69,9 @@ public class DebugMain {
             service = StdWebSocketService.initWebSockets(webSocketURL).get();
         }
         Request.setRequestService(service);
+        if(autoRefresh) {
+            Request.startAutoRefresh();
+        }
         LogHelper.debug("Initialization LauncherEngine");
         LauncherEngine instance = LauncherEngine.newInstance(false, ClientRuntimeProvider.class);
         instance.start(args);

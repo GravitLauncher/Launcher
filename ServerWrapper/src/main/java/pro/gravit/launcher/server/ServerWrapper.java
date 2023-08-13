@@ -231,7 +231,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String authId;
         public AuthRequestEvent.OAuthRequestEvent oauth;
         public long oauthExpireTime;
-        public Map<String, String> extendedTokens;
+        public Map<String, Request.ExtendedToken> extendedTokens;
         public LauncherConfig.LauncherEnvironment env;
         public ModuleConf moduleConf = new ModuleConf();
 

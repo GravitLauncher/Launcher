@@ -45,6 +45,11 @@ public class OfflineRequestService implements RequestService {
     }
 
     @Override
+    public void open() {
+
+    }
+
+    @Override
     public void registerEventHandler(EventHandler handler) {
         eventHandlers.add(handler);
     }

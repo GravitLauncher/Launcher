@@ -43,7 +43,7 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             }
             if(accessToken != null) {
                 Request.setOAuth(authId, new AuthRequestEvent.OAuthRequestEvent(accessToken, refreshToken, expire));
-                Request.RequestRestoreReport report = Request.restore(true);
+                Request.RequestRestoreReport report = Request.restore(true, false);
                 permissions = report.userInfo.permissions;
                 username = report.userInfo.playerProfile.username;
                 uuid = report.userInfo.playerProfile.uuid.toString();
