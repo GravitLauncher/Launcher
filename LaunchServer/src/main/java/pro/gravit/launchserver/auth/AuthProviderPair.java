@@ -73,6 +73,11 @@ public final class AuthProviderPair {
         this.name = name;
         if (links != null) link(srv);
         core.init(srv);
+        if(mixes != null) {
+            for(var m : mixes.values()) {
+                m.init(srv, core);
+            }
+        }
         features = new HashSet<>();
         getFeatures(core.getClass(), features);
     }
@@ -95,6 +100,11 @@ public final class AuthProviderPair {
         core.close();
         if (textureProvider != null) {
             textureProvider.close();
+        }
+        if(mixes != null) {
+            for(var m : mixes.values()) {
+                m.close();
+            }
         }
     }
 }
