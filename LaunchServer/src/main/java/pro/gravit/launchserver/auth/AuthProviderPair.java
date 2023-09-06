@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
+import pro.gravit.launchserver.auth.mix.MixProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ public final class AuthProviderPair {
     public boolean isDefault = true;
     public AuthCoreProvider core;
     public TextureProvider textureProvider;
+    public Map<String, MixProvider> mixes;
     public Map<String, String> links;
     public transient String name;
     public transient Set<String> features;
@@ -55,8 +57,15 @@ public final class AuthProviderPair {
 
     public final <T> T isSupport(Class<T> clazz) {
         if (core == null) return null;
-        T result = null;
-        if (result == null) result = core.isSupport(clazz);
+        T result = core.isSupport(clazz);
+        if (result == null && mixes != null) {
+            for(var m : mixes.values()) {
+                result = m.isSupport(clazz);
+                if(result != null) {
+                    break;
+                }
+            }
+        }
         return result;
     }
 
