@@ -66,7 +66,6 @@ public class WebSocketService {
         providers.register("updateList", UpdateListResponse.class);
         providers.register("setProfile", SetProfileResponse.class);
         providers.register("update", UpdateResponse.class);
-        providers.register("restoreSession", RestoreSessionResponse.class);
         providers.register("batchProfileByUsername", BatchProfileByUsername.class);
         providers.register("profileByUsername", ProfileByUsername.class);
         providers.register("profileByUUID", ProfileByUUIDResponse.class);
