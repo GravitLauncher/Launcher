@@ -32,6 +32,7 @@ import pro.gravit.utils.helper.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
@@ -102,12 +103,24 @@ public class LauncherEngine {
         forceExit(code);
     }
 
+    public static boolean contains(String[] array, String value) {
+        for(String s : array) {
+            if(s.equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void main(String... args) throws Throwable {
         JVMHelper.checkStackTrace(LauncherEngineWrapper.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
         //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         verifyNoAgent();
+        if(contains(args, "--log-output") && Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
+            LogHelper.addOutput(Paths.get("Launcher.log"));
+        }
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
         LauncherEngine.checkClass(LauncherEngineWrapper.class);

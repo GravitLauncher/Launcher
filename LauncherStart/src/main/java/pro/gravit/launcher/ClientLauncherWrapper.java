@@ -7,10 +7,7 @@ import pro.gravit.utils.helper.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ClientLauncherWrapper {
     public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";
@@ -24,6 +21,15 @@ public class ClientLauncherWrapper {
     public static List<String> customJvmOptions;
     public static RuntimeModuleManager modulesManager;
 
+    public static boolean contains(String[] array, String value) {
+        for(String s : array) {
+            if(s.equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
@@ -33,7 +39,6 @@ public class ClientLauncherWrapper {
         LauncherConfig config = Launcher.getConfig();
         modulesManager = new RuntimeModuleManager();
         LauncherConfig.initModules(modulesManager);
-
         LogHelper.info("Launcher for project %s", config.projectName);
         if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {
             if (System.getProperty(LogHelper.DEBUG_PROPERTY) != null) {
@@ -46,6 +51,10 @@ public class ClientLauncherWrapper {
         } else {
             LogHelper.info("If need debug output use -Dlauncher.debug=true");
             LogHelper.info("If need stacktrace output use -Dlauncher.stacktrace=true");
+            if(contains(arguments, "--debug")) {
+                LogHelper.setDebugEnabled(true);
+                LogHelper.setStacktraceEnabled(true);
+            }
             if (LogHelper.isDebugEnabled()) waitProcess = true;
         }
         LogHelper.info("Restart Launcher with JavaAgent...");
@@ -104,6 +113,7 @@ public class ClientLauncherWrapper {
         context.jvmModules.add("javafx.web");
         context.args.add(MAGIC_ARG);
         context.args.add("-XX:+DisableAttachMechanism");
+        context.clientArgs.addAll(Arrays.asList(arguments));
         EnvHelper.addEnv(context.processBuilder);
         modulesManager.callWrapper(context);
         // ---------
