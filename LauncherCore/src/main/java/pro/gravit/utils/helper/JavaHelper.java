@@ -6,12 +6,23 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class JavaHelper {
     private static List<JavaVersion> javaVersionsCache;
+    public static final List<String> javaFxModules;
+
+    static {
+        List<String> modules = new ArrayList<>();
+        modules.add("javafx.base");
+        modules.add("javafx.graphics");
+        modules.add("javafx.fxml");
+        modules.add("javafx.controls");
+        modules.add("javafx.swing");
+        modules.add("javafx.media");
+        modules.add("javafx.web");
+        javaFxModules = Collections.unmodifiableList(modules);
+    }
 
     public static Path tryGetOpenJFXPath(Path jvmDir) {
         String dirName = jvmDir.getFileName().toString();
@@ -187,29 +198,28 @@ public class JavaHelper {
         public final int version;
         public final int build;
         public final JVMHelper.ARCH arch;
+        public final List<String> modules;
         public boolean enabledJavaFX;
-
-        public JavaVersion(Path jvmDir, int version) {
-            this.jvmDir = jvmDir;
-            this.version = version;
-            this.build = 0;
-            this.arch = JVMHelper.ARCH_TYPE;
-            this.enabledJavaFX = true;
-        }
-
-        public JavaVersion(Path jvmDir, int version, int build, boolean enabledJavaFX) {
-            this.jvmDir = jvmDir;
-            this.version = version;
-            this.build = build;
-            this.arch = JVMHelper.ARCH_TYPE;
-            this.enabledJavaFX = enabledJavaFX;
-        }
 
         public JavaVersion(Path jvmDir, int version, int build, JVMHelper.ARCH arch, boolean enabledJavaFX) {
             this.jvmDir = jvmDir;
             this.version = version;
             this.build = build;
             this.arch = arch;
+            this.enabledJavaFX = enabledJavaFX;
+            if(version > 8) {
+                this.modules = javaFxModules;
+            } else {
+                this.modules = Collections.unmodifiableList(new ArrayList<>());
+            }
+        }
+
+        public JavaVersion(Path jvmDir, int version, int build, JVMHelper.ARCH arch, List<String> modules, boolean enabledJavaFX) {
+            this.jvmDir = jvmDir;
+            this.version = version;
+            this.build = build;
+            this.arch = arch;
+            this.modules = modules;
             this.enabledJavaFX = enabledJavaFX;
         }
 
@@ -239,16 +249,27 @@ public class JavaHelper {
             }
             Path releaseFile = jvmDir.resolve("release");
             JavaVersionAndBuild versionAndBuild = null;
+            List<String> modules = null;
             JVMHelper.ARCH arch = JVMHelper.ARCH_TYPE;
             if (IOHelper.isFile(releaseFile)) {
                 try {
                     Properties properties = new Properties();
                     properties.load(IOHelper.newReader(releaseFile));
-                    versionAndBuild = getJavaVersion(properties.getProperty("JAVA_VERSION").replaceAll("\"", ""));
+                    String versionProperty = getProperty(properties, "JAVA_VERSION");
+                    if(versionProperty != null) {
+                        versionAndBuild = getJavaVersion(versionProperty);
+                    }
                     try {
-                        arch = JVMHelper.getArch(properties.getProperty("OS_ARCH").replaceAll("\"", ""));
+                        String archProperty = getProperty(properties, "OS_ARCH");
+                        if(archProperty != null) {
+                            arch = JVMHelper.getArch(archProperty);
+                        }
                     } catch (Throwable ignored) {
                         arch = null;
+                    }
+                    String modulesProperty = getProperty(properties, "MODULES");
+                    if(modulesProperty != null) {
+                        modules = new ArrayList<>(Arrays.asList(modulesProperty.split(" ")));
                     }
                 } catch (IOException ignored) {
 
@@ -261,11 +282,24 @@ public class JavaHelper {
             if (versionAndBuild.version <= 8) {
                 resultJavaVersion.enabledJavaFX = isExistExtJavaLibrary(jvmDir, "jfxrt");
             } else {
-                resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir, "javafx.base") != null;
-                if (!resultJavaVersion.enabledJavaFX)
-                    resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir.resolve("jre"), "javafx.base") != null;
+                if(modules != null) {
+                    resultJavaVersion.enabledJavaFX = modules.contains("javafx.base");
+                }
+                if(!resultJavaVersion.enabledJavaFX) {
+                    resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir, "javafx.base") != null;
+                    if (!resultJavaVersion.enabledJavaFX)
+                        resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir.resolve("jre"), "javafx.base") != null;
+                }
             }
             return resultJavaVersion;
+        }
+
+        private static String getProperty(Properties properties, String name) {
+            String prop = properties.getProperty(name);
+            if(prop == null) {
+                return null;
+            }
+            return prop.replaceAll("\"", "");
         }
 
         public static boolean isExistExtJavaLibrary(Path jvmDir, String name) {
