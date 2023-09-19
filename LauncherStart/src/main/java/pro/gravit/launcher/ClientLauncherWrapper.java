@@ -3,8 +3,10 @@ package pro.gravit.launcher;
 import pro.gravit.launcher.client.RuntimeModuleManager;
 import pro.gravit.launcher.client.DirBridge;
 import pro.gravit.launcher.utils.DirWatcher;
+import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.*;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
@@ -90,6 +92,13 @@ public class ClientLauncherWrapper {
         }
         if (context.javaVersion == null) {
             context.javaVersion = JavaHelper.JavaVersion.getCurrentJavaVersion();
+        }
+
+        if(context.javaVersion.version < 17) {
+            String message = String.format("GravitLauncher v%s required Java 17 or higher", Version.getVersion());
+            LogHelper.error(message);
+            JOptionPane.showMessageDialog(null, message, "GravitLauncher", JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
         }
 
         context.executePath = IOHelper.resolveJavaBin(context.javaVersion.jvmDir);
