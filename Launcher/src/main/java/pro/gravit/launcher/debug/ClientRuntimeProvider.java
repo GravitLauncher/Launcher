@@ -1,24 +1,19 @@
 package pro.gravit.launcher.debug;
 
 import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.api.AuthService;
-import pro.gravit.launcher.api.ClientService;
-import pro.gravit.launcher.client.ClientParams;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.gui.RuntimeProvider;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
 import pro.gravit.launcher.request.update.ProfilesRequest;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 public class ClientRuntimeProvider implements RuntimeProvider {

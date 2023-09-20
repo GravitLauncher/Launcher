@@ -149,10 +149,7 @@ public final class NodeUtils {
                 break;
             case INVOKEVIRTUAL:
             case INVOKESPECIAL:
-            case INVOKEINTERFACE:
-                stackSize += doMethodEmulation(((MethodInsnNode) e).desc);
-                break;
-            case INVOKESTATIC:
+            case INVOKEINTERFACE, INVOKESTATIC:
                 stackSize += doMethodEmulation(((MethodInsnNode) e).desc);
                 break;
             case INVOKEDYNAMIC:

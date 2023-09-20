@@ -11,7 +11,6 @@ import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
 public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {

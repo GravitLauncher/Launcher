@@ -6,13 +6,11 @@ import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.NoSuchFileException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;

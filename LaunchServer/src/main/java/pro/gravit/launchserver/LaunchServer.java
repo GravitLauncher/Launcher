@@ -37,14 +37,11 @@ import pro.gravit.utils.helper.SecurityHelper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.KeyStore;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -244,7 +241,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 }
                 switch (args[0]) {
                     case "full" -> reload(ReloadType.FULL);
-                    case "no_auth" -> reload(ReloadType.NO_AUTH);
                     case "no_components" -> reload(ReloadType.NO_COMPONENTS);
                     default -> reload(ReloadType.NO_AUTH);
                 }

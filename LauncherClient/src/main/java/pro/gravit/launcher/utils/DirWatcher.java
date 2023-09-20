@@ -1,7 +1,6 @@
 package pro.gravit.launcher.utils;
 
 import pro.gravit.launcher.ClientLauncherMethods;
-import pro.gravit.launcher.client.ClientLauncherEntryPoint;
 import pro.gravit.launcher.hasher.FileNameMatcher;
 import pro.gravit.launcher.hasher.HashedDir;
 import pro.gravit.launcher.hasher.HashedEntry;
