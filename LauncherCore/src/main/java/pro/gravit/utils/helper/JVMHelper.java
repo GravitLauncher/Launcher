@@ -123,7 +123,6 @@ public final class JVMHelper {
 
     public static void fullGC() {
         RUNTIME.gc();
-        RUNTIME.runFinalization();
         LogHelper.debug("Used heap: %d MiB", RUNTIME.totalMemory() - RUNTIME.freeMemory() >> 20);
     }
 
