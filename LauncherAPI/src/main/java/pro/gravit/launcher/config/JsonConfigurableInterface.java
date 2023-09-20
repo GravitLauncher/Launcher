@@ -41,7 +41,13 @@ public interface JsonConfigurableInterface<T> {
     default void loadConfig(Gson gson, Path configPath) throws IOException {
         if (generateConfigIfNotExists(configPath)) return;
         try (BufferedReader reader = IOHelper.newReader(configPath)) {
-            setConfig(gson.fromJson(reader, getType()));
+            T value = gson.fromJson(reader, getType());
+            if(value == null) {
+                LogHelper.warning("Config %s is null", configPath);
+                resetConfig(configPath);
+                return;
+            }
+            setConfig(value);
         } catch (Exception e) {
             LogHelper.error(e);
             resetConfig(configPath);
