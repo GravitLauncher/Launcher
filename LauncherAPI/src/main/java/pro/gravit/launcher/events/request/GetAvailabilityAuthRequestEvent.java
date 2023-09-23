@@ -5,6 +5,7 @@ import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.utils.TypeSerializeInterface;
 
 import java.util.List;
+import java.util.Set;
 
 public class GetAvailabilityAuthRequestEvent extends RequestEvent {
     @LauncherNetworkAPI
@@ -49,24 +50,14 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
         @LauncherNetworkAPI
         public boolean visible;
         @LauncherNetworkAPI
-        public String apiUrl;
-        @LauncherNetworkAPI
-        public List<String> apiFeatures;
+        public Set<String> features;
 
-        public AuthAvailability(String name, String displayName, boolean visible, List<AuthAvailabilityDetails> details) {
-            this.name = name;
-            this.displayName = displayName;
-            this.visible = visible;
-            this.details = details;
-        }
-
-        public AuthAvailability(String name, String displayName, boolean visible, List<AuthAvailabilityDetails> details, String apiUrl, List<String> apiFeatures) {
-            this.visible = visible;
+        public AuthAvailability(List<AuthAvailabilityDetails> details, String name, String displayName, boolean visible, Set<String> features) {
             this.details = details;
             this.name = name;
             this.displayName = displayName;
-            this.apiUrl = apiUrl;
-            this.apiFeatures = apiFeatures;
+            this.visible = visible;
+            this.features = features;
         }
     }
 }

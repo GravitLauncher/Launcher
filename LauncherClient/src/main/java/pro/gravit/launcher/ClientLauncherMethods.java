@@ -27,6 +27,7 @@ import pro.gravit.utils.helper.JVMHelper;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class ClientLauncherMethods {
@@ -123,7 +124,7 @@ public class ClientLauncherMethods {
         service.registerRequestProcessor(GetAvailabilityAuthRequest.class, (r) -> {
             List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> details = new ArrayList<>();
             details.add(new AuthLoginOnlyDetails());
-            GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability = new GetAvailabilityAuthRequestEvent.AuthAvailability("offline", "Offline Mode", true, details);
+            GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability = new GetAvailabilityAuthRequestEvent.AuthAvailability(details, "offline", "Offline Mode", true, new HashSet<>());
             List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>(1);
             list.add(authAvailability);
             return new GetAvailabilityAuthRequestEvent(list);

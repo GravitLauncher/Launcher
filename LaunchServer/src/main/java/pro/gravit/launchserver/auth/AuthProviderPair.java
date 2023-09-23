@@ -38,6 +38,10 @@ public final class AuthProviderPair {
         return list;
     }
 
+    public Set<String> getFeatures() {
+        return features;
+    }
+
     public static void getFeatures(Class<?> clazz, Set<String> list) {
         Features features = clazz.getAnnotation(Features.class);
         if (features != null) {
@@ -73,13 +77,14 @@ public final class AuthProviderPair {
         this.name = name;
         if (links != null) link(srv);
         core.init(srv);
+        features = new HashSet<>();
+        getFeatures(core.getClass(), features);
         if(mixes != null) {
             for(var m : mixes.values()) {
                 m.init(srv, core);
+                getFeatures(m.getClass(), features);
             }
         }
-        features = new HashSet<>();
-        getFeatures(core.getClass(), features);
     }
 
     public final void link(LaunchServer srv) {
