@@ -2,15 +2,15 @@ package pro.gravit.launcher.events.request;
 
 import pro.gravit.launcher.events.RequestEvent;
 
-public class GetAssetUploadInfoRequestEvent extends RequestEvent {
+public class GetAssetUploadUrlRequestEvent extends RequestEvent {
     public static final String FEATURE_NAME = "assetupload";
     public String url;
     public AuthRequestEvent.OAuthRequestEvent token;
 
-    public GetAssetUploadInfoRequestEvent() {
+    public GetAssetUploadUrlRequestEvent() {
     }
 
-    public GetAssetUploadInfoRequestEvent(String url, AuthRequestEvent.OAuthRequestEvent token) {
+    public GetAssetUploadUrlRequestEvent(String url, AuthRequestEvent.OAuthRequestEvent token) {
         this.url = url;
         this.token = token;
     }

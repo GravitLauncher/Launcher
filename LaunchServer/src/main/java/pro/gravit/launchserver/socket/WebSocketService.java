@@ -18,6 +18,7 @@ import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
 import pro.gravit.launchserver.socket.response.auth.*;
+import pro.gravit.launchserver.socket.response.cabinet.AssetUploadInfoResponse;
 import pro.gravit.launchserver.socket.response.cabinet.GetAssetUploadInfoResponse;
 import pro.gravit.launchserver.socket.response.management.FeaturesResponse;
 import pro.gravit.launchserver.socket.response.management.GetPublicKeyResponse;
@@ -83,6 +84,7 @@ public class WebSocketService {
         providers.register("clientProfileKey", FetchClientProfileKeyResponse.class);
         providers.register("getPublicKey", GetPublicKeyResponse.class);
         providers.register("getAssetUploadUrl", GetAssetUploadInfoResponse.class);
+        providers.register("assetUploadInfo", AssetUploadInfoResponse.class);
     }
 
     public static String getIPFromContext(ChannelHandlerContext ctx) {

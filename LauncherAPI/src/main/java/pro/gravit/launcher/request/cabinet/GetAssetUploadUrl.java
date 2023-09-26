@@ -1,15 +1,15 @@
 package pro.gravit.launcher.request.cabinet;
 
-import pro.gravit.launcher.events.request.GetAssetUploadInfoRequestEvent;
+import pro.gravit.launcher.events.request.GetAssetUploadUrlRequestEvent;
 import pro.gravit.launcher.request.Request;
 
-public class GetAssetUploadInfo extends Request<GetAssetUploadInfoRequestEvent> {
+public class GetAssetUploadUrl extends Request<GetAssetUploadUrlRequestEvent> {
     public String name;
 
-    public GetAssetUploadInfo() {
+    public GetAssetUploadUrl() {
     }
 
-    public GetAssetUploadInfo(String name) {
+    public GetAssetUploadUrl(String name) {
         this.name = name;
     }
 
