@@ -2,14 +2,13 @@ package pro.gravit.launcher.events.request;
 
 import pro.gravit.launcher.events.RequestEvent;
 
+import java.util.Set;
+
 public class AssetUploadInfoRequestEvent extends RequestEvent {
-    public boolean uploadSkin;
-    public boolean uploadCape;
+    public Set<String> available;
     public SlimSupportConf slimSupportConf;
 
-    public AssetUploadInfoRequestEvent(boolean uploadSkin, boolean uploadCape, SlimSupportConf slimSupportConf) {
-        this.uploadSkin = uploadSkin;
-        this.uploadCape = uploadCape;
+    public AssetUploadInfoRequestEvent(Set<String> available, SlimSupportConf slimSupportConf) {
         this.slimSupportConf = slimSupportConf;
     }
 

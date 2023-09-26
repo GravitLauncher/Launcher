@@ -13,6 +13,7 @@ public abstract class MixProvider implements  AutoCloseable{
 
     public static void registerProviders() {
         if (!registredProviders) {
+            providers.register("uploadAsset", UploadAssetMixProvider.class);
             registredProviders = true;
         }
     }

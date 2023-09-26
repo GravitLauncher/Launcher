@@ -6,6 +6,8 @@ import pro.gravit.launcher.events.request.GetAssetUploadUrlRequestEvent;
 import pro.gravit.launchserver.auth.Feature;
 import pro.gravit.launchserver.auth.core.User;
 
+import java.util.Set;
+
 @Feature(GetAssetUploadUrlRequestEvent.FEATURE_NAME)
 public interface AuthSupportAssetUpload {
     String getAssetUploadUrl(String name, User user);
@@ -15,6 +17,6 @@ public interface AuthSupportAssetUpload {
     }
 
     default AssetUploadInfoRequestEvent getAssetUploadInfo(User user) {
-        return new AssetUploadInfoRequestEvent(true, true, AssetUploadInfoRequestEvent.SlimSupportConf.USER);
+        return new AssetUploadInfoRequestEvent(Set.of("SKIN", "CAPE"), AssetUploadInfoRequestEvent.SlimSupportConf.USER);
     }
 }
