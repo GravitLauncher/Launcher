@@ -9,6 +9,7 @@ public class AssetUploadInfoRequestEvent extends RequestEvent {
     public SlimSupportConf slimSupportConf;
 
     public AssetUploadInfoRequestEvent(Set<String> available, SlimSupportConf slimSupportConf) {
+        this.available = available;
         this.slimSupportConf = slimSupportConf;
     }
 
