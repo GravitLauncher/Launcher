@@ -5,5 +5,7 @@ public interface UserSession {
 
     User getUser();
 
+    String getMinecraftAccessToken();
+
     long getExpireIn();
 }

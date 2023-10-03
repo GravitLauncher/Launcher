@@ -75,11 +75,6 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
 
     public abstract void init(LaunchServer server);
 
-    // Auth Handler methods
-    protected boolean updateServerID(User user, String serverID) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
     public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
         return List.of(new AuthPasswordDetails());
     }
@@ -292,22 +287,9 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         return map;
     }
 
-    public User checkServer(Client client, String username, String serverID) throws IOException {
-        User user = getUserByUsername(username);
-        if (user == null) {
-            return null;
-        }
-        if (user.getUsername().equals(username) && user.getServerId().equals(serverID)) {
-            return user;
-        }
-        return null;
-    }
+    public abstract User checkServer(Client client, String username, String serverID) throws IOException;
 
-    public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
-        User user = client.getUser();
-        if (user == null) return false;
-        return user.getUsername().equals(username) && user.getAccessToken().equals(accessToken) && updateServerID(user, serverID);
-    }
+    public abstract boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException;
 
     @SuppressWarnings("unchecked")
     public <T> T isSupport(Class<T> clazz) {

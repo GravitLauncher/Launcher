@@ -9,10 +9,6 @@ public interface User {
 
     UUID getUUID();
 
-    String getServerId();
-
-    String getAccessToken();
-
     ClientPermissions getPermissions();
 
     default boolean isBanned() {

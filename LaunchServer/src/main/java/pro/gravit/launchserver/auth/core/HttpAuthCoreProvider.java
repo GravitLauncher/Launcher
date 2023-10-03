@@ -282,20 +282,13 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
     }
 
     @Override
-    protected boolean updateServerID(User user, String serverID) throws IOException {
-        var result = requester.send(requester.post(updateServerIdUrl, new UpdateServerIdRequest(user.getUsername(), user.getUUID(), serverID),
-                null), Void.class);
-        return result.isSuccessful();
-    }
-
-    @Override
     public User checkServer(Client client, String username, String serverID) throws IOException {
         return requester.send(requester.post(checkServerUrl, new CheckServerRequest(username, serverID), bearerToken), HttpUser.class).getOrThrow();
     }
 
     @Override
-    public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
-        var result = requester.send(requester.post(joinServerUrl, new JoinServerRequest(username, accessToken, serverID), bearerToken), Void.class);
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
+        var result = requester.send(requester.post(joinServerUrl, new JoinServerRequest(username, uuid, accessToken, serverID), bearerToken), Void.class);
         return result.isSuccessful();
     }
 
@@ -361,11 +354,13 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
 
     public static class JoinServerRequest {
         public String username;
+        public UUID uuid;
         public String accessToken;
         public String serverId;
 
-        public JoinServerRequest(String username, String accessToken, String serverId) {
+        public JoinServerRequest(String username, UUID uuid, String accessToken, String serverId) {
             this.username = username;
+            this.uuid = uuid;
             this.accessToken = accessToken;
             this.serverId = serverId;
         }
@@ -421,14 +416,16 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
     public static class HttpUserSession implements UserSession {
         private String id;
         private HttpUser user;
+        private String minecraftAccessToken;
         private long expireIn;
 
         public HttpUserSession() {
         }
 
-        public HttpUserSession(String id, HttpUser user, long expireIn) {
+        public HttpUserSession(String id, HttpUser user, String minecraftAccessToken, long expireIn) {
             this.id = id;
             this.user = user;
+            this.minecraftAccessToken = minecraftAccessToken;
             this.expireIn = expireIn;
         }
 
@@ -443,6 +440,11 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
         }
 
         @Override
+        public String getMinecraftAccessToken() {
+            return minecraftAccessToken;
+        }
+
+        @Override
         public long getExpireIn() {
             return expireIn;
         }
@@ -452,6 +454,7 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
             return "HttpUserSession{" +
                     "id='" + id + '\'' +
                     ", user=" + user +
+                    ", minecraftAccessToken='" + minecraftAccessToken + '\'' +
                     ", expireIn=" + expireIn +
                     '}';
         }
@@ -579,16 +582,6 @@ public class HttpAuthCoreProvider extends AuthCoreProvider implements AuthSuppor
         @Override
         public UUID getUUID() {
             return uuid;
-        }
-
-        @Override
-        public String getServerId() {
-            return serverId;
-        }
-
-        @Override
-        public String getAccessToken() {
-            return accessToken;
         }
 
         @Override

@@ -20,6 +20,7 @@ import pro.gravit.launchserver.socket.response.secure.HardwareReportResponse;
 
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -93,7 +94,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     }
 
     @Override
-    public boolean onJoinServer(String serverID, String username, Client client) {
+    public boolean onJoinServer(String serverID, String username, UUID uuid, Client client) {
         return !enableHardwareFeature || (client.trustLevel != null && client.trustLevel.hardwareInfo != null);
     }
 

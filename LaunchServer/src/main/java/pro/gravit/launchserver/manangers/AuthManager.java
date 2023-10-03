@@ -115,7 +115,7 @@ public class AuthManager {
             context.client.sessionObject = session;
             internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
             if (context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context)) {
-                return AuthReport.ofMinecraftAccessToken(user.getAccessToken(), session);
+                return AuthReport.ofMinecraftAccessToken(session.getMinecraftAccessToken(), session);
             }
             return AuthReport.ofMinecraftAccessToken(null, session);
         }
@@ -166,9 +166,9 @@ public class AuthManager {
         else return CheckServerReport.ofUser(user, getPlayerProfile(client.auth, user));
     }
 
-    public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
         if (client.auth == null) return false;
-        return client.auth.core.joinServer(client, username, accessToken, serverID);
+        return client.auth.core.joinServer(client, username, uuid, accessToken, serverID);
     }
 
     public PlayerProfile getPlayerProfile(Client client) {

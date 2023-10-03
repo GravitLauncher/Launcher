@@ -67,7 +67,7 @@ public class MergeAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public boolean joinServer(Client client, String username, String accessToken, String serverID) {
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) {
         return false; // Authorization not supported
     }
 

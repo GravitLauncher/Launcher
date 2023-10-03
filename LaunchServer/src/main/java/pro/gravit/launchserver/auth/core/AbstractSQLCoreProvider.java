@@ -14,6 +14,7 @@ import pro.gravit.launchserver.auth.SQLSourceConfig;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
 import pro.gravit.launchserver.helper.LegacySessionHelper;
 import pro.gravit.launchserver.manangers.AuthManager;
+import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -163,6 +164,25 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     }
 
     @Override
+    public User checkServer(Client client, String username, String serverID) throws IOException {
+        SQLUser user = (SQLUser) getUserByUsername(username);
+        if (user == null) {
+            return null;
+        }
+        if (user.getUsername().equals(username) && user.getServerId().equals(serverID)) {
+            return user;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
+        SQLUser user = (SQLUser) client.getUser();
+        if (user == null) return false;
+        return user.getUsername().equals(username) && user.getAccessToken().equals(accessToken) && updateServerID(user, serverID);
+    }
+
+    @Override
     public void init(LaunchServer server) {
         this.server = server;
         if (getSQLConfig() == null) logger.error("SQLHolder cannot be null");
@@ -225,7 +245,6 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         }
     }
 
-    @Override
     protected boolean updateServerID(User user, String serverID) throws IOException {
         try (Connection c = getSQLConfig().getConnection()) {
             SQLUser SQLUser = (SQLUser) user;
@@ -328,12 +347,10 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             return uuid;
         }
 
-        @Override
         public String getServerId() {
             return serverId;
         }
 
-        @Override
         public String getAccessToken() {
             return accessToken;
         }
@@ -370,6 +387,11 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         @Override
         public User getUser() {
             return user;
+        }
+
+        @Override
+        public String getMinecraftAccessToken() {
+            return user.getAccessToken();
         }
 
         @Override

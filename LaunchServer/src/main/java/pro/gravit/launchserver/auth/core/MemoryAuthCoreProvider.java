@@ -95,13 +95,6 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    protected boolean updateServerID(User user, String serverID) {
-        MemoryUser memoryUser = (MemoryUser) user;
-        memoryUser.serverId = serverID;
-        return true;
-    }
-
-    @Override
     public User checkServer(Client client, String username, String serverID) {
         synchronized (memory) {
             for (MemoryUser u : memory) {
@@ -116,7 +109,7 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public boolean joinServer(Client client, String username, String accessToken, String serverID) {
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) {
         return true;
     }
 
@@ -159,16 +152,6 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
         }
 
         @Override
-        public String getServerId() {
-            return serverId;
-        }
-
-        @Override
-        public String getAccessToken() {
-            return accessToken;
-        }
-
-        @Override
         public ClientPermissions getPermissions() {
             return permissions;
         }
@@ -206,6 +189,11 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
         @Override
         public User getUser() {
             return user;
+        }
+
+        @Override
+        public String getMinecraftAccessToken() {
+            return "IGNORED";
         }
 
         @Override
