@@ -19,10 +19,6 @@ public class DirBridge {
 
     public static Path dir;
 
-    public static Path dirStore;
-
-    public static Path dirProjectStore;
-
     public static Path dirUpdates;
 
     public static Path defaultUpdatesDir;
@@ -36,10 +32,6 @@ public class DirBridge {
             if (!IOHelper.exists(DirBridge.dir)) Files.createDirectories(DirBridge.dir);
             DirBridge.defaultUpdatesDir = DirBridge.dir.resolve("updates");
             if (!IOHelper.exists(DirBridge.defaultUpdatesDir)) Files.createDirectories(DirBridge.defaultUpdatesDir);
-            DirBridge.dirStore = getStoreDir(projectName);
-            if (!IOHelper.exists(DirBridge.dirStore)) Files.createDirectories(DirBridge.dirStore);
-            DirBridge.dirProjectStore = getProjectStoreDir(projectName);
-            if (!IOHelper.exists(DirBridge.dirProjectStore)) Files.createDirectories(DirBridge.dirProjectStore);
         } catch (IOException e) {
             LogHelper.error(e);
         }
@@ -93,19 +85,6 @@ public class DirBridge {
 
     public static Path getLauncherDir(String projectname) throws IOException {
         return getAppDataDir().resolve(projectname);
-    }
-
-    public static Path getStoreDir(String projectname) throws IOException {
-        if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX)
-            return getAppDataDir().resolve("store");
-        else if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE)
-            return getAppDataDir().resolve("GravitLauncherStore");
-        else
-            return getAppDataDir().resolve("minecraftStore");
-    }
-
-    public static Path getProjectStoreDir(String projectname) throws IOException {
-        return getStoreDir(projectname).resolve(projectname);
     }
 
     public static Path getGuardDir() {
