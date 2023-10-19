@@ -85,7 +85,7 @@ dependencies {
     bundle group: 'org.ow2.asm', name: 'asm-commons', version: rootProject['verAsm']
     bundle group: 'io.netty', name: 'netty-all', version: rootProject['verNetty']
     bundle group: 'org.slf4j', name: 'slf4j-api', version: rootProject['verSlf4j']
-    bundle group: 'mysql', name: 'mysql-connector-java', version: rootProject['verMySQLConn']
+    bundle group: 'com.mysql', name: 'mysql-connector-j', version: rootProject['verMySQLConn']
     bundle group: 'org.postgresql', name: 'postgresql', version: rootProject['verPostgreSQLConn']
     bundle group: 'com.guardsquare', name: 'proguard-base', version: rootProject['verProguard']
     bundle group: 'org.apache.logging.log4j', name: 'log4j-core', version: rootProject['verLog4j']
