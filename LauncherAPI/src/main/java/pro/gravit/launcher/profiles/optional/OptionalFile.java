@@ -38,6 +38,9 @@ public class OptionalFile {
     @LauncherNetworkAPI
     public boolean limited;
 
+    @LauncherNetworkAPI
+    public String category;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
