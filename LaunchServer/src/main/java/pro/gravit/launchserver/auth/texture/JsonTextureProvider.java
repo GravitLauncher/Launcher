@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.HTTPRequest;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.profiles.Texture;
+import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -15,7 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class JsonTextureProvider extends TextureProvider {
-    private static final Type MAP_TYPE = new TypeToken<Map<String, Texture>>() {
+    private static final Type MAP_TYPE = new TypeToken<Map<String, JsonTexture>>() {
     }.getType();
     private transient final Logger logger = LogManager.getLogger();
     public String url;
@@ -42,7 +43,7 @@ public class JsonTextureProvider extends TextureProvider {
         try {
             var result = HTTPRequest.jsonRequest(null, "GET", new URL(RequestTextureProvider.getTextureURL(url, uuid, username, client)));
 
-            Map<String, Texture> map = Launcher.gsonManager.gson.fromJson(result, MAP_TYPE);
+            Map<String, JsonTexture> map = Launcher.gsonManager.gson.fromJson(result, MAP_TYPE);
             if (map == null) {
                 return new HashMap<>();
             }
@@ -54,10 +55,20 @@ public class JsonTextureProvider extends TextureProvider {
                 map.put("CAPE", map.get("cloak"));
                 map.remove("cloak");
             }
-            return map;
+            Map<String, Texture> res = new HashMap<>();
+            for(var e : map.entrySet()) {
+                res.put(e.getKey(), e.getValue().toTexture());
+            }
+            return res;
         } catch (IOException e) {
             logger.error("JsonTextureProvider", e);
             return new HashMap<>();
+        }
+    }
+
+    public record JsonTexture(String url, String hash, Map<String, String> metadata) {
+        public Texture toTexture() {
+            return new Texture(url, hash == null ? null : SecurityHelper.fromHex(hash), metadata);
         }
     }
 }
