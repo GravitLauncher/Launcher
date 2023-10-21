@@ -75,6 +75,7 @@ public class DebugMain {
         LogHelper.debug("Initialization LauncherEngine");
         LauncherEngine instance = LauncherEngine.newInstance(false, ClientRuntimeProvider.class);
         instance.start(args);
+        LauncherEngine.exitLauncher(0);
     }
 
     @SuppressWarnings("unchecked")
