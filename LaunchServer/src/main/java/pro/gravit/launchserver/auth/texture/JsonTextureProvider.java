@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.HTTPRequest;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.profiles.Texture;
+import pro.gravit.launchserver.HttpRequester;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
@@ -19,7 +20,9 @@ public class JsonTextureProvider extends TextureProvider {
     private static final Type MAP_TYPE = new TypeToken<Map<String, JsonTexture>>() {
     }.getType();
     private transient final Logger logger = LogManager.getLogger();
+    private transient final HttpRequester requester = new HttpRequester();
     public String url;
+    public String bearerToken;
 
     @Override
     public void close() {
@@ -41,8 +44,7 @@ public class JsonTextureProvider extends TextureProvider {
     @Override
     public Map<String, Texture> getAssets(UUID uuid, String username, String client) {
         try {
-            var result = HTTPRequest.jsonRequest(null, "GET", new URL(RequestTextureProvider.getTextureURL(url, uuid, username, client)));
-            Map<String, JsonTexture> map = Launcher.gsonManager.gson.fromJson(result, MAP_TYPE);
+            Map<String, JsonTexture> map = requester.<Map<String, JsonTexture>>send(requester.get(RequestTextureProvider.getTextureURL(url, uuid, username, client), bearerToken), MAP_TYPE).getOrThrow();
             return JsonTexture.convertMap(map);
         } catch (IOException e) {
             logger.error("JsonTextureProvider", e);
