@@ -59,11 +59,6 @@ public class Launch4JTask implements LauncherBuildTask, BuildExeMainTask {
         return output;
     }
 
-    @Override
-    public boolean allowDelete() {
-        return true;
-    }
-
     private Path setConfig() {
         Path path = server.launcherEXEBinary.nextPath(getName());
         Config config = new Config();

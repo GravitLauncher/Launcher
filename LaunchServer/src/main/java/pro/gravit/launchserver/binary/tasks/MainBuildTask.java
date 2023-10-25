@@ -51,7 +51,7 @@ public class MainBuildTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputJar) throws IOException {
-        Path outputJar = server.launcherBinary.nextPath("main");
+        Path outputJar = server.launcherBinary.nextPath(this);
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
             BuildContext context = new BuildContext(output, reader.getCp(), this);
             initProps();
@@ -159,11 +159,6 @@ public class MainBuildTask implements LauncherBuildTask {
             result = writer.toByteArray();
         }
         return result;
-    }
-
-    @Override
-    public boolean allowDelete() {
-        return true;
     }
 
     @FunctionalInterface

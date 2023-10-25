@@ -15,9 +15,7 @@ import proguard.Configuration;
 import proguard.ConfigurationParser;
 import proguard.ProGuard;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class ProGuardComponent extends Component implements AutoCloseable, Reconfigurable {
     private static final Logger logger = LogManager.getLogger();
@@ -36,6 +37,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     public transient ProguardConf proguardConf;
     private transient LaunchServer launchServer;
     private transient ProGuardBuildTask buildTask;
+    private transient ProGuardMultiReleaseFixer fixerTask;
 
     public static boolean checkFXJMods(Path path) {
         if (!IOHelper.exists(path.resolve("javafx.base.jmod")))
@@ -75,7 +77,9 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         this.launchServer = launchServer;
         proguardConf = new ProguardConf(launchServer, this);
         this.buildTask = new ProGuardBuildTask(launchServer, proguardConf, this);
+        this.fixerTask = new ProGuardMultiReleaseFixer(launchServer, this, "ProGuard.".concat(componentName));
         launchServer.launcherBinary.addAfter((v) -> v.getName().startsWith(modeAfter), buildTask);
+        launchServer.launcherBinary.addAfter((v) -> v.getName().equals("ProGuard.".concat(componentName)), fixerTask);
     }
 
     @Override
@@ -109,6 +113,59 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             }
         });
         return null;
+    }
+
+    public static class ProGuardMultiReleaseFixer implements LauncherBuildTask {
+        private final LaunchServer server;
+        private final ProGuardComponent component;
+        private final String proguardTaskName;
+
+        public ProGuardMultiReleaseFixer(LaunchServer server, ProGuardComponent component, String proguardTaskName) {
+            this.server = server;
+            this.component = component;
+            this.proguardTaskName = proguardTaskName;
+        }
+
+        @Override
+        public String getName() {
+            return "ProGuardMultiReleaseFixer.".concat(component.componentName);
+        }
+
+        @Override
+        public Path process(Path inputFile) throws IOException {
+            LauncherBuildTask task = server.launcherBinary.getTaskBefore((x) -> proguardTaskName.equals(x.getName())).get();
+            Path lastPath = server.launcherBinary.nextPath(task);
+            if(Files.notExists(lastPath)) {
+                logger.error("{} not exist. Multi-Release JAR fix not applied!", lastPath);
+                return inputFile;
+            }
+            Path outputPath = server.launcherBinary.nextPath(this);
+            try(ZipOutputStream output = new ZipOutputStream(new FileOutputStream(outputPath.toFile()))) {
+                try(ZipInputStream input = new ZipInputStream(new FileInputStream(inputFile.toFile()))) {
+                    ZipEntry entry = input.getNextEntry();
+                    while(entry != null) {
+                        ZipEntry newEntry = new ZipEntry(entry.getName());
+                        output.putNextEntry(newEntry);
+                        input.transferTo(output);
+                        entry = input.getNextEntry();
+                    }
+                }
+                try(ZipInputStream input = new ZipInputStream(new FileInputStream(lastPath.toFile()))) {
+                    ZipEntry entry = input.getNextEntry();
+                    while(entry != null) {
+                        if(!entry.getName().startsWith("META-INF/versions")) {
+                            entry = input.getNextEntry();
+                            continue;
+                        }
+                        ZipEntry newEntry = new ZipEntry(entry.getName());
+                        output.putNextEntry(newEntry);
+                        input.transferTo(output);
+                        entry = input.getNextEntry();
+                    }
+                }
+            }
+            return outputPath;
+        }
     }
 
     public static class ProGuardBuildTask implements LauncherBuildTask {
@@ -156,11 +213,6 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             } else
                 IOHelper.copy(inputFile, outputJar);
             return outputJar;
-        }
-
-        @Override
-        public boolean allowDelete() {
-            return true;
         }
     }
 

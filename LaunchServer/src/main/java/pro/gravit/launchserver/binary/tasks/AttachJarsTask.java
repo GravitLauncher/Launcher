@@ -68,11 +68,6 @@ public class AttachJarsTask implements LauncherBuildTask {
         return exclusions.stream().anyMatch(name::startsWith);
     }
 
-    @Override
-    public boolean allowDelete() {
-        return true;
-    }
-
     public List<Path> getJars() {
         return jars;
     }

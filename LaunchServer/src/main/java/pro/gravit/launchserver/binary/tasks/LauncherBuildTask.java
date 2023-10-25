@@ -7,6 +7,4 @@ public interface LauncherBuildTask {
     String getName();
 
     Path process(Path inputFile) throws IOException;
-
-    boolean allowDelete();
 }
