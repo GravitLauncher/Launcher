@@ -93,6 +93,7 @@ dependencies {
     bundle group: 'io.jsonwebtoken', name: 'jjwt-api', version: rootProject['verJwt']
     bundle group: 'io.jsonwebtoken', name: 'jjwt-impl', version: rootProject['verJwt']
     bundle group: 'io.jsonwebtoken', name: 'jjwt-gson', version: rootProject['verJwt']
+    annotationProcessor(group: 'org.apache.logging.log4j', name: 'log4j-core', version: rootProject['verLog4j'])
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 
     hikari 'io.micrometer:micrometer-core:1.8.4'
