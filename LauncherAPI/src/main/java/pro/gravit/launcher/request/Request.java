@@ -28,20 +28,24 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     private static volatile Map<String, ExtendedToken> extendedTokens;
     private static volatile String authId;
     private static volatile long tokenExpiredTime;
-    private static ScheduledExecutorService executorService;
+    private static volatile ScheduledExecutorService executorService;
+    private static volatile boolean autoRefreshRunning;
     @LauncherNetworkAPI
     public final UUID requestUUID = UUID.randomUUID();
     private transient final AtomicBoolean started = new AtomicBoolean(false);
 
-    public static void startAutoRefresh() {
-        executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(() -> {
-            try {
-                restore(false, true);
-            } catch (Exception e) {
-                LogHelper.error(e);
-            }
-        }, 60, 60, TimeUnit.SECONDS);
+    public static synchronized void startAutoRefresh() {
+        if(!autoRefreshRunning) {
+            executorService = Executors.newSingleThreadScheduledExecutor();
+            executorService.scheduleAtFixedRate(() -> {
+                try {
+                    restore(false, true);
+                } catch (Exception e) {
+                    LogHelper.error(e);
+                }
+            }, 60, 60, TimeUnit.SECONDS);
+            autoRefreshRunning = true;
+        }
     }
 
     public static RequestService getRequestService() {

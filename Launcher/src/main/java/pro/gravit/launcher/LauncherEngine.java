@@ -234,6 +234,7 @@ public class LauncherEngine {
                 };
             }
         }
+        Request.startAutoRefresh();
         Request.getRequestService().registerEventHandler(new BasicLauncherEventHandler());
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
