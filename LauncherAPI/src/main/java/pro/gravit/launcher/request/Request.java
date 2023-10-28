@@ -50,7 +50,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
                 } catch (Exception e) {
                     LogHelper.error(e);
                 }
-            }, 60, 60, TimeUnit.SECONDS);
+            }, 5, 5, TimeUnit.SECONDS);
             autoRefreshRunning = true;
         }
     }
