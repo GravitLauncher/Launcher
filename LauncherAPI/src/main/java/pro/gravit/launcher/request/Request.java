@@ -37,7 +37,12 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     public static synchronized void startAutoRefresh() {
         if(!autoRefreshRunning) {
             if(executorService == null) {
-                executorService = Executors.newSingleThreadScheduledExecutor();
+                executorService = Executors.newSingleThreadScheduledExecutor((t) -> {
+                    Thread thread = new Thread(t);
+                    thread.setName("AutoRefresh thread");
+                    thread.setDaemon(true);
+                    return thread;
+                });
             }
             executorService.scheduleAtFixedRate(() -> {
                 try {
