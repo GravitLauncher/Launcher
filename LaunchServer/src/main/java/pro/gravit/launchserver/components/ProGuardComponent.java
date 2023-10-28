@@ -133,6 +133,9 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
 
         @Override
         public Path process(Path inputFile) throws IOException {
+            if (!component.enabled) {
+                return inputFile;
+            }
             LauncherBuildTask task = server.launcherBinary.getTaskBefore((x) -> proguardTaskName.equals(x.getName())).get();
             Path lastPath = server.launcherBinary.nextPath(task);
             if(Files.notExists(lastPath)) {
