@@ -61,7 +61,7 @@ public final class LaunchServerConfig {
         newConfig.launch4j.txtProductVersion = "%s, build %d";
         newConfig.launch4j.productName = "GravitLauncher";
         newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
-        newConfig.launch4j.maxVersion = "1.8.999";
+        newConfig.launch4j.maxVersion = "99.0.0";
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.auth = new HashMap<>();
@@ -171,8 +171,8 @@ public final class LaunchServerConfig {
             if (!updateMirror) {
                 for (int i = 0; i < mirrors.length; ++i) {
                     if (mirrors[i] != null && oldMirrorList.contains(mirrors[i])) {
-                        logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.4.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
-                        mirrors[i] = "https://mirror.gravitlauncher.com/5.4.x/";
+                        logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.5.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
+                        mirrors[i] = "https://mirror.gravitlauncher.com/5.5.x/";
                     }
                 }
             }
@@ -234,7 +234,7 @@ public final class LaunchServerConfig {
         public boolean enabled;
         public boolean setMaxVersion;
         public String maxVersion;
-        public String minVersion = "1.8.0";
+        public String minVersion = "17.0.0";
         public String supportURL = null;
         public String downloadUrl = Launch4JTask.DOWNLOAD_URL;
         public String productName;
