@@ -52,9 +52,9 @@ public class JsonTextureProvider extends TextureProvider {
         }
     }
 
-    public record JsonTexture(String url, String hash, Map<String, String> metadata) {
+    public record JsonTexture(String url, String digest, Map<String, String> metadata) {
         public Texture toTexture() {
-            return new Texture(url, hash == null ? null : SecurityHelper.fromHex(hash), metadata);
+            return new Texture(url, digest == null ? null : SecurityHelper.fromHex(digest), metadata);
         }
 
         public static Map<String, Texture> convertMap(Map<String, JsonTexture> map) {
