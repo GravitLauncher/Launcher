@@ -1,0 +1,72 @@
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
+dependencies {
+    api project(':LauncherCore')
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+jar {
+    archiveClassifier.set('clean')
+    manifest.attributes("Multi-Release": "true")
+}
+
+tasks.register('sourcesJar', Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier.set('sources')
+}
+
+tasks.register('javadocJar', Jar) {
+    from javadoc
+    archiveClassifier.set('javadoc')
+}
+
+publishing {
+    publications {
+        launchermoderncore(MavenPublication) {
+            artifactId = 'launcher-modern-core'
+            artifact(jar) {
+                classifier ""
+            }
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'GravitLauncher Core Utils with Java 17+'
+                description = 'GravitLauncher Core Utils'
+                url = 'https://gravitlauncher.com'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gravita'
+                        name = 'Gravita'
+                        email = 'gravita@gravit.pro'
+                    }
+                    developer {
+                        id = 'zaxar163'
+                        name = 'Zaxar163'
+                        email = 'zahar.vcherachny@yandex.ru'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/GravitLauncher/Launcher.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:GravitLauncher/Launcher.git'
+                    url = 'https://gravitlauncher.com/'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.launchermoderncore
+}

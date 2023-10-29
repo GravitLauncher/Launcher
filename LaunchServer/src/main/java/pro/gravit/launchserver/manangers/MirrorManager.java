@@ -3,20 +3,27 @@ package pro.gravit.launchserver.manangers;
 import com.google.gson.JsonElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.HTTPRequest;
-import pro.gravit.utils.HttpDownloader;
+import pro.gravit.launcher.Launcher;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class MirrorManager {
     protected final ArrayList<Mirror> list = new ArrayList<>();
     private transient final Logger logger = LogManager.getLogger();
+    private transient final HttpClient client = HttpClient.newBuilder().build();
     private Mirror defaultMirror;
 
     public void addMirror(String mirror) {
@@ -58,7 +65,7 @@ public class MirrorManager {
         URL url = mirror.getURL(mask, args);
         logger.debug("Try download {}", url.toString());
         try {
-            HttpDownloader.downloadZip(url, path);
+            downloadZip(url, path);
         } catch (IOException e) {
             logger.error("Download {} failed({}: {})", url.toString(), e.getClass().getName(), e.getMessage());
             return false;
@@ -82,8 +89,12 @@ public class MirrorManager {
         if (!mirror.enabled) return null;
         URL url = mirror.getURL(mask, args);
         try {
-            return HTTPRequest.jsonRequest(request, method, url);
-        } catch (IOException e) {
+            var response = client.send(HttpRequest.newBuilder()
+                            .method(method, request == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(Launcher.gsonManager.gson.toJson(request)))
+                            .uri(url.toURI())
+                    .build(), HttpResponse.BodyHandlers.ofString());
+            return Launcher.gsonManager.gson.fromJson(response.body(), JsonElement.class);
+        } catch (IOException | URISyntaxException | InterruptedException e) {
             logger.error("JsonRequest {} failed({}: {})", url.toString(), e.getClass().getName(), e.getMessage());
             return null;
         }
@@ -99,6 +110,22 @@ public class MirrorManager {
             }
         }
         throw new IOException("Error jsonRequest. All mirrors return error");
+    }
+
+    private void downloadZip(URL url, Path dir) throws IOException {
+        try (ZipInputStream input = IOHelper.newZipInput(url)) {
+            Files.createDirectory(dir);
+            for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
+                if (entry.isDirectory()) {
+                    Files.createDirectory(dir.resolve(IOHelper.toPath(entry.getName())));
+                    continue;
+                }
+                // Unpack entry
+                String name = entry.getName();
+                logger.debug("Downloading file: '{}'", name);
+                IOHelper.transfer(input, dir.resolve(IOHelper.toPath(name)));
+            }
+        }
     }
 
     public static class Mirror {

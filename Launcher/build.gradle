@@ -13,8 +13,8 @@ javafx {
     version = "12"
     modules = ['javafx.controls', 'javafx.fxml']
 }
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 configurations {
     bundle
@@ -49,6 +49,7 @@ shadowJar {
 
 dependencies {
     pack project(':LauncherAPI')
+    pack project(':LauncherModernCore')
     pack project(':LauncherClient')
     pack project(':LauncherStart')
     bundle group: 'com.github.oshi', name: 'oshi-core', version: rootProject['verOshiCore']

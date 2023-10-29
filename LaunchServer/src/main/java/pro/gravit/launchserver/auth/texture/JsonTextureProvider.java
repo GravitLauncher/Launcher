@@ -3,15 +3,12 @@ package pro.gravit.launchserver.auth.texture;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.HTTPRequest;
-import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.profiles.Texture;
 import pro.gravit.launchserver.HttpRequester;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

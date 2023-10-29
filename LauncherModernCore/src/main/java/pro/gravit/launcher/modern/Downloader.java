@@ -1,10 +1,13 @@
-package pro.gravit.utils;
+package pro.gravit.launcher.modern;
 
-import pro.gravit.launcher.AsyncDownloader;
+import pro.gravit.launcher.CertificatePinningTrustManager;
 import pro.gravit.launcher.LauncherInject;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -13,6 +16,11 @@ import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
@@ -26,6 +34,8 @@ public class Downloader {
     private static boolean isCertificatePinning;
     @LauncherInject("launcher.noHttp2")
     private static boolean isNoHttp2;
+    private static volatile SSLSocketFactory sslSocketFactory;
+    private static volatile SSLContext sslContext;
     protected final HttpClient client;
     protected final ExecutorService executor;
     protected final Queue<DownloadTask> tasks = new ConcurrentLinkedDeque<>();
@@ -35,7 +45,50 @@ public class Downloader {
         this.executor = executor;
     }
 
-    public static Downloader downloadList(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
+    public static ThreadFactory getDaemonThreadFactory(String name) {
+        return (task) -> {
+            Thread thread = new Thread(task);
+            thread.setName(name);
+            thread.setDaemon(true);
+            return thread;
+        };
+    }
+
+    public static SSLSocketFactory makeSSLSocketFactory() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
+        if (sslSocketFactory != null) return sslSocketFactory;
+        SSLContext sslContext = makeSSLContext();
+        sslSocketFactory = sslContext.getSocketFactory();
+        return sslSocketFactory;
+    }
+
+    public static SSLContext makeSSLContext() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
+        if (sslContext != null) return sslContext;
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, CertificatePinningTrustManager.getTrustManager().getTrustManagers(), new SecureRandom());
+        return sslContext;
+    }
+
+    public static Downloader downloadFile(URI uri, Path path, ExecutorService executor) {
+        boolean closeExecutor = false;
+        if (executor == null) {
+            executor = Executors.newSingleThreadExecutor(getDaemonThreadFactory("Downloader"));
+            closeExecutor = true;
+        }
+        Downloader downloader = newDownloader(executor);
+        downloader.future = downloader.downloadFile(uri, path);
+        if (closeExecutor) {
+            ExecutorService finalExecutor = executor;
+            downloader.future = downloader.future.thenAccept((e) -> {
+                finalExecutor.shutdownNow();
+            }).exceptionallyCompose((ex) -> {
+                finalExecutor.shutdownNow();
+                return CompletableFuture.failedFuture(ex);
+            });
+        }
+        return downloader;
+    }
+
+    public static Downloader downloadList(List<SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
         boolean closeExecutor = false;
         LogHelper.info("Download with Java 11+ HttpClient");
         if (executor == null) {
@@ -46,7 +99,12 @@ public class Downloader {
         downloader.future = downloader.downloadFiles(files, baseURL, targetDir, callback, executor, threads);
         if (closeExecutor) {
             ExecutorService finalExecutor = executor;
-            downloader.future = downloader.future.thenAccept(e -> finalExecutor.shutdownNow());
+            downloader.future = downloader.future.thenAccept((e) -> {
+                finalExecutor.shutdownNow();
+            }).exceptionallyCompose((ex) -> {
+                finalExecutor.shutdownNow();
+                return CompletableFuture.failedFuture(ex);
+            });
         }
         return downloader;
     }
@@ -61,7 +119,7 @@ public class Downloader {
                 .executor(executor);
         if (isCertificatePinning) {
             try {
-                builder.sslContext(AsyncDownloader.makeSSLContext());
+                builder.sslContext(makeSSLContext());
             } catch (Exception e) {
                 throw new SecurityException(e);
             }
@@ -88,11 +146,23 @@ public class Downloader {
         return future;
     }
 
-    public CompletableFuture<Void> downloadFiles(List<AsyncDownloader.SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
+    public CompletableFuture<Void> downloadFile(URI uri, Path path) {
+        return client.sendAsync(HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build(), HttpResponse.BodyHandlers.ofFile(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)).thenCompose((t) -> {
+                    if(t.statusCode() < 200 || t.statusCode() >= 400) {
+                        return CompletableFuture.failedFuture(new IOException(String.format("Failed to download %s: code %d", uri.toString(), t.statusCode())));
+                    }
+                    return CompletableFuture.completedFuture(null);
+        });
+    }
+
+    public CompletableFuture<Void> downloadFiles(List<SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
         // URI scheme
-        URI baseUri = new URI(baseURL);
+        URI baseUri = baseURL == null ? null : new URI(baseURL);
         Collections.shuffle(files);
-        Queue<AsyncDownloader.SizedFile> queue = new ConcurrentLinkedDeque<>(files);
+        Queue<SizedFile> queue = new ConcurrentLinkedDeque<>(files);
         CompletableFuture<Void> future = new CompletableFuture<>();
         AtomicInteger currentThreads = new AtomicInteger(threads);
         ConsumerObject consumerObject = new ConsumerObject();
@@ -100,7 +170,7 @@ public class Downloader {
             if (callback != null && e != null) {
                 callback.onComplete(e.body());
             }
-            AsyncDownloader.SizedFile file = queue.poll();
+            SizedFile file = queue.poll();
             if (file == null) {
                 if (currentThreads.decrementAndGet() == 0)
                     future.complete(null);
@@ -124,7 +194,7 @@ public class Downloader {
         return future;
     }
 
-    protected DownloadTask sendAsync(AsyncDownloader.SizedFile file, URI baseUri, Path targetDir, DownloadCallback callback) throws Exception {
+    protected DownloadTask sendAsync(SizedFile file, URI baseUri, Path targetDir, DownloadCallback callback) throws Exception {
         IOHelper.createParentDirs(targetDir.resolve(file.filePath));
         ProgressTrackingBodyHandler<Path> bodyHandler = makeBodyHandler(targetDir.resolve(file.filePath), callback);
         CompletableFuture<HttpResponse<Path>> future = client.sendAsync(makeHttpRequest(baseUri, file.urlPath), bodyHandler);
@@ -139,15 +209,21 @@ public class Downloader {
     }
 
     protected HttpRequest makeHttpRequest(URI baseUri, String filePath) throws URISyntaxException {
-        String scheme = baseUri.getScheme();
-        String host = baseUri.getHost();
-        int port = baseUri.getPort();
-        if (port != -1)
-            host = host + ":" + port;
-        String path = baseUri.getPath();
+        URI uri;
+        if(baseUri != null) {
+            String scheme = baseUri.getScheme();
+            String host = baseUri.getHost();
+            int port = baseUri.getPort();
+            if (port != -1)
+                host = host + ":" + port;
+            String path = baseUri.getPath();
+            uri = new URI(scheme, host, path + filePath, "", "");
+        } else {
+            uri = new URI(filePath);
+        }
         return HttpRequest.newBuilder()
                 .GET()
-                .uri(new URI(scheme, host, path + filePath, "", ""))
+                .uri(uri)
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36")
                 .build();
     }
@@ -260,6 +336,23 @@ public class Downloader {
                     subscription.cancel();
                 }
             }
+        }
+    }
+
+    public static class SizedFile {
+        public final String urlPath, filePath;
+        public final long size;
+
+        public SizedFile(String path, long size) {
+            this.urlPath = path;
+            this.filePath = path;
+            this.size = size;
+        }
+
+        public SizedFile(String urlPath, String filePath, long size) {
+            this.urlPath = urlPath;
+            this.filePath = filePath;
+            this.size = size;
         }
     }
 }
