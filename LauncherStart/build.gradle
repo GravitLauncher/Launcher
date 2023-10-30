@@ -76,5 +76,5 @@ publishing {
 
 
 signing {
-    sign publishing.publications.launcherclientapi
+    sign publishing.publications.launcherclientstart
 }
