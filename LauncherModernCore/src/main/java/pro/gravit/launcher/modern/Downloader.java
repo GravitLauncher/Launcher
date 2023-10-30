@@ -147,6 +147,11 @@ public class Downloader {
     }
 
     public CompletableFuture<Void> downloadFile(URI uri, Path path) {
+        try {
+            IOHelper.createParentDirs(path);
+        } catch (IOException e) {
+            return CompletableFuture.failedFuture(e);
+        }
         return client.sendAsync(HttpRequest.newBuilder()
                 .GET()
                 .uri(uri)
