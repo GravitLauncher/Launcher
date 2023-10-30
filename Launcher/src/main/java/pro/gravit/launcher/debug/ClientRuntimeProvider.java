@@ -46,7 +46,7 @@ public class ClientRuntimeProvider implements RuntimeProvider {
                     if(report.userInfo.accessToken != null) {
                         minecraftAccessToken = report.userInfo.accessToken;
                     }
-                } else if(password != null) {
+                } else {
                     AuthRequest request = new AuthRequest(login, password, authId, AuthRequest.ConnectTypes.API);
                     AuthRequestEvent event = request.request();
                     Request.setOAuth(authId, event.oauth);
