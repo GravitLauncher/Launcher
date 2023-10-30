@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.stream.Collectors;
 
 public class SecurityCheckCommand extends Command {
     private static final Logger logger = LogManager.getLogger();
@@ -113,7 +112,7 @@ public class SecurityCheckCommand extends Command {
                 List<X509Certificate> certChain = Arrays.stream(certChainPlain).map(e -> (X509Certificate) e).toList();
                 X509Certificate cert = certChain.get(0);
                 cert.checkValidity();
-                if (certChain.size() <= 1) {
+                if (certChain.size() == 1) {
                     printCheckResult("sign", "certificate chain contains <2 element(recommend 2 and more)", false);
                     bad = true;
                 }

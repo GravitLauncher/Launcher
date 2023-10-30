@@ -46,7 +46,7 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
                     LogHelper.error(e);
                 }
             }));
-        }, (error) -> future.completeExceptionally(error));
+        }, future::completeExceptionally);
         return future;
     }
 

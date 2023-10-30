@@ -7,10 +7,8 @@ import pro.gravit.launcher.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.console.GetPublicKeyCommand;
 import pro.gravit.launcher.console.ModulesCommand;
 import pro.gravit.launcher.console.SignDataCommand;
-import pro.gravit.launcher.events.request.*;
 import pro.gravit.launcher.gui.NoRuntimeProvider;
 import pro.gravit.launcher.gui.RuntimeProvider;
-import pro.gravit.launcher.managers.ClientGsonManager;
 import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.modules.events.PreConfigPhase;
@@ -20,11 +18,6 @@ import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
 import pro.gravit.launcher.request.RequestService;
 import pro.gravit.launcher.request.auth.*;
-import pro.gravit.launcher.request.auth.details.AuthLoginOnlyDetails;
-import pro.gravit.launcher.request.management.FeaturesRequest;
-import pro.gravit.launcher.request.secure.GetSecureLevelInfoRequest;
-import pro.gravit.launcher.request.secure.SecurityReportRequest;
-import pro.gravit.launcher.request.update.LauncherRequest;
 import pro.gravit.launcher.request.websockets.OfflineRequestService;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.utils.NativeJVMHalt;
@@ -32,31 +25,31 @@ import pro.gravit.utils.helper.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LauncherEngine {
-    public static ClientLauncherProcess.ClientParams clientParams;
-    public static ClientModuleManager modulesManager;
+    public static ClientParams clientParams;
+    public static RuntimeModuleManager modulesManager;
     public final boolean clientInstance;
     // Instance
     private final AtomicBoolean started = new AtomicBoolean(false);
     public RuntimeProvider runtimeProvider;
     public ECPublicKey publicKey;
     public ECPrivateKey privateKey;
+    public Class<? extends RuntimeProvider> basicRuntimeProvider;
 
-    private LauncherEngine(boolean clientInstance) {
-
+    private LauncherEngine(boolean clientInstance, Class<? extends RuntimeProvider> basicRuntimeProvider) {
         this.clientInstance = clientInstance;
+        this.basicRuntimeProvider = basicRuntimeProvider;
     }
 
     //JVMHelper.getCertificates
@@ -101,19 +94,32 @@ public class LauncherEngine {
         forceExit(code);
     }
 
+    public static boolean contains(String[] array, String value) {
+        for(String s : array) {
+            if(s.equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void main(String... args) throws Throwable {
-        JVMHelper.checkStackTrace(LauncherEngine.class);
+        JVMHelper.checkStackTrace(LauncherEngineWrapper.class);
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
         //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         verifyNoAgent();
+        if(contains(args, "--log-output") && Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
+            LogHelper.addOutput(Paths.get("Launcher.log"));
+        }
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
+        LauncherEngine.checkClass(LauncherEngineWrapper.class);
         LauncherEngine.checkClass(LauncherEngine.class);
         LauncherEngine.checkClass(LauncherAgent.class);
         LauncherEngine.checkClass(ClientLauncherEntryPoint.class);
-        LauncherEngine.modulesManager = new ClientModuleManager();
-        LauncherEngine.modulesManager.loadModule(new ClientLauncherCoreModule());
+        LauncherEngine.modulesManager = new RuntimeModuleManager();
+        LauncherEngine.modulesManager.loadModule(new RuntimeLauncherCoreModule());
         LauncherConfig.initModules(LauncherEngine.modulesManager);
         LauncherEngine.modulesManager.initModules(null);
         // Start Launcher
@@ -123,7 +129,7 @@ public class LauncherEngine {
         Launcher.getConfig(); // init config
         long startTime = System.currentTimeMillis();
         try {
-            new LauncherEngine(false).start(args);
+            newInstance(false).start(args);
         } catch (Exception e) {
             LogHelper.error(e);
             return;
@@ -133,12 +139,12 @@ public class LauncherEngine {
         LauncherEngine.exitLauncher(0);
     }
 
-    public static void initGson(ClientModuleManager modulesManager) {
+    public static void initGson(RuntimeModuleManager modulesManager) {
         AuthRequest.registerProviders();
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
-        Launcher.gsonManager = new ClientGsonManager(modulesManager);
+        Launcher.gsonManager = new RuntimeGsonManager(modulesManager);
         Launcher.gsonManager.initGson();
     }
 
@@ -149,39 +155,18 @@ public class LauncherEngine {
 
     public static RequestService initOffline() {
         OfflineRequestService service = new OfflineRequestService();
-        applyBasicOfflineProcessors(service);
+        ClientLauncherMethods.applyBasicOfflineProcessors(service);
         OfflineModeEvent event = new OfflineModeEvent(service);
         modulesManager.invokeEvent(event);
         return event.service;
     }
 
-    public static void applyBasicOfflineProcessors(OfflineRequestService service) {
-        service.registerRequestProcessor(LauncherRequest.class, (r) -> new LauncherRequestEvent(false, (String) null));
-        service.registerRequestProcessor(CheckServerRequest.class, (r) -> {
-            throw new RequestException("CheckServer disabled in offline mode");
-        });
-        service.registerRequestProcessor(GetAvailabilityAuthRequest.class, (r) -> {
-            List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> details = new ArrayList<>();
-            details.add(new AuthLoginOnlyDetails());
-            GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability = new GetAvailabilityAuthRequestEvent.AuthAvailability("offline", "Offline Mode", true, details);
-            List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>(1);
-            list.add(authAvailability);
-            return new GetAvailabilityAuthRequestEvent(list);
-        });
-        service.registerRequestProcessor(JoinServerRequest.class, (r) -> new JoinServerRequestEvent(false));
-        service.registerRequestProcessor(ExitRequest.class, (r) -> new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
-        service.registerRequestProcessor(SetProfileRequest.class, (r) -> new SetProfileRequestEvent(null));
-        service.registerRequestProcessor(FeaturesRequest.class, (r) -> new FeaturesRequestEvent());
-        service.registerRequestProcessor(GetSecureLevelInfoRequest.class, (r) -> new GetSecureLevelInfoRequestEvent(null, false));
-        service.registerRequestProcessor(SecurityReportRequest.class, (r) -> new SecurityReportRequestEvent(SecurityReportRequestEvent.ReportAction.NONE));
-    }
-
-    public static LauncherEngine clientInstance() {
-        return new LauncherEngine(true);
-    }
-
     public static LauncherEngine newInstance(boolean clientInstance) {
-        return new LauncherEngine(clientInstance);
+        return new LauncherEngine(clientInstance, NoRuntimeProvider.class);
+    }
+
+    public static LauncherEngine newInstance(boolean clientInstance, Class<? extends RuntimeProvider> basicRuntimeProvider) {
+        return new LauncherEngine(clientInstance, basicRuntimeProvider);
     }
 
     public ECPublicKey getClientPublicKey() {
@@ -219,7 +204,7 @@ public class LauncherEngine {
         ClientPreGuiPhase event = new ClientPreGuiPhase(null);
         LauncherEngine.modulesManager.invokeEvent(event);
         runtimeProvider = event.runtimeProvider;
-        if (runtimeProvider == null) runtimeProvider = new NoRuntimeProvider();
+        if (runtimeProvider == null) runtimeProvider = basicRuntimeProvider.getConstructor().newInstance();
         runtimeProvider.init(clientInstance);
         //runtimeProvider.preLoad();
         if (!Request.isAvailable()) {
@@ -248,8 +233,9 @@ public class LauncherEngine {
                     }
                 };
             }
-            service.registerEventHandler(new BasicLauncherEventHandler());
         }
+        Request.startAutoRefresh();
+        Request.getRequestService().registerEventHandler(new BasicLauncherEventHandler());
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");

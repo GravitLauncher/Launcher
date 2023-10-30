@@ -104,9 +104,4 @@ public class SignJarTask implements LauncherBuildTask {
             }
         }
     }
-
-    @Override
-    public boolean allowDelete() {
-        return true;
-    }
 }

@@ -10,7 +10,6 @@ import pro.gravit.launchserver.helper.MakeProfileHelper;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.Writer;
-import java.nio.file.Files;
 
 public class MakeProfileCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();

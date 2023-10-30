@@ -74,9 +74,4 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
         return out;
     }
 
-    @Override
-    public boolean allowDelete() {
-        return true;
-    }
-
 }

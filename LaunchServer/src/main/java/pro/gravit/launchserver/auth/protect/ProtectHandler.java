@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.auth.protect;
 
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.ProviderMap;
 
@@ -19,6 +20,9 @@ public abstract class ProtectHandler {
     }
 
     public abstract boolean allowGetAccessToken(AuthResponse.AuthContext context);
+    public boolean allowJoinServer(Client client) {
+        return client.isAuth && client.type == AuthResponse.ConnectTypes.CLIENT;
+    }
 
     public void init(LaunchServer server) {
 

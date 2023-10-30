@@ -5,8 +5,8 @@ import java.util.*;
 public final class Version implements Comparable<Version> {
 
     public static final int MAJOR = 5;
-    public static final int MINOR = 4;
-    public static final int PATCH = 4;
+    public static final int MINOR = 5;
+    public static final int PATCH = 0;
     public static final int BUILD = 1;
     public static final Version.Type RELEASE = Type.STABLE;
     public final int major;

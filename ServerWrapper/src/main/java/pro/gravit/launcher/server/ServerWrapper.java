@@ -128,6 +128,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 LogHelper.error(e);
             }
         };
+        if(config.properties != null) {
+            for(Map.Entry<String, String> e : config.properties.entrySet()) {
+                System.setProperty(e.getKey(), e.getValue());
+            }
+        }
         Request.setRequestService(service);
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
@@ -213,6 +218,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         newConfig.address = "ws://localhost:9274/api";
         newConfig.classLoaderConfig = ClientProfile.ClassLoaderConfig.SYSTEM_ARGS;
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
+        newConfig.properties = new HashMap<>();
         return newConfig;
     }
 
@@ -231,13 +237,15 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String authId;
         public AuthRequestEvent.OAuthRequestEvent oauth;
         public long oauthExpireTime;
-        public Map<String, String> extendedTokens;
+        public Map<String, Request.ExtendedToken> extendedTokens;
         public LauncherConfig.LauncherEnvironment env;
         public ModuleConf moduleConf = new ModuleConf();
 
         public byte[] encodedServerRsaPublicKey;
 
         public byte[] encodedServerEcPublicKey;
+
+        public Map<String, String> properties;
     }
 
     public static final class ModuleConf {

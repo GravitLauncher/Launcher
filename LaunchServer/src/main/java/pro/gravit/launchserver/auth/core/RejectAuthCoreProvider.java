@@ -4,6 +4,7 @@ import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.manangers.AuthManager;
+import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 
 import java.io.IOException;
@@ -46,7 +47,12 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    protected boolean updateServerID(User user, String serverID) {
+    public User checkServer(Client client, String username, String serverID) throws IOException {
+        return null;
+    }
+
+    @Override
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
         return false;
     }
 

@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
+import pro.gravit.launchserver.auth.mix.MixProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ public final class AuthProviderPair {
     public boolean isDefault = true;
     public AuthCoreProvider core;
     public TextureProvider textureProvider;
+    public Map<String, MixProvider> mixes;
     public Map<String, String> links;
     public transient String name;
     public transient Set<String> features;
@@ -36,12 +38,14 @@ public final class AuthProviderPair {
         return list;
     }
 
+    public Set<String> getFeatures() {
+        return features;
+    }
+
     public static void getFeatures(Class<?> clazz, Set<String> list) {
-        Features features = clazz.getAnnotation(Features.class);
-        if (features != null) {
-            for (Feature feature : features.value()) {
-                list.add(feature.value());
-            }
+        Feature[] features = clazz.getAnnotationsByType(Feature.class);
+        for (Feature feature : features) {
+            list.add(feature.value());
         }
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != null && superClass != Object.class) {
@@ -55,8 +59,15 @@ public final class AuthProviderPair {
 
     public final <T> T isSupport(Class<T> clazz) {
         if (core == null) return null;
-        T result = null;
-        if (result == null) result = core.isSupport(clazz);
+        T result = core.isSupport(clazz);
+        if (result == null && mixes != null) {
+            for(var m : mixes.values()) {
+                result = m.isSupport(clazz);
+                if(result != null) {
+                    break;
+                }
+            }
+        }
         return result;
     }
 
@@ -66,6 +77,12 @@ public final class AuthProviderPair {
         core.init(srv);
         features = new HashSet<>();
         getFeatures(core.getClass(), features);
+        if(mixes != null) {
+            for(var m : mixes.values()) {
+                m.init(srv, core);
+                getFeatures(m.getClass(), features);
+            }
+        }
     }
 
     public final void link(LaunchServer srv) {
@@ -86,6 +103,11 @@ public final class AuthProviderPair {
         core.close();
         if (textureProvider != null) {
             textureProvider.close();
+        }
+        if(mixes != null) {
+            for(var m : mixes.values()) {
+                m.close();
+            }
         }
     }
 }

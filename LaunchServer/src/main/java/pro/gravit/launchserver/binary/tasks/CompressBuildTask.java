@@ -43,9 +43,4 @@ public class CompressBuildTask implements LauncherBuildTask {
         }
         return output;
     }
-
-    @Override
-    public boolean allowDelete() {
-        return true;
-    }
 }

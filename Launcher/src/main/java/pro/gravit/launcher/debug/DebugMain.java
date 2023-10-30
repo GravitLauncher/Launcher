@@ -1,10 +1,11 @@
 package pro.gravit.launcher.debug;
 
+import pro.gravit.launcher.ClientLauncherMethods;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.LauncherEngine;
-import pro.gravit.launcher.client.ClientLauncherCoreModule;
-import pro.gravit.launcher.client.ClientModuleManager;
+import pro.gravit.launcher.client.RuntimeLauncherCoreModule;
+import pro.gravit.launcher.client.RuntimeModuleManager;
 import pro.gravit.launcher.managers.ConsoleManager;
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.events.OfflineModeEvent;
@@ -28,6 +29,7 @@ public class DebugMain {
     public static String projectName = System.getProperty("launcherdebug.projectname", "Minecraft");
     public static String unlockSecret = System.getProperty("launcherdebug.unlocksecret", "");
     public static boolean offlineMode = Boolean.getBoolean("launcherdebug.offlinemode");
+    public static boolean disableAutoRefresh = Boolean.getBoolean("launcherdebug.disableautorefresh");
     public static String[] moduleClasses = System.getProperty("launcherdebug.modules", "").split(",");
     public static String[] moduleFiles = System.getProperty("launcherdebug.modulefiles", "").split(",");
     public static LauncherConfig.LauncherEnvironment environment = LauncherConfig.LauncherEnvironment.valueOf(System.getProperty("launcherdebug.env", "STD"));
@@ -42,8 +44,8 @@ public class DebugMain {
         config.unlockSecret = unlockSecret;
         Launcher.setConfig(config);
         Launcher.applyLauncherEnv(environment);
-        LauncherEngine.modulesManager = new ClientModuleManager();
-        LauncherEngine.modulesManager.loadModule(new ClientLauncherCoreModule());
+        LauncherEngine.modulesManager = new RuntimeModuleManager();
+        LauncherEngine.modulesManager.loadModule(new RuntimeLauncherCoreModule());
         for (String moduleClassName : moduleClasses) {
             if (moduleClassName.isEmpty()) continue;
             LauncherEngine.modulesManager.loadModule(newModule(moduleClassName));
@@ -59,7 +61,7 @@ public class DebugMain {
         RequestService service;
         if (offlineMode) {
             OfflineRequestService offlineRequestService = new OfflineRequestService();
-            LauncherEngine.applyBasicOfflineProcessors(offlineRequestService);
+            ClientLauncherMethods.applyBasicOfflineProcessors(offlineRequestService);
             OfflineModeEvent event = new OfflineModeEvent(offlineRequestService);
             LauncherEngine.modulesManager.invokeEvent(event);
             service = event.service;
@@ -67,9 +69,13 @@ public class DebugMain {
             service = StdWebSocketService.initWebSockets(webSocketURL).get();
         }
         Request.setRequestService(service);
+        if(!disableAutoRefresh) {
+            Request.startAutoRefresh();
+        }
         LogHelper.debug("Initialization LauncherEngine");
-        LauncherEngine instance = LauncherEngine.newInstance(false);
+        LauncherEngine instance = LauncherEngine.newInstance(false, ClientRuntimeProvider.class);
         instance.start(args);
+        LauncherEngine.exitLauncher(0);
     }
 
     @SuppressWarnings("unchecked")

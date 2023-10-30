@@ -20,6 +20,7 @@ import pro.gravit.launchserver.socket.response.secure.HardwareReportResponse;
 
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -41,7 +42,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     @Override
     public void onHardwareReport(HardwareReportResponse response, Client client) {
         if (!enableHardwareFeature) {
-            response.sendResult(new HardwareReportRequestEvent(null));
+            response.sendResult(new HardwareReportRequestEvent());
             return;
         }
         if (!client.isAuth || client.trustLevel == null || client.trustLevel.publicKey == null) {
@@ -63,7 +64,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                     throw new SecurityException("Your hardware banned");
                 }
                 client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
-                response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, hardware)));
+                response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, hardware), SECONDS.toMillis(server.config.netty.security.hardwareTokenExpire)));
             } else {
                 logger.error("AuthCoreProvider not supported hardware");
                 response.sendError("AuthCoreProvider not supported hardware");
@@ -78,22 +79,22 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
             if (authSupportHardware != null) {
                 UserHardware hardware = authSupportHardware.getHardwareInfoByPublicKey(client.trustLevel.publicKey);
                 if (hardware == null) //HWID not found?
-                    return new VerifySecureLevelKeyRequestEvent(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
+                    return new VerifySecureLevelKeyRequestEvent(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(server.config.netty.security.publicKeyTokenExpire));
                 if (hardware.isBanned()) {
                     throw new SecurityException("Your hardware banned");
                 }
                 client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
                 authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
-                return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), createHardwareToken(client.username, hardware));
+                return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(server.config.netty.security.publicKeyTokenExpire));
             } else {
                 logger.warn("AuthCoreProvider not supported hardware. HardwareInfo not checked!");
             }
         }
-        return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
+        return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(server.config.netty.security.publicKeyTokenExpire));
     }
 
     @Override
-    public boolean onJoinServer(String serverID, String username, Client client) {
+    public boolean onJoinServer(String serverID, String username, UUID uuid, Client client) {
         return !enableHardwareFeature || (client.trustLevel != null && client.trustLevel.hardwareInfo != null);
     }
 

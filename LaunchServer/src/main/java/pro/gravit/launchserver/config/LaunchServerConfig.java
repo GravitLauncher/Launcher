@@ -27,7 +27,7 @@ import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public final class LaunchServerConfig {
-    private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/", "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/");
+    private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/", "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/", "https://mirror.gravitlauncher.com/5.4.x/");
     private transient final Logger logger = LogManager.getLogger();
     public String projectName;
     public String[] mirrors;
@@ -49,7 +49,7 @@ public final class LaunchServerConfig {
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
-        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.4.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
+        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.5.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         newConfig.launch4j = new LaunchServerConfig.ExeConf();
         newConfig.launch4j.enabled = false;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
@@ -61,7 +61,7 @@ public final class LaunchServerConfig {
         newConfig.launch4j.txtProductVersion = "%s, build %d";
         newConfig.launch4j.productName = "GravitLauncher";
         newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
-        newConfig.launch4j.maxVersion = "1.8.999";
+        newConfig.launch4j.maxVersion = "99.0.0";
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.auth = new HashMap<>();
@@ -171,8 +171,8 @@ public final class LaunchServerConfig {
             if (!updateMirror) {
                 for (int i = 0; i < mirrors.length; ++i) {
                     if (mirrors[i] != null && oldMirrorList.contains(mirrors[i])) {
-                        logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.4.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
-                        mirrors[i] = "https://mirror.gravitlauncher.com/5.4.x/";
+                        logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.5.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
+                        mirrors[i] = "https://mirror.gravitlauncher.com/5.5.x/";
                     }
                 }
             }
@@ -234,7 +234,7 @@ public final class LaunchServerConfig {
         public boolean enabled;
         public boolean setMaxVersion;
         public String maxVersion;
-        public String minVersion = "1.8.0";
+        public String minVersion = "17.0.0";
         public String supportURL = null;
         public String downloadUrl = Launch4JTask.DOWNLOAD_URL;
         public String productName;
@@ -259,6 +259,7 @@ public final class LaunchServerConfig {
         public String metaInfKeyName = "SIGNUMO.RSA";
         public String metaInfSfName = "SIGNUMO.SF";
         public String signAlgo = "SHA256WITHRSA";
+        public boolean checkCertificateExpired = true;
     }
 
     public static class NettyUpdatesBind {

@@ -53,11 +53,6 @@ public class PrepareBuildTask implements LauncherBuildTask {
         return result;
     }
 
-    @Override
-    public boolean allowDelete() {
-        return false;
-    }
-
     public void tryUnpack() throws IOException {
         logger.info("Unpacking launcher native guard list and runtime");
         UnpackHelper.unpackZipNoCheck("runtime.zip", server.launcherBinary.runtimeDir);

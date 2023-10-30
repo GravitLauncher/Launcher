@@ -14,14 +14,14 @@ public class ClientVersionTest {
 
     @Test
     public void compareTest() {
-        Assertions.assertTrue(ClientProfile.Version.of("1.0.0").compareTo(ClientProfile.Version.of("1.0.0")) == 0);
+        Assertions.assertEquals(0, ClientProfile.Version.of("1.0.0").compareTo(ClientProfile.Version.of("1.0.0")));
         Assertions.assertTrue(ClientProfile.Version.of("1.1.0").compareTo(ClientProfile.Version.of("1.0.0")) > 0);
         Assertions.assertTrue(ClientProfile.Version.of("2.0.0").compareTo(ClientProfile.Version.of("1.0.0")) > 0);
         Assertions.assertTrue(ClientProfile.Version.of("1.0.0").compareTo(ClientProfile.Version.of("1.0.1")) < 0);
         Assertions.assertTrue(ClientProfile.Version.of("1.1.0").compareTo(ClientProfile.Version.of("1.0.0")) > 0);
         Assertions.assertTrue(ClientProfile.Version.of("1.0.0").compareTo(ClientProfile.Version.of("1.1.0")) < 0);
-        Assertions.assertTrue(ClientProfile.Version.of("1.0").compareTo(ClientProfile.Version.of("1.0.0")) == 0);
-        Assertions.assertTrue(ClientProfile.Version.of("1.0.0").compareTo(ClientProfile.Version.of("1.0")) == 0);
+        Assertions.assertEquals(0, ClientProfile.Version.of("1.0").compareTo(ClientProfile.Version.of("1.0.0")));
+        Assertions.assertEquals(0, ClientProfile.Version.of("1.0.0").compareTo(ClientProfile.Version.of("1.0")));
         Assertions.assertTrue(ClientProfile.Version.of("1.0.1").compareTo(ClientProfile.Version.of("1.0")) > 0);
         Assertions.assertTrue(ClientProfile.Version.of("1.0").compareTo(ClientProfile.Version.of("1.0.1")) < 0);
         Assertions.assertTrue(ClientProfile.Version.of("1.0").compareTo(ClientProfile.Version.of("1.0.1")) < 0);

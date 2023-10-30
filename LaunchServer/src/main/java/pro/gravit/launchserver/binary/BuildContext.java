@@ -45,6 +45,7 @@ public class BuildContext {
     public final MainBuildTask task;
     public final HashSet<String> fileList;
     public final HashSet<String> clientModules;
+    public final HashSet<String> legacyClientModules;
 
     public BuildContext(ZipOutputStream output, List<JarFile> readerClassPath, MainBuildTask task) {
         this.output = output;
@@ -52,6 +53,7 @@ public class BuildContext {
         this.task = task;
         fileList = new HashSet<>(1024);
         clientModules = new HashSet<>();
+        legacyClientModules = new HashSet<>();
     }
 
     public void pushFile(String filename, InputStream inputStream) throws IOException {

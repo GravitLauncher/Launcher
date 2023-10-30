@@ -49,9 +49,7 @@ public class MakeProfileHelper {
         } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_18) <= 0) { // 1.13 - 1.16.5
             jvmArgs.add("-XX:+UseG1GC");
             jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
-        } else { // 1.18+
-            //jvmArgs.add("-XX:+UseShenandoahGC");
-            //jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
+        } else {
         }
         // -----------
         Optional<MakeProfileOptionForge> forge = findOption(options, MakeProfileOptionForge.class);

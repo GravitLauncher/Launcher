@@ -51,11 +51,12 @@ public class MainBuildTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputJar) throws IOException {
-        Path outputJar = server.launcherBinary.nextPath("main");
+        Path outputJar = server.launcherBinary.nextPath(this);
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
             BuildContext context = new BuildContext(output, reader.getCp(), this);
             initProps();
             preBuildHook.hook(context);
+            properties.put("launcher.legacymodules", context.legacyClientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             postInitProps();
             reader.getCp().add(new JarFile(inputJar.toFile()));
@@ -158,11 +159,6 @@ public class MainBuildTask implements LauncherBuildTask {
             result = writer.toByteArray();
         }
         return result;
-    }
-
-    @Override
-    public boolean allowDelete() {
-        return true;
     }
 
     @FunctionalInterface

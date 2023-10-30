@@ -1,6 +1,5 @@
 package pro.gravit.launcher.utils;
 
-import pro.gravit.launcher.AsyncDownloader;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.LauncherInject;
 import pro.gravit.launcher.request.update.LauncherRequest;
@@ -22,6 +21,8 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static pro.gravit.launcher.modern.Downloader.makeSSLSocketFactory;
 
 public class LauncherUpdater {
     @LauncherInject("launcher.certificatePinning")
@@ -49,7 +50,7 @@ public class LauncherUpdater {
         if (isCertificatePinning) {
             HttpsURLConnection connection1 = (HttpsURLConnection) connection;
             try {
-                connection1.setSSLSocketFactory(AsyncDownloader.makeSSLSocketFactory());
+                connection1.setSSLSocketFactory(makeSSLSocketFactory());
             } catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | KeyManagementException e) {
                 throw new IOException(e);
             }

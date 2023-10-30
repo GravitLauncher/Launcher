@@ -3,11 +3,10 @@ package pro.gravit.launchserver.command;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
-import pro.gravit.launcher.AsyncDownloader;
 import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.modern.Downloader;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.utils.Downloader;
 import pro.gravit.utils.command.CommandException;
 
 import java.io.IOException;
@@ -45,9 +44,9 @@ public abstract class Command extends pro.gravit.utils.command.Command {
         return response.equals("y");
     }
 
-    protected Downloader downloadWithProgressBar(String taskName, List<AsyncDownloader.SizedFile> list, String baseUrl, Path targetDir) throws Exception {
+    protected Downloader downloadWithProgressBar(String taskName, List<Downloader.SizedFile> list, String baseUrl, Path targetDir) throws Exception {
         long total = 0;
-        for (AsyncDownloader.SizedFile file : list) {
+        for (Downloader.SizedFile file : list) {
             total += file.size;
         }
         long totalFiles = list.size();

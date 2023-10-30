@@ -81,9 +81,4 @@ public class CertificateAutogenTask implements LauncherBuildTask {
         }
         return inputFile;
     }
-
-    @Override
-    public boolean allowDelete() {
-        return false;
-    }
 }

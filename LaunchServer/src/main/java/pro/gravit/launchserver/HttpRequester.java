@@ -21,6 +21,10 @@ public class HttpRequester {
         return new SimpleErrorHandler<>(clazz);
     }
 
+    public <T> SimpleErrorHandler<T> makeEH(Type clazz) {
+        return new SimpleErrorHandler<>(clazz);
+    }
+
     public <T> HttpRequest get(String url, String token) {
         try {
             var requestBuilder = HttpRequest.newBuilder()
@@ -57,6 +61,10 @@ public class HttpRequester {
 
     public <T> HttpHelper.HttpOptional<T, SimpleError> send(HttpRequest request, Class<T> clazz) throws IOException {
         return HttpHelper.send(httpClient, request, makeEH(clazz));
+    }
+
+    public <T> HttpHelper.HttpOptional<T, SimpleError> send(HttpRequest request, Type type) throws IOException {
+        return HttpHelper.send(httpClient, request, makeEH(type));
     }
 
 

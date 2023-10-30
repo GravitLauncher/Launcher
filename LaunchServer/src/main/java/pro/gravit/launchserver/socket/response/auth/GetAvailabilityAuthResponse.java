@@ -20,14 +20,8 @@ public class GetAvailabilityAuthResponse extends SimpleResponse {
     public void execute(ChannelHandlerContext ctx, Client client) {
         List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>();
         for (AuthProviderPair pair : server.config.auth.values()) {
-            var rca = pair.isSupport(AuthSupportRemoteClientAccess.class);
-            if (rca != null) {
-                list.add(new GetAvailabilityAuthRequestEvent.AuthAvailability(pair.name, pair.displayName,
-                        pair.visible, pair.core.getDetails(client), rca.getClientApiUrl(), rca.getClientApiFeatures()));
-            } else {
-                list.add(new GetAvailabilityAuthRequestEvent.AuthAvailability(pair.name, pair.displayName,
-                        pair.visible, pair.core.getDetails(client)));
-            }
+            list.add(new GetAvailabilityAuthRequestEvent.AuthAvailability(pair.core.getDetails(client), pair.name, pair.displayName,
+                    pair.visible, pair.getFeatures()));
         }
         sendResult(new GetAvailabilityAuthRequestEvent(list));
     }
