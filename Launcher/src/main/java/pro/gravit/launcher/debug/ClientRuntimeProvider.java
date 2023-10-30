@@ -36,24 +36,26 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             if(mainClass == null) {
                 throw new NullPointerException("Add `-Dlauncher.runtime.mainclass=YOUR_MAIN_CLASS` to jvmArgs");
             }
-            if(accessToken != null) {
-                Request.setOAuth(authId, new AuthRequestEvent.OAuthRequestEvent(accessToken, refreshToken, expire));
-                Request.RequestRestoreReport report = Request.restore(true, false);
-                permissions = report.userInfo.permissions;
-                username = report.userInfo.playerProfile.username;
-                uuid = report.userInfo.playerProfile.uuid.toString();
-                if(report.userInfo.accessToken != null) {
-                    minecraftAccessToken = report.userInfo.accessToken;
+            if(uuid == null) {
+                if(accessToken != null) {
+                    Request.setOAuth(authId, new AuthRequestEvent.OAuthRequestEvent(accessToken, refreshToken, expire));
+                    Request.RequestRestoreReport report = Request.restore(true, false);
+                    permissions = report.userInfo.permissions;
+                    username = report.userInfo.playerProfile.username;
+                    uuid = report.userInfo.playerProfile.uuid.toString();
+                    if(report.userInfo.accessToken != null) {
+                        minecraftAccessToken = report.userInfo.accessToken;
+                    }
+                } else if(password != null) {
+                    AuthRequest request = new AuthRequest(login, password, authId, AuthRequest.ConnectTypes.API);
+                    AuthRequestEvent event = request.request();
+                    Request.setOAuth(authId, event.oauth);
+                    if(event.accessToken != null) {
+                        minecraftAccessToken = event.accessToken;
+                    }
+                    username = event.playerProfile.username;
+                    uuid = event.playerProfile.uuid.toString();
                 }
-            } else if(password != null) {
-                AuthRequest request = new AuthRequest(login, password, authId, AuthRequest.ConnectTypes.API);
-                AuthRequestEvent event = request.request();
-                Request.setOAuth(authId, event.oauth);
-                if(event.accessToken != null) {
-                    minecraftAccessToken = event.accessToken;
-                }
-                username = event.playerProfile.username;
-                uuid = event.playerProfile.uuid.toString();
             }
             if(profileUUID != null) {
                 UUID profileUuid = UUID.fromString(profileUUID);
