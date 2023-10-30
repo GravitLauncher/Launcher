@@ -112,8 +112,12 @@ public class ClientParams {
 
         // Add server args
         if (autoEnter) {
-            Collections.addAll(args, "--server", profile.getServerAddress());
-            Collections.addAll(args, "--port", Integer.toString(profile.getServerPort()));
+            if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20) <= 0) {
+                Collections.addAll(args, "--server", profile.getServerAddress());
+                Collections.addAll(args, "--port", Integer.toString(profile.getServerPort()));
+            } else {
+                Collections.addAll(args, "--quickPlayMultiplayer", String.format("%s:%d", profile.getServerAddress(), profile.getServerPort()));
+            }
         }
         for (OptionalAction a : actions) {
             if (a instanceof OptionalActionClientArgs) {
