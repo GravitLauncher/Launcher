@@ -24,6 +24,9 @@ import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.launch.*;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -191,6 +194,13 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
         try {
+            if(config.compatClasses != null) {
+                for (String e : config.compatClasses) {
+                    Class<?> clazz = classLoaderControl.getClass(e);
+                    MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class, ClassLoaderControl.class));
+                    runMethod.invoke(classLoaderControl);
+                }
+            }
             launch.launch(config.mainclass, config.mainmodule, Arrays.asList(real_args));
         } catch (Throwable e) {
             LogHelper.error(e);
@@ -242,6 +252,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String mainmodule;
         public String nativesDir = "natives";
         public List<String> args;
+        public List<String> compatClasses;
         public String authId;
         public AuthRequestEvent.OAuthRequestEvent oauth;
         public long oauthExpireTime;
