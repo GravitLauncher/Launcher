@@ -4,6 +4,7 @@ import pro.gravit.launcher.ClientPermissions;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.api.AuthService;
+import pro.gravit.launcher.api.ClientService;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.gui.RuntimeProvider;
@@ -17,6 +18,9 @@ import pro.gravit.utils.launch.*;
 
 import java.io.File;
 import java.io.Reader;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -126,7 +130,16 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             } else {
                 options = new LaunchOptions();
             }
-            launch.init(classpath, nativesDir, options);
+            ClassLoaderControl classLoaderControl = launch.init(classpath, nativesDir, options);
+            ClientService.classLoaderControl = classLoaderControl;
+            if(compatClasses != null) {
+                String[] compatClassesList = compatClasses.split(",");
+                for (String e : compatClassesList) {
+                    Class<?> clazz = classLoaderControl.getClass(e);
+                    MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class, ClassLoaderControl.class));
+                    runMethod.invoke(classLoaderControl);
+                }
+            }
             launch.launch(mainClass, mainModule, Arrays.asList(args));
         } catch (Throwable e) {
             LogHelper.error(e);
