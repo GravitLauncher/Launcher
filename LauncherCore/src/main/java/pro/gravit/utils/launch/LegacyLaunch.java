@@ -1,5 +1,6 @@
 package pro.gravit.utils.launch;
 
+import pro.gravit.utils.helper.HackHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LegacyLaunch implements Launch {
     private LegacyClassLoader legacyClassLoader;
+    private MethodHandles.Lookup hackLookup;
 
     @Override
     public ClassLoaderControl init(List<Path> files, String nativePath, LaunchOptions options) {
@@ -31,6 +33,9 @@ public class LegacyLaunch implements Launch {
             }
         }).toArray(URL[]::new), BasicLaunch.class.getClassLoader());
         legacyClassLoader.nativePath = nativePath;
+        if(options.enableHacks) {
+            hackLookup = HackHelper.createHackLookup(BasicLaunch.class);
+        }
         return legacyClassLoader.makeControl();
     }
 
@@ -40,10 +45,10 @@ public class LegacyLaunch implements Launch {
         Class<?> mainClazz = Class.forName(mainClass, true, legacyClassLoader);
         MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClazz, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
         JVMHelper.fullGC();
-        mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
+        mainMethod.asFixedArity().invokeWithArguments((Object) args.toArray(new String[0]));
     }
 
-    private static class LegacyClassLoader extends URLClassLoader {
+    private class LegacyClassLoader extends URLClassLoader {
         private final ClassLoader SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
         private final List<ClassLoaderControl.ClassTransformer> transformers = new ArrayList<>();
         private final Map<String, Class<?>> classMap = new ConcurrentHashMap<>();
@@ -169,6 +174,11 @@ public class LegacyLaunch implements Launch {
             @Override
             public Object getJava9ModuleController() {
                 return null;
+            }
+
+            @Override
+            public MethodHandles.Lookup getHackLookup() {
+                return hackLookup;
             }
         }
     }

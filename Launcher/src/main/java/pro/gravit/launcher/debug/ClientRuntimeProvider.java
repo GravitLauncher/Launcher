@@ -49,6 +49,7 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             String compatClasses = System.getProperty("launcher.runtime.launch.compat", null);
             String nativesDir = System.getProperty("launcher.runtime.launch.natives", "natives");
             String launcherOptionsPath = System.getProperty("launcher.runtime.launch.options", null);
+            boolean enableHacks = Boolean.getBoolean("launcher.runtime.launch.enablehacks");
             ClientPermissions permissions = new ClientPermissions();
             if(mainClass == null) {
                 throw new NullPointerException("Add `-Dlauncher.runtime.mainclass=YOUR_MAIN_CLASS` to jvmArgs");
@@ -130,6 +131,7 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             } else {
                 options = new LaunchOptions();
             }
+            options.enableHacks = enableHacks;
             ClassLoaderControl classLoaderControl = launch.init(classpath, nativesDir, options);
             ClientService.classLoaderControl = classLoaderControl;
             if(compatClasses != null) {

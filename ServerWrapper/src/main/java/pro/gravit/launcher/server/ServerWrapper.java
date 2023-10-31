@@ -189,6 +189,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 break;
         }
         LaunchOptions options = new LaunchOptions();
+        options.enableHacks = config.enableHacks;
         options.moduleConf = config.moduleConf;
         classLoaderControl = launch.init(config.classpath.stream().map(Paths::get).collect(Collectors.toCollection(ArrayList::new)), config.nativesDir, options);
         LogHelper.info("Start Minecraft Server");
@@ -263,6 +264,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public byte[] encodedServerRsaPublicKey;
 
         public byte[] encodedServerEcPublicKey;
+        public boolean enableHacks;
 
         public Map<String, String> properties;
     }

@@ -1,5 +1,6 @@
 package pro.gravit.utils.launch;
 
+import pro.gravit.utils.helper.HackHelper;
 import pro.gravit.utils.helper.JVMHelper;
 
 import java.io.File;
@@ -23,6 +24,7 @@ import java.util.jar.JarFile;
 public class BasicLaunch implements Launch {
 
     private Instrumentation instrumentation;
+    private MethodHandles.Lookup hackLookup;
 
     public BasicLaunch(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
@@ -33,6 +35,9 @@ public class BasicLaunch implements Launch {
 
     @Override
     public ClassLoaderControl init(List<Path> files, String nativePath, LaunchOptions options) {
+        if(options.enableHacks) {
+            hackLookup = HackHelper.createHackLookup(BasicLaunch.class);
+        }
         return new BasicClassLoaderControl();
     }
 
@@ -41,7 +46,7 @@ public class BasicLaunch implements Launch {
         Class<?> mainClazz = Class.forName(mainClass);
         MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClazz, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
         JVMHelper.fullGC();
-        mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
+        mainMethod.asFixedArity().invokeWithArguments((Object) args.toArray(new String[0]));
     }
 
     private class BasicClassLoaderControl implements ClassLoaderControl {
@@ -119,6 +124,11 @@ public class BasicLaunch implements Launch {
         @Override
         public Object getJava9ModuleController() {
             return null;
+        }
+
+        @Override
+        public MethodHandles.Lookup getHackLookup() {
+            return hackLookup;
         }
     }
 }

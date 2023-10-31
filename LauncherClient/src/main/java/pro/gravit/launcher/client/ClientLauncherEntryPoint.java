@@ -62,12 +62,20 @@ public class ClientLauncherEntryPoint {
         }
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) {
         JVMHelper.verifySystemProperties(ClientLauncherEntryPoint.class, true);
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncherEntryPoint.class);
         LogHelper.printVersion("Client Launcher");
         ClientLauncherMethods.checkClass(ClientLauncherEntryPoint.class);
+        try {
+            realMain(args);
+        } catch (Throwable e) {
+            LogHelper.error(e);
+        }
+    }
+
+    private static void realMain(String[] args) throws Throwable {
         modulesManager = new ClientModuleManager();
         modulesManager.loadModule(new ClientLauncherCoreModule());
         LauncherConfig.initModules(modulesManager); //INIT
@@ -132,6 +140,7 @@ public class ClientLauncherEntryPoint {
         LogHelper.debug("Natives dir %s", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         LaunchOptions options = new LaunchOptions();
+        options.enableHacks = profile.hasFlag(ClientProfile.CompatibilityFlags.ENABLE_HACKS);
         options.moduleConf = profile.getModuleConf();
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
             if(JVMHelper.JVM_VERSION <= 11) {

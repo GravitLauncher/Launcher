@@ -1,5 +1,6 @@
 package pro.gravit.utils.launch;
 
+import pro.gravit.utils.helper.HackHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -12,6 +13,7 @@ import java.lang.invoke.MethodType;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -28,6 +30,7 @@ public class ModuleLaunch implements Launch {
     private ModuleLayer.Controller controller;
     private ModuleFinder moduleFinder;
     private ModuleLayer layer;
+    private MethodHandles.Lookup hackLookup;
     @Override
     public ClassLoaderControl init(List<Path> files, String nativePath, LaunchOptions options) {
         moduleClassLoader = new ModuleClassLoader(files.stream().map((e) -> {
@@ -39,34 +42,84 @@ public class ModuleLaunch implements Launch {
         }).toArray(URL[]::new), BasicLaunch.class.getClassLoader());
         moduleClassLoader.nativePath = nativePath;
         {
+            if(options.enableHacks) {
+                hackLookup = HackHelper.createHackLookup(ModuleLaunch.class);
+            }
             if(options.moduleConf != null) {
                 // Create Module Layer
-                moduleFinder = ModuleFinder.of(options.moduleConf.modulePath.stream().map(Paths::get).toArray(Path[]::new));
+                moduleFinder = ModuleFinder.of(options.moduleConf.modulePath.stream().map(Paths::get).map(Path::toAbsolutePath).toArray(Path[]::new));
                 ModuleLayer bootLayer = ModuleLayer.boot();
+                if(options.moduleConf.modules.contains("ALL-MODULE-PATH")) {
+                    var set = moduleFinder.findAll();
+                    if(LogHelper.isDevEnabled()) {
+                        for(var m : set) {
+                            LogHelper.dev("Found module %s in %s", m.descriptor().name(), m.location().map(URI::toString).orElse("unknown"));
+                        }
+                        LogHelper.dev("Found %d modules", set.size());
+                    }
+                    for(var m : set) {
+                        options.moduleConf.modules.add(m.descriptor().name());
+                    }
+                    options.moduleConf.modules.remove("ALL-MODULE-PATH");
+                }
                 configuration = bootLayer.configuration()
-                        .resolveAndBind(ModuleFinder.of(), moduleFinder, options.moduleConf.modules);
+                        .resolveAndBind(moduleFinder, ModuleFinder.of(), options.moduleConf.modules);
                 controller = ModuleLayer.defineModulesWithOneLoader(configuration, List.of(bootLayer), moduleClassLoader);
-                moduleClassLoader.controller = controller;
                 layer = controller.layer();
                 // Configure exports / opens
                 for(var e : options.moduleConf.exports.entrySet()) {
-                    String[] split = e.getKey().split("\\\\");
-                    Module source = layer.findModule(split[0]).orElseThrow();
+                    String[] split = e.getKey().split("/");
+                    String moduleName = split[0];
                     String pkg = split[1];
-                    Module target = layer.findModule(e.getValue()).orElseThrow();
-                    controller.addExports(source, pkg, target);
+                    LogHelper.dev("Export module: %s package: %s to %s", moduleName, pkg, e.getValue());
+                    Module source = layer.findModule(split[0]).orElse(null);
+                    if(source == null) {
+                        throw new RuntimeException(String.format("Module %s not found", moduleName));
+                    }
+                    Module target = layer.findModule(e.getValue()).orElse(null);
+                    if(target == null) {
+                        throw new RuntimeException(String.format("Module %s not found", e.getValue()));
+                    }
+                    if(options.enableHacks && source.getLayer() != layer) {
+                        ModuleHacks.createController(hackLookup, source.getLayer()).addExports(source, pkg, target);
+                    } else {
+                        controller.addExports(source, pkg, target);
+                    }
                 }
                 for(var e : options.moduleConf.opens.entrySet()) {
-                    String[] split = e.getKey().split("\\\\");
-                    Module source = layer.findModule(split[0]).orElseThrow();
+                    String[] split = e.getKey().split("/");
+                    String moduleName = split[0];
                     String pkg = split[1];
-                    Module target = layer.findModule(e.getValue()).orElseThrow();
-                    controller.addOpens(source, pkg, target);
+                    LogHelper.dev("Open module: %s package: %s to %s", moduleName, pkg, e.getValue());
+                    Module source = layer.findModule(split[0]).orElse(null);
+                    if(source == null) {
+                        throw new RuntimeException(String.format("Module %s not found", moduleName));
+                    }
+                    Module target = layer.findModule(e.getValue()).orElse(null);
+                    if(target == null) {
+                        throw new RuntimeException(String.format("Module %s not found", e.getValue()));
+                    }
+                    if(options.enableHacks && source.getLayer() != layer) {
+                        ModuleHacks.createController(hackLookup, source.getLayer()).addOpens(source, pkg, target);
+                    } else {
+                        controller.addOpens(source, pkg, target);
+                    }
                 }
                 for(var e : options.moduleConf.reads.entrySet()) {
-                    Module source = layer.findModule(e.getKey()).orElseThrow();
-                    Module target = layer.findModule(e.getValue()).orElseThrow();
-                    controller.addReads(source, target);
+                    LogHelper.dev("Read module %s to %s", e.getKey(), e.getValue());
+                    Module source = layer.findModule(e.getKey()).orElse(null);
+                    if(source == null) {
+                        throw new RuntimeException(String.format("Module %s not found", e.getKey()));
+                    }
+                    Module target = layer.findModule(e.getValue()).orElse(null);
+                    if(target == null) {
+                        throw new RuntimeException(String.format("Module %s not found", e.getValue()));
+                    }
+                    if(options.enableHacks && source.getLayer() != layer) {
+                        ModuleHacks.createController(hackLookup, source.getLayer()).addReads(source, target);
+                    } else {
+                        controller.addReads(source, target);
+                    }
                 }
             }
         }
@@ -80,7 +133,7 @@ public class ModuleLaunch implements Launch {
             Class<?> mainClazz = Class.forName(mainClass, true, moduleClassLoader);
             MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClazz, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
             JVMHelper.fullGC();
-            mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
+            mainMethod.asFixedArity().invokeWithArguments((Object) args.toArray(new String[0]));
             return;
         }
         Module mainModule = layer.findModule(mainModuleName).orElseThrow();
@@ -92,7 +145,7 @@ public class ModuleLaunch implements Launch {
         ClassLoader loader = mainModule.getClassLoader();
         Class<?> mainClazz = Class.forName(mainClass, true, loader);
         MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClazz, "main", MethodType.methodType(void.class, String[].class));
-        mainMethod.invoke((Object) args.toArray(new String[0]));
+        mainMethod.asFixedArity().invokeWithArguments((Object) args.toArray(new String[0]));
     }
 
     private static String getPackageFromClass(String clazz) {
@@ -103,13 +156,11 @@ public class ModuleLaunch implements Launch {
         return clazz;
     }
 
-    private static class ModuleClassLoader extends URLClassLoader {
+    private class ModuleClassLoader extends URLClassLoader {
         private final ClassLoader SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
         private final List<ClassLoaderControl.ClassTransformer> transformers = new ArrayList<>();
         private final Map<String, Class<?>> classMap = new ConcurrentHashMap<>();
         private String nativePath;
-
-        private ModuleLayer.Controller controller;
 
         private final List<String> packages = new ArrayList<>();
         public ModuleClassLoader(URL[] urls) {
@@ -244,6 +295,11 @@ public class ModuleLaunch implements Launch {
             @Override
             public Object getJava9ModuleController() {
                 return controller;
+            }
+
+            @Override
+            public MethodHandles.Lookup getHackLookup() {
+                return hackLookup;
             }
         }
     }

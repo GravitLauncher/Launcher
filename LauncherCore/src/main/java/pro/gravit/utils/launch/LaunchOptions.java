@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class LaunchOptions {
+    public boolean enableHacks;
     public ModuleConf moduleConf;
 
 
