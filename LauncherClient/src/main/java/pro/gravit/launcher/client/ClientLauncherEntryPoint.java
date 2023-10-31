@@ -21,6 +21,7 @@ import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.serialize.HInput;
 import pro.gravit.launcher.utils.DirWatcher;
 import pro.gravit.utils.helper.*;
+import pro.gravit.utils.launch.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,9 +40,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClientLauncherEntryPoint {
-    private static ClassLoader classLoader;
     public static ClientModuleManager modulesManager;
     public static ClientParams clientParams;
+
+    private static Launch launch;
+    private static ClassLoaderControl classLoaderControl;
 
     private static ClientParams readParams(SocketAddress address) throws IOException {
         try (Socket socket = IOHelper.newSocket()) {
@@ -102,7 +105,7 @@ public class ClientLauncherEntryPoint {
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         List<Path> classpath = resolveClassPath(clientDir, params.actions, params.profile)
                 .filter(x -> !profile.getModulePath().contains(clientDir.relativize(x).toString()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
         List<URL> classpathURLs = classpath.stream().map(IOHelper::toURL).collect(Collectors.toList());
         // Start client with WatchService monitoring
         RequestService service;
@@ -128,33 +131,38 @@ public class ClientLauncherEntryPoint {
         }
         LogHelper.debug("Natives dir %s", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
+        LaunchOptions options = new LaunchOptions();
+        options.moduleConf = profile.getModuleConf();
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
-            ClientClassLoader classLoader = new ClientClassLoader(classpathURLs.toArray(new URL[0]), ClientLauncherEntryPoint.class.getClassLoader());
+            if(JVMHelper.JVM_VERSION <= 11) {
+                launch = new LegacyLaunch();
+            } else {
+                launch = new ModuleLaunch();
+            }
+            classLoaderControl = launch.init(classpath, params.nativesDir, options);
             System.setProperty("java.class.path", classpath.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator)));
-            ClientLauncherEntryPoint.classLoader = classLoader;
-            Thread.currentThread().setContextClassLoader(classLoader);
-            classLoader.nativePath = params.nativesDir;
-            modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(classLoader, profile));
-            ClientService.classLoader = classLoader;
-            ClientService.nativePath = classLoader.nativePath;
-            classLoader.addURL(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
-            ClientService.baseURLs = classLoader.getURLs();
+            modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(launch, classLoaderControl, profile));
+            ClientService.nativePath = params.nativesDir;
+            ClientService.baseURLs = classLoaderControl.getURLs();
         } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
-            ClientLauncherEntryPoint.classLoader = ClassLoader.getSystemClassLoader();
+            launch = new BasicLaunch(LauncherAgent.inst);
             classpathURLs.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
+            classLoaderControl = launch.init(classpath, params.nativesDir, options);
             for (URL url : classpathURLs) {
                 LauncherAgent.addJVMClassPath(Paths.get(url.toURI()));
             }
             ClientService.instrumentation = LauncherAgent.inst;
             ClientService.nativePath = params.nativesDir;
-            modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(classLoader, profile));
-            ClientService.classLoader = classLoader;
+            modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(launch, null, profile));
             ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
         } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
-            ClientLauncherEntryPoint.classLoader = ClassLoader.getSystemClassLoader();
-            ClientService.classLoader = ClassLoader.getSystemClassLoader();
+            launch = new BasicLaunch();
+            classLoaderControl = launch.init(classpath, params.nativesDir, options);
             ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
             ClientService.nativePath = params.nativesDir;
+        }
+        if(profile.hasFlag(ClientProfile.CompatibilityFlags.CLASS_CONTROL_API)) {
+            ClientService.classLoaderControl = classLoaderControl;
         }
         AuthService.username = params.playerProfile.username;
         AuthService.uuid = params.playerProfile.uuid;
@@ -264,27 +272,20 @@ public class ClientLauncherEntryPoint {
         }
         LogHelper.debug("Args: " + copy);
         // Resolve main class and method
-        Class<?> mainClass = classLoader.loadClass(profile.getMainClass());
-        if (LogHelper.isDevEnabled() && classLoader instanceof URLClassLoader) {
-            for (URL u : ((URLClassLoader) classLoader).getURLs()) {
-                LogHelper.dev("ClassLoader URL: %s", u.toString());
-            }
-        }
         modulesManager.invokeEvent(new ClientProcessPreInvokeMainClassEvent(params, profile, args));
         // Invoke main method
         try {
             {
                 List<String> compatClasses = profile.getCompatClasses();
                 for (String e : compatClasses) {
-                    Class<?> clazz = classLoader.loadClass(e);
-                    MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class));
-                    runMethod.invoke();
+                    Class<?> clazz = classLoaderControl.getClass(e);
+                    MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class, ClassLoaderControl.class));
+                    runMethod.invoke(classLoaderControl);
                 }
             }
-            MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
             Launcher.LAUNCHED.set(true);
             JVMHelper.fullGC();
-            mainMethod.invokeWithArguments((Object) args.toArray(new String[0]));
+            launch.launch(params.profile.getMainClass(), params.profile.getMainModule(), args);
             LogHelper.debug("Main exit successful");
         } catch (Throwable e) {
             LogHelper.error(e);

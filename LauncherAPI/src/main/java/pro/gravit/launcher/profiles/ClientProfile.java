@@ -8,6 +8,7 @@ import pro.gravit.launcher.profiles.optional.OptionalFile;
 import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
+import pro.gravit.utils.launch.LaunchOptions;
 
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
@@ -80,6 +81,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     // Client launcher
     @LauncherNetworkAPI
     private String mainClass;
+    @LauncherNetworkAPI
+    private String mainModule;
+    @LauncherNetworkAPI
+    private LaunchOptions.ModuleConf moduleConf;
 
     public ClientProfile() {
         update = new ArrayList<>();
@@ -209,6 +214,14 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public String getMainClass() {
         return mainClass;
+    }
+
+    public String getMainModule() {
+        return mainModule;
+    }
+
+    public LaunchOptions.ModuleConf getModuleConf() {
+        return moduleConf;
     }
 
     public List<ServerProfile> getServers() {
@@ -447,7 +460,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public enum CompatibilityFlags {
-        LEGACY_NATIVES_DIR
+        LEGACY_NATIVES_DIR, CLASS_CONTROL_API
     }
 
     public static class Version implements Comparable<Version> {
