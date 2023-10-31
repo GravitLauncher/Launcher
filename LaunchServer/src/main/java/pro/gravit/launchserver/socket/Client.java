@@ -5,6 +5,7 @@ import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
+import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 
 import java.util.HashMap;
@@ -87,7 +88,7 @@ public class Client {
         public byte[] verifySecureKey;
         public boolean keyChecked;
         public byte[] publicKey;
-        public HardwareReportRequest.HardwareInfo hardwareInfo;
+        public UserHardware hardwareInfo;
         // May be used later
         public double rating;
         public long latestMillis;

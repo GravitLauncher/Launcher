@@ -49,6 +49,10 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
             response.sendError("Access denied");
             return;
         }
+        if(client.trustLevel.hardwareInfo != null) {
+            response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, client.trustLevel.hardwareInfo), SECONDS.toMillis(server.config.netty.security.hardwareTokenExpire)));
+            return;
+        }
         logger.debug("HardwareInfo received");
         {
             var authSupportHardware = client.auth.isSupport(AuthSupportHardware.class);
@@ -63,7 +67,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 if (hardware.isBanned()) {
                     throw new SecurityException("Your hardware banned");
                 }
-                client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
+                client.trustLevel.hardwareInfo = hardware;
                 response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, hardware), SECONDS.toMillis(server.config.netty.security.hardwareTokenExpire)));
             } else {
                 logger.error("AuthCoreProvider not supported hardware");
@@ -83,7 +87,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 if (hardware.isBanned()) {
                     throw new SecurityException("Your hardware banned");
                 }
-                client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
+                client.trustLevel.hardwareInfo = hardware;
                 authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
                 return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(server.config.netty.security.publicKeyTokenExpire));
             } else {
@@ -145,7 +149,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 if (hardwareSupport == null) return false;
                 UserHardware hardware = hardwareSupport.getHardwareInfoById(hardwareInfoId);
                 if (client.trustLevel == null) client.trustLevel = new Client.TrustLevel();
-                client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
+                client.trustLevel.hardwareInfo = hardware;
                 return true;
             } catch (Throwable e) {
                 logger.error("Hardware JWT error", e);
