@@ -2,6 +2,7 @@ package pro.gravit.utils.launch;
 
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -133,8 +134,16 @@ public class ModuleLaunch implements Launch {
         }
 
         @Override
-        protected Class<?> findClass(String moduleName, String name) {
+        protected Class<?> findClass(String name) throws ClassNotFoundException {
+            var clazz = findClass(null, name);
+            if(clazz == null) {
+                throw new ClassNotFoundException(name);
+            }
+            return clazz;
+        }
 
+        @Override
+        protected Class<?> findClass(String moduleName, String name) {
             Class<?> clazz;
             {
                 clazz = classMap.get(name);
@@ -164,7 +173,11 @@ public class ModuleLaunch implements Launch {
                 }
             }
             if(clazz == null) {
-                clazz = super.findClass(moduleName, name);
+                try {
+                    clazz = super.findClass(name);
+                } catch (ClassNotFoundException e) {
+                    return null;
+                }
             }
             if(clazz != null) {
                 classMap.put(name, clazz);
