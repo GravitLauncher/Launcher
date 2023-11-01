@@ -1,8 +1,10 @@
 package pro.gravit.launcher.debug;
 
 import pro.gravit.launcher.ClientPermissions;
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.api.AuthService;
+import pro.gravit.launcher.api.ClientService;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.gui.RuntimeProvider;
@@ -10,10 +12,20 @@ import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.auth.AuthRequest;
 import pro.gravit.launcher.request.update.ProfilesRequest;
+import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.launch.*;
 
+import java.io.File;
+import java.io.Reader;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class ClientRuntimeProvider implements RuntimeProvider {
@@ -32,6 +44,12 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             long expire = Long.parseLong(System.getProperty("launcher.runtime.auth.expire", "0"));
             String profileUUID = System.getProperty("launcher.runtime.profileuuid", null);
             String mainClass = System.getProperty("launcher.runtime.mainclass", null);
+            String mainModule = System.getProperty("launcher.runtime.mainmodule", null);
+            String launchMode = System.getProperty("launcher.runtime.launch", "basic");
+            String compatClasses = System.getProperty("launcher.runtime.launch.compat", null);
+            String nativesDir = System.getProperty("launcher.runtime.launch.natives", "natives");
+            String launcherOptionsPath = System.getProperty("launcher.runtime.launch.options", null);
+            boolean enableHacks = Boolean.getBoolean("launcher.runtime.launch.enablehacks");
             ClientPermissions permissions = new ClientPermissions();
             if(mainClass == null) {
                 throw new NullPointerException("Add `-Dlauncher.runtime.mainclass=YOUR_MAIN_CLASS` to jvmArgs");
@@ -79,8 +97,52 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             AuthService.uuid = UUID.fromString(uuid);
             AuthService.username = username;
             AuthService.permissions = permissions;
-            Class<?> mainClazz = Class.forName(mainClass);
-            mainClazz.getMethod("main", String[].class).invoke(null, (Object) newArgs.toArray(new String[0]));
+            Launch launch;
+            switch (launchMode) {
+                case "basic": {
+                    launch = new BasicLaunch();
+                    break;
+                }
+                case "legacy": {
+                    launch = new LegacyLaunch();
+                    break;
+                }
+                case "module": {
+                    launch = new ModuleLaunch();
+                    break;
+                }
+                default: {
+                    throw new UnsupportedOperationException(String.format("Unknown launch mode: '%s'", launchMode));
+                }
+            }
+            List<Path> classpath = new ArrayList<>();
+            try {
+                for(var c : System.getProperty("java.class.path").split(File.pathSeparator)) {
+                    classpath.add(Paths.get(c));
+                }
+            } catch (Throwable e) {
+                LogHelper.error(e);
+            }
+            LaunchOptions options;
+            if(launcherOptionsPath != null) {
+                try(Reader reader = IOHelper.newReader(Paths.get(launcherOptionsPath))) {
+                    options = Launcher.gsonManager.gson.fromJson(reader, LaunchOptions.class);
+                }
+            } else {
+                options = new LaunchOptions();
+            }
+            options.enableHacks = enableHacks;
+            ClassLoaderControl classLoaderControl = launch.init(classpath, nativesDir, options);
+            ClientService.classLoaderControl = classLoaderControl;
+            if(compatClasses != null) {
+                String[] compatClassesList = compatClasses.split(",");
+                for (String e : compatClassesList) {
+                    Class<?> clazz = classLoaderControl.getClass(e);
+                    MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class, ClassLoaderControl.class));
+                    runMethod.invoke(classLoaderControl);
+                }
+            }
+            launch.launch(mainClass, mainModule, Arrays.asList(args));
         } catch (Throwable e) {
             LogHelper.error(e);
             LauncherEngine.exitLauncher(-15);

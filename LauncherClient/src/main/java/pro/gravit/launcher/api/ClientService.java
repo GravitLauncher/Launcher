@@ -1,21 +1,20 @@
 package pro.gravit.launcher.api;
 
 import pro.gravit.launcher.utils.ApiBridgeService;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.launch.ClassLoaderControl;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 
 public class ClientService {
     public static Instrumentation instrumentation;
-    public static ClassLoader classLoader;
+    public static ClassLoaderControl classLoaderControl;
     public static String nativePath;
     public static URL[] baseURLs;
 
-    public static ClassLoader getClassLoader() {
-        return classLoader;
-    }
-
     public static String findLibrary(String name) {
-        return ApiBridgeService.findLibrary(classLoader, name);
+        return nativePath.concat(IOHelper.PLATFORM_SEPARATOR).concat(JVMHelper.NATIVE_PREFIX).concat(name).concat(JVMHelper.NATIVE_EXTENSION);
     }
 }

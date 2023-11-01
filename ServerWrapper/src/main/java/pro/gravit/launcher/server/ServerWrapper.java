@@ -17,25 +17,27 @@ import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.request.update.ProfilesRequest;
 import pro.gravit.launcher.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.server.authlib.InstallAuthlib;
-import pro.gravit.launcher.server.launch.ClasspathLaunch;
-import pro.gravit.launcher.server.launch.Launch;
-import pro.gravit.launcher.server.launch.ModuleLaunch;
-import pro.gravit.launcher.server.launch.SimpleLaunch;
 import pro.gravit.launcher.server.setup.ServerWrapperSetup;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.utils.launch.*;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
     public static final boolean disableSetup = Boolean.parseBoolean(System.getProperty("serverwrapper.disableSetup", "false"));
     public static ServerWrapper wrapper;
+    public static ClassLoaderControl classLoaderControl;
     public Config config;
     public PublicURLClassLoader ucp;
     public ClassLoader loader;
@@ -173,19 +175,34 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         Launch launch;
         switch (config.classLoaderConfig) {
             case LAUNCHER:
-                launch = new ClasspathLaunch();
+                launch = new LegacyLaunch();
                 break;
             case MODULE:
                 launch = new ModuleLaunch();
                 break;
             default:
-                launch = new SimpleLaunch();
+                if(ServerAgent.isAgentStarted()) {
+                    launch = new BasicLaunch(ServerAgent.inst);
+                } else {
+                    launch = new BasicLaunch();
+                }
                 break;
         }
+        LaunchOptions options = new LaunchOptions();
+        options.enableHacks = config.enableHacks;
+        options.moduleConf = config.moduleConf;
+        classLoaderControl = launch.init(config.classpath.stream().map(Paths::get).collect(Collectors.toCollection(ArrayList::new)), config.nativesDir, options);
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
         try {
-            launch.run(classname, config, real_args);
+            if(config.compatClasses != null) {
+                for (String e : config.compatClasses) {
+                    Class<?> clazz = classLoaderControl.getClass(e);
+                    MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class, ClassLoaderControl.class));
+                    runMethod.invoke(classLoaderControl);
+                }
+            }
+            launch.launch(config.mainclass, config.mainmodule, Arrays.asList(real_args));
         } catch (Throwable e) {
             LogHelper.error(e);
             System.exit(-1);
@@ -233,27 +250,22 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public ClientProfile.ClassLoaderConfig classLoaderConfig;
         public String librariesDir;
         public String mainclass;
+        public String mainmodule;
+        public String nativesDir = "natives";
         public List<String> args;
+        public List<String> compatClasses;
         public String authId;
         public AuthRequestEvent.OAuthRequestEvent oauth;
         public long oauthExpireTime;
         public Map<String, Request.ExtendedToken> extendedTokens;
         public LauncherConfig.LauncherEnvironment env;
-        public ModuleConf moduleConf = new ModuleConf();
+        public LaunchOptions.ModuleConf moduleConf = new LaunchOptions.ModuleConf();
 
         public byte[] encodedServerRsaPublicKey;
 
         public byte[] encodedServerEcPublicKey;
+        public boolean enableHacks;
 
         public Map<String, String> properties;
-    }
-
-    public static final class ModuleConf {
-        public List<String> modules = new ArrayList<>();
-        public List<String> modulePath = new ArrayList<>();
-        public String mainModule = "";
-        public Map<String, String> exports = new HashMap<>();
-        public Map<String, String> opens = new HashMap<>();
-        public Map<String, String> reads = new HashMap<>();
     }
 }
