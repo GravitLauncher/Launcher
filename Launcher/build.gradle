@@ -26,7 +26,8 @@ jar {
     archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
-            "Multi-Release": "true")
+            "Multi-Release": "true",
+            "Automatic-Module-Name": "GravitLauncher")
 }
 
 tasks.register('sourcesJar', Jar) {
