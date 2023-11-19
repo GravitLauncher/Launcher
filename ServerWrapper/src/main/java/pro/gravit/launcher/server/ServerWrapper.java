@@ -203,6 +203,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 }
             }
             launch.launch(config.mainclass, config.mainmodule, Arrays.asList(real_args));
+            if(!config.keepJVMAfterMainMethodCompleted) {
+                System.exit(0);
+            }
         } catch (Throwable e) {
             LogHelper.error(e);
             System.exit(-1);
@@ -245,6 +248,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String address;
         public String serverName;
         public boolean autoloadLibraries;
+        public boolean keepJVMAfterMainMethodCompleted;
         public String logFile;
         public List<String> classpath;
         public ClientProfile.ClassLoaderConfig classLoaderConfig;
