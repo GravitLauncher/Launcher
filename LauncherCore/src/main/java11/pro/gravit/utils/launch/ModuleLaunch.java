@@ -39,7 +39,7 @@ public class ModuleLaunch implements Launch {
             } catch (MalformedURLException ex) {
                 throw new RuntimeException(ex);
             }
-        }).toArray(URL[]::new), BasicLaunch.class.getClassLoader());
+        }).toArray(URL[]::new), ClassLoader.getPlatformClassLoader());
         moduleClassLoader.nativePath = nativePath;
         {
             if(options.enableHacks) {
@@ -163,13 +163,10 @@ public class ModuleLaunch implements Launch {
         private String nativePath;
 
         private final List<String> packages = new ArrayList<>();
-        public ModuleClassLoader(URL[] urls) {
-            super(urls);
+        public ModuleClassLoader(URL[] urls, ClassLoader parent) {
+            super("LAUNCHER", urls, parent);
             packages.add("pro.gravit.launcher.");
             packages.add("pro.gravit.utils.");
-        }
-        public ModuleClassLoader(URL[] urls, ClassLoader parent) {
-            super(urls, parent);
         }
 
         @Override
