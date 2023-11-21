@@ -46,7 +46,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
             }
             executorService.scheduleAtFixedRate(() -> {
                 try {
-                    restore(false, true);
+                    restore(false, true, false);
                 } catch (Exception e) {
                     LogHelper.error(e);
                 }
