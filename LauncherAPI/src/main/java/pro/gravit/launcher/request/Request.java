@@ -159,7 +159,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     }
 
     public static RequestRestoreReport restore() throws Exception {
-        return restore(false, false);
+        return restore(false, false, false);
     }
 
     private synchronized static Map<String, String> getExpiredExtendedTokens() {
@@ -178,16 +178,22 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         return makeNewTokens(set);
     }
 
-    public static synchronized RequestRestoreReport restore(boolean needUserInfo, boolean refreshOnly) throws Exception {
+    public static synchronized RequestRestoreReport restore(boolean needUserInfo, boolean refreshOnly, boolean noRefresh) throws Exception {
         boolean refreshed = false;
         RestoreRequest request;
         if (oauth != null) {
-            if (isTokenExpired() || oauth.accessToken == null) {
-                RefreshTokenRequest refreshRequest = new RefreshTokenRequest(authId, oauth.refreshToken);
-                RefreshTokenRequestEvent event = refreshRequest.request();
-                setOAuth(authId, event.oauth);
-                refreshed = true;
+            if(isTokenExpired() || oauth.accessToken == null) {
+                if(noRefresh) {
+                    oauth = null;
+                } else {
+                    RefreshTokenRequest refreshRequest = new RefreshTokenRequest(authId, oauth.refreshToken);
+                    RefreshTokenRequestEvent event = refreshRequest.request();
+                    setOAuth(authId, event.oauth);
+                    refreshed = true;
+                }
             }
+        }
+        if (oauth != null) {
             request = new RestoreRequest(authId, oauth.accessToken, refreshOnly ? getExpiredExtendedTokens() : getStringExtendedTokens(), needUserInfo);
         } else {
             request = new RestoreRequest(authId, null, refreshOnly ? getExpiredExtendedTokens() : getStringExtendedTokens(), false);

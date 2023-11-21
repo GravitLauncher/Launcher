@@ -124,7 +124,7 @@ public class ClientLauncherEntryPoint {
             service = StdWebSocketService.initWebSockets(Launcher.getConfig().address).get();
             Request.setRequestService(service);
             LogHelper.debug("Restore sessions");
-            Request.restore();
+            Request.restore(false, false, true);
             service.registerEventHandler(new BasicLauncherEventHandler());
             ((StdWebSocketService) service).reconnectCallback = () ->
             {
