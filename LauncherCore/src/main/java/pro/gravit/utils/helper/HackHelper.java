@@ -7,8 +7,13 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class HackHelper {
-
+    private static native MethodHandles.Lookup createHackLookupNative(Class<?> lookupClass);
     private static MethodHandles.Lookup createHackLookupImpl(Class<?> lookupClass) {
+        try {
+            return createHackLookupNative(lookupClass);
+        } catch (Throwable ignored) {
+
+        }
         try {
             Field trusted = MethodHandles.Lookup.class.getDeclaredField("TRUSTED");
             trusted.setAccessible(true);
