@@ -105,7 +105,10 @@ public class LauncherEngine {
 
     public static void main(String... args) throws Throwable {
         JVMHelper.checkStackTrace(LauncherEngineWrapper.class);
-        JVMHelper.verifySystemProperties(Launcher.class, true);
+        JVMHelper.verifySystemProperties(Launcher.class, false);
+        {
+            LauncherEngine.checkClass(LauncherEngine.class.getClassLoader().getClass());
+        }
         EnvHelper.checkDangerousParams();
         //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         verifyNoAgent();

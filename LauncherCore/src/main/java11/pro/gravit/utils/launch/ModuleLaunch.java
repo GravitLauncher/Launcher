@@ -18,10 +18,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ModuleLaunch implements Launch {
@@ -31,8 +28,10 @@ public class ModuleLaunch implements Launch {
     private ModuleFinder moduleFinder;
     private ModuleLayer layer;
     private MethodHandles.Lookup hackLookup;
+    private boolean disablePackageDelegateSupport;
     @Override
     public ClassLoaderControl init(List<Path> files, String nativePath, LaunchOptions options) {
+        this.disablePackageDelegateSupport = options.disablePackageDelegateSupport;
         moduleClassLoader = new ModuleClassLoader(files.stream().map((e) -> {
             try {
                 return e.toUri().toURL();
@@ -122,6 +121,7 @@ public class ModuleLaunch implements Launch {
                     }
                 }
             }
+            moduleClassLoader.initializeWithLayer(layer);
         }
         return moduleClassLoader.makeControl();
     }
@@ -160,6 +160,7 @@ public class ModuleLaunch implements Launch {
         private final ClassLoader SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
         private final List<ClassLoaderControl.ClassTransformer> transformers = new ArrayList<>();
         private final Map<String, Class<?>> classMap = new ConcurrentHashMap<>();
+        private final Map<String, Module> packageToModule = new HashMap<>();
         private String nativePath;
 
         private final List<String> packages = new ArrayList<>();
@@ -169,9 +170,17 @@ public class ModuleLaunch implements Launch {
             packages.add("pro.gravit.utils.");
         }
 
+        private void initializeWithLayer(ModuleLayer layer) {
+            for(var m : layer.modules()) {
+                for(var p : m.getPackages()) {
+                    packageToModule.put(p, m);
+                }
+            }
+        }
+
         @Override
         protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-            if(name != null) {
+            if(name != null && !disablePackageDelegateSupport) {
                 for(String pkg : packages) {
                     if(name.startsWith(pkg)) {
                         return SYSTEM_CLASS_LOADER.loadClass(name);
@@ -216,6 +225,17 @@ public class ModuleLaunch implements Launch {
                         }
                         clazz = defineClass(name, bytes, 0, bytes.length);
                     } catch (IOException e) {
+                        return null;
+                    }
+                }
+            }
+            if(clazz == null && layer != null && name != null) {
+                var pkg = getPackageFromClass(name);
+                var module = packageToModule.get(pkg);
+                if(module != null) {
+                    try {
+                        clazz = module.getClassLoader().loadClass(name);
+                    } catch (ClassNotFoundException e) {
                         return null;
                     }
                 }

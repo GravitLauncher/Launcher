@@ -129,31 +129,6 @@ public class ClientLauncherWrapper {
         args.add(context.executePath.toAbsolutePath().toString());
         args.addAll(context.args);
         context.jvmProperties.forEach((key, value) -> args.add(String.format("-D%s=%s", key, value)));
-        if (context.javaVersion.version >= 9) {
-            context.javaFXPaths.add(context.javaVersion.jvmDir);
-            context.javaFXPaths.add(context.javaVersion.jvmDir.resolve("jre"));
-            Path openjfxPath = JavaHelper.tryGetOpenJFXPath(context.javaVersion.jvmDir);
-            if (openjfxPath != null) {
-                context.javaFXPaths.add(openjfxPath);
-            }
-            StringBuilder modulesPath = new StringBuilder();
-            StringBuilder modulesAdd = new StringBuilder();
-            for (String moduleName : context.jvmModules) {
-                boolean success = JavaHelper.tryAddModule(context.javaFXPaths, moduleName, modulesPath);
-                if (success) {
-                    if (modulesAdd.length() > 0) modulesAdd.append(",");
-                    modulesAdd.append(moduleName);
-                }
-            }
-            if (modulesAdd.length() > 0) {
-                args.add("--add-modules");
-                args.add(modulesAdd.toString());
-            }
-            if (modulesPath.length() > 0) {
-                args.add("--module-path");
-                args.add(modulesPath.toString());
-            }
-        }
         if (context.memoryLimit != 0) {
             args.add(String.format("-Xmx%dM", context.memoryLimit));
         }
