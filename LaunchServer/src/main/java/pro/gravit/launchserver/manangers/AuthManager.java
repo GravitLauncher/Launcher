@@ -16,6 +16,7 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.UserSession;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportExtendedCheckServer;
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportKeys;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportProperties;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportTextures;
@@ -161,9 +162,16 @@ public class AuthManager {
 
     public CheckServerReport checkServer(Client client, String username, String serverID) throws IOException {
         if (client.auth == null) return null;
-        User user = client.auth.core.checkServer(client, username, serverID);
-        if (user == null) return null;
-        else return CheckServerReport.ofUser(user, getPlayerProfile(client.auth, user));
+        var supportExtended = client.auth.core.isSupport(AuthSupportExtendedCheckServer.class);
+        if(supportExtended != null) {
+            var session = supportExtended.extendedCheckServer(client, username, serverID);
+            if(session == null) return null;
+            return CheckServerReport.ofUserSession(session, getPlayerProfile(client.auth, session.getUser()));
+        } else {
+            var user = client.auth.core.checkServer(client, username, serverID);
+            if (user == null) return null;
+            return CheckServerReport.ofUser(user, getPlayerProfile(client.auth, user));
+        }
     }
 
     public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
@@ -322,20 +330,27 @@ public class AuthManager {
     public static class CheckServerReport {
         public UUID uuid;
         public User user;
+        public UserSession session;
         public PlayerProfile playerProfile;
 
-        public CheckServerReport(UUID uuid, User user, PlayerProfile playerProfile) {
+        public CheckServerReport(UUID uuid, User user, UserSession session, PlayerProfile playerProfile) {
             this.uuid = uuid;
             this.user = user;
+            this.session = session;
             this.playerProfile = playerProfile;
         }
 
         public static CheckServerReport ofUser(User user, PlayerProfile playerProfile) {
-            return new CheckServerReport(user.getUUID(), user, playerProfile);
+            return new CheckServerReport(user.getUUID(), user, null, playerProfile);
+        }
+
+        public static CheckServerReport ofUserSession(UserSession session, PlayerProfile playerProfile) {
+            var user = session.getUser();
+            return new CheckServerReport(user.getUUID(), user, session, playerProfile);
         }
 
         public static CheckServerReport ofUUID(UUID uuid, PlayerProfile playerProfile) {
-            return new CheckServerReport(uuid, null, playerProfile);
+            return new CheckServerReport(uuid, null, null, playerProfile);
         }
     }
 

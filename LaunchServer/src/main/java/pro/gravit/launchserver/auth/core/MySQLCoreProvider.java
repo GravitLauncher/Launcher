@@ -7,7 +7,7 @@ import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
-import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
+import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportHardware;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.ByteArrayInputStream;
@@ -260,6 +260,34 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
         }
     }
 
+    @Override
+    protected SQLUserSession createSession(SQLUser user) {
+        return new MySQLUserSession(user);
+    }
+
+    public class MySQLUserSession extends SQLUserSession implements UserSessionSupportHardware {
+        private transient MySQLUser mySQLUser;
+        protected transient MySQLUserHardware hardware;
+
+        public MySQLUserSession(SQLUser user) {
+            super(user);
+            mySQLUser = (MySQLUser) user;
+        }
+
+        @Override
+        public String getHardwareId() {
+            return mySQLUser.hwidId == 0 ? null : String.valueOf(mySQLUser.hwidId);
+        }
+
+        @Override
+        public UserHardware getHardware() {
+            if(hardware == null) {
+                hardware = (MySQLUserHardware) getHardwareInfoById(String.valueOf(mySQLUser.hwidId));
+            }
+            return hardware;
+        }
+    }
+
     public static class MySQLUserHardware implements UserHardware {
         private final HardwareReportRequest.HardwareInfo hardwareInfo;
         private final long id;
@@ -304,21 +332,12 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
         }
     }
 
-    public class MySQLUser extends SQLUser implements UserSupportHardware {
+    public class MySQLUser extends SQLUser {
         protected long hwidId;
-        protected transient MySQLUserHardware hardware;
 
         public MySQLUser(UUID uuid, String username, String accessToken, String serverId, String password, ClientPermissions permissions, long hwidId) {
             super(uuid, username, accessToken, serverId, password, permissions);
             this.hwidId = hwidId;
-        }
-
-        @Override
-        public UserHardware getHardware() {
-            if (hardware != null) return hardware;
-            MySQLUserHardware result = (MySQLUserHardware) getHardwareInfoById(String.valueOf(hwidId));
-            hardware = result;
-            return result;
         }
 
         @Override

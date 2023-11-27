@@ -176,6 +176,7 @@ public class ClientLauncherEntryPoint {
         AuthService.username = params.playerProfile.username;
         AuthService.uuid = params.playerProfile.uuid;
         KeyService.serverRsaPublicKey = Launcher.getConfig().rsaPublicKey;
+        KeyService.serverEcPublicKey = Launcher.getConfig().ecdsaPublicKey;
         modulesManager.invokeEvent(new ClientProcessReadyEvent(params));
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();

@@ -4,6 +4,7 @@ import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.profiles.PlayerProfile;
 
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -14,6 +15,12 @@ public class CheckServerRequestEvent extends RequestEvent {
     public UUID uuid;
     @LauncherNetworkAPI
     public PlayerProfile playerProfile;
+    @LauncherNetworkAPI
+    public String sessionId;
+    @LauncherNetworkAPI
+    public String hardwareId;
+    @LauncherNetworkAPI
+    public Map<String, String> sessionProperties;
 
     public CheckServerRequestEvent(PlayerProfile playerProfile) {
         this.playerProfile = playerProfile;
