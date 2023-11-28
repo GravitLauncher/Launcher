@@ -16,7 +16,6 @@ public class CheckServerResponse extends SimpleResponse {
     private transient final Logger logger = LogManager.getLogger();
     public String serverID;
     public String username;
-    public String serverName;
     public boolean needHardware;
     public boolean needProperties;
 

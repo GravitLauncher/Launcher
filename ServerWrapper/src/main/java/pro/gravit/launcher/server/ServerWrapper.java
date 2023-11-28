@@ -5,6 +5,7 @@ import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.LauncherConfig;
 import pro.gravit.launcher.api.AuthService;
 import pro.gravit.launcher.api.ClientService;
+import pro.gravit.launcher.api.ConfigService;
 import pro.gravit.launcher.api.KeyService;
 import pro.gravit.launcher.config.JsonConfigurable;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
@@ -68,6 +69,13 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             Request.addAllExtendedToken(config.extendedTokens);
         }
         Request.RequestRestoreReport report = Request.restore(config.oauth != null, false, false);
+        if(report.userInfo != null) {
+            if(report.userInfo.playerProfile != null) {
+                AuthService.username = report.userInfo.playerProfile.username;
+                AuthService.uuid = report.userInfo.playerProfile.uuid;
+            }
+            AuthService.permissions = report.userInfo.permissions;
+        }
     }
 
     public void getProfiles() throws Exception {
@@ -80,6 +88,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                     this.serverProfile = srv;
                     this.profile = p;
                     Launcher.profile = p;
+                    AuthService.profile = p;
                     LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
                     isFound = true;
                     break;
@@ -199,6 +208,10 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         ClientService.classLoaderControl = classLoaderControl;
         ClientService.baseURLs = classLoaderControl.getURLs();
         ClientService.nativePath = config.nativesDir;
+        ConfigService.serverName = config.serverName;
+        if(config.configServiceSettings != null) {
+            config.configServiceSettings.apply();
+        }
         LogHelper.info("Start Minecraft Server");
         LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
         try {
@@ -274,5 +287,17 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public boolean enableHacks;
 
         public Map<String, String> properties;
+        public ConfigServiceSettings configServiceSettings = new ConfigServiceSettings();
+
+        public static class ConfigServiceSettings {
+            public boolean disableLogging = false;
+            public boolean checkServerNeedProperties = false;
+            public boolean checkServerNeedHardware = false;
+            public void apply() {
+                ConfigService.disableLogging = disableLogging;
+                ConfigService.checkServerConfig.needHardware = checkServerNeedHardware;
+                ConfigService.checkServerConfig.needProperties = checkServerNeedProperties;
+            }
+        }
     }
 }

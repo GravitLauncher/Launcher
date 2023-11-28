@@ -12,8 +12,6 @@ public final class CheckServerRequest extends Request<CheckServerRequestEvent> i
     @LauncherNetworkAPI
     public final String serverID;
     @LauncherNetworkAPI
-    public String serverName;
-    @LauncherNetworkAPI
     public boolean needHardware;
     @LauncherNetworkAPI
     public boolean needProperties;
@@ -24,10 +22,9 @@ public final class CheckServerRequest extends Request<CheckServerRequestEvent> i
         this.serverID = VerifyHelper.verifyServerID(serverID);
     }
 
-    public CheckServerRequest(String username, String serverID, String serverName, boolean needHardware, boolean needProperties) {
+    public CheckServerRequest(String username, String serverID, boolean needHardware, boolean needProperties) {
         this.username = username;
-        this.serverID = serverID;
-        this.serverName = serverName;
+        this.serverID = VerifyHelper.verifyServerID(serverID);
         this.needHardware = needHardware;
         this.needProperties = needProperties;
     }
