@@ -120,8 +120,8 @@ public class ModuleLaunch implements Launch {
                         controller.addReads(source, target);
                     }
                 }
+                moduleClassLoader.initializeWithLayer(layer);
             }
-            moduleClassLoader.initializeWithLayer(layer);
         }
         return moduleClassLoader.makeControl();
     }
