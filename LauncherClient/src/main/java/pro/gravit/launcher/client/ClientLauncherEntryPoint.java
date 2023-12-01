@@ -173,6 +173,10 @@ public class ClientLauncherEntryPoint {
         if(profile.hasFlag(ClientProfile.CompatibilityFlags.CLASS_CONTROL_API)) {
             ClientService.classLoaderControl = classLoaderControl;
         }
+        if(params.lwjglGlfwWayland) {
+            String glfwPath = ClientService.findLibrary("glfw_wayland");
+            System.setProperty("org.lwjgl.glfw.libname", glfwPath);
+        }
         AuthService.username = params.playerProfile.username;
         AuthService.uuid = params.playerProfile.uuid;
         KeyService.serverRsaPublicKey = Launcher.getConfig().rsaPublicKey;

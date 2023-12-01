@@ -35,6 +35,7 @@ public class ClientParams {
     public boolean autoEnter;
 
     public boolean fullScreen;
+    public boolean lwjglGlfwWayland;
 
     public int ram;
 
