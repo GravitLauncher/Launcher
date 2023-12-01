@@ -179,7 +179,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
         SQLUser user = (SQLUser) client.getUser();
         if (user == null) return false;
-        return user.getUsername().equals(username) && user.getAccessToken().equals(accessToken) && updateServerID(user, serverID);
+        return (uuid == null ? user.getUsername().equals(username) : user.getUUID().equals(uuid)) && user.getAccessToken().equals(accessToken) && updateServerID(user, serverID);
     }
 
     @Override
