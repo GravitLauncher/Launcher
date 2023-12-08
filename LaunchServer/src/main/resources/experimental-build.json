@@ -1,4 +1,4 @@
 {
-  "features": [],
-  "info": []
+  "features": ["nojava8support"],
+  "info": ["Java below 17 not supported"]
 }
