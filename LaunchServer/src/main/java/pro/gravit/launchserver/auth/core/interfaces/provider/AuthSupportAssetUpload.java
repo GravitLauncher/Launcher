@@ -9,7 +9,7 @@ import pro.gravit.launchserver.auth.core.User;
 import java.util.Set;
 
 @Feature(GetAssetUploadUrlRequestEvent.FEATURE_NAME)
-public interface AuthSupportAssetUpload {
+public interface AuthSupportAssetUpload extends AuthSupport {
     String getAssetUploadUrl(String name, User user);
 
     default AuthRequestEvent.OAuthRequestEvent getAssetUploadToken(String name, User user) {

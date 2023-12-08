@@ -108,7 +108,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             if (user == null) {
                 return null;
             }
-            return new SQLUserSession(user);
+            return createSession(user);
         } catch (ExpiredJwtException e) {
             throw new OAuthAccessTokenExpired();
         } catch (JwtException e) {
@@ -133,13 +133,13 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             return null;
         }
         var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
-        return new AuthManager.AuthReport(null, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), new SQLUserSession(user));
+        return new AuthManager.AuthReport(null, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), createSession(user));
     }
 
     @Override
     public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
-        SQLUser SQLUser = (SQLUser) getUserByLogin(login);
-        if (SQLUser == null) {
+        SQLUser user = (SQLUser) getUserByLogin(login);
+        if (user == null) {
             throw AuthException.userNotFound();
         }
         if (context != null) {
@@ -147,16 +147,16 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             if (plainPassword == null) {
                 throw AuthException.wrongPassword();
             }
-            if (!passwordVerifier.check(SQLUser.password, plainPassword.password)) {
+            if (!passwordVerifier.check(user.password, plainPassword.password)) {
                 throw AuthException.wrongPassword();
             }
         }
-        SQLUserSession session = new SQLUserSession(SQLUser);
-        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(SQLUser, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
-        var refreshToken = SQLUser.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(SQLUser.username, SQLUser.password, server.keyAgreementManager.legacySalt));
+        SQLUserSession session = createSession(user);
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        var refreshToken = user.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(user.username, user.password, server.keyAgreementManager.legacySalt));
         if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();
-            updateAuth(SQLUser, minecraftAccessToken);
+            updateAuth(user, minecraftAccessToken);
             return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
         } else {
             return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
@@ -179,7 +179,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
         SQLUser user = (SQLUser) client.getUser();
         if (user == null) return false;
-        return user.getUsername().equals(username) && user.getAccessToken().equals(accessToken) && updateServerID(user, serverID);
+        return (uuid == null ? user.getUsername().equals(username) : user.getUUID().equals(uuid)) && user.getAccessToken().equals(accessToken) && updateServerID(user, serverID);
     }
 
     @Override
@@ -297,6 +297,10 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
                 perms.add(set.getString(permissionsPermissionColumn));
             return perms;
         }
+    }
+
+    protected SQLUserSession createSession(SQLUser user) {
+        return new SQLUserSession(user);
     }
 
     public boolean isEnabledPermissions() {

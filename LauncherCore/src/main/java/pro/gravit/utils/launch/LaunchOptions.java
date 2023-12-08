@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class LaunchOptions {
     public boolean enableHacks;
+    public boolean disablePackageDelegateSupport;
     public ModuleConf moduleConf;
 
 

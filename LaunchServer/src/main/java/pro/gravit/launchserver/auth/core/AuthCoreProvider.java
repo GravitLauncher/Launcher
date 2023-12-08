@@ -16,7 +16,6 @@ import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportGetAllUsers;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportRegistration;
-import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
@@ -173,28 +172,6 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                             logger.info("UserHardware {} not found", args[0]);
                         } else {
                             logger.info("UserHardware: {}", hardware);
-                        }
-                    }
-                });
-                map.put("getuserhardware", new SubCommand("[username]", "get hardware by username") {
-                    @Override
-                    public void invoke(String... args) throws Exception {
-                        verifyArgs(args, 1);
-                        User user = getUserByUUID(UUID.fromString(args[0]));
-                        if (user == null) {
-                            logger.info("User {} not found", args[0]);
-                        }
-                        UserSupportHardware hardware = instance.fetchUserHardware(user);
-                        if (hardware == null) {
-                            logger.error("Method fetchUserHardware return null");
-                            return;
-                        }
-                        UserHardware userHardware = hardware.getHardware();
-                        if (userHardware == null) {
-                            logger.info("User {} not contains hardware info", args[0]);
-                        } else {
-                            logger.info("UserHardware: {}", userHardware);
-                            logger.info("HardwareInfo(JSON): {}", Launcher.gsonManager.gson.toJson(userHardware.getHardwareInfo()));
                         }
                     }
                 });

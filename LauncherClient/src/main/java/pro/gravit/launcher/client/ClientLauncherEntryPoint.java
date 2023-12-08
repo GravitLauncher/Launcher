@@ -124,7 +124,7 @@ public class ClientLauncherEntryPoint {
             service = StdWebSocketService.initWebSockets(Launcher.getConfig().address).get();
             Request.setRequestService(service);
             LogHelper.debug("Restore sessions");
-            Request.restore();
+            Request.restore(false, false, true);
             service.registerEventHandler(new BasicLauncherEventHandler());
             ((StdWebSocketService) service).reconnectCallback = () ->
             {
@@ -173,9 +173,14 @@ public class ClientLauncherEntryPoint {
         if(profile.hasFlag(ClientProfile.CompatibilityFlags.CLASS_CONTROL_API)) {
             ClientService.classLoaderControl = classLoaderControl;
         }
+        if(params.lwjglGlfwWayland) {
+            String glfwPath = ClientService.findLibrary("glfw_wayland");
+            System.setProperty("org.lwjgl.glfw.libname", glfwPath);
+        }
         AuthService.username = params.playerProfile.username;
         AuthService.uuid = params.playerProfile.uuid;
         KeyService.serverRsaPublicKey = Launcher.getConfig().rsaPublicKey;
+        KeyService.serverEcPublicKey = Launcher.getConfig().ecdsaPublicKey;
         modulesManager.invokeEvent(new ClientProcessReadyEvent(params));
         LogHelper.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
