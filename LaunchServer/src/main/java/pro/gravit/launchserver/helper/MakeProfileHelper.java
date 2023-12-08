@@ -124,6 +124,10 @@ public class MakeProfileHelper {
             builder.setMinJavaVersion(17);
             builder.setRecommendJavaVersion(17);
         }
+        if(version.compareTo(ClientProfileVersions.MINECRAFT_1_20_3) >= 0) {
+            builder.setMinJavaVersion(21);
+            builder.setRecommendJavaVersion(21);
+        }
         jvmArgs.add("-Dfml.ignorePatchDiscrepancies=true");
         jvmArgs.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
         builder.setJvmArgs(jvmArgs);
