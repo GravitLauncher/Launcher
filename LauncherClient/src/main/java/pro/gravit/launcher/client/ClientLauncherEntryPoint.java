@@ -142,6 +142,12 @@ public class ClientLauncherEntryPoint {
         LaunchOptions options = new LaunchOptions();
         options.enableHacks = profile.hasFlag(ClientProfile.CompatibilityFlags.ENABLE_HACKS);
         options.moduleConf = profile.getModuleConf();
+        ClientService.nativePath = params.nativesDir;
+        if(profile.getLoadNatives() != null) {
+            for(String e : profile.getLoadNatives()) {
+                System.load(Paths.get(params.nativesDir).resolve(ClientService.findLibrary(e)).toAbsolutePath().toString());
+            }
+        }
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
             if(JVMHelper.JVM_VERSION <= 11) {
                 launch = new LegacyLaunch();
@@ -151,7 +157,6 @@ public class ClientLauncherEntryPoint {
             classLoaderControl = launch.init(classpath, params.nativesDir, options);
             System.setProperty("java.class.path", classpath.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator)));
             modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(launch, classLoaderControl, profile));
-            ClientService.nativePath = params.nativesDir;
             ClientService.baseURLs = classLoaderControl.getURLs();
         } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
             launch = new BasicLaunch(LauncherAgent.inst);
@@ -161,14 +166,12 @@ public class ClientLauncherEntryPoint {
                 LauncherAgent.addJVMClassPath(Paths.get(url.toURI()));
             }
             ClientService.instrumentation = LauncherAgent.inst;
-            ClientService.nativePath = params.nativesDir;
             modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(launch, null, profile));
             ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
         } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
             launch = new BasicLaunch();
             classLoaderControl = launch.init(classpath, params.nativesDir, options);
             ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
-            ClientService.nativePath = params.nativesDir;
         }
         if(profile.hasFlag(ClientProfile.CompatibilityFlags.CLASS_CONTROL_API)) {
             ClientService.classLoaderControl = classLoaderControl;

@@ -184,6 +184,13 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             System.arraycopy(args, 1, real_args, 0, args.length - 1);
         } else real_args = args;
         Launch launch;
+        ClientService.nativePath = config.nativesDir;
+        ConfigService.serverName = config.serverName;
+        if(config.loadNatives != null) {
+            for(String e : config.loadNatives) {
+                System.load(Paths.get(config.nativesDir).resolve(ClientService.findLibrary(e)).toAbsolutePath().toString());
+            }
+        }
         switch (config.classLoaderConfig) {
             case LAUNCHER:
                 launch = new LegacyLaunch();
@@ -210,8 +217,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
         ClientService.classLoaderControl = classLoaderControl;
         ClientService.baseURLs = classLoaderControl.getURLs();
-        ClientService.nativePath = config.nativesDir;
-        ConfigService.serverName = config.serverName;
         if(config.configServiceSettings != null) {
             config.configServiceSettings.apply();
         }
@@ -277,6 +282,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String nativesDir = "natives";
         public List<String> args;
         public List<String> compatClasses;
+        public List<String> loadNatives;
         public String authId;
         public AuthRequestEvent.OAuthRequestEvent oauth;
         public long oauthExpireTime;
