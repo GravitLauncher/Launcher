@@ -27,6 +27,7 @@ import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.launch.*;
 
+import java.io.File;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -186,9 +187,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         switch (config.classLoaderConfig) {
             case LAUNCHER:
                 launch = new LegacyLaunch();
+                System.setProperty("java.class.path", String.join(File.pathSeparator, config.classpath));
                 break;
             case MODULE:
                 launch = new ModuleLaunch();
+                System.setProperty("java.class.path", String.join(File.pathSeparator, config.classpath));
                 break;
             default:
                 if(ServerAgent.isAgentStarted()) {
@@ -213,7 +216,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             config.configServiceSettings.apply();
         }
         LogHelper.info("Start Minecraft Server");
-        LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
         try {
             if(config.compatClasses != null) {
                 for (String e : config.compatClasses) {
@@ -222,6 +224,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                     runMethod.invoke(classLoaderControl);
                 }
             }
+            LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
             launch.launch(config.mainclass, config.mainmodule, Arrays.asList(real_args));
         } catch (Throwable e) {
             LogHelper.error(e);

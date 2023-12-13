@@ -177,6 +177,7 @@ public class ClientLauncherEntryPoint {
             String glfwPath = ClientService.findLibrary("glfw_wayland");
             System.setProperty("org.lwjgl.glfw.libname", glfwPath);
         }
+        AuthService.projectName = Launcher.getConfig().projectName;
         AuthService.username = params.playerProfile.username;
         AuthService.uuid = params.playerProfile.uuid;
         KeyService.serverRsaPublicKey = Launcher.getConfig().rsaPublicKey;
