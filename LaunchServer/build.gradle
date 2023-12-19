@@ -1,4 +1,4 @@
-def mainClassName = "pro.gravit.launchserver.LaunchServerStarter"
+def mainClassName = "pro.gravit.launchserver.Main"
 def mainAgentName = "pro.gravit.launchserver.StarterAgent"
 
 evaluationDependsOn(':Launcher')
@@ -65,9 +65,7 @@ tasks.register('cleanjar', Jar) {
     archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
-            "Can-Redefine-Classes": "true",
-            "Can-Retransform-Classes": "true",
-            "Can-Set-Native-Method-Prefix": "true"
+            "Automatic-Module-Name": "launchserver"
     )
     from sourceSets.main.output
 }
@@ -84,13 +82,15 @@ dependencies {
     bundle group: 'org.jline', name: 'jline-terminal', version: rootProject['verJline']
     bundle group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: rootProject['verBcpkix']
     bundle group: 'org.ow2.asm', name: 'asm-commons', version: rootProject['verAsm']
-    bundle group: 'io.netty', name: 'netty-all', version: rootProject['verNetty']
+    bundle group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
+    bundle group: 'io.netty', name: 'netty-transport-classes-epoll', version: rootProject['verNetty']
+    bundle group: 'io.netty', name: 'netty-transport-native-epoll', version: rootProject['verNetty'], classifier: 'linux-x86_64'
     bundle group: 'org.slf4j', name: 'slf4j-api', version: rootProject['verSlf4j']
     bundle group: 'com.mysql', name: 'mysql-connector-j', version: rootProject['verMySQLConn']
     bundle group: 'org.postgresql', name: 'postgresql', version: rootProject['verPostgreSQLConn']
     bundle group: 'com.guardsquare', name: 'proguard-base', version: rootProject['verProguard']
     bundle group: 'org.apache.logging.log4j', name: 'log4j-core', version: rootProject['verLog4j']
-    bundle group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: rootProject['verLog4j']
+    bundle group: 'org.apache.logging.log4j', name: 'log4j-slf4j2-impl', version: rootProject['verLog4j']
     bundle group: 'io.jsonwebtoken', name: 'jjwt-api', version: rootProject['verJwt']
     bundle group: 'io.jsonwebtoken', name: 'jjwt-impl', version: rootProject['verJwt']
     bundle group: 'io.jsonwebtoken', name: 'jjwt-gson', version: rootProject['verJwt']
@@ -103,16 +103,6 @@ dependencies {
         exclude group: 'io.micrometer'
         exclude group: 'org.slf4j'
     }
-
-    launch4j('net.sf.launch4j:launch4j:' + rootProject['verLaunch4j']) {
-        exclude group: 'org.apache.ant'
-        exclude group: 'net.java.abeille'
-        exclude group: 'foxtrot'
-        exclude group: 'com.jgoodies'
-        exclude group: 'org.slf4j'
-    }
-    launch4j('net.sf.launch4j:launch4j:' + rootProject['verLaunch4j'] + ':workdir-win32') { transitive = false }
-    launch4j('net.sf.launch4j:launch4j:' + rootProject['verLaunch4j'] + ':workdir-linux64') { transitive = false }
 
     compileOnlyA group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
     // Do not update (laggy deps).
