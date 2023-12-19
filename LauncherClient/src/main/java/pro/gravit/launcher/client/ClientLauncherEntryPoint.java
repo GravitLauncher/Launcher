@@ -176,9 +176,9 @@ public class ClientLauncherEntryPoint {
         if(profile.hasFlag(ClientProfile.CompatibilityFlags.CLASS_CONTROL_API)) {
             ClientService.classLoaderControl = classLoaderControl;
         }
-        if(params.lwjglGlfwWayland) {
-            String glfwPath = ClientService.findLibrary("glfw_wayland");
-            System.setProperty("org.lwjgl.glfw.libname", glfwPath);
+        if(params.lwjglGlfwWayland && profile.hasFlag(ClientProfile.CompatibilityFlags.WAYLAND_USE_CUSTOM_GLFW)) {
+            String glfwName = ClientService.findLibrary("glfw_wayland");
+            System.setProperty("org.lwjgl.glfw.libname", glfwName);
         }
         AuthService.projectName = Launcher.getConfig().projectName;
         AuthService.username = params.playerProfile.username;

@@ -466,7 +466,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public enum CompatibilityFlags {
-        LEGACY_NATIVES_DIR, CLASS_CONTROL_API, ENABLE_HACKS
+        LEGACY_NATIVES_DIR, CLASS_CONTROL_API, ENABLE_HACKS, WAYLAND_USE_CUSTOM_GLFW
     }
 
     public static class Version implements Comparable<Version> {

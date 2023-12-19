@@ -171,6 +171,14 @@ public class ClientLauncherProcess {
             LogHelper.debug("Commandline: %s", Arrays.toString(processArgs.toArray()));
         ProcessBuilder processBuilder = new ProcessBuilder(processArgs);
         EnvHelper.addEnv(processBuilder);
+        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX){
+            var env = processBuilder.environment();
+            // https://github.com/Admicos/minecraft-wayland/issues/55
+            env.put("__GL_THREADED_OPTIMIZATIONS", "0");
+            if(params.lwjglGlfwWayland) {
+                env.remove("DISPLAY"); // No X11
+            }
+        }
         processBuilder.environment().put("JAVA_HOME", javaVersion.jvmDir.toAbsolutePath().toString());
         processBuilder.environment().putAll(systemEnv);
         processBuilder.directory(workDir.toFile());
