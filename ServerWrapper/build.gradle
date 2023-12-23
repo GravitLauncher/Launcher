@@ -14,30 +14,10 @@ repositories {
     }
 }
 
-sourceSets {
-    java11 {
-        java {
-            srcDirs = ['src/main/java11']
-        }
-        dependencies {
-            java11Implementation project(':LauncherAPI')
-            java11Implementation files(sourceSets.main.output.classesDirs) { builtBy compileJava }
-        }
-    }
-}
-
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
-
-compileJava11Java {
-    sourceCompatibility = 11
-    targetCompatibility = 11
-}
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 jar {
-    into('META-INF/versions/11') {
-        from sourceSets.java11.output
-    }
     archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,

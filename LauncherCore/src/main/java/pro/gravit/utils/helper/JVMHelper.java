@@ -53,35 +53,12 @@ public final class JVMHelper {
     }
 
     public static int getVersion() {
-        String version = System.getProperty("java.version");
-        if (version.startsWith("1.")) {
-            version = version.substring(2, 3);
-        } else {
-            int dot = version.indexOf(".");
-            if (dot != -1) {
-                version = version.substring(0, dot);
-            }
-        }
-        return Integer.parseInt(version);
+        //System.out.println("[DEBUG] JVMHelper 11 version");
+        return Runtime.version().feature();
     }
 
     public static int getBuild() {
-        String version = System.getProperty("java.version");
-        int dot;
-        if (version.startsWith("1.")) {
-            dot = version.indexOf("_");
-        } else {
-            dot = version.lastIndexOf(".");
-        }
-        if (dot != -1) {
-            version = version.substring(dot + 1);
-        }
-        try {
-            return Integer.parseInt(version);
-        } catch (NumberFormatException exception) {
-            return 0;
-        }
-
+        return Runtime.version().update();
     }
 
     public static String getNativeExtension(JVMHelper.OS OS_TYPE) {
