@@ -3,7 +3,7 @@ package pro.gravit.launchserver.manangers;
 import com.google.gson.GsonBuilder;
 import marcono1234.gson.recordadapter.RecordTypeAdapterFactory;
 import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
-import pro.gravit.launcher.managers.GsonManager;
+import pro.gravit.launcher.core.managers.GsonManager;
 import pro.gravit.launcher.modules.events.PreGsonPhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.optional.actions.OptionalAction;

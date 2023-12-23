@@ -1,6 +1,6 @@
 package pro.gravit.launcher.request.auth;
 
-import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.SetProfileRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.request.Request;

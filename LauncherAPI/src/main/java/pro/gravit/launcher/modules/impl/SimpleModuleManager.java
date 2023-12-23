@@ -1,7 +1,7 @@
 package pro.gravit.launcher.modules.impl;
 
-import pro.gravit.launcher.LauncherTrustManager;
-import pro.gravit.launcher.managers.SimpleModulesConfigManager;
+import pro.gravit.launcher.core.LauncherTrustManager;
+import pro.gravit.launcher.client.runtime.managers.SimpleModulesConfigManager;
 import pro.gravit.launcher.modules.*;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.Version;

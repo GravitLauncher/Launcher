@@ -1,6 +1,6 @@
 package pro.gravit.launcher.request.update;
 
-import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.websockets.WebSocketRequest;

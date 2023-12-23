@@ -1,6 +1,6 @@
 package pro.gravit.launcher.profiles.optional.actions;
 
-import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.util.Map;

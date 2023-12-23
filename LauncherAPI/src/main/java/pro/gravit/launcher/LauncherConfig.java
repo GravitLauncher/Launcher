@@ -1,10 +1,13 @@
 package pro.gravit.launcher;
 
+import pro.gravit.launcher.core.LauncherInject;
+import pro.gravit.launcher.core.LauncherInjectionConstructor;
+import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.LauncherModulesManager;
-import pro.gravit.launcher.serialize.HInput;
-import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.launcher.serialize.stream.StreamObject;
+import pro.gravit.launcher.core.serialize.HInput;
+import pro.gravit.launcher.core.serialize.HOutput;
+import pro.gravit.launcher.core.serialize.stream.StreamObject;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;

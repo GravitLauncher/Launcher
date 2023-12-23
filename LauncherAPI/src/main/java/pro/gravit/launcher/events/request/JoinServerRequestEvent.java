@@ -1,6 +1,6 @@
 package pro.gravit.launcher.events.request;
 
-import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.events.RequestEvent;
 
 import java.util.UUID;

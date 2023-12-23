@@ -1,7 +1,7 @@
 package pro.gravit.launcher.modern;
 
-import pro.gravit.launcher.CertificatePinningTrustManager;
-import pro.gravit.launcher.LauncherInject;
+import pro.gravit.launcher.core.CertificatePinningTrustManager;
+import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 

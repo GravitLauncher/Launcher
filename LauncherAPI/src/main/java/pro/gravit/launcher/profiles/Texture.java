@@ -1,7 +1,7 @@
 package pro.gravit.launcher.profiles;
 
-import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.launcher.serialize.stream.StreamObject;
+import pro.gravit.launcher.core.serialize.HOutput;
+import pro.gravit.launcher.core.serialize.stream.StreamObject;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 

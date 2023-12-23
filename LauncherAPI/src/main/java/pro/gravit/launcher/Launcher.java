@@ -1,8 +1,8 @@
 package pro.gravit.launcher;
 
-import pro.gravit.launcher.managers.GsonManager;
+import pro.gravit.launcher.core.managers.GsonManager;
 import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.serialize.HInput;
+import pro.gravit.launcher.core.serialize.HInput;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;

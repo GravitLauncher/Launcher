@@ -3,7 +3,7 @@ package pro.gravit.launchserver.launchermodules;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherTrustManager;
+import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;

@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.modules.impl;
 
-import pro.gravit.launcher.LauncherTrustManager;
+import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.modules.LauncherModule;
 import pro.gravit.launcher.modules.impl.SimpleModuleManager;
 import pro.gravit.launchserver.LaunchServer;

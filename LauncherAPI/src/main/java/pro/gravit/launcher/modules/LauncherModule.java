@@ -1,6 +1,6 @@
 package pro.gravit.launcher.modules;
 
-import pro.gravit.launcher.LauncherTrustManager;
+import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.utils.Version;
 
 import java.util.ArrayList;

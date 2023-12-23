@@ -1,7 +1,7 @@
 package pro.gravit.launcher.request.update;
 
 import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.LauncherRequestEvent;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestService;

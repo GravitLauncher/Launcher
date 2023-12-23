@@ -4,8 +4,8 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
-import pro.gravit.launcher.LauncherInject;
-import pro.gravit.launcher.LauncherInjectionConstructor;
+import pro.gravit.launcher.core.LauncherInject;
+import pro.gravit.launcher.core.LauncherInjectionConstructor;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 

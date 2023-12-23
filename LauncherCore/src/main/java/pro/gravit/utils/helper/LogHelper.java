@@ -1,6 +1,6 @@
 package pro.gravit.utils.helper;
 
-import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.utils.logging.LogHelperAppender;
 import pro.gravit.utils.logging.SimpleLogHelperImpl;
 import pro.gravit.utils.logging.Slf4jLogHelperImpl;

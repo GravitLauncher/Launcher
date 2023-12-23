@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
-import pro.gravit.launcher.managers.ConfigManager;
+import pro.gravit.launcher.client.runtime.managers.ConfigManager;
 import pro.gravit.launcher.modules.events.ClosePhase;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;

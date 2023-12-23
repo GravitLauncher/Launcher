@@ -1,5 +1,7 @@
 package pro.gravit.launcher;
 
+import pro.gravit.launcher.core.LauncherNetworkAPI;
+
 import java.util.*;
 
 public class ClientPermissions {

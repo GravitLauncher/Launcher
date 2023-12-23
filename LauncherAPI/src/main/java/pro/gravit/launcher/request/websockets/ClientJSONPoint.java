@@ -14,8 +14,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
-import pro.gravit.launcher.CertificatePinningTrustManager;
-import pro.gravit.launcher.LauncherInject;
+import pro.gravit.launcher.core.CertificatePinningTrustManager;
+import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.utils.helper.LogHelper;
 
 import javax.net.ssl.SSLException;

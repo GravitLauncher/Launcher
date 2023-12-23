@@ -1,8 +1,8 @@
 package pro.gravit.launcher.profiles;
 
 import com.google.gson.*;
-import pro.gravit.launcher.LauncherNetworkAPI;
-import pro.gravit.launcher.hasher.FileNameMatcher;
+import pro.gravit.launcher.core.LauncherNetworkAPI;
+import pro.gravit.launcher.core.hasher.FileNameMatcher;
 import pro.gravit.launcher.profiles.optional.OptionalDepend;
 import pro.gravit.launcher.profiles.optional.OptionalFile;
 import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
