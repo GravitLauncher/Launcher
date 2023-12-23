@@ -28,12 +28,15 @@ import pro.gravit.utils.command.StdCommandHandler;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.launch.LaunchOptions;
+import pro.gravit.utils.launch.ModuleLaunch;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LaunchServerStarter {
@@ -42,15 +45,10 @@ public class LaunchServerStarter {
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
-        JVMHelper.checkStackTrace(LaunchServerStarter.class);
-        JVMHelper.verifySystemProperties(LaunchServer.class, true);
+        JVMHelper.verifySystemProperties(LaunchServer.class, false);
         //LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");
         LogHelper.printLicense("LaunchServer");
-        if (!StarterAgent.isAgentStarted()) {
-            LogHelper.error("StarterAgent is not started!");
-            LogHelper.error("You should add to JVM options this option: `-javaagent:LaunchServer.jar`");
-        }
         Path dir = IOHelper.WORKING_DIR;
         Path configFile, runtimeConfigFile;
         try {

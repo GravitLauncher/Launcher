@@ -24,6 +24,7 @@ import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.launch.*;
 
+import java.io.File;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -180,12 +181,21 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             System.arraycopy(args, 1, real_args, 0, args.length - 1);
         } else real_args = args;
         Launch launch;
+        ClientService.nativePath = config.nativesDir;
+        ConfigService.serverName = config.serverName;
+        if(config.loadNatives != null) {
+            for(String e : config.loadNatives) {
+                System.load(Paths.get(config.nativesDir).resolve(ClientService.findLibrary(e)).toAbsolutePath().toString());
+            }
+        }
         switch (config.classLoaderConfig) {
             case LAUNCHER:
                 launch = new LegacyLaunch();
+                System.setProperty("java.class.path", String.join(File.pathSeparator, config.classpath));
                 break;
             case MODULE:
                 launch = new ModuleLaunch();
+                System.setProperty("java.class.path", String.join(File.pathSeparator, config.classpath));
                 break;
             default:
                 if(ServerAgent.isAgentStarted()) {
@@ -204,13 +214,10 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
         ClientService.classLoaderControl = classLoaderControl;
         ClientService.baseURLs = classLoaderControl.getURLs();
-        ClientService.nativePath = config.nativesDir;
-        ConfigService.serverName = config.serverName;
         if(config.configServiceSettings != null) {
             config.configServiceSettings.apply();
         }
         LogHelper.info("Start Minecraft Server");
-        LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
         try {
             if(config.compatClasses != null) {
                 for (String e : config.compatClasses) {
@@ -219,6 +226,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                     runMethod.invoke(classLoaderControl);
                 }
             }
+            LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
             launch.launch(config.mainclass, config.mainmodule, Arrays.asList(real_args));
         } catch (Throwable e) {
             LogHelper.error(e);
@@ -271,6 +279,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String nativesDir = "natives";
         public List<String> args;
         public List<String> compatClasses;
+        public List<String> loadNatives;
         public String authId;
         public AuthRequestEvent.OAuthRequestEvent oauth;
         public long oauthExpireTime;

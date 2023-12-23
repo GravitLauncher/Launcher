@@ -33,7 +33,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected final ModulesConfigManager modulesConfigManager;
     protected final Path modulesDir;
     protected final LauncherTrustManager trustManager;
-    protected final PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{});
+    protected final PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{}, SimpleModuleManager.class.getClassLoader());
     protected LauncherInitContext initContext;
 
     public SimpleModuleManager(Path modulesDir, Path configDir) {

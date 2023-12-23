@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class AuthService {
+    public static String projectName;
     public static String username;
     public static ClientPermissions permissions = new ClientPermissions();
     public static UUID uuid;
