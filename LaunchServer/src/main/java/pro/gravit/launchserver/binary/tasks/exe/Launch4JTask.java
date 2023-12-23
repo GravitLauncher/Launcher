@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

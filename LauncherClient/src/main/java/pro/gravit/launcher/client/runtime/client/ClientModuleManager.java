@@ -34,7 +34,7 @@ public final class ClientModuleManager extends SimpleModuleManager {
     }
 
     @Override
-    public final boolean verifyClassCheckResult(LauncherTrustManager.CheckClassResult result) {
+    public boolean verifyClassCheckResult(LauncherTrustManager.CheckClassResult result) {
         return result.type == LauncherTrustManager.CheckClassResultType.SUCCESS;
     }
 }

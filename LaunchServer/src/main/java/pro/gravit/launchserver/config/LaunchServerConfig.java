@@ -142,7 +142,7 @@ public final class LaunchServerConfig {
     }
 
     public void verify() {
-        if (auth == null || auth.size() < 1) {
+        if (auth == null || auth.isEmpty()) {
             throw new NullPointerException("AuthProviderPair`s count should be at least one");
         }
 

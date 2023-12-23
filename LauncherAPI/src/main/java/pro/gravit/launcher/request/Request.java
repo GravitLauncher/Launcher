@@ -203,12 +203,12 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         }
         RestoreRequestEvent event = request.request();
         List<String> invalidTokens = null;
-        if (event.invalidTokens != null && event.invalidTokens.size() > 0) {
+        if (event.invalidTokens != null && !event.invalidTokens.isEmpty()) {
             Map<String, String> tokens = makeNewTokens(event.invalidTokens);
             if (!tokens.isEmpty()) {
                 request = new RestoreRequest(authId, null, tokens, false);
                 event = request.request();
-                if (event.invalidTokens != null && event.invalidTokens.size() > 0) {
+                if (event.invalidTokens != null && !event.invalidTokens.isEmpty()) {
                     LogHelper.warning("Tokens %s not restored", String.join(",", event.invalidTokens));
                 }
             }

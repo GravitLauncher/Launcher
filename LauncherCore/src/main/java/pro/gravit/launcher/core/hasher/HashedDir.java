@@ -30,16 +30,11 @@ public final class HashedDir extends HashedEntry {
             // Read entry
             HashedEntry entry;
             Type type = Type.read(input);
-            switch (type) {
-                case FILE:
-                    entry = new HashedFile(input);
-                    break;
-                case DIR:
-                    entry = new HashedDir(input);
-                    break;
-                default:
-                    throw new AssertionError("Unsupported hashed entry type: " + type.name());
-            }
+            entry = switch (type) {
+                case FILE -> new HashedFile(input);
+                case DIR -> new HashedDir(input);
+                default -> throw new AssertionError("Unsupported hashed entry type: " + type.name());
+            };
 
             // Try add entry to map
             VerifyHelper.putIfAbsent(map, name, entry, String.format("Duplicate dir entry: '%s'", name));

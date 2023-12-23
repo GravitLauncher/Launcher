@@ -13,15 +13,7 @@ public class JavaHelper {
     public static final List<String> javaFxModules;
 
     static {
-        List<String> modules = new ArrayList<>();
-        modules.add("javafx.base");
-        modules.add("javafx.graphics");
-        modules.add("javafx.fxml");
-        modules.add("javafx.controls");
-        modules.add("javafx.swing");
-        modules.add("javafx.media");
-        modules.add("javafx.web");
-        javaFxModules = Collections.unmodifiableList(modules);
+        javaFxModules = List.of("javafx.base", "javafx.graphics", "javafx.fxml", "javafx.controls", "javafx.swing", "javafx.media", "javafx.web");
     }
 
     public static Path tryGetOpenJFXPath(Path jvmDir) {
@@ -60,7 +52,7 @@ public class JavaHelper {
             if (path == null) continue;
             Path result = tryFindModule(path, moduleName);
             if (result != null) {
-                if (args.length() != 0) args.append(File.pathSeparatorChar);
+                if (!args.isEmpty()) args.append(File.pathSeparatorChar);
                 args.append(result.toAbsolutePath());
                 return true;
             }

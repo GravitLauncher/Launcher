@@ -138,17 +138,13 @@ public final class IOHelper {
     }
 
     public static Path getRoot() {
-        switch (JVMHelper.OS_TYPE) {
-            case MUSTDIE: {
+        return switch (JVMHelper.OS_TYPE) {
+            case MUSTDIE -> {
                 String drive = System.getenv("SystemDrive").concat("\\");
-                return Paths.get(drive);
+                yield Paths.get(drive);
             }
-            case LINUX:
-            case MACOSX: {
-                return Paths.get("/");
-            }
-        }
-        throw new UnsupportedOperationException();
+            case LINUX, MACOSX -> Paths.get("/");
+        };
     }
 
     public static byte[] getResourceBytes(String name) throws IOException {
@@ -545,19 +541,11 @@ public final class IOHelper {
     }
 
     public static String urlDecode(String s) {
-        try {
-            return URLDecoder.decode(s, UNICODE_CHARSET.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new InternalError(e);
-        }
+        return URLDecoder.decode(s, UNICODE_CHARSET);
     }
 
     public static String urlEncode(String s) {
-        try {
-            return URLEncoder.encode(s, UNICODE_CHARSET.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new InternalError(e);
-        }
+        return URLEncoder.encode(s, UNICODE_CHARSET);
     }
 
     public static String verifyFileName(String fileName) {

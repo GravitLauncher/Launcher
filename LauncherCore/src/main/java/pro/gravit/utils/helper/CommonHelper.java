@@ -73,7 +73,7 @@ public final class CommonHelper {
                     throw new CommandException("Quotes wasn't closed");
 
                 // Empty args are ignored (except if was quoted)
-                if (wasQuoted || builder.length() > 0)
+                if (wasQuoted || !builder.isEmpty())
                     result.add(builder.toString());
 
                 // Reset file builder

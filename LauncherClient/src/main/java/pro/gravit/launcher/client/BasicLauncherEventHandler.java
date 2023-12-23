@@ -28,8 +28,7 @@ public class BasicLauncherEventHandler implements RequestService.EventHandler {
             if (token != null) {
                 Request.addExtendedToken(event1.getExtendedTokenName(), new Request.ExtendedToken(event1.getExtendedToken(), event1.getExtendedTokenExpire()));
             }
-        } else if (event instanceof NotificationEvent) {
-            NotificationEvent n = (NotificationEvent) event;
+        } else if (event instanceof NotificationEvent n) {
             if (DialogService.isNotificationsAvailable()) {
                 DialogService.createNotification(n.icon, n.head, n.message);
             }

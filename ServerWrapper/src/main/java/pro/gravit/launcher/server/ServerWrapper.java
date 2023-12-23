@@ -122,8 +122,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LogHelper.debug("Read ServerWrapperConfig.json");
         loadConfig();
         updateLauncherConfig();
-        if (config.env != null) Launcher.applyLauncherEnv(config.env);
-        else Launcher.applyLauncherEnv(LauncherConfig.LauncherEnvironment.STD);
+        Launcher.applyLauncherEnv(Objects.requireNonNullElse(config.env, LauncherConfig.LauncherEnvironment.STD));
         StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
         service.reconnectCallback = () ->
         {
@@ -153,7 +152,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             KeyService.serverEcPublicKey = SecurityHelper.toPublicECDSAKey(config.encodedServerEcPublicKey);
         }
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
-        if (classname.length() == 0) {
+        if (classname.isEmpty()) {
             LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.json or first commandline argument");
             System.exit(-1);
         }
@@ -174,7 +173,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LogHelper.info("ServerWrapper: LaunchServer address: %s. Title: %s", config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
         LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().toString());
         String[] real_args;
-        if(config.args != null && config.args.size() > 0) {
+        if(config.args != null && !config.args.isEmpty()) {
             real_args = config.args.toArray(new String[0]);
         } else if (args.length > 0) {
             real_args = new String[args.length - 1];

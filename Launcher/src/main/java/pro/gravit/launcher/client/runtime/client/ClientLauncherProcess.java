@@ -197,18 +197,18 @@ public class ClientLauncherProcess {
         StringBuilder modulesPath = new StringBuilder();
         StringBuilder modulesAdd = new StringBuilder();
         for (String moduleName : jvmModules) {
-            if (modulesAdd.length() > 0) modulesAdd.append(",");
+            if (!modulesAdd.isEmpty()) modulesAdd.append(",");
             modulesAdd.append(moduleName);
         }
         for (String modulePath : jvmModulesPaths) {
-            if (modulesPath.length() > 0) modulesPath.append(File.pathSeparator);
+            if (!modulesPath.isEmpty()) modulesPath.append(File.pathSeparator);
             modulesPath.append(modulePath);
         }
-        if (modulesAdd.length() > 0) {
+        if (!modulesAdd.isEmpty()) {
             processArgs.add("--add-modules");
             processArgs.add(modulesAdd.toString());
         }
-        if (modulesPath.length() > 0) {
+        if (!modulesPath.isEmpty()) {
             processArgs.add("--module-path");
             processArgs.add(modulesPath.toString());
         }

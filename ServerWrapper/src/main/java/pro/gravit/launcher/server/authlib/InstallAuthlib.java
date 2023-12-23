@@ -41,10 +41,10 @@ public class InstallAuthlib {
         }
         context.workdir = IOHelper.WORKING_DIR;
         LogHelper.info("Search .jar files in %s", context.workdir.toAbsolutePath());
-        IOHelper.walk(context.workdir, new SimpleFileVisitor<Path>() {
+        IOHelper.walk(context.workdir, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                if(file.getFileName().toString().endsWith(".jar")) {
+                if (file.getFileName().toString().endsWith(".jar")) {
                     context.files.add(file);
                 }
                 return FileVisitResult.CONTINUE;

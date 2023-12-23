@@ -78,9 +78,7 @@ public class Downloader {
         downloader.future = downloader.downloadFile(uri, path);
         if (closeExecutor) {
             ExecutorService finalExecutor = executor;
-            downloader.future = downloader.future.thenAccept((e) -> {
-                finalExecutor.shutdownNow();
-            }).exceptionallyCompose((ex) -> {
+            downloader.future = downloader.future.thenAccept((e) -> finalExecutor.shutdownNow()).exceptionallyCompose((ex) -> {
                 finalExecutor.shutdownNow();
                 return CompletableFuture.failedFuture(ex);
             });
@@ -99,9 +97,7 @@ public class Downloader {
         downloader.future = downloader.downloadFiles(files, baseURL, targetDir, callback, executor, threads);
         if (closeExecutor) {
             ExecutorService finalExecutor = executor;
-            downloader.future = downloader.future.thenAccept((e) -> {
-                finalExecutor.shutdownNow();
-            }).exceptionallyCompose((ex) -> {
+            downloader.future = downloader.future.thenAccept((e) -> finalExecutor.shutdownNow()).exceptionallyCompose((ex) -> {
                 finalExecutor.shutdownNow();
                 return CompletableFuture.failedFuture(ex);
             });

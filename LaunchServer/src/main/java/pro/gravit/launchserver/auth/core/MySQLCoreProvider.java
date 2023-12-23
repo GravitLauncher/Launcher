@@ -332,7 +332,7 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
         }
     }
 
-    public class MySQLUser extends SQLUser {
+    public static class MySQLUser extends SQLUser {
         protected long hwidId;
 
         public MySQLUser(UUID uuid, String username, String accessToken, String serverId, String password, ClientPermissions permissions, long hwidId) {

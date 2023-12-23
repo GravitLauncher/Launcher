@@ -24,7 +24,7 @@ public class SaveProfilesCommand extends Command {
 
     public static void saveProfile(ClientProfile profile, Path path) throws IOException {
         if (profile.getUUID() == null) profile.setUUID(UUID.randomUUID());
-        if (profile.getServers().size() == 0) {
+        if (profile.getServers().isEmpty()) {
             ClientProfile.ServerProfile serverProfile = new ClientProfile.ServerProfile();
             serverProfile.isDefault = true;
             serverProfile.name = profile.getTitle();

@@ -62,26 +62,19 @@ public final class JVMHelper {
     }
 
     public static String getNativeExtension(JVMHelper.OS OS_TYPE) {
-        switch (OS_TYPE) {
-            case MUSTDIE:
-                return ".dll";
-            case LINUX:
-                return ".so";
-            case MACOSX:
-                return ".dylib";
-            default:
-                throw new InternalError(String.format("Unsupported OS TYPE '%s'", OS_TYPE));
-        }
+        return switch (OS_TYPE) {
+            case MUSTDIE -> ".dll";
+            case LINUX -> ".so";
+            case MACOSX -> ".dylib";
+            default -> throw new InternalError(String.format("Unsupported OS TYPE '%s'", OS_TYPE));
+        };
     }
 
     public static String getNativePrefix(JVMHelper.OS OS_TYPE) {
-        switch (OS_TYPE) {
-            case LINUX:
-            case MACOSX:
-                return "lib";
-            default:
-                return "";
-        }
+        return switch (OS_TYPE) {
+            case LINUX, MACOSX -> "lib";
+            default -> "";
+        };
     }
 
     public static void appendVars(ProcessBuilder builder, Map<String, String> vars) {

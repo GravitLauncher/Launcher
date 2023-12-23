@@ -41,7 +41,7 @@ public class HWIDProvider {
 
     public boolean isBattery() {
         List<PowerSource> powerSources = hardware.getPowerSources();
-        return powerSources != null && powerSources.size() != 0;
+        return powerSources != null && !powerSources.isEmpty();
     }
 
     //Hardware Information
@@ -93,7 +93,7 @@ public class HWIDProvider {
 
     public byte[] getDisplayID() {
         List<Display> displays = hardware.getDisplays();
-        if (displays == null || displays.size() == 0) return null;
+        if (displays == null || displays.isEmpty()) return null;
         for (Display display : displays) {
             return display.getEdid();
         }

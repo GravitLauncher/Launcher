@@ -22,7 +22,7 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
 
     @Override
     public void init(LaunchServer server) {
-        if (profileWhitelist != null && profileWhitelist.size() > 0) {
+        if (profileWhitelist != null && !profileWhitelist.isEmpty()) {
             logger.warn("profileWhitelist deprecated. Please use permission 'launchserver.profile.PROFILE_UUID.show' and 'launchserver.profile.PROFILE_UUID.enter'");
         }
     }

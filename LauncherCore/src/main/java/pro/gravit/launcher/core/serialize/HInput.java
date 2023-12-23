@@ -42,14 +42,11 @@ public final class HInput implements AutoCloseable {
 
     public boolean readBoolean() throws IOException {
         int b = readUnsignedByte();
-        switch (b) {
-            case 0b0:
-                return false;
-            case 0b1:
-                return true;
-            default:
-                throw new IOException("Invalid boolean state: " + b);
-        }
+        return switch (b) {
+            case 0b0 -> false;
+            case 0b1 -> true;
+            default -> throw new IOException("Invalid boolean state: " + b);
+        };
     }
 
 

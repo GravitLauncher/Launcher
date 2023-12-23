@@ -96,7 +96,7 @@ public final class LauncherConfig extends StreamObject {
         this.address = address;
         this.ecdsaPublicKey = ecdsaPublicKey;
         this.rsaPublicKey = rsaPublicKey;
-        this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
+        this.runtime = Map.copyOf(runtime);
         this.projectName = projectName;
         this.clientPort = 32148;
         environment = LauncherEnvironment.STD;
@@ -109,7 +109,7 @@ public final class LauncherConfig extends StreamObject {
 
     public LauncherConfig(String address, Map<String, byte[]> runtime, String projectName, LauncherEnvironment env, LauncherTrustManager trustManager) {
         this.address = address;
-        this.runtime = Collections.unmodifiableMap(new HashMap<>(runtime));
+        this.runtime = Map.copyOf(runtime);
         this.projectName = projectName;
         this.clientPort = 32148;
         this.trustManager = trustManager;

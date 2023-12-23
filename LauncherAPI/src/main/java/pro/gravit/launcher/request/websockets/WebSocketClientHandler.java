@@ -51,15 +51,13 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             return;
         }
 
-        if (msg instanceof FullHttpResponse) {
-            final FullHttpResponse response = (FullHttpResponse) msg;
+        if (msg instanceof FullHttpResponse response) {
             throw new Exception("Unexpected FullHttpResponse (getStatus=" + response.status() + ", content="
                     + response.content().toString(CharsetUtil.UTF_8) + ')');
         }
 
         final WebSocketFrame frame = (WebSocketFrame) msg;
-        if (frame instanceof TextWebSocketFrame) {
-            final TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
+        if (frame instanceof TextWebSocketFrame textFrame) {
             if (LogHelper.isDevEnabled()) {
                 LogHelper.dev("Message: %s", textFrame.text());
             }
