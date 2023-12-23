@@ -1,6 +1,6 @@
 package pro.gravit.launcher.client.api;
 
-import pro.gravit.launcher.events.NotificationEvent;
+import pro.gravit.launcher.base.events.NotificationEvent;
 
 import java.util.function.Consumer;
 

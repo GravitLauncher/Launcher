@@ -6,7 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.events.request.LauncherRequestEvent;
+import pro.gravit.launcher.base.events.request.LauncherRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.socket.Client;

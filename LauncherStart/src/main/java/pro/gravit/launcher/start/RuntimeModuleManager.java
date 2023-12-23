@@ -1,9 +1,9 @@
 package pro.gravit.launcher.start;
 
-import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.core.LauncherTrustManager;
-import pro.gravit.launcher.modules.LauncherModule;
-import pro.gravit.launcher.modules.impl.SimpleModuleManager;
+import pro.gravit.launcher.base.modules.LauncherModule;
+import pro.gravit.launcher.base.modules.impl.SimpleModuleManager;
 
 import java.nio.file.Path;
 import java.util.Collections;

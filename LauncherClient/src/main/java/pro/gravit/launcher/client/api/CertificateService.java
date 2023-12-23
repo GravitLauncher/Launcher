@@ -2,7 +2,7 @@ package pro.gravit.launcher.client.api;
 
 import pro.gravit.launcher.client.ClientLauncherMethods;
 import pro.gravit.launcher.core.LauncherTrustManager;
-import pro.gravit.launcher.client.runtime.utils.ApiBridgeService;
+import pro.gravit.launcher.client.utils.ApiBridgeService;
 
 import java.security.cert.X509Certificate;
 

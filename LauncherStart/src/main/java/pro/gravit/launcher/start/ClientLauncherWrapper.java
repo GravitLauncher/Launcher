@@ -1,9 +1,7 @@
 package pro.gravit.launcher.start;
 
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
-import pro.gravit.launcher.client.runtime.client.DirBridge;
-import pro.gravit.launcher.client.runtime.utils.DirWatcher;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.*;
@@ -105,16 +103,12 @@ public class ClientLauncherWrapper {
 
         context.executePath = IOHelper.resolveJavaBin(context.javaVersion.jvmDir);
         String pathLauncher = IOHelper.getCodeSource(ClientLauncherWrapper.class).toString();
-        context.mainClass = "pro.gravit.launcher.LauncherEngineWrapper";
+        context.mainClass = "pro.gravit.launcher.runtime.LauncherEngineWrapper";
         context.memoryLimit = launcherMemoryLimit;
         context.classpath.add(pathLauncher);
         context.jvmProperties.put(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled()));
         context.jvmProperties.put(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled()));
         context.jvmProperties.put(LogHelper.DEV_PROPERTY, Boolean.toString(LogHelper.isDevEnabled()));
-        context.addSystemProperty(DirBridge.CUSTOMDIR_PROPERTY);
-        context.addSystemProperty(DirBridge.USE_CUSTOMDIR_PROPERTY);
-        context.addSystemProperty(DirBridge.USE_OPTDIR_PROPERTY);
-        context.addSystemProperty(DirWatcher.IGN_OVERFLOW);
         context.jvmModules.add("javafx.base");
         context.jvmModules.add("javafx.graphics");
         context.jvmModules.add("javafx.fxml");

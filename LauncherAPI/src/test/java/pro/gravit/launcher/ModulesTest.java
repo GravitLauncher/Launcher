@@ -7,8 +7,8 @@ import org.junit.jupiter.api.io.TempDir;
 import pro.gravit.launcher.impl.*;
 import pro.gravit.launcher.impl.event.CancelEvent;
 import pro.gravit.launcher.impl.event.NormalEvent;
-import pro.gravit.launcher.modules.LauncherModule;
-import pro.gravit.launcher.modules.impl.SimpleModuleManager;
+import pro.gravit.launcher.base.modules.LauncherModule;
+import pro.gravit.launcher.base.modules.impl.SimpleModuleManager;
 
 import java.nio.file.Path;
 

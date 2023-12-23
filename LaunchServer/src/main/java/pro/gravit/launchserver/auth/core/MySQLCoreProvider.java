@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.auth.core;
 
-import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.request.secure.HardwareReportRequest;
+import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.SQLSourceConfig;

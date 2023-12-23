@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.socket.response.profile;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.ProfileByUsernameRequestEvent;
-import pro.gravit.launcher.profiles.PlayerProfile;
+import pro.gravit.launcher.base.events.request.ProfileByUsernameRequestEvent;
+import pro.gravit.launcher.base.profiles.PlayerProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;

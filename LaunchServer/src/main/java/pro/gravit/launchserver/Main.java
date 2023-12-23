@@ -5,6 +5,10 @@ import pro.gravit.utils.launch.ClassLoaderControl;
 import pro.gravit.utils.launch.LaunchOptions;
 import pro.gravit.utils.launch.ModuleLaunch;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +19,7 @@ import java.util.stream.Stream;
 
 public class Main {
     private static final List<String> classpathOnly = List.of("proguard", "jline", "kotlin", "epoll");
+    private static final String LOG4J_PROPERTY = "log4j2.configurationFile";
     private static boolean isClasspathOnly(Path path) {
         var fileName = path.getFileName().toString();
         for(var e : classpathOnly) {
@@ -25,7 +30,28 @@ public class Main {
         return false;
     }
 
+    private static void unpackLog4j() {
+        String log4jConfigurationFile = System.getProperty(LOG4J_PROPERTY);
+        if(log4jConfigurationFile == null) {
+            Path log4jConfigPath = Path.of("log4j2.xml");
+            if(!Files.exists(log4jConfigPath)) {
+                try(FileOutputStream output = new FileOutputStream(log4jConfigPath.toFile())) {
+                    try(InputStream input = Main.class.getResourceAsStream("log4j2.xml")) {
+                        if(input == null) {
+                            return;
+                        }
+                        input.transferTo(output);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            System.setProperty(LOG4J_PROPERTY, log4jConfigPath.toAbsolutePath().toString());
+        }
+    }
+
     public static void main(String[] args) throws Throwable {
+        unpackLog4j();
         ModuleLaunch launch = new ModuleLaunch();
         LaunchOptions options = new LaunchOptions();
         options.disablePackageDelegateSupport = true;

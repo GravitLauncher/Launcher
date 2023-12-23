@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.socket.response.cabinet;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.GetAssetUploadUrlRequestEvent;
+import pro.gravit.launcher.base.events.request.GetAssetUploadUrlRequestEvent;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportAssetUpload;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;

@@ -2,7 +2,7 @@ package pro.gravit.launcher;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 
 public class ClientVersionTest {
     @Test

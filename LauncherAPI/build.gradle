@@ -3,7 +3,6 @@ targetCompatibility = '17'
 
 dependencies {
     api project(':LauncherCore')
-    compileOnly group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 }
 

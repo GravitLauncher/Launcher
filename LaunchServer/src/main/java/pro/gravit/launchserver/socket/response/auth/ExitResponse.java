@@ -2,8 +2,8 @@ package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.RequestEvent;
-import pro.gravit.launcher.events.request.ExitRequestEvent;
+import pro.gravit.launcher.base.events.RequestEvent;
+import pro.gravit.launcher.base.events.request.ExitRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportExit;

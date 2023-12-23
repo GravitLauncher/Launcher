@@ -1,11 +1,11 @@
 package pro.gravit.launcher.server.setup;
 
-import pro.gravit.launcher.events.request.GetPublicKeyRequestEvent;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.ClientProfileVersions;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.auth.GetPublicKeyRequest;
-import pro.gravit.launcher.request.websockets.StdWebSocketService;
+import pro.gravit.launcher.base.events.request.GetPublicKeyRequestEvent;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileVersions;
+import pro.gravit.launcher.base.request.Request;
+import pro.gravit.launcher.base.request.auth.GetPublicKeyRequest;
+import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.server.ServerWrapper;
 import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;

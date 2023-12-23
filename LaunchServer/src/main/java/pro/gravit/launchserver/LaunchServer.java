@@ -2,12 +2,11 @@ package pro.gravit.launchserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.events.RequestEvent;
-import pro.gravit.launcher.events.request.ProfilesRequestEvent;
-import pro.gravit.launcher.client.runtime.managers.ConfigManager;
-import pro.gravit.launcher.modules.events.ClosePhase;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.events.RequestEvent;
+import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
+import pro.gravit.launcher.base.modules.events.ClosePhase;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;

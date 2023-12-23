@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.socket.response.secure;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.SecurityReportRequestEvent;
+import pro.gravit.launcher.base.events.request.SecurityReportRequestEvent;
 import pro.gravit.launchserver.auth.protect.interfaces.SecureProtectHandler;
 import pro.gravit.launchserver.modules.events.security.SecurityReportModuleEvent;
 import pro.gravit.launchserver.socket.Client;

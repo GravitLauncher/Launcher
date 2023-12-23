@@ -3,7 +3,7 @@ package pro.gravit.launchserver.auth.texture;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.profiles.Texture;
+import pro.gravit.launcher.base.profiles.Texture;
 import pro.gravit.launchserver.HttpRequester;
 import pro.gravit.utils.helper.SecurityHelper;
 

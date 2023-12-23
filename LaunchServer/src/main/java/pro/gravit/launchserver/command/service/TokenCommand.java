@@ -3,7 +3,7 @@ package pro.gravit.launchserver.command.service;
 import io.jsonwebtoken.Jwts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.command.Command;

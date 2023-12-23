@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.auth.core.interfaces.user;
 
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.Texture;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.Texture;
 
 import java.util.HashMap;
 import java.util.Map;

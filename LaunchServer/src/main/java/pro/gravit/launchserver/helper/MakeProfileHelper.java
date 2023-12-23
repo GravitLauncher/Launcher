@@ -1,12 +1,12 @@
 package pro.gravit.launchserver.helper;
 
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.ClientProfileBuilder;
-import pro.gravit.launcher.profiles.ClientProfileVersions;
-import pro.gravit.launcher.profiles.optional.OptionalFile;
-import pro.gravit.launcher.profiles.optional.actions.OptionalActionFile;
-import pro.gravit.launcher.profiles.optional.actions.OptionalActionJvmArgs;
-import pro.gravit.launcher.profiles.optional.triggers.OSTrigger;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
+import pro.gravit.launcher.base.profiles.ClientProfileVersions;
+import pro.gravit.launcher.base.profiles.optional.OptionalFile;
+import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionFile;
+import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionJvmArgs;
+import pro.gravit.launcher.base.profiles.optional.triggers.OSTrigger;
 import pro.gravit.utils.helper.JVMHelper;
 
 import java.io.IOException;

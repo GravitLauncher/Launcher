@@ -1,9 +1,9 @@
 package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.events.request.LauncherRequestEvent;
-import pro.gravit.launcher.events.request.RestoreRequestEvent;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.base.events.request.LauncherRequestEvent;
+import pro.gravit.launcher.base.events.request.RestoreRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;

@@ -1,6 +1,6 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.client.runtime.utils.NativeJVMHalt;
+import pro.gravit.launcher.client.utils.NativeJVMHalt;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.File;

@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.modules.events;
 
-import pro.gravit.launcher.modules.LauncherModule;
+import pro.gravit.launcher.base.modules.LauncherModule;
 import pro.gravit.launchserver.LaunchServer;
 
 public class NewLaunchServerInstanceEvent extends LauncherModule.Event {
