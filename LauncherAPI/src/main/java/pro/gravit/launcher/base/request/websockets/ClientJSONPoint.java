@@ -1,6 +1,7 @@
 package pro.gravit.launcher.base.request.websockets;
 
 import pro.gravit.launcher.base.Downloader;
+import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.utils.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
@@ -19,6 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public abstract class ClientJSONPoint implements WebSocket.Listener {
+    @LauncherInject("launcher.certificatePinning")
+    private static boolean isCertificatePinning;
     private static final AtomicInteger counter = new AtomicInteger();
     private final URI uri;
     public boolean isClosed;
@@ -49,8 +52,11 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
             else port = 443;
         } else port = uri.getPort();
         try {
-            httpClient = HttpClient.newBuilder()
-                    .sslContext(Downloader.makeSSLContext()).build();
+            var httpClientBuilder = HttpClient.newBuilder();
+            if(isCertificatePinning) {
+                httpClientBuilder = httpClientBuilder.sslContext(Downloader.makeSSLContext());
+            }
+            httpClient = httpClientBuilder.build();
             webSocketBuilder = httpClient.newWebSocketBuilder().connectTimeout(Duration.ofSeconds(30));
         } catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException |
                  KeyManagementException e) {
