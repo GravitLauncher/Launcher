@@ -83,6 +83,10 @@ public abstract class LauncherModule {
         return module;
     }
 
+    protected LauncherModulesContext getContext() {
+        return context;
+    }
+
     private void requireModule(LauncherModule module, Version minVersion, String requiredModuleName) {
         if (module == null)
             throw new RuntimeException(String.format("Module %s required %s v%s or higher", moduleInfo.name, requiredModuleName, minVersion.getVersionString()));

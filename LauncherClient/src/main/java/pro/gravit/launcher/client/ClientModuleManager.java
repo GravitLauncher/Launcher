@@ -5,6 +5,7 @@ import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.base.modules.LauncherModule;
 import pro.gravit.launcher.base.modules.impl.SimpleModuleManager;
 
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +32,11 @@ public final class ClientModuleManager extends SimpleModuleManager {
 
     public List<LauncherModule> getModules() {
         return Collections.unmodifiableList(modules);
+    }
+
+    @Override
+    protected ModulesClassLoader createClassLoader() {
+        return null;
     }
 
     @Override

@@ -14,6 +14,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -27,6 +28,7 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
     protected boolean ssl = false;
     protected int port;
     private final Object syncObject = new Object();
+    private final Object sendSyncObject = new Object();
     private volatile StringBuilder builder = new StringBuilder();
 
     public ClientJSONPoint(final String uri) throws SSLException {

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,8 +33,12 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected final ModulesConfigManager modulesConfigManager;
     protected final Path modulesDir;
     protected final LauncherTrustManager trustManager;
-    protected final PublicURLClassLoader classLoader = new PublicURLClassLoader(new URL[]{}, SimpleModuleManager.class.getClassLoader());
+    protected final ModulesClassLoader classLoader = createClassLoader();
     protected LauncherInitContext initContext;
+
+    protected ModulesClassLoader createClassLoader() {
+        return new ModulesClassLoader(new URL[]{}, SimpleModuleManager.class.getClassLoader());
+    }
 
     public SimpleModuleManager(Path modulesDir, Path configDir) {
         modulesConfigManager = new SimpleModulesConfigManager(configDir);
@@ -268,6 +273,10 @@ public class SimpleModuleManager implements LauncherModulesManager {
         return modulesConfigManager;
     }
 
+    void addUrlToClassLoader(URL url) {
+        classLoader.addURL(url);
+    }
+
     protected final class ModulesVisitor extends SimpleFileVisitor<Path> {
         private ModulesVisitor() {
         }
@@ -277,6 +286,18 @@ public class SimpleModuleManager implements LauncherModulesManager {
             if (file.toFile().getName().endsWith(".jar"))
                 loadModule(file);
             return super.visitFile(file, attrs);
+        }
+    }
+
+    protected static class ModulesClassLoader extends URLClassLoader {
+
+        public ModulesClassLoader(URL[] urls, ClassLoader parent) {
+            super("MODULES", urls, parent);
+        }
+
+        @Override
+        public void addURL(URL url) {
+            super.addURL(url);
         }
     }
 }

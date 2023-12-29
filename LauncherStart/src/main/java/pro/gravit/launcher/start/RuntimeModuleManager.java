@@ -38,6 +38,11 @@ public final class RuntimeModuleManager extends SimpleModuleManager {
         return result.type == LauncherTrustManager.CheckClassResultType.SUCCESS;
     }
 
+    @Override
+    protected ModulesClassLoader createClassLoader() {
+        return null;
+    }
+
     public void callWrapper(ClientLauncherWrapper.ClientLauncherWrapperContext context) {
         for (LauncherModule module : modules) {
             if (module instanceof ClientWrapperModule) {

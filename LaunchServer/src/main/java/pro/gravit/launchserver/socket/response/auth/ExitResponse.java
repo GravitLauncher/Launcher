@@ -43,6 +43,10 @@ public class ExitResponse extends SimpleResponse {
             return;
         }
         if (username == null) {
+            if(!client.isAuth || client.auth == null) {
+                sendError("You are not authorized");
+                return;
+            }
             {
                 WebSocketFrameHandler handler = ctx.pipeline().get(WebSocketFrameHandler.class);
                 if (handler == null) {
@@ -65,7 +69,6 @@ public class ExitResponse extends SimpleResponse {
                 }
                 sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
             }
-            sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
         } else {
             service.forEachActiveChannels(((channel, webSocketFrameHandler) -> {
                 Client client1 = webSocketFrameHandler.getClient();
