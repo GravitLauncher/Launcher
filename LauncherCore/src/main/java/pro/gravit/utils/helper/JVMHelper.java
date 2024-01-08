@@ -46,7 +46,7 @@ public final class JVMHelper {
 
     public static ARCH getArch(String arch) {
         if (arch.equals("amd64") || arch.equals("x86-64") || arch.equals("x86_64")) return ARCH.X86_64;
-        if (arch.equals("i386") || arch.equals("i686") || arch.equals("x86")) return ARCH.X86;
+        if (arch.equals("i386") || arch.equals("i586") || arch.equals("i686") || arch.equals("x86")) return ARCH.X86;
         if (arch.startsWith("armv8") || arch.startsWith("aarch64")) return ARCH.ARM64;
         if (arch.startsWith("arm") || arch.startsWith("aarch32")) return ARCH.ARM32;
         throw new InternalError(String.format("Unsupported arch '%s'", arch));
