@@ -27,7 +27,9 @@ import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public final class LaunchServerConfig {
-    private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/", "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/", "https://mirror.gravitlauncher.com/5.4.x/");
+    private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/",
+            "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/", "https://mirror.gravitlauncher.com/5.4.x/",
+            "https://mirror.gravitlauncher.com/5.5.x/");
     private transient final Logger logger = LogManager.getLogger();
     public String projectName;
     public String[] mirrors;
@@ -49,7 +51,7 @@ public final class LaunchServerConfig {
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
-        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.5.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
+        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         newConfig.launch4j = new LaunchServerConfig.ExeConf();
         newConfig.launch4j.enabled = false;
         newConfig.launch4j.copyright = "© GravitLauncher Team";
