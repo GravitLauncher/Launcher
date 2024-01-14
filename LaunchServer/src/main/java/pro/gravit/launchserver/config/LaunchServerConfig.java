@@ -12,12 +12,10 @@ import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
-import pro.gravit.launchserver.binary.tasks.exe.Launch4JTask;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
 import pro.gravit.launchserver.components.RegLimiterComponent;
-import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
 
 import java.io.File;
@@ -41,7 +39,6 @@ public final class LaunchServerConfig {
     // Handlers & Providers
     public ProtectHandler protectHandler;
     public Map<String, Component> components;
-    public ExeConf launch4j;
     public NettyConfig netty;
     public LauncherConf launcher;
     public JarSignerConf sign;
@@ -52,18 +49,6 @@ public final class LaunchServerConfig {
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
         newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
-        newConfig.launch4j = new LaunchServerConfig.ExeConf();
-        newConfig.launch4j.enabled = false;
-        newConfig.launch4j.copyright = "© GravitLauncher Team";
-        newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
-        newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
-        newConfig.launch4j.internalName = "Launcher";
-        newConfig.launch4j.trademarks = "This product is licensed under GPLv3";
-        newConfig.launch4j.txtFileVersion = "%s, build %d";
-        newConfig.launch4j.txtProductVersion = "%s, build %d";
-        newConfig.launch4j.productName = "GravitLauncher";
-        newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
-        newConfig.launch4j.maxVersion = "99.0.0";
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.auth = new HashMap<>();
@@ -230,25 +215,6 @@ public final class LaunchServerConfig {
             server.unregisterObject("protectHandler", protectHandler);
             protectHandler.close();
         }
-    }
-
-    public static class ExeConf {
-        public boolean enabled;
-        public boolean setMaxVersion;
-        public String maxVersion;
-        public String minVersion = "17.0.0";
-        public String supportURL = null;
-        public String downloadUrl = Launch4JTask.DOWNLOAD_URL;
-        public String productName;
-        public String productVer;
-        public String fileDesc;
-        public String fileVer;
-        public String internalName;
-        public String copyright;
-        public String trademarks;
-
-        public String txtFileVersion;
-        public String txtProductVersion;
     }
 
     public static class JarSignerConf {
