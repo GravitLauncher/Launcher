@@ -34,12 +34,17 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     private static final Logger logger = LogManager.getLogger();
     public String modeAfter = "MainBuild";
     public String dir = "proguard";
+    public List<String> jvmArgs = new ArrayList<>();
     public boolean enabled = true;
     public boolean mappings = true;
     public transient ProguardConf proguardConf;
     private transient LaunchServer launchServer;
     private transient ProGuardBuildTask buildTask;
     private transient ProGuardMultiReleaseFixer fixerTask;
+
+    public ProGuardComponent() {
+        this.jvmArgs.add("-Xmx512M");
+    }
 
     public static boolean checkFXJMods(Path path) {
         if (!IOHelper.exists(path.resolve("javafx.base.jmod")))
@@ -208,6 +213,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                 try {
                     List<String> args = new ArrayList<>();
                     args.add(IOHelper.resolveJavaBin(IOHelper.JVM_DIR).toAbsolutePath().toString());
+                    args.addAll(component.jvmArgs);
                     args.add("-cp");
                     try(Stream<Path> files = Files.walk(Path.of("libraries"), FileVisitOption.FOLLOW_LINKS)) {
                         args.add(files
