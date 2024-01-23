@@ -15,7 +15,6 @@ import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
-import pro.gravit.launchserver.components.RegLimiterComponent;
 import pro.gravit.utils.helper.JVMHelper;
 
 import java.io.File;
@@ -87,11 +86,6 @@ public final class LaunchServerConfig {
         authLimiterComponent.rateLimitMillis = SECONDS.toMillis(8);
         authLimiterComponent.message = "Превышен лимит авторизаций";
         newConfig.components.put("authLimiter", authLimiterComponent);
-        RegLimiterComponent regLimiterComponent = new RegLimiterComponent();
-        regLimiterComponent.rateLimit = 3;
-        regLimiterComponent.rateLimitMillis = HOURS.toMillis(10);
-        regLimiterComponent.message = "Превышен лимит регистраций";
-        newConfig.components.put("regLimiter", regLimiterComponent);
         ProGuardComponent proGuardComponent = new ProGuardComponent();
         newConfig.components.put("proguard", proGuardComponent);
         return newConfig;
