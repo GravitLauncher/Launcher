@@ -37,9 +37,6 @@ jar {
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
             "Multi-Release": "true",
-            "Can-Redefine-Classes": "true",
-            "Can-Retransform-Classes": "true",
-            "Can-Set-Native-Method-Prefix": "true"
     )
 }
 
