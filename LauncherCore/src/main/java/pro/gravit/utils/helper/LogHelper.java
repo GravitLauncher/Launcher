@@ -31,7 +31,6 @@ public final class LogHelper {
         boolean useSlf4j = false;
         try {
             Class.forName("org.slf4j.Logger", false, LogHelper.class.getClassLoader());
-            Class.forName("org.slf4j.impl.StaticLoggerBinder", false, LogHelper.class.getClassLoader());
             useSlf4j = !Boolean.getBoolean(NO_SLF4J_PROPERTY);
         } catch (ClassNotFoundException ignored) {
         }

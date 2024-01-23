@@ -158,8 +158,8 @@ public final class LaunchServerConfig {
             if (!updateMirror) {
                 for (int i = 0; i < mirrors.length; ++i) {
                     if (mirrors[i] != null && oldMirrorList.contains(mirrors[i])) {
-                        logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.5.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
-                        mirrors[i] = "https://mirror.gravitlauncher.com/5.5.x/";
+                        logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.6.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
+                        mirrors[i] = "https://mirror.gravitlauncher.com/5.6.x/";
                     }
                 }
             }
