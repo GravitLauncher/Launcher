@@ -2,8 +2,8 @@ package pro.gravit.launchserver.command.hash;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.IOHelper;
@@ -24,7 +24,7 @@ public class SaveProfilesCommand extends Command {
 
     public static void saveProfile(ClientProfile profile, Path path) throws IOException {
         if (profile.getUUID() == null) profile.setUUID(UUID.randomUUID());
-        if (profile.getServers().size() == 0) {
+        if (profile.getServers().isEmpty()) {
             ClientProfile.ServerProfile serverProfile = new ClientProfile.ServerProfile();
             serverProfile.isDefault = true;
             serverProfile.name = profile.getTitle();

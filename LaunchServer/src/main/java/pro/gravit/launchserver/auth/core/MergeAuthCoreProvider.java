@@ -2,7 +2,7 @@ package pro.gravit.launchserver.auth.core;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.request.auth.AuthRequest;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.manangers.AuthManager;

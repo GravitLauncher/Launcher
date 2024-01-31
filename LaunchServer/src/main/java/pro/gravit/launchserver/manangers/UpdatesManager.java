@@ -2,9 +2,9 @@ package pro.gravit.launchserver.manangers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.hasher.HashedDir;
-import pro.gravit.launcher.serialize.HInput;
-import pro.gravit.launcher.serialize.HOutput;
+import pro.gravit.launcher.core.hasher.HashedDir;
+import pro.gravit.launcher.core.serialize.HInput;
+import pro.gravit.launcher.core.serialize.HOutput;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.modules.events.LaunchServerUpdatesSyncEvent;
 import pro.gravit.utils.helper.IOHelper;

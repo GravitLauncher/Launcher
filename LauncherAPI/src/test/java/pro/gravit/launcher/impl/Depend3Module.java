@@ -1,8 +1,8 @@
 package pro.gravit.launcher.impl;
 
-import pro.gravit.launcher.modules.LauncherInitContext;
-import pro.gravit.launcher.modules.LauncherModule;
-import pro.gravit.launcher.modules.LauncherModuleInfo;
+import pro.gravit.launcher.base.modules.LauncherInitContext;
+import pro.gravit.launcher.base.modules.LauncherModule;
+import pro.gravit.launcher.base.modules.LauncherModuleInfo;
 
 public class Depend3Module extends LauncherModule {
     public Depend3Module() {

@@ -57,7 +57,7 @@ public final class AuthProviderPair {
         }
     }
 
-    public final <T> T isSupport(Class<T> clazz) {
+    public <T> T isSupport(Class<T> clazz) {
         if (core == null) return null;
         T result = core.isSupport(clazz);
         if (result == null && mixes != null) {
@@ -71,7 +71,7 @@ public final class AuthProviderPair {
         return result;
     }
 
-    public final void init(LaunchServer srv, String name) {
+    public void init(LaunchServer srv, String name) {
         this.name = name;
         if (links != null) link(srv);
         core.init(srv);
@@ -85,7 +85,7 @@ public final class AuthProviderPair {
         }
     }
 
-    public final void link(LaunchServer srv) {
+    public void link(LaunchServer srv) {
         links.forEach((k, v) -> {
             AuthProviderPair pair = srv.config.getAuthProviderPair(v);
             if (pair == null) {
@@ -99,7 +99,7 @@ public final class AuthProviderPair {
         });
     }
 
-    public final void close() throws IOException {
+    public void close() throws IOException {
         core.close();
         if (textureProvider != null) {
             textureProvider.close();

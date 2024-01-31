@@ -2,15 +2,13 @@ package pro.gravit.launchserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.events.RequestEvent;
-import pro.gravit.launcher.events.request.ProfilesRequestEvent;
-import pro.gravit.launcher.managers.ConfigManager;
-import pro.gravit.launcher.modules.events.ClosePhase;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.events.RequestEvent;
+import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
+import pro.gravit.launcher.base.modules.events.ClosePhase;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
-import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
 import pro.gravit.launchserver.binary.EXELauncherBinary;
 import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.LauncherBinary;
@@ -300,12 +298,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         if(event.binary != null) {
             return event.binary;
         }
-        try {
-            Class.forName("net.sf.launch4j.Builder");
-            if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
-        } catch (ClassNotFoundException ignored) {
-            logger.warn("Launch4J isn't in classpath.");
-        }
         return new EXELauncherBinary(this);
     }
 
@@ -393,7 +385,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         // Syncing launcher EXE binary
         logger.info("Syncing launcher EXE binary file");
-        if (!launcherEXEBinary.sync() && config.launch4j.enabled)
+        if (!launcherEXEBinary.sync())
             logger.warn("Missing launcher EXE binary file");
 
     }

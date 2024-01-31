@@ -2,9 +2,9 @@ package pro.gravit.launchserver.binary;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.launcher.serialize.stream.StreamObject;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.core.serialize.HOutput;
+import pro.gravit.launcher.core.serialize.stream.StreamObject;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;

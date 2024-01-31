@@ -1,14 +1,14 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.hasher.HashedDir;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.ClientProfileVersions;
-import pro.gravit.launcher.profiles.PlayerProfile;
-import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
-import pro.gravit.launcher.profiles.optional.actions.OptionalActionClientArgs;
-import pro.gravit.launcher.request.Request;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.core.hasher.HashedDir;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileVersions;
+import pro.gravit.launcher.base.profiles.PlayerProfile;
+import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionClientArgs;
+import pro.gravit.launcher.base.request.Request;
 import pro.gravit.utils.Version;
 
 import java.util.*;

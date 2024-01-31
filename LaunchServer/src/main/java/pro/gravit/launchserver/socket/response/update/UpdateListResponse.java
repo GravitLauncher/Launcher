@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.socket.response.update;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.UpdateListRequestEvent;
+import pro.gravit.launcher.base.events.request.UpdateListRequestEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 

@@ -1,6 +1,6 @@
 package pro.gravit.launcher.client.events;
 
-import pro.gravit.launcher.modules.events.ClosePhase;
+import pro.gravit.launcher.base.modules.events.ClosePhase;
 
 public class ClientExitPhase extends ClosePhase {
     public final int code;

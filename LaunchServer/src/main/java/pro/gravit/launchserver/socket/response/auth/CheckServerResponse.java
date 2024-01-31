@@ -3,7 +3,7 @@ package pro.gravit.launchserver.socket.response.auth;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.events.request.CheckServerRequestEvent;
+import pro.gravit.launcher.base.events.request.CheckServerRequestEvent;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportProperties;

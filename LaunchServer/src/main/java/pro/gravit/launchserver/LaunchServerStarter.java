@@ -3,13 +3,13 @@ package pro.gravit.launchserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherTrustManager;
-import pro.gravit.launcher.modules.events.PreConfigPhase;
-import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
-import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.core.LauncherTrustManager;
+import pro.gravit.launcher.base.modules.events.PreConfigPhase;
+import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
+import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.mix.MixProvider;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
@@ -42,15 +42,10 @@ public class LaunchServerStarter {
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
-        JVMHelper.checkStackTrace(LaunchServerStarter.class);
-        JVMHelper.verifySystemProperties(LaunchServer.class, true);
+        JVMHelper.verifySystemProperties(LaunchServer.class, false);
         //LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");
         LogHelper.printLicense("LaunchServer");
-        if (!StarterAgent.isAgentStarted()) {
-            LogHelper.error("StarterAgent is not started!");
-            LogHelper.error("You should add to JVM options this option: `-javaagent:LaunchServer.jar`");
-        }
         Path dir = IOHelper.WORKING_DIR;
         Path configFile, runtimeConfigFile;
         try {

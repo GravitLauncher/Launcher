@@ -1,6 +1,6 @@
 package pro.gravit.utils.helper;
 
-import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.utils.logging.LogHelperAppender;
 import pro.gravit.utils.logging.SimpleLogHelperImpl;
 import pro.gravit.utils.logging.Slf4jLogHelperImpl;
@@ -31,7 +31,6 @@ public final class LogHelper {
         boolean useSlf4j = false;
         try {
             Class.forName("org.slf4j.Logger", false, LogHelper.class.getClassLoader());
-            Class.forName("org.slf4j.impl.StaticLoggerBinder", false, LogHelper.class.getClassLoader());
             useSlf4j = !Boolean.getBoolean(NO_SLF4J_PROPERTY);
         } catch (ClassNotFoundException ignored) {
         }

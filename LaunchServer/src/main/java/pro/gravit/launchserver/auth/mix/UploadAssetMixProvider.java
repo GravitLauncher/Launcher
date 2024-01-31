@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.auth.mix;
 
-import pro.gravit.launcher.events.request.AssetUploadInfoRequestEvent;
+import pro.gravit.launcher.base.events.request.AssetUploadInfoRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.core.User;

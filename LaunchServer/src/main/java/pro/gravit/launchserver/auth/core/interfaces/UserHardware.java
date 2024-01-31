@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.auth.core.interfaces;
 
-import pro.gravit.launcher.request.secure.HardwareReportRequest;
+import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
 
 public interface UserHardware {
     HardwareReportRequest.HardwareInfo getHardwareInfo();

@@ -2,8 +2,8 @@ package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.RequestEvent;
-import pro.gravit.launcher.events.request.ExitRequestEvent;
+import pro.gravit.launcher.base.events.RequestEvent;
+import pro.gravit.launcher.base.events.request.ExitRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportExit;
@@ -43,6 +43,10 @@ public class ExitResponse extends SimpleResponse {
             return;
         }
         if (username == null) {
+            if(!client.isAuth || client.auth == null) {
+                sendError("You are not authorized");
+                return;
+            }
             {
                 WebSocketFrameHandler handler = ctx.pipeline().get(WebSocketFrameHandler.class);
                 if (handler == null) {
@@ -65,7 +69,6 @@ public class ExitResponse extends SimpleResponse {
                 }
                 sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
             }
-            sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
         } else {
             service.forEachActiveChannels(((channel, webSocketFrameHandler) -> {
                 Client client1 = webSocketFrameHandler.getClient();

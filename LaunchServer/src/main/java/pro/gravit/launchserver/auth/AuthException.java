@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.auth;
 
-import pro.gravit.launcher.events.request.AuthRequestEvent;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 
 import java.io.IOException;
 import java.io.Serial;

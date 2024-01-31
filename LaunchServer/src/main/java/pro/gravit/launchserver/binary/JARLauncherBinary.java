@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.binary;
 
-import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.*;
 

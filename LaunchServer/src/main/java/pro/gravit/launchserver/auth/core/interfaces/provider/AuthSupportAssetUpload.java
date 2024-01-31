@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.auth.core.interfaces.provider;
 
-import pro.gravit.launcher.events.request.AssetUploadInfoRequestEvent;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.events.request.GetAssetUploadUrlRequestEvent;
+import pro.gravit.launcher.base.events.request.AssetUploadInfoRequestEvent;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.base.events.request.GetAssetUploadUrlRequestEvent;
 import pro.gravit.launchserver.auth.Feature;
 import pro.gravit.launchserver.auth.core.User;
 

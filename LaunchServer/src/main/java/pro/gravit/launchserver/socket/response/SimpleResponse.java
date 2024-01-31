@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.socket.response;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.RequestEvent;
-import pro.gravit.launcher.events.request.ErrorRequestEvent;
+import pro.gravit.launcher.base.events.RequestEvent;
+import pro.gravit.launcher.base.events.request.ErrorRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.WebSocketService;
 

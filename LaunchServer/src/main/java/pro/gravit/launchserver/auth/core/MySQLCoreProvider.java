@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.auth.core;
 
-import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.request.secure.HardwareReportRequest;
+import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
@@ -332,7 +332,7 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
         }
     }
 
-    public class MySQLUser extends SQLUser {
+    public static class MySQLUser extends SQLUser {
         protected long hwidId;
 
         public MySQLUser(UUID uuid, String username, String accessToken, String serverId, String password, ClientPermissions permissions, long hwidId) {

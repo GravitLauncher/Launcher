@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.Feature;
 
-import java.util.List;
-
 public class FeatureCollectionTest {
     public static class TestClass1 implements TextInterface1 {
 

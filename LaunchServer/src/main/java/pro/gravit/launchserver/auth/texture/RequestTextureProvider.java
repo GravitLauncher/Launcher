@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.auth.texture;
 
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.profiles.Texture;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.profiles.Texture;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 

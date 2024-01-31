@@ -10,7 +10,7 @@ project.ext {
     verBcprov = '1.70'
     verGson = '2.10.1'
     verBcpkix = '1.70'
-    verSlf4j = '1.7.36'
+    verSlf4j = '2.0.9'
     verLog4j = '2.20.0'
     verMySQLConn = '8.3.0'
     verPostgreSQLConn = '42.7.1'
