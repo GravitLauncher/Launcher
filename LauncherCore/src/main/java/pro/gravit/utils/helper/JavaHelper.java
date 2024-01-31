@@ -265,7 +265,6 @@ public class JavaHelper {
                             arch = JVMHelper.getArch(archProperty);
                         }
                     } catch (Throwable ignored) {
-                        arch = null;
                     }
                     String modulesProperty = getProperty(properties, "MODULES");
                     if(modulesProperty != null) {

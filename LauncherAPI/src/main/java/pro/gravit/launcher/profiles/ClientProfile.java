@@ -60,6 +60,8 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private List<String> compatClasses;
     @LauncherNetworkAPI
+    private List<String> loadNatives;
+    @LauncherNetworkAPI
     private Map<String, String> properties;
     @LauncherNetworkAPI
     private List<ServerProfile> servers;
@@ -251,6 +253,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public ProfileDefaultSettings getSettings() {
         return settings;
+    }
+
+    public List<String> getLoadNatives() {
+        return loadNatives;
     }
 
     public void updateOptionalGraph() {
@@ -460,7 +466,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public enum CompatibilityFlags {
-        LEGACY_NATIVES_DIR, CLASS_CONTROL_API, ENABLE_HACKS
+        LEGACY_NATIVES_DIR, CLASS_CONTROL_API, ENABLE_HACKS, WAYLAND_USE_CUSTOM_GLFW
     }
 
     public static class Version implements Comparable<Version> {
