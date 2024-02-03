@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.command.hash;
+package pro.gravit.launchserver.command.sync;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,10 +7,10 @@ import pro.gravit.launchserver.command.Command;
 
 import java.io.IOException;
 
-public final class SyncBinariesCommand extends Command {
+public final class SyncProfilesCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    public SyncBinariesCommand(LaunchServer server) {
+    public SyncProfilesCommand(LaunchServer server) {
         super(server);
     }
 
@@ -21,12 +21,12 @@ public final class SyncBinariesCommand extends Command {
 
     @Override
     public String getUsageDescription() {
-        return "Resync launcher binaries";
+        return "Resync profiles dir";
     }
 
     @Override
     public void invoke(String... args) throws IOException {
-        server.syncLauncherBinaries();
-        logger.info("Binaries successfully resynced");
+        server.syncProfilesDir();
+        logger.info("Profiles successfully resynced");
     }
 }

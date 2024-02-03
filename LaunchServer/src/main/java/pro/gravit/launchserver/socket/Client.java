@@ -10,8 +10,11 @@ import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Client {
+    ReadWriteLock lock = new ReentrantReadWriteLock();
     public String auth_id;
     public long timestamp;
     public AuthResponse.ConnectTypes type;

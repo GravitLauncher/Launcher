@@ -422,21 +422,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         updatesManager.syncUpdatesDir(dirs);
     }
 
-    public void restart() {
-        ProcessBuilder builder = new ProcessBuilder();
-        if (config.startScript != null) builder.command(Collections.singletonList(config.startScript));
-        else throw new IllegalArgumentException("Please create start script and link it as startScript in config.");
-        builder.directory(this.dir.toFile());
-        builder.inheritIO();
-        builder.redirectErrorStream(true);
-        builder.redirectOutput(Redirect.PIPE);
-        try {
-            builder.start();
-        } catch (IOException e) {
-            logger.error("Restart failed", e);
-        }
-    }
-
     public void registerObject(String name, Object object) {
         if (object instanceof Reconfigurable) {
             reconfigurableManager.registerReconfigurable(name, (Reconfigurable) object);
@@ -447,11 +432,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         if (object instanceof Reconfigurable) {
             reconfigurableManager.unregisterReconfigurable(name);
         }
-    }
-
-    public void fullyRestart() {
-        restart();
-        JVMHelper.RUNTIME.exit(0);
     }
 
 

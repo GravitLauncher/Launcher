@@ -122,57 +122,7 @@ public class LaunchServerStarter {
             }
         }
 
-        LaunchServer.LaunchServerConfigManager launchServerConfigManager = new LaunchServer.LaunchServerConfigManager() {
-            @Override
-            public LaunchServerConfig readConfig() throws IOException {
-                LaunchServerConfig config1;
-                try (BufferedReader reader = IOHelper.newReader(configFile)) {
-                    config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
-                }
-                return config1;
-            }
-
-            @Override
-            public LaunchServerRuntimeConfig readRuntimeConfig() throws IOException {
-                LaunchServerRuntimeConfig config1;
-                try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
-                    config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
-                }
-                return config1;
-            }
-
-            @Override
-            public void writeConfig(LaunchServerConfig config) throws IOException {
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                try (Writer writer = IOHelper.newWriter(output)) {
-                    if (Launcher.gsonManager.configGson != null) {
-                        Launcher.gsonManager.configGson.toJson(config, writer);
-                    } else {
-                        logger.error("Error writing LaunchServer config file. Gson is null");
-                    }
-                }
-                byte[] bytes = output.toByteArray();
-                if(bytes.length > 0) {
-                    IOHelper.write(configFile, bytes);
-                }
-            }
-
-            @Override
-            public void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException {
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                try (Writer writer = IOHelper.newWriter(output)) {
-                    if (Launcher.gsonManager.configGson != null) {
-                        Launcher.gsonManager.configGson.toJson(config, writer);
-                    } else {
-                        logger.error("Error writing LaunchServer runtime config file. Gson is null");
-                    }
-                }
-                byte[] bytes = output.toByteArray();
-                if(bytes.length > 0) {
-                    IOHelper.write(runtimeConfigFile, bytes);
-                }
-            }
-        };
+        LaunchServer.LaunchServerConfigManager launchServerConfigManager = new BasicLaunchServerConfigManager(configFile, runtimeConfigFile);
         LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
         directories.dir = dir;
         LaunchServer server = new LaunchServerBuilder()
@@ -282,6 +232,66 @@ public class LaunchServerStarter {
         logger.info("Writing LaunchServer config file");
         try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
             Launcher.gsonManager.configGson.toJson(newConfig, writer);
+        }
+    }
+
+    private static class BasicLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
+        private final Path configFile;
+        private final Path runtimeConfigFile;
+
+        public BasicLaunchServerConfigManager(Path configFile, Path runtimeConfigFile) {
+            this.configFile = configFile;
+            this.runtimeConfigFile = runtimeConfigFile;
+        }
+
+        @Override
+        public LaunchServerConfig readConfig() throws IOException {
+            LaunchServerConfig config1;
+            try (BufferedReader reader = IOHelper.newReader(configFile)) {
+                config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
+            }
+            return config1;
+        }
+
+        @Override
+        public LaunchServerRuntimeConfig readRuntimeConfig() throws IOException {
+            LaunchServerRuntimeConfig config1;
+            try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
+                config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
+            }
+            return config1;
+        }
+
+        @Override
+        public void writeConfig(LaunchServerConfig config) throws IOException {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            try (Writer writer = IOHelper.newWriter(output)) {
+                if (Launcher.gsonManager.configGson != null) {
+                    Launcher.gsonManager.configGson.toJson(config, writer);
+                } else {
+                    logger.error("Error writing LaunchServer config file. Gson is null");
+                }
+            }
+            byte[] bytes = output.toByteArray();
+            if(bytes.length > 0) {
+                IOHelper.write(configFile, bytes);
+            }
+        }
+
+        @Override
+        public void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            try (Writer writer = IOHelper.newWriter(output)) {
+                if (Launcher.gsonManager.configGson != null) {
+                    Launcher.gsonManager.configGson.toJson(config, writer);
+                } else {
+                    logger.error("Error writing LaunchServer runtime config file. Gson is null");
+                }
+            }
+            byte[] bytes = output.toByteArray();
+            if(bytes.length > 0) {
+                IOHelper.write(runtimeConfigFile, bytes);
+            }
         }
     }
 }

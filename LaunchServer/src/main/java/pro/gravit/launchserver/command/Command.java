@@ -47,6 +47,9 @@ public abstract class Command extends pro.gravit.utils.command.Command {
     protected Downloader downloadWithProgressBar(String taskName, List<Downloader.SizedFile> list, String baseUrl, Path targetDir) throws Exception {
         long total = 0;
         for (Downloader.SizedFile file : list) {
+            if(file.size < 0) {
+                continue;
+            }
             total += file.size;
         }
         long totalFiles = list.size();

@@ -21,6 +21,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
@@ -157,6 +158,16 @@ public class Downloader {
                     }
                     return CompletableFuture.completedFuture(null);
         });
+    }
+
+    public CompletableFuture<Void> downloadFile(String url, Path path, DownloadCallback callback, ExecutorService executor) throws Exception {
+        return downloadFiles(new ArrayList<>(List.of(new SizedFile(url, path.getFileName().toString()))), null,
+                path.getParent(), callback, executor, 1);
+    }
+
+    public CompletableFuture<Void> downloadFile(String url, Path path, long size, DownloadCallback callback, ExecutorService executor) throws Exception {
+        return downloadFiles(new ArrayList<>(List.of(new SizedFile(url, path.getFileName().toString(), size))), null,
+                path.getParent(), callback, executor, 1);
     }
 
     public CompletableFuture<Void> downloadFiles(List<SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
@@ -354,6 +365,12 @@ public class Downloader {
             this.urlPath = urlPath;
             this.filePath = filePath;
             this.size = size;
+        }
+
+        public SizedFile(String urlPath, String filePath) {
+            this.urlPath = urlPath;
+            this.filePath = filePath;
+            this.size = -1;
         }
     }
 }

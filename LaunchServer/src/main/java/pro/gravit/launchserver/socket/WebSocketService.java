@@ -39,6 +39,8 @@ import pro.gravit.utils.helper.IOHelper;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
 public class WebSocketService {
@@ -51,11 +53,18 @@ public class WebSocketService {
     private final LaunchServer server;
     private final Gson gson;
     private transient final Logger logger = LogManager.getLogger();
+    private ExecutorService executors;
 
     public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;
         this.server = server;
         this.gson = Launcher.gsonManager.gson;
+        executors = switch (server.config.netty.performance.executorType) {
+            case NONE -> null;
+            case DEFAULT -> Executors.newCachedThreadPool();
+            case WORK_STEAL -> Executors.newWorkStealingPool();
+            case VIRTUAL_THREADS -> Executors.newVirtualThreadPerTaskExecutor();
+        };
     }
 
     public static void registerResponses() {
@@ -126,7 +135,41 @@ public class WebSocketService {
             sendObject(ctx.channel(), event, WebSocketEvent.class);
             return;
         }
-        process(context, response, client, ip);
+        var safeStatus = server.config.netty.performance.disableThreadSafeClientObject ?
+                WebSocketServerResponse.ThreadSafeStatus.NONE : response.getThreadSafeStatus();
+        if(executors == null) {
+            process(safeStatus, client, ip, context, response);
+        } else {
+            executors.submit(() -> {
+                    process(safeStatus, client, ip, context, response);
+            });
+        }
+    }
+
+    private void process(WebSocketServerResponse.ThreadSafeStatus safeStatus, Client client, String ip, WebSocketRequestContext context, WebSocketServerResponse response) {
+        switch (safeStatus) {
+            case NONE -> {
+                process(context, response, client, ip);
+            }
+            case READ -> {
+                var lock = client.lock.readLock();
+                lock.lock();
+                try {
+                    process(context, response, client, ip);
+                } finally {
+                    lock.unlock();
+                }
+            }
+            case READ_WRITE -> {
+                var lock = client.lock.writeLock();
+                lock.lock();
+                try {
+                    process(context, response, client, ip);
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }
     }
 
     void process(WebSocketRequestContext context, WebSocketServerResponse response, Client client, String ip) {

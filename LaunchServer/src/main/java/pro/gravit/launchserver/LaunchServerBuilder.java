@@ -63,27 +63,7 @@ public class LaunchServerBuilder {
     public LaunchServer build() throws Exception {
         directories.collect();
         if (launchServerConfigManager == null) {
-            launchServerConfigManager = new LaunchServer.LaunchServerConfigManager() {
-                @Override
-                public LaunchServerConfig readConfig() {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public LaunchServerRuntimeConfig readRuntimeConfig() {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public void writeConfig(LaunchServerConfig config) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public void writeRuntimeConfig(LaunchServerRuntimeConfig config) {
-                    throw new UnsupportedOperationException();
-                }
-            };
+            launchServerConfigManager = new NullLaunchServerConfigManager();
         }
         if (keyAgreementManager == null) {
             keyAgreementManager = new KeyAgreementManager(directories.keyDirectory);
@@ -98,5 +78,27 @@ public class LaunchServerBuilder {
 
     public void setKeyAgreementManager(KeyAgreementManager keyAgreementManager) {
         this.keyAgreementManager = keyAgreementManager;
+    }
+
+    private static class NullLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
+        @Override
+        public LaunchServerConfig readConfig() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public LaunchServerRuntimeConfig readRuntimeConfig() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void writeConfig(LaunchServerConfig config) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void writeRuntimeConfig(LaunchServerRuntimeConfig config) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

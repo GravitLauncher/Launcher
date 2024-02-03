@@ -8,4 +8,12 @@ public interface WebSocketServerResponse extends WebSocketRequest {
     String getType();
 
     void execute(ChannelHandlerContext ctx, Client client) throws Exception;
+
+    default ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ;
+    }
+
+    enum ThreadSafeStatus {
+        NONE, READ, READ_WRITE
+    }
 }

@@ -41,7 +41,6 @@ public final class LaunchServerConfig {
     public NettyConfig netty;
     public LauncherConf launcher;
     public JarSignerConf sign;
-    public String startScript;
     private transient LaunchServer server = null;
     private transient AuthProviderPair authDefault;
 
@@ -49,7 +48,6 @@ public final class LaunchServerConfig {
         LaunchServerConfig newConfig = new LaunchServerConfig();
         newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
-        newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.auth = new HashMap<>();
         AuthProviderPair a = new AuthProviderPair(new RejectAuthCoreProvider(),
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
@@ -263,6 +261,12 @@ public final class LaunchServerConfig {
         public int workerThread;
         public int schedulerThread;
         public int maxWebSocketRequestBytes = 1024 * 1024;
+        public boolean disableThreadSafeClientObject;
+        public NettyExecutorType executorType = NettyExecutorType.VIRTUAL_THREADS;
+
+        public enum NettyExecutorType {
+            NONE, DEFAULT, WORK_STEAL, VIRTUAL_THREADS
+        }
     }
 
     public static class NettyBindAddress {

@@ -44,7 +44,6 @@ public class LauncherModuleLoader {
                 logger.error(e);
             }
         }
-        server.commandHandler.registerCommand("syncLauncherModules", new SyncLauncherModulesCommand(this));
         MainBuildTask mainTask = server.launcherBinary.getTaskByClass(MainBuildTask.class).get();
         mainTask.preBuildHook.registerHook((buildContext) -> {
             for (ModuleEntity e : launcherModules) {
