@@ -81,4 +81,9 @@ public class AuthResponse extends SimpleResponse {
             this.pair = pair;
         }
     }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
+    }
 }

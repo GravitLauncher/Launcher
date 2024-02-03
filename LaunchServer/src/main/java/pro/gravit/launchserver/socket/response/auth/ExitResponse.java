@@ -79,4 +79,9 @@ public class ExitResponse extends SimpleResponse {
             sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.NO_EXIT));
         }
     }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
+    }
 }

@@ -31,4 +31,9 @@ public class HardwareReportResponse extends SimpleResponse {
             sendResult(new HardwareReportRequestEvent());
         }
     }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
+    }
 }

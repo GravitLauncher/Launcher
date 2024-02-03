@@ -40,4 +40,9 @@ public class SetProfileResponse extends SimpleResponse {
         }
         sendError("Profile not found");
     }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
+    }
 }

@@ -31,4 +31,9 @@ public class GetSecureLevelInfoResponse extends SimpleResponse {
         response.enabled = true;
         sendResult(secureProtectHandler.onGetSecureLevelInfo(response));
     }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
+    }
 }

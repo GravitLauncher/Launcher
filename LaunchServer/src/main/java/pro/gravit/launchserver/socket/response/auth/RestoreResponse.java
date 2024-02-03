@@ -105,4 +105,9 @@ public class RestoreResponse extends SimpleResponse {
     public interface ExtendedTokenProvider {
         boolean accept(Client client, AuthProviderPair pair, String extendedToken);
     }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
+    }
 }
