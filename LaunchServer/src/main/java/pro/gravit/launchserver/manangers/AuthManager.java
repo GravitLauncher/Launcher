@@ -45,12 +45,13 @@ public class AuthManager {
                 .build();
     }
 
-    public String newCheckServerToken(String serverName, String authId) {
+    public String newCheckServerToken(String serverName, String authId, boolean publicOnly) {
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .claim("serverName", serverName)
                 .claim("authId", authId)
                 .claim("tokenType", "checkServer")
+                .claim("isPublic", publicOnly ? "true" : "false")
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
     }
@@ -58,7 +59,8 @@ public class AuthManager {
     public CheckServerTokenInfo parseCheckServerToken(String token) {
         try {
             var jwt = checkServerTokenParser.parseClaimsJws(token).getBody();
-            return new CheckServerTokenInfo(jwt.get("serverName", String.class), jwt.get("authId", String.class));
+            var isPublicClaim = jwt.get("isPublic", Boolean.class);
+            return new CheckServerTokenInfo(jwt.get("serverName", String.class), jwt.get("authId", String.class), isPublicClaim == null || isPublicClaim);
         } catch (Exception e) {
             return null;
         }
@@ -301,7 +303,7 @@ public class AuthManager {
         return password;
     }
 
-    public record CheckServerTokenInfo(String serverName, String authId) {
+    public record CheckServerTokenInfo(String serverName, String authId, boolean isPublic) {
     }
 
     public static class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
@@ -321,7 +323,10 @@ public class AuthManager {
             client.auth = server.config.getAuthProviderPair(info.authId);
             if (client.permissions == null) client.permissions = new ClientPermissions();
             client.permissions.addPerm("launchserver.checkserver");
-            client.permissions.addPerm("launchserver.profile.%s.show".formatted(info.serverName));
+            if(!info.isPublic) {
+                client.permissions.addPerm("launchserver.checkserver.extended");
+                client.permissions.addPerm("launchserver.profile.%s.show".formatted(info.serverName));
+            }
             client.setProperty("launchserver.serverName", info.serverName);
             return true;
         }

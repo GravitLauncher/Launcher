@@ -23,10 +23,11 @@ public class TokenCommand extends Command {
                 logger.info("Token: {}", claims.getBody());
             }
         });
-        this.childCommands.put("server", new SubCommand("[profileName] (authId)", "generate new server token") {
+        this.childCommands.put("server", new SubCommand("[profileName] (authId) (public only)", "generate new server token") {
             @Override
             public void invoke(String... args) {
                 AuthProviderPair pair = args.length > 1 ? server.config.getAuthProviderPair(args[1]) : server.config.getAuthProviderPair();
+                boolean publicOnly = args.length <= 2 || Boolean.parseBoolean(args[2]);
                 ClientProfile profile = null;
                 for (ClientProfile p : server.getProfiles()) {
                     if (p.getTitle().equals(args[0]) || p.getUUID().toString().equals(args[0])) {
@@ -41,7 +42,7 @@ public class TokenCommand extends Command {
                     logger.error("AuthId {} not found", args[1]);
                     return;
                 }
-                String token = server.authManager.newCheckServerToken(profile != null ? profile.getUUID().toString() : args[0], pair.name);
+                String token = server.authManager.newCheckServerToken(profile != null ? profile.getUUID().toString() : args[0], pair.name, publicOnly);
                 logger.info("Server token {} authId {}: {}", args[0], pair.name, token);
             }
         });

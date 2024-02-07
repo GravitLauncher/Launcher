@@ -40,7 +40,7 @@ public class CheckServerResponse extends SimpleResponse {
             }
             result.playerProfile = report.playerProfile;
             result.uuid = report.uuid;
-            if(report.session != null) {
+            if(pClient.permissions.hasPerm("launchserver.checkserver.extended") && report.session != null) {
                 result.sessionId = report.session.getID();
                 if(needProperties && report.session instanceof UserSessionSupportProperties supportProperties) {
                     result.sessionProperties = supportProperties.getProperties();
