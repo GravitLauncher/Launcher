@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
@@ -72,7 +73,7 @@ public class MergeAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void init(LaunchServer server) {
+    public void init(LaunchServer server, AuthProviderPair pair1) {
         for(var e : list) {
             var pair = server.config.auth.get(e);
             if(pair != null) {

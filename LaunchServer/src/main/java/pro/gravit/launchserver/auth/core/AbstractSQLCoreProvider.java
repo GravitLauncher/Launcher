@@ -9,6 +9,7 @@ import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launcher.base.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
@@ -66,7 +67,6 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
 
     public transient String updateAuthSQL;
     public transient String updateServerIDSQL;
-    public transient LaunchServer server;
 
     public abstract SQLSourceConfig getSQLConfig();
 
@@ -183,8 +183,8 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void init(LaunchServer server) {
-        this.server = server;
+    public void init(LaunchServer server, AuthProviderPair pair) {
+        super.init(server, pair);
         if (getSQLConfig() == null) logger.error("SQLHolder cannot be null");
         if (uuidColumn == null) logger.error("uuidColumn cannot be null");
         if (usernameColumn == null) logger.error("usernameColumn cannot be null");

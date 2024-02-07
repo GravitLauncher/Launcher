@@ -42,11 +42,6 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void init(LaunchServer server) {
-
-    }
-
-    @Override
     public User checkServer(Client client, String username, String serverID) throws IOException {
         return null;
     }

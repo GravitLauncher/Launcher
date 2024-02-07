@@ -6,6 +6,7 @@ import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launcher.base.request.auth.details.AuthLoginOnlyDetails;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportSudo;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class MemoryAuthCoreProvider extends AuthCoreProvider {
+public class MemoryAuthCoreProvider extends AuthCoreProvider implements AuthSupportSudo {
     private transient final List<MemoryUser> memory = new ArrayList<>(16);
 
     @Override
@@ -114,13 +115,13 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void init(LaunchServer server) {
+    public void close() {
 
     }
 
     @Override
-    public void close() {
-
+    public AuthManager.AuthReport sudo(User user, boolean shadow) throws IOException {
+        return authorize(user.getUsername(), null, null, true);
     }
 
     public static class MemoryUser implements User {

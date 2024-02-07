@@ -3,6 +3,7 @@ package pro.gravit.launchserver.auth.core;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
@@ -41,8 +42,8 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     }
 
     @Override
-    public void init(LaunchServer server) {
-        super.init(server);
+    public void init(LaunchServer server, AuthProviderPair pair) {
+        super.init(server, pair);
         String userInfoCols = makeUserCols();
         String hardwareInfoCols = "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, graphicCard, banned, publicKey";
         if (sqlFindHardwareByPublicKey == null)

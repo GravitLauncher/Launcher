@@ -10,6 +10,7 @@ import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -84,6 +85,14 @@ public class Client {
             coreObject = auth.core.getUserByUUID(uuid);
         }
         return coreObject;
+    }
+
+    public Lock readLock() {
+        return lock.readLock();
+    }
+
+    public Lock writeLock() {
+        return lock.writeLock();
     }
 
     public static class TrustLevel {

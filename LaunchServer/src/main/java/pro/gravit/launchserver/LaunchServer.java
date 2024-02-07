@@ -266,7 +266,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 }
                 pair.core.close();
                 pair.core = new RejectAuthCoreProvider();
-                pair.core.init(instance);
+                pair.core.init(instance, pair);
             }
         };
         commands.put("resetauth", resetauth);

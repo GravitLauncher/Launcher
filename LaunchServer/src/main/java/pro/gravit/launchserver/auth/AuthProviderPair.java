@@ -74,7 +74,7 @@ public final class AuthProviderPair {
     public void init(LaunchServer srv, String name) {
         this.name = name;
         if (links != null) link(srv);
-        core.init(srv);
+        core.init(srv, this);
         features = new HashSet<>();
         getFeatures(core.getClass(), features);
         if(mixes != null) {
