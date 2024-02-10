@@ -5,6 +5,9 @@ import pro.gravit.launchserver.command.basic.*;
 import pro.gravit.launchserver.command.hash.*;
 import pro.gravit.launchserver.command.modules.LoadModuleCommand;
 import pro.gravit.launchserver.command.modules.ModulesCommand;
+import pro.gravit.launchserver.command.profiles.MakeProfileCommand;
+import pro.gravit.launchserver.command.profiles.ProfilesCommand;
+import pro.gravit.launchserver.command.profiles.SaveProfilesCommand;
 import pro.gravit.launchserver.command.service.*;
 import pro.gravit.launchserver.command.sync.*;
 import pro.gravit.launchserver.command.tools.SignDirCommand;
@@ -37,8 +40,7 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         updates.registerCommand("downloadAsset", new DownloadAssetCommand(server));
         updates.registerCommand("downloadClient", new DownloadClientCommand(server));
         updates.registerCommand("sync", new SyncCommand(server));
-        updates.registerCommand("saveProfiles", new SaveProfilesCommand(server));
-        updates.registerCommand("makeProfile", new MakeProfileCommand(server));
+        updates.registerCommand("profile", new ProfilesCommand(server));
         Category updatesCategory = new Category(updates, "updates", "Update and Sync Management");
         handler.registerCategory(updatesCategory);
 

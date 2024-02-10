@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.command.hash;
+package pro.gravit.launchserver.command.profiles;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
