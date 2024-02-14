@@ -183,7 +183,13 @@ public class Downloader {
             }
             try {
                 DownloadTask task = sendAsync(file, baseUri, targetDir, callback);
-                task.completableFuture.thenAccept(consumerObject.next).exceptionally(ec -> {
+                task.completableFuture.thenCompose((res) -> {
+                    if(res.statusCode() < 200 || res.statusCode() >= 300) {
+                        return CompletableFuture.failedFuture(new IOException(String.format("Failed to download %s: code %d",
+                                file.urlPath != null ? file.urlPath /* TODO: baseUri */ : file.filePath, res.statusCode())));
+                    }
+                    return CompletableFuture.completedFuture(res);
+                }).thenAccept(consumerObject.next).exceptionally(ec -> {
                     future.completeExceptionally(ec);
                     return null;
                 });
