@@ -19,6 +19,7 @@ import pro.gravit.launcher.base.request.Request;
 import pro.gravit.launcher.core.serialize.HOutput;
 import pro.gravit.utils.helper.*;
 
+import javax.crypto.CipherOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -30,7 +31,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientLauncherProcess {
-
     public final List<String> pre = new LinkedList<>();
     public final ClientParams params = new ClientParams();
     public final List<String> jvmArgs = new LinkedList<>();
@@ -77,6 +77,7 @@ public class ClientLauncherProcess {
         this.params.clientDir = this.workDir.toString();
         this.params.resourcePackDir = resourcePackDir.toAbsolutePath().toString();
         this.params.assetDir = assetDir.toAbsolutePath().toString();
+        this.params.timestamp = System.currentTimeMillis();
         Path nativesPath;
         if(profile.hasFlag(ClientProfile.CompatibilityFlags.LEGACY_NATIVES_DIR)) {
             nativesPath = workDir.resolve("natives");
@@ -224,7 +225,7 @@ public class ClientLauncherProcess {
                 waitWriteParams.notifyAll();
             }
             Socket socket = serverSocket.accept();
-            try (HOutput output = new HOutput(socket.getOutputStream())) {
+            try (HOutput output = new HOutput(new CipherOutputStream(socket.getOutputStream(), SecurityHelper.newAESEncryptCipher(SecurityHelper.fromHex(Launcher.getConfig().secretKeyClient))))) {
                 byte[] serializedMainParams = IOHelper.encode(Launcher.gsonManager.gson.toJson(params));
                 output.writeByteArray(serializedMainParams, 0);
                 params.clientHDir.write(output);
@@ -235,6 +236,8 @@ public class ClientLauncherProcess {
                     output.writeBoolean(true);
                     params.javaHDir.write(output);
                 }
+            } catch (Exception e) {
+                throw new IOException(e);
             }
         }
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderParamsWrittedEvent(this));

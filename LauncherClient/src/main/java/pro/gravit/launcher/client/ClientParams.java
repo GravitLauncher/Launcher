@@ -14,6 +14,7 @@ import pro.gravit.utils.Version;
 import java.util.*;
 
 public class ClientParams {
+    public long timestamp;
     public String assetDir;
 
     public String clientDir;
