@@ -33,20 +33,15 @@ public final class SecurityHelper {
     public static final String RSA_ALGO = "RSA";
     public static final String RSA_SIGN_ALGO = "SHA256withRSA";
     public static final String RSA_CIPHER_ALGO = "RSA/ECB/PKCS1Padding";
+    public static final String AES_CIPHER_ALGO = "AES/ECB/PKCS5Padding";
 
     // Algorithm size constants
-    public static final int AES_KEY_LENGTH = 8;
+    public static final int AES_KEY_LENGTH = 16;
     public static final int TOKEN_STRING_LENGTH = TOKEN_LENGTH << 1;
     public static final int RSA_KEY_LENGTH_BITS = 2048;
     public static final int RSA_KEY_LENGTH = RSA_KEY_LENGTH_BITS / Byte.SIZE;
     public static final int CRYPTO_MAX_LENGTH = 2048;
     public static final String HEX = "0123456789abcdef";
-    // Certificate constants
-    public static final byte[] NUMBERS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-    public static final SecureRandom secureRandom = new SecureRandom();
-    // Random generator constants
-    private static final char[] VOWELS = {'e', 'u', 'i', 'o', 'a'};
-    private static final char[] CONS = {'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'k', 'l', 'c', 'v', 'b', 'n', 'm'};
 
     private SecurityHelper() {
     }
@@ -189,6 +184,16 @@ public final class SecurityHelper {
         return cipher;
     }
 
+    private static Cipher newAESCipher(int mode, byte[] key) {
+        Cipher cipher = newCipher(AES_CIPHER_ALGO);
+        try {
+            cipher.init(mode, new SecretKeySpec(key, "AES"));
+        } catch (InvalidKeyException e) {
+            throw new InternalError(e);
+        }
+        return cipher;
+    }
+
     private static KeyFactory newECDSAKeyFactory() {
         try {
             return KeyFactory.getInstance(EC_ALGO);
@@ -313,70 +318,6 @@ public final class SecurityHelper {
         return randomBytes(random, AES_KEY_LENGTH);
     }
 
-
-    public static String randomUsername() {
-        return randomUsername(newRandom());
-    }
-
-
-    public static String randomUsername(Random random) {
-        int usernameLength = 3 + random.nextInt(7); // 3-9
-
-        // Choose prefix
-        String prefix;
-        int prefixType = random.nextInt(7);
-        if (usernameLength >= 5 && prefixType == 6) { // (6) 2-char
-            prefix = random.nextBoolean() ? "Mr" : "Dr";
-            usernameLength -= 2;
-        } else if (usernameLength >= 6 && prefixType == 5) { // (5) 3-char
-            prefix = "Mrs";
-            usernameLength -= 3;
-        } else
-            prefix = "";
-
-        // Choose suffix
-        String suffix;
-        int suffixType = random.nextInt(7); // 0-6, 7 values
-        if (usernameLength >= 5 && suffixType == 6) { // (6) 10-99
-            suffix = String.valueOf(10 + random.nextInt(90));
-            usernameLength -= 2;
-        } else if (usernameLength >= 7 && suffixType == 5) { // (5) 1990-2015
-            suffix = String.valueOf(1990 + random.nextInt(26));
-            usernameLength -= 4;
-        } else
-            suffix = "";
-
-        // Choose name
-        int consRepeat = 0;
-        boolean consPrev = random.nextBoolean();
-        char[] chars = new char[usernameLength];
-        for (int i = 0; i < chars.length; i++) {
-            if (i > 1 && consPrev && random.nextInt(10) == 0) { // Doubled
-                chars[i] = chars[i - 1];
-                continue;
-            }
-
-            // Choose next char
-            if (consRepeat < 1 && random.nextInt() == 5)
-                consRepeat++;
-            else {
-                consRepeat = 0;
-                consPrev ^= true;
-            }
-
-            // Choose char
-            char[] alphabet = consPrev ? CONS : VOWELS;
-            chars[i] = alphabet[random.nextInt(alphabet.length)];
-        }
-
-        // Make first letter uppercase
-        if (!prefix.isEmpty() || random.nextBoolean())
-            chars[0] = Character.toUpperCase(chars[0]);
-
-        // Return chosen name (and verify for sure)
-        return VerifyHelper.verifyUsername(prefix + new String(chars) + suffix);
-    }
-
     public static byte[] sign(byte[] bytes, ECPrivateKey privateKey) {
         Signature signature = newECSignSignature(privateKey);
         try {
@@ -479,6 +420,22 @@ public final class SecurityHelper {
     public static Cipher newRSAEncryptCipher(RSAPublicKey publicKey) {
         try {
             return newRSACipher(Cipher.ENCRYPT_MODE, publicKey);
+        } catch (SecurityException e) {
+            throw new InternalError(e);
+        }
+    }
+
+    public static Cipher newAESDecryptCipher(byte[] key) {
+        try {
+            return newAESCipher(Cipher.DECRYPT_MODE, key);
+        } catch (SecurityException e) {
+            throw new InternalError(e);
+        }
+    }
+
+    public static Cipher newAESEncryptCipher(byte[] key) {
+        try {
+            return newAESCipher(Cipher.ENCRYPT_MODE, key);
         } catch (SecurityException e) {
             throw new InternalError(e);
         }

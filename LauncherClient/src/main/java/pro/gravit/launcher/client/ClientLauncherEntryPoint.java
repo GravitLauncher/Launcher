@@ -23,6 +23,7 @@ import pro.gravit.launcher.utils.DirWatcher;
 import pro.gravit.utils.helper.*;
 import pro.gravit.utils.launch.*;
 
+import javax.crypto.CipherInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -49,7 +50,7 @@ public class ClientLauncherEntryPoint {
     private static ClientParams readParams(SocketAddress address) throws IOException {
         try (Socket socket = IOHelper.newSocket()) {
             socket.connect(address);
-            try (HInput input = new HInput(socket.getInputStream())) {
+            try (HInput input = new HInput(new CipherInputStream(socket.getInputStream(), SecurityHelper.newAESDecryptCipher(SecurityHelper.fromHex(Launcher.getConfig().secretKeyClient))))) {
                 byte[] serialized = input.readByteArray(0);
                 ClientParams params = Launcher.gsonManager.gson.fromJson(IOHelper.decode(serialized), ClientParams.class);
                 params.clientHDir = new HashedDir(input);
@@ -86,6 +87,11 @@ public class ClientLauncherEntryPoint {
         ClientParams params = readParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
         if (params.profile.getClassLoaderConfig() != ClientProfile.ClassLoaderConfig.AGENT) {
             ClientLauncherMethods.verifyNoAgent();
+        }
+        if(params.timestamp > System.currentTimeMillis() || params.timestamp + 30*1000 < System.currentTimeMillis() ) {
+            LogHelper.error("Timestamp failed. Exit");
+            ClientLauncherMethods.exitLauncher(-662);
+            return;
         }
         ClientProfile profile = params.profile;
         Launcher.profile = profile;
