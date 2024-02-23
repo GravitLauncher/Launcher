@@ -12,6 +12,7 @@ import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportSudo;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
 import pro.gravit.launchserver.helper.LegacySessionHelper;
 import pro.gravit.launchserver.manangers.AuthManager;
@@ -33,7 +34,7 @@ import java.util.UUID;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
+public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implements AuthSupportSudo {
     public final transient Logger logger = LogManager.getLogger();
     public long expireSeconds = HOURS.toSeconds(1);
     public String uuidColumn;
@@ -142,14 +143,12 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         if (user == null) {
             throw AuthException.userNotFound();
         }
-        if (context != null) {
-            AuthPlainPassword plainPassword = (AuthPlainPassword) password;
-            if (plainPassword == null) {
-                throw AuthException.wrongPassword();
-            }
-            if (!passwordVerifier.check(user.password, plainPassword.password)) {
-                throw AuthException.wrongPassword();
-            }
+        AuthPlainPassword plainPassword = (AuthPlainPassword) password;
+        if (plainPassword == null) {
+            throw AuthException.wrongPassword();
+        }
+        if (!passwordVerifier.check(user.password, plainPassword.password)) {
+            throw AuthException.wrongPassword();
         }
         SQLUserSession session = createSession(user);
         var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
@@ -161,6 +160,17 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         } else {
             return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
         }
+    }
+
+    @Override
+    public AuthManager.AuthReport sudo(User user, boolean shadow) throws IOException {
+        SQLUser sqlUser = (SQLUser) user;
+        SQLUserSession session = createSession(sqlUser);
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(sqlUser, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        var refreshToken = sqlUser.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(sqlUser.username, sqlUser.password, server.keyAgreementManager.legacySalt));
+        String minecraftAccessToken = SecurityHelper.randomStringToken();
+        updateAuth(user, minecraftAccessToken);
+        return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
     }
 
     @Override
