@@ -2,6 +2,7 @@ package pro.gravit.launcher;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import javax.crypto.CipherInputStream;
@@ -28,20 +29,18 @@ public class SecurityHelperTests {
         byte[] seed = SecurityHelper.randomAESKey();
         byte[] encrypted;
         ByteArrayOutputStream s = new ByteArrayOutputStream();
-        try(OutputStream o = new CipherOutputStream(s, SecurityHelper.newAESEncryptCipher(seed))) {
-            try(ByteArrayInputStream i = new ByteArrayInputStream(bytes)) {
-                i.transferTo(o);
+        try (OutputStream o = new CipherOutputStream(s, SecurityHelper.newAESEncryptCipher(seed))) {
+            try (ByteArrayInputStream i = new ByteArrayInputStream(bytes)) {
+                IOHelper.transfer(i, o);
             }
         }
         encrypted = s.toByteArray();
         byte[] decrypted;
-        ;
-        try(InputStream i = new CipherInputStream(new ByteArrayInputStream(encrypted), SecurityHelper.newAESDecryptCipher(seed))) {
-            ByteArrayOutputStream s2 = new ByteArrayOutputStream();
-            try(s2) {
-                i.transferTo(s2);
+        try (InputStream i = new CipherInputStream(new ByteArrayInputStream(encrypted), SecurityHelper.newAESDecryptCipher(seed))) {
+            try (ByteArrayOutputStream s2 = new ByteArrayOutputStream()) {
+                IOHelper.transfer(i, s2);
+                decrypted = s2.toByteArray();
             }
-            decrypted = s2.toByteArray();
         }
         Assertions.assertArrayEquals(bytes, decrypted);
     }
