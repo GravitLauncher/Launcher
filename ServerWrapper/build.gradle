@@ -39,13 +39,11 @@ tasks.register('javadocJar', Jar) {
 
 dependencies {
     pack project(':LauncherAPI')
-    pack group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
 }
 
 shadowJar {
     duplicatesStrategy = 'EXCLUDE'
     archiveClassifier = null
-    relocate 'io.netty', 'pro.gravit.repackage.io.netty'
     configurations = [project.configurations.pack]
     exclude 'module-info.class'
 }
