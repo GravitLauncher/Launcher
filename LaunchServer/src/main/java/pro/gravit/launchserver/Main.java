@@ -1,5 +1,6 @@
 package pro.gravit.launchserver;
 
+import pro.gravit.launchserver.holder.LaunchServerControlHolder;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.launch.ClassLoaderControl;
 import pro.gravit.utils.launch.LaunchOptions;
@@ -54,7 +55,6 @@ public class Main {
         unpackLog4j();
         ModuleLaunch launch = new ModuleLaunch();
         LaunchOptions options = new LaunchOptions();
-        options.disablePackageDelegateSupport = true;
         options.moduleConf = new LaunchOptions.ModuleConf();
         List<Path> libraries;
         try(Stream<Path> files = Files.walk(Path.of("libraries"), FileVisitOption.FOLLOW_LINKS)) {
@@ -73,7 +73,12 @@ public class Main {
         options.moduleConf.modulePath.addAll(modulepath);
         options.moduleConf.modules.add("ALL-MODULE-PATH");
         ClassLoaderControl control = launch.init(classpath, "natives", options);
+        control.clearLauncherPackages();
+        control.addLauncherPackage("pro.gravit.utils.launch");
+        control.addLauncherPackage("pro.gravit.launchserver.holder");
         ModuleLayer.Controller controller = (ModuleLayer.Controller) control.getJava9ModuleController();
+        LaunchServerControlHolder.setControl(control);
+        LaunchServerControlHolder.setController(controller);
         launch.launch("pro.gravit.launchserver.LaunchServerStarter", null, Arrays.asList(args));
     }
 }

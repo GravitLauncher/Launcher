@@ -264,6 +264,10 @@ public class ModuleLaunch implements Launch {
             packages.add(pkg);
         }
 
+        public void clearAllowedPackages() {
+            packages.clear();
+        }
+
         private ModuleClassLoaderControl makeControl() {
             return new ModuleClassLoaderControl();
         }
@@ -273,6 +277,11 @@ public class ModuleLaunch implements Launch {
             @Override
             public void addLauncherPackage(String prefix) {
                 addAllowedPackage(prefix);
+            }
+
+            @Override
+            public void clearLauncherPackages() {
+                clearAllowedPackages();
             }
 
             @Override

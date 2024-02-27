@@ -126,6 +126,10 @@ public class LegacyLaunch implements Launch {
             packages.add(pkg);
         }
 
+        public void clearAllowedPackages() {
+            packages.clear();
+        }
+
         private LegacyClassLoaderControl makeControl() {
             return new LegacyClassLoaderControl();
         }
@@ -135,6 +139,11 @@ public class LegacyLaunch implements Launch {
             @Override
             public void addLauncherPackage(String prefix) {
                 addAllowedPackage(prefix);
+            }
+
+            @Override
+            public void clearLauncherPackages() {
+                clearAllowedPackages();
             }
 
             @Override
