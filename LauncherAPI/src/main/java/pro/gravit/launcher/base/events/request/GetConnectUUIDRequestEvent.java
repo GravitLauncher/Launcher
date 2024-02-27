@@ -6,9 +6,11 @@ import java.util.UUID;
 
 public class GetConnectUUIDRequestEvent extends RequestEvent {
     public UUID connectUUID;
+    public int shardId;
 
-    public GetConnectUUIDRequestEvent(UUID connectUUID) {
+    public GetConnectUUIDRequestEvent(UUID connectUUID, int shardId) {
         this.connectUUID = connectUUID;
+        this.shardId = shardId;
     }
 
     @Override

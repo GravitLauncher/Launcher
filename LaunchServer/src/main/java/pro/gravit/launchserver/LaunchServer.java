@@ -115,11 +115,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final AtomicBoolean started = new AtomicBoolean(false);
     public final LauncherModuleLoader launcherModuleLoader;
     private final Logger logger = LogManager.getLogger();
+    public final int shardId;
     public LaunchServerConfig config;
     // Updates and profiles
     private volatile Set<ClientProfile> profilesList;
 
-    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager) throws IOException {
+    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager, int shardId) throws IOException {
         this.dir = directories.dir;
         this.tmpDir = directories.tmpDir;
         this.env = env;
@@ -136,6 +137,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherLibraries = directories.launcherLibrariesDir;
         launcherLibrariesCompile = directories.launcherLibrariesCompileDir;
         launcherPack = directories.launcherPackDir;
+        this.shardId = shardId;
         if(!Files.isDirectory(launcherPack)) {
             Files.createDirectories(launcherPack);
         }

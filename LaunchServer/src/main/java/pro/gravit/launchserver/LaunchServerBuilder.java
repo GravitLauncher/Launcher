@@ -19,6 +19,7 @@ public class LaunchServerBuilder {
     private KeyAgreementManager keyAgreementManager;
     private CertificateManager certificateManager;
     private LaunchServer.LaunchServerConfigManager launchServerConfigManager;
+    private Integer shardId;
 
     public LaunchServerBuilder setConfig(LaunchServerConfig config) {
         this.config = config;
@@ -55,6 +56,11 @@ public class LaunchServerBuilder {
         return this;
     }
 
+    public LaunchServerBuilder setShardId(Integer shardId) {
+        this.shardId = shardId;
+        return this;
+    }
+
     public LaunchServerBuilder setLaunchServerConfigManager(LaunchServer.LaunchServerConfigManager launchServerConfigManager) {
         this.launchServerConfigManager = launchServerConfigManager;
         return this;
@@ -68,7 +74,10 @@ public class LaunchServerBuilder {
         if (keyAgreementManager == null) {
             keyAgreementManager = new KeyAgreementManager(directories.keyDirectory);
         }
-        return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, modulesManager, keyAgreementManager, commandHandler, certificateManager);
+        if(shardId == null) {
+            shardId = Integer.parseInt(System.getProperty("launchserver.shardId", "0"));
+        }
+        return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, modulesManager, keyAgreementManager, commandHandler, certificateManager, shardId);
     }
 
     public LaunchServerBuilder setCertificateManager(CertificateManager certificateManager) {

@@ -13,6 +13,6 @@ public class GetConnectUUIDResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
-        sendResult(new GetConnectUUIDRequestEvent(connectUUID));
+        sendResult(new GetConnectUUIDRequestEvent(connectUUID, server.shardId));
     }
 }
