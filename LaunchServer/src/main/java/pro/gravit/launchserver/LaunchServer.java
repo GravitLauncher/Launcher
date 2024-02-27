@@ -476,6 +476,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 profile = Launcher.gsonManager.gson.fromJson(reader, ClientProfile.class);
             }
             profile.verify();
+            profile.setProfileFilePath(file);
 
             // Add SIGNED profile to result list
             result.add(profile);

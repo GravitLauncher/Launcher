@@ -7,7 +7,6 @@ import pro.gravit.launcher.base.request.Request;
 import pro.gravit.launcher.base.request.auth.GetPublicKeyRequest;
 import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.server.ServerWrapper;
-import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;

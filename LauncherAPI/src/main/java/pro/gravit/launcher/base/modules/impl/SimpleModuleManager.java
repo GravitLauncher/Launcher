@@ -2,7 +2,6 @@ package pro.gravit.launcher.base.modules.impl;
 
 import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.base.modules.*;
-import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
