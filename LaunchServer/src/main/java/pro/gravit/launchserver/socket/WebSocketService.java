@@ -21,6 +21,7 @@ import pro.gravit.launchserver.socket.response.auth.*;
 import pro.gravit.launchserver.socket.response.cabinet.AssetUploadInfoResponse;
 import pro.gravit.launchserver.socket.response.cabinet.GetAssetUploadInfoResponse;
 import pro.gravit.launchserver.socket.response.management.FeaturesResponse;
+import pro.gravit.launchserver.socket.response.management.GetConnectUUIDResponse;
 import pro.gravit.launchserver.socket.response.management.GetPublicKeyResponse;
 import pro.gravit.launchserver.socket.response.profile.BatchProfileByUsername;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
@@ -94,6 +95,7 @@ public class WebSocketService {
         providers.register("getPublicKey", GetPublicKeyResponse.class);
         providers.register("getAssetUploadUrl", GetAssetUploadInfoResponse.class);
         providers.register("assetUploadInfo", AssetUploadInfoResponse.class);
+        providers.register("getConnectUUID", GetConnectUUIDResponse.class);
     }
 
     public static String getIPFromContext(ChannelHandlerContext ctx) {
@@ -121,9 +123,9 @@ public class WebSocketService {
         }
     }
 
-    public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
+    public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip, UUID connectUUID) {
         String request = frame.text();
-        WebSocketRequestContext context = new WebSocketRequestContext(ctx, request, client, ip);
+        WebSocketRequestContext context = new WebSocketRequestContext(ctx, request, client, ip, connectUUID);
         if(hookBeforeParsing.hook(context)) {
             return;
         }
@@ -183,6 +185,7 @@ public class WebSocketService {
             simpleResponse.ctx = ctx;
             if (ip != null) simpleResponse.ip = ip;
             else simpleResponse.ip = IOHelper.getIP(ctx.channel().remoteAddress());
+            simpleResponse.connectUUID = context.connectUUID;
         }
         try {
             response.execute(ctx, client);
@@ -333,14 +336,16 @@ public class WebSocketService {
         public final String text;
         public final Client client;
         public final String ip;
+        public final UUID connectUUID;
         public WebSocketServerResponse response;
         public Throwable exception;
 
-        public WebSocketRequestContext(ChannelHandlerContext context, String text, Client client, String ip) {
+        public WebSocketRequestContext(ChannelHandlerContext context, String text, Client client, String ip, UUID connectUUID) {
             this.context = context;
             this.text = text;
             this.client = client;
             this.ip = ip;
+            this.connectUUID = connectUUID;
         }
     }
 

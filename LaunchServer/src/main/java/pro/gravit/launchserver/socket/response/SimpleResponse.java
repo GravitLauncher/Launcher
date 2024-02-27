@@ -13,6 +13,7 @@ public abstract class SimpleResponse implements WebSocketServerResponse {
     public transient LaunchServer server;
     public transient WebSocketService service;
     public transient ChannelHandlerContext ctx;
+    public transient UUID connectUUID;
     public transient String ip;
 
     public void sendResult(RequestEvent result) {

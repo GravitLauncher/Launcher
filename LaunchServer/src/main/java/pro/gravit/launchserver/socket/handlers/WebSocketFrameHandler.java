@@ -68,7 +68,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
                 logger.trace("Message from {}: {}", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip, textWebSocketFrame.text());
             }
             try {
-                service.process(ctx, textWebSocketFrame, client, context.ip);
+                service.process(ctx, textWebSocketFrame, client, context.ip, connectUUID);
             } catch (Throwable ex) {
                 logger.warn("Client {} send invalid request. Connection force closed.", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip);
                 if (logger.isTraceEnabled()) {

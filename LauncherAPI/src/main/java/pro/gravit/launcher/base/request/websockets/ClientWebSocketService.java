@@ -113,6 +113,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
             results.register("getPublicKey", GetPublicKeyRequestEvent.class);
             results.register("getAssetUploadUrl", GetAssetUploadUrlRequestEvent.class);
             results.register("assetUploadInfo", AssetUploadInfoRequestEvent.class);
+            results.register("getConnectUUID", GetConnectUUIDRequestEvent.class);
             resultsRegistered = true;
         }
     }
