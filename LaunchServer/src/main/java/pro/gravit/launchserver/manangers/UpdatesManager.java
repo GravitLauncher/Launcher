@@ -52,6 +52,10 @@ public class UpdatesManager {
         this.updatesDirMap = Collections.unmodifiableMap(updatesDirMap);
     }
 
+    public void readUpdatesFromCache() throws IOException {
+        readCache(cacheFile);
+    }
+
     public void readUpdatesDir() throws IOException {
         if (server.config.cacheUpdates) {
             if (Files.exists(cacheFile)) {

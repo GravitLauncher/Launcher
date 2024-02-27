@@ -11,11 +11,12 @@ public class SyncCommand extends Command {
         this.childCommands.put("updates", new SyncUpdatesCommand(server));
         this.childCommands.put("up", new SyncUPCommand(server));
         this.childCommands.put("launchermodules", new SyncLauncherModulesCommand(server));
+        this.childCommands.put("updatescache", new SyncUpdatesCacheCommand(server));
     }
 
     @Override
     public String getArgsDescription() {
-        return "[updates/profiles/up/binaries/launchermodules] [args...]";
+        return "[updates/profiles/up/binaries/launchermodules/updatescache] [args...]";
     }
 
     @Override

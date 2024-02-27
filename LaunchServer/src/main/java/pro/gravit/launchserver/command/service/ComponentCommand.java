@@ -37,7 +37,6 @@ public class ComponentCommand extends Command {
         logger.info("Print help for component:");
         logger.info("component unload [componentName]");
         logger.info("component load [componentName] [filename]");
-        logger.info("component gc [componentName]");
     }
 
     @Override
