@@ -51,7 +51,7 @@ public class AuthManager {
                 .claim("serverName", serverName)
                 .claim("authId", authId)
                 .claim("tokenType", "checkServer")
-                .claim("isPublic", publicOnly ? "true" : "false")
+                .claim("isPublic", publicOnly)
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
     }
