@@ -26,6 +26,8 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Generate and submit dependency graph
+        uses: gradle/actions/dependency-submission@417ae3ccd767c252f5661f1ace9f835f9654f2b5
 
       - name: Create artifacts
         run: |
