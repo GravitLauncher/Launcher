@@ -85,6 +85,7 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
             if(last) {
                 String message = builder.toString();
                 builder = new StringBuilder();
+                LogHelper.dev("Received %s", message);
                 onMessage(message);
             }
         }
@@ -104,6 +105,7 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
     }
 
     public void send(String text) {
+        LogHelper.dev("Send %s", text);
         webSocket.sendText(text, true);
     }
 
