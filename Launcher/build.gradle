@@ -1,4 +1,3 @@
-apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 String mainClassName = "pro.gravit.launcher.start.ClientLauncherWrapper"
@@ -8,10 +7,6 @@ repositories {
     maven {
         url "https://repo.spring.io/plugins-release/"
     }
-}
-javafx {
-    version = "12"
-    modules = ['javafx.controls', 'javafx.fxml']
 }
 sourceCompatibility = '17'
 targetCompatibility = '17'
