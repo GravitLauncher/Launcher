@@ -75,6 +75,7 @@ public final class LaunchServerConfig {
         newConfig.launcher.compress = true;
         newConfig.launcher.deleteTempFiles = true;
         newConfig.launcher.stripLineNumbers = true;
+        newConfig.launcher.customJvmOptions.add("-Dfile.encoding=UTF-8");
 
         newConfig.sign = new JarSignerConf();
 
