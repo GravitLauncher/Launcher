@@ -8,6 +8,8 @@ import pro.gravit.utils.helper.SecurityHelper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -29,8 +31,10 @@ public final class Texture extends StreamObject {
 
         // Fetch texture
         byte[] texture;
-        try (InputStream input = IOHelper.newInput(new URL(url))) {
+        try (InputStream input = IOHelper.newInput(new URI(url).toURL())) {
             texture = IOHelper.read(input);
+        } catch (URISyntaxException e) {
+            throw new IOException(e);
         }
         try (ByteArrayInputStream input = new ByteArrayInputStream(texture)) {
             IOHelper.readTexture(input, cloak); // Verify texture

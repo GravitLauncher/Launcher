@@ -95,8 +95,8 @@ public final class IOHelper {
 
     public static URL convertToURL(String url) {
         try {
-            return new URL(url);
-        } catch (MalformedURLException e) {
+            return new URI(url).toURL();
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new IllegalArgumentException("Invalid URL", e);
         }
     }
@@ -576,9 +576,9 @@ public final class IOHelper {
 
     public static String verifyURL(String url) {
         try {
-            new URL(url).toURI();
+            new URI(url);
             return url;
-        } catch (MalformedURLException | URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Invalid URL", e);
         }
     }
