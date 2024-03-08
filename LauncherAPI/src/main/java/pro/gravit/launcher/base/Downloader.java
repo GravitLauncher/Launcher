@@ -6,6 +6,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.URI;
@@ -53,6 +54,24 @@ public class Downloader {
             thread.setDaemon(true);
             return thread;
         };
+    }
+
+    public static HttpClient.Builder newHttpClientBuilder() {
+        try {
+            if(isCertificatePinning) {
+                return HttpClient.newBuilder()
+                        .sslContext(makeSSLContext())
+                        .version(isNoHttp2 ? HttpClient.Version.HTTP_1_1 : HttpClient.Version.HTTP_2)
+                        .followRedirects(HttpClient.Redirect.NORMAL);
+            } else {
+                return HttpClient.newBuilder()
+                        .version(isNoHttp2 ? HttpClient.Version.HTTP_1_1 : HttpClient.Version.HTTP_2)
+                        .followRedirects(HttpClient.Redirect.NORMAL);
+            }
+        } catch (NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException |
+                 KeyManagementException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static SSLSocketFactory makeSSLSocketFactory() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
@@ -110,17 +129,8 @@ public class Downloader {
         if (executor == null) {
             throw new NullPointerException();
         }
-        HttpClient.Builder builder = HttpClient.newBuilder()
-                .version(isNoHttp2 ? HttpClient.Version.HTTP_1_1 : HttpClient.Version.HTTP_2)
-                .followRedirects(HttpClient.Redirect.NORMAL)
+        HttpClient.Builder builder = newHttpClientBuilder()
                 .executor(executor);
-        if (isCertificatePinning) {
-            try {
-                builder.sslContext(makeSSLContext());
-            } catch (Exception e) {
-                throw new SecurityException(e);
-            }
-        }
         HttpClient client = builder.build();
         return new Downloader(client, executor);
     }
