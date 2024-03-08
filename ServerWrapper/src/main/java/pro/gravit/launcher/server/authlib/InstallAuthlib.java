@@ -15,6 +15,7 @@ import java.util.zip.ZipOutputStream;
 
 public class InstallAuthlib {
     private static final Map<String, LibrariesHashFileModifier> modifierMap;
+    private static final String LaunchAuthLibName = "authlib.jar";
     static {
         modifierMap = new HashMap<>();
         modifierMap.put("META-INF/libraries.list", new LibrariesLstModifier());
@@ -26,7 +27,7 @@ public class InstallAuthlib {
         boolean deleteAuthlibAfterInstall = false;
         InstallAuthlibContext context = new InstallAuthlibContext();
         if(args[0].startsWith("http://") || args[0].startsWith("https://")) {
-            Path tempAuthlib = Paths.get("authlib.jar");
+            Path tempAuthlib = Paths.get(LaunchAuthLibName);
             LogHelper.info("Download %s to %s", args[0], tempAuthlib);
             try(InputStream input = IOHelper.newInput(new URL(args[0]))) {
                 IOHelper.transfer(input, tempAuthlib);
@@ -44,12 +45,14 @@ public class InstallAuthlib {
         IOHelper.walk(context.workdir, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                if (file.getFileName().toString().endsWith(".jar")) {
+                if (file.getFileName().toString().endsWith(".jar") && !file.getFileName().toString().equals(LaunchAuthLibName)) {
                     context.files.add(file);
                 }
                 return FileVisitResult.CONTINUE;
             }
         }, true);
+        context.files.sort(Comparator.comparingInt((Path path) -> - countSlashes(path.toString()))
+                .thenComparing(Comparator.naturalOrder()));
         LogHelper.info("Search authlib in %d files", context.files.size());
         for(Path path : context.files) {
             boolean foundAuthlib = false;
@@ -213,6 +216,10 @@ public class InstallAuthlib {
             }
             return result.toByteArray();
         }
+    }
+
+    private static int countSlashes(String s) {
+        return (int) s.chars().filter(c -> c == '/').count();
     }
 
     public static class RepackInfo {
