@@ -30,7 +30,7 @@ public class DeleteProfileCommand extends Command {
         verifyArgs(args, 1);
         ClientProfile profile = null;
         for(var p : server.getProfiles()) {
-            if(p.getUUID().toString().equals(args[0]) || p.getTitle().equals(args[1])) {
+            if(p.getUUID().toString().equals(args[0]) || p.getTitle().equals(args[0])) {
                 profile = p;
                 break;
             }
