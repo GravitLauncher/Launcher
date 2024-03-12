@@ -14,6 +14,8 @@ import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
@@ -186,7 +188,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         final String path;
 
         try {
-            path = Paths.get(new URI(uri).getPath()).normalize().toString().substring(1);
+            path = Paths.get(new URI(URLEncoder.encode(uri, StandardCharsets.UTF_8)).getPath()).normalize().toString().substring(1);
         } catch (URISyntaxException e) {
             sendError(ctx, BAD_REQUEST);
             return;
