@@ -37,7 +37,7 @@ public class Main {
             Path log4jConfigPath = Path.of("log4j2.xml");
             if(!Files.exists(log4jConfigPath)) {
                 try(FileOutputStream output = new FileOutputStream(log4jConfigPath.toFile())) {
-                    try(InputStream input = Main.class.getResourceAsStream("log4j2.xml")) {
+                    try(InputStream input = Main.class.getResourceAsStream("/log4j2.xml")) {
                         if(input == null) {
                             return;
                         }
