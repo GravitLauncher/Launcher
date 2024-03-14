@@ -38,7 +38,7 @@ public class AuthManager {
 
     public AuthManager(LaunchServer server) {
         this.server = server;
-        this.checkServerTokenParser = Jwts.parserBuilder()
+        this.checkServerTokenParser = Jwts.parser()
                 .requireIssuer("LaunchServer")
                 .require("tokenType", "checkServer")
                 .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)

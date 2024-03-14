@@ -89,7 +89,7 @@ public class LauncherResponse extends SimpleResponse {
         private final Logger logger = LogManager.getLogger();
 
         public LauncherTokenVerifier(LaunchServer server) {
-            parser = Jwts.parserBuilder()
+            parser = Jwts.parser()
                     .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
                     .requireIssuer("LaunchServer")
                     .build();

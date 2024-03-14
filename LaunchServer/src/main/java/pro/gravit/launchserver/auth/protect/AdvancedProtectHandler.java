@@ -132,7 +132,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         private final JwtParser parser;
 
         public HardwareInfoTokenVerifier(LaunchServer server) {
-            this.parser = Jwts.parserBuilder()
+            this.parser = Jwts.parser()
                     .requireIssuer("LaunchServer")
                     .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
                     .build();
@@ -164,7 +164,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         private final JwtParser parser;
 
         public PublicKeyTokenVerifier(LaunchServer server) {
-            this.parser = Jwts.parserBuilder()
+            this.parser = Jwts.parser()
                     .requireIssuer("LaunchServer")
                     .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
                     .build();
