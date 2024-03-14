@@ -25,7 +25,7 @@ public class LegacySessionHelper {
     }
 
     public static JwtTokenInfo getJwtInfoFromAccessToken(String token, ECPublicKey publicKey) {
-        var parser = Jwts.parserBuilder()
+        var parser = Jwts.parser()
                 .requireIssuer("LaunchServer")
                 .setClock(() -> new Date(Clock.systemUTC().millis()))
                 .setSigningKey(publicKey)
