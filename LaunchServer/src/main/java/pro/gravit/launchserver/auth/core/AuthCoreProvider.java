@@ -21,6 +21,7 @@ import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportGetAllUs
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportRegistration;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportSudo;
+import pro.gravit.launchserver.auth.core.openid.OpenIDAuthCoreProvider;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
@@ -53,6 +54,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
             providers.register("postgresql", PostgresSQLCoreProvider.class);
             providers.register("memory", MemoryAuthCoreProvider.class);
             providers.register("merge", MergeAuthCoreProvider.class);
+            providers.register("openid", OpenIDAuthCoreProvider.class);
             registredProviders = true;
         }
     }
