@@ -41,13 +41,13 @@ public class AuthManager {
         this.checkServerTokenParser = Jwts.parser()
                 .requireIssuer("LaunchServer")
                 .require("tokenType", "checkServer")
-                .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+                .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
                 .build();
     }
 
     public String newCheckServerToken(String serverName, String authId, boolean publicOnly) {
         return Jwts.builder()
-                .setIssuer("LaunchServer")
+                .issuer("LaunchServer")
                 .claim("serverName", serverName)
                 .claim("authId", authId)
                 .claim("tokenType", "checkServer")

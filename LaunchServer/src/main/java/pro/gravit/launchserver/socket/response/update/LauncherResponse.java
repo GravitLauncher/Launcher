@@ -90,7 +90,7 @@ public class LauncherResponse extends SimpleResponse {
 
         public LauncherTokenVerifier(LaunchServer server) {
             parser = Jwts.parser()
-                    .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+                    .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
                     .requireIssuer("LaunchServer")
                     .build();
         }
