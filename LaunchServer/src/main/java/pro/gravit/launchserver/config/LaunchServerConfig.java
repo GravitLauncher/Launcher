@@ -15,9 +15,7 @@ import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
-import pro.gravit.utils.helper.JVMHelper;
 
-import java.io.File;
 import java.util.*;
 
 import static java.util.concurrent.TimeUnit.HOURS;

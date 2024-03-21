@@ -27,7 +27,7 @@ public final class BatchProfileByUsernameRequest extends Request<BatchProfileByU
         return "batchProfileByUsername";
     }
 
-    static class Entry {
+    public static class Entry {
         @LauncherNetworkAPI
         String username;
         @LauncherNetworkAPI

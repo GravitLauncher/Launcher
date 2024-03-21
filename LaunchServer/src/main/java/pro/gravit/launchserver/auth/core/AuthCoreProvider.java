@@ -27,7 +27,6 @@ import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
-import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

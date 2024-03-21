@@ -33,7 +33,6 @@ public final class HashedDir extends HashedEntry {
             entry = switch (type) {
                 case FILE -> new HashedFile(input);
                 case DIR -> new HashedDir(input);
-                default -> throw new AssertionError("Unsupported hashed entry type: " + type.name());
             };
 
             // Try add entry to map

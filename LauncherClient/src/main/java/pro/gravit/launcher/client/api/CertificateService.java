@@ -84,7 +84,6 @@ public class CertificateService {
                 case UNTRUSTED -> CheckClassResultTypeApi.UNTRUSTED;
                 case UNVERIFED -> CheckClassResultTypeApi.UNVERIFED;
                 case UNCOMPAT -> CheckClassResultTypeApi.UNCOMPAT;
-                default -> CheckClassResultTypeApi.UNKNOWN;
             };
         }
     }

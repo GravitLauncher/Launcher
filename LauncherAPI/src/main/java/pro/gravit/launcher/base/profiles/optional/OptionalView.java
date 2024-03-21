@@ -126,11 +126,7 @@ public class OptionalView {
         if (enabled.contains(file)) return;
         enabled.add(file);
         if (callback != null) callback.accept(file, true);
-        OptionalFileInstallInfo installInfo = this.installInfo.get(file);
-        if (installInfo == null) {
-            installInfo = new OptionalFileInstallInfo();
-            this.installInfo.put(file, installInfo);
-        }
+        OptionalFileInstallInfo installInfo = this.installInfo.computeIfAbsent(file, k -> new OptionalFileInstallInfo());
         installInfo.isManual = manual;
         if (file.dependencies != null) {
             for (OptionalFile dep : file.dependencies) {

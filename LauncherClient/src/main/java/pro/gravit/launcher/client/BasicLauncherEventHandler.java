@@ -13,8 +13,7 @@ public class BasicLauncherEventHandler implements RequestService.EventHandler {
 
     @Override
     public <T extends WebSocketEvent> boolean eventHandle(T event) {
-        if (event instanceof SecurityReportRequestEvent) {
-            SecurityReportRequestEvent event1 = (SecurityReportRequestEvent) event;
+        if (event instanceof SecurityReportRequestEvent event1) {
             if (event1.action == SecurityReportRequestEvent.ReportAction.TOKEN_EXPIRED) {
                 try {
                     Request.restore();
@@ -22,8 +21,7 @@ public class BasicLauncherEventHandler implements RequestService.EventHandler {
                     LogHelper.error(e);
                 }
             }
-        } else if (event instanceof ExtendedTokenRequestEvent) {
-            ExtendedTokenRequestEvent event1 = (ExtendedTokenRequestEvent) event;
+        } else if (event instanceof ExtendedTokenRequestEvent event1) {
             String token = event1.getExtendedToken();
             if (token != null) {
                 Request.addExtendedToken(event1.getExtendedTokenName(), new Request.ExtendedToken(event1.getExtendedToken(), event1.getExtendedTokenExpire()));

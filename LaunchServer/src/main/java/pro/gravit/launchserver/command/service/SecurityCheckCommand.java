@@ -60,19 +60,19 @@ public class SecurityCheckCommand extends Command {
         LaunchServerConfig config = server.config;
         config.auth.forEach((name, pair) -> {
         });
-        if (config.protectHandler instanceof NoProtectHandler) {
-            printCheckResult("protectHandler", "protectHandler none", false);
-        } else if (config.protectHandler instanceof AdvancedProtectHandler) {
-            printCheckResult("protectHandler", "", true);
-            if (!((AdvancedProtectHandler) config.protectHandler).enableHardwareFeature) {
-                printCheckResult("protectHandler.hardwareId", "you can improve security by using hwid provider", null);
-            } else {
-                printCheckResult("protectHandler.hardwareId", "", true);
+        switch (config.protectHandler) {
+            case NoProtectHandler noProtectHandler -> printCheckResult("protectHandler", "protectHandler none", false);
+            case AdvancedProtectHandler advancedProtectHandler -> {
+                printCheckResult("protectHandler", "", true);
+                if (!advancedProtectHandler.enableHardwareFeature) {
+                    printCheckResult("protectHandler.hardwareId", "you can improve security by using hwid provider", null);
+                } else {
+                    printCheckResult("protectHandler.hardwareId", "", true);
+                }
             }
-        } else if (config.protectHandler instanceof StdProtectHandler) {
-            printCheckResult("protectHandler", "you can improve security by using advanced", null);
-        } else {
-            printCheckResult("protectHandler", "unknown protectHandler", null);
+            case StdProtectHandler stdProtectHandler ->
+                    printCheckResult("protectHandler", "you can improve security by using advanced", null);
+            case null, default -> printCheckResult("protectHandler", "unknown protectHandler", null);
         }
         if (config.netty.address.startsWith("ws://")) {
             if (config.netty.ipForwarding)
@@ -110,7 +110,7 @@ public class SecurityCheckCommand extends Command {
                 KeyStore keyStore = SignHelper.getStore(new File(config.sign.keyStore).toPath(), config.sign.keyStorePass, config.sign.keyStoreType);
                 Certificate[] certChainPlain = keyStore.getCertificateChain(config.sign.keyAlias);
                 List<X509Certificate> certChain = Arrays.stream(certChainPlain).map(e -> (X509Certificate) e).toList();
-                X509Certificate cert = certChain.get(0);
+                X509Certificate cert = certChain.getFirst();
                 cert.checkValidity();
                 if (certChain.size() == 1) {
                     printCheckResult("sign", "certificate chain contains <2 element(recommend 2 and more)", false);

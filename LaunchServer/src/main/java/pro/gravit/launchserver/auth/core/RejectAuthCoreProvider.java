@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.auth.core;
 
 import pro.gravit.launcher.base.request.auth.AuthRequest;
-import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;

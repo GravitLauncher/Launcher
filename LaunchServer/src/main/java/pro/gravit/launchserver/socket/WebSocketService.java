@@ -142,9 +142,7 @@ public class WebSocketService {
         if(executors == null) {
             process(safeStatus, client, ip, context, response);
         } else {
-            executors.submit(() -> {
-                    process(safeStatus, client, ip, context, response);
-            });
+            executors.submit(() -> process(safeStatus, client, ip, context, response));
         }
     }
 

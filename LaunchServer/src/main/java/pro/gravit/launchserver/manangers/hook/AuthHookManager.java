@@ -7,7 +7,6 @@ import pro.gravit.launchserver.socket.response.auth.CheckServerResponse;
 import pro.gravit.launchserver.socket.response.auth.JoinServerResponse;
 import pro.gravit.launchserver.socket.response.auth.SetProfileResponse;
 import pro.gravit.utils.BiHookSet;
-import pro.gravit.utils.HookSet;
 
 public class AuthHookManager {
     public final BiHookSet<AuthResponse.AuthContext, Client> preHook = new BiHookSet<>();

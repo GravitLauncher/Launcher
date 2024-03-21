@@ -152,7 +152,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(time));
 
         // Add cache headers
-        response.headers().set(HttpHeaderNames.EXPIRES, dateFormatter.format(time.plus(HTTP_CACHE_SECONDS, ChronoUnit.SECONDS)));
+        response.headers().set(HttpHeaderNames.EXPIRES, dateFormatter.format(time.plusSeconds(HTTP_CACHE_SECONDS)));
         response.headers().set(HttpHeaderNames.CACHE_CONTROL, "private, max-age=" + HTTP_CACHE_SECONDS);
         response.headers().set(
                 HttpHeaderNames.LAST_MODIFIED, dateFormatter.format(Instant.ofEpochMilli(fileToCache.lastModified())));

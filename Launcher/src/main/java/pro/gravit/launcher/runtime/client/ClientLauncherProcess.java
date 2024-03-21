@@ -150,7 +150,7 @@ public class ClientLauncherProcess {
             systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(workDir, params.actions, params.profile)
                     .filter(x -> !params.profile.getModulePath().contains(workDir.relativize(x).toString()))
                     .map(Path::toString)
-                    .collect(Collectors.toList()));
+                    .toList());
         }
         if (Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
             processArgs.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, String.valueOf(LogHelper.isDevEnabled())));

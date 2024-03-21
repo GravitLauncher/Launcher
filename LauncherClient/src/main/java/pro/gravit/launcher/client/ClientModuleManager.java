@@ -5,7 +5,6 @@ import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.base.modules.LauncherModule;
 import pro.gravit.launcher.base.modules.impl.SimpleModuleManager;
 
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;

@@ -61,7 +61,6 @@ public final class JVMHelper {
             case MUSTDIE -> ".dll";
             case LINUX -> ".so";
             case MACOSX -> ".dylib";
-            default -> throw new InternalError(String.format("Unsupported OS TYPE '%s'", OS_TYPE));
         };
     }
 
