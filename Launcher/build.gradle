@@ -47,9 +47,7 @@ dependencies {
     pack project(':LauncherAPI')
     pack project(':LauncherClient')
     pack project(':LauncherStart')
-    bundle(group: 'com.github.oshi', name: 'oshi-core', version: rootProject['verOshiCore']) {
-        exclude group: 'org.slf4j'
-    }
+    bundle(group: 'com.github.oshi', name: 'oshi-core', version: rootProject['verOshiCore'])
 }
 
 tasks.register('genRuntimeJS', Zip) {
