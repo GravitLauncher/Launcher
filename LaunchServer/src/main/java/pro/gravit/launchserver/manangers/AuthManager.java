@@ -4,12 +4,12 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.PlayerProfile;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.password.*;
+import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.PlayerProfile;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
+import pro.gravit.launcher.base.request.auth.password.*;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
@@ -38,19 +38,20 @@ public class AuthManager {
 
     public AuthManager(LaunchServer server) {
         this.server = server;
-        this.checkServerTokenParser = Jwts.parserBuilder()
+        this.checkServerTokenParser = Jwts.parser()
                 .requireIssuer("LaunchServer")
                 .require("tokenType", "checkServer")
-                .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+                .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
                 .build();
     }
 
-    public String newCheckServerToken(String serverName, String authId) {
+    public String newCheckServerToken(String serverName, String authId, boolean publicOnly) {
         return Jwts.builder()
-                .setIssuer("LaunchServer")
+                .issuer("LaunchServer")
                 .claim("serverName", serverName)
                 .claim("authId", authId)
                 .claim("tokenType", "checkServer")
+                .claim("isPublic", publicOnly)
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
     }
@@ -58,7 +59,8 @@ public class AuthManager {
     public CheckServerTokenInfo parseCheckServerToken(String token) {
         try {
             var jwt = checkServerTokenParser.parseClaimsJws(token).getBody();
-            return new CheckServerTokenInfo(jwt.get("serverName", String.class), jwt.get("authId", String.class));
+            var isPublicClaim = jwt.get("isPublic", Boolean.class);
+            return new CheckServerTokenInfo(jwt.get("serverName", String.class), jwt.get("authId", String.class), isPublicClaim == null || isPublicClaim);
         } catch (Exception e) {
             return null;
         }
@@ -301,7 +303,7 @@ public class AuthManager {
         return password;
     }
 
-    public record CheckServerTokenInfo(String serverName, String authId) {
+    public record CheckServerTokenInfo(String serverName, String authId, boolean isPublic) {
     }
 
     public static class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
@@ -321,7 +323,10 @@ public class AuthManager {
             client.auth = server.config.getAuthProviderPair(info.authId);
             if (client.permissions == null) client.permissions = new ClientPermissions();
             client.permissions.addPerm("launchserver.checkserver");
-            client.permissions.addPerm("launchserver.profile.%s.show".formatted(info.serverName));
+            if(!info.isPublic) {
+                client.permissions.addPerm("launchserver.checkserver.extended");
+                client.permissions.addPerm("launchserver.profile.%s.show".formatted(info.serverName));
+            }
             client.setProperty("launchserver.serverName", info.serverName);
             return true;
         }

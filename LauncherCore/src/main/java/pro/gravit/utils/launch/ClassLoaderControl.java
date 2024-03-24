@@ -7,6 +7,7 @@ import java.security.ProtectionDomain;
 
 public interface ClassLoaderControl {
     void addLauncherPackage(String prefix);
+    void clearLauncherPackages();
     void addTransformer(ClassTransformer transformer);
     void addURL(URL url);
     void addJar(Path path);

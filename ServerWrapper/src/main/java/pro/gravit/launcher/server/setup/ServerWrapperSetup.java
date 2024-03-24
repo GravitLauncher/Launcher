@@ -1,13 +1,12 @@
 package pro.gravit.launcher.server.setup;
 
-import pro.gravit.launcher.events.request.GetPublicKeyRequestEvent;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.ClientProfileVersions;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.auth.GetPublicKeyRequest;
-import pro.gravit.launcher.request.websockets.StdWebSocketService;
+import pro.gravit.launcher.base.events.request.GetPublicKeyRequestEvent;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileVersions;
+import pro.gravit.launcher.base.request.Request;
+import pro.gravit.launcher.base.request.auth.GetPublicKeyRequest;
+import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.server.ServerWrapper;
-import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -15,6 +14,7 @@ import pro.gravit.utils.helper.LogHelper;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,7 +22,7 @@ import java.util.jar.JarFile;
 
 public class ServerWrapperSetup {
     public ServerWrapperCommands commands;
-    public PublicURLClassLoader urlClassLoader;
+    public URLClassLoader urlClassLoader;
 
     public ServerWrapperSetup() throws IOException {
         commands = new ServerWrapperCommands();
@@ -37,7 +37,7 @@ public class ServerWrapperSetup {
         String agentClassName;
         try (JarFile file = new JarFile(jarPath.toFile())) {
             URL jarURL = jarPath.toUri().toURL();
-            urlClassLoader = new PublicURLClassLoader(new URL[]{jarURL});
+            urlClassLoader = new URLClassLoader(new URL[]{jarURL});
             LogHelper.info("Check server jar MainClass");
             mainClassName = file.getManifest().getMainAttributes().getValue("Main-Class");
             agentClassName = file.getManifest().getMainAttributes().getValue("Premain-Class");

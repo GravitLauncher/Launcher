@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.auth.texture;
 
-import pro.gravit.launcher.profiles.Texture;
+import pro.gravit.launcher.base.profiles.Texture;
 import pro.gravit.utils.ProviderMap;
 
 import java.io.IOException;

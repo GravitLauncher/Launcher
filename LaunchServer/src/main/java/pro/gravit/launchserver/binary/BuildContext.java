@@ -2,9 +2,9 @@ package pro.gravit.launchserver.binary;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.serialize.HOutput;
-import pro.gravit.launcher.serialize.stream.StreamObject;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.core.serialize.HOutput;
+import pro.gravit.launcher.core.serialize.stream.StreamObject;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -46,11 +46,14 @@ public class BuildContext {
     public final HashSet<String> fileList;
     public final HashSet<String> clientModules;
     public final HashSet<String> legacyClientModules;
+    private Path runtimeDir;
+    private boolean deleteRuntimeDir;
 
-    public BuildContext(ZipOutputStream output, List<JarFile> readerClassPath, MainBuildTask task) {
+    public BuildContext(ZipOutputStream output, List<JarFile> readerClassPath, MainBuildTask task, Path runtimeDir) {
         this.output = output;
         this.readerClassPath = readerClassPath;
         this.task = task;
+        this.runtimeDir = runtimeDir;
         fileList = new HashSet<>(1024);
         clientModules = new HashSet<>();
         legacyClientModules = new HashSet<>();
@@ -103,6 +106,14 @@ public class BuildContext {
         pushJarFile(jarfile.toUri().toURL(), filter, needTransform);
     }
 
+    public Path getRuntimeDir() {
+        return runtimeDir;
+    }
+
+    public void setRuntimeDir(Path runtimeDir) {
+        this.runtimeDir = runtimeDir;
+    }
+
     public void pushJarFile(URL jarfile, Predicate<ZipEntry> filter, Predicate<String> needTransform) throws IOException {
         try (ZipInputStream input = new ZipInputStream(IOHelper.newInput(jarfile))) {
             ZipEntry e = input.getNextEntry();
@@ -129,6 +140,16 @@ public class BuildContext {
                 e = input.getNextEntry();
             }
         }
+
+
+    }
+
+    public boolean isDeleteRuntimeDir() {
+        return deleteRuntimeDir;
+    }
+
+    public void setDeleteRuntimeDir(boolean deleteRuntimeDir) {
+        this.deleteRuntimeDir = deleteRuntimeDir;
     }
 
     private final static class RuntimeDirVisitor extends SimpleFileVisitor<Path> {

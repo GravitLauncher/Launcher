@@ -8,11 +8,11 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.events.RequestEvent;
-import pro.gravit.launcher.events.request.ErrorRequestEvent;
-import pro.gravit.launcher.events.request.ExitRequestEvent;
-import pro.gravit.launcher.request.WebSocketEvent;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.events.RequestEvent;
+import pro.gravit.launcher.base.events.request.ErrorRequestEvent;
+import pro.gravit.launcher.base.events.request.ExitRequestEvent;
+import pro.gravit.launcher.base.request.WebSocketEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -21,6 +21,7 @@ import pro.gravit.launchserver.socket.response.auth.*;
 import pro.gravit.launchserver.socket.response.cabinet.AssetUploadInfoResponse;
 import pro.gravit.launchserver.socket.response.cabinet.GetAssetUploadInfoResponse;
 import pro.gravit.launchserver.socket.response.management.FeaturesResponse;
+import pro.gravit.launchserver.socket.response.management.GetConnectUUIDResponse;
 import pro.gravit.launchserver.socket.response.management.GetPublicKeyResponse;
 import pro.gravit.launchserver.socket.response.profile.BatchProfileByUsername;
 import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
@@ -39,6 +40,8 @@ import pro.gravit.utils.helper.IOHelper;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
 public class WebSocketService {
@@ -51,11 +54,18 @@ public class WebSocketService {
     private final LaunchServer server;
     private final Gson gson;
     private transient final Logger logger = LogManager.getLogger();
+    private ExecutorService executors;
 
     public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;
         this.server = server;
         this.gson = Launcher.gsonManager.gson;
+        executors = switch (server.config.netty.performance.executorType) {
+            case NONE -> null;
+            case DEFAULT -> Executors.newCachedThreadPool();
+            case WORK_STEAL -> Executors.newWorkStealingPool();
+            case VIRTUAL_THREADS -> Executors.newVirtualThreadPerTaskExecutor();
+        };
     }
 
     public static void registerResponses() {
@@ -85,6 +95,7 @@ public class WebSocketService {
         providers.register("getPublicKey", GetPublicKeyResponse.class);
         providers.register("getAssetUploadUrl", GetAssetUploadInfoResponse.class);
         providers.register("assetUploadInfo", AssetUploadInfoResponse.class);
+        providers.register("getConnectUUID", GetConnectUUIDResponse.class);
     }
 
     public static String getIPFromContext(ChannelHandlerContext ctx) {
@@ -112,9 +123,9 @@ public class WebSocketService {
         }
     }
 
-    public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
+    public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip, UUID connectUUID) {
         String request = frame.text();
-        WebSocketRequestContext context = new WebSocketRequestContext(ctx, request, client, ip);
+        WebSocketRequestContext context = new WebSocketRequestContext(ctx, request, client, ip, connectUUID);
         if(hookBeforeParsing.hook(context)) {
             return;
         }
@@ -126,7 +137,39 @@ public class WebSocketService {
             sendObject(ctx.channel(), event, WebSocketEvent.class);
             return;
         }
-        process(context, response, client, ip);
+        var safeStatus = server.config.netty.performance.disableThreadSafeClientObject ?
+                WebSocketServerResponse.ThreadSafeStatus.NONE : response.getThreadSafeStatus();
+        if(executors == null) {
+            process(safeStatus, client, ip, context, response);
+        } else {
+            executors.submit(() -> process(safeStatus, client, ip, context, response));
+        }
+    }
+
+    private void process(WebSocketServerResponse.ThreadSafeStatus safeStatus, Client client, String ip, WebSocketRequestContext context, WebSocketServerResponse response) {
+        switch (safeStatus) {
+            case NONE -> {
+                process(context, response, client, ip);
+            }
+            case READ -> {
+                var lock = client.lock.readLock();
+                lock.lock();
+                try {
+                    process(context, response, client, ip);
+                } finally {
+                    lock.unlock();
+                }
+            }
+            case READ_WRITE -> {
+                var lock = client.lock.writeLock();
+                lock.lock();
+                try {
+                    process(context, response, client, ip);
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }
     }
 
     void process(WebSocketRequestContext context, WebSocketServerResponse response, Client client, String ip) {
@@ -140,6 +183,7 @@ public class WebSocketService {
             simpleResponse.ctx = ctx;
             if (ip != null) simpleResponse.ip = ip;
             else simpleResponse.ip = IOHelper.getIP(ctx.channel().remoteAddress());
+            simpleResponse.connectUUID = context.connectUUID;
         }
         try {
             response.execute(ctx, client);
@@ -290,14 +334,16 @@ public class WebSocketService {
         public final String text;
         public final Client client;
         public final String ip;
+        public final UUID connectUUID;
         public WebSocketServerResponse response;
         public Throwable exception;
 
-        public WebSocketRequestContext(ChannelHandlerContext context, String text, Client client, String ip) {
+        public WebSocketRequestContext(ChannelHandlerContext context, String text, Client client, String ip, UUID connectUUID) {
             this.context = context;
             this.text = text;
             this.client = client;
             this.ip = ip;
+            this.connectUUID = connectUUID;
         }
     }
 

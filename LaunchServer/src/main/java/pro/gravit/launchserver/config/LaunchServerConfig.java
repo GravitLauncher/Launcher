@@ -4,30 +4,27 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
-import pro.gravit.launchserver.binary.tasks.exe.Launch4JTask;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
-import pro.gravit.launchserver.components.RegLimiterComponent;
-import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.JVMHelper;
 
-import java.io.File;
 import java.util.*;
 
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public final class LaunchServerConfig {
-    private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/", "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/", "https://mirror.gravitlauncher.com/5.4.x/");
+    private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/",
+            "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/", "https://mirror.gravitlauncher.com/5.4.x/",
+            "https://mirror.gravitlauncher.com/5.5.x/");
     private transient final Logger logger = LogManager.getLogger();
     public String projectName;
     public String[] mirrors;
@@ -39,31 +36,16 @@ public final class LaunchServerConfig {
     // Handlers & Providers
     public ProtectHandler protectHandler;
     public Map<String, Component> components;
-    public ExeConf launch4j;
     public NettyConfig netty;
     public LauncherConf launcher;
     public JarSignerConf sign;
-    public String startScript;
     private transient LaunchServer server = null;
     private transient AuthProviderPair authDefault;
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
-        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.5.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
-        newConfig.launch4j = new LaunchServerConfig.ExeConf();
-        newConfig.launch4j.enabled = false;
-        newConfig.launch4j.copyright = "© GravitLauncher Team";
-        newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
-        newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
-        newConfig.launch4j.internalName = "Launcher";
-        newConfig.launch4j.trademarks = "This product is licensed under GPLv3";
-        newConfig.launch4j.txtFileVersion = "%s, build %d";
-        newConfig.launch4j.txtProductVersion = "%s, build %d";
-        newConfig.launch4j.productName = "GravitLauncher";
-        newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
-        newConfig.launch4j.maxVersion = "99.0.0";
+        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
-        newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.auth = new HashMap<>();
         AuthProviderPair a = new AuthProviderPair(new RejectAuthCoreProvider(),
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
@@ -91,6 +73,7 @@ public final class LaunchServerConfig {
         newConfig.launcher.compress = true;
         newConfig.launcher.deleteTempFiles = true;
         newConfig.launcher.stripLineNumbers = true;
+        newConfig.launcher.customJvmOptions.add("-Dfile.encoding=UTF-8");
 
         newConfig.sign = new JarSignerConf();
 
@@ -100,11 +83,6 @@ public final class LaunchServerConfig {
         authLimiterComponent.rateLimitMillis = SECONDS.toMillis(8);
         authLimiterComponent.message = "Превышен лимит авторизаций";
         newConfig.components.put("authLimiter", authLimiterComponent);
-        RegLimiterComponent regLimiterComponent = new RegLimiterComponent();
-        regLimiterComponent.rateLimit = 3;
-        regLimiterComponent.rateLimitMillis = HOURS.toMillis(10);
-        regLimiterComponent.message = "Превышен лимит регистраций";
-        newConfig.components.put("regLimiter", regLimiterComponent);
         ProGuardComponent proGuardComponent = new ProGuardComponent();
         newConfig.components.put("proguard", proGuardComponent);
         return newConfig;
@@ -142,7 +120,7 @@ public final class LaunchServerConfig {
     }
 
     public void verify() {
-        if (auth == null || auth.size() < 1) {
+        if (auth == null || auth.isEmpty()) {
             throw new NullPointerException("AuthProviderPair`s count should be at least one");
         }
 
@@ -171,8 +149,8 @@ public final class LaunchServerConfig {
             if (!updateMirror) {
                 for (int i = 0; i < mirrors.length; ++i) {
                     if (mirrors[i] != null && oldMirrorList.contains(mirrors[i])) {
-                        logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.5.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
-                        mirrors[i] = "https://mirror.gravitlauncher.com/5.5.x/";
+                        logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.6.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
+                        mirrors[i] = "https://mirror.gravitlauncher.com/5.6.x/";
                     }
                 }
             }
@@ -230,25 +208,6 @@ public final class LaunchServerConfig {
         }
     }
 
-    public static class ExeConf {
-        public boolean enabled;
-        public boolean setMaxVersion;
-        public String maxVersion;
-        public String minVersion = "17.0.0";
-        public String supportURL = null;
-        public String downloadUrl = Launch4JTask.DOWNLOAD_URL;
-        public String productName;
-        public String productVer;
-        public String fileDesc;
-        public String fileVer;
-        public String internalName;
-        public String copyright;
-        public String trademarks;
-
-        public String txtFileVersion;
-        public String txtProductVersion;
-    }
-
     public static class JarSignerConf {
         public boolean enabled = false;
         public String keyStore = "pathToKey";
@@ -301,6 +260,12 @@ public final class LaunchServerConfig {
         public int workerThread;
         public int schedulerThread;
         public int maxWebSocketRequestBytes = 1024 * 1024;
+        public boolean disableThreadSafeClientObject;
+        public NettyExecutorType executorType = NettyExecutorType.VIRTUAL_THREADS;
+
+        public enum NettyExecutorType {
+            NONE, DEFAULT, WORK_STEAL, VIRTUAL_THREADS
+        }
     }
 
     public static class NettyBindAddress {

@@ -6,7 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.events.request.LauncherRequestEvent;
+import pro.gravit.launcher.base.events.request.LauncherRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.socket.Client;
@@ -89,8 +89,8 @@ public class LauncherResponse extends SimpleResponse {
         private final Logger logger = LogManager.getLogger();
 
         public LauncherTokenVerifier(LaunchServer server) {
-            parser = Jwts.parserBuilder()
-                    .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+            parser = Jwts.parser()
+                    .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
                     .requireIssuer("LaunchServer")
                     .build();
         }
@@ -108,6 +108,11 @@ public class LauncherResponse extends SimpleResponse {
             }
 
         }
+    }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
     }
 
 }

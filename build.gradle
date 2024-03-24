@@ -2,10 +2,10 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2' apply false
     id 'maven-publish'
     id 'signing'
-    id 'org.openjfx.javafxplugin' version '0.0.10' apply false
+    id 'org.openjfx.javafxplugin' version '0.1.0' apply false
 }
 group = 'pro.gravit.launcher'
-version = '5.5.4'
+version = '5.6.0'
 
 apply from: 'props.gradle'
 

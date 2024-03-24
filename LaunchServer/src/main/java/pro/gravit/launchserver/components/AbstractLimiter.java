@@ -90,7 +90,7 @@ public abstract class AbstractLimiter<T> extends Component implements Reconfigur
         }
     }
 
-    static class LimitEntry {
+    protected static class LimitEntry {
         long time;
         int trys;
 

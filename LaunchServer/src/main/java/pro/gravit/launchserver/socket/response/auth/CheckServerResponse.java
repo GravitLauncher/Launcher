@@ -3,7 +3,7 @@ package pro.gravit.launchserver.socket.response.auth;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.events.request.CheckServerRequestEvent;
+import pro.gravit.launcher.base.events.request.CheckServerRequestEvent;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportProperties;
@@ -40,7 +40,7 @@ public class CheckServerResponse extends SimpleResponse {
             }
             result.playerProfile = report.playerProfile;
             result.uuid = report.uuid;
-            if(report.session != null) {
+            if(pClient.permissions.hasPerm("launchserver.checkserver.extended") && report.session != null) {
                 result.sessionId = report.session.getID();
                 if(needProperties && report.session instanceof UserSessionSupportProperties supportProperties) {
                     result.sessionProperties = supportProperties.getProperties();

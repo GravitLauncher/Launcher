@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.auth.core;
 
-import pro.gravit.launcher.ClientPermissions;
+import pro.gravit.launcher.base.ClientPermissions;
 
 import java.util.UUID;
 

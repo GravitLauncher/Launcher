@@ -1,17 +1,12 @@
 package pro.gravit.utils.helper;
 
-import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Locale;
-import java.util.Map;
 
 public final class JVMHelper {
 
@@ -53,97 +48,32 @@ public final class JVMHelper {
     }
 
     public static int getVersion() {
-        String version = System.getProperty("java.version");
-        if (version.startsWith("1.")) {
-            version = version.substring(2, 3);
-        } else {
-            int dot = version.indexOf(".");
-            if (dot != -1) {
-                version = version.substring(0, dot);
-            }
-        }
-        return Integer.parseInt(version);
+        //System.out.println("[DEBUG] JVMHelper 11 version");
+        return Runtime.version().feature();
     }
 
     public static int getBuild() {
-        String version = System.getProperty("java.version");
-        int dot;
-        if (version.startsWith("1.")) {
-            dot = version.indexOf("_");
-        } else {
-            dot = version.lastIndexOf(".");
-        }
-        if (dot != -1) {
-            version = version.substring(dot + 1);
-        }
-        try {
-            return Integer.parseInt(version);
-        } catch (NumberFormatException exception) {
-            return 0;
-        }
-
+        return Runtime.version().update();
     }
 
     public static String getNativeExtension(JVMHelper.OS OS_TYPE) {
-        switch (OS_TYPE) {
-            case MUSTDIE:
-                return ".dll";
-            case LINUX:
-                return ".so";
-            case MACOSX:
-                return ".dylib";
-            default:
-                throw new InternalError(String.format("Unsupported OS TYPE '%s'", OS_TYPE));
-        }
+        return switch (OS_TYPE) {
+            case MUSTDIE -> ".dll";
+            case LINUX -> ".so";
+            case MACOSX -> ".dylib";
+        };
     }
 
     public static String getNativePrefix(JVMHelper.OS OS_TYPE) {
-        switch (OS_TYPE) {
-            case LINUX:
-            case MACOSX:
-                return "lib";
-            default:
-                return "";
-        }
-    }
-
-    public static void appendVars(ProcessBuilder builder, Map<String, String> vars) {
-        builder.environment().putAll(vars);
-    }
-
-    public static Class<?> firstClass(String... names) throws ClassNotFoundException {
-        for (String name : names)
-            try {
-                return Class.forName(name, false, LOADER);
-            } catch (ClassNotFoundException ignored) {
-                // Expected
-            }
-        throw new ClassNotFoundException(Arrays.toString(names));
+        return switch (OS_TYPE) {
+            case LINUX, MACOSX -> "lib";
+            default -> "";
+        };
     }
 
     public static void fullGC() {
         RUNTIME.gc();
         LogHelper.debug("Used heap: %d MiB", RUNTIME.totalMemory() - RUNTIME.freeMemory() >> 20);
-    }
-
-    public static String[] getClassPath() {
-        return System.getProperty("java.class.path").split(File.pathSeparator);
-    }
-
-    public static URL[] getClassPathURL() {
-        String[] cp = System.getProperty("java.class.path").split(File.pathSeparator);
-        URL[] list = new URL[cp.length];
-
-        for (int i = 0; i < cp.length; i++) {
-            URL url = null;
-            try {
-                url = new URL(cp[i]);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            list[i] = url;
-        }
-        return list;
     }
 
     public static X509Certificate[] getCertificates(Class<?> clazz) {
@@ -170,26 +100,12 @@ public final class JVMHelper {
         return System.getProperty("os.arch").contains("64") ? 64 : 32;
     }
 
-    public static String getEnvPropertyCaseSensitive(String name) {
-        return System.getenv().get(name);
-    }
-
     public static boolean isJVMMatchesSystemArch() {
         return JVM_BITS == OS_BITS;
     }
 
     public static String jvmProperty(String name, String value) {
         return String.format("-D%s=%s", name, value);
-    }
-
-    public static String systemToJvmProperty(String name) {
-        return String.format("-D%s=%s", name, System.getProperties().getProperty(name));
-    }
-
-    public static void addSystemPropertyToArgs(Collection<String> args, String name) {
-        String property = System.getProperty(name);
-        if (property != null)
-            args.add(String.format("-D%s=%s", name, property));
     }
 
     public static void verifySystemProperties(Class<?> mainClass, boolean requireSystem) {

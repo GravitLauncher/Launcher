@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.modules.events.security;
 
-import pro.gravit.launcher.events.request.SecurityReportRequestEvent;
-import pro.gravit.launcher.modules.LauncherModule;
+import pro.gravit.launcher.base.events.request.SecurityReportRequestEvent;
+import pro.gravit.launcher.base.modules.LauncherModule;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.secure.SecurityReportResponse;
 

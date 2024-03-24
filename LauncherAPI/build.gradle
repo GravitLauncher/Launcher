@@ -1,9 +1,8 @@
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 dependencies {
     api project(':LauncherCore')
-    compileOnly group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 }
 
@@ -14,27 +13,8 @@ test {
     }
 }
 
-sourceSets {
-    java11 {
-        java {
-            srcDirs = ['src/main/java11']
-        }
-        dependencies {
-            java11Implementation files(sourceSets.main.output.classesDirs) { builtBy compileJava }
-        }
-    }
-}
-
 jar {
-    into('META-INF/versions/11') {
-        from sourceSets.java11.output
-    }
     archiveClassifier.set('clean')
-}
-
-compileJava11Java {
-    sourceCompatibility = 11
-    targetCompatibility = 11
 }
 
 tasks.register('sourcesJar', Jar) {

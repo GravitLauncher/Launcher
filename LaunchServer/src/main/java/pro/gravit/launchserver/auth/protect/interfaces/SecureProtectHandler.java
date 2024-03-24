@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.auth.protect.interfaces;
 
-import pro.gravit.launcher.events.request.GetSecureLevelInfoRequestEvent;
-import pro.gravit.launcher.events.request.SecurityReportRequestEvent;
-import pro.gravit.launcher.events.request.VerifySecureLevelKeyRequestEvent;
+import pro.gravit.launcher.base.events.request.GetSecureLevelInfoRequestEvent;
+import pro.gravit.launcher.base.events.request.SecurityReportRequestEvent;
+import pro.gravit.launcher.base.events.request.VerifySecureLevelKeyRequestEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.secure.SecurityReportResponse;
 import pro.gravit.utils.helper.SecurityHelper;

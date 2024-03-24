@@ -63,32 +63,36 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         } catch (Throwable ex) {
             logger.error("WebSocket frame handler hook error", ex);
         }
-        if (frame instanceof TextWebSocketFrame textWebSocketFrame) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Message from {}: {}", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip, textWebSocketFrame.text());
-            }
-            try {
-                service.process(ctx, textWebSocketFrame, client, context.ip);
-            } catch (Throwable ex) {
-                logger.warn("Client {} send invalid request. Connection force closed.", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip);
+        switch (frame) {
+            case TextWebSocketFrame textWebSocketFrame -> {
                 if (logger.isTraceEnabled()) {
-                    logger.trace("Client message: {}", textWebSocketFrame.text());
-                    logger.error("Process websockets request failed", ex);
+                    logger.trace("Message from {}: {}", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip, textWebSocketFrame.text());
                 }
+                try {
+                    service.process(ctx, textWebSocketFrame, client, context.ip, connectUUID);
+                } catch (Throwable ex) {
+                    logger.warn("Client {} send invalid request. Connection force closed.", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip);
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("Client message: {}", textWebSocketFrame.text());
+                        logger.error("Process websockets request failed", ex);
+                    }
+                    ctx.channel().close();
+                }
+            }
+            case PingWebSocketFrame pingWebSocketFrame -> {
+                frame.content().retain();
+                ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
+                //return;
+            }
+            case PongWebSocketFrame pongWebSocketFrame -> logger.trace("WebSocket Client received pong");
+            case CloseWebSocketFrame closeWebSocketFrame -> {
+                int statusCode = closeWebSocketFrame.statusCode();
                 ctx.channel().close();
             }
-        } else if ((frame instanceof PingWebSocketFrame)) {
-            frame.content().retain();
-            ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
-            //return;
-        } else if (frame instanceof PongWebSocketFrame) {
-            logger.trace("WebSocket Client received pong");
-        } else if (frame instanceof CloseWebSocketFrame closeWebSocketFrame) {
-            int statusCode = closeWebSocketFrame.statusCode();
-            ctx.channel().close();
-        } else {
-            String message = "unsupported frame type: " + frame.getClass().getName();
-            logger.error(new UnsupportedOperationException(message)); // prevent strange crash here.
+            case null, default -> {
+                String message = "unsupported frame type: " + frame.getClass().getName();
+                logger.error(new UnsupportedOperationException(message)); // prevent strange crash here.
+            }
         }
     }
 

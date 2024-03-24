@@ -1,12 +1,12 @@
 package pro.gravit.launchserver.helper;
 
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.ClientProfileBuilder;
-import pro.gravit.launcher.profiles.ClientProfileVersions;
-import pro.gravit.launcher.profiles.optional.OptionalFile;
-import pro.gravit.launcher.profiles.optional.actions.OptionalActionFile;
-import pro.gravit.launcher.profiles.optional.actions.OptionalActionJvmArgs;
-import pro.gravit.launcher.profiles.optional.triggers.OSTrigger;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
+import pro.gravit.launcher.base.profiles.ClientProfileVersions;
+import pro.gravit.launcher.base.profiles.optional.OptionalFile;
+import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionFile;
+import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionJvmArgs;
+import pro.gravit.launcher.base.profiles.optional.triggers.OSTrigger;
 import pro.gravit.utils.helper.JVMHelper;
 
 import java.io.IOException;
@@ -27,6 +27,7 @@ public class MakeProfileHelper {
         builder.setMainClass(getMainClassByVersion(version, options));
         builder.setServers(List.of(new ClientProfile.ServerProfile(title, "localhost", 25565)));
         // ------------
+        var lwjgl3ify = findOption(options, Lwjgl3ifyOption.class);
         builder.setUpdateVerify(List.of("libraries", "natives", "mods", "minecraft.jar", "forge.jar", "liteloader.jar"));
         {
             List<String> classPath = new ArrayList<>(5);
@@ -44,8 +45,40 @@ public class MakeProfileHelper {
         jvmArgs.add("-XX:+DisableAttachMechanism");
         // Official Mojang launcher java arguments
         if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) <= 0) {
-            jvmArgs.add("-XX:+UseConcMarkSweepGC");
-            jvmArgs.add("-XX:+CMSIncrementalMode");
+            // lwjgl3ify arguments https://github.com/GTNewHorizons/lwjgl3ify
+            jvmArgs.add("-Djava.security.manager=allow");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/jdk.internal.loader=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/java.net=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/java.nio=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/java.io=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/java.lang=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/java.lang.reflect=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/java.text=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/java.util=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/jdk.internal.reflect=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/sun.nio.ch=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("jdk.naming.dns/com.sun.jndi.dns=ALL-UNNAMED,java.naming");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.desktop/sun.awt=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.desktop/sun.awt.image=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.desktop/com.sun.imageio.plugins.png=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("jdk.dynalink/jdk.dynalink.beans=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.sql.rowset/javax.sql.rowset.serial=ALL-UNNAMED");
         } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_18) <= 0) { // 1.13 - 1.16.5
             jvmArgs.add("-XX:+UseG1GC");
             jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
@@ -116,14 +149,8 @@ public class MakeProfileHelper {
                 }
             }
         }
-        if (version.compareTo(ClientProfileVersions.MINECRAFT_1_17) >= 0 && version.compareTo(ClientProfileVersions.MINECRAFT_1_18) < 0) {
-            builder.setMinJavaVersion(16);
-            builder.setRecommendJavaVersion(16);
-        }
-        if (version.compareTo(ClientProfileVersions.MINECRAFT_1_18) >= 0) {
-            builder.setMinJavaVersion(17);
-            builder.setRecommendJavaVersion(17);
-        }
+        builder.setMinJavaVersion(17);
+        builder.setRecommendJavaVersion(17);
         if(version.compareTo(ClientProfileVersions.MINECRAFT_1_20_3) >= 0) {
             builder.setMinJavaVersion(21);
             builder.setRecommendJavaVersion(21);
@@ -133,7 +160,10 @@ public class MakeProfileHelper {
         builder.setJvmArgs(jvmArgs);
         builder.setUpdateOptional(optionals);
         List<String> clientArgs = new ArrayList<>();
-        if (findOption(options, MakeProfileOptionLaunchWrapper.class).isPresent()) {
+        if(version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) == 0) {
+            jvmArgs.add("-Drfb.skipClassLoaderCheck=true");
+        }
+        if (findOption(options, MakeProfileOptionLaunchWrapper.class).isPresent() || findOption(options, MakeProfileRfbOption.class).isPresent()) {
             if (findOption(options, MakeProfileOptionLiteLoader.class).isPresent()) {
                 clientArgs.add("--tweakClass");
                 clientArgs.add("com.mumfrey.liteloader.launch.LiteLoaderTweaker");
@@ -145,20 +175,9 @@ public class MakeProfileHelper {
                 } else {
                     clientArgs.add("cpw.mods.fml.common.launcher.FMLTweaker");
                 }
-                if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) <= 0) {
-                    builder.setMinJavaVersion(8);
-                    builder.setRecommendJavaVersion(8);
-                    builder.setMaxJavaVersion(8);
-                }
             }
         } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) > 0) {
-            if (forge.isPresent()) {
-                clientArgs.addAll(forge.get().makeClientArgs());
-                builder.setClassLoaderConfig(ClientProfile.ClassLoaderConfig.SYSTEM_ARGS);
-                if (version.compareTo(ClientProfileVersions.MINECRAFT_1_16_5) <= 0) {
-                    builder.setMaxJavaVersion(15);
-                }
-            }
+            forge.ifPresent(makeProfileOptionForge -> clientArgs.addAll(makeProfileOptionForge.makeClientArgs()));
         }
         builder.setClientArgs(clientArgs);
 
@@ -171,6 +190,9 @@ public class MakeProfileHelper {
     }
 
     public static String getMainClassByVersion(ClientProfile.Version version, MakeProfileOption... options) {
+        if(version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) == 0) {
+            return  "com.gtnewhorizons.retrofuturabootstrap.Main";
+        }
         if (findOption(options, MakeProfileOptionLaunchWrapper.class).isPresent()) {
             return "net.minecraft.launchwrapper.Launch";
         }
@@ -318,6 +340,13 @@ public class MakeProfileHelper {
 
     public static class MakeProfileOptionLaunchWrapper implements MakeProfileOption {
 
+    }
+
+    public static class MakeProfileRfbOption implements MakeProfileOption {
+
+    }
+
+    public record Lwjgl3ifyOption(String lwjgl3ifyForgePatches) implements MakeProfileOption {
     }
 
     public static class MakeProfileOptionFabric implements MakeProfileOption {

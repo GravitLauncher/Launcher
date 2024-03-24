@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.command.service;
 
-import pro.gravit.launcher.events.NotificationEvent;
-import pro.gravit.launcher.request.WebSocketEvent;
+import pro.gravit.launcher.base.events.NotificationEvent;
+import pro.gravit.launcher.base.request.WebSocketEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.socket.WebSocketService;

@@ -19,6 +19,7 @@ public class LaunchServerBuilder {
     private KeyAgreementManager keyAgreementManager;
     private CertificateManager certificateManager;
     private LaunchServer.LaunchServerConfigManager launchServerConfigManager;
+    private Integer shardId;
 
     public LaunchServerBuilder setConfig(LaunchServerConfig config) {
         this.config = config;
@@ -55,6 +56,11 @@ public class LaunchServerBuilder {
         return this;
     }
 
+    public LaunchServerBuilder setShardId(Integer shardId) {
+        this.shardId = shardId;
+        return this;
+    }
+
     public LaunchServerBuilder setLaunchServerConfigManager(LaunchServer.LaunchServerConfigManager launchServerConfigManager) {
         this.launchServerConfigManager = launchServerConfigManager;
         return this;
@@ -63,32 +69,15 @@ public class LaunchServerBuilder {
     public LaunchServer build() throws Exception {
         directories.collect();
         if (launchServerConfigManager == null) {
-            launchServerConfigManager = new LaunchServer.LaunchServerConfigManager() {
-                @Override
-                public LaunchServerConfig readConfig() {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public LaunchServerRuntimeConfig readRuntimeConfig() {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public void writeConfig(LaunchServerConfig config) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public void writeRuntimeConfig(LaunchServerRuntimeConfig config) {
-                    throw new UnsupportedOperationException();
-                }
-            };
+            launchServerConfigManager = new NullLaunchServerConfigManager();
         }
         if (keyAgreementManager == null) {
             keyAgreementManager = new KeyAgreementManager(directories.keyDirectory);
         }
-        return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, modulesManager, keyAgreementManager, commandHandler, certificateManager);
+        if(shardId == null) {
+            shardId = Integer.parseInt(System.getProperty("launchserver.shardId", "0"));
+        }
+        return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, modulesManager, keyAgreementManager, commandHandler, certificateManager, shardId);
     }
 
     public LaunchServerBuilder setCertificateManager(CertificateManager certificateManager) {
@@ -98,5 +87,27 @@ public class LaunchServerBuilder {
 
     public void setKeyAgreementManager(KeyAgreementManager keyAgreementManager) {
         this.keyAgreementManager = keyAgreementManager;
+    }
+
+    private static class NullLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
+        @Override
+        public LaunchServerConfig readConfig() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public LaunchServerRuntimeConfig readRuntimeConfig() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void writeConfig(LaunchServerConfig config) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void writeRuntimeConfig(LaunchServerRuntimeConfig config) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

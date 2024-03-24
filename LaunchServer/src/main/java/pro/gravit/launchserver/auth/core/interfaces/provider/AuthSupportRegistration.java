@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.auth.core.interfaces.provider;
 
-import pro.gravit.launcher.request.auth.AuthRequest;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launchserver.auth.Feature;
 import pro.gravit.launchserver.auth.core.User;
 

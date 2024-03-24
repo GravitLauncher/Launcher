@@ -1,7 +1,6 @@
 rootProject.name = 'GravitLauncher'
 
 include 'Launcher'
-include 'LauncherModernCore'
 include 'LauncherCore'
 include 'LauncherAPI'
 include 'LauncherClient'

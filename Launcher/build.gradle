@@ -1,17 +1,12 @@
-apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-String mainClassName = "pro.gravit.launcher.ClientLauncherWrapper"
-String mainAgentName = "pro.gravit.launcher.LauncherAgent"
+String mainClassName = "pro.gravit.launcher.start.ClientLauncherWrapper"
+String mainAgentName = "pro.gravit.launcher.runtime.LauncherAgent"
 
 repositories {
     maven {
         url "https://repo.spring.io/plugins-release/"
     }
-}
-javafx {
-    version = "12"
-    modules = ['javafx.controls', 'javafx.fxml']
 }
 sourceCompatibility = '17'
 targetCompatibility = '17'
@@ -50,11 +45,9 @@ shadowJar {
 
 dependencies {
     pack project(':LauncherAPI')
-    pack project(':LauncherModernCore')
     pack project(':LauncherClient')
     pack project(':LauncherStart')
-    bundle group: 'com.github.oshi', name: 'oshi-core', version: rootProject['verOshiCore']
-    pack group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
+    bundle(group: 'com.github.oshi', name: 'oshi-core', version: rootProject['verOshiCore'])
 }
 
 tasks.register('genRuntimeJS', Zip) {

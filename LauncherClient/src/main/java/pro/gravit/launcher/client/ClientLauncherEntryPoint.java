@@ -1,28 +1,30 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.*;
-import pro.gravit.launcher.api.AuthService;
-import pro.gravit.launcher.api.ClientService;
-import pro.gravit.launcher.api.KeyService;
-import pro.gravit.launcher.client.events.client.*;
-import pro.gravit.launcher.hasher.FileNameMatcher;
-import pro.gravit.launcher.hasher.HashedDir;
-import pro.gravit.launcher.hasher.HashedEntry;
-import pro.gravit.launcher.modules.events.PreConfigPhase;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.ClientProfileVersions;
-import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
-import pro.gravit.launcher.profiles.optional.actions.OptionalActionClassPath;
-import pro.gravit.launcher.profiles.optional.actions.OptionalActionClientArgs;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.RequestException;
-import pro.gravit.launcher.request.RequestService;
-import pro.gravit.launcher.request.websockets.StdWebSocketService;
-import pro.gravit.launcher.serialize.HInput;
-import pro.gravit.launcher.utils.DirWatcher;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.LauncherConfig;
+import pro.gravit.launcher.base.api.AuthService;
+import pro.gravit.launcher.base.api.ClientService;
+import pro.gravit.launcher.base.api.KeyService;
+import pro.gravit.launcher.client.events.*;
+import pro.gravit.launcher.core.hasher.FileNameMatcher;
+import pro.gravit.launcher.core.hasher.HashedDir;
+import pro.gravit.launcher.core.hasher.HashedEntry;
+import pro.gravit.launcher.base.modules.events.PreConfigPhase;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileVersions;
+import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionClassPath;
+import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionClientArgs;
+import pro.gravit.launcher.base.request.Request;
+import pro.gravit.launcher.base.request.RequestException;
+import pro.gravit.launcher.base.request.RequestService;
+import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
+import pro.gravit.launcher.core.serialize.HInput;
+import pro.gravit.launcher.client.utils.DirWatcher;
 import pro.gravit.utils.helper.*;
 import pro.gravit.utils.launch.*;
 
+import javax.crypto.CipherInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -49,7 +51,7 @@ public class ClientLauncherEntryPoint {
     private static ClientParams readParams(SocketAddress address) throws IOException {
         try (Socket socket = IOHelper.newSocket()) {
             socket.connect(address);
-            try (HInput input = new HInput(socket.getInputStream())) {
+            try (HInput input = new HInput(new CipherInputStream(socket.getInputStream(), SecurityHelper.newAESDecryptCipher(SecurityHelper.fromHex(Launcher.getConfig().secretKeyClient))))) {
                 byte[] serialized = input.readByteArray(0);
                 ClientParams params = Launcher.gsonManager.gson.fromJson(IOHelper.decode(serialized), ClientParams.class);
                 params.clientHDir = new HashedDir(input);
@@ -87,6 +89,11 @@ public class ClientLauncherEntryPoint {
         if (params.profile.getClassLoaderConfig() != ClientProfile.ClassLoaderConfig.AGENT) {
             ClientLauncherMethods.verifyNoAgent();
         }
+        if(params.timestamp > System.currentTimeMillis() || params.timestamp + 30*1000 < System.currentTimeMillis() ) {
+            LogHelper.error("Timestamp failed. Exit");
+            ClientLauncherMethods.exitLauncher(-662);
+            return;
+        }
         ClientProfile profile = params.profile;
         Launcher.profile = profile;
         AuthService.profile = profile;
@@ -114,6 +121,11 @@ public class ClientLauncherEntryPoint {
         List<Path> classpath = resolveClassPath(clientDir, params.actions, params.profile)
                 .filter(x -> !profile.getModulePath().contains(clientDir.relativize(x).toString()))
                 .collect(Collectors.toCollection(ArrayList::new));
+        if(LogHelper.isDevEnabled()) {
+            for(var e : classpath) {
+                LogHelper.dev("Classpath entry %s", e);
+            }
+        }
         List<URL> classpathURLs = classpath.stream().map(IOHelper::toURL).collect(Collectors.toList());
         // Start client with WatchService monitoring
         RequestService service;
@@ -249,7 +261,12 @@ public class ClientLauncherEntryPoint {
         for (String classPathEntry : classPath) {
             Path path = clientDir.resolve(IOHelper.toPath(classPathEntry.replace(IOHelper.CROSS_SEPARATOR, IOHelper.PLATFORM_SEPARATOR)));
             if (IOHelper.isDir(path)) { // Recursive walking and adding
-                IOHelper.walk(path, new ClassPathFileVisitor(builder), false);
+                List<Path> jars = new ArrayList<>(32);
+                IOHelper.walk(path, new ClassPathFileVisitor(jars), false);
+                Collections.sort(jars);
+                for(var e : jars) {
+                    builder.accept(e);
+                }
                 continue;
             }
             builder.accept(path);
@@ -315,16 +332,16 @@ public class ClientLauncherEntryPoint {
     }
 
     private static final class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
-        private final Stream.Builder<Path> result;
+        private final List<Path> result;
 
-        private ClassPathFileVisitor(Stream.Builder<Path> result) {
+        private ClassPathFileVisitor(List<Path> result) {
             this.result = result;
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (IOHelper.hasExtension(file, "jar") || IOHelper.hasExtension(file, "zip"))
-                result.accept(file);
+                result.add(file);
             return super.visitFile(file, attrs);
         }
     }

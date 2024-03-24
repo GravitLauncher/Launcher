@@ -61,7 +61,7 @@ public final class UnpackHelper {
                     IOHelper.transfer(input, target.resolve(IOHelper.toPath(entry.getName())));
                 }
             }
-        } catch (NoSuchFileException e) {
+        } catch (NoSuchFileException ignored) {
         }
     }
 }

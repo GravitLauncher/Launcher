@@ -8,8 +8,8 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
@@ -53,7 +53,7 @@ public class MainBuildTask implements LauncherBuildTask {
     public Path process(Path inputJar) throws IOException {
         Path outputJar = server.launcherBinary.nextPath(this);
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
-            BuildContext context = new BuildContext(output, reader.getCp(), this);
+            BuildContext context = new BuildContext(output, reader.getCp(), this, server.launcherBinary.runtimeDir);
             initProps();
             preBuildHook.hook(context);
             properties.put("launcher.legacymodules", context.legacyClientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
@@ -69,9 +69,12 @@ public class MainBuildTask implements LauncherBuildTask {
             Map<String, byte[]> runtime = new HashMap<>(256);
             // Write launcher guard dir
             if (server.config.launcher.encryptRuntime) {
-                context.pushEncryptedDir(server.launcherBinary.runtimeDir, Launcher.RUNTIME_DIR, server.runtime.runtimeEncryptKey, runtime, false);
+                context.pushEncryptedDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, server.runtime.runtimeEncryptKey, runtime, false);
             } else {
-                context.pushDir(server.launcherBinary.runtimeDir, Launcher.RUNTIME_DIR, runtime, false);
+                context.pushDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, runtime, false);
+            }
+            if(context.isDeleteRuntimeDir()) {
+                IOHelper.deleteDir(context.getRuntimeDir(), true);
             }
 
             LauncherConfig launcherConfig = new LauncherConfig(server.config.netty.address, server.keyAgreementManager.ecdsaPublicKey, server.keyAgreementManager.rsaPublicKey, runtime, server.config.projectName);

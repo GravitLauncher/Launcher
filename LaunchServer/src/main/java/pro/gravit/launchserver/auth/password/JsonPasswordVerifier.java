@@ -2,7 +2,7 @@ package pro.gravit.launchserver.auth.password;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.base.Launcher;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;

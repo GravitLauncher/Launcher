@@ -57,6 +57,11 @@ public class BasicLaunch implements Launch {
         }
 
         @Override
+        public void clearLauncherPackages() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public void addTransformer(ClassTransformer transformer) {
             if (instrumentation == null) {
                 throw new UnsupportedOperationException();

@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.auth.core;
 
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
@@ -39,11 +38,6 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     @Override
     public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
         throw new AuthException("Please configure AuthCoreProvider");
-    }
-
-    @Override
-    public void init(LaunchServer server) {
-
     }
 
     @Override

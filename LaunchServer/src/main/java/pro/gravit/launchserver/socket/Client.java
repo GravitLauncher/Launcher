@@ -1,8 +1,7 @@
 package pro.gravit.launchserver.socket;
 
-import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.request.secure.HardwareReportRequest;
+import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
@@ -11,8 +10,12 @@ import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Client {
+    ReadWriteLock lock = new ReentrantReadWriteLock();
     public String auth_id;
     public long timestamp;
     public AuthResponse.ConnectTypes type;
@@ -82,6 +85,14 @@ public class Client {
             coreObject = auth.core.getUserByUUID(uuid);
         }
         return coreObject;
+    }
+
+    public Lock readLock() {
+        return lock.readLock();
+    }
+
+    public Lock writeLock() {
+        return lock.writeLock();
     }
 
     public static class TrustLevel {

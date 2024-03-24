@@ -1,9 +1,9 @@
 package pro.gravit.launcher.client;
 
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherTrustManager;
-import pro.gravit.launcher.modules.LauncherModule;
-import pro.gravit.launcher.modules.impl.SimpleModuleManager;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.core.LauncherTrustManager;
+import pro.gravit.launcher.base.modules.LauncherModule;
+import pro.gravit.launcher.base.modules.impl.SimpleModuleManager;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -34,7 +34,12 @@ public final class ClientModuleManager extends SimpleModuleManager {
     }
 
     @Override
-    public final boolean verifyClassCheckResult(LauncherTrustManager.CheckClassResult result) {
+    protected ModulesClassLoader createClassLoader() {
+        return null;
+    }
+
+    @Override
+    public boolean verifyClassCheckResult(LauncherTrustManager.CheckClassResult result) {
         return result.type == LauncherTrustManager.CheckClassResultType.SUCCESS;
     }
 }

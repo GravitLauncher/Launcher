@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.socket.response.management;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.GetPublicKeyRequestEvent;
+import pro.gravit.launcher.base.events.request.GetPublicKeyRequestEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 

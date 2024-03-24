@@ -4,9 +4,9 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.events.request.GetSecureLevelInfoRequestEvent;
-import pro.gravit.launcher.events.request.HardwareReportRequestEvent;
-import pro.gravit.launcher.events.request.VerifySecureLevelKeyRequestEvent;
+import pro.gravit.launcher.base.events.request.GetSecureLevelInfoRequestEvent;
+import pro.gravit.launcher.base.events.request.HardwareReportRequestEvent;
+import pro.gravit.launcher.base.events.request.VerifySecureLevelKeyRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
@@ -132,9 +132,9 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         private final JwtParser parser;
 
         public HardwareInfoTokenVerifier(LaunchServer server) {
-            this.parser = Jwts.parserBuilder()
+            this.parser = Jwts.parser()
                     .requireIssuer("LaunchServer")
-                    .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+                    .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
                     .build();
         }
 
@@ -164,9 +164,9 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         private final JwtParser parser;
 
         public PublicKeyTokenVerifier(LaunchServer server) {
-            this.parser = Jwts.parserBuilder()
+            this.parser = Jwts.parser()
                     .requireIssuer("LaunchServer")
-                    .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+                    .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
                     .build();
         }
 

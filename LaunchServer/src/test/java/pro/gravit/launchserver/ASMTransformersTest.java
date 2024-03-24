@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
-import pro.gravit.launcher.LauncherInject;
+import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.utils.helper.JarHelper;
 

@@ -5,13 +5,18 @@ import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.HexFormat;
 import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.Deflater;
@@ -82,10 +87,19 @@ public final class IOHelper {
         }
     }
 
+    public static Manifest getManifest(Class<?> clazz) {
+        Path path = getCodeSource(clazz);
+        try(JarFile jar = new JarFile(path.toFile())) {
+            return jar.getManifest();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public static URL convertToURL(String url) {
         try {
-            return new URL(url);
-        } catch (MalformedURLException e) {
+            return new URI(url).toURL();
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new IllegalArgumentException("Invalid URL", e);
         }
     }
@@ -138,17 +152,13 @@ public final class IOHelper {
     }
 
     public static Path getRoot() {
-        switch (JVMHelper.OS_TYPE) {
-            case MUSTDIE: {
+        return switch (JVMHelper.OS_TYPE) {
+            case MUSTDIE -> {
                 String drive = System.getenv("SystemDrive").concat("\\");
-                return Paths.get(drive);
+                yield Paths.get(drive);
             }
-            case LINUX:
-            case MACOSX: {
-                return Paths.get("/");
-            }
-        }
-        throw new UnsupportedOperationException();
+            case LINUX, MACOSX -> Paths.get("/");
+        };
     }
 
     public static byte[] getResourceBytes(String name) throws IOException {
@@ -545,19 +555,39 @@ public final class IOHelper {
     }
 
     public static String urlDecode(String s) {
-        try {
-            return URLDecoder.decode(s, UNICODE_CHARSET.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new InternalError(e);
-        }
+        return URLDecoder.decode(s, UNICODE_CHARSET);
     }
 
     public static String urlEncode(String s) {
-        try {
-            return URLEncoder.encode(s, UNICODE_CHARSET.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new InternalError(e);
+        return URLEncoder.encode(s, UNICODE_CHARSET);
+    }
+
+    public static String urlDecodeStrict(String s) {
+        var builder = new StringBuilder();
+        char[] charArray = s.toCharArray();
+        for (int i = 0; i < charArray.length; i++) {
+            char c = charArray[i];
+            if (c != '%') {
+                builder.append(c);
+                continue;
+            }
+
+            if (i + 2 >= charArray.length) {
+                return null;
+            }
+
+            var buffer = UNICODE_CHARSET.decode(ByteBuffer.wrap(HexFormat.of().parseHex(CharBuffer.wrap(charArray, i + 1, 2))));
+
+            builder.append(buffer);
+
+            i += 2;
         }
+
+        return builder.toString();
+    }
+
+    public static String getPathFromUrlFragment(String urlFragment) {
+        return urlFragment.indexOf('?') < 0 ? urlFragment : urlFragment.substring(0, urlFragment.indexOf('?'));
     }
 
     public static String verifyFileName(String fileName) {
@@ -577,9 +607,9 @@ public final class IOHelper {
 
     public static String verifyURL(String url) {
         try {
-            new URL(url).toURI();
+            new URI(url);
             return url;
-        } catch (MalformedURLException | URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Invalid URL", e);
         }
     }

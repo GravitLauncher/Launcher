@@ -1,6 +1,6 @@
 package pro.gravit.utils.helper;
 
-import pro.gravit.launcher.LauncherNetworkAPI;
+import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.utils.logging.LogHelperAppender;
 import pro.gravit.utils.logging.SimpleLogHelperImpl;
 import pro.gravit.utils.logging.Slf4jLogHelperImpl;
@@ -23,7 +23,7 @@ public final class LogHelper {
     public static final String DEV_PROPERTY = "launcher.dev";
     public static final String STACKTRACE_PROPERTY = "launcher.stacktrace";
     public static final String NO_JANSI_PROPERTY = "launcher.noJAnsi";
-    public static final String NO_SLF4J_PROPERTY = "launcher.noSlf4j";
+    public static final String SLF4J_PROPERTY = "launcher.useSlf4j";
     private static final Set<Consumer<Throwable>> EXCEPTIONS_CALLBACKS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
     private static final LogHelperAppender impl;
 
@@ -31,8 +31,7 @@ public final class LogHelper {
         boolean useSlf4j = false;
         try {
             Class.forName("org.slf4j.Logger", false, LogHelper.class.getClassLoader());
-            Class.forName("org.slf4j.impl.StaticLoggerBinder", false, LogHelper.class.getClassLoader());
-            useSlf4j = !Boolean.getBoolean(NO_SLF4J_PROPERTY);
+            useSlf4j = Boolean.getBoolean(SLF4J_PROPERTY);
         } catch (ClassNotFoundException ignored) {
         }
         if (useSlf4j) {

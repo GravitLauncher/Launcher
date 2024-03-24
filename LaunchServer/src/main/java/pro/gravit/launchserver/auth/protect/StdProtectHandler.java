@@ -2,7 +2,7 @@ package pro.gravit.launchserver.auth.protect;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.socket.Client;
@@ -22,7 +22,7 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
 
     @Override
     public void init(LaunchServer server) {
-        if (profileWhitelist != null && profileWhitelist.size() > 0) {
+        if (profileWhitelist != null && !profileWhitelist.isEmpty()) {
             logger.warn("profileWhitelist deprecated. Please use permission 'launchserver.profile.PROFILE_UUID.show' and 'launchserver.profile.PROFILE_UUID.enter'");
         }
     }
