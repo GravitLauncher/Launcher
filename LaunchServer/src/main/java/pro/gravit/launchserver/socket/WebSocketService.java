@@ -30,7 +30,6 @@ import pro.gravit.launchserver.socket.response.secure.HardwareReportResponse;
 import pro.gravit.launchserver.socket.response.secure.SecurityReportResponse;
 import pro.gravit.launchserver.socket.response.secure.VerifySecureLevelKeyResponse;
 import pro.gravit.launchserver.socket.response.update.LauncherResponse;
-import pro.gravit.launchserver.socket.response.update.UpdateListResponse;
 import pro.gravit.launchserver.socket.response.update.UpdateResponse;
 import pro.gravit.utils.BiHookSet;
 import pro.gravit.utils.HookSet;
@@ -64,7 +63,6 @@ public class WebSocketService {
         providers.register("joinServer", JoinServerResponse.class);
         providers.register("profiles", ProfilesResponse.class);
         providers.register("launcher", LauncherResponse.class);
-        providers.register("updateList", UpdateListResponse.class);
         providers.register("setProfile", SetProfileResponse.class);
         providers.register("update", UpdateResponse.class);
         providers.register("batchProfileByUsername", BatchProfileByUsername.class);
