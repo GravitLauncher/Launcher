@@ -94,7 +94,6 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
             results.register("batchProfileByUsername", BatchProfileByUsernameRequestEvent.class);
             results.register("profiles", ProfilesRequestEvent.class);
             results.register("setProfile", SetProfileRequestEvent.class);
-            results.register("updateList", UpdateListRequestEvent.class);
             results.register("error", ErrorRequestEvent.class);
             results.register("update", UpdateRequestEvent.class);
             results.register("getAvailabilityAuth", GetAvailabilityAuthRequestEvent.class);
