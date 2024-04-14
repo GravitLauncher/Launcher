@@ -147,7 +147,7 @@ public class ClientLauncherProcess {
         if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.AGENT) {
             processArgs.add("-javaagent:".concat(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString()));
         } else if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
-            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(workDir, params.actions, params.profile)
+            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(new HashSet<>(), workDir, params.actions, params.profile)
                     .filter(x -> !params.profile.getModulePath().contains(workDir.relativize(x).toString()))
                     .map(Path::toString)
                     .toList());
