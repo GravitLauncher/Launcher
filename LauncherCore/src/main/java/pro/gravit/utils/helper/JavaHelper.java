@@ -93,6 +93,7 @@ public class JavaHelper {
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("Java"));
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("AdoptOpenJDK"));
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("Eclipse Foundation")); //AdoptJDK rebranding
+                trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("Eclipse Adoptium")); //AdoptJDK rebranding
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("BellSoft")); // LibericaJDK
             } catch (IOException e) {
                 LogHelper.error(e);
