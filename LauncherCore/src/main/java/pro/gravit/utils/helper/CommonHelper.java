@@ -258,6 +258,14 @@ public final class CommonHelper {
         return new ArgsParseResult(conf, classpath, jvmArgs, mainClass, mainModule, jarFile, args);
     }
 
+    public static <K, V> V multimapFirstOrNullValue(K key, Map<K, List<V>> params) {
+        List<V> list = params.getOrDefault(key, Collections.emptyList());
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.getFirst();
+    }
+
     public record ArgsParseResult(LaunchOptions.ModuleConf conf, List<String> classpath, List<String> jvmArgs, String mainClass, String mainModule, String jarFile, List<String> args) {
 
     }

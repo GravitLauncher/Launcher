@@ -29,12 +29,12 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
 
     @Override
     public boolean canGetProfile(ClientProfile profile, Client client) {
-        return !profile.isLimited() || isWhitelisted("launchserver.profile.%s.show", profile, client);
+        return (client.isAuth && !profile.isLimited()) || isWhitelisted("launchserver.profile.%s.show", profile, client);
     }
 
     @Override
     public boolean canChangeProfile(ClientProfile profile, Client client) {
-        return !profile.isLimited() || isWhitelisted("launchserver.profile.%s.enter", profile, client);
+        return (client.isAuth && !profile.isLimited()) || isWhitelisted("launchserver.profile.%s.enter", profile, client);
     }
 
     @Override

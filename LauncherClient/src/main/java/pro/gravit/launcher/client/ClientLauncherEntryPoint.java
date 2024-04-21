@@ -118,7 +118,8 @@ public class ClientLauncherEntryPoint {
 
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        List<Path> classpath = resolveClassPath(clientDir, params.actions, params.profile)
+        Set<Path> ignoredPath = new HashSet<>();
+        List<Path> classpath = resolveClassPath(ignoredPath, clientDir, params.actions, params.profile)
                 .filter(x -> !profile.getModulePath().contains(clientDir.relativize(x).toString()))
                 .collect(Collectors.toCollection(ArrayList::new));
         if(LogHelper.isDevEnabled()) {
@@ -252,11 +253,11 @@ public class ClientLauncherEntryPoint {
         }
     }
 
-    private static LinkedList<Path> resolveClassPathList(Path clientDir, String... classPath) throws IOException {
-        return resolveClassPathStream(clientDir, classPath).collect(Collectors.toCollection(LinkedList::new));
+    private static LinkedList<Path> resolveClassPathList(Set<Path> ignorePaths, Path clientDir, String... classPath) throws IOException {
+        return resolveClassPathStream(ignorePaths, clientDir, classPath).collect(Collectors.toCollection(LinkedList::new));
     }
 
-    private static Stream<Path> resolveClassPathStream(Path clientDir, String... classPath) throws IOException {
+    private static Stream<Path> resolveClassPathStream(Set<Path> ignorePaths, Path clientDir, String... classPath) throws IOException {
         Stream.Builder<Path> builder = Stream.builder();
         for (String classPathEntry : classPath) {
             Path path = clientDir.resolve(IOHelper.toPath(classPathEntry.replace(IOHelper.CROSS_SEPARATOR, IOHelper.PLATFORM_SEPARATOR)));
@@ -265,20 +266,28 @@ public class ClientLauncherEntryPoint {
                 IOHelper.walk(path, new ClassPathFileVisitor(jars), false);
                 Collections.sort(jars);
                 for(var e : jars) {
+                    if(ignorePaths.contains(e)) {
+                        continue;
+                    }
                     builder.accept(e);
+                    ignorePaths.add(e);
                 }
                 continue;
             }
+            if(ignorePaths.contains(path)) {
+                continue;
+            }
             builder.accept(path);
+            ignorePaths.add(path);
         }
         return builder.build();
     }
 
-    public static Stream<Path> resolveClassPath(Path clientDir, Set<OptionalAction> actions, ClientProfile profile) throws IOException {
-        Stream<Path> result = resolveClassPathStream(clientDir, profile.getClassPath());
+    public static Stream<Path> resolveClassPath(Set<Path> ignorePaths, Path clientDir, Set<OptionalAction> actions, ClientProfile profile) throws IOException {
+        Stream<Path> result = resolveClassPathStream(ignorePaths, clientDir, profile.getClassPath());
         for (OptionalAction a : actions) {
             if (a instanceof OptionalActionClassPath)
-                result = Stream.concat(result, resolveClassPathStream(clientDir, ((OptionalActionClassPath) a).args));
+                result = Stream.concat(result, resolveClassPathStream(ignorePaths, clientDir, ((OptionalActionClassPath) a).args));
         }
         return result;
     }
@@ -340,8 +349,9 @@ public class ClientLauncherEntryPoint {
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (IOHelper.hasExtension(file, "jar") || IOHelper.hasExtension(file, "zip"))
+            if (IOHelper.hasExtension(file, "jar") || IOHelper.hasExtension(file, "zip")) {
                 result.add(file);
+            }
             return super.visitFile(file, attrs);
         }
     }
