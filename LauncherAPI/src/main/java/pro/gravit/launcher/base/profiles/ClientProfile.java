@@ -41,8 +41,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private List<String> updateExclusions;
     @LauncherNetworkAPI
-    private List<String> updateShared;
-    @LauncherNetworkAPI
     private List<String> updateVerify;
     @LauncherNetworkAPI
     private Set<OptionalFile> updateOptional;
@@ -50,10 +48,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private List<String> jvmArgs;
     @LauncherNetworkAPI
     private List<String> classPath;
-    @LauncherNetworkAPI
-    private List<String> modulePath = new ArrayList<>();
-    @LauncherNetworkAPI
-    private List<String> modules = new ArrayList<>();
     @LauncherNetworkAPI
     private List<String> altClassPath;
     @LauncherNetworkAPI
@@ -89,54 +83,37 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private LaunchOptions.ModuleConf moduleConf;
 
-    public ClientProfile() {
-        update = new ArrayList<>();
-        updateExclusions = new ArrayList<>();
-        updateShared = new ArrayList<>();
-        updateVerify = new ArrayList<>();
-        updateOptional = new HashSet<>();
-        jvmArgs = new ArrayList<>();
-        classPath = new ArrayList<>();
-        modulePath = new ArrayList<>();
-        altClassPath = new ArrayList<>();
-        clientArgs = new ArrayList<>();
-        compatClasses = new ArrayList<>();
-        properties = new HashMap<>();
-        servers = new ArrayList<>(1);
-        classLoaderConfig = ClassLoaderConfig.LAUNCHER;
-        flags = new ArrayList<>();
-    }
-
-    public ClientProfile(List<String> update, List<String> updateExclusions, List<String> updateShared, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> modulePath, List<String> modules, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, Map<String, String> properties, List<ServerProfile> servers, ClassLoaderConfig classLoaderConfig, List<CompatibilityFlags> flags, Version version, String assetIndex, String dir, String assetDir, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, ProfileDefaultSettings settings, int sortIndex, UUID uuid, String title, String info, String mainClass) {
+    public ClientProfile(String title, UUID uuid, Version version, String info, String dir, int sortIndex, String assetIndex, String assetDir, List<String> update, List<String> updateExclusions, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, List<String> loadNatives, Map<String, String> properties, List<ServerProfile> servers, ClassLoaderConfig classLoaderConfig, List<CompatibilityFlags> flags, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, ProfileDefaultSettings settings, boolean limited, String mainClass, String mainModule, LaunchOptions.ModuleConf moduleConf) {
+        this.title = title;
+        this.uuid = uuid;
+        this.version = version;
+        this.info = info;
+        this.dir = dir;
+        this.sortIndex = sortIndex;
+        this.assetIndex = assetIndex;
+        this.assetDir = assetDir;
         this.update = update;
         this.updateExclusions = updateExclusions;
-        this.updateShared = updateShared;
         this.updateVerify = updateVerify;
         this.updateOptional = updateOptional;
         this.jvmArgs = jvmArgs;
         this.classPath = classPath;
-        this.modulePath = modulePath;
-        this.modules = modules;
         this.altClassPath = altClassPath;
         this.clientArgs = clientArgs;
         this.compatClasses = compatClasses;
+        this.loadNatives = loadNatives;
         this.properties = properties;
         this.servers = servers;
         this.classLoaderConfig = classLoaderConfig;
-        this.version = version;
-        this.assetIndex = assetIndex;
-        this.dir = dir;
-        this.assetDir = assetDir;
+        this.flags = flags;
         this.recommendJavaVersion = recommendJavaVersion;
         this.minJavaVersion = minJavaVersion;
         this.maxJavaVersion = maxJavaVersion;
         this.settings = settings;
-        this.sortIndex = sortIndex;
-        this.uuid = uuid;
-        this.title = title;
-        this.info = info;
+        this.limited = limited;
         this.mainClass = mainClass;
-        this.flags = flags;
+        this.mainModule = mainModule;
+        this.moduleConf = moduleConf;
     }
 
     public ServerProfile getDefaultServerProfile() {
@@ -159,32 +136,20 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_7_10) >= 0 ? ASSET_MATCHER : null;
     }
 
-    public String[] getClassPath() {
-        return classPath.toArray(new String[0]);
+    public List<String> getClassPath() {
+        return Collections.unmodifiableList(classPath);
     }
 
-    public List<String> getModulePath() {
-        return Collections.unmodifiableList(modulePath);
+    public List<String> getAlternativeClassPath() {
+        return Collections.unmodifiableList(altClassPath);
     }
 
-    public List<String> getModules() {
-        return Collections.unmodifiableList(modules);
-    }
-
-    public String[] getAlternativeClassPath() {
-        return altClassPath.toArray(new String[0]);
-    }
-
-    public String[] getClientArgs() {
-        return clientArgs.toArray(new String[0]);
+    public List<String> getClientArgs() {
+        return Collections.unmodifiableList(clientArgs);
     }
 
     public String getDir() {
         return dir;
-    }
-
-    public void setDir(String dir) {
-        this.dir = dir;
     }
 
     public String getAssetDir() {
@@ -195,24 +160,25 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return Collections.unmodifiableList(updateExclusions);
     }
 
-    public FileNameMatcher getClientUpdateMatcher(/*boolean excludeOptional*/) {
+    public List<String> getUpdate() {
+        return Collections.unmodifiableList(update);
+    }
+
+    public List<String> getUpdateVerify() {
+        return Collections.unmodifiableList(updateVerify);
+    }
+
+    public FileNameMatcher getClientUpdateMatcher() {
         String[] updateArray = update.toArray(new String[0]);
         String[] verifyArray = updateVerify.toArray(new String[0]);
         List<String> excludeList;
-        //if(excludeOptional)
-        //{
-        //    excludeList = new ArrayList<>();
-        //    excludeList.addAll(updateExclusions);
-        //    excludeList.addAll(updateOptional);
-        //}
-        //else
         excludeList = updateExclusions;
         String[] exclusionsArray = excludeList.toArray(new String[0]);
         return new FileNameMatcher(updateArray, verifyArray, exclusionsArray);
     }
 
-    public String[] getJvmArgs() {
-        return jvmArgs.toArray(new String[0]);
+    public List<String> getJvmArgs() {
+        return Collections.unmodifiableList(jvmArgs);
     }
 
     public String getMainClass() {
@@ -289,10 +255,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return null;
     }
 
-    public Collection<String> getShared() {
-        return updateShared;
-    }
-
     public int getServerPort() {
         ServerProfile profile = getDefaultServerProfile();
         return profile == null ? 25565 : profile.serverPort;
@@ -306,24 +268,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getInfo() {
         return info;
     }
 
-    public void setInfo(String info) {
-        this.info = info;
-    }
-
     public Version getVersion() {
         return version;
-    }
-
-    public void setVersion(Version version) {
-        this.version = version;
     }
 
     @Deprecated
@@ -338,10 +288,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public UUID getUUID() {
         return uuid;
-    }
-
-    public void setUUID(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public boolean hasFlag(CompatibilityFlags flag) {
@@ -413,18 +359,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return properties.get(name);
     }
 
-    public void putProperty(String name, String value) {
-        properties.put(name, value);
-    }
-
-    public boolean containsProperty(String name) {
-        return properties.containsKey(name);
-    }
-
-    public void clearProperties() {
-        properties.clear();
-    }
-
     public Map<String, String> getProperties() {
         return Collections.unmodifiableMap(properties);
     }
@@ -448,10 +382,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public ClassLoaderConfig getClassLoaderConfig() {
         return classLoaderConfig;
-    }
-
-    public void setClassLoaderConfig(ClassLoaderConfig classLoaderConfig) {
-        this.classLoaderConfig = classLoaderConfig;
     }
 
     public boolean isLimited() {

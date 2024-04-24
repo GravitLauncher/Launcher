@@ -1,17 +1,19 @@
 package pro.gravit.launcher.base.profiles.optional.actions;
 
+import java.util.List;
+
 public class OptionalActionClassPath extends OptionalAction {
-    public String[] args;
+    public List<String> args;
     public boolean useAltClasspath = false;
 
     public OptionalActionClassPath() {
     }
 
-    public OptionalActionClassPath(String[] args) {
+    public OptionalActionClassPath(List<String> args) {
         this.args = args;
     }
 
-    public OptionalActionClassPath(String[] args, boolean useAltClasspath) {
+    public OptionalActionClassPath(List<String> args, boolean useAltClasspath) {
         this.args = args;
         this.useAltClasspath = useAltClasspath;
     }
