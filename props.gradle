@@ -14,6 +14,7 @@ project.ext {
     verLog4j = '2.20.0'
     verMySQLConn = '8.3.0'
     verPostgreSQLConn = '42.7.1'
+    verH2Conn = '2.2.224'
     verProguard = '7.4.1'
     verLaunch4j = '3.50'
 }
