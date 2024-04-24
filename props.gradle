@@ -13,6 +13,7 @@ project.ext {
     verSlf4j = '2.0.9'
     verLog4j = '2.20.0'
     verMySQLConn = '8.3.0'
+    verMariaDBConn = '3.3.3'
     verPostgreSQLConn = '42.7.1'
     verH2Conn = '2.2.224'
     verProguard = '7.4.1'

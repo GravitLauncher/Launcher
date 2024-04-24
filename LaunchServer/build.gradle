@@ -83,6 +83,7 @@ dependencies {
     bundle group: 'io.netty', name: 'netty-transport-native-epoll', version: rootProject['verNetty'], classifier: 'linux-x86_64'
     bundle group: 'org.slf4j', name: 'slf4j-api', version: rootProject['verSlf4j']
     bundle group: 'com.mysql', name: 'mysql-connector-j', version: rootProject['verMySQLConn']
+    bundle group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: rootProject['verMariaDBConn']
     bundle group: 'org.postgresql', name: 'postgresql', version: rootProject['verPostgreSQLConn']
     bundle group: 'com.h2database', name: 'h2', version: rootProject['verH2Conn']
     bundle group: 'com.guardsquare', name: 'proguard-base', version: rootProject['verProguard']
