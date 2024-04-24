@@ -55,6 +55,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
             providers.register("memory", MemoryAuthCoreProvider.class);
             providers.register("merge", MergeAuthCoreProvider.class);
             providers.register("openid", OpenIDAuthCoreProvider.class);
+            providers.register("sql", SQLCoreProvider.class);
             registredProviders = true;
         }
     }
