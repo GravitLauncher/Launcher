@@ -51,6 +51,7 @@ public class ClientProfileBuilder {
         this.properties = new HashMap<>();
         this.servers = new ArrayList<>();
         this.flags = new ArrayList<>();
+        this.settings = new ClientProfile.ProfileDefaultSettings();
     }
 
     public ClientProfileBuilder(ClientProfile profile) {
@@ -83,6 +84,7 @@ public class ClientProfileBuilder {
         this.mainClass = profile.getMainClass();
         this.mainModule = profile.getMainModule();
         this.moduleConf = profile.getModuleConf();
+        this.settings = profile.getSettings();
     }
 
     public ClientProfileBuilder setTitle(String title) {
