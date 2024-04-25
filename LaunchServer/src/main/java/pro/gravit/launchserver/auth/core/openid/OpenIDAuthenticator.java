@@ -36,7 +36,10 @@ public class OpenIDAuthenticator {
     public OpenIDAuthenticator(OpenIDConfig openIDConfig) {
         this.openIDConfig = openIDConfig;
         var keyLocator = loadKeyLocator(openIDConfig);
-        this.jwtParser = Jwts.parser().keyLocator(keyLocator)
+        this.jwtParser = Jwts.parser()
+                .keyLocator(keyLocator)
+                .requireIssuer(openIDConfig.issuer())
+                .requireAudience(openIDConfig.clientId())
                 .build();
     }
 
