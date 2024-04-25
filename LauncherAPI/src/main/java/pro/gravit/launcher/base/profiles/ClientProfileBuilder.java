@@ -52,6 +52,10 @@ public class ClientProfileBuilder {
         this.servers = new ArrayList<>();
         this.flags = new ArrayList<>();
         this.settings = new ClientProfile.ProfileDefaultSettings();
+        this.recommendJavaVersion = 21;
+        this.minJavaVersion = 17;
+        this.maxJavaVersion = 999;
+        this.classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;
     }
 
     public ClientProfileBuilder(ClientProfile profile) {
@@ -84,7 +88,6 @@ public class ClientProfileBuilder {
         this.mainClass = profile.getMainClass();
         this.mainModule = profile.getMainModule();
         this.moduleConf = profile.getModuleConf();
-        this.settings = profile.getSettings();
     }
 
     public ClientProfileBuilder setTitle(String title) {
