@@ -39,7 +39,7 @@ public class OpenIDAuthenticator {
         this.jwtParser = Jwts.parser()
                 .keyLocator(keyLocator)
                 .requireIssuer(openIDConfig.issuer())
-                .requireAudience(openIDConfig.clientId())
+                .require("azp", openIDConfig.clientId())
                 .build();
     }
 
