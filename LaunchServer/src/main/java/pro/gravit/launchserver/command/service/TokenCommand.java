@@ -18,7 +18,7 @@ public class TokenCommand extends Command {
             @Override
             public void invoke(String... args) throws Exception {
                 verifyArgs(args, 1);
-                var parser = Jwts.parserBuilder().setSigningKey(server.keyAgreementManager.ecdsaPublicKey).build();
+                var parser = Jwts.parser().setSigningKey(server.keyAgreementManager.ecdsaPublicKey).build();
                 var claims = parser.parseClaimsJws(args[0]);
                 logger.info("Token: {}", claims.getBody());
             }

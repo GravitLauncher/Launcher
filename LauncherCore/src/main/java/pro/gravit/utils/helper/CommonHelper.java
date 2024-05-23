@@ -5,10 +5,7 @@ import pro.gravit.utils.command.CommandException;
 
 import javax.script.ScriptEngine;
 import java.lang.reflect.Type;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -105,6 +102,13 @@ public final class CommonHelper {
         return result.toArray(new String[0]);
     }
 
+    public static <K, V> V multimapFirstOrNullValue(K key, Map<K, List<V>> params) {
+        List<V> list = params.getOrDefault(key, Collections.emptyList());
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.getFirst();
+    }
 
     public static GsonBuilder newBuilder() {
         return new GsonBuilder().registerTypeHierarchyAdapter(byte[].class,
