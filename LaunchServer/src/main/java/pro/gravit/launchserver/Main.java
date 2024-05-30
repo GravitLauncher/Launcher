@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class Main {
-    private static final List<String> classpathOnly = List.of("proguard", "jline", "kotlin", "epoll");
+    private static final List<String> classpathOnly = List.of("proguard", "jline", "progressbar", "kotlin", "epoll");
     private static final String LOG4J_PROPERTY = "log4j2.configurationFile";
     private static boolean isClasspathOnly(Path path) {
         var fileName = path.getFileName().toString();
