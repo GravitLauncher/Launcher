@@ -70,20 +70,23 @@ tasks.register('cleanjar', Jar) {
 
 dependencies {
     pack project(':LauncherAPI')
-    bundle group: 'me.tongfei', name: 'progressbar', version: '0.9.2'
-    bundle group: 'com.github.Marcono1234', name: 'gson-record-type-adapter-factory', version: 'v0.2.0'
+    bundle group: 'me.tongfei', name: 'progressbar', version: '0.10.1'
+    bundle group: 'com.github.Marcono1234', name: 'gson-record-type-adapter-factory', version: 'v0.3.0'
     bundle group: 'org.fusesource.jansi', name: 'jansi', version: rootProject['verJansi']
     bundle group: 'org.jline', name: 'jline', version: rootProject['verJline']
     bundle group: 'org.jline', name: 'jline-reader', version: rootProject['verJline']
     bundle group: 'org.jline', name: 'jline-terminal', version: rootProject['verJline']
-    bundle group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: rootProject['verBcpkix']
+    bundle group: 'org.bouncycastle', name: 'bcprov-jdk18on', version: rootProject['verBcpkix']
+    bundle group: 'org.bouncycastle', name: 'bcpkix-jdk18on', version: rootProject['verBcpkix']
     bundle group: 'org.ow2.asm', name: 'asm-commons', version: rootProject['verAsm']
     bundle group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
     bundle group: 'io.netty', name: 'netty-transport-classes-epoll', version: rootProject['verNetty']
     bundle group: 'io.netty', name: 'netty-transport-native-epoll', version: rootProject['verNetty'], classifier: 'linux-x86_64'
     bundle group: 'org.slf4j', name: 'slf4j-api', version: rootProject['verSlf4j']
     bundle group: 'com.mysql', name: 'mysql-connector-j', version: rootProject['verMySQLConn']
+    bundle group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: rootProject['verMariaDBConn']
     bundle group: 'org.postgresql', name: 'postgresql', version: rootProject['verPostgreSQLConn']
+    bundle group: 'com.h2database', name: 'h2', version: rootProject['verH2Conn']
     bundle group: 'com.guardsquare', name: 'proguard-base', version: rootProject['verProguard']
     bundle group: 'org.apache.logging.log4j', name: 'log4j-core', version: rootProject['verLog4j']
     bundle group: 'org.apache.logging.log4j', name: 'log4j-slf4j2-impl', version: rootProject['verLog4j']

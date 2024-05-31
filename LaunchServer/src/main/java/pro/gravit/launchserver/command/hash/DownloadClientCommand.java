@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.base.profiles.ClientProfileVersions;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
@@ -61,9 +62,11 @@ public final class DownloadClientCommand extends Command {
             try {
                 JsonElement clientJson = server.mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
                 clientProfile = Launcher.gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
-                clientProfile.setTitle(dirName);
-                clientProfile.setDir(dirName);
-                clientProfile.setUUID(UUID.randomUUID());
+                var builder = new ClientProfileBuilder(clientProfile);
+                builder.setTitle(dirName);
+                builder.setDir(dirName);
+                builder.setUuid(UUID.randomUUID());
+                clientProfile = builder.createClientProfile();
                 if (clientProfile.getServers() != null) {
                     ClientProfile.ServerProfile serverProfile = clientProfile.getDefaultServerProfile();
                     if (serverProfile != null) {

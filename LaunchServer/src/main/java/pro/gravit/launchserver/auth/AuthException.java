@@ -16,6 +16,10 @@ public final class AuthException extends IOException {
         super(message);
     }
 
+    public AuthException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
     public static AuthException need2FA() {
         return new AuthException(AuthRequestEvent.TWO_FACTOR_NEED_ERROR_MESSAGE);
     }

@@ -109,14 +109,14 @@ public class ClientLauncherProcess {
 
     private void applyClientProfile() {
         this.systemClassPath.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString());
-        Collections.addAll(this.jvmArgs, this.params.profile.getJvmArgs());
+        this.jvmArgs.addAll(this.params.profile.getJvmArgs());
         for (OptionalAction a : this.params.actions) {
             if (a instanceof OptionalActionJvmArgs) {
                 this.jvmArgs.addAll(((OptionalActionJvmArgs) a).args);
             }
         }
         this.systemEnv.put("JAVA_HOME", javaVersion.jvmDir.toString());
-        Collections.addAll(this.systemClassPath, this.params.profile.getAlternativeClassPath());
+        this.systemClassPath.addAll(this.params.profile.getAlternativeClassPath());
         if (params.ram > 0) {
             this.jvmArgs.add("-Xmx" + params.ram + 'M');
         }
@@ -128,8 +128,6 @@ public class ClientLauncherProcess {
             this.params.oauthExpiredTime = Request.getTokenExpiredTime();
             this.params.extendedTokens = Request.getExtendedTokens();
         }
-        this.jvmModules.addAll(this.params.profile.getModules());
-        this.jvmModulesPaths.addAll(this.params.profile.getModulePath());
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));
     }
 
@@ -148,7 +146,6 @@ public class ClientLauncherProcess {
             processArgs.add("-javaagent:".concat(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString()));
         } else if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
             systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(new HashSet<>(), workDir, params.actions, params.profile)
-                    .filter(x -> !params.profile.getModulePath().contains(workDir.relativize(x).toString()))
                     .map(Path::toString)
                     .toList());
         }

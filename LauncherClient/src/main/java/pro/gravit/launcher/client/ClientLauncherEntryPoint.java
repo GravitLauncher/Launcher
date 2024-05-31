@@ -120,7 +120,6 @@ public class ClientLauncherEntryPoint {
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         Set<Path> ignoredPath = new HashSet<>();
         List<Path> classpath = resolveClassPath(ignoredPath, clientDir, params.actions, params.profile)
-                .filter(x -> !profile.getModulePath().contains(clientDir.relativize(x).toString()))
                 .collect(Collectors.toCollection(ArrayList::new));
         if(LogHelper.isDevEnabled()) {
             for(var e : classpath) {
@@ -253,11 +252,11 @@ public class ClientLauncherEntryPoint {
         }
     }
 
-    private static LinkedList<Path> resolveClassPathList(Set<Path> ignorePaths, Path clientDir, String... classPath) throws IOException {
+    private static LinkedList<Path> resolveClassPathList(Set<Path> ignorePaths, Path clientDir, List<String> classPath) throws IOException {
         return resolveClassPathStream(ignorePaths, clientDir, classPath).collect(Collectors.toCollection(LinkedList::new));
     }
 
-    private static Stream<Path> resolveClassPathStream(Set<Path> ignorePaths, Path clientDir, String... classPath) throws IOException {
+    private static Stream<Path> resolveClassPathStream(Set<Path> ignorePaths, Path clientDir, List<String> classPath) throws IOException {
         Stream.Builder<Path> builder = Stream.builder();
         for (String classPathEntry : classPath) {
             Path path = clientDir.resolve(IOHelper.toPath(classPathEntry.replace(IOHelper.CROSS_SEPARATOR, IOHelper.PLATFORM_SEPARATOR)));
@@ -301,7 +300,7 @@ public class ClientLauncherEntryPoint {
             params.addClientLegacyArgs(args);
             System.setProperty("minecraft.applet.TargetDirectory", params.clientDir);
         }
-        Collections.addAll(args, profile.getClientArgs());
+        args.addAll(profile.getClientArgs());
         for (OptionalAction action : params.actions) {
             if (action instanceof OptionalActionClientArgs) {
                 args.addAll(((OptionalActionClientArgs) action).args);

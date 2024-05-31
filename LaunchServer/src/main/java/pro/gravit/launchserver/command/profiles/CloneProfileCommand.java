@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.IOHelper;
@@ -44,8 +45,9 @@ public class CloneProfileCommand extends Command {
         try(Reader reader = IOHelper.newReader(profilePath)) {
             profile = Launcher.gsonManager.gson.fromJson(reader, ClientProfile.class);
         }
-        profile.setTitle(args[1]);
-        profile.setUUID(UUID.randomUUID());
+        var builder = new ClientProfileBuilder(profile);
+        builder.setTitle(args[1]);
+        builder.setUuid(UUID.randomUUID());
         if(profile.getServers().size() == 1) {
             profile.getServers().getFirst().name = args[1];
         }
@@ -61,7 +63,8 @@ public class CloneProfileCommand extends Command {
                 }
             });
         }
-        profile.setDir(args[1]);
+        builder.setDir(args[1]);
+        profile = builder.createClientProfile();
         var targetPath = server.profilesDir.resolve(args[1].concat(".json"));
         try(Writer writer = IOHelper.newWriter(targetPath)) {
             Launcher.gsonManager.gson.toJson(profile, writer);
