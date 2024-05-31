@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 public class Main {
     private static final List<String> classpathOnly = List.of("proguard", "jline", "progressbar", "kotlin", "epoll");
     private static final String LOG4J_PROPERTY = "log4j2.configurationFile";
+    private static final String DEBUG_PROPERTY = "launchserver.main.debug";
     private static boolean isClasspathOnly(Path path) {
         var fileName = path.getFileName().toString();
         for(var e : classpathOnly) {
@@ -78,6 +79,14 @@ public class Main {
         ModuleLayer.Controller controller = (ModuleLayer.Controller) control.getJava9ModuleController();
         LaunchServerControlHolder.setControl(control);
         LaunchServerControlHolder.setController(controller);
+        if(Boolean.getBoolean(DEBUG_PROPERTY)) {
+            for(var e : controller.layer().modules()) {
+                System.out.printf("Module %s\n", e.getName());
+                for(var p : e.getPackages()) {
+                    System.out.printf("Package %s\n", p);
+                }
+            }
+        }
         launch.launch("pro.gravit.launchserver.LaunchServerStarter", null, Arrays.asList(args));
     }
 }
