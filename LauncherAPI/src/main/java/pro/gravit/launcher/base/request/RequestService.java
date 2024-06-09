@@ -5,7 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public interface RequestService {
-    <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) throws IOException;
+    <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request);
     void open() throws Exception;
 
     void registerEventHandler(EventHandler handler);

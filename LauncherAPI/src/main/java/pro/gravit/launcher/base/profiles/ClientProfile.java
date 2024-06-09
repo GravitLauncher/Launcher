@@ -6,6 +6,7 @@ import pro.gravit.launcher.core.hasher.FileNameMatcher;
 import pro.gravit.launcher.base.profiles.optional.OptionalDepend;
 import pro.gravit.launcher.base.profiles.optional.OptionalFile;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
+import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 import pro.gravit.utils.launch.LaunchOptions;
@@ -15,7 +16,7 @@ import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.util.*;
 
-public final class ClientProfile implements Comparable<ClientProfile> {
+public final class ClientProfile implements Comparable<ClientProfile>, ProfileFeatureAPI.ClientProfile {
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
     private transient Path profileFilePath;

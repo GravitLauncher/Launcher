@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
 
-public final class Texture extends StreamObject {
+public final class Texture extends StreamObject implements pro.gravit.launcher.core.api.model.Texture {
     private static final SecurityHelper.DigestAlgorithm DIGEST_ALGO = SecurityHelper.DigestAlgorithm.SHA256;
 
     // Instance
@@ -84,5 +84,20 @@ public final class Texture extends StreamObject {
                 ", digest=" + Arrays.toString(digest) +
                 ", metadata=" + metadata +
                 '}';
+    }
+
+    @Override
+    public String getUrl() {
+        return url;
+    }
+
+    @Override
+    public String getHash() {
+        return SecurityHelper.toHex(digest);
+    }
+
+    @Override
+    public Map<String, String> getMetadata() {
+        return metadata;
     }
 }

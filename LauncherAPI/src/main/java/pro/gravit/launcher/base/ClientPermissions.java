@@ -1,10 +1,11 @@
 package pro.gravit.launcher.base;
 
 import pro.gravit.launcher.core.LauncherNetworkAPI;
+import pro.gravit.launcher.core.api.model.UserPermissions;
 
 import java.util.*;
 
-public class ClientPermissions {
+public class ClientPermissions implements UserPermissions {
     public static final ClientPermissions DEFAULT = new ClientPermissions();
     @LauncherNetworkAPI
     private List<String> roles;
@@ -28,6 +29,7 @@ public class ClientPermissions {
         return perm;
     }
 
+    @Override
     public boolean hasRole(String role) {
         return roles != null && roles.contains(role);
     }
@@ -46,6 +48,7 @@ public class ClientPermissions {
         }
     }
 
+    @Override
     public boolean hasPerm(String action) {
         if (available == null) {
             compile();

@@ -1,5 +1,6 @@
 package pro.gravit.launcher.base.profiles;
 
+import pro.gravit.launcher.core.api.model.User;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.util.HashMap;
@@ -7,7 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public final class PlayerProfile {
+public final class PlayerProfile implements User {
 
     public final UUID uuid;
     public final String username;
@@ -49,4 +50,23 @@ public final class PlayerProfile {
         return UUID.nameUUIDFromBytes(IOHelper.encodeASCII("OfflinePlayer:" + username));
     }
 
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public UUID getUUID() {
+        return uuid;
+    }
+
+    @Override
+    public Map<String, Texture> getAssets() {
+        return assets;
+    }
+
+    @Override
+    public Map<String, String> getProperties() {
+        return properties;
+    }
 }

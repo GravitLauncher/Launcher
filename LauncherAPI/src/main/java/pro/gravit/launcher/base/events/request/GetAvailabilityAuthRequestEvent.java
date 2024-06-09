@@ -1,9 +1,16 @@
 package pro.gravit.launcher.base.events.request;
 
+import pro.gravit.launcher.base.request.auth.details.AuthLoginOnlyDetails;
+import pro.gravit.launcher.base.request.auth.details.AuthWebViewDetails;
 import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.base.events.RequestEvent;
+import pro.gravit.launcher.core.api.method.AuthMethod;
+import pro.gravit.launcher.core.api.method.AuthMethodDetails;
+import pro.gravit.launcher.core.api.method.details.AuthPasswordDetails;
+import pro.gravit.launcher.core.api.method.details.AuthWebDetails;
 import pro.gravit.utils.TypeSerializeInterface;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -37,10 +44,11 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
         }
     }
 
-    public interface AuthAvailabilityDetails extends TypeSerializeInterface {
+    public interface AuthAvailabilityDetails extends AuthMethodDetails, TypeSerializeInterface {
+        AuthMethodDetails toAuthMethodDetails();
     }
 
-    public static class AuthAvailability {
+    public static class AuthAvailability implements AuthMethod {
         public final List<AuthAvailabilityDetails> details;
         @LauncherNetworkAPI
         public String name;
@@ -58,6 +66,35 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
             this.displayName = displayName;
             this.visible = visible;
             this.features = features;
+        }
+
+        @Override
+        public List<AuthMethodDetails> getDetails() {
+            List<AuthMethodDetails> convert = new ArrayList<>();
+            for(var e : details) {
+                convert.add(e.toAuthMethodDetails());
+            }
+            return convert;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        @Override
+        public boolean isVisible() {
+            return visible;
+        }
+
+        @Override
+        public Set<String> getFeatures() {
+            return features;
         }
     }
 }

@@ -98,10 +98,14 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
         processEventHandlers(webSocketEvent);
     }
 
-    public <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) throws IOException {
+    public <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) {
         CompletableFuture<T> result = new CompletableFuture<>();
         futureMap.put(request.requestUUID, result);
-        sendObject(request, WebSocketRequest.class);
+        try {
+            sendObject(request, WebSocketRequest.class);
+        } catch (IOException e) {
+            return CompletableFuture.failedFuture(e);
+        }
         return result;
     }
 

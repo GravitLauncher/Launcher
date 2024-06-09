@@ -29,10 +29,13 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
@@ -187,14 +190,30 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 System.load(Paths.get(config.nativesDir).resolve(ClientService.findLibrary(e)).toAbsolutePath().toString());
             }
         }
+        List<String> classpath = config.classpath;
+        if(config.resolveClassPath) {
+            classpath = new ArrayList<>();
+            for(var cp : config.classpath) {
+                Path p = Paths.get(cp);
+                if(Files.isDirectory(p)) {
+                    try(Stream<Path> files = Files.walk(p, FileVisitOption.FOLLOW_LINKS)) {
+                        var resolved = files.filter(e -> !Files.isDirectory(e))
+                                .filter(e -> e.getFileName().toString().endsWith(".jar")).map(e -> e.toAbsolutePath().toString()).toList();
+                        classpath.addAll(resolved);
+                    }
+                } else {
+                    classpath.add(p.toAbsolutePath().toString());
+                }
+            }
+        }
         switch (config.classLoaderConfig) {
             case LAUNCHER:
                 launch = new LegacyLaunch();
-                System.setProperty("java.class.path", String.join(File.pathSeparator, config.classpath));
+                System.setProperty("java.class.path", String.join(File.pathSeparator, classpath));
                 break;
             case MODULE:
                 launch = new ModuleLaunch();
-                System.setProperty("java.class.path", String.join(File.pathSeparator, config.classpath));
+                System.setProperty("java.class.path", String.join(File.pathSeparator, classpath));
                 break;
             default:
                 if(ServerAgent.isAgentStarted()) {
@@ -207,7 +226,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LaunchOptions options = new LaunchOptions();
         options.enableHacks = config.enableHacks;
         options.moduleConf = config.moduleConf;
-        classLoaderControl = launch.init(config.classpath.stream().map(Paths::get).collect(Collectors.toCollection(ArrayList::new)), config.nativesDir, options);
+        classLoaderControl = launch.init(classpath.stream().map(Paths::get).collect(Collectors.toCollection(ArrayList::new)), config.nativesDir, options);
         if(ServerAgent.isAgentStarted()) {
             ClientService.instrumentation = ServerAgent.inst;
         }
@@ -269,6 +288,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String address;
         public String serverName;
         public boolean autoloadLibraries;
+        public boolean resolveClassPath = true;
         public String logFile;
         public List<String> classpath;
         public ClientProfile.ClassLoaderConfig classLoaderConfig;

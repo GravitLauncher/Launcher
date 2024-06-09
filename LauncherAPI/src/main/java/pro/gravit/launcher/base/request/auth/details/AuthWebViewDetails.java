@@ -1,6 +1,8 @@
 package pro.gravit.launcher.base.request.auth.details;
 
 import pro.gravit.launcher.base.events.request.GetAvailabilityAuthRequestEvent;
+import pro.gravit.launcher.core.api.method.AuthMethodDetails;
+import pro.gravit.launcher.core.api.method.details.AuthWebDetails;
 
 public class AuthWebViewDetails implements GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails {
     public final String url;
@@ -25,5 +27,10 @@ public class AuthWebViewDetails implements GetAvailabilityAuthRequestEvent.AuthA
     @Override
     public String getType() {
         return "webview";
+    }
+
+    @Override
+    public AuthMethodDetails toAuthMethodDetails() {
+        return new AuthWebDetails(url, redirectUrl, canBrowser);
     }
 }
