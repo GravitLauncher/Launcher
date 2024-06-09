@@ -60,9 +60,10 @@ public final class PlayerProfile implements User {
         return uuid;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Map<String, Texture> getAssets() {
-        return assets;
+    public Map<String, pro.gravit.launcher.core.api.model.Texture> getAssets() {
+        return (Map) assets;
     }
 
     @Override

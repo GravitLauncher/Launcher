@@ -46,10 +46,9 @@ public class CurrentUserRequestEvent extends RequestEvent {
             return playerProfile.getUUID();
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public Map<String, Texture> getAssets() {
-            return (Map) playerProfile.getAssets();
+            return playerProfile.getAssets();
         }
 
         @Override

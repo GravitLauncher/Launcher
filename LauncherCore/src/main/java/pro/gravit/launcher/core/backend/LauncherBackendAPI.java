@@ -48,6 +48,7 @@ public interface LauncherBackendAPI {
         List<ProfileFeatureAPI.OptionalMod> getEnabledOptionals();
         void enableOptional(ProfileFeatureAPI.OptionalMod mod, ChangedOptionalStatusCallback callback);
         void disableOptional(ProfileFeatureAPI.OptionalMod mod, ChangedOptionalStatusCallback callback);
+        ClientProfileSettings clone();
 
         enum Flag {
 
