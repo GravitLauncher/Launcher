@@ -1,10 +1,12 @@
-package pro.gravit.launcher.core;
+package pro.gravit.launcher.core.backend;
 
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.launcher.core.api.method.AuthMethod;
 import pro.gravit.launcher.core.api.method.AuthMethodPassword;
 import pro.gravit.launcher.core.api.model.SelfUser;
 import pro.gravit.launcher.core.api.model.Texture;
+import pro.gravit.launcher.core.api.model.UserPermissions;
+import pro.gravit.launcher.core.backend.extensions.Extension;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -20,6 +22,12 @@ public interface LauncherBackendAPI {
     CompletableFuture<ReadyProfile> downloadProfile(ProfileFeatureAPI.ClientProfile profile, ClientProfileSettings settings, DownloadCallback callback);
     // Tools
     CompletableFuture<byte[]> fetchTexture(Texture texture);
+    // Status
+    UserPermissions getPermissions();
+    boolean hasPermission(String permission);
+    String getUsername();
+    // Extensions
+    <T extends Extension> T getExtension(Class<T> clazz);
 
     record LauncherInitData(List<AuthMethod> methods) {}
 

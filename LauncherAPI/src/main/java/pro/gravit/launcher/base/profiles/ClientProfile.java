@@ -15,6 +15,7 @@ import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class ClientProfile implements Comparable<ClientProfile>, ProfileFeatureAPI.ClientProfile {
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
@@ -287,8 +288,23 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
         return String.format("%s (%s)", title, uuid);
     }
 
+    @Override
+    public String getName() {
+        return title;
+    }
+
     public UUID getUUID() {
         return uuid;
+    }
+
+    @Override
+    public String getDescription() {
+        return info;
+    }
+
+    @Override
+    public List<ProfileFeatureAPI.OptionalMod> getOptionalMods() {
+        return updateOptional.stream().collect(Collectors.toUnmodifiableList());
     }
 
     public boolean hasFlag(CompatibilityFlags flag) {

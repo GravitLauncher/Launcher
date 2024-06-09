@@ -2,11 +2,12 @@ package pro.gravit.launcher.base.profiles.optional;
 
 import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 
 import java.util.List;
 import java.util.Objects;
 
-public class OptionalFile {
+public class OptionalFile implements ProfileFeatureAPI.OptionalMod {
     @LauncherNetworkAPI
     public List<OptionalAction> actions;
     @LauncherNetworkAPI
@@ -55,6 +56,16 @@ public class OptionalFile {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getDescription() {
+        return info;
+    }
+
+    @Override
+    public String getCategory() {
+        return category;
     }
 
     public boolean isVisible() {
