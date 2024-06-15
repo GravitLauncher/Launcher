@@ -11,7 +11,10 @@ public interface ProfileFeatureAPI extends FeatureAPI {
     CompletableFuture<List<ClientProfile>> getProfiles();
     CompletableFuture<UpdateInfo> fetchUpdateInfo(String dirName);
 
-    interface UpdateInfo {}
+    interface UpdateInfo {
+        HashedDir getHashedDir();
+        String getUrl();
+    }
 
     interface ClientProfile {
         String getName();

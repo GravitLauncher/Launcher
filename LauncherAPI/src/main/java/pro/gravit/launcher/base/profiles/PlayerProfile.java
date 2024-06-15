@@ -42,6 +42,14 @@ public final class PlayerProfile implements User {
         this.properties = properties;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public PlayerProfile(User user) {
+        this.uuid = user.getUUID();
+        this.username = user.getUsername();
+        this.assets = new HashMap<>((Map) user.getAssets());
+        this.properties = user.getProperties();
+    }
+
     public static PlayerProfile newOfflineProfile(String username) {
         return new PlayerProfile(offlineUUID(username), username, new HashMap<>(), new HashMap<>());
     }

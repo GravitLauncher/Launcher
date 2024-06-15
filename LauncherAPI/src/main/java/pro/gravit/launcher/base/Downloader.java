@@ -235,7 +235,7 @@ public class Downloader {
         return task.get();
     }
 
-    protected HttpRequest makeHttpRequest(URI baseUri, String filePath) throws URISyntaxException {
+    public static URI makeURI(URI baseUri, String filePath) throws URISyntaxException {
         URI uri;
         if(baseUri != null) {
             String scheme = baseUri.getScheme();
@@ -248,6 +248,11 @@ public class Downloader {
         } else {
             uri = new URI(filePath);
         }
+        return uri;
+    }
+
+    protected HttpRequest makeHttpRequest(URI baseUri, String filePath) throws URISyntaxException {
+        var uri = makeURI(baseUri, filePath);
         return HttpRequest.newBuilder()
                 .GET()
                 .uri(uri)

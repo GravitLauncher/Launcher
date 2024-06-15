@@ -165,5 +165,15 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
         return request.request(new UpdateRequest(dirName)).thenApply(response -> new UpdateInfoData(response.hdir, response.url));
     }
 
-    public record UpdateInfoData(HashedDir hdir, String url) implements ProfileFeatureAPI.UpdateInfo {}
+    public record UpdateInfoData(HashedDir hdir, String url) implements ProfileFeatureAPI.UpdateInfo {
+        @Override
+        public HashedDir getHashedDir() {
+            return hdir;
+        }
+
+        @Override
+        public String getUrl() {
+            return url;
+        }
+    }
 }

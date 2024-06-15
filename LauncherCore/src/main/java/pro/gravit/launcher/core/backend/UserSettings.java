@@ -1,4 +1,4 @@
-package pro.gravit.launcher.runtime.client;
+package pro.gravit.launcher.core.backend;
 
 import pro.gravit.utils.ProviderMap;
 
