@@ -2,7 +2,15 @@ package pro.gravit.launcher.runtime;
 
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
+import pro.gravit.launcher.base.request.*;
 import pro.gravit.launcher.client.*;
+import pro.gravit.launcher.core.api.LauncherAPI;
+import pro.gravit.launcher.core.api.LauncherAPIHolder;
+import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
+import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
+import pro.gravit.launcher.core.api.features.UserFeatureAPI;
+import pro.gravit.launcher.core.backend.LauncherBackendAPIHolder;
+import pro.gravit.launcher.runtime.backend.LauncherBackendImpl;
 import pro.gravit.launcher.runtime.client.*;
 import pro.gravit.launcher.runtime.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientExitPhase;
@@ -19,9 +27,6 @@ import pro.gravit.launcher.base.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.base.modules.events.PreConfigPhase;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
-import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.RequestException;
-import pro.gravit.launcher.base.request.RequestService;
 import pro.gravit.launcher.base.request.auth.*;
 import pro.gravit.launcher.base.request.websockets.OfflineRequestService;
 import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
@@ -38,6 +43,7 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -244,6 +250,17 @@ public class LauncherEngine {
         }
         Request.startAutoRefresh();
         Request.getRequestService().registerEventHandler(new BasicLauncherEventHandler());
+        // Init New API
+        LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
+        LauncherAPIHolder.setCreateApiFactory((authId) -> {
+            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
+            return new LauncherAPI(Map.of(
+                    AuthFeatureAPI.class, impl,
+                    UserFeatureAPI.class, impl,
+                    ProfileFeatureAPI.class, impl));
+        });
+        LauncherBackendAPIHolder.setApi(new LauncherBackendImpl());
+        //
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))
             throw new IllegalStateException("Launcher has been already started");
