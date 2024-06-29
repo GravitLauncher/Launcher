@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileVersions;
+import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 import pro.gravit.launcher.core.serialize.HInput;
 import pro.gravit.launcher.core.serialize.HOutput;
 import pro.gravit.utils.helper.IOHelper;
@@ -18,6 +19,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -208,7 +210,7 @@ public final class ServerPinger {
         }
     }
 
-    public static final class Result {
+    public static final class Result implements LauncherBackendAPI.ServerPingInfo {
 
         public final int onlinePlayers;
 
@@ -227,6 +229,21 @@ public final class ServerPinger {
 
         public boolean isOverfilled() {
             return onlinePlayers >= maxPlayers;
+        }
+
+        @Override
+        public int getMaxOnline() {
+            return maxPlayers;
+        }
+
+        @Override
+        public int getOnline() {
+            return onlinePlayers;
+        }
+
+        @Override
+        public List<String> getPlayerNames() {
+            return List.of();
         }
     }
 }

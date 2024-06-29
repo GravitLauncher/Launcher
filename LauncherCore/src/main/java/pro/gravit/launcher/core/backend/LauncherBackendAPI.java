@@ -28,6 +28,7 @@ public interface LauncherBackendAPI {
     // Tools
     CompletableFuture<byte[]> fetchTexture(Texture texture);
     CompletableFuture<List<Java>> getAvailableJava();
+    CompletableFuture<ServerPingInfo> pingServer(ProfileFeatureAPI.ClientProfile profile);
     // Settings
     void registerUserSettings(String name, Class<? extends UserSettings> clazz);
     UserSettings getUserSettings(String name, Function<String, UserSettings> ifNotExist);
@@ -36,6 +37,7 @@ public interface LauncherBackendAPI {
     boolean hasPermission(String permission);
     String getUsername();
     SelfUser getSelfUser();
+    boolean isTestMode();
     // Extensions
     <T extends Extension> T getExtension(Class<T> clazz);
     void shutdown();
@@ -162,5 +164,11 @@ public interface LauncherBackendAPI {
     interface Java {
         int getMajorVersion();
         Path getPath();
+    }
+
+    interface ServerPingInfo {
+        int getMaxOnline();
+        int getOnline();
+        List<String> getPlayerNames();
     }
 }

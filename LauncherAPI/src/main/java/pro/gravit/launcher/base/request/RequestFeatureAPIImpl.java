@@ -42,7 +42,11 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
 
     @Override
     public CompletableFuture<AuthResponse> auth(String login, AuthMethodPassword password) {
-        return request.request(new AuthRequest(login, convertAuthPasswordAll(password), authId, false, AuthRequest.ConnectTypes.CLIENT))
+        AuthRequest.ConnectTypes connectType = AuthRequest.ConnectTypes.API;
+        if(Request.getExtendedTokens() != null && Request.getExtendedTokens().get("launcher") != null) {
+            connectType = AuthRequest.ConnectTypes.CLIENT;
+        }
+        return request.request(new AuthRequest(login, convertAuthPasswordAll(password), authId, false, connectType))
                 .thenApply(response -> new AuthResponse(response.makeUserInfo(), response.oauth));
     }
 

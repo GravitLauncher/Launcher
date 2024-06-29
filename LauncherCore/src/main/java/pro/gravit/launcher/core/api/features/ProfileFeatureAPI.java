@@ -23,6 +23,12 @@ public interface ProfileFeatureAPI extends FeatureAPI {
         List<OptionalMod> getOptionalMods();
         String getProperty(String name);
         Map<String, String> getProperties();
+        ServerInfo getServer();
+
+        interface ServerInfo {
+            String getAddress();
+            int getPort();
+        }
     }
 
     interface OptionalMod {

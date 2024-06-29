@@ -380,6 +380,11 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
         return Collections.unmodifiableMap(properties);
     }
 
+    @Override
+    public ServerInfo getServer() {
+        return getDefaultServerProfile();
+    }
+
     public List<String> getCompatClasses() {
         return Collections.unmodifiableList(compatClasses);
     }
@@ -525,7 +530,7 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
         }
     }
 
-    public static class ServerProfile {
+    public static class ServerProfile implements ServerInfo {
         public String name;
         public String serverAddress;
         public int serverPort;
@@ -551,6 +556,16 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
 
         public InetSocketAddress toSocketAddress() {
             return InetSocketAddress.createUnresolved(serverAddress, serverPort);
+        }
+
+        @Override
+        public String getAddress() {
+            return serverAddress;
+        }
+
+        @Override
+        public int getPort() {
+            return serverPort;
         }
     }
 

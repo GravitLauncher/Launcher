@@ -4,6 +4,7 @@ import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.launcher.core.api.method.AuthMethod;
 import pro.gravit.launcher.core.api.method.AuthMethodPassword;
@@ -15,6 +16,8 @@ import pro.gravit.launcher.core.backend.UserSettings;
 import pro.gravit.launcher.core.backend.exceptions.LauncherBackendException;
 import pro.gravit.launcher.core.backend.extensions.Extension;
 import pro.gravit.launcher.runtime.NewLauncherSettings;
+import pro.gravit.launcher.runtime.client.ServerPinger;
+import pro.gravit.launcher.runtime.debug.DebugMain;
 import pro.gravit.launcher.runtime.managers.SettingsManager;
 import pro.gravit.launcher.runtime.utils.LauncherUpdater;
 import pro.gravit.utils.helper.JavaHelper;
@@ -27,7 +30,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -47,6 +53,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
     private volatile SelfUser selfUser;
     private volatile List<Java> availableJavas;
     private volatile CompletableFuture<List<Java>> availableJavasFuture;
+    private final Map<UUID, CompletableFuture<ServerPingInfo>> pingFutures = new ConcurrentHashMap<>();
 
     @Override
     public void setCallback(MainCallback callback) {
@@ -75,7 +82,13 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
         } catch (Throwable e) {
             return CompletableFuture.failedFuture(e);
         }
-        return LauncherAPIHolder.core().checkUpdates().thenCombineAsync(LauncherAPIHolder.core().getAuthMethods(), (updatesInfo, authMethods) -> {
+        CompletableFuture<CoreFeatureAPI.LauncherUpdateInfo> feature;
+        if(isTestMode()) {
+            feature = CompletableFuture.completedFuture(new CoreFeatureAPI.LauncherUpdateInfo(null, "Unknown", false, false));
+        } else {
+            feature = LauncherAPIHolder.core().checkUpdates();
+        }
+        return feature.thenCombineAsync(LauncherAPIHolder.core().getAuthMethods(), (updatesInfo, authMethods) -> {
             if(updatesInfo.required()) {
                 try {
                     LauncherUpdater.prepareUpdate(URI.create(updatesInfo.url()).toURL());
@@ -131,6 +144,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
     }
 
     private void onAuthorize(SelfUser selfUser) {
+        this.selfUser = selfUser;
         permissions = selfUser.getPermissions();
         callback.onAuthorize(selfUser);
     }
@@ -182,7 +196,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
 
     @Override
     public CompletableFuture<byte[]> fetchTexture(Texture texture) {
-        return null;
+        return CompletableFuture.failedFuture(new UnsupportedOperationException());
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -199,6 +213,22 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
             }
         }
         return CompletableFuture.completedFuture(availableJavas);
+    }
+
+    @Override
+    public CompletableFuture<ServerPingInfo> pingServer(ProfileFeatureAPI.ClientProfile profile) {
+        return pingFutures.computeIfAbsent(profile.getUUID(), (k) -> {
+            CompletableFuture<ServerPingInfo> future = new CompletableFuture<>();
+            executorService.submit(() -> {
+                try {
+                    ServerPinger pinger = new ServerPinger((ClientProfile) profile);
+                    future.complete(pinger.ping());
+                } catch (Throwable e) {
+                    future.completeExceptionally(e);
+                }
+            });
+            return future;
+        });
     }
 
     @Override
@@ -232,17 +262,30 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
     }
 
     @Override
+    public boolean isTestMode() {
+        try {
+            return DebugMain.IS_DEBUG.get();
+        } catch (Throwable ex) {
+            return false;
+        }
+    }
+
+    @Override
     public <T extends Extension> T getExtension(Class<T> clazz) {
         return null;
     }
 
     @Override
     public void shutdown() {
-        executorService.shutdownNow();
-        try {
-            settingsManager.saveConfig();
-        } catch (IOException e) {
-            LogHelper.error("Config not saved", e);
+        if(executorService != null) {
+            executorService.shutdownNow();
+        }
+        if(settingsManager != null) {
+            try {
+                settingsManager.saveConfig();
+            } catch (IOException e) {
+                LogHelper.error("Config not saved", e);
+            }
         }
     }
 }
