@@ -52,10 +52,13 @@ public class LaunchServerStarter {
         try {
             Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
             Security.addProvider(new BouncyCastleProvider());
-        } catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException | NoClassDefFoundError ex) {
             LogHelper.error("Library BouncyCastle not found! Is directory 'libraries' empty?");
             return;
         }
+        LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
+        directories.dir = dir;
+        directories.collect();
         CertificateManager certificateManager = new CertificateManager();
         try {
             certificateManager.readTrustStore(dir.resolve("truststore"));
@@ -79,7 +82,7 @@ public class LaunchServerStarter {
         LaunchServerRuntimeConfig runtimeConfig;
         LaunchServerConfig config;
         LaunchServer.LaunchServerEnv env = LaunchServer.LaunchServerEnv.PRODUCTION;
-        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(dir.resolve("modules"), dir.resolve("config"), certificateManager.trustManager);
+        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(directories.modules, dir.resolve("config"), certificateManager.trustManager);
         modulesManager.autoload();
         modulesManager.initModules(null);
         registerAll();
@@ -124,8 +127,6 @@ public class LaunchServerStarter {
         }
 
         LaunchServer.LaunchServerConfigManager launchServerConfigManager = new BasicLaunchServerConfigManager(configFile, runtimeConfigFile);
-        LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
-        directories.dir = dir;
         LaunchServer server = new LaunchServerBuilder()
                 .setDirectories(directories)
                 .setEnv(env)
