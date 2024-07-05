@@ -21,6 +21,7 @@ public class Main {
     private static final List<String> classpathOnly = List.of("proguard", "jline", "progressbar", "kotlin", "epoll");
     private static final String LOG4J_PROPERTY = "log4j2.configurationFile";
     private static final String DEBUG_PROPERTY = "launchserver.main.debug";
+    private static final String LIBRARIES_PROPERTY = "launchserver.dir.libraries";
     private static boolean isClasspathOnly(Path path) {
         var fileName = path.getFileName().toString();
         for(var e : classpathOnly) {
@@ -56,8 +57,9 @@ public class Main {
         ModuleLaunch launch = new ModuleLaunch();
         LaunchOptions options = new LaunchOptions();
         options.moduleConf = new LaunchOptions.ModuleConf();
+        Path librariesPath = Path.of(System.getProperty(LIBRARIES_PROPERTY, "libraries"));
         List<Path> libraries;
-        try(Stream<Path> files = Files.walk(Path.of("libraries"), FileVisitOption.FOLLOW_LINKS)) {
+        try(Stream<Path> files = Files.walk(librariesPath, FileVisitOption.FOLLOW_LINKS)) {
             libraries = new ArrayList<>(files.filter(e -> e.getFileName().toString().endsWith(".jar")).toList());
         }
         List<Path> classpath = new ArrayList<>();
