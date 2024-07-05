@@ -196,6 +196,9 @@ public class MakeProfileHelper {
         if(version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) == 0) {
             return  "com.gtnewhorizons.retrofuturabootstrap.Main";
         }
+        if(version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) == 0) {
+            return "top.outlands.foundation.boot.Foundation"; // Cleanroom
+        }
         if (findOption(options, MakeProfileOptionLaunchWrapper.class).isPresent()) {
             return "net.minecraft.launchwrapper.Launch";
         }
