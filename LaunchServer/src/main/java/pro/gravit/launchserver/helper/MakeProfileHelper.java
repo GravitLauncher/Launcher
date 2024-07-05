@@ -203,7 +203,7 @@ public class MakeProfileHelper {
             return "cpw.mods.modlauncher.Launcher";
         }
         if (findOption(options, MakeProfileOptionFabric.class).isPresent()) {
-            return "net.fabricmc.loader.launch.knot.KnotClient";
+            return "net.fabricmc.loader.impl.launch.knot.KnotClient";
         }
         if(findOption(options, MakeProfilesOptionsQuilt.class).isPresent()) {
             return "org.quiltmc.loader.impl.launch.knot.KnotClient";
