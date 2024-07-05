@@ -103,6 +103,7 @@ public class MakeProfileHelper {
         }
         if (fabric.isPresent()) {
             builder.setAltClassPath(fabric.orElseThrow().getAltClassPath());
+            jvmArgs.add("-Dsodium.checks.issue2561=false"); // Please don't check LWJL3 version (Sodium: https://github.com/CaffeineMC/sodium-fabric/issues/2561 )
         }
         if(quilt.isPresent()) {
             builder.setClassLoaderConfig(ClientProfile.ClassLoaderConfig.SYSTEM_ARGS);
