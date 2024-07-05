@@ -61,7 +61,6 @@ tasks.register('cleanjar', Jar) {
     dependsOn jar
     archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
-            "Premain-Class": mainAgentName,
             "Automatic-Module-Name": "launchserver"
     )
     from sourceSets.main.output
