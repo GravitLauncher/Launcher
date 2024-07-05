@@ -71,7 +71,6 @@ tasks.register('cleanjar', Jar) {
 dependencies {
     pack project(':LauncherAPI')
     bundle group: 'me.tongfei', name: 'progressbar', version: '0.10.1'
-    bundle group: 'com.github.Marcono1234', name: 'gson-record-type-adapter-factory', version: 'v0.3.0'
     bundle group: 'org.fusesource.jansi', name: 'jansi', version: rootProject['verJansi']
     bundle group: 'org.jline', name: 'jline', version: rootProject['verJline']
     bundle group: 'org.jline', name: 'jline-reader', version: rootProject['verJline']
@@ -96,17 +95,12 @@ dependencies {
     annotationProcessor(group: 'org.apache.logging.log4j', name: 'log4j-core', version: rootProject['verLog4j'])
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 
-    hikari 'io.micrometer:micrometer-core:1.8.4'
-    hikari('com.zaxxer:HikariCP:5.0.1') {
+    hikari 'io.micrometer:micrometer-core:1.13.1'
+    hikari('com.zaxxer:HikariCP:5.1.0') {
         exclude group: 'javassist'
         exclude group: 'io.micrometer'
         exclude group: 'org.slf4j'
     }
-
-    compileOnlyA group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
-    // Do not update (laggy deps).
-    compileOnlyA 'log4j:log4j:1.2.17'
-    compileOnlyA 'org.apache.logging.log4j:log4j-core:2.14.1'
 }
 
 tasks.register('hikari', Copy) {
