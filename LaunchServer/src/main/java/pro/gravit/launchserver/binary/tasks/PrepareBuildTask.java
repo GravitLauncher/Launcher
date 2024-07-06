@@ -37,7 +37,9 @@ public class PrepareBuildTask implements LauncherBuildTask {
         server.launcherBinary.addonLibs.clear();
         server.launcherBinary.files.clear();
         IOHelper.walk(server.launcherLibraries, new ListFileVisitor(server.launcherBinary.coreLibs), false);
-        IOHelper.walk(server.launcherLibrariesCompile, new ListFileVisitor(server.launcherBinary.addonLibs), false);
+        if(Files.isDirectory(server.launcherLibrariesCompile)) {
+            IOHelper.walk(server.launcherLibrariesCompile, new ListFileVisitor(server.launcherBinary.addonLibs), false);
+        }
         try(Stream<Path> stream = Files.walk(server.launcherPack).filter((e) -> {
             try {
                 return !Files.isDirectory(e) && !Files.isHidden(e);
