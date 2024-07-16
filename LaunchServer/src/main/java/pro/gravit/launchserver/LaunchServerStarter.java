@@ -241,11 +241,22 @@ public class LaunchServerStarter {
             logger.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
-
+        int port = 9274;
+        if(address.contains(":")) {
+            String portString = address.substring(address.indexOf(':')+1);
+            try {
+                port = Integer.parseInt(portString);
+            } catch (NumberFormatException e) {
+                logger.warn("Unknown port {}, using 9274", portString);
+            }
+        } else {
+            logger.info("Address {} doesn't contains port (you want to use nginx?)", address);
+        }
         newConfig.netty.address = "ws://" + address + "/api";
         newConfig.netty.downloadURL = "http://" + address + "/%dirname%/";
         newConfig.netty.launcherURL = "http://" + address + "/Launcher.jar";
         newConfig.netty.launcherEXEURL = "http://" + address + "/Launcher.exe";
+        newConfig.netty.binds[0].port = port;
 
         // Write LaunchServer config
         logger.info("Writing LaunchServer config file");
