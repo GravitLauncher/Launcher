@@ -84,6 +84,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final Path tmpDir;
     public final Path modulesDir;
     public final Path launcherModulesDir;
+    public final Path librariesDir;
     /**
      * This object contains runtime configuration
      */
@@ -140,6 +141,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherPack = directories.launcherPackDir;
         modulesDir = directories.modules;
         launcherModulesDir = directories.launcherModules;
+        librariesDir = directories.launcherLibrariesDir;
         this.shardId = shardId;
         if(!Files.isDirectory(launcherPack)) {
             Files.createDirectories(launcherPack);
@@ -495,9 +497,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public static class LaunchServerDirectories {
         public static final String UPDATES_NAME = "updates", PROFILES_NAME = "profiles",
                 TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
-                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack", KEY_NAME = ".keys", MODULES = "modules", LAUNCHER_MODULES = "launcher-modules";
+                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack", KEY_NAME = ".keys", MODULES = "modules", LAUNCHER_MODULES = "launcher-modules", LIBRARIES = "libraries";
         public Path updatesDir;
         public Path profilesDir;
+        public Path librariesDir;
         public Path launcherLibrariesDir;
         public Path launcherLibrariesCompileDir;
         public Path launcherPackDir;
@@ -515,11 +518,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (launcherLibrariesDir == null) launcherLibrariesDir = getPath(LAUNCHERLIBRARIES_NAME);
             if (launcherLibrariesCompileDir == null)
                 launcherLibrariesCompileDir = getPath(LAUNCHERLIBRARIESCOMPILE_NAME);
-            if(launcherPackDir == null)
+            if (launcherPackDir == null)
                 launcherPackDir = getPath(LAUNCHERPACK_NAME);
             if (keyDirectory == null) keyDirectory = getPath(KEY_NAME);
             if (modules == null) modules = getPath(MODULES);
             if (launcherModules == null) launcherModules = getPath(LAUNCHER_MODULES);
+            if (librariesDir == null) librariesDir = getPath(LIBRARIES);
             if (tmpDir == null)
                 tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("launchserver-%s".formatted(SecurityHelper.randomStringToken()));
         }
