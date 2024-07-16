@@ -220,7 +220,7 @@ public class LaunchServerStarter {
                 address = System.getProperty("launchserver.address", null);
             }
             if (address == null) {
-                System.out.println("LaunchServer address(default: localhost): ");
+                System.out.println("External launchServer address:port (default: localhost:9274): ");
                 address = commandHandler.readLine();
             }
             String projectName = System.getenv("PROJECTNAME");
@@ -234,18 +234,18 @@ public class LaunchServerStarter {
             newConfig.setProjectName(projectName);
         }
         if (address == null || address.isEmpty()) {
-            logger.error("Address null. Using localhost");
-            address = "localhost";
+            logger.error("Address null. Using localhost:9274");
+            address = "localhost:9274";
         }
         if (newConfig.projectName == null || newConfig.projectName.isEmpty()) {
             logger.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
 
-        newConfig.netty.address = "ws://" + address + ":9274/api";
-        newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
-        newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
-        newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
+        newConfig.netty.address = "ws://" + address + "/api";
+        newConfig.netty.downloadURL = "http://" + address + "/%dirname%/";
+        newConfig.netty.launcherURL = "http://" + address + "/Launcher.jar";
+        newConfig.netty.launcherEXEURL = "http://" + address + "/Launcher.exe";
 
         // Write LaunchServer config
         logger.info("Writing LaunchServer config file");
