@@ -355,14 +355,17 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             // Sync updates dir
             CommonHelper.newThread("Profiles and updates sync", true, () -> {
                 try {
-                    if (!IOHelper.isDir(updatesDir))
-                        Files.createDirectory(updatesDir);
-                    updatesManager.readUpdatesDir();
-
                     // Sync profiles dir
                     if (!IOHelper.isDir(profilesDir))
                         Files.createDirectory(profilesDir);
                     syncProfilesDir();
+
+                    // Sync updates dir
+                    if (!IOHelper.isDir(updatesDir))
+                        Files.createDirectory(updatesDir);
+                    updatesManager.readUpdatesDir();
+
+
                     modulesManager.invokeEvent(new LaunchServerProfilesSyncEvent(this));
                 } catch (IOException e) {
                     logger.error("Updates/Profiles not synced", e);
