@@ -141,7 +141,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherPack = directories.launcherPackDir;
         modulesDir = directories.modules;
         launcherModulesDir = directories.launcherModules;
-        librariesDir = directories.launcherLibrariesDir;
+        librariesDir = directories.librariesDir;
         this.shardId = shardId;
         if(!Files.isDirectory(launcherPack)) {
             Files.createDirectories(launcherPack);
