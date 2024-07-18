@@ -103,6 +103,7 @@ public class MakeProfileHelper {
         }
         if (fabric.isPresent()) {
             builder.setAltClassPath(fabric.orElseThrow().getAltClassPath());
+            jvmArgs.add("-Dsodium.checks.issue2561=false"); // Please don't check LWJL3 version (Sodium: https://github.com/CaffeineMC/sodium-fabric/issues/2561 )
         }
         if(quilt.isPresent()) {
             builder.setClassLoaderConfig(ClientProfile.ClassLoaderConfig.SYSTEM_ARGS);
@@ -196,6 +197,9 @@ public class MakeProfileHelper {
         if(version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) == 0) {
             return  "com.gtnewhorizons.retrofuturabootstrap.Main";
         }
+        if(version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) == 0) {
+            return "top.outlands.foundation.boot.Foundation"; // Cleanroom
+        }
         if (findOption(options, MakeProfileOptionLaunchWrapper.class).isPresent()) {
             return "net.minecraft.launchwrapper.Launch";
         }
@@ -203,7 +207,7 @@ public class MakeProfileHelper {
             return "cpw.mods.modlauncher.Launcher";
         }
         if (findOption(options, MakeProfileOptionFabric.class).isPresent()) {
-            return "net.fabricmc.loader.launch.knot.KnotClient";
+            return "net.fabricmc.loader.impl.launch.knot.KnotClient";
         }
         if(findOption(options, MakeProfilesOptionsQuilt.class).isPresent()) {
             return "org.quiltmc.loader.impl.launch.knot.KnotClient";

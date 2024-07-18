@@ -72,7 +72,7 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     @Override
     protected MySQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new MySQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
-                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn)), set.getLong(hardwareIdColumn)) : null;
+                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), set.getLong(hardwareIdColumn)) : null;
     }
 
     private MySQLUserHardware fetchHardwareInfo(ResultSet set) throws SQLException, IOException {
@@ -336,8 +336,8 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     public static class MySQLUser extends SQLUser {
         protected long hwidId;
 
-        public MySQLUser(UUID uuid, String username, String accessToken, String serverId, String password, ClientPermissions permissions, long hwidId) {
-            super(uuid, username, accessToken, serverId, password, permissions);
+        public MySQLUser(UUID uuid, String username, String accessToken, String serverId, String password, long hwidId) {
+            super(uuid, username, accessToken, serverId, password);
             this.hwidId = hwidId;
         }
 

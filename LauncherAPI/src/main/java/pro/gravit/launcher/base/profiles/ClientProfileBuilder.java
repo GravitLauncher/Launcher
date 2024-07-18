@@ -79,6 +79,7 @@ public class ClientProfileBuilder {
         this.loadNatives = new ArrayList<>(profile.getLoadNatives());
         this.properties = new HashMap<>(profile.getProperties());
         this.servers = new ArrayList<>(profile.getServers());
+        this.classLoaderConfig = profile.getClassLoaderConfig();
         this.flags = new ArrayList<>(profile.getFlags());
         this.recommendJavaVersion = profile.getRecommendJavaVersion();
         this.minJavaVersion = profile.getMinJavaVersion();

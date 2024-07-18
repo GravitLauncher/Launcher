@@ -276,7 +276,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
 
     protected SQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new SQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
-                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn))) : null;
+                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn)) : null;
     }
 
     public ClientPermissions requestPermissions (String uuid)  throws SQLException
@@ -286,14 +286,17 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
     }
 
     private SQLUser queryUser(String sql, String value) throws SQLException {
+        SQLUser user;
         try (Connection c = getSQLConfig().getConnection()) {
             PreparedStatement s = c.prepareStatement(sql);
             s.setString(1, value);
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             try (ResultSet set = s.executeQuery()) {
-                return constructUser(set);
+                user = constructUser(set);
             }
         }
+        user.permissions = requestPermissions(user.uuid.toString());
+        return user;
     }
 
     private List<String> queryPermissions(String sql, String value) throws SQLException {
@@ -340,15 +343,14 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
         protected String accessToken;
         protected String serverId;
         protected final String password;
-        protected final ClientPermissions permissions;
+        protected ClientPermissions permissions;
 
-        public SQLUser(UUID uuid, String username, String accessToken, String serverId, String password, ClientPermissions permissions) {
+        public SQLUser(UUID uuid, String username, String accessToken, String serverId, String password) {
             this.uuid = uuid;
             this.username = username;
             this.accessToken = accessToken;
             this.serverId = serverId;
             this.password = password;
-            this.permissions = permissions;
         }
 
         @Override
