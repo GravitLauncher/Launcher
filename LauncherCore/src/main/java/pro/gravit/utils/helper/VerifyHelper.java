@@ -67,8 +67,8 @@ public final class VerifyHelper {
         throw new IllegalArgumentException(error);
     }
 
-    public static String verifyIDName(String name) {
-        return verify(name, VerifyHelper::isValidIDName, String.format("Invalid name: '%s'", name));
+    public static void verifyIDName(String name) {
+        verify(name, VerifyHelper::isValidIDName, String.format("Invalid name: '%s'", name));
     }
 
     public static int verifyInt(int i, IntPredicate predicate, String error) {

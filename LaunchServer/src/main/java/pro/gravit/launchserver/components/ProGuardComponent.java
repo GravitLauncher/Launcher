@@ -11,13 +11,9 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.UnpackHelper;
-import proguard.Configuration;
-import proguard.ConfigurationParser;
-import proguard.ProGuard;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,16 +22,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class ProGuardComponent extends Component implements AutoCloseable, Reconfigurable {
-    private transient static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
     public String modeAfter = "MainBuild";
     public String dir = "proguard";
+    public List<String> jvmArgs = new ArrayList<>();
     public boolean enabled = true;
     public boolean mappings = true;
     public transient ProguardConf proguardConf;
     private transient LaunchServer launchServer;
     private transient ProGuardBuildTask buildTask;
+    private transient ProGuardMultiReleaseFixer fixerTask;
+
+    public ProGuardComponent() {
+        this.jvmArgs.add("-Xmx512M");
+    }
 
     public static boolean checkFXJMods(Path path) {
         if (!IOHelper.exists(path.resolve("javafx.base.jmod")))
@@ -75,11 +82,13 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         this.launchServer = launchServer;
         proguardConf = new ProguardConf(launchServer, this);
         this.buildTask = new ProGuardBuildTask(launchServer, proguardConf, this);
+        this.fixerTask = new ProGuardMultiReleaseFixer(launchServer, this, "ProGuard.".concat(componentName));
         launchServer.launcherBinary.addAfter((v) -> v.getName().startsWith(modeAfter), buildTask);
+        launchServer.launcherBinary.addAfter((v) -> v.getName().equals("ProGuard.".concat(componentName)), fixerTask);
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (launchServer != null && buildTask != null) {
             launchServer.launcherBinary.tasks.remove(buildTask);
         }
@@ -111,6 +120,62 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         return null;
     }
 
+    public static class ProGuardMultiReleaseFixer implements LauncherBuildTask {
+        private final LaunchServer server;
+        private final ProGuardComponent component;
+        private final String proguardTaskName;
+
+        public ProGuardMultiReleaseFixer(LaunchServer server, ProGuardComponent component, String proguardTaskName) {
+            this.server = server;
+            this.component = component;
+            this.proguardTaskName = proguardTaskName;
+        }
+
+        @Override
+        public String getName() {
+            return "ProGuardMultiReleaseFixer.".concat(component.componentName);
+        }
+
+        @Override
+        public Path process(Path inputFile) throws IOException {
+            if (!component.enabled) {
+                return inputFile;
+            }
+            LauncherBuildTask task = server.launcherBinary.getTaskBefore((x) -> proguardTaskName.equals(x.getName())).get();
+            Path lastPath = server.launcherBinary.nextPath(task);
+            if(Files.notExists(lastPath)) {
+                logger.error("{} not exist. Multi-Release JAR fix not applied!", lastPath);
+                return inputFile;
+            }
+            Path outputPath = server.launcherBinary.nextPath(this);
+            try(ZipOutputStream output = new ZipOutputStream(new FileOutputStream(outputPath.toFile()))) {
+                try(ZipInputStream input = new ZipInputStream(new FileInputStream(inputFile.toFile()))) {
+                    ZipEntry entry = input.getNextEntry();
+                    while(entry != null) {
+                        ZipEntry newEntry = new ZipEntry(entry.getName());
+                        output.putNextEntry(newEntry);
+                        input.transferTo(output);
+                        entry = input.getNextEntry();
+                    }
+                }
+                try(ZipInputStream input = new ZipInputStream(new FileInputStream(lastPath.toFile()))) {
+                    ZipEntry entry = input.getNextEntry();
+                    while(entry != null) {
+                        if(!entry.getName().startsWith("META-INF/versions")) {
+                            entry = input.getNextEntry();
+                            continue;
+                        }
+                        ZipEntry newEntry = new ZipEntry(entry.getName());
+                        output.putNextEntry(newEntry);
+                        input.transferTo(output);
+                        entry = input.getNextEntry();
+                    }
+                }
+            }
+            return outputPath;
+        }
+    }
+
     public static class ProGuardBuildTask implements LauncherBuildTask {
         private final LaunchServer server;
         private final ProGuardComponent component;
@@ -131,9 +196,8 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         public Path process(Path inputFile) throws IOException {
             Path outputJar = server.launcherBinary.nextLowerPath(this);
             if (component.enabled) {
-                Configuration proguard_cfg = new Configuration();
                 if (!checkJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
-                    throw new RuntimeException(String.format("Java path: %s is not JDK! Please install JDK", IOHelper.JVM_DIR));
+                    throw new RuntimeException("Java path: %s is not JDK! Please install JDK".formatted(IOHelper.JVM_DIR));
                 }
                 Path jfxPath = tryFindOpenJFXPath(IOHelper.JVM_DIR);
                 if (checkFXJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
@@ -144,23 +208,41 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                 } else {
                     throw new RuntimeException("JavaFX jmods not found. May be install OpenJFX?");
                 }
-                ConfigurationParser parser = new ConfigurationParser(proguardConf.buildConfig(inputFile, outputJar, jfxPath == null ? new Path[0] : new Path[]{jfxPath}),
-                        proguardConf.proguard.toFile(), System.getProperties());
                 try {
-                    parser.parse(proguard_cfg);
-                    ProGuard proGuard = new ProGuard(proguard_cfg);
-                    proGuard.execute();
+                    List<String> args = new ArrayList<>();
+                    args.add(IOHelper.resolveJavaBin(IOHelper.JVM_DIR).toAbsolutePath().toString());
+                    args.addAll(component.jvmArgs);
+                    args.add("-cp");
+                    try(Stream<Path> files = Files.walk(server.librariesDir, FileVisitOption.FOLLOW_LINKS)) {
+                        args.add(files
+                                .filter(e -> e.getFileName().toString().endsWith(".jar"))
+                                .map(path -> path.toAbsolutePath().toString())
+                                .collect(Collectors.joining(File.pathSeparator))
+                        );
+                    }
+                    args.add("proguard.ProGuard");
+                    proguardConf.buildConfig(args, inputFile, outputJar, jfxPath == null ? new Path[0] : new Path[]{jfxPath});
+
+                    Process process = new ProcessBuilder()
+                            .command(args)
+                            .inheritIO()
+                            .directory(proguardConf.proguard.toFile())
+                            .start();
+
+                    try {
+                        process.waitFor();
+                    } catch (InterruptedException ignored) {
+
+                    }
+                    if (process.exitValue() != 0) {
+                        throw new RuntimeException("ProGuard process return %d".formatted(process.exitValue()));
+                    }
                 } catch (Exception e) {
                     logger.error(e);
                 }
             } else
                 IOHelper.copy(inputFile, outputJar);
             return outputJar;
-        }
-
-        @Override
-        public boolean allowDelete() {
-            return true;
         }
     }
 
@@ -174,7 +256,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                 "-libraryjars '<java.home>/lib/ext/nashorn.jar'",
                 "-libraryjars '<java.home>/lib/ext/jfxrt.jar'"
         };
-        private static final char[] chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKl5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ".toCharArray();
+        private static final char[] chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKlL5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ".toCharArray();
         public final Path proguard;
         public final Path config;
         public final Path mappings;
@@ -201,8 +283,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             return sb.toString();
         }
 
-        public String[] buildConfig(Path inputJar, Path outputJar, Path[] jfxPath) {
-            List<String> confStrs = new ArrayList<>();
+        public void buildConfig(List<String> confStrs, Path inputJar, Path outputJar, Path[] jfxPath) {
             prepare(false);
             if (component.mappings)
                 confStrs.add("-printmapping '" + mappings.toFile().getName() + "'");
@@ -212,7 +293,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             Collections.addAll(confStrs, JAVA9_OPTS);
             if (jfxPath != null) {
                 for (Path path : jfxPath) {
-                    confStrs.add(String.format("-libraryjars '%s'", path.toAbsolutePath()));
+                    confStrs.add("-libraryjars '%s'".formatted(path.toAbsolutePath()));
                 }
             }
             srv.launcherBinary.coreLibs.stream()
@@ -224,7 +305,6 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                     .forEach(confStrs::add);
             confStrs.add("-classobfuscationdictionary '" + words.toFile().getName() + "'");
             confStrs.add("@".concat(config.toFile().getName()));
-            return confStrs.toArray(new String[0]);
         }
 
         private void genConfig(boolean force) throws IOException {

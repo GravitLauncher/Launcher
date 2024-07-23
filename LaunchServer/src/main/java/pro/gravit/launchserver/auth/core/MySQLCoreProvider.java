@@ -1,13 +1,14 @@
 package pro.gravit.launchserver.auth.core;
 
-import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.request.secure.HardwareReportRequest;
+import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
-import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
+import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportHardware;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.ByteArrayInputStream;
@@ -41,26 +42,26 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     }
 
     @Override
-    public void init(LaunchServer server) {
-        super.init(server);
+    public void init(LaunchServer server, AuthProviderPair pair) {
+        super.init(server, pair);
         String userInfoCols = makeUserCols();
         String hardwareInfoCols = "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, graphicCard, banned, publicKey";
         if (sqlFindHardwareByPublicKey == null)
-            sqlFindHardwareByPublicKey = String.format("SELECT %s FROM %s WHERE `publicKey` = ?", hardwareInfoCols, tableHWID);
+            sqlFindHardwareByPublicKey = "SELECT %s FROM %s WHERE `publicKey` = ?".formatted(hardwareInfoCols, tableHWID);
         if (sqlFindHardwareById == null)
-            sqlFindHardwareById = String.format("SELECT %s FROM %s WHERE `id` = ?", hardwareInfoCols, tableHWID);
+            sqlFindHardwareById = "SELECT %s FROM %s WHERE `id` = ?".formatted(hardwareInfoCols, tableHWID);
         if (sqlUsersByHwidId == null)
-            sqlUsersByHwidId = String.format("SELECT %s FROM %s WHERE `%s` = ?", userInfoCols, table, hardwareIdColumn);
+            sqlUsersByHwidId = "SELECT %s FROM %s WHERE `%s` = ?".formatted(userInfoCols, table, hardwareIdColumn);
         if (sqlFindHardwareByData == null)
-            sqlFindHardwareByData = String.format("SELECT %s FROM %s", hardwareInfoCols, tableHWID);
+            sqlFindHardwareByData = "SELECT %s FROM %s".formatted(hardwareInfoCols, tableHWID);
         if (sqlCreateHardware == null)
-            sqlCreateHardware = String.format("INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `graphicCard`, `battery`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')", tableHWID);
+            sqlCreateHardware = "INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `graphicCard`, `battery`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')".formatted(tableHWID);
         if (sqlCreateHWIDLog == null)
-            sqlCreateHWIDLog = String.format("INSERT INTO %s (`hwidId`, `newPublicKey`) VALUES (?, ?)", tableHWIDLog);
+            sqlCreateHWIDLog = "INSERT INTO %s (`hwidId`, `newPublicKey`) VALUES (?, ?)".formatted(tableHWIDLog);
         if (sqlUpdateHardwarePublicKey == null)
-            sqlUpdateHardwarePublicKey = String.format("UPDATE %s SET `publicKey` = ? WHERE `id` = ?", tableHWID);
-        sqlUpdateHardwareBanned = String.format("UPDATE %s SET `banned` = ? WHERE `id` = ?", tableHWID);
-        sqlUpdateUsers = String.format("UPDATE %s SET `%s` = ? WHERE `%s` = ?", table, hardwareIdColumn, uuidColumn);
+            sqlUpdateHardwarePublicKey = "UPDATE %s SET `publicKey` = ? WHERE `id` = ?".formatted(tableHWID);
+        sqlUpdateHardwareBanned = "UPDATE %s SET `banned` = ? WHERE `id` = ?".formatted(tableHWID);
+        sqlUpdateUsers = "UPDATE %s SET `%s` = ? WHERE `%s` = ?".formatted(table, hardwareIdColumn, uuidColumn);
     }
 
     @Override
@@ -71,7 +72,7 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     @Override
     protected MySQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new MySQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
-                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn)), set.getLong(hardwareIdColumn)) : null;
+                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), set.getLong(hardwareIdColumn)) : null;
     }
 
     private MySQLUserHardware fetchHardwareInfo(ResultSet set) throws SQLException, IOException {
@@ -260,6 +261,34 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
         }
     }
 
+    @Override
+    protected SQLUserSession createSession(SQLUser user) {
+        return new MySQLUserSession(user);
+    }
+
+    public class MySQLUserSession extends SQLUserSession implements UserSessionSupportHardware {
+        private transient MySQLUser mySQLUser;
+        protected transient MySQLUserHardware hardware;
+
+        public MySQLUserSession(SQLUser user) {
+            super(user);
+            mySQLUser = (MySQLUser) user;
+        }
+
+        @Override
+        public String getHardwareId() {
+            return mySQLUser.hwidId == 0 ? null : String.valueOf(mySQLUser.hwidId);
+        }
+
+        @Override
+        public UserHardware getHardware() {
+            if(hardware == null) {
+                hardware = (MySQLUserHardware) getHardwareInfoById(String.valueOf(mySQLUser.hwidId));
+            }
+            return hardware;
+        }
+    }
+
     public static class MySQLUserHardware implements UserHardware {
         private final HardwareReportRequest.HardwareInfo hardwareInfo;
         private final long id;
@@ -304,21 +333,12 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
         }
     }
 
-    public class MySQLUser extends SQLUser implements UserSupportHardware {
+    public static class MySQLUser extends SQLUser {
         protected long hwidId;
-        protected transient MySQLUserHardware hardware;
 
-        public MySQLUser(UUID uuid, String username, String accessToken, String serverId, String password, ClientPermissions permissions, long hwidId) {
-            super(uuid, username, accessToken, serverId, password, permissions);
+        public MySQLUser(UUID uuid, String username, String accessToken, String serverId, String password, long hwidId) {
+            super(uuid, username, accessToken, serverId, password);
             this.hwidId = hwidId;
-        }
-
-        @Override
-        public UserHardware getHardware() {
-            if (hardware != null) return hardware;
-            MySQLUserHardware result = (MySQLUserHardware) getHardwareInfoById(String.valueOf(hwidId));
-            hardware = result;
-            return result;
         }
 
         @Override

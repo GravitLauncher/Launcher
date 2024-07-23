@@ -6,7 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.events.request.LauncherRequestEvent;
+import pro.gravit.launcher.base.events.request.LauncherRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.socket.Client;
@@ -50,9 +50,9 @@ public class LauncherResponse extends SimpleResponse {
                 service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, server.config.netty.launcherURL));
             if (Arrays.equals(bytes, hash) && checkSecure(secureHash, secureSalt)) {
                 client.checkSign = true;
-                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherURL, createLauncherExtendedToken()));
+                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherURL, createLauncherExtendedToken()));
+                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
             }
         } else if (launcher_type == 2) //EXE
         {
@@ -60,9 +60,9 @@ public class LauncherResponse extends SimpleResponse {
             if (hash == null) sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL));
             if (Arrays.equals(bytes, hash) && checkSecure(secureHash, secureSalt)) {
                 client.checkSign = true;
-                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherEXEURL, createLauncherExtendedToken()));
+                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherEXEURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL, createLauncherExtendedToken()));
+                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
             }
         } else sendError("Request launcher type error");
     }
@@ -85,14 +85,12 @@ public class LauncherResponse extends SimpleResponse {
     }
 
     public static class LauncherTokenVerifier implements RestoreResponse.ExtendedTokenProvider {
-        private final LaunchServer server;
         private final JwtParser parser;
         private final Logger logger = LogManager.getLogger();
 
         public LauncherTokenVerifier(LaunchServer server) {
-            this.server = server;
-            parser = Jwts.parserBuilder()
-                    .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+            parser = Jwts.parser()
+                    .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
                     .requireIssuer("LaunchServer")
                     .build();
         }
@@ -110,6 +108,11 @@ public class LauncherResponse extends SimpleResponse {
             }
 
         }
+    }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
     }
 
 }

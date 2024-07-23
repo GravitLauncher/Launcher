@@ -7,11 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FeaturesManager {
-    private final transient LaunchServer server;
     private final Map<String, String> map;
 
     public FeaturesManager(LaunchServer server) {
-        this.server = server;
         map = new HashMap<>();
         addFeatureInfo("version", Version.getVersion().getVersionString());
         addFeatureInfo("projectName", server.config.projectName);
@@ -25,8 +23,8 @@ public class FeaturesManager {
         return map.get(name);
     }
 
-    public String addFeatureInfo(String name, String featureInfo) {
-        return map.put(name, featureInfo);
+    public void addFeatureInfo(String name, String featureInfo) {
+        map.put(name, featureInfo);
     }
 
     public String removeFeatureInfo(String name) {

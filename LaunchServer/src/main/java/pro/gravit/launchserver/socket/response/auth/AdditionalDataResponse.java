@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.AdditionalDataRequestEvent;
+import pro.gravit.launcher.base.events.request.AdditionalDataRequestEvent;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportAdditionalData;
@@ -11,7 +11,6 @@ import pro.gravit.launchserver.socket.response.SimpleResponse;
 import java.util.Map;
 import java.util.UUID;
 
-@SuppressWarnings("deprecation")
 public class AdditionalDataResponse extends SimpleResponse {
     public String username;
     public UUID uuid;
@@ -22,7 +21,7 @@ public class AdditionalDataResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (!client.isAuth) {
             sendError("Access denied");
             return;

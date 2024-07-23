@@ -4,9 +4,9 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.events.request.GetSecureLevelInfoRequestEvent;
-import pro.gravit.launcher.events.request.HardwareReportRequestEvent;
-import pro.gravit.launcher.events.request.VerifySecureLevelKeyRequestEvent;
+import pro.gravit.launcher.base.events.request.GetSecureLevelInfoRequestEvent;
+import pro.gravit.launcher.base.events.request.HardwareReportRequestEvent;
+import pro.gravit.launcher.base.events.request.VerifySecureLevelKeyRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
@@ -15,27 +15,19 @@ import pro.gravit.launchserver.auth.protect.interfaces.HardwareProtectHandler;
 import pro.gravit.launchserver.auth.protect.interfaces.JoinServerProtectHandler;
 import pro.gravit.launchserver.auth.protect.interfaces.SecureProtectHandler;
 import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
 import pro.gravit.launchserver.socket.response.secure.HardwareReportResponse;
 
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, HardwareProtectHandler, JoinServerProtectHandler {
     private transient final Logger logger = LogManager.getLogger();
     public boolean enableHardwareFeature;
     private transient LaunchServer server;
-
-    @Override
-    public boolean allowGetAccessToken(AuthResponse.AuthContext context) {
-        return (context.authType == AuthResponse.ConnectTypes.CLIENT) && context.client.checkSign;
-    }
-
-    @Override
-    public void checkLaunchServerLicense() {
-
-    }
 
     @Override
     public GetSecureLevelInfoRequestEvent onGetSecureLevelInfo(GetSecureLevelInfoRequestEvent event) {
@@ -50,11 +42,15 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     @Override
     public void onHardwareReport(HardwareReportResponse response, Client client) {
         if (!enableHardwareFeature) {
-            response.sendResult(new HardwareReportRequestEvent(null));
+            response.sendResult(new HardwareReportRequestEvent());
             return;
         }
         if (!client.isAuth || client.trustLevel == null || client.trustLevel.publicKey == null) {
             response.sendError("Access denied");
+            return;
+        }
+        if(client.trustLevel.hardwareInfo != null) {
+            response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, client.trustLevel.hardwareInfo), SECONDS.toMillis(server.config.netty.security.hardwareTokenExpire)));
             return;
         }
         logger.debug("HardwareInfo received");
@@ -71,13 +67,11 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 if (hardware.isBanned()) {
                     throw new SecurityException("Your hardware banned");
                 }
-                client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
-                response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, hardware)));
-                return;
+                client.trustLevel.hardwareInfo = hardware;
+                response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, hardware), SECONDS.toMillis(server.config.netty.security.hardwareTokenExpire)));
             } else {
                 logger.error("AuthCoreProvider not supported hardware");
                 response.sendError("AuthCoreProvider not supported hardware");
-                return;
             }
         }
     }
@@ -89,22 +83,22 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
             if (authSupportHardware != null) {
                 UserHardware hardware = authSupportHardware.getHardwareInfoByPublicKey(client.trustLevel.publicKey);
                 if (hardware == null) //HWID not found?
-                    return new VerifySecureLevelKeyRequestEvent(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
+                    return new VerifySecureLevelKeyRequestEvent(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(server.config.netty.security.publicKeyTokenExpire));
                 if (hardware.isBanned()) {
                     throw new SecurityException("Your hardware banned");
                 }
-                client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
+                client.trustLevel.hardwareInfo = hardware;
                 authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
-                return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), createHardwareToken(client.username, hardware));
+                return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(server.config.netty.security.publicKeyTokenExpire));
             } else {
                 logger.warn("AuthCoreProvider not supported hardware. HardwareInfo not checked!");
             }
         }
-        return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey));
+        return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(server.config.netty.security.publicKeyTokenExpire));
     }
 
     @Override
-    public boolean onJoinServer(String serverID, String username, Client client) {
+    public boolean onJoinServer(String serverID, String username, UUID uuid, Client client) {
         return !enableHardwareFeature || (client.trustLevel != null && client.trustLevel.hardwareInfo != null);
     }
 
@@ -113,15 +107,11 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         this.server = server;
     }
 
-    @Override
-    public void close() {
-    }
-
     public String createHardwareToken(String username, UserHardware hardware) {
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * server.config.netty.security.hardwareTokenExpire))
+                .setExpiration(new Date(System.currentTimeMillis() + SECONDS.toMillis(server.config.netty.security.hardwareTokenExpire)))
                 .claim("hardware", hardware.getId())
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
@@ -131,22 +121,20 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * server.config.netty.security.publicKeyTokenExpire))
+                .setExpiration(new Date(System.currentTimeMillis() + SECONDS.toMillis(server.config.netty.security.publicKeyTokenExpire)))
                 .claim("publicKey", Base64.getEncoder().encodeToString(publicKey))
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
     }
 
     public static class HardwareInfoTokenVerifier implements RestoreResponse.ExtendedTokenProvider {
-        private transient final LaunchServer server;
         private transient final Logger logger = LogManager.getLogger();
         private final JwtParser parser;
 
         public HardwareInfoTokenVerifier(LaunchServer server) {
-            this.server = server;
-            this.parser = Jwts.parserBuilder()
+            this.parser = Jwts.parser()
                     .requireIssuer("LaunchServer")
-                    .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+                    .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
                     .build();
         }
 
@@ -161,7 +149,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 if (hardwareSupport == null) return false;
                 UserHardware hardware = hardwareSupport.getHardwareInfoById(hardwareInfoId);
                 if (client.trustLevel == null) client.trustLevel = new Client.TrustLevel();
-                client.trustLevel.hardwareInfo = hardware.getHardwareInfo();
+                client.trustLevel.hardwareInfo = hardware;
                 return true;
             } catch (Throwable e) {
                 logger.error("Hardware JWT error", e);
@@ -172,15 +160,13 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     }
 
     public static class PublicKeyTokenVerifier implements RestoreResponse.ExtendedTokenProvider {
-        private transient final LaunchServer server;
         private transient final Logger logger = LogManager.getLogger();
         private final JwtParser parser;
 
         public PublicKeyTokenVerifier(LaunchServer server) {
-            this.server = server;
-            this.parser = Jwts.parserBuilder()
+            this.parser = Jwts.parser()
                     .requireIssuer("LaunchServer")
-                    .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+                    .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
                     .build();
         }
 

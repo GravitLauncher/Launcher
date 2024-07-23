@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.socket.response.update;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.UpdateRequestEvent;
-import pro.gravit.launcher.hasher.HashedDir;
+import pro.gravit.launcher.base.events.request.UpdateRequestEvent;
+import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.Client;
@@ -19,7 +19,7 @@ public class UpdateResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (server.config.protectHandler instanceof ProfilesProtectHandler && !((ProfilesProtectHandler) server.config.protectHandler).canGetUpdates(dirName, client)) {
+        if (server.config.protectHandler instanceof ProfilesProtectHandler profilesProtectHandler && !profilesProtectHandler.canGetUpdates(dirName, client)) {
             sendError("Access denied");
             return;
         }
@@ -29,7 +29,7 @@ public class UpdateResponse extends SimpleResponse {
         }
         HashedDir dir = server.updatesManager.getUpdate(dirName);
         if (dir == null) {
-            sendError(String.format("Directory %s not found", dirName));
+            sendError("Directory %s not found".formatted(dirName));
             return;
         }
         String url = server.config.netty.downloadURL.replace("%dirname%", IOHelper.urlEncode(dirName));

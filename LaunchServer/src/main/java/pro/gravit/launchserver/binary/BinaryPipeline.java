@@ -7,18 +7,15 @@ import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class BinaryPipeline {
     public final List<LauncherBuildTask> tasks = new ArrayList<>();
-    public final AtomicLong count = new AtomicLong(0);
     public final Path buildDir;
     public final String nameFormat;
     private transient final Logger logger = LogManager.getLogger();
@@ -72,11 +69,20 @@ public class BinaryPipeline {
         return tasks.stream().filter(taskClass::isInstance).map(taskClass::cast).findFirst();
     }
 
+    public Optional<LauncherBuildTask> getTaskBefore(Predicate<LauncherBuildTask> pred) {
+        LauncherBuildTask last = null;
+        for(var e : tasks) {
+            if(pred.test(e)) {
+                return Optional.ofNullable(last);
+            }
+            last = e;
+        }
+        return Optional.empty();
+    }
+
     public void build(Path target, boolean deleteTempFiles) throws IOException {
         logger.info("Building launcher binary file");
-        count.set(0); // set jar number
         Path thisPath = null;
-        boolean isNeedDelete = false;
         long time_start = System.currentTimeMillis();
         long time_this = time_start;
         for (LauncherBuildTask task : tasks) {
@@ -86,19 +92,17 @@ public class BinaryPipeline {
             long time_task_end = System.currentTimeMillis();
             long time_task = time_task_end - time_this;
             time_this = time_task_end;
-            if (isNeedDelete && deleteTempFiles) Files.deleteIfExists(oldPath);
-            isNeedDelete = task.allowDelete();
             logger.info("Task {} processed from {} millis", task.getName(), time_task);
         }
         long time_end = System.currentTimeMillis();
-        if (isNeedDelete && deleteTempFiles) IOHelper.move(thisPath, target);
+        if (deleteTempFiles) IOHelper.move(thisPath, target);
         else IOHelper.copy(thisPath, target);
         IOHelper.deleteDir(buildDir, false);
         logger.info("Build successful from {} millis", time_end - time_start);
     }
 
     public String nextName(String taskName) {
-        return String.format(nameFormat, taskName, count.getAndIncrement());
+        return nameFormat.formatted(taskName);
     }
 
     public Path nextPath(String taskName) {

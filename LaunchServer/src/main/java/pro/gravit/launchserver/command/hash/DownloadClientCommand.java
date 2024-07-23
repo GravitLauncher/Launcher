@@ -3,8 +3,10 @@ package pro.gravit.launchserver.command.hash;
 import com.google.gson.JsonElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
+import pro.gravit.launcher.base.profiles.ClientProfileVersions;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.helper.MakeProfileHelper;
@@ -13,7 +15,6 @@ import pro.gravit.utils.helper.IOHelper;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.UUID;
@@ -61,9 +62,11 @@ public final class DownloadClientCommand extends Command {
             try {
                 JsonElement clientJson = server.mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
                 clientProfile = Launcher.gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
-                clientProfile.setTitle(dirName);
-                clientProfile.setDir(dirName);
-                clientProfile.setUUID(UUID.randomUUID());
+                var builder = new ClientProfileBuilder(clientProfile);
+                builder.setTitle(dirName);
+                builder.setDir(dirName);
+                builder.setUuid(UUID.randomUUID());
+                clientProfile = builder.createClientProfile();
                 if (clientProfile.getServers() != null) {
                     ClientProfile.ServerProfile serverProfile = clientProfile.getDefaultServerProfile();
                     if (serverProfile != null) {
@@ -81,11 +84,11 @@ public final class DownloadClientCommand extends Command {
                 if (internalVersion.contains("-")) {
                     internalVersion = internalVersion.substring(0, versionName.indexOf('-'));
                 }
-                ClientProfile.Version version = ClientProfile.Version.byName(internalVersion);
-                if (version.compareTo(ClientProfile.Version.MC164) <= 0) {
-                    logger.warn("Minecraft 1.6.4 and below not supported. Use at your own risk");
+                ClientProfile.Version version = ClientProfile.Version.of(internalVersion);
+                if (version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) <= 0) {
+                    logger.warn("Minecraft 1.7.9 and below not supported. Use at your own risk");
                 }
-                MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(clientDir, version, Files.exists(server.updatesDir.resolve("assets")));
+                MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(clientDir, version);
                 for (MakeProfileHelper.MakeProfileOption option : options) {
                     logger.debug("Detected option {}", option.getClass().getSimpleName());
                 }

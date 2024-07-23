@@ -82,8 +82,8 @@ public abstract class CommandHandler implements Runnable {
         categories.add(category);
     }
 
-    public boolean unregisterCategory(Category category) {
-        return categories.remove(category);
+    public void unregisterCategory(Category category) {
+        categories.remove(category);
     }
 
     public Category findCategory(String name) {

@@ -2,7 +2,7 @@ package pro.gravit.launchserver.auth.password;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.base.Launcher;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,7 +14,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 public class JsonPasswordVerifier extends PasswordVerifier {
-    private static transient final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
     private transient final HttpClient client = HttpClient.newBuilder().build();
     public String url;
     public String bearerToken;

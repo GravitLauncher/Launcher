@@ -2,6 +2,7 @@ package pro.gravit.launcher;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import pro.gravit.launcher.base.ClientPermissions;
 
 public class PermissionTest {
     @Test

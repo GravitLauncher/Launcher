@@ -6,12 +6,15 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class JavaHelper {
     private static List<JavaVersion> javaVersionsCache;
+    public static final List<String> javaFxModules;
+
+    static {
+        javaFxModules = List.of("javafx.base", "javafx.graphics", "javafx.fxml", "javafx.controls", "javafx.swing", "javafx.media", "javafx.web");
+    }
 
     public static Path tryGetOpenJFXPath(Path jvmDir) {
         String dirName = jvmDir.getFileName().toString();
@@ -49,7 +52,7 @@ public class JavaHelper {
             if (path == null) continue;
             Path result = tryFindModule(path, moduleName);
             if (result != null) {
-                if (args.length() != 0) args.append(File.pathSeparatorChar);
+                if (!args.isEmpty()) args.append(File.pathSeparatorChar);
                 args.append(result.toAbsolutePath());
                 return true;
             }
@@ -63,11 +66,7 @@ public class JavaHelper {
         }
         List<String> javaPaths = new ArrayList<>(4);
         List<JavaVersion> result = new ArrayList<>(4);
-        try {
-            tryAddJava(javaPaths, result, JavaVersion.getCurrentJavaVersion());
-        } catch (IOException e) {
-            LogHelper.error(e);
-        }
+        tryAddJava(javaPaths, result, JavaVersion.getCurrentJavaVersion());
         String[] path = System.getenv("PATH").split(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? ";" : ":");
         for (String p : path) {
             try {
@@ -76,10 +75,13 @@ public class JavaHelper {
                 if (Files.exists(javaExecPath)) {
                     javaExecPath = javaExecPath.toRealPath();
                     p1 = javaExecPath.getParent().getParent();
+                    if(p1 == null) {
+                        continue;
+                    }
                     tryAddJava(javaPaths, result, JavaVersion.getByPath(p1));
                     trySearchJava(javaPaths, result, p1.getParent());
                 }
-            } catch (InvalidPathException ignored) {
+            } catch (InvalidPathException | NullPointerException ignored) {
 
             } catch (IOException e) {
                 LogHelper.error(e);
@@ -91,6 +93,7 @@ public class JavaHelper {
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("Java"));
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("AdoptOpenJDK"));
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("Eclipse Foundation")); //AdoptJDK rebranding
+                trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("Eclipse Adoptium")); //AdoptJDK rebranding
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("BellSoft")); // LibericaJDK
             } catch (IOException e) {
                 LogHelper.error(e);
@@ -118,25 +121,26 @@ public class JavaHelper {
         return null;
     }
 
-    public static boolean tryAddJava(List<String> javaPaths, List<JavaVersion> result, JavaVersion version) throws IOException {
-        if (version == null) return false;
-        String path = version.jvmDir.toAbsolutePath().toString();
-        if (javaPaths.contains(path)) return false;
+    public static void tryAddJava(List<String> javaPaths, List<JavaVersion> result, JavaVersion version) {
+        if (version == null) return;
+        Path realPath = version.jvmDir.toAbsolutePath();
+        try {
+            realPath = realPath.toRealPath();
+        } catch (IOException ignored) {
+
+        }
+        String path = realPath.toString();
+        if (javaPaths.contains(path)) return;
         javaPaths.add(path);
         result.add(version);
-        return true;
     }
 
     public static void trySearchJava(List<String> javaPaths, List<JavaVersion> result, Path path) throws IOException {
-        if (!Files.isDirectory(path)) return;
+        if (path == null || !Files.isDirectory(path)) return;
         Files.list(path).filter(p -> Files.exists(p.resolve("bin").resolve(JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE ? "java.exe" : "java"))).forEach(e -> {
-            try {
-                tryAddJava(javaPaths, result, JavaVersion.getByPath(e));
-                if (Files.exists(e.resolve("jre"))) {
-                    tryAddJava(javaPaths, result, JavaVersion.getByPath(e.resolve("jre")));
-                }
-            } catch (IOException ioException) {
-                LogHelper.error(ioException);
+            tryAddJava(javaPaths, result, JavaVersion.getByPath(e));
+            if (Files.exists(e.resolve("jre"))) {
+                tryAddJava(javaPaths, result, JavaVersion.getByPath(e.resolve("jre")));
             }
         });
     }
@@ -187,29 +191,28 @@ public class JavaHelper {
         public final int version;
         public final int build;
         public final JVMHelper.ARCH arch;
+        public final List<String> modules;
         public boolean enabledJavaFX;
-
-        public JavaVersion(Path jvmDir, int version) {
-            this.jvmDir = jvmDir;
-            this.version = version;
-            this.build = 0;
-            this.arch = JVMHelper.ARCH_TYPE;
-            this.enabledJavaFX = true;
-        }
-
-        public JavaVersion(Path jvmDir, int version, int build, boolean enabledJavaFX) {
-            this.jvmDir = jvmDir;
-            this.version = version;
-            this.build = build;
-            this.arch = JVMHelper.ARCH_TYPE;
-            this.enabledJavaFX = enabledJavaFX;
-        }
 
         public JavaVersion(Path jvmDir, int version, int build, JVMHelper.ARCH arch, boolean enabledJavaFX) {
             this.jvmDir = jvmDir;
             this.version = version;
             this.build = build;
             this.arch = arch;
+            this.enabledJavaFX = enabledJavaFX;
+            if(version > 8) {
+                this.modules = javaFxModules;
+            } else {
+                this.modules = Collections.unmodifiableList(new ArrayList<>());
+            }
+        }
+
+        public JavaVersion(Path jvmDir, int version, int build, JVMHelper.ARCH arch, List<String> modules, boolean enabledJavaFX) {
+            this.jvmDir = jvmDir;
+            this.version = version;
+            this.build = build;
+            this.arch = arch;
+            this.modules = modules;
             this.enabledJavaFX = enabledJavaFX;
         }
 
@@ -230,7 +233,7 @@ public class JavaHelper {
             }
         }
 
-        public static JavaVersion getByPath(Path jvmDir) throws IOException {
+        public static JavaVersion getByPath(Path jvmDir) {
             {
                 JavaVersion version = JavaHelper.tryFindJavaByPath(jvmDir);
                 if (version != null) {
@@ -238,29 +241,57 @@ public class JavaHelper {
                 }
             }
             Path releaseFile = jvmDir.resolve("release");
-            JavaVersionAndBuild versionAndBuild;
+            JavaVersionAndBuild versionAndBuild = null;
+            List<String> modules = null;
             JVMHelper.ARCH arch = JVMHelper.ARCH_TYPE;
             if (IOHelper.isFile(releaseFile)) {
-                Properties properties = new Properties();
-                properties.load(IOHelper.newReader(releaseFile));
-                versionAndBuild = getJavaVersion(properties.getProperty("JAVA_VERSION").replaceAll("\"", ""));
                 try {
-                    arch = JVMHelper.getArch(properties.getProperty("OS_ARCH").replaceAll("\"", ""));
-                } catch (Throwable ignored) {
-                    arch = null;
+                    Properties properties = new Properties();
+                    properties.load(IOHelper.newReader(releaseFile));
+                    String versionProperty = getProperty(properties, "JAVA_VERSION");
+                    if(versionProperty != null) {
+                        versionAndBuild = getJavaVersion(versionProperty);
+                    }
+                    try {
+                        String archProperty = getProperty(properties, "OS_ARCH");
+                        if(archProperty != null) {
+                            arch = JVMHelper.getArch(archProperty);
+                        }
+                    } catch (Throwable ignored) {
+                    }
+                    String modulesProperty = getProperty(properties, "MODULES");
+                    if(modulesProperty != null) {
+                        modules = new ArrayList<>(Arrays.asList(modulesProperty.split(" ")));
+                    }
+                } catch (IOException ignored) {
+
                 }
-            } else {
+            }
+            if(versionAndBuild == null) {
                 versionAndBuild = new JavaVersionAndBuild(isExistExtJavaLibrary(jvmDir, "rt") ? 8 : 9, 0);
             }
             JavaVersion resultJavaVersion = new JavaVersion(jvmDir, versionAndBuild.version, versionAndBuild.build, arch, false);
             if (versionAndBuild.version <= 8) {
                 resultJavaVersion.enabledJavaFX = isExistExtJavaLibrary(jvmDir, "jfxrt");
             } else {
-                resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir, "javafx.base") != null;
-                if (!resultJavaVersion.enabledJavaFX)
-                    resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir.resolve("jre"), "javafx.base") != null;
+                if(modules != null) {
+                    resultJavaVersion.enabledJavaFX = modules.contains("javafx.base");
+                }
+                if(!resultJavaVersion.enabledJavaFX) {
+                    resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir, "javafx.base") != null;
+                    if (!resultJavaVersion.enabledJavaFX)
+                        resultJavaVersion.enabledJavaFX = tryFindModule(jvmDir.resolve("jre"), "javafx.base") != null;
+                }
             }
             return resultJavaVersion;
+        }
+
+        private static String getProperty(Properties properties, String name) {
+            String prop = properties.getProperty(name);
+            if(prop == null) {
+                return null;
+            }
+            return prop.replaceAll("\"", "");
         }
 
         public static boolean isExistExtJavaLibrary(Path jvmDir, String name) {

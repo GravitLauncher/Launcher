@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.socket;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
@@ -34,11 +33,11 @@ public class LauncherNettyServer implements AutoCloseable {
     public final EventLoopGroup workerGroup;
     public final WebSocketService service;
     public final BiHookSet<NettyConnectContext, SocketChannel> pipelineHook = new BiHookSet<>();
-    private transient final Logger logger = LogManager.getLogger();
 
     public LauncherNettyServer(LaunchServer server) {
         LaunchServerConfig.NettyConfig config = server.config.netty;
         NettyObjectFactory.setUsingEpoll(config.performance.usingEpoll);
+        Logger logger = LogManager.getLogger();
         if (config.performance.usingEpoll) {
             logger.debug("Netty: Epoll enabled");
         }
@@ -74,8 +73,8 @@ public class LauncherNettyServer implements AutoCloseable {
                 });
     }
 
-    public ChannelFuture bind(InetSocketAddress address) {
-        return serverBootstrap.bind(address);
+    public void bind(InetSocketAddress address) {
+        serverBootstrap.bind(address);
     }
 
     @Override

@@ -8,8 +8,8 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
@@ -51,11 +51,12 @@ public class MainBuildTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputJar) throws IOException {
-        Path outputJar = server.launcherBinary.nextPath("main");
+        Path outputJar = server.launcherBinary.nextPath(this);
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
-            BuildContext context = new BuildContext(output, reader.getCp(), this);
+            BuildContext context = new BuildContext(output, reader.getCp(), this, server.launcherBinary.runtimeDir);
             initProps();
             preBuildHook.hook(context);
+            properties.put("launcher.legacymodules", context.legacyClientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             postInitProps();
             reader.getCp().add(new JarFile(inputJar.toFile()));
@@ -68,11 +69,13 @@ public class MainBuildTask implements LauncherBuildTask {
             Map<String, byte[]> runtime = new HashMap<>(256);
             // Write launcher guard dir
             if (server.config.launcher.encryptRuntime) {
-                context.pushEncryptedDir(server.launcherBinary.runtimeDir, Launcher.RUNTIME_DIR, server.runtime.runtimeEncryptKey, runtime, false);
+                context.pushEncryptedDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, server.runtime.runtimeEncryptKey, runtime, false);
             } else {
-                context.pushDir(server.launcherBinary.runtimeDir, Launcher.RUNTIME_DIR, runtime, false);
+                context.pushDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, runtime, false);
             }
-            context.pushDir(server.launcherBinary.guardDir, Launcher.GUARD_DIR, runtime, false);
+            if(context.isDeleteRuntimeDir()) {
+                IOHelper.deleteDir(context.getRuntimeDir(), true);
+            }
 
             LauncherConfig launcherConfig = new LauncherConfig(server.config.netty.address, server.keyAgreementManager.ecdsaPublicKey, server.keyAgreementManager.rsaPublicKey, runtime, server.config.projectName);
             context.pushFile(Launcher.CONFIG_FILE, launcherConfig);
@@ -108,7 +111,6 @@ public class MainBuildTask implements LauncherBuildTask {
         properties.put("launcher.projectName", server.config.projectName);
         properties.put("runtimeconfig.secretKeyClient", SecurityHelper.randomStringAESKey());
         properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
-        properties.put("launcher.guardType", server.config.launcher.guardType);
         properties.put("launchercore.env", server.config.env);
         properties.put("launcher.memory", server.config.launcher.memoryLimit);
         properties.put("launcher.customJvmOptions", server.config.launcher.customJvmOptions);
@@ -126,7 +128,8 @@ public class MainBuildTask implements LauncherBuildTask {
         properties.put("runtimeconfig.secureCheckSalt", launcherSalt);
         if (server.runtime.unlockSecret == null) server.runtime.unlockSecret = SecurityHelper.randomStringToken();
         properties.put("runtimeconfig.unlockSecret", server.runtime.unlockSecret);
-
+        server.runtime.buildNumber++;
+        properties.put("runtimeconfig.buildNumber", server.runtime.buildNumber);
     }
 
     public byte[] transformClass(byte[] bytes, String classname, BuildContext context) {
@@ -159,11 +162,6 @@ public class MainBuildTask implements LauncherBuildTask {
             result = writer.toByteArray();
         }
         return result;
-    }
-
-    @Override
-    public boolean allowDelete() {
-        return true;
     }
 
     @FunctionalInterface

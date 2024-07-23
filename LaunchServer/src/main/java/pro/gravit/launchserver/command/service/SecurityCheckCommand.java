@@ -2,7 +2,7 @@ package pro.gravit.launchserver.command.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.protect.AdvancedProtectHandler;
 import pro.gravit.launchserver.auth.protect.NoProtectHandler;
@@ -27,10 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.stream.Collectors;
 
 public class SecurityCheckCommand extends Command {
-    private static transient final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
 
     public SecurityCheckCommand(LaunchServer server) {
         super(server);
@@ -38,11 +37,11 @@ public class SecurityCheckCommand extends Command {
 
     public static void printCheckResult(String module, String comment, Boolean status) {
         if (status == null) {
-            logger.warn(String.format("[%s] %s", module, comment));
+            logger.warn("[%s] %s".formatted(module, comment));
         } else if (status) {
-            logger.info(String.format("[%s] %s OK", module, comment));
+            logger.info("[%s] %s OK".formatted(module, comment));
         } else {
-            logger.error(String.format("[%s] %s", module, comment));
+            logger.error("[%s] %s".formatted(module, comment));
         }
     }
 
@@ -61,19 +60,19 @@ public class SecurityCheckCommand extends Command {
         LaunchServerConfig config = server.config;
         config.auth.forEach((name, pair) -> {
         });
-        if (config.protectHandler instanceof NoProtectHandler) {
-            printCheckResult("protectHandler", "protectHandler none", false);
-        } else if (config.protectHandler instanceof AdvancedProtectHandler) {
-            printCheckResult("protectHandler", "", true);
-            if (!((AdvancedProtectHandler) config.protectHandler).enableHardwareFeature) {
-                printCheckResult("protectHandler.hardwareId", "you can improve security by using hwid provider", null);
-            } else {
-                printCheckResult("protectHandler.hardwareId", "", true);
+        switch (config.protectHandler) {
+            case NoProtectHandler noProtectHandler -> printCheckResult("protectHandler", "protectHandler none", false);
+            case AdvancedProtectHandler advancedProtectHandler -> {
+                printCheckResult("protectHandler", "", true);
+                if (!advancedProtectHandler.enableHardwareFeature) {
+                    printCheckResult("protectHandler.hardwareId", "you can improve security by using hwid provider", null);
+                } else {
+                    printCheckResult("protectHandler.hardwareId", "", true);
+                }
             }
-        } else if (config.protectHandler instanceof StdProtectHandler) {
-            printCheckResult("protectHandler", "you can improve security by using advanced", null);
-        } else {
-            printCheckResult("protectHandler", "unknown protectHandler", null);
+            case StdProtectHandler stdProtectHandler ->
+                    printCheckResult("protectHandler", "you can improve security by using advanced", null);
+            case null, default -> printCheckResult("protectHandler", "unknown protectHandler", null);
         }
         if (config.netty.address.startsWith("ws://")) {
             if (config.netty.ipForwarding)
@@ -110,10 +109,10 @@ public class SecurityCheckCommand extends Command {
             try {
                 KeyStore keyStore = SignHelper.getStore(new File(config.sign.keyStore).toPath(), config.sign.keyStorePass, config.sign.keyStoreType);
                 Certificate[] certChainPlain = keyStore.getCertificateChain(config.sign.keyAlias);
-                List<X509Certificate> certChain = Arrays.stream(certChainPlain).map(e -> (X509Certificate) e).collect(Collectors.toList());
-                X509Certificate cert = certChain.get(0);
+                List<X509Certificate> certChain = Arrays.stream(certChainPlain).map(e -> (X509Certificate) e).toList();
+                X509Certificate cert = certChain.getFirst();
                 cert.checkValidity();
-                if (certChain.size() <= 1) {
+                if (certChain.size() == 1) {
                     printCheckResult("sign", "certificate chain contains <2 element(recommend 2 and more)", false);
                     bad = true;
                 }
@@ -153,11 +152,11 @@ public class SecurityCheckCommand extends Command {
         //Profiles
         for (ClientProfile profile : server.getProfiles()) {
             boolean bad = false;
-            String profileModuleName = String.format("profiles.%s", profile.getTitle());
+            String profileModuleName = "profiles.%s".formatted(profile.getTitle());
             for (String exc : profile.getUpdateExclusions()) {
                 StringTokenizer tokenizer = new StringTokenizer(exc, "/");
                 if (exc.endsWith(".jar")) {
-                    printCheckResult(profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
+                    printCheckResult(profileModuleName, "updateExclusions %s not safe. Cheats may be injected very easy!".formatted(exc), false);
                     bad = true;
                     continue;
                 }
@@ -165,12 +164,12 @@ public class SecurityCheckCommand extends Command {
                     String nextToken = tokenizer.nextToken();
                     if (!tokenizer.hasMoreTokens()) {
                         if (!exc.endsWith("/")) {
-                            printCheckResult(profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
+                            printCheckResult(profileModuleName, "updateExclusions %s not safe. Cheats may be injected very easy!".formatted(exc), false);
                             bad = true;
                         }
                     } else {
-                        if (nextToken.equals("memory_repo") || nextToken.equals(profile.getVersion().name)) {
-                            printCheckResult(profileModuleName, String.format("updateExclusions %s not safe. Cheats may be injected very easy!", exc), false);
+                        if (nextToken.equals("memory_repo") || nextToken.equals(profile.getVersion().toString())) {
+                            printCheckResult(profileModuleName, "updateExclusions %s not safe. Cheats may be injected very easy!".formatted(exc), false);
                             bad = true;
                         }
                     }

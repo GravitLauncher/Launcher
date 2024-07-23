@@ -37,7 +37,9 @@ public class PrepareBuildTask implements LauncherBuildTask {
         server.launcherBinary.addonLibs.clear();
         server.launcherBinary.files.clear();
         IOHelper.walk(server.launcherLibraries, new ListFileVisitor(server.launcherBinary.coreLibs), false);
-        IOHelper.walk(server.launcherLibrariesCompile, new ListFileVisitor(server.launcherBinary.addonLibs), false);
+        if(Files.isDirectory(server.launcherLibrariesCompile)) {
+            IOHelper.walk(server.launcherLibrariesCompile, new ListFileVisitor(server.launcherBinary.addonLibs), false);
+        }
         try(Stream<Path> stream = Files.walk(server.launcherPack).filter((e) -> {
             try {
                 return !Files.isDirectory(e) && !Files.isHidden(e);
@@ -45,7 +47,7 @@ public class PrepareBuildTask implements LauncherBuildTask {
                 throw new RuntimeException(ex);
             }
         })) {
-            var map = stream.collect(Collectors.toMap(k -> server.launcherPack.relativize(k).toString(), (v) -> v));
+            var map = stream.collect(Collectors.toMap(k -> server.launcherPack.relativize(k).toString().replace("\\", "/"), (v) -> v));
             server.launcherBinary.files.putAll(map);
         }
         UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), result);
@@ -53,14 +55,8 @@ public class PrepareBuildTask implements LauncherBuildTask {
         return result;
     }
 
-    @Override
-    public boolean allowDelete() {
-        return false;
-    }
-
     public void tryUnpack() throws IOException {
         logger.info("Unpacking launcher native guard list and runtime");
-        UnpackHelper.unpackZipNoCheck("guard.zip", server.launcherBinary.guardDir);
         UnpackHelper.unpackZipNoCheck("runtime.zip", server.launcherBinary.runtimeDir);
     }
 

@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.auth.protect.interfaces;
 
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.socket.Client;
 
 public interface ProfilesProtectHandler {

@@ -1,9 +1,9 @@
 package pro.gravit.launchserver.modules.impl;
 
-import pro.gravit.launcher.modules.LauncherInitContext;
-import pro.gravit.launcher.modules.LauncherModule;
-import pro.gravit.launcher.modules.LauncherModuleInfo;
-import pro.gravit.launcher.modules.events.InitPhase;
+import pro.gravit.launcher.base.modules.LauncherInitContext;
+import pro.gravit.launcher.base.modules.LauncherModule;
+import pro.gravit.launcher.base.modules.LauncherModuleInfo;
+import pro.gravit.launcher.base.modules.events.InitPhase;
 import pro.gravit.utils.Version;
 
 public class LaunchServerCoreModule extends LauncherModule {

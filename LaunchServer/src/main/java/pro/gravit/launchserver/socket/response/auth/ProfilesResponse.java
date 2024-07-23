@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.ProfilesRequestEvent;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.socket.Client;
@@ -36,7 +36,7 @@ public class ProfilesResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (server.config.protectHandler instanceof ProfilesProtectHandler && !((ProfilesProtectHandler) server.config.protectHandler).canGetProfiles(client)) {
+        if (server.config.protectHandler instanceof ProfilesProtectHandler profilesProtectHandler && !profilesProtectHandler.canGetProfiles(client)) {
             sendError("Access denied");
             return;
         }

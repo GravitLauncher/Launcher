@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.binary;
 
-import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.*;
 
@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class JARLauncherBinary extends LauncherBinary {
     public final AtomicLong count;
     public final Path runtimeDir;
-    public final Path guardDir;
     public final Path buildDir;
     public final List<Path> coreLibs;
     public final List<Path> addonLibs;
@@ -24,10 +23,9 @@ public final class JARLauncherBinary extends LauncherBinary {
     public final Map<String, Path> files;
 
     public JARLauncherBinary(LaunchServer server) throws IOException {
-        super(server, resolve(server, ".jar"), "Launcher-%s-%d.jar");
+        super(server, resolve(server, ".jar"), "Launcher-%s.jar");
         count = new AtomicLong(0);
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
-        guardDir = server.dir.resolve(Launcher.GUARD_DIR);
         buildDir = server.dir.resolve("build");
         coreLibs = new ArrayList<>();
         addonLibs = new ArrayList<>();

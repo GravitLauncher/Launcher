@@ -4,26 +4,27 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherConfig;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
-import pro.gravit.launchserver.binary.tasks.exe.Launch4JTask;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
-import pro.gravit.launchserver.components.RegLimiterComponent;
-import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.JVMHelper;
 
-import java.io.File;
 import java.util.*;
 
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public final class LaunchServerConfig {
+    private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/",
+            "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/", "https://mirror.gravitlauncher.com/5.4.x/",
+            "https://mirror.gravitlauncher.com/5.5.x/");
     private transient final Logger logger = LogManager.getLogger();
     public String projectName;
     public String[] mirrors;
@@ -35,31 +36,16 @@ public final class LaunchServerConfig {
     // Handlers & Providers
     public ProtectHandler protectHandler;
     public Map<String, Component> components;
-    public ExeConf launch4j;
     public NettyConfig netty;
     public LauncherConf launcher;
     public JarSignerConf sign;
-    public String startScript;
     private transient LaunchServer server = null;
     private transient AuthProviderPair authDefault;
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
-        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.3.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
-        newConfig.launch4j = new LaunchServerConfig.ExeConf();
-        newConfig.launch4j.enabled = false;
-        newConfig.launch4j.copyright = "© GravitLauncher Team";
-        newConfig.launch4j.fileDesc = "GravitLauncher ".concat(Version.getVersion().getVersionString());
-        newConfig.launch4j.fileVer = Version.getVersion().getVersionString().concat(".").concat(String.valueOf(Version.getVersion().patch));
-        newConfig.launch4j.internalName = "Launcher";
-        newConfig.launch4j.trademarks = "This product is licensed under GPLv3";
-        newConfig.launch4j.txtFileVersion = "%s, build %d";
-        newConfig.launch4j.txtProductVersion = "%s, build %d";
-        newConfig.launch4j.productName = "GravitLauncher";
-        newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
-        newConfig.launch4j.maxVersion = "1.8.999";
+        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
-        newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.auth = new HashMap<>();
         AuthProviderPair a = new AuthProviderPair(new RejectAuthCoreProvider(),
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
@@ -84,32 +70,26 @@ public final class LaunchServerConfig {
         newConfig.netty.performance.schedulerThread = 2;
 
         newConfig.launcher = new LauncherConf();
-        newConfig.launcher.guardType = "no";
         newConfig.launcher.compress = true;
         newConfig.launcher.deleteTempFiles = true;
         newConfig.launcher.stripLineNumbers = true;
+        newConfig.launcher.customJvmOptions.add("-Dfile.encoding=UTF-8");
 
         newConfig.sign = new JarSignerConf();
 
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
         authLimiterComponent.rateLimit = 3;
-        authLimiterComponent.rateLimitMillis = 8000;
+        authLimiterComponent.rateLimitMillis = SECONDS.toMillis(8);
         authLimiterComponent.message = "Превышен лимит авторизаций";
         newConfig.components.put("authLimiter", authLimiterComponent);
-        RegLimiterComponent regLimiterComponent = new RegLimiterComponent();
-        regLimiterComponent.rateLimit = 3;
-        regLimiterComponent.rateLimitMillis = 1000 * 60 * 60 * 10; //Блок на 10 часов
-        regLimiterComponent.message = "Превышен лимит регистраций";
-        newConfig.components.put("regLimiter", regLimiterComponent);
         ProGuardComponent proGuardComponent = new ProGuardComponent();
         newConfig.components.put("proguard", proGuardComponent);
         return newConfig;
     }
 
-    public LaunchServerConfig setLaunchServer(LaunchServer server) {
+    public void setLaunchServer(LaunchServer server) {
         this.server = server;
-        return this;
     }
 
     public AuthProviderPair getAuthProviderPair(String name) {
@@ -140,7 +120,7 @@ public final class LaunchServerConfig {
     }
 
     public void verify() {
-        if (auth == null || auth.size() < 1) {
+        if (auth == null || auth.isEmpty()) {
             throw new NullPointerException("AuthProviderPair`s count should be at least one");
         }
 
@@ -168,12 +148,9 @@ public final class LaunchServerConfig {
             boolean updateMirror = Boolean.getBoolean("launchserver.config.disableUpdateMirror");
             if (!updateMirror) {
                 for (int i = 0; i < mirrors.length; ++i) {
-                    if ("https://mirror.gravit.pro/5.2.x/".equals(mirrors[i])) {
-                        logger.warn("Replace mirror 'https://mirror.gravit.pro/5.2.x/' to 'https://mirror.gravitlauncher.com/5.3.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'");
-                        mirrors[i] = "https://mirror.gravitlauncher.com/5.3.x/";
-                    } else if ("https://mirror.gravit.pro/5.3.x/".equals(mirrors[i])) {
-                        logger.warn("Replace mirror 'https://mirror.gravit.pro/5.3.x/' to 'https://mirror.gravitlauncher.com/5.3.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'");
-                        mirrors[i] = "https://mirror.gravitlauncher.com/5.3.x/";
+                    if (mirrors[i] != null && oldMirrorList.contains(mirrors[i])) {
+                        logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.6.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
+                        mirrors[i] = "https://mirror.gravitlauncher.com/5.6.x/";
                     }
                 }
             }
@@ -188,7 +165,6 @@ public final class LaunchServerConfig {
         if (protectHandler != null) {
             server.registerObject("protectHandler", protectHandler);
             protectHandler.init(server);
-            protectHandler.checkLaunchServerLicense();
         }
         if (components != null) {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
@@ -214,9 +190,9 @@ public final class LaunchServerConfig {
             if (type.equals(LaunchServer.ReloadType.FULL)) {
                 components.forEach((k, component) -> {
                     server.unregisterObject("component.".concat(k), component);
-                    if (component instanceof AutoCloseable) {
+                    if (component instanceof AutoCloseable autoCloseable) {
                         try {
-                            ((AutoCloseable) component).close();
+                            autoCloseable.close();
                         } catch (Exception e) {
                             logger.error(e);
                         }
@@ -232,25 +208,6 @@ public final class LaunchServerConfig {
         }
     }
 
-    public static class ExeConf {
-        public boolean enabled;
-        public boolean setMaxVersion;
-        public String maxVersion;
-        public String minVersion = "1.8.0";
-        public String supportURL = null;
-        public String downloadUrl = Launch4JTask.DOWNLOAD_URL;
-        public String productName;
-        public String productVer;
-        public String fileDesc;
-        public String fileVer;
-        public String internalName;
-        public String copyright;
-        public String trademarks;
-
-        public String txtFileVersion;
-        public String txtProductVersion;
-    }
-
     public static class JarSignerConf {
         public boolean enabled = false;
         public String keyStore = "pathToKey";
@@ -261,6 +218,7 @@ public final class LaunchServerConfig {
         public String metaInfKeyName = "SIGNUMO.RSA";
         public String metaInfSfName = "SIGNUMO.SF";
         public String signAlgo = "SHA256WITHRSA";
+        public boolean checkCertificateExpired = true;
     }
 
     public static class NettyUpdatesBind {
@@ -269,7 +227,6 @@ public final class LaunchServerConfig {
     }
 
     public static class LauncherConf {
-        public String guardType;
         public boolean compress;
         public boolean stripLineNumbers;
         public boolean deleteTempFiles;
@@ -303,6 +260,12 @@ public final class LaunchServerConfig {
         public int workerThread;
         public int schedulerThread;
         public int maxWebSocketRequestBytes = 1024 * 1024;
+        public boolean disableThreadSafeClientObject;
+        public NettyExecutorType executorType = NettyExecutorType.VIRTUAL_THREADS;
+
+        public enum NettyExecutorType {
+            NONE, DEFAULT, WORK_STEAL, VIRTUAL_THREADS
+        }
     }
 
     public static class NettyBindAddress {
@@ -316,9 +279,9 @@ public final class LaunchServerConfig {
     }
 
     public static class NettySecurityConfig {
-        public long hardwareTokenExpire = 60 * 60 * 8;
-        public long publicKeyTokenExpire = 60 * 60 * 8;
+        public long hardwareTokenExpire = HOURS.toSeconds(8);
+        public long publicKeyTokenExpire = HOURS.toSeconds(8);
 
-        public long launcherTokenExpire = 60 * 60 * 8;
+        public long launcherTokenExpire = HOURS.toSeconds(8);
     }
 }

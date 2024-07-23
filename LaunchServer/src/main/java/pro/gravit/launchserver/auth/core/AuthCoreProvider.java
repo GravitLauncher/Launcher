@@ -3,20 +3,25 @@ package pro.gravit.launchserver.auth.core;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.details.AuthPasswordDetails;
-import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
-import pro.gravit.launcher.request.secure.HardwareReportRequest;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.events.RequestEvent;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.base.events.request.GetAvailabilityAuthRequestEvent;
+import pro.gravit.launcher.base.profiles.PlayerProfile;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
+import pro.gravit.launcher.base.request.auth.details.AuthPasswordDetails;
+import pro.gravit.launcher.base.request.auth.password.AuthPlainPassword;
+import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportGetAllUsers;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportRegistration;
-import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportSudo;
+import pro.gravit.launchserver.auth.core.openid.OpenIDAuthCoreProvider;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
@@ -30,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /*
 All-In-One provider
@@ -38,6 +44,8 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
     public static final ProviderMap<AuthCoreProvider> providers = new ProviderMap<>("AuthCoreProvider");
     private static final Logger logger = LogManager.getLogger();
     private static boolean registredProviders = false;
+    protected transient LaunchServer server;
+    protected transient AuthProviderPair pair;
 
     public static void registerProviders() {
         if (!registredProviders) {
@@ -45,8 +53,9 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
             providers.register("mysql", MySQLCoreProvider.class);
             providers.register("postgresql", PostgresSQLCoreProvider.class);
             providers.register("memory", MemoryAuthCoreProvider.class);
-            providers.register("http", HttpAuthCoreProvider.class);
             providers.register("merge", MergeAuthCoreProvider.class);
+            providers.register("openid", OpenIDAuthCoreProvider.class);
+            providers.register("sql", SQLCoreProvider.class);
             registredProviders = true;
         }
     }
@@ -73,11 +82,9 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         return authorize(user.getUsername(), context, password, minecraftAccess);
     }
 
-    public abstract void init(LaunchServer server);
-
-    // Auth Handler methods
-    protected boolean updateServerID(User user, String serverID) throws IOException {
-        throw new UnsupportedOperationException();
+    public void init(LaunchServer server, AuthProviderPair pair) {
+        this.server = server;
+        this.pair = pair;
     }
 
     public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
@@ -140,7 +147,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
             if (instance != null) {
                 map.put("getallusers", new SubCommand("(limit)", "print all users information") {
                     @Override
-                    public void invoke(String... args) throws Exception {
+                    public void invoke(String... args) {
                         int max = Integer.MAX_VALUE;
                         if (args.length > 0) max = Integer.parseInt(args[0]);
                         Iterable<User> users = instance.getAllUsers();
@@ -179,28 +186,6 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                             logger.info("UserHardware {} not found", args[0]);
                         } else {
                             logger.info("UserHardware: {}", hardware);
-                        }
-                    }
-                });
-                map.put("getuserhardware", new SubCommand("[username]", "get hardware by username") {
-                    @Override
-                    public void invoke(String... args) throws Exception {
-                        verifyArgs(args, 1);
-                        User user = getUserByUUID(UUID.fromString(args[0]));
-                        if (user == null) {
-                            logger.info("User {} not found", args[0]);
-                        }
-                        UserSupportHardware hardware = instance.fetchUserHardware(user);
-                        if (hardware == null) {
-                            logger.error("Method fetchUserHardware return null");
-                            return;
-                        }
-                        UserHardware userHardware = hardware.getHardware();
-                        if (userHardware == null) {
-                            logger.info("User {} not contains hardware info", args[0]);
-                        } else {
-                            logger.info("UserHardware: {}", userHardware);
-                            logger.info("HardwareInfo(JSON): {}", Launcher.gsonManager.gson.toJson(userHardware.getHardwareInfo()));
                         }
                     }
                 });
@@ -289,25 +274,78 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                 });
             }
         }
+        {
+            var instance = isSupport(AuthSupportSudo.class);
+            if(instance != null) {
+                map.put("sudo", new SubCommand("[connectUUID] [username/uuid] [isShadow] (CLIENT/API)", "Authorize connectUUID as another user without password") {
+                    @Override
+                    public void invoke(String... args) throws Exception {
+                        verifyArgs(args, 3);
+                        UUID connectUUID = UUID.fromString(args[0]);
+                        String login = args[1];
+                        boolean isShadow = Boolean.parseBoolean(args[2]);
+                        AuthResponse.ConnectTypes type;
+                        if(args.length > 3) {
+                            type = AuthResponse.ConnectTypes.valueOf(args[3]);
+                        } else {
+                            type = AuthResponse.ConnectTypes.CLIENT;
+                        }
+                        User user;
+                        if(login.length() == 36) {
+                            UUID uuid = UUID.fromString(login);
+                            user = getUserByUUID(uuid);
+                        } else {
+                            user = getUserByUsername(login);
+                        }
+                        if(user == null) {
+                            logger.error("User {} not found", login);
+                            return;
+                        }
+                        AtomicBoolean founded = new AtomicBoolean();
+                        server.nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((ch, fh) -> {
+                            var client = fh.getClient();
+                            if(client == null || !connectUUID.equals(fh.getConnectUUID())) {
+                                return;
+                            }
+                            logger.info("Found connectUUID {} with IP {}", fh.getConnectUUID(), fh.context == null ? "null" : fh.context.ip);
+                            var lock = server.config.netty.performance.disableThreadSafeClientObject ? null : client.writeLock();
+                            if(lock != null) {
+                                lock.lock();
+                            }
+                            try {
+                                var report = instance.sudo(user, isShadow);
+                                User user1 = report.session().getUser();
+                                server.authManager.internalAuth(client, type, pair, user1.getUsername(), user1.getUUID(), user1.getPermissions(), true);
+                                client.sessionObject = report.session();
+                                client.coreObject = report.session().getUser();
+                                PlayerProfile playerProfile = server.authManager.getPlayerProfile(client);
+                                AuthRequestEvent request = new AuthRequestEvent(user1.getPermissions(), playerProfile,
+                                        report.minecraftAccessToken(), null, null,
+                                        new AuthRequestEvent.OAuthRequestEvent(report.oauthAccessToken(), report.oauthRefreshToken(), report.oauthExpire()));
+                                request.requestUUID = RequestEvent.eventUUID;
+                                server.nettyServerSocketHandler.nettyServer.service.sendObject(ch, request);
+                            } catch (Throwable e) {
+                                logger.error("Sudo error", e);
+                            } finally {
+                                if(lock != null) {
+                                    lock.unlock();
+                                }
+                                founded.set(true);
+                            }
+                        });
+                        if(!founded.get()) {
+                            logger.error("ConnectUUID {} not found", connectUUID);
+                        }
+                    }
+                });
+            }
+        }
         return map;
     }
 
-    public User checkServer(Client client, String username, String serverID) throws IOException {
-        User user = getUserByUsername(username);
-        if (user == null) {
-            return null;
-        }
-        if (user.getUsername().equals(username) && user.getServerId().equals(serverID)) {
-            return user;
-        }
-        return null;
-    }
+    public abstract User checkServer(Client client, String username, String serverID) throws IOException;
 
-    public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
-        User user = client.getUser();
-        if (user == null) return false;
-        return user.getUsername().equals(username) && user.getAccessToken().equals(accessToken) && updateServerID(user, serverID);
-    }
+    public abstract boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException;
 
     @SuppressWarnings("unchecked")
     public <T> T isSupport(Class<T> clazz) {
@@ -316,7 +354,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
     }
 
     @Override
-    public abstract void close() throws IOException;
+    public abstract void close();
 
     public static class PasswordVerifyReport {
         public static final PasswordVerifyReport REQUIRED_2FA = new PasswordVerifyReport(-1);

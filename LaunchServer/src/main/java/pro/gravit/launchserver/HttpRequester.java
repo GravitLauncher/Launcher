@@ -1,7 +1,7 @@
 package pro.gravit.launchserver;
 
 import com.google.gson.JsonElement;
-import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launchserver.helper.HttpHelper;
 
 import java.io.IOException;
@@ -18,6 +18,10 @@ public class HttpRequester {
     }
 
     public <T> SimpleErrorHandler<T> makeEH(Class<T> clazz) {
+        return new SimpleErrorHandler<>(clazz);
+    }
+
+    public <T> SimpleErrorHandler<T> makeEH(Type clazz) {
         return new SimpleErrorHandler<>(clazz);
     }
 
@@ -57,6 +61,10 @@ public class HttpRequester {
 
     public <T> HttpHelper.HttpOptional<T, SimpleError> send(HttpRequest request, Class<T> clazz) throws IOException {
         return HttpHelper.send(httpClient, request, makeEH(clazz));
+    }
+
+    public <T> HttpHelper.HttpOptional<T, SimpleError> send(HttpRequest request, Type type) throws IOException {
+        return HttpHelper.send(httpClient, request, makeEH(type));
     }
 
 

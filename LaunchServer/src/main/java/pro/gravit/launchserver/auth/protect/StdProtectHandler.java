@@ -2,7 +2,7 @@ package pro.gravit.launchserver.auth.protect;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.socket.Client;
@@ -21,25 +21,20 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
     }
 
     @Override
-    public void checkLaunchServerLicense() {
-
-    }
-
-    @Override
     public void init(LaunchServer server) {
-        if (profileWhitelist != null && profileWhitelist.size() > 0) {
+        if (profileWhitelist != null && !profileWhitelist.isEmpty()) {
             logger.warn("profileWhitelist deprecated. Please use permission 'launchserver.profile.PROFILE_UUID.show' and 'launchserver.profile.PROFILE_UUID.enter'");
         }
     }
 
     @Override
     public boolean canGetProfile(ClientProfile profile, Client client) {
-        return !profile.isLimited() || isWhitelisted("launchserver.profile.%s.show", profile, client);
+        return (client.isAuth && !profile.isLimited()) || isWhitelisted("launchserver.profile.%s.show", profile, client);
     }
 
     @Override
     public boolean canChangeProfile(ClientProfile profile, Client client) {
-        return !profile.isLimited() || isWhitelisted("launchserver.profile.%s.enter", profile, client);
+        return (client.isAuth && !profile.isLimited()) || isWhitelisted("launchserver.profile.%s.enter", profile, client);
     }
 
     @Override
@@ -49,17 +44,16 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
 
     private boolean isWhitelisted(String property, ClientProfile profile, Client client) {
         if (client.permissions != null) {
-            String permByUUID = String.format(property, profile.getUUID());
+            String permByUUID = property.formatted(profile.getUUID());
             if (client.permissions.hasPerm(permByUUID)) {
                 return true;
             }
-            String permByTitle = String.format(property, profile.getTitle().toLowerCase(Locale.ROOT));
+            String permByTitle = property.formatted(profile.getTitle().toLowerCase(Locale.ROOT));
             if (client.permissions.hasPerm(permByTitle)) {
                 return true;
             }
         }
         List<String> allowedUsername = profileWhitelist.get(profile.getTitle());
-        if (allowedUsername != null && allowedUsername.contains(client.username)) return true;
-        return false;
+        return allowedUsername != null && allowedUsername.contains(client.username);
     }
 }

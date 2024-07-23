@@ -1,17 +1,23 @@
 package pro.gravit.launchserver.auth;
 
-import pro.gravit.launcher.events.request.AuthRequestEvent;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public final class AuthException extends IOException {
+    @Serial
     private static final long serialVersionUID = -2586107832847245863L;
 
 
     public AuthException(String message) {
         super(message);
+    }
+
+    public AuthException(String message, Throwable cause) {
+        super(message, cause);
     }
 
     public static AuthException need2FA() {

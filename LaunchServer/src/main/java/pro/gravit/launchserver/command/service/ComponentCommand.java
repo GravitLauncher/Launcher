@@ -2,7 +2,7 @@ package pro.gravit.launchserver.command.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.components.Component;
@@ -37,7 +37,6 @@ public class ComponentCommand extends Command {
         logger.info("Print help for component:");
         logger.info("component unload [componentName]");
         logger.info("component load [componentName] [filename]");
-        logger.info("component gc [componentName]");
     }
 
     @Override
@@ -60,8 +59,8 @@ public class ComponentCommand extends Command {
                 logger.error("Component {} not found", componentName);
                 return;
             }
-            if (component instanceof AutoCloseable) {
-                ((AutoCloseable) component).close();
+            if (component instanceof AutoCloseable autoCloseable) {
+                autoCloseable.close();
             }
             server.unregisterObject("component." + componentName, component);
             server.config.components.remove(componentName);

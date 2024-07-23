@@ -3,9 +3,11 @@ package pro.gravit.launchserver.command;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
-import pro.gravit.launcher.AsyncDownloader;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.Downloader;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.utils.Downloader;
+import pro.gravit.utils.command.CommandException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -29,15 +31,25 @@ public abstract class Command extends pro.gravit.utils.command.Command {
         this.server = server;
     }
 
+    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException {
+        if(arg.isEmpty()) {
+            throw new CommandException("ClientVersion can't be empty");
+        }
+        return Launcher.gsonManager.gson.fromJson(arg, ClientProfile.Version.class);
+    }
+
     protected boolean showApplyDialog(String text) throws IOException {
         System.out.printf("%s [Y/N]:", text);
         String response = server.commandHandler.readLine().toLowerCase(Locale.ROOT);
         return response.equals("y");
     }
 
-    protected Downloader downloadWithProgressBar(String taskName, List<AsyncDownloader.SizedFile> list, String baseUrl, Path targetDir) throws Exception {
+    protected Downloader downloadWithProgressBar(String taskName, List<Downloader.SizedFile> list, String baseUrl, Path targetDir) throws Exception {
         long total = 0;
-        for (AsyncDownloader.SizedFile file : list) {
+        for (Downloader.SizedFile file : list) {
+            if(file.size < 0) {
+                continue;
+            }
             total += file.size;
         }
         long totalFiles = list.size();
@@ -49,7 +61,7 @@ public abstract class Command extends pro.gravit.utils.command.Command {
                 .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BLOCK)
                 .setUnit("MB", 1024 * 1024)
                 .build();
-        bar.setExtraMessage(String.format(" [0/%d]", totalFiles));
+        bar.setExtraMessage(" [0/%d]".formatted(totalFiles));
         Downloader downloader = Downloader.downloadList(list, baseUrl, targetDir, new Downloader.DownloadCallback() {
             @Override
             public void apply(long fullDiff) {
@@ -59,7 +71,7 @@ public abstract class Command extends pro.gravit.utils.command.Command {
 
             @Override
             public void onComplete(Path path) {
-                bar.setExtraMessage(String.format(" [%d/%d]", currentFiles.incrementAndGet(), totalFiles));
+                bar.setExtraMessage(" [%d/%d]".formatted(currentFiles.incrementAndGet(), totalFiles));
             }
         }, null, 4);
         downloader.getFuture().handle((v, e) -> {

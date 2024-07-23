@@ -1,29 +1,28 @@
 package pro.gravit.launcher.server.setup;
 
-import pro.gravit.launcher.events.request.GetPublicKeyRequestEvent;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.auth.GetPublicKeyRequest;
-import pro.gravit.launcher.request.websockets.StdWebSocketService;
+import pro.gravit.launcher.base.events.request.GetPublicKeyRequestEvent;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileVersions;
+import pro.gravit.launcher.base.request.Request;
+import pro.gravit.launcher.base.request.auth.GetPublicKeyRequest;
+import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.server.ServerWrapper;
-import pro.gravit.utils.PublicURLClassLoader;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.jar.JarFile;
 
 public class ServerWrapperSetup {
     public ServerWrapperCommands commands;
-    public PublicURLClassLoader urlClassLoader;
+    public URLClassLoader urlClassLoader;
 
     public ServerWrapperSetup() throws IOException {
         commands = new ServerWrapperCommands();
@@ -38,7 +37,7 @@ public class ServerWrapperSetup {
         String agentClassName;
         try (JarFile file = new JarFile(jarPath.toFile())) {
             URL jarURL = jarPath.toUri().toURL();
-            urlClassLoader = new PublicURLClassLoader(new URL[]{jarURL});
+            urlClassLoader = new URLClassLoader(new URL[]{jarURL});
             LogHelper.info("Check server jar MainClass");
             mainClassName = file.getManifest().getMainAttributes().getValue("Main-Class");
             agentClassName = file.getManifest().getMainAttributes().getValue("Premain-Class");
@@ -76,7 +75,7 @@ public class ServerWrapperSetup {
             }
             System.out.println("Print server token:");
             String checkServerToken = commands.commandHandler.readLine();
-            wrapper.config.extendedTokens.put("checkServer", checkServerToken);
+            wrapper.config.extendedTokens.put("checkServer", new Request.ExtendedToken(checkServerToken, 0));
             wrapper.updateLauncherConfig();
             try {
                 wrapper.restore();
@@ -92,7 +91,7 @@ public class ServerWrapperSetup {
                 }
             }
         }
-        if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfile.Version.MC118) >= 0) {
+        if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_18) >= 0) {
             LogHelper.info("Switch to alternative start mode (1.18)");
             wrapper.config.classpath.add(jarName);
             wrapper.config.classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;

@@ -1,1 +1,0 @@
-SELECT username FROM joomla_users WHERE (email=? OR username=?) AND password=CONCAT_WS(':', MD5(CONCAT(?, SUBSTRING_INDEX(SUBSTRING_INDEX(password, ':', 2), ':', -1))), SUBSTRING_INDEX(SUBSTRING_INDEX(password, ':', 2), ':', -1)) LIMIT 1

@@ -11,16 +11,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public final class UnpackHelper {
-    public static boolean unpack(URL resource, Path target) throws IOException {
+    public static void unpack(URL resource, Path target) throws IOException {
         if (IOHelper.isFile(target)) {
-            if (matches(target, resource)) return false;
+            if (matches(target, resource)) return;
         }
         Files.deleteIfExists(target);
         IOHelper.createParentDirs(target);
         try (InputStream in = IOHelper.newInput(resource)) {
             IOHelper.transfer(in, target);
         }
-        return true;
     }
 
     private static boolean matches(Path target, URL in) {
@@ -48,10 +47,10 @@ public final class UnpackHelper {
         return true;
     }
 
-    public static boolean unpackZipNoCheck(String resource, Path target) throws IOException {
+    public static void unpackZipNoCheck(String resource, Path target) throws IOException {
         try {
             if (Files.isDirectory(target))
-                return false;
+                return;
             Files.deleteIfExists(target);
             Files.createDirectory(target);
             try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL(resource))) {
@@ -62,9 +61,7 @@ public final class UnpackHelper {
                     IOHelper.transfer(input, target.resolve(IOHelper.toPath(entry.getName())));
                 }
             }
-            return true;
-        } catch (NoSuchFileException e) {
-            return true;
+        } catch (NoSuchFileException ignored) {
         }
     }
 }

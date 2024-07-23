@@ -7,13 +7,13 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.util.CharsetUtil;
 import pro.gravit.launchserver.socket.handlers.ContentType;
+import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
@@ -152,7 +152,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(time));
 
         // Add cache headers
-        response.headers().set(HttpHeaderNames.EXPIRES, dateFormatter.format(time.plus(HTTP_CACHE_SECONDS, ChronoUnit.SECONDS)));
+        response.headers().set(HttpHeaderNames.EXPIRES, dateFormatter.format(time.plusSeconds(HTTP_CACHE_SECONDS)));
         response.headers().set(HttpHeaderNames.CACHE_CONTROL, "private, max-age=" + HTTP_CACHE_SECONDS);
         response.headers().set(
                 HttpHeaderNames.LAST_MODIFIED, dateFormatter.format(Instant.ofEpochMilli(fileToCache.lastModified())));
@@ -182,12 +182,18 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
             return;
         }
 
-        final String uri = request.uri();
+        // URLDecoder tries to decode string as application/x-www-form-urlencoded which allows + character to be used as space escape therefore breaking file names with +
+        final String uri = IOHelper.urlDecodeStrict(request.uri());
         final String path;
 
+        if (uri == null) {
+            sendError(ctx, NOT_FOUND);
+            return;
+        }
+
         try {
-            path = Paths.get(new URI(uri).getPath()).normalize().toString().substring(1);
-        } catch (URISyntaxException e) {
+            path = Paths.get(IOHelper.getPathFromUrlFragment(uri)).normalize().toString().substring(1);
+        } catch (InvalidPathException e) {
             sendError(ctx, BAD_REQUEST);
             return;
         }

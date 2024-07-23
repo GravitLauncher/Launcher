@@ -44,4 +44,9 @@ public class VerifySecureLevelKeyResponse extends SimpleResponse {
         }
 
     }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
+    }
 }

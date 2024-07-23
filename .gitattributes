@@ -1,26 +1,78 @@
-* text eol=lf
-*.bat text eol=crlf
-*.sh text eol=lf
+* text=auto eol=lf
+*.[cC][mM][dD] text eol=crlf
+*.[bB][aA][tT] text eol=crlf
+*.[pP][sS]1 text eol=crlf
+*.[sS][hH] text eol=lf
 
 *.patch text eol=lf
-*.java text eol=lf
-*.scala text eol=lf
-*.groovy text eol=lf
-
-*.gradle text eol=crlf
-gradle.properties text eol=crlf
-/gradle/wrapper/gradle-wrapper.properties text eol=crlf
-*.cfg text eol=lf
 
 *.png binary
-*.jar binary
-*.war binary
 *.lzma binary
 *.zip binary
 *.gzip binary
-*.dll binary
-*.so binary
 *.exe binary
+*.ico binary
+*.eot binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.a binary
+*.lib binary
+*.icns binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.fla binary
+*.swf binary
+*.gz binary
+*.tar binary
+*.tar.gz binary
+*.7z binary
+*.pyc binary
+*.gpg binary
+*.bin binary
 
-*.gitattributes text eol=crlf
-*.gitignore text eol=crlf
+*.gitattributes text
+.gitignore      text
+
+# Java sources
+*.java          text diff=java
+*.kt            text diff=kotlin
+*.groovy        text diff=java
+*.scala         text diff=java
+*.gradle        text diff=java
+*.gradle.kts    text diff=kotlin
+
+# These files are text and should be normalized (Convert crlf => lf)
+*.css           text diff=css
+*.scss          text diff=css
+*.sass          text
+*.df            text
+*.htm           text diff=html
+*.html          text diff=html
+*.js            text
+*.jsp           text
+*.jspf          text
+*.jspx          text
+*.properties    text
+*.tld           text
+*.tag           text
+*.tagx          text
+*.xml           text
+
+# These files are binary and should be left untouched
+# (binary is a macro for -text -diff)
+*.class         binary
+*.dll           binary
+*.ear           binary
+*.jar           binary
+*.so            binary
+*.war           binary
+*.jks           binary
+
+mvnw            text eol=lf
+gradlew         text eol=lf

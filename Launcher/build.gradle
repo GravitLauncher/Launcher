@@ -1,20 +1,15 @@
-apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-String mainClassName = "pro.gravit.launcher.ClientLauncherWrapper"
-String mainAgentName = "pro.gravit.launcher.LauncherAgent"
+String mainClassName = "pro.gravit.launcher.start.ClientLauncherWrapper"
+String mainAgentName = "pro.gravit.launcher.runtime.LauncherAgent"
 
 repositories {
     maven {
         url "https://repo.spring.io/plugins-release/"
     }
 }
-javafx {
-    version = "12"
-    modules = ['javafx.controls', 'javafx.fxml']
-}
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 configurations {
     bundle
@@ -26,15 +21,16 @@ jar {
     archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
-            "Multi-Release": "true")
+            "Multi-Release": "true",
+            "Automatic-Module-Name": "GravitLauncher")
 }
 
-task sourcesJar(type: Jar) {
+tasks.register('sourcesJar', Jar) {
     from sourceSets.main.allJava
     archiveClassifier.set('sources')
 }
 
-task javadocJar(type: Jar) {
+tasks.register('javadocJar', Jar) {
     from javadoc
     archiveClassifier.set('javadoc')
 }
@@ -49,18 +45,19 @@ shadowJar {
 
 dependencies {
     pack project(':LauncherAPI')
-    bundle group: 'com.github.oshi', name: 'oshi-core', version: rootProject['verOshiCore']
-    pack group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
+    pack project(':LauncherClient')
+    pack project(':LauncherStart')
+    bundle(group: 'com.github.oshi', name: 'oshi-core', version: rootProject['verOshiCore'])
 }
 
-task genRuntimeJS(type: Zip) {
+tasks.register('genRuntimeJS', Zip) {
     duplicatesStrategy = 'EXCLUDE'
     archiveFileName = "runtime.zip"
     destinationDirectory = file("${buildDir}/tmp")
     from "runtime/"
 }
 
-task dumpLibs(type: Copy) {
+tasks.register('dumpLibs', Copy) {
     duplicatesStrategy = 'EXCLUDE'
     into "$buildDir/libs/libraries"
     from configurations.bundle

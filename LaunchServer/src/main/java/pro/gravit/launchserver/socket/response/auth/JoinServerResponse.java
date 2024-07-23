@@ -3,18 +3,21 @@ package pro.gravit.launchserver.socket.response.auth;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.events.request.JoinServerRequestEvent;
+import pro.gravit.launcher.base.events.request.JoinServerRequestEvent;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.protect.interfaces.JoinServerProtectHandler;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.utils.HookException;
 
+import java.util.UUID;
+
 public class JoinServerResponse extends SimpleResponse {
     private transient final Logger logger = LogManager.getLogger();
     public String serverID;
     public String accessToken;
     public String username;
+    public UUID uuid;
 
     @Override
     public String getType() {
@@ -23,25 +26,25 @@ public class JoinServerResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (!client.isAuth || client.type != AuthResponse.ConnectTypes.CLIENT) {
+        if (!server.config.protectHandler.allowJoinServer(client)) {
             sendError("Permissions denied");
             return;
         }
-        if (username == null || accessToken == null || serverID == null) {
+        if ((username == null && uuid == null) || accessToken == null || serverID == null) {
             sendError("Invalid request");
             return;
         }
         boolean success;
         try {
             server.authHookManager.joinServerHook.hook(this, client);
-            if (server.config.protectHandler instanceof JoinServerProtectHandler) {
-                success = ((JoinServerProtectHandler) server.config.protectHandler).onJoinServer(serverID, username, client);
+            if (server.config.protectHandler instanceof JoinServerProtectHandler joinServerProtectHandler) {
+                success = joinServerProtectHandler.onJoinServer(serverID, username, uuid, client);
                 if (!success) {
                     sendResult(new JoinServerRequestEvent(false));
                     return;
                 }
             }
-            success = server.authManager.joinServer(client, username, accessToken, serverID);
+            success = server.authManager.joinServer(client, username, uuid, accessToken, serverID);
             if (success) {
                 logger.debug("joinServer: {} accessToken: {} serverID: {}", username, accessToken, serverID);
             }

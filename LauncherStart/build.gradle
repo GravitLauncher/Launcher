@@ -1,0 +1,80 @@
+apply plugin: 'org.openjfx.javafxplugin'
+
+String mainClassName = "pro.gravit.launcher.ClientLauncherWrapper"
+String mainAgentName = "pro.gravit.launcher.LauncherAgent"
+
+repositories {
+    maven {
+        url "https://repo.spring.io/plugins-release/"
+    }
+}
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
+jar {
+    archiveClassifier.set('clean')
+    manifest.attributes("Main-Class": mainClassName,
+            "Premain-Class": mainAgentName,
+            "Multi-Release": "true")
+}
+
+tasks.register('sourcesJar', Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier.set('sources')
+}
+
+tasks.register('javadocJar', Jar) {
+    from javadoc
+    archiveClassifier.set('javadoc')
+}
+
+dependencies {
+    implementation project(':LauncherAPI')
+    implementation project(':LauncherClient')
+}
+
+publishing {
+    publications {
+        launcherclientstart(MavenPublication) {
+            artifactId = 'launcher-client-start-api'
+            artifact(jar) {
+                classifier ""
+            }
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'GravitLauncher Client API'
+                description = 'GravitLauncher Client Module API'
+                url = 'https://gravitlauncher.com'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gravita'
+                        name = 'Gravita'
+                        email = 'gravita@gravit.pro'
+                    }
+                    developer {
+                        id = 'zaxar163'
+                        name = 'Zaxar163'
+                        email = 'zahar.vcherachny@yandex.ru'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/GravitLauncher/Launcher.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:GravitLauncher/Launcher.git'
+                    url = 'https://gravitlauncher.com/'
+                }
+            }
+        }
+    }
+}
+
+
+signing {
+    sign publishing.publications.launcherclientstart
+}

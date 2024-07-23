@@ -10,7 +10,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 
 public class DebugCommand extends Command {
-    private transient Logger logger = LogManager.getLogger();
+    private final transient Logger logger = LogManager.getLogger();
 
     public DebugCommand(LaunchServer server) {
         super(server);

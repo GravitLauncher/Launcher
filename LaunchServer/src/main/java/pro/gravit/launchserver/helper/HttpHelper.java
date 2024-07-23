@@ -3,8 +3,8 @@ package pro.gravit.launchserver.helper;
 import com.google.gson.JsonElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.request.RequestException;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.request.RequestException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +22,7 @@ import java.util.concurrent.Flow;
 import java.util.function.Function;
 
 public final class HttpHelper {
-    private static transient final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
 
     private HttpHelper() {
         throw new UnsupportedOperationException();
@@ -37,7 +37,7 @@ public final class HttpHelper {
         }
     }
 
-    public static <T, E> CompletableFuture<HttpOptional<T, E>> sendAsync(HttpClient client, HttpRequest request, HttpErrorHandler<T, E> handler) throws IOException {
+    public static <T, E> CompletableFuture<HttpOptional<T, E>> sendAsync(HttpClient client, HttpRequest request, HttpErrorHandler<T, E> handler) {
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream()).thenApply(handler::apply);
     }
 
@@ -108,7 +108,7 @@ public final class HttpHelper {
             if (isSuccessful()) {
                 return result;
             } else {
-                throw new RequestException(error == null ? String.format("statusCode %d", statusCode) : error.toString());
+                throw new RequestException(error == null ? "statusCode %d".formatted(statusCode) : error.toString());
             }
         }
     }

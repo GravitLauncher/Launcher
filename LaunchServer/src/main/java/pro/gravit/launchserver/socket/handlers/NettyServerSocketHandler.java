@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.config.LaunchServerConfig;
+import pro.gravit.launchserver.modules.events.LaunchServerNettyFullInitEvent;
 import pro.gravit.launchserver.socket.LauncherNettyServer;
 
 import javax.net.ssl.SSLServerSocketFactory;
@@ -34,5 +35,6 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
         for (LaunchServerConfig.NettyBindAddress address : server.config.netty.binds) {
             nettyServer.bind(new InetSocketAddress(address.address, address.port));
         }
+        server.modulesManager.invokeEvent(new LaunchServerNettyFullInitEvent(server));
     }
 }

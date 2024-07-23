@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.events.request.RefreshTokenRequestEvent;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.base.events.request.RefreshTokenRequestEvent;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
@@ -18,7 +18,7 @@ public class RefreshTokenResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (refreshToken == null) {
             sendError("Invalid request");
             return;

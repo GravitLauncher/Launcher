@@ -2,20 +2,19 @@ package pro.gravit.launchserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.events.RequestEvent;
-import pro.gravit.launcher.events.request.ProfilesRequestEvent;
-import pro.gravit.launcher.managers.ConfigManager;
-import pro.gravit.launcher.modules.events.ClosePhase;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.events.RequestEvent;
+import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
+import pro.gravit.launcher.base.modules.events.ClosePhase;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
-import pro.gravit.launchserver.binary.EXEL4JLauncherBinary;
 import pro.gravit.launchserver.binary.EXELauncherBinary;
 import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.LauncherBinary;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
+import pro.gravit.launchserver.helper.SignHelper;
 import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
 import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
@@ -35,14 +34,15 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.lang.ProcessBuilder.Redirect;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.KeyStore;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -50,7 +50,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Not a singletron
  */
 public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurable {
-    public static final Class<? extends LauncherBinary> defaultLauncherEXEBinaryClass = null;
     /**
      * Working folder path
      */
@@ -83,6 +82,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      */
     public final Path profilesDir;
     public final Path tmpDir;
+    public final Path modulesDir;
+    public final Path launcherModulesDir;
+    public final Path librariesDir;
     /**
      * This object contains runtime configuration
      */
@@ -95,8 +97,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      * Pipeline for building EXE
      */
     public final LauncherBinary launcherEXEBinary;
-    //public static LaunchServer server = null;
-    public final Class<? extends LauncherBinary> launcherEXEBinaryClass;
     // Server config
     public final AuthHookManager authHookManager;
     public final LaunchServerModulesManager modulesManager;
@@ -117,12 +117,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final AtomicBoolean started = new AtomicBoolean(false);
     public final LauncherModuleLoader launcherModuleLoader;
     private final Logger logger = LogManager.getLogger();
+    public final int shardId;
     public LaunchServerConfig config;
     // Updates and profiles
     private volatile Set<ClientProfile> profilesList;
 
-    @SuppressWarnings("deprecation")
-    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager) throws IOException {
+    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager, int shardId) throws IOException {
         this.dir = directories.dir;
         this.tmpDir = directories.tmpDir;
         this.env = env;
@@ -139,6 +139,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherLibraries = directories.launcherLibrariesDir;
         launcherLibrariesCompile = directories.launcherLibrariesCompileDir;
         launcherPack = directories.launcherPackDir;
+        modulesDir = directories.modules;
+        launcherModulesDir = directories.launcherModules;
+        librariesDir = directories.librariesDir;
+        this.shardId = shardId;
         if(!Files.isDirectory(launcherPack)) {
             Files.createDirectories(launcherPack);
         }
@@ -148,9 +152,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         modulesManager.invokeEvent(new NewLaunchServerInstanceEvent(this));
 
         // Print keypair fingerprints
-
-        // Load class bindings.
-        launcherEXEBinaryClass = defaultLauncherEXEBinaryClass;
 
         runtime.verify();
         config.verify();
@@ -192,6 +193,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
         launcherModuleLoader.init();
         nettyServerSocketHandler = new NettyServerSocketHandler(this);
+        if(config.sign.checkCertificateExpired) {
+            checkCertificateExpired();
+            service.scheduleAtFixedRate(this::checkCertificateExpired, 24, 24, TimeUnit.HOURS);
+        }
         // post init modules
         modulesManager.invokeEvent(new LaunchServerPostInitPhase(this));
     }
@@ -219,7 +224,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             });
             logger.debug("Init components successful");
         }
-
+        if(!type.equals(ReloadType.NO_AUTH)) {
+            nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((channel, wsHandler) -> {
+                Client client = wsHandler.getClient();
+                if(client.auth != null) {
+                    client.auth = config.getAuthProviderPair(client.auth_id);
+                }
+            });
+        }
     }
 
     @Override
@@ -234,9 +246,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 }
                 switch (args[0]) {
                     case "full" -> reload(ReloadType.FULL);
-                    case "no_auth" -> reload(ReloadType.NO_AUTH);
                     case "no_components" -> reload(ReloadType.NO_COMPONENTS);
-                    default -> reload(ReloadType.FULL);
+                    default -> reload(ReloadType.NO_AUTH);
                 }
             }
         };
@@ -262,26 +273,37 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 }
                 pair.core.close();
                 pair.core = new RejectAuthCoreProvider();
-                pair.core.init(instance);
+                pair.core.init(instance, pair);
             }
         };
         commands.put("resetauth", resetauth);
         return commands;
     }
 
-    private LauncherBinary binary() {
-        if (launcherEXEBinaryClass != null) {
-            try {
-                return (LauncherBinary) MethodHandles.publicLookup().findConstructor(launcherEXEBinaryClass, MethodType.methodType(void.class, LaunchServer.class)).invoke(this);
-            } catch (Throwable e) {
-                logger.error(e);
-            }
+    public void checkCertificateExpired() {
+        if(!config.sign.enabled) {
+            return;
         }
         try {
-            Class.forName("net.sf.launch4j.Builder");
-            if (config.launch4j.enabled) return new EXEL4JLauncherBinary(this);
-        } catch (ClassNotFoundException ignored) {
-            logger.warn("Launch4J isn't in classpath.");
+            KeyStore keyStore = SignHelper.getStore(Paths.get(config.sign.keyStore), config.sign.keyStorePass, config.sign.keyStoreType);
+            Instant date = SignHelper.getCertificateExpired(keyStore, config.sign.keyAlias);
+            if(date == null) {
+                logger.debug("The certificate will expire at unlimited");
+            } else if(date.minus(Duration.ofDays(30)).isBefore(Instant.now())) {
+                logger.warn("The certificate will expire at {}", date.toString());
+            } else {
+                logger.debug("The certificate will expire at {}", date.toString());
+            }
+        } catch (Throwable e) {
+            logger.error("Can't get certificate expire date", e);
+        }
+    }
+
+    private LauncherBinary binary() {
+        LaunchServerLauncherExeInit event = new LaunchServerLauncherExeInit(this, null);
+        modulesManager.invokeEvent(event);
+        if(event.binary != null) {
+            return event.binary;
         }
         return new EXELauncherBinary(this);
     }
@@ -335,14 +357,17 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             // Sync updates dir
             CommonHelper.newThread("Profiles and updates sync", true, () -> {
                 try {
-                    if (!IOHelper.isDir(updatesDir))
-                        Files.createDirectory(updatesDir);
-                    updatesManager.readUpdatesDir();
-
                     // Sync profiles dir
                     if (!IOHelper.isDir(profilesDir))
                         Files.createDirectory(profilesDir);
                     syncProfilesDir();
+
+                    // Sync updates dir
+                    if (!IOHelper.isDir(updatesDir))
+                        Files.createDirectory(updatesDir);
+                    updatesManager.readUpdatesDir();
+
+
                     modulesManager.invokeEvent(new LaunchServerProfilesSyncEvent(this));
                 } catch (IOException e) {
                     logger.error("Updates/Profiles not synced", e);
@@ -370,7 +395,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         // Syncing launcher EXE binary
         logger.info("Syncing launcher EXE binary file");
-        if (!launcherEXEBinary.sync() && config.launch4j.enabled)
+        if (!launcherEXEBinary.sync())
             logger.warn("Missing launcher EXE binary file");
 
     }
@@ -407,21 +432,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         updatesManager.syncUpdatesDir(dirs);
     }
 
-    public void restart() {
-        ProcessBuilder builder = new ProcessBuilder();
-        if (config.startScript != null) builder.command(Collections.singletonList(config.startScript));
-        else throw new IllegalArgumentException("Please create start script and link it as startScript in config.");
-        builder.directory(this.dir.toFile());
-        builder.inheritIO();
-        builder.redirectErrorStream(true);
-        builder.redirectOutput(Redirect.PIPE);
-        try {
-            builder.start();
-        } catch (IOException e) {
-            logger.error("Restart failed", e);
-        }
-    }
-
     public void registerObject(String name, Object object) {
         if (object instanceof Reconfigurable) {
             reconfigurableManager.registerReconfigurable(name, (Reconfigurable) object);
@@ -432,11 +442,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         if (object instanceof Reconfigurable) {
             reconfigurableManager.unregisterReconfigurable(name);
         }
-    }
-
-    public void fullyRestart() {
-        restart();
-        JVMHelper.RUNTIME.exit(0);
     }
 
 
@@ -481,6 +486,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 profile = Launcher.gsonManager.gson.fromJson(reader, ClientProfile.class);
             }
             profile.verify();
+            profile.setProfileFilePath(file);
 
             // Add SIGNED profile to result list
             result.add(profile);
@@ -491,9 +497,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public static class LaunchServerDirectories {
         public static final String UPDATES_NAME = "updates", PROFILES_NAME = "profiles",
                 TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
-                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack", KEY_NAME = ".keys";
+                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack", KEY_NAME = ".keys", MODULES = "modules", LAUNCHER_MODULES = "launcher-modules", LIBRARIES = "libraries";
         public Path updatesDir;
         public Path profilesDir;
+        public Path librariesDir;
         public Path launcherLibrariesDir;
         public Path launcherLibrariesCompileDir;
         public Path launcherPackDir;
@@ -501,6 +508,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         public Path dir;
         public Path trustStore;
         public Path tmpDir;
+        public Path modules;
+        public Path launcherModules;
 
         public void collect() {
             if (updatesDir == null) updatesDir = getPath(UPDATES_NAME);
@@ -509,11 +518,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (launcherLibrariesDir == null) launcherLibrariesDir = getPath(LAUNCHERLIBRARIES_NAME);
             if (launcherLibrariesCompileDir == null)
                 launcherLibrariesCompileDir = getPath(LAUNCHERLIBRARIESCOMPILE_NAME);
-            if(launcherPackDir == null)
+            if (launcherPackDir == null)
                 launcherPackDir = getPath(LAUNCHERPACK_NAME);
             if (keyDirectory == null) keyDirectory = getPath(KEY_NAME);
+            if (modules == null) modules = getPath(MODULES);
+            if (launcherModules == null) launcherModules = getPath(LAUNCHER_MODULES);
+            if (librariesDir == null) librariesDir = getPath(LIBRARIES);
             if (tmpDir == null)
-                tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve(String.format("launchserver-%s", SecurityHelper.randomStringToken()));
+                tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("launchserver-%s".formatted(SecurityHelper.randomStringToken()));
         }
 
         private Path getPath(String dirName) {

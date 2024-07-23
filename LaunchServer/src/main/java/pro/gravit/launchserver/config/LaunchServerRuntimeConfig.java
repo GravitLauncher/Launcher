@@ -11,6 +11,7 @@ public class LaunchServerRuntimeConfig {
     public String unlockSecret;
     public String registerApiKey;
     public String clientCheckSecret;
+    public long buildNumber;
 
     public void verify() {
         if (passwordEncryptKey == null) logger.error("[RuntimeConfig] passwordEncryptKey must not be null");
@@ -25,5 +26,6 @@ public class LaunchServerRuntimeConfig {
         runtimeEncryptKey = SecurityHelper.randomStringAESKey();
         registerApiKey = SecurityHelper.randomStringToken();
         clientCheckSecret = SecurityHelper.randomStringToken();
+        buildNumber = 0;
     }
 }

@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.SetProfileRequestEvent;
-import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.base.events.request.SetProfileRequestEvent;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -28,8 +28,8 @@ public class SetProfileResponse extends SimpleResponse {
         Collection<ClientProfile> profiles = server.getProfiles();
         for (ClientProfile p : profiles) {
             if (p.getTitle().equals(this.client)) {
-                if (server.config.protectHandler instanceof ProfilesProtectHandler &&
-                        !((ProfilesProtectHandler) server.config.protectHandler).canChangeProfile(p, client)) {
+                if (server.config.protectHandler instanceof ProfilesProtectHandler profilesProtectHandler &&
+                        !profilesProtectHandler.canChangeProfile(p, client)) {
                     sendError("Access denied");
                     return;
                 }
@@ -39,5 +39,10 @@ public class SetProfileResponse extends SimpleResponse {
             }
         }
         sendError("Profile not found");
+    }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
     }
 }

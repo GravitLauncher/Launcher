@@ -1,9 +1,9 @@
 package pro.gravit.launchserver.auth.core;
 
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.manangers.AuthManager;
+import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
+    public UserSession getUserSessionByOAuthAccessToken(String accessToken) {
         return null;
     }
 
@@ -41,17 +41,17 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void init(LaunchServer server) {
-
+    public User checkServer(Client client, String username, String serverID) throws IOException {
+        return null;
     }
 
     @Override
-    protected boolean updateServerID(User user, String serverID) throws IOException {
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
         return false;
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
     }
 }

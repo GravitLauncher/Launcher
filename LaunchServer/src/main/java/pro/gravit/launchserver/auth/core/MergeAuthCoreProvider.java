@@ -2,9 +2,10 @@ package pro.gravit.launchserver.auth.core;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.request.auth.AuthRequest;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
@@ -17,7 +18,7 @@ import java.util.UUID;
 public class MergeAuthCoreProvider extends AuthCoreProvider {
     private transient final Logger logger = LogManager.getLogger(MergeAuthCoreProvider.class);
     public List<String> list = new ArrayList<>();
-    private transient List<AuthCoreProvider> providers = new ArrayList<>();
+    private final transient List<AuthCoreProvider> providers = new ArrayList<>();
     @Override
     public User getUserByUsername(String username) {
         for(var core : providers) {
@@ -67,12 +68,12 @@ public class MergeAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) {
         return false; // Authorization not supported
     }
 
     @Override
-    public void init(LaunchServer server) {
+    public void init(LaunchServer server, AuthProviderPair pair1) {
         for(var e : list) {
             var pair = server.config.auth.get(e);
             if(pair != null) {
@@ -84,7 +85,7 @@ public class MergeAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         // Providers closed automatically
     }
 }

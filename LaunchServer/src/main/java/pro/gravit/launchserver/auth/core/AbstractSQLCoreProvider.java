@@ -4,16 +4,19 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.password.AuthPlainPassword;
+import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
+import pro.gravit.launcher.base.request.auth.password.AuthPlainPassword;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportSudo;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
 import pro.gravit.launchserver.helper.LegacySessionHelper;
 import pro.gravit.launchserver.manangers.AuthManager;
+import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -28,9 +31,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
-    public transient Logger logger = LogManager.getLogger();
-    public int expireSeconds = 3600;
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implements AuthSupportSudo {
+    public final transient Logger logger = LogManager.getLogger();
+    public long expireSeconds = HOURS.toSeconds(1);
     public String uuidColumn;
     public String usernameColumn;
     public String accessTokenColumn;
@@ -62,7 +68,6 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
 
     public transient String updateAuthSQL;
     public transient String updateServerIDSQL;
-    public transient LaunchServer server;
 
     public abstract SQLSourceConfig getSQLConfig();
 
@@ -104,7 +109,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             if (user == null) {
                 return null;
             }
-            return new SQLUserSession(user);
+            return createSession(user);
         } catch (ExpiredJwtException e) {
             throw new OAuthAccessTokenExpired();
         } catch (JwtException e) {
@@ -129,39 +134,67 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             return null;
         }
         var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
-        return new AuthManager.AuthReport(null, accessToken, refreshToken, expireSeconds * 1000L, new SQLUserSession(user));
+        return new AuthManager.AuthReport(null, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), createSession(user));
     }
 
     @Override
     public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
-        SQLUser SQLUser = (SQLUser) getUserByLogin(login);
-        if (SQLUser == null) {
+        SQLUser user = (SQLUser) getUserByLogin(login);
+        if (user == null) {
+            throw AuthException.userNotFound();
+        }
+        AuthPlainPassword plainPassword = (AuthPlainPassword) password;
+        if (plainPassword == null) {
             throw AuthException.wrongPassword();
         }
-        if (context != null) {
-            AuthPlainPassword plainPassword = (AuthPlainPassword) password;
-            if (plainPassword == null) {
-                throw AuthException.wrongPassword();
-            }
-            if (!passwordVerifier.check(SQLUser.password, plainPassword.password)) {
-                throw AuthException.wrongPassword();
-            }
+        if (!passwordVerifier.check(user.password, plainPassword.password)) {
+            throw AuthException.wrongPassword();
         }
-        SQLUserSession session = new SQLUserSession(SQLUser);
-        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(SQLUser, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
-        var refreshToken = SQLUser.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(SQLUser.username, SQLUser.password, server.keyAgreementManager.legacySalt));
+        SQLUserSession session = createSession(user);
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        var refreshToken = user.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(user.username, user.password, server.keyAgreementManager.legacySalt));
         if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();
-            updateAuth(SQLUser, minecraftAccessToken);
-            return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, expireSeconds * 1000L, session);
+            updateAuth(user, minecraftAccessToken);
+            return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
         } else {
-            return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, expireSeconds * 1000L, session);
+            return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
         }
     }
 
     @Override
-    public void init(LaunchServer server) {
-        this.server = server;
+    public AuthManager.AuthReport sudo(User user, boolean shadow) throws IOException {
+        SQLUser sqlUser = (SQLUser) user;
+        SQLUserSession session = createSession(sqlUser);
+        var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(sqlUser, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
+        var refreshToken = sqlUser.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(sqlUser.username, sqlUser.password, server.keyAgreementManager.legacySalt));
+        String minecraftAccessToken = SecurityHelper.randomStringToken();
+        updateAuth(user, minecraftAccessToken);
+        return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
+    }
+
+    @Override
+    public User checkServer(Client client, String username, String serverID) throws IOException {
+        SQLUser user = (SQLUser) getUserByUsername(username);
+        if (user == null) {
+            return null;
+        }
+        if (user.getUsername().equals(username) && user.getServerId().equals(serverID)) {
+            return user;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
+        SQLUser user = (SQLUser) client.getUser();
+        if (user == null) return false;
+        return (uuid == null ? user.getUsername().equals(username) : user.getUUID().equals(uuid)) && user.getAccessToken().equals(accessToken) && updateServerID(user, serverID);
+    }
+
+    @Override
+    public void init(LaunchServer server, AuthProviderPair pair) {
+        super.init(server, pair);
         if (getSQLConfig() == null) logger.error("SQLHolder cannot be null");
         if (uuidColumn == null) logger.error("uuidColumn cannot be null");
         if (usernameColumn == null) logger.error("usernameColumn cannot be null");
@@ -170,20 +203,20 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         if (table == null) logger.error("table cannot be null");
         // Prepare SQL queries
         String userInfoCols = makeUserCols();
-        queryByUUIDSQL = customQueryByUUIDSQL != null ? customQueryByUUIDSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1", userInfoCols,
-                table, uuidColumn);
-        queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL : String.format("SELECT %s FROM %s WHERE %s=? LIMIT 1",
-                userInfoCols, table, usernameColumn);
+        queryByUUIDSQL = customQueryByUUIDSQL != null ? customQueryByUUIDSQL :
+                "SELECT %s FROM %s WHERE %s=? LIMIT 1".formatted(userInfoCols, table, uuidColumn);
+        queryByUsernameSQL = customQueryByUsernameSQL != null ? customQueryByUsernameSQL :
+                "SELECT %s FROM %s WHERE %s=? LIMIT 1".formatted(userInfoCols, table, usernameColumn);
         queryByLoginSQL = customQueryByLoginSQL != null ? customQueryByLoginSQL : queryByUsernameSQL;
 
 
 
 
                 
-        updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL : String.format("UPDATE %s SET %s=?, %s=NULL WHERE %s=?",
-                table, accessTokenColumn, serverIDColumn, uuidColumn);
-        updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL : String.format("UPDATE %s SET %s=? WHERE %s=?",
-                table, serverIDColumn, uuidColumn);
+        updateAuthSQL = customUpdateAuthSQL != null ? customUpdateAuthSQL :
+                "UPDATE %s SET %s=?, %s=NULL WHERE %s=?".formatted(table, accessTokenColumn, serverIDColumn, uuidColumn);
+        updateServerIDSQL = customUpdateServerIdSQL != null ? customUpdateServerIdSQL :
+                "UPDATE %s SET %s=? WHERE %s=?".formatted(table, serverIDColumn, uuidColumn);
         if (isEnabledPermissions()) {
             if(isEnabledRoles()) {
                 queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL :
@@ -198,17 +231,17 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
                         "INNER JOIN " + permissionsTable + " pr ON r." + rolesUUIDColumn + "=substring(pr." + permissionsPermissionColumn + " from 6) or r." + rolesNameColumn + "=substring(pr." + permissionsPermissionColumn + " from 6)\n" +
                         "WHERE pr." + permissionsUUIDColumn + " = ?";
             } else {
-                queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL : String.format("SELECT (%s) FROM %s WHERE %s=?",
-                        permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
+                queryPermissionsByUUIDSQL = customQueryPermissionsByUUIDSQL != null ? customQueryPermissionsByUUIDSQL :
+                        "SELECT (%s) FROM %s WHERE %s=?".formatted(permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn);
             }
         }
     }
 
     protected String makeUserCols() {
-        return String.format("%s, %s, %s, %s, %s", uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn);
+        return "%s, %s, %s, %s, %s".formatted(uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn);
     }
 
-    protected boolean updateAuth(User user, String accessToken) throws IOException {
+    protected void updateAuth(User user, String accessToken) throws IOException {
         try (Connection c = getSQLConfig().getConnection()) {
             SQLUser SQLUser = (SQLUser) user;
             SQLUser.accessToken = accessToken;
@@ -216,13 +249,12 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             s.setString(1, accessToken);
             s.setString(2, user.getUUID().toString());
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
-            return s.executeUpdate() > 0;
+            s.executeUpdate();
         } catch (SQLException e) {
             throw new IOException(e);
         }
     }
 
-    @Override
     protected boolean updateServerID(User user, String serverID) throws IOException {
         try (Connection c = getSQLConfig().getConnection()) {
             SQLUser SQLUser = (SQLUser) user;
@@ -238,13 +270,13 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         getSQLConfig().close();
     }
 
     protected SQLUser constructUser(ResultSet set) throws SQLException {
         return set.next() ? new SQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
-                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), requestPermissions(set.getString(uuidColumn))) : null;
+                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn)) : null;
     }
 
     public ClientPermissions requestPermissions (String uuid)  throws SQLException
@@ -254,14 +286,17 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     }
 
     private SQLUser queryUser(String sql, String value) throws SQLException {
+        SQLUser user;
         try (Connection c = getSQLConfig().getConnection()) {
             PreparedStatement s = c.prepareStatement(sql);
             s.setString(1, value);
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             try (ResultSet set = s.executeQuery()) {
-                return constructUser(set);
+                user = constructUser(set);
             }
         }
+        user.permissions = requestPermissions(user.uuid.toString());
+        return user;
     }
 
     private List<String> queryPermissions(String sql, String value) throws SQLException {
@@ -275,6 +310,10 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
                 perms.add(set.getString(permissionsPermissionColumn));
             return perms;
         }
+    }
+
+    protected SQLUserSession createSession(SQLUser user) {
+        return new SQLUserSession(user);
     }
 
     public boolean isEnabledPermissions() {
@@ -299,20 +338,19 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
     }
 
     public static class SQLUser implements User {
-        protected UUID uuid;
-        protected String username;
+        protected final UUID uuid;
+        protected final String username;
         protected String accessToken;
         protected String serverId;
-        protected String password;
+        protected final String password;
         protected ClientPermissions permissions;
 
-        public SQLUser(UUID uuid, String username, String accessToken, String serverId, String password, ClientPermissions permissions) {
+        public SQLUser(UUID uuid, String username, String accessToken, String serverId, String password) {
             this.uuid = uuid;
             this.username = username;
             this.accessToken = accessToken;
             this.serverId = serverId;
             this.password = password;
-            this.permissions = permissions;
         }
 
         @Override
@@ -325,12 +363,10 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
             return uuid;
         }
 
-        @Override
         public String getServerId() {
             return serverId;
         }
 
-        @Override
         public String getAccessToken() {
             return accessToken;
         }
@@ -367,6 +403,11 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider {
         @Override
         public User getUser() {
             return user;
+        }
+
+        @Override
+        public String getMinecraftAccessToken() {
+            return user.getAccessToken();
         }
 
         @Override

@@ -26,7 +26,7 @@ import java.util.zip.ZipOutputStream;
 
 public class SignJarTask implements LauncherBuildTask {
 
-    private transient static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
     private final LaunchServerConfig.JarSignerConf config;
     private final LaunchServer srv;
 
@@ -103,10 +103,5 @@ public class SignJarTask implements LauncherBuildTask {
                 e = input.getNextEntry();
             }
         }
-    }
-
-    @Override
-    public boolean allowDelete() {
-        return true;
     }
 }

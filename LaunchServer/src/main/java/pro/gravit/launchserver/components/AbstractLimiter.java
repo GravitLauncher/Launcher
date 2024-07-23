@@ -16,7 +16,7 @@ public abstract class AbstractLimiter<T> extends Component implements Reconfigur
     protected final transient Map<T, LimitEntry> map = new HashMap<>();
     private transient final Logger logger = LogManager.getLogger();
     public int rateLimit;
-    public int rateLimitMillis;
+    public long rateLimitMillis;
 
     @Override
     public Map<String, Command> getCommands() {
@@ -90,7 +90,7 @@ public abstract class AbstractLimiter<T> extends Component implements Reconfigur
         }
     }
 
-    static class LimitEntry {
+    protected static class LimitEntry {
         long time;
         int trys;
 

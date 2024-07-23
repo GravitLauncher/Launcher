@@ -1,9 +1,9 @@
 package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.events.request.LauncherRequestEvent;
-import pro.gravit.launcher.events.request.RestoreRequestEvent;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.base.events.request.LauncherRequestEvent;
+import pro.gravit.launcher.base.events.request.RestoreRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
@@ -76,6 +76,10 @@ public class RestoreResponse extends SimpleResponse {
                 return;
             }
             User user = session.getUser();
+            if(user == null) {
+                sendError("Internal Auth error: UserSession is broken");
+                return;
+            }
             client.coreObject = user;
             client.sessionObject = session;
             server.authManager.internalAuth(client, client.type == null ? AuthResponse.ConnectTypes.API : client.type, pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
@@ -100,5 +104,10 @@ public class RestoreResponse extends SimpleResponse {
     @FunctionalInterface
     public interface ExtendedTokenProvider {
         boolean accept(Client client, AuthProviderPair pair, String extendedToken);
+    }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
     }
 }

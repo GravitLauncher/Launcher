@@ -2,9 +2,8 @@ package pro.gravit.launchserver.launchermodules;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherTrustManager;
-import pro.gravit.launcher.modules.LauncherModule;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
@@ -34,7 +33,7 @@ public class LauncherModuleLoader {
 
     public LauncherModuleLoader(LaunchServer server) {
         this.server = server;
-        modulesDir = server.dir.resolve("launcher-modules");
+        modulesDir = server.launcherModulesDir;
     }
 
     public void init() {
@@ -45,12 +44,15 @@ public class LauncherModuleLoader {
                 logger.error(e);
             }
         }
-        server.commandHandler.registerCommand("syncLauncherModules", new SyncLauncherModulesCommand(this));
         MainBuildTask mainTask = server.launcherBinary.getTaskByClass(MainBuildTask.class).get();
         mainTask.preBuildHook.registerHook((buildContext) -> {
             for (ModuleEntity e : launcherModules) {
                 if (e.propertyMap != null) buildContext.task.properties.putAll(e.propertyMap);
-                buildContext.clientModules.add(e.moduleMainClass);
+                if(e.modernModule) {
+                    buildContext.clientModules.add(e.moduleMainClass);
+                } else {
+                    buildContext.legacyClientModules.add(e.moduleMainClass);
+                }
                 buildContext.readerClassPath.add(new JarFile(e.path.toFile()));
             }
         });
@@ -94,6 +96,7 @@ public class LauncherModuleLoader {
         public String moduleMainClass;
         public String moduleConfigClass;
         public String moduleConfigName;
+        public boolean modernModule;
         public Map<String, Object> propertyMap;
     }
 
@@ -104,7 +107,6 @@ public class LauncherModuleLoader {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toFile().getName().endsWith(".jar"))
                 try (JarFile f = new JarFile(file.toFile())) {
@@ -119,18 +121,9 @@ public class LauncherModuleLoader {
                         ModuleEntity entity = new ModuleEntity();
                         entity.path = file;
                         entity.moduleMainClass = mainClass;
-                        try {
-                            Class<? extends LauncherModule> mainClazz = (Class<? extends LauncherModule>) classLoader.loadClass(entity.moduleMainClass);
-                            entity.checkResult = server.modulesManager.checkModuleClass(mainClazz);
-                        } catch (Throwable e) {
-                            if (e instanceof ClassNotFoundException || e instanceof NoClassDefFoundError) {
-                                logger.error("Module-MainClass in module {} incorrect", file.toString());
-                            } else {
-                                logger.error(e);
-                            }
-                            return super.visitFile(file, attrs);
-                        }
                         entity.moduleConfigClass = attributes.getValue("Module-Config-Class");
+                        String requiredModernJava = attributes.getValue("Required-Modern-Java");
+                        entity.modernModule = Boolean.parseBoolean(requiredModernJava);
                         if (entity.moduleConfigClass != null) {
                             entity.moduleConfigName = attributes.getValue("Module-Config-Name");
                             if (entity.moduleConfigName == null) {

@@ -4,14 +4,13 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
-import pro.gravit.launcher.LauncherInject;
-import pro.gravit.launcher.LauncherInjectionConstructor;
+import pro.gravit.launcher.core.LauncherInject;
+import pro.gravit.launcher.core.LauncherInjectionConstructor;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
 public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
@@ -65,7 +64,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
                     return newClinitMethod;
                 });
         List<MethodNode> constructors = classNode.methods.stream().filter(method -> "<init>".equals(method.name))
-                .collect(Collectors.toList());
+                .toList();
         MethodNode initMethod = constructors.stream().filter(method -> method.invisibleAnnotations != null
                         && method.invisibleAnnotations.stream().anyMatch(annotation -> INJECTED_CONSTRUCTOR_DESC.equals(annotation.desc))).findFirst()
                 .orElseGet(() -> constructors.stream().filter(method -> method.desc.equals("()V")).findFirst().orElse(null));
@@ -92,7 +91,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
                 if ("value".equals(name)) {
                     if (value.getClass() != String.class)
                         throw new IllegalArgumentException(
-                                String.format("Invalid annotation with value class %s", field.getClass().getName()));
+                                "Invalid annotation with value class %s".formatted(field.getClass().getName()));
                     valueName.set(value.toString());
                 }
             }
@@ -112,7 +111,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
             }
             List<FieldInsnNode> putStaticNodes = Arrays.stream(initMethod.instructions.toArray())
                     .filter(node -> node instanceof FieldInsnNode && node.getOpcode() == Opcodes.PUTSTATIC).map(p -> (FieldInsnNode) p)
-                    .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).collect(Collectors.toList());
+                    .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).toList();
             InsnList setter = serializeValue(value);
             if (putStaticNodes.isEmpty()) {
                 setter.add(new FieldInsnNode(Opcodes.PUTSTATIC, classNode.name, field.name, field.desc));
@@ -126,11 +125,11 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
             }
         } else {
             if (initMethod == null) {
-                throw new IllegalArgumentException(String.format("Not found init in target: %s", classNode.name));
+                throw new IllegalArgumentException("Not found init in target: %s".formatted(classNode.name));
             }
             List<FieldInsnNode> putFieldNodes = Arrays.stream(initMethod.instructions.toArray())
                     .filter(node -> node instanceof FieldInsnNode && node.getOpcode() == Opcodes.PUTFIELD).map(p -> (FieldInsnNode) p)
-                    .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).collect(Collectors.toList());
+                    .filter(node -> node.owner.equals(classNode.name) && node.name.equals(field.name) && node.desc.equals(field.desc)).toList();
             InsnList setter = serializeValue(value);
             if (putFieldNodes.isEmpty()) {
                 setter.insert(new VarInsnNode(Opcodes.ALOAD, 0));
@@ -173,8 +172,7 @@ public class InjectClassAcceptor implements MainBuildTask.ASMTransformer {
                 return ((Serializer) serializerEntry.getValue()).serialize(value);
             }
         }
-        throw new UnsupportedOperationException(String.format("Serialization of type %s is not supported",
-                value.getClass()));
+        throw new UnsupportedOperationException("Serialization of type %s is not supported".formatted(value.getClass()));
     }
 
     public static boolean isSerializableValue(Object value) {

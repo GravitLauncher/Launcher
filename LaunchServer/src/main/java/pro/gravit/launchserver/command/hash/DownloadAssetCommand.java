@@ -3,12 +3,11 @@ package pro.gravit.launchserver.command.hash;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.AsyncDownloader;
-import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.Downloader;
 import pro.gravit.launchserver.HttpRequester;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.utils.Downloader;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.Writer;
@@ -43,7 +42,7 @@ public final class DownloadAssetCommand extends Command {
         verifyArgs(args, 1);
         //Version version = Version.byName(args[0]);
         String versionName = args[0];
-        String dirName = IOHelper.verifyFileName(args[1] != null ? args[1] : "assets");
+        String dirName = IOHelper.verifyFileName(args.length > 1 ? args[1] : "assets");
         String type = args.length > 2 ? args[2] : "mojang";
         Path assetDir = server.updatesDir.resolve(dirName);
 
@@ -85,7 +84,7 @@ public final class DownloadAssetCommand extends Command {
                 logger.info("Copy {} into {}", indexPath, targetPath);
                 Files.copy(indexPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
             }
-            List<AsyncDownloader.SizedFile> toDownload = new ArrayList<>(128);
+            List<Downloader.SizedFile> toDownload = new ArrayList<>(128);
             for (var e : objects.entrySet()) {
                 var value = e.getValue().getAsJsonObject();
                 var hash = value.get("hash").getAsString();
@@ -101,7 +100,7 @@ public final class DownloadAssetCommand extends Command {
                         continue;
                     }
                 }
-                toDownload.add(new AsyncDownloader.SizedFile(hash, path, size));
+                toDownload.add(new Downloader.SizedFile(hash, path, size));
             }
             logger.info("Download {} files", toDownload.size());
             Downloader downloader = downloadWithProgressBar(dirName, toDownload, RESOURCES_DOWNLOAD_URL, assetDir);

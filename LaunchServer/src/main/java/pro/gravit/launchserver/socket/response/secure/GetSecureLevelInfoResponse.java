@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.socket.response.secure;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.events.request.GetSecureLevelInfoRequestEvent;
+import pro.gravit.launcher.base.events.request.GetSecureLevelInfoRequestEvent;
 import pro.gravit.launchserver.auth.protect.interfaces.SecureProtectHandler;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -30,5 +30,10 @@ public class GetSecureLevelInfoResponse extends SimpleResponse {
         GetSecureLevelInfoRequestEvent response = new GetSecureLevelInfoRequestEvent(client.trustLevel.verifySecureKey);
         response.enabled = true;
         sendResult(secureProtectHandler.onGetSecureLevelInfo(response));
+    }
+
+    @Override
+    public ThreadSafeStatus getThreadSafeStatus() {
+        return ThreadSafeStatus.READ_WRITE;
     }
 }

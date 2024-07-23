@@ -2,13 +2,12 @@ package pro.gravit.launcher.server.authlib;
 
 import pro.gravit.utils.helper.SecurityHelper;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class LibrariesLstModifier implements LibrariesHashFileModifier {
 
     @Override
-    public byte[] apply(byte[] data, InstallAuthlib.InstallAuthlibContext context) throws IOException {
+    public byte[] apply(byte[] data, InstallAuthlib.InstallAuthlibContext context) {
         String[] lines = new String(data).split("\n");
         for(int i=0;i<lines.length;++i) {
             if(lines[i].contains("com.mojang:authlib")) {

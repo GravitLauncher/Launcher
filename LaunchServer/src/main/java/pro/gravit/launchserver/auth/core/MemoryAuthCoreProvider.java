@@ -1,11 +1,11 @@
 package pro.gravit.launchserver.auth.core;
 
-import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.events.request.GetAvailabilityAuthRequestEvent;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.details.AuthLoginOnlyDetails;
-import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.events.request.GetAvailabilityAuthRequestEvent;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
+import pro.gravit.launcher.base.request.auth.details.AuthLoginOnlyDetails;
 import pro.gravit.launchserver.auth.AuthException;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportSudo;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class MemoryAuthCoreProvider extends AuthCoreProvider {
+public class MemoryAuthCoreProvider extends AuthCoreProvider implements AuthSupportSudo {
     private transient final List<MemoryUser> memory = new ArrayList<>(16);
 
     @Override
@@ -53,7 +53,7 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired {
+    public UserSession getUserSessionByOAuthAccessToken(String accessToken) {
         synchronized (memory) {
             for (MemoryUser u : memory) {
                 if (u.accessToken.equals(accessToken)) {
@@ -95,14 +95,7 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    protected boolean updateServerID(User user, String serverID) throws IOException {
-        MemoryUser memoryUser = (MemoryUser) user;
-        memoryUser.serverId = serverID;
-        return true;
-    }
-
-    @Override
-    public User checkServer(Client client, String username, String serverID) throws IOException {
+    public User checkServer(Client client, String username, String serverID) {
         synchronized (memory) {
             for (MemoryUser u : memory) {
                 if (u.username.equals(username)) {
@@ -116,26 +109,26 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) {
         return true;
     }
 
     @Override
-    public void init(LaunchServer server) {
+    public void close() {
 
     }
 
     @Override
-    public void close() throws IOException {
-
+    public AuthManager.AuthReport sudo(User user, boolean shadow) throws IOException {
+        return authorize(user.getUsername(), null, null, true);
     }
 
     public static class MemoryUser implements User {
-        private String username;
-        private UUID uuid;
+        private final String username;
+        private final UUID uuid;
         private String serverId;
-        private String accessToken;
-        private ClientPermissions permissions;
+        private final String accessToken;
+        private final ClientPermissions permissions;
 
         public MemoryUser(String username) {
             this.username = username;
@@ -159,16 +152,6 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
         }
 
         @Override
-        public String getServerId() {
-            return serverId;
-        }
-
-        @Override
-        public String getAccessToken() {
-            return accessToken;
-        }
-
-        @Override
         public ClientPermissions getPermissions() {
             return permissions;
         }
@@ -188,9 +171,9 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     public static class MemoryUserSession implements UserSession {
-        private String id;
-        private MemoryUser user;
-        private long expireIn;
+        private final String id;
+        private final MemoryUser user;
+        private final long expireIn;
 
         public MemoryUserSession(MemoryUser user) {
             this.id = SecurityHelper.randomStringToken();
@@ -206,6 +189,11 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
         @Override
         public User getUser() {
             return user;
+        }
+
+        @Override
+        public String getMinecraftAccessToken() {
+            return "IGNORED";
         }
 
         @Override

@@ -4,18 +4,19 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.ClientPermissions;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.profiles.ClientProfile;
-import pro.gravit.launcher.profiles.PlayerProfile;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.password.*;
+import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.PlayerProfile;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
+import pro.gravit.launcher.base.request.auth.password.*;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.UserSession;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportExtendedCheckServer;
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportKeys;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportProperties;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportTextures;
@@ -37,19 +38,20 @@ public class AuthManager {
 
     public AuthManager(LaunchServer server) {
         this.server = server;
-        this.checkServerTokenParser = Jwts.parserBuilder()
+        this.checkServerTokenParser = Jwts.parser()
                 .requireIssuer("LaunchServer")
                 .require("tokenType", "checkServer")
-                .setSigningKey(server.keyAgreementManager.ecdsaPublicKey)
+                .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
                 .build();
     }
 
-    public String newCheckServerToken(String serverName, String authId) {
+    public String newCheckServerToken(String serverName, String authId, boolean publicOnly) {
         return Jwts.builder()
-                .setIssuer("LaunchServer")
+                .issuer("LaunchServer")
                 .claim("serverName", serverName)
                 .claim("authId", authId)
                 .claim("tokenType", "checkServer")
+                .claim("isPublic", publicOnly)
                 .signWith(server.keyAgreementManager.ecdsaPrivateKey)
                 .compact();
     }
@@ -57,7 +59,8 @@ public class AuthManager {
     public CheckServerTokenInfo parseCheckServerToken(String token) {
         try {
             var jwt = checkServerTokenParser.parseClaimsJws(token).getBody();
-            return new CheckServerTokenInfo(jwt.get("serverName", String.class), jwt.get("authId", String.class));
+            var isPublicClaim = jwt.get("isPublic", Boolean.class);
+            return new CheckServerTokenInfo(jwt.get("serverName", String.class), jwt.get("authId", String.class), isPublicClaim == null || isPublicClaim);
         } catch (Exception e) {
             return null;
         }
@@ -115,7 +118,7 @@ public class AuthManager {
             context.client.sessionObject = session;
             internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
             if (context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context)) {
-                return AuthReport.ofMinecraftAccessToken(user.getAccessToken(), session);
+                return AuthReport.ofMinecraftAccessToken(session.getMinecraftAccessToken(), session);
             }
             return AuthReport.ofMinecraftAccessToken(null, session);
         }
@@ -133,7 +136,7 @@ public class AuthManager {
             internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), result.isUsingOAuth());
             return result;
         } catch (IOException e) {
-            if (e instanceof AuthException) throw (AuthException) e;
+            if (e instanceof AuthException authException) throw authException;
             logger.error(e);
             throw new AuthException("Internal Auth Error");
         }
@@ -161,14 +164,21 @@ public class AuthManager {
 
     public CheckServerReport checkServer(Client client, String username, String serverID) throws IOException {
         if (client.auth == null) return null;
-        User user = client.auth.core.checkServer(client, username, serverID);
-        if (user == null) return null;
-        else return CheckServerReport.ofUser(user, getPlayerProfile(client.auth, user));
+        var supportExtended = client.auth.core.isSupport(AuthSupportExtendedCheckServer.class);
+        if(supportExtended != null) {
+            var session = supportExtended.extendedCheckServer(client, username, serverID);
+            if(session == null) return null;
+            return CheckServerReport.ofUserSession(session, getPlayerProfile(client.auth, session.getUser()));
+        } else {
+            var user = client.auth.core.checkServer(client, username, serverID);
+            if (user == null) return null;
+            return CheckServerReport.ofUser(user, getPlayerProfile(client.auth, user));
+        }
     }
 
-    public boolean joinServer(Client client, String username, String accessToken, String serverID) throws IOException {
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
         if (client.auth == null) return false;
-        return client.auth.core.joinServer(client, username, accessToken, serverID);
+        return client.auth.core.joinServer(client, username, uuid, accessToken, serverID);
     }
 
     public PlayerProfile getPlayerProfile(Client client) {
@@ -272,19 +282,19 @@ public class AuthManager {
     }
 
     private AuthRequest.AuthPasswordInterface tryDecryptPasswordPlain(AuthRequest.AuthPasswordInterface password) throws AuthException {
-        if (password instanceof AuthAESPassword) {
+        if (password instanceof AuthAESPassword authAESPassword) {
             try {
                 return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
-                        , ((AuthAESPassword) password).password)));
+                        , authAESPassword.password)));
             } catch (Exception ignored) {
                 throw new AuthException("Password decryption error");
             }
         }
-        if (password instanceof AuthRSAPassword) {
+        if (password instanceof AuthRSAPassword authRSAPassword) {
             try {
                 Cipher cipher = SecurityHelper.newRSADecryptCipher(server.keyAgreementManager.rsaPrivateKey);
                 return new AuthPlainPassword(
-                        IOHelper.decode(cipher.doFinal(((AuthRSAPassword) password).password))
+                        IOHelper.decode(cipher.doFinal(authRSAPassword.password))
                 );
             } catch (Exception ignored) {
                 throw new AuthException("Password decryption error");
@@ -293,7 +303,7 @@ public class AuthManager {
         return password;
     }
 
-    public record CheckServerTokenInfo(String serverName, String authId) {
+    public record CheckServerTokenInfo(String serverName, String authId, boolean isPublic) {
     }
 
     public static class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
@@ -313,7 +323,10 @@ public class AuthManager {
             client.auth = server.config.getAuthProviderPair(info.authId);
             if (client.permissions == null) client.permissions = new ClientPermissions();
             client.permissions.addPerm("launchserver.checkserver");
-            client.permissions.addPerm(String.format("launchserver.profile.%s.show", info.serverName));
+            if(!info.isPublic) {
+                client.permissions.addPerm("launchserver.checkserver.extended");
+                client.permissions.addPerm("launchserver.profile.%s.show".formatted(info.serverName));
+            }
             client.setProperty("launchserver.serverName", info.serverName);
             return true;
         }
@@ -322,20 +335,27 @@ public class AuthManager {
     public static class CheckServerReport {
         public UUID uuid;
         public User user;
+        public UserSession session;
         public PlayerProfile playerProfile;
 
-        public CheckServerReport(UUID uuid, User user, PlayerProfile playerProfile) {
+        public CheckServerReport(UUID uuid, User user, UserSession session, PlayerProfile playerProfile) {
             this.uuid = uuid;
             this.user = user;
+            this.session = session;
             this.playerProfile = playerProfile;
         }
 
         public static CheckServerReport ofUser(User user, PlayerProfile playerProfile) {
-            return new CheckServerReport(user.getUUID(), user, playerProfile);
+            return new CheckServerReport(user.getUUID(), user, null, playerProfile);
+        }
+
+        public static CheckServerReport ofUserSession(UserSession session, PlayerProfile playerProfile) {
+            var user = session.getUser();
+            return new CheckServerReport(user.getUUID(), user, session, playerProfile);
         }
 
         public static CheckServerReport ofUUID(UUID uuid, PlayerProfile playerProfile) {
-            return new CheckServerReport(uuid, null, playerProfile);
+            return new CheckServerReport(uuid, null, null, playerProfile);
         }
     }
 

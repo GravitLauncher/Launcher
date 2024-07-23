@@ -3,14 +3,15 @@ package pro.gravit.launchserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import pro.gravit.launcher.Launcher;
-import pro.gravit.launcher.LauncherTrustManager;
-import pro.gravit.launcher.modules.events.PreConfigPhase;
-import pro.gravit.launcher.profiles.optional.actions.OptionalAction;
-import pro.gravit.launcher.profiles.optional.triggers.OptionalTrigger;
-import pro.gravit.launcher.request.auth.AuthRequest;
-import pro.gravit.launcher.request.auth.GetAvailabilityAuthRequest;
+import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.core.LauncherTrustManager;
+import pro.gravit.launcher.base.modules.events.PreConfigPhase;
+import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
+import pro.gravit.launcher.base.request.auth.AuthRequest;
+import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
+import pro.gravit.launchserver.auth.mix.MixProvider;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
@@ -21,7 +22,6 @@ import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.WebSocketService;
-import pro.gravit.utils.Version;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LaunchServerStarter {
@@ -42,24 +43,22 @@ public class LaunchServerStarter {
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
-        JVMHelper.checkStackTrace(LaunchServerStarter.class);
-        JVMHelper.verifySystemProperties(LaunchServer.class, true);
+        JVMHelper.verifySystemProperties(LaunchServer.class, false);
         //LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");
         LogHelper.printLicense("LaunchServer");
-        if (!StarterAgent.isAgentStarted()) {
-            LogHelper.error("StarterAgent is not started!");
-            LogHelper.error("You should add to JVM options this option: `-javaagent:LaunchServer.jar`");
-        }
         Path dir = IOHelper.WORKING_DIR;
         Path configFile, runtimeConfigFile;
         try {
             Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
             Security.addProvider(new BouncyCastleProvider());
-        } catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException | NoClassDefFoundError ex) {
             LogHelper.error("Library BouncyCastle not found! Is directory 'libraries' empty?");
             return;
         }
+        LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
+        directories.dir = dir;
+        directories.collect();
         CertificateManager certificateManager = new CertificateManager();
         try {
             certificateManager.readTrustStore(dir.resolve("truststore"));
@@ -83,7 +82,7 @@ public class LaunchServerStarter {
         LaunchServerRuntimeConfig runtimeConfig;
         LaunchServerConfig config;
         LaunchServer.LaunchServerEnv env = LaunchServer.LaunchServerEnv.PRODUCTION;
-        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(dir.resolve("modules"), dir.resolve("config"), certificateManager.trustManager);
+        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(directories.modules, dir.resolve("config"), certificateManager.trustManager);
         modulesManager.autoload();
         modulesManager.initModules(null);
         registerAll();
@@ -127,59 +126,7 @@ public class LaunchServerStarter {
             }
         }
 
-        LaunchServer.LaunchServerConfigManager launchServerConfigManager = new LaunchServer.LaunchServerConfigManager() {
-            @Override
-            public LaunchServerConfig readConfig() throws IOException {
-                LaunchServerConfig config1;
-                try (BufferedReader reader = IOHelper.newReader(configFile)) {
-                    config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
-                }
-                return config1;
-            }
-
-            @Override
-            public LaunchServerRuntimeConfig readRuntimeConfig() throws IOException {
-                LaunchServerRuntimeConfig config1;
-                try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
-                    config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
-                }
-                return config1;
-            }
-
-            @Override
-            public void writeConfig(LaunchServerConfig config) throws IOException {
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                try (Writer writer = IOHelper.newWriter(output)) {
-                    if (Launcher.gsonManager.configGson != null) {
-                        Launcher.gsonManager.configGson.toJson(config, writer);
-                    } else {
-                        logger.error("Error writing LaunchServer config file. Gson is null");
-                    }
-                }
-                byte[] bytes = output.toByteArray();
-                if(bytes.length > 0) {
-                    IOHelper.write(configFile, bytes);
-                }
-            }
-
-            @Override
-            public void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException {
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                try (Writer writer = IOHelper.newWriter(output)) {
-                    if (Launcher.gsonManager.configGson != null) {
-                        Launcher.gsonManager.configGson.toJson(config, writer);
-                    } else {
-                        logger.error("Error writing LaunchServer runtime config file. Gson is null");
-                    }
-                }
-                byte[] bytes = output.toByteArray();
-                if(bytes.length > 0) {
-                    IOHelper.write(runtimeConfigFile, bytes);
-                }
-            }
-        };
-        LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
-        directories.dir = dir;
+        LaunchServer.LaunchServerConfigManager launchServerConfigManager = new BasicLaunchServerConfigManager(configFile, runtimeConfigFile);
         LaunchServer server = new LaunchServerBuilder()
                 .setDirectories(directories)
                 .setEnv(env)
@@ -190,7 +137,24 @@ public class LaunchServerStarter {
                 .setLaunchServerConfigManager(launchServerConfigManager)
                 .setCertificateManager(certificateManager)
                 .build();
-        if (!prepareMode) {
+        List<String> allArgs = List.of(args);
+        boolean isPrepareMode = prepareMode || allArgs.contains("--prepare");
+        boolean isRunCommand = false;
+        String runCommand = null;
+        for(var e : allArgs) {
+            if(e.equals("--run")) {
+                isRunCommand = true;
+                continue;
+            }
+            if(isRunCommand) {
+                runCommand = e;
+                isRunCommand = false;
+            }
+        }
+        if(runCommand != null) {
+            localCommandHandler.eval(runCommand, false);
+        }
+        if (!isPrepareMode) {
             server.run();
         } else {
             server.close();
@@ -202,7 +166,6 @@ public class LaunchServerStarter {
         Launcher.gsonManager.initGson();
     }
 
-    @SuppressWarnings("deprecation")
     public static void registerAll() {
         AuthCoreProvider.registerProviders();
         PasswordVerifier.registerProviders();
@@ -214,6 +177,7 @@ public class LaunchServerStarter {
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
+        MixProvider.registerProviders();
     }
 
     private static void printExperimentalBranch() {
@@ -256,7 +220,7 @@ public class LaunchServerStarter {
                 address = System.getProperty("launchserver.address", null);
             }
             if (address == null) {
-                System.out.println("LaunchServer address(default: localhost): ");
+                System.out.println("External launchServer address:port (default: localhost:9274): ");
                 address = commandHandler.readLine();
             }
             String projectName = System.getenv("PROJECTNAME");
@@ -270,23 +234,94 @@ public class LaunchServerStarter {
             newConfig.setProjectName(projectName);
         }
         if (address == null || address.isEmpty()) {
-            logger.error("Address null. Using localhost");
-            address = "localhost";
+            logger.error("Address null. Using localhost:9274");
+            address = "localhost:9274";
         }
         if (newConfig.projectName == null || newConfig.projectName.isEmpty()) {
             logger.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
-
-        newConfig.netty.address = "ws://" + address + ":9274/api";
-        newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
-        newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
-        newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
+        int port = 9274;
+        if(address.contains(":")) {
+            String portString = address.substring(address.indexOf(':')+1);
+            try {
+                port = Integer.parseInt(portString);
+            } catch (NumberFormatException e) {
+                logger.warn("Unknown port {}, using 9274", portString);
+            }
+        } else {
+            logger.info("Address {} doesn't contains port (you want to use nginx?)", address);
+        }
+        newConfig.netty.address = "ws://" + address + "/api";
+        newConfig.netty.downloadURL = "http://" + address + "/%dirname%/";
+        newConfig.netty.launcherURL = "http://" + address + "/Launcher.jar";
+        newConfig.netty.launcherEXEURL = "http://" + address + "/Launcher.exe";
+        newConfig.netty.binds[0].port = port;
 
         // Write LaunchServer config
         logger.info("Writing LaunchServer config file");
         try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
             Launcher.gsonManager.configGson.toJson(newConfig, writer);
+        }
+    }
+
+    private static class BasicLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
+        private final Path configFile;
+        private final Path runtimeConfigFile;
+
+        public BasicLaunchServerConfigManager(Path configFile, Path runtimeConfigFile) {
+            this.configFile = configFile;
+            this.runtimeConfigFile = runtimeConfigFile;
+        }
+
+        @Override
+        public LaunchServerConfig readConfig() throws IOException {
+            LaunchServerConfig config1;
+            try (BufferedReader reader = IOHelper.newReader(configFile)) {
+                config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
+            }
+            return config1;
+        }
+
+        @Override
+        public LaunchServerRuntimeConfig readRuntimeConfig() throws IOException {
+            LaunchServerRuntimeConfig config1;
+            try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
+                config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
+            }
+            return config1;
+        }
+
+        @Override
+        public void writeConfig(LaunchServerConfig config) throws IOException {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            try (Writer writer = IOHelper.newWriter(output)) {
+                if (Launcher.gsonManager.configGson != null) {
+                    Launcher.gsonManager.configGson.toJson(config, writer);
+                } else {
+                    logger.error("Error writing LaunchServer config file. Gson is null");
+                }
+            }
+            byte[] bytes = output.toByteArray();
+            if(bytes.length > 0) {
+                IOHelper.write(configFile, bytes);
+            }
+        }
+
+        @Override
+        public void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            try (Writer writer = IOHelper.newWriter(output)) {
+                if (Launcher.gsonManager.configGson != null) {
+                    Launcher.gsonManager.configGson.toJson(config, writer);
+                } else {
+                    logger.error("Error writing LaunchServer runtime config file. Gson is null");
+                }
+            }
+            byte[] bytes = output.toByteArray();
+            if(bytes.length > 0) {
+                IOHelper.write(runtimeConfigFile, bytes);
+            }
         }
     }
 }

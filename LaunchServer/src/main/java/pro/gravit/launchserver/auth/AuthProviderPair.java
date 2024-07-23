@@ -4,8 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
-import pro.gravit.launchserver.auth.core.MySQLCoreProvider;
-import pro.gravit.launchserver.auth.core.PostgresSQLCoreProvider;
+import pro.gravit.launchserver.auth.mix.MixProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 
 import java.io.IOException;
@@ -18,12 +17,12 @@ public final class AuthProviderPair {
     public boolean isDefault = true;
     public AuthCoreProvider core;
     public TextureProvider textureProvider;
+    public Map<String, MixProvider> mixes;
     public Map<String, String> links;
     public transient String name;
     public transient Set<String> features;
     public String displayName;
     public boolean visible = true;
-    private transient boolean warnOAuthShow = false;
 
     public AuthProviderPair() {
     }
@@ -39,12 +38,14 @@ public final class AuthProviderPair {
         return list;
     }
 
+    public Set<String> getFeatures() {
+        return features;
+    }
+
     public static void getFeatures(Class<?> clazz, Set<String> list) {
-        Features features = clazz.getAnnotation(Features.class);
-        if (features != null) {
-            for (Feature feature : features.value()) {
-                list.add(feature.value());
-            }
+        Feature[] features = clazz.getAnnotationsByType(Feature.class);
+        for (Feature feature : features) {
+            list.add(feature.value());
         }
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != null && superClass != Object.class) {
@@ -56,48 +57,57 @@ public final class AuthProviderPair {
         }
     }
 
-    public void internalShowOAuthWarnMessage() {
-        if (!warnOAuthShow) {
-            if (!(core instanceof MySQLCoreProvider) && !(core instanceof PostgresSQLCoreProvider)) { // MySQL and PostgreSQL upgraded later
-                logger.warn("AuthCoreProvider {} ({}) not supported OAuth. Legacy session system may be removed in next release", name, core.getClass().getName());
-            }
-            warnOAuthShow = true;
-        }
-    }
-
-    public final <T> T isSupport(Class<T> clazz) {
+    public <T> T isSupport(Class<T> clazz) {
         if (core == null) return null;
-        T result = null;
-        if (result == null) result = core.isSupport(clazz);
+        T result = core.isSupport(clazz);
+        if (result == null && mixes != null) {
+            for(var m : mixes.values()) {
+                result = m.isSupport(clazz);
+                if(result != null) {
+                    break;
+                }
+            }
+        }
         return result;
     }
 
-    public final void init(LaunchServer srv, String name) {
+    public void init(LaunchServer srv, String name) {
         this.name = name;
         if (links != null) link(srv);
-        core.init(srv);
+        core.init(srv, this);
         features = new HashSet<>();
         getFeatures(core.getClass(), features);
+        if(mixes != null) {
+            for(var m : mixes.values()) {
+                m.init(srv, core);
+                getFeatures(m.getClass(), features);
+            }
+        }
     }
 
-    public final void link(LaunchServer srv) {
+    public void link(LaunchServer srv) {
         links.forEach((k, v) -> {
             AuthProviderPair pair = srv.config.getAuthProviderPair(v);
             if (pair == null) {
-                throw new NullPointerException(String.format("Auth %s link failed. Pair %s not found", name, v));
+                throw new NullPointerException("Auth %s link failed. Pair %s not found".formatted(name, v));
             }
             if ("core".equals(k)) {
                 if (pair.core == null)
-                    throw new NullPointerException(String.format("Auth %s link failed. %s.core is null", name, v));
+                    throw new NullPointerException("Auth %s link failed. %s.core is null".formatted(name, v));
                 core = pair.core;
             }
         });
     }
 
-    public final void close() throws IOException {
+    public void close() throws IOException {
         core.close();
         if (textureProvider != null) {
             textureProvider.close();
+        }
+        if(mixes != null) {
+            for(var m : mixes.values()) {
+                m.close();
+            }
         }
     }
 }

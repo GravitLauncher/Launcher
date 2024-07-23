@@ -1,10 +1,9 @@
 package pro.gravit.launchserver.auth.core.interfaces.provider;
 
-import pro.gravit.launcher.request.secure.HardwareReportRequest;
+import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
-import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportHardware;
 import pro.gravit.launchserver.helper.DamerauHelper;
 
 import java.util.Arrays;
@@ -27,10 +26,6 @@ public interface AuthSupportHardware extends AuthSupport {
     void banHardware(UserHardware hardware);
 
     void unbanHardware(UserHardware hardware);
-
-    default UserSupportHardware fetchUserHardware(User user) {
-        return (UserSupportHardware) user;
-    }
 
     default void normalizeHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo) {
         if (hardwareInfo.baseboardSerialNumber != null)

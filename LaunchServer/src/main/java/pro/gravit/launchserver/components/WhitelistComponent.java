@@ -48,7 +48,7 @@ public class WhitelistComponent extends Component implements AutoCloseable, Reco
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         this.server.authHookManager.preHook.unregisterHook(this::hookAuth);
         this.server.authHookManager.joinServerHook.unregisterHook(this::hookJoin);
     }
@@ -82,14 +82,14 @@ public class WhitelistComponent extends Component implements AutoCloseable, Reco
         });
         commands.put("disable", new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 enabled = false;
                 logger.info("Whitelist disabled");
             }
         });
         commands.put("enable", new SubCommand() {
             @Override
-            public void invoke(String... args) throws Exception {
+            public void invoke(String... args) {
                 enabled = true;
                 logger.info("Whitelist enabled");
             }
