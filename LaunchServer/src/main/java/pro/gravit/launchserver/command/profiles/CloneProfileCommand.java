@@ -7,6 +7,7 @@ import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
+import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class CloneProfileCommand extends Command {
 
     @Override
     public String getArgsDescription() {
-        return "[profile file name] [new profile title]";
+        return "[profile title/uuid] [new profile title]";
     }
 
     @Override
@@ -37,13 +38,12 @@ public class CloneProfileCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
-        var profilePath = server.profilesDir.resolve(args[0].concat(".json"));
-        if(!Files.exists(profilePath)) {
-            logger.error("File {} not found", profilePath);
-        }
         ClientProfile profile;
-        try(Reader reader = IOHelper.newReader(profilePath)) {
-            profile = Launcher.gsonManager.gson.fromJson(reader, ClientProfile.class);
+        try {
+            UUID uuid = UUID.fromString(args[0]);
+            profile = server.config.profileProvider.getProfile(uuid);
+        } catch (IllegalArgumentException ex) {
+            profile = server.config.profileProvider.getProfile(args[0]);
         }
         var builder = new ClientProfileBuilder(profile);
         builder.setTitle(args[1]);
@@ -65,10 +65,7 @@ public class CloneProfileCommand extends Command {
         }
         builder.setDir(args[1]);
         profile = builder.createClientProfile();
-        var targetPath = server.profilesDir.resolve(args[1].concat(".json"));
-        try(Writer writer = IOHelper.newWriter(targetPath)) {
-            Launcher.gsonManager.gson.toJson(profile, writer);
-        }
+        server.config.profileProvider.addProfile(profile);
         logger.info("Profile {} cloned from {}", args[1], args[0]);
         server.syncProfilesDir();
         server.syncUpdatesDir(List.of(args[1]));

@@ -13,6 +13,7 @@ import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.mix.MixProvider;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
+import pro.gravit.launchserver.auth.profiles.ProfileProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.components.Component;
@@ -178,6 +179,7 @@ public class LaunchServerStarter {
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
         MixProvider.registerProviders();
+        ProfileProvider.registerProviders();
     }
 
     private static void printExperimentalBranch() {

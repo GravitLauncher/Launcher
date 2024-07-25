@@ -22,20 +22,6 @@ public class SaveProfilesCommand extends Command {
         super(server);
     }
 
-    public static void saveProfile(ClientProfile profile, Path path) throws IOException {
-        if (profile.getServers().isEmpty()) {
-            ClientProfile.ServerProfile serverProfile = new ClientProfile.ServerProfile();
-            serverProfile.isDefault = true;
-            serverProfile.name = profile.getTitle();
-            serverProfile.serverAddress = profile.getServerAddress();
-            serverProfile.serverPort = profile.getServerPort();
-            profile.getServers().add(serverProfile);
-        }
-        try (Writer w = IOHelper.newWriter(path)) {
-            Launcher.gsonManager.configGson.toJson(profile, w);
-        }
-    }
-
     @Override
     public String getArgsDescription() {
         return "[profile names...]";
@@ -51,17 +37,15 @@ public class SaveProfilesCommand extends Command {
         verifyArgs(args, 1);
         if (args.length > 0) {
             for (String profileName : args) {
-                Path profilePath = server.profilesDir.resolve(profileName.concat(".json"));
-                if (!Files.exists(profilePath)) {
-                    logger.error("Profile {} not found", profilePath.toString());
-                    return;
-                }
                 ClientProfile profile;
-                try (Reader reader = IOHelper.newReader(profilePath)) {
-                    profile = Launcher.gsonManager.configGson.fromJson(reader, ClientProfile.class);
+                try {
+                    UUID uuid = UUID.fromString(profileName);
+                    profile = server.config.profileProvider.getProfile(uuid);
+                } catch (IllegalArgumentException ex) {
+                    profile = server.config.profileProvider.getProfile(profileName);
                 }
-                saveProfile(profile, profilePath);
-                logger.info("Profile {} save successful", profilePath.toString());
+                server.config.profileProvider.deleteProfile(profile);
+                server.config.profileProvider.addProfile(profile);
             }
             server.syncProfilesDir();
         }

@@ -8,6 +8,7 @@ import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.nio.file.Files;
+import java.util.UUID;
 
 public class DeleteProfileCommand extends Command {
     private final transient Logger logger = LogManager.getLogger(ListProfilesCommand.class);
@@ -28,12 +29,12 @@ public class DeleteProfileCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
-        ClientProfile profile = null;
-        for(var p : server.getProfiles()) {
-            if(p.getUUID().toString().equals(args[0]) || p.getTitle().equals(args[0])) {
-                profile = p;
-                break;
-            }
+        ClientProfile profile;
+        try {
+            UUID uuid = UUID.fromString(args[0]);
+            profile = server.config.profileProvider.getProfile(uuid);
+        } catch (IllegalArgumentException ex) {
+            profile = server.config.profileProvider.getProfile(args[0]);
         }
         if(profile == null) {
             logger.error("Profile {} not found", args[0]);
@@ -44,13 +45,9 @@ public class DeleteProfileCommand extends Command {
         if(!showApplyDialog("Continue?")) {
             return;
         }
+        logger.info("Delete {} ({})", profile.getTitle(), profile.getUUID());
+        server.config.profileProvider.deleteProfile(profile);
         logger.info("Delete {}", clientDir);
         IOHelper.deleteDir(clientDir, true);
-        var profileFile = profile.getProfileFilePath();
-        if(profileFile == null) {
-            profileFile = server.profilesDir.resolve(profile.getTitle().concat(".json"));
-        }
-        logger.info("Delete {}", profileFile);
-        Files.deleteIfExists(profileFile);
     }
 }
