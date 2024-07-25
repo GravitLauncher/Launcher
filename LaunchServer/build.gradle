@@ -61,7 +61,6 @@ tasks.register('cleanjar', Jar) {
     dependsOn jar
     archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
-            "Premain-Class": mainAgentName,
             "Automatic-Module-Name": "launchserver"
     )
     from sourceSets.main.output
@@ -71,7 +70,6 @@ tasks.register('cleanjar', Jar) {
 dependencies {
     pack project(':LauncherAPI')
     bundle group: 'me.tongfei', name: 'progressbar', version: '0.10.1'
-    bundle group: 'com.github.Marcono1234', name: 'gson-record-type-adapter-factory', version: 'v0.3.0'
     bundle group: 'org.fusesource.jansi', name: 'jansi', version: rootProject['verJansi']
     bundle group: 'org.jline', name: 'jline', version: rootProject['verJline']
     bundle group: 'org.jline', name: 'jline-reader', version: rootProject['verJline']
@@ -82,6 +80,7 @@ dependencies {
     bundle group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
     bundle group: 'io.netty', name: 'netty-transport-classes-epoll', version: rootProject['verNetty']
     bundle group: 'io.netty', name: 'netty-transport-native-epoll', version: rootProject['verNetty'], classifier: 'linux-x86_64'
+    bundle group: 'io.netty', name: 'netty-transport-native-epoll', version: rootProject['verNetty'], classifier: 'linux-aarch_64'
     bundle group: 'org.slf4j', name: 'slf4j-api', version: rootProject['verSlf4j']
     bundle group: 'com.mysql', name: 'mysql-connector-j', version: rootProject['verMySQLConn']
     bundle group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: rootProject['verMariaDBConn']
@@ -93,20 +92,16 @@ dependencies {
     bundle group: 'io.jsonwebtoken', name: 'jjwt-api', version: rootProject['verJwt']
     bundle group: 'io.jsonwebtoken', name: 'jjwt-impl', version: rootProject['verJwt']
     bundle group: 'io.jsonwebtoken', name: 'jjwt-gson', version: rootProject['verJwt']
+    bundle group: 'com.google.code.gson', name: 'gson', version: rootProject['verGson']
     annotationProcessor(group: 'org.apache.logging.log4j', name: 'log4j-core', version: rootProject['verLog4j'])
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 
-    hikari 'io.micrometer:micrometer-core:1.8.4'
-    hikari('com.zaxxer:HikariCP:5.0.1') {
+    hikari 'io.micrometer:micrometer-core:1.13.1'
+    hikari('com.zaxxer:HikariCP:5.1.0') {
         exclude group: 'javassist'
         exclude group: 'io.micrometer'
         exclude group: 'org.slf4j'
     }
-
-    compileOnlyA group: 'com.google.guava', name: 'guava', version: rootProject['verGuavaC']
-    // Do not update (laggy deps).
-    compileOnlyA 'log4j:log4j:1.2.17'
-    compileOnlyA 'org.apache.logging.log4j:log4j-core:2.14.1'
 }
 
 tasks.register('hikari', Copy) {

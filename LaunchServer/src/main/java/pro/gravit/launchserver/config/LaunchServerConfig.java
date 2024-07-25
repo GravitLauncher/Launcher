@@ -9,6 +9,8 @@ import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
+import pro.gravit.launchserver.auth.profiles.LocalProfileProvider;
+import pro.gravit.launchserver.auth.profiles.ProfileProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
@@ -36,6 +38,7 @@ public final class LaunchServerConfig {
     // Handlers & Providers
     public ProtectHandler protectHandler;
     public Map<String, Component> components;
+    public ProfileProvider profileProvider = new LocalProfileProvider();
     public NettyConfig netty;
     public LauncherConf launcher;
     public JarSignerConf sign;
@@ -85,6 +88,7 @@ public final class LaunchServerConfig {
         newConfig.components.put("authLimiter", authLimiterComponent);
         ProGuardComponent proGuardComponent = new ProGuardComponent();
         newConfig.components.put("proguard", proGuardComponent);
+        newConfig.profileProvider = new LocalProfileProvider();
         return newConfig;
     }
 
@@ -166,6 +170,10 @@ public final class LaunchServerConfig {
             server.registerObject("protectHandler", protectHandler);
             protectHandler.init(server);
         }
+        if(profileProvider != null) {
+            server.registerObject("profileProvider", profileProvider);
+            profileProvider.init(server);
+        }
         if (components != null) {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
         }
@@ -205,6 +213,10 @@ public final class LaunchServerConfig {
         if (protectHandler != null) {
             server.unregisterObject("protectHandler", protectHandler);
             protectHandler.close();
+        }
+        if(profileProvider != null) {
+            server.unregisterObject("profileProvider", profileProvider);
+            profileProvider.close();
         }
     }
 

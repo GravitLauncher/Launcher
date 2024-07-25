@@ -97,10 +97,7 @@ public final class DownloadClientCommand extends Command {
                 isMirrorClientDownload = true;
             }
         }
-        try (BufferedWriter writer = IOHelper.newWriter(IOHelper.resolveIncremental(server.profilesDir,
-                dirName, "json"))) {
-            Launcher.gsonManager.configGson.toJson(clientProfile, writer);
-        }
+        server.config.profileProvider.addProfile(clientProfile);
 
         // Finished
         server.syncProfilesDir();

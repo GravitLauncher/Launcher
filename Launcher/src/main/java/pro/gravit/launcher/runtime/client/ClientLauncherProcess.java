@@ -145,7 +145,22 @@ public class ClientLauncherProcess {
         if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.AGENT) {
             processArgs.add("-javaagent:".concat(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString()));
         } else if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
-            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(new HashSet<>(), workDir, params.actions, params.profile)
+            Set<Path> ignorePath = new HashSet<>();
+            var moduleConf = params.profile.getModuleConf();
+            if(moduleConf != null) {
+                if(moduleConf.modulePath != null && !moduleConf.modulePath.isEmpty()) {
+                    processArgs.add("-p");
+                    for(var e : moduleConf.modulePath) {
+                        ignorePath.add(Path.of(e));
+                    }
+                    processArgs.add(String.join(File.pathSeparator, moduleConf.modulePath));
+                }
+                if(moduleConf.modules != null && !moduleConf.modules.isEmpty()) {
+                    processArgs.add("--add-modules");
+                    processArgs.add(String.join(",", moduleConf.modules));
+                }
+            }
+            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(ignorePath, workDir, params.actions, params.profile)
                     .map(Path::toString)
                     .toList());
         }

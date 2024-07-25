@@ -88,7 +88,7 @@ public class OptionalView {
     public void fixDependencies() {
         Set<OptionalFile> disabled = all.stream().filter(t -> !isEnabled(t)).collect(Collectors.toSet());
         for (OptionalFile file : disabled) {
-            if (file.group != null && Arrays.stream(file.group).noneMatch(this::isEnabled)) {
+            if (file.group != null && file.group.length > 0 && Arrays.stream(file.group).noneMatch(this::isEnabled)) {
                 enable(file.group[0], false, null);
             }
         }

@@ -1,7 +1,6 @@
 package pro.gravit.launchserver.manangers;
 
 import com.google.gson.GsonBuilder;
-import marcono1234.gson.recordadapter.RecordTypeAdapterFactory;
 import pro.gravit.launcher.base.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.core.managers.GsonManager;
 import pro.gravit.launcher.base.modules.events.PreGsonPhase;
@@ -15,6 +14,7 @@ import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.mix.MixProvider;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
+import pro.gravit.launchserver.auth.profiles.ProfileProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.components.Component;
@@ -34,9 +34,6 @@ public class LaunchServerGsonManager extends GsonManager {
     @Override
     public void registerAdapters(GsonBuilder builder) {
         super.registerAdapters(builder);
-        builder.registerTypeAdapterFactory(RecordTypeAdapterFactory.builder()
-                .allowMissingComponentValues()
-                .create());
         builder.registerTypeAdapter(ClientProfile.Version.class, new ClientProfile.Version.GsonSerializer());
         builder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(TextureProvider.providers));
         builder.registerTypeAdapter(AuthCoreProvider.class, new UniversalJsonAdapter<>(AuthCoreProvider.providers));
@@ -50,6 +47,7 @@ public class LaunchServerGsonManager extends GsonManager {
         builder.registerTypeAdapter(OptionalAction.class, new UniversalJsonAdapter<>(OptionalAction.providers));
         builder.registerTypeAdapter(OptionalTrigger.class, new UniversalJsonAdapter<>(OptionalTrigger.providers));
         builder.registerTypeAdapter(MixProvider.class, new UniversalJsonAdapter<>(MixProvider.providers));
+        builder.registerTypeAdapter(ProfileProvider.class, new UniversalJsonAdapter<>(ProfileProvider.providers));
         modulesManager.invokeEvent(new PreGsonPhase(builder));
         //ClientWebSocketService.appendTypeAdapters(builder);
     }

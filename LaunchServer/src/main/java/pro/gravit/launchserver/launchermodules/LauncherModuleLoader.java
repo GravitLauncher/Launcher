@@ -33,7 +33,7 @@ public class LauncherModuleLoader {
 
     public LauncherModuleLoader(LaunchServer server) {
         this.server = server;
-        modulesDir = server.dir.resolve("launcher-modules");
+        modulesDir = server.launcherModulesDir;
     }
 
     public void init() {

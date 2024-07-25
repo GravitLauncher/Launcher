@@ -13,6 +13,7 @@ import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.mix.MixProvider;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
+import pro.gravit.launchserver.auth.profiles.ProfileProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.components.Component;
@@ -34,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LaunchServerStarter {
@@ -51,10 +53,13 @@ public class LaunchServerStarter {
         try {
             Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
             Security.addProvider(new BouncyCastleProvider());
-        } catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException | NoClassDefFoundError ex) {
             LogHelper.error("Library BouncyCastle not found! Is directory 'libraries' empty?");
             return;
         }
+        LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
+        directories.dir = dir;
+        directories.collect();
         CertificateManager certificateManager = new CertificateManager();
         try {
             certificateManager.readTrustStore(dir.resolve("truststore"));
@@ -78,7 +83,7 @@ public class LaunchServerStarter {
         LaunchServerRuntimeConfig runtimeConfig;
         LaunchServerConfig config;
         LaunchServer.LaunchServerEnv env = LaunchServer.LaunchServerEnv.PRODUCTION;
-        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(dir.resolve("modules"), dir.resolve("config"), certificateManager.trustManager);
+        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(directories.modules, dir.resolve("config"), certificateManager.trustManager);
         modulesManager.autoload();
         modulesManager.initModules(null);
         registerAll();
@@ -123,8 +128,6 @@ public class LaunchServerStarter {
         }
 
         LaunchServer.LaunchServerConfigManager launchServerConfigManager = new BasicLaunchServerConfigManager(configFile, runtimeConfigFile);
-        LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
-        directories.dir = dir;
         LaunchServer server = new LaunchServerBuilder()
                 .setDirectories(directories)
                 .setEnv(env)
@@ -135,7 +138,24 @@ public class LaunchServerStarter {
                 .setLaunchServerConfigManager(launchServerConfigManager)
                 .setCertificateManager(certificateManager)
                 .build();
-        if (!prepareMode) {
+        List<String> allArgs = List.of(args);
+        boolean isPrepareMode = prepareMode || allArgs.contains("--prepare");
+        boolean isRunCommand = false;
+        String runCommand = null;
+        for(var e : allArgs) {
+            if(e.equals("--run")) {
+                isRunCommand = true;
+                continue;
+            }
+            if(isRunCommand) {
+                runCommand = e;
+                isRunCommand = false;
+            }
+        }
+        if(runCommand != null) {
+            localCommandHandler.eval(runCommand, false);
+        }
+        if (!isPrepareMode) {
             server.run();
         } else {
             server.close();
@@ -159,6 +179,7 @@ public class LaunchServerStarter {
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
         MixProvider.registerProviders();
+        ProfileProvider.registerProviders();
     }
 
     private static void printExperimentalBranch() {
@@ -201,7 +222,7 @@ public class LaunchServerStarter {
                 address = System.getProperty("launchserver.address", null);
             }
             if (address == null) {
-                System.out.println("LaunchServer address(default: localhost): ");
+                System.out.println("External launchServer address:port (default: localhost:9274): ");
                 address = commandHandler.readLine();
             }
             String projectName = System.getenv("PROJECTNAME");
@@ -215,18 +236,29 @@ public class LaunchServerStarter {
             newConfig.setProjectName(projectName);
         }
         if (address == null || address.isEmpty()) {
-            logger.error("Address null. Using localhost");
-            address = "localhost";
+            logger.error("Address null. Using localhost:9274");
+            address = "localhost:9274";
         }
         if (newConfig.projectName == null || newConfig.projectName.isEmpty()) {
             logger.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
-
-        newConfig.netty.address = "ws://" + address + ":9274/api";
-        newConfig.netty.downloadURL = "http://" + address + ":9274/%dirname%/";
-        newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
-        newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
+        int port = 9274;
+        if(address.contains(":")) {
+            String portString = address.substring(address.indexOf(':')+1);
+            try {
+                port = Integer.parseInt(portString);
+            } catch (NumberFormatException e) {
+                logger.warn("Unknown port {}, using 9274", portString);
+            }
+        } else {
+            logger.info("Address {} doesn't contains port (you want to use nginx?)", address);
+        }
+        newConfig.netty.address = "ws://" + address + "/api";
+        newConfig.netty.downloadURL = "http://" + address + "/%dirname%/";
+        newConfig.netty.launcherURL = "http://" + address + "/Launcher.jar";
+        newConfig.netty.launcherEXEURL = "http://" + address + "/Launcher.exe";
+        newConfig.netty.binds[0].port = port;
 
         // Write LaunchServer config
         logger.info("Writing LaunchServer config file");

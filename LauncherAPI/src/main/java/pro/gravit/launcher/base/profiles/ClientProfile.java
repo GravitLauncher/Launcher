@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public final class ClientProfile implements Comparable<ClientProfile>, ProfileFeatureAPI.ClientProfile {
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
-    private transient Path profileFilePath;
     @LauncherNetworkAPI
     private String title;
     @LauncherNetworkAPI
@@ -412,14 +411,6 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
 
     public List<CompatibilityFlags> getFlags() {
         return flags;
-    }
-
-    public Path getProfileFilePath() {
-        return profileFilePath;
-    }
-
-    public void setProfileFilePath(Path profileFilePath) {
-        this.profileFilePath = profileFilePath;
     }
 
     public enum ClassLoaderConfig {
