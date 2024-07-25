@@ -44,7 +44,6 @@ public class SaveProfilesCommand extends Command {
                 } catch (IllegalArgumentException ex) {
                     profile = server.config.profileProvider.getProfile(profileName);
                 }
-                server.config.profileProvider.deleteProfile(profile);
                 server.config.profileProvider.addProfile(profile);
             }
             server.syncProfilesDir();

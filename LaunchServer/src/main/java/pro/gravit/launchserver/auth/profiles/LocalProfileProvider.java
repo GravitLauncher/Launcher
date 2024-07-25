@@ -9,10 +9,7 @@ import pro.gravit.utils.helper.IOHelper;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
@@ -40,8 +37,21 @@ public class LocalProfileProvider extends ProfileProvider {
     @Override
     public void addProfile(ClientProfile profile) throws IOException {
         Path profilesDirPath = Path.of(profilesDir);
-        Path target = IOHelper.resolveIncremental(profilesDirPath,
-                profile.getDir(), "json");
+        ClientProfile oldProfile;
+        Path target = null;
+        for(var e : profilesMap.entrySet()) {
+            if(e.getValue().getUUID().equals(profile.getUUID())) {
+                target = e.getKey();
+            }
+        }
+        if(target == null) {
+            target = IOHelper.resolveIncremental(profilesDirPath,
+                    profile.getTitle(), "json");
+            oldProfile = profilesMap.get(target);
+            if(oldProfile != null && !oldProfile.getUUID().equals(profile.getUUID())) {
+                throw new FileAlreadyExistsException(target.toString());
+            }
+        }
         try (BufferedWriter writer = IOHelper.newWriter(target)) {
             Launcher.gsonManager.configGson.toJson(profile, writer);
         }
@@ -61,6 +71,13 @@ public class LocalProfileProvider extends ProfileProvider {
     }
 
     private void addProfile(Path path, ClientProfile profile) {
+        for(var e : profilesMap.entrySet()) {
+            if(e.getValue().getUUID().equals(profile.getUUID())) {
+                profilesMap.remove(e.getKey());
+                profilesList.remove(e.getValue());
+                break;
+            }
+        }
         profilesMap.put(path, profile);
         profilesList.add(profile);
     }
@@ -83,10 +100,9 @@ public class LocalProfileProvider extends ProfileProvider {
                 profile = Launcher.gsonManager.gson.fromJson(reader, ClientProfile.class);
             }
             profile.verify();
-            profile.setProfileFilePath(file);
 
             // Add SIGNED profile to result list
-            result.put(file, profile);
+            result.put(file.toAbsolutePath(), profile);
             return super.visitFile(file, attrs);
         }
     }
