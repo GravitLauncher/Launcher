@@ -40,14 +40,13 @@ public class DeleteProfileCommand extends Command {
             logger.error("Profile {} not found", args[0]);
             return;
         }
-        var clientDir = server.updatesDir.resolve(profile.getDir()).toAbsolutePath();
-        logger.warn("THIS ACTION DELETE PROFILE AND ALL FILES IN {}", clientDir);
+        logger.warn("THIS ACTION DELETE PROFILE AND ALL FILES IN {}", profile.getDir());
         if(!showApplyDialog("Continue?")) {
             return;
         }
         logger.info("Delete {} ({})", profile.getTitle(), profile.getUUID());
         server.config.profileProvider.deleteProfile(profile);
-        logger.info("Delete {}", clientDir);
-        IOHelper.deleteDir(clientDir, true);
+        logger.info("Delete {}", profile.getDir());
+        server.config.updatesProvider.delete(profile.getDir());
     }
 }
