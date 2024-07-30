@@ -45,8 +45,7 @@ public class LocalProfileProvider extends ProfileProvider {
             }
         }
         if(target == null) {
-            target = IOHelper.resolveIncremental(profilesDirPath,
-                    profile.getTitle(), "json");
+            target = profilesDirPath.resolve(profile.getTitle()+".json");
             oldProfile = profilesMap.get(target);
             if(oldProfile != null && !oldProfile.getUUID().equals(profile.getUUID())) {
                 throw new FileAlreadyExistsException(target.toString());
