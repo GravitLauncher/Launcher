@@ -14,6 +14,8 @@ import pro.gravit.launchserver.auth.profiles.ProfileProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
+import pro.gravit.launchserver.auth.updates.LocalUpdatesProvider;
+import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
@@ -32,13 +34,13 @@ public final class LaunchServerConfig {
     public String[] mirrors;
     public String binaryName;
     public boolean copyBinaries = true;
-    public boolean cacheUpdates = true;
     public LauncherConfig.LauncherEnvironment env;
     public Map<String, AuthProviderPair> auth;
     // Handlers & Providers
     public ProtectHandler protectHandler;
     public Map<String, Component> components;
     public ProfileProvider profileProvider = new LocalProfileProvider();
+    public UpdatesProvider updatesProvider = new LocalUpdatesProvider();
     public NettyConfig netty;
     public LauncherConf launcher;
     public JarSignerConf sign;

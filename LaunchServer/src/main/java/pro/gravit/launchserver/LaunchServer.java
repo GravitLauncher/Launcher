@@ -70,6 +70,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     /**
      * The path to the folder with updates/webroot
      */
+    @Deprecated
     public final Path updatesDir;
 
     // Constant paths
@@ -359,9 +360,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                     syncProfilesDir();
 
                     // Sync updates dir
-                    if (!IOHelper.isDir(updatesDir))
-                        Files.createDirectory(updatesDir);
-                    updatesManager.readUpdatesDir();
+                    config.updatesProvider.syncInitially();
 
 
                     modulesManager.invokeEvent(new LaunchServerProfilesSyncEvent(this));
