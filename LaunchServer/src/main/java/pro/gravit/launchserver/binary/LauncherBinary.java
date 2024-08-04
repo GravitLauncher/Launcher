@@ -7,6 +7,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 public abstract class LauncherBinary extends BinaryPipeline {
@@ -56,9 +57,13 @@ public abstract class LauncherBinary extends BinaryPipeline {
     }
 
     public final boolean sync() throws IOException {
-        boolean exists = exists();
-        digest = exists ? SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, IOHelper.read(syncBinaryFile)) : null;
-
-        return exists;
+        try {
+            var target = syncBinaryFile.toString();
+            var path = server.config.updatesProvider.download(null, List.of(target)).get(target);
+            digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, IOHelper.read(path));
+            return true;
+        } catch (Throwable e) {
+            return false;
+        }
     }
 }

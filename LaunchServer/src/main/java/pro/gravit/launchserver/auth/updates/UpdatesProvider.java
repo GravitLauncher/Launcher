@@ -37,6 +37,8 @@ public abstract class UpdatesProvider {
 
     public abstract void upload(String updateName, Map<String, Path> files, boolean deleteAfterUpload) throws IOException;
 
+    public abstract Map<String, Path> download(String updateName, List<String> files);
+
     public abstract void delete(String updateName, List<String> files) throws IOException;
 
     public abstract void delete(String updateName) throws IOException;

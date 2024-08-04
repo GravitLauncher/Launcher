@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -130,24 +131,41 @@ public class LocalUpdatesProvider extends UpdatesProvider {
         return updatesDirMap.get(updateName);
     }
 
+    private Path resolveUpdateName(String updateName) {
+        if(updateName == null) {
+            return Path.of(updatesDir);
+        }
+        return Path.of(updatesDir).resolve(updateName);
+    }
+
     @Override
     public void upload(String updateName, Map<String, Path> files, boolean deleteAfterUpload) throws IOException {
-        var path = Path.of(updatesDir).resolve(updateName);
+        var path = resolveUpdateName(updateName);
         for(var e : files.entrySet()) {
             var target = path.resolve(e.getKey());
-            var source = Path.of(e.getKey());
+            var source = e.getValue();
             IOHelper.createParentDirs(target);
             if(deleteAfterUpload) {
-                Files.move(source, target);
+                Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
             } else {
-                Files.copy(source, target);
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
             }
         }
     }
 
     @Override
+    public Map<String, Path> download(String updateName, List<String> files) {
+        var path = resolveUpdateName(updateName);
+        Map<String, Path> map = new HashMap<>();
+        for(var e : files) {
+            map.put(e, path.resolve(e));
+        }
+        return map;
+    }
+
+    @Override
     public void delete(String updateName, List<String> files) throws IOException {
-        var path = Path.of(updatesDir).resolve(updateName);
+        var path = resolveUpdateName(updateName);
         for(var e : files) {
             var target = path.resolve(e);
             Files.delete(target);
@@ -156,13 +174,13 @@ public class LocalUpdatesProvider extends UpdatesProvider {
 
     @Override
     public void delete(String updateName) throws IOException {
-        var path = Path.of(updatesDir).resolve(updateName);
+        var path = resolveUpdateName(updateName);
         IOHelper.deleteDir(path, true);
     }
 
     @Override
     public void create(String updateName) throws IOException {
-        var path = Path.of(updatesDir).resolve(updateName);
+        var path = resolveUpdateName(updateName);
         Files.createDirectories(path);
     }
 }
