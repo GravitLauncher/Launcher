@@ -176,6 +176,10 @@ public final class LaunchServerConfig {
             server.registerObject("profileProvider", profileProvider);
             profileProvider.init(server);
         }
+        if(updatesProvider != null) {
+            server.registerObject("updatesProvider", updatesProvider);
+            updatesProvider.init(server);
+        }
         if (components != null) {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
         }
@@ -219,6 +223,10 @@ public final class LaunchServerConfig {
         if(profileProvider != null) {
             server.unregisterObject("profileProvider", profileProvider);
             profileProvider.close();
+        }
+        if(updatesProvider != null) {
+            server.unregisterObject("updatesProvider", updatesProvider);
+            updatesProvider.close();
         }
     }
 

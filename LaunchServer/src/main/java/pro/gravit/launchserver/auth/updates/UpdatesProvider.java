@@ -42,4 +42,8 @@ public abstract class UpdatesProvider {
     public abstract void delete(String updateName) throws IOException;
 
     public abstract void create(String updateName) throws IOException;
+
+    public void close() {
+
+    }
 }
