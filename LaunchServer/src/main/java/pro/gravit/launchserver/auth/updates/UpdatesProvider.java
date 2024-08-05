@@ -17,6 +17,7 @@ public abstract class UpdatesProvider {
 
     public static void registerProviders() {
         if (!registredProviders) {
+            providers.register("local", LocalUpdatesProvider.class);
             registredProviders = true;
         }
     }
