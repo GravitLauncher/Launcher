@@ -392,7 +392,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     }
 
     public enum ClassLoaderConfig {
-        AGENT, LAUNCHER, MODULE, SYSTEM_ARGS
+        LAUNCHER, MODULE, SYSTEM_ARGS
     }
 
     public enum CompatibilityFlags {
