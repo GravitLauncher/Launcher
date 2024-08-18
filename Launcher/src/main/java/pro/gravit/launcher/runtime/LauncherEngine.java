@@ -124,7 +124,6 @@ public class LauncherEngine {
         LogHelper.printLicense("Launcher");
         LauncherEngine.checkClass(LauncherEngineWrapper.class);
         LauncherEngine.checkClass(LauncherEngine.class);
-        LauncherEngine.checkClass(LauncherAgent.class);
         LauncherEngine.checkClass(ClientLauncherEntryPoint.class);
         LauncherEngine.modulesManager = new RuntimeModuleManager();
         LauncherEngine.modulesManager.loadModule(new RuntimeLauncherCoreModule());

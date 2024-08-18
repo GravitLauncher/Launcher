@@ -70,6 +70,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     /**
      * The path to the folder with updates/webroot
      */
+    @Deprecated
     public final Path updatesDir;
 
     // Constant paths
@@ -80,7 +81,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     /**
      * The path to the folder with profiles
      */
-    public final Path profilesDir;
     public final Path tmpDir;
     public final Path modulesDir;
     public final Path launcherModulesDir;
@@ -119,8 +119,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     private final Logger logger = LogManager.getLogger();
     public final int shardId;
     public LaunchServerConfig config;
-    // Updates and profiles
-    private volatile Set<ClientProfile> profilesList;
 
     public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager, int shardId) throws IOException {
         this.dir = directories.dir;
@@ -129,7 +127,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.config = config;
         this.launchServerConfigManager = launchServerConfigManager;
         this.modulesManager = modulesManager;
-        this.profilesDir = directories.profilesDir;
         this.updatesDir = directories.updatesDir;
         this.keyAgreementManager = keyAgreementManager;
         this.commandHandler = commandHandler;
@@ -326,12 +323,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         logger.info("LaunchServer stopped");
     }
 
+    @Deprecated
     public Set<ClientProfile> getProfiles() {
-        return profilesList;
+        return config.profileProvider.getProfiles();
     }
 
+    @Deprecated
     public void setProfiles(Set<ClientProfile> profilesList) {
-        this.profilesList = Collections.unmodifiableSet(profilesList);
+        throw new UnsupportedOperationException();
     }
 
     public void rebindNettyServerSocket() {
@@ -358,14 +357,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             CommonHelper.newThread("Profiles and updates sync", true, () -> {
                 try {
                     // Sync profiles dir
-                    if (!IOHelper.isDir(profilesDir))
-                        Files.createDirectory(profilesDir);
                     syncProfilesDir();
 
                     // Sync updates dir
-                    if (!IOHelper.isDir(updatesDir))
-                        Files.createDirectory(updatesDir);
-                    updatesManager.readUpdatesDir();
+                    config.updatesProvider.syncInitially();
 
 
                     modulesManager.invokeEvent(new LaunchServerProfilesSyncEvent(this));
@@ -402,12 +397,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     public void syncProfilesDir() throws IOException {
         logger.info("Syncing profiles dir");
-        List<ClientProfile> newProfies = new LinkedList<>();
-        IOHelper.walk(profilesDir, new ProfilesFileVisitor(newProfies), false);
-
-        // Sort and set new profiles
-        newProfies.sort(Comparator.comparing(a -> a));
-        profilesList = Set.copyOf(newProfies);
+        config.profileProvider.sync();
         if (config.netty.sendProfileUpdatesEvent) {
             sendUpdateProfilesEvent();
         }
@@ -422,7 +412,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (client == null || !client.isAuth) {
                 return;
             }
-            ProfilesRequestEvent event = new ProfilesRequestEvent(ProfilesResponse.getListVisibleProfiles(this, client));
+            ProfilesRequestEvent event = new ProfilesRequestEvent(config.profileProvider.getProfiles(client));
             event.requestUUID = RequestEvent.eventUUID;
             handler.service.sendObject(ch, event);
         });
@@ -468,38 +458,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException;
     }
 
-    private static final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
-        private final Collection<ClientProfile> result;
-        private final Logger logger = LogManager.getLogger();
-
-        private ProfilesFileVisitor(Collection<ClientProfile> result) {
-            this.result = result;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            logger.info("Syncing '{}' profile", IOHelper.getFileName(file));
-
-            // Read profile
-            ClientProfile profile;
-            try (BufferedReader reader = IOHelper.newReader(file)) {
-                profile = Launcher.gsonManager.gson.fromJson(reader, ClientProfile.class);
-            }
-            profile.verify();
-            profile.setProfileFilePath(file);
-
-            // Add SIGNED profile to result list
-            result.add(profile);
-            return super.visitFile(file, attrs);
-        }
-    }
-
     public static class LaunchServerDirectories {
-        public static final String UPDATES_NAME = "updates", PROFILES_NAME = "profiles",
+        public static final String UPDATES_NAME = "updates",
                 TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
                 LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack", KEY_NAME = ".keys", MODULES = "modules", LAUNCHER_MODULES = "launcher-modules", LIBRARIES = "libraries";
         public Path updatesDir;
-        public Path profilesDir;
         public Path librariesDir;
         public Path launcherLibrariesDir;
         public Path launcherLibrariesCompileDir;
@@ -513,7 +476,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         public void collect() {
             if (updatesDir == null) updatesDir = getPath(UPDATES_NAME);
-            if (profilesDir == null) profilesDir = getPath(PROFILES_NAME);
             if (trustStore == null) trustStore = getPath(TRUSTSTORE_NAME);
             if (launcherLibrariesDir == null) launcherLibrariesDir = getPath(LAUNCHERLIBRARIES_NAME);
             if (launcherLibrariesCompileDir == null)

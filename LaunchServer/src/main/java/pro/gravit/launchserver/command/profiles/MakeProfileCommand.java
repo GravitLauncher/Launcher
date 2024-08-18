@@ -37,9 +37,7 @@ public class MakeProfileCommand extends Command {
             logger.info("Detected option {}", option);
         }
         ClientProfile profile = MakeProfileHelper.makeProfile(version, args[0], options);
-        try (Writer writer = IOHelper.newWriter(server.profilesDir.resolve(args[0].concat(".json")))) {
-            Launcher.gsonManager.configGson.toJson(profile, writer);
-        }
+        server.config.profileProvider.addProfile(profile);
         logger.info("Profile {} created", args[0]);
         server.syncProfilesDir();
     }

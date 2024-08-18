@@ -1,7 +1,6 @@
 apply plugin: 'com.github.johnrengelman.shadow'
 
 String mainClassName = "pro.gravit.launcher.start.ClientLauncherWrapper"
-String mainAgentName = "pro.gravit.launcher.runtime.LauncherAgent"
 
 repositories {
     maven {
@@ -20,7 +19,6 @@ configurations {
 jar {
     archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
-            "Premain-Class": mainAgentName,
             "Multi-Release": "true",
             "Automatic-Module-Name": "GravitLauncher")
 }

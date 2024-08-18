@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 public class ProfilesResponse extends SimpleResponse {
+    @Deprecated
     public static List<ClientProfile> getListVisibleProfiles(LaunchServer server, Client client) {
         List<ClientProfile> profileList;
         Set<ClientProfile> serverProfiles = server.getProfiles();
@@ -40,6 +41,6 @@ public class ProfilesResponse extends SimpleResponse {
             sendError("Access denied");
             return;
         }
-        sendResult(new ProfilesRequestEvent(getListVisibleProfiles(server, client)));
+        sendResult(new ProfilesRequestEvent(server.config.profileProvider.getProfiles(client)));
     }
 }

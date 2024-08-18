@@ -164,6 +164,11 @@ public class ModuleLaunch implements Launch {
         private String nativePath;
 
         private final List<String> packages = new ArrayList<>();
+
+        static  {
+            ClassLoader.registerAsParallelCapable();
+        }
+
         public ModuleClassLoader(URL[] urls, ClassLoader parent) {
             super("LAUNCHER", urls, parent);
             packages.add("pro.gravit.launcher.");

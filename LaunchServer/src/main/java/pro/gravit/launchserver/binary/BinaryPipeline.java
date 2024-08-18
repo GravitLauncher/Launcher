@@ -14,11 +14,11 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class BinaryPipeline {
+public abstract class BinaryPipeline {
     public final List<LauncherBuildTask> tasks = new ArrayList<>();
     public final Path buildDir;
     public final String nameFormat;
-    private transient final Logger logger = LogManager.getLogger();
+    protected transient final Logger logger = LogManager.getLogger();
 
     public BinaryPipeline(Path buildDir, String nameFormat) {
         this.buildDir = buildDir;
@@ -78,27 +78,6 @@ public class BinaryPipeline {
             last = e;
         }
         return Optional.empty();
-    }
-
-    public void build(Path target, boolean deleteTempFiles) throws IOException {
-        logger.info("Building launcher binary file");
-        Path thisPath = null;
-        long time_start = System.currentTimeMillis();
-        long time_this = time_start;
-        for (LauncherBuildTask task : tasks) {
-            logger.info("Task {}", task.getName());
-            Path oldPath = thisPath;
-            thisPath = task.process(oldPath);
-            long time_task_end = System.currentTimeMillis();
-            long time_task = time_task_end - time_this;
-            time_this = time_task_end;
-            logger.info("Task {} processed from {} millis", task.getName(), time_task);
-        }
-        long time_end = System.currentTimeMillis();
-        if (deleteTempFiles) IOHelper.move(thisPath, target);
-        else IOHelper.copy(thisPath, target);
-        IOHelper.deleteDir(buildDir, false);
-        logger.info("Build successful from {} millis", time_end - time_start);
     }
 
     public String nextName(String taskName) {

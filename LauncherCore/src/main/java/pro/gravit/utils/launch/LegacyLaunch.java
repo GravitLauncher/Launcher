@@ -54,6 +54,10 @@ public class LegacyLaunch implements Launch {
         private final Map<String, Class<?>> classMap = new ConcurrentHashMap<>();
         private String nativePath;
 
+        static  {
+            ClassLoader.registerAsParallelCapable();
+        }
+
         private final List<String> packages = new ArrayList<>();
         public LegacyClassLoader(URL[] urls) {
             super(urls);

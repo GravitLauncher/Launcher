@@ -142,10 +142,41 @@ public class ClientLauncherProcess {
         }
         //ADD CLASSPATH
         processArgs.add(JVMHelper.jvmProperty("java.library.path", this.params.nativesDir));
-        if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.AGENT) {
-            processArgs.add("-javaagent:".concat(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString()));
-        } else if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
-            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(new HashSet<>(), workDir, params.actions, params.profile)
+        if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
+            Set<Path> ignorePath = new HashSet<>();
+            var moduleConf = params.profile.getModuleConf();
+            if(moduleConf != null) {
+                if(moduleConf.modulePath != null && !moduleConf.modulePath.isEmpty()) {
+                    processArgs.add("-p");
+                    for(var e : moduleConf.modulePath) {
+                        ignorePath.add(Path.of(e));
+                    }
+                    processArgs.add(String.join(File.pathSeparator, moduleConf.modulePath));
+                }
+                if(moduleConf.modules != null && !moduleConf.modules.isEmpty()) {
+                    processArgs.add("--add-modules");
+                    processArgs.add(String.join(",", moduleConf.modules));
+                }
+                if(moduleConf.exports != null && !moduleConf.exports.isEmpty()) {
+                    for(var e : moduleConf.exports.entrySet()) {
+                        processArgs.add("--add-exports");
+                        processArgs.add(String.format("%s=%s", e.getKey(), e.getValue()));
+                    }
+                }
+                if(moduleConf.opens != null && !moduleConf.opens.isEmpty()) {
+                    for(var e : moduleConf.opens.entrySet()) {
+                        processArgs.add("--add-opens");
+                        processArgs.add(String.format("%s=%s", e.getKey(), e.getValue()));
+                    }
+                }
+                if(moduleConf.reads != null && !moduleConf.reads.isEmpty()) {
+                    for(var e : moduleConf.reads.entrySet()) {
+                        processArgs.add("--add-reads");
+                        processArgs.add(String.format("%s=%s", e.getKey(), e.getValue()));
+                    }
+                }
+            }
+            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(ignorePath, workDir, params.actions, params.profile)
                     .map(Path::toString)
                     .toList());
         }

@@ -1,7 +1,7 @@
 project.ext {
     verAsm = '9.7'
     verNetty = '4.1.111.Final'
-    verOshiCore = '6.6.1'
+    verOshiCore = '6.6.2'
     verJunit = '5.10.2'
     verJansi = '2.4.1'
     verJline = '3.26.1'
