@@ -7,10 +7,7 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.UnpackHelper;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +37,7 @@ public class PrepareBuildTask implements LauncherBuildTask {
         if(Files.isDirectory(server.launcherLibrariesCompile)) {
             IOHelper.walk(server.launcherLibrariesCompile, new ListFileVisitor(server.launcherBinary.addonLibs), false);
         }
-        try(Stream<Path> stream = Files.walk(server.launcherPack).filter((e) -> {
+        try(Stream<Path> stream = Files.walk(server.launcherPack, FileVisitOption.FOLLOW_LINKS).filter((e) -> {
             try {
                 return !Files.isDirectory(e) && !Files.isHidden(e);
             } catch (IOException ex) {
