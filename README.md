@@ -1,4 +1,4 @@
-# Modification of the launcher sashok724's v3 from Gravit [![Build Status](https://travis-ci.com/GravitLauncher/Launcher.svg?branch=master)](https://travis-ci.com/GravitLauncher/Launcher)
+# Modification of the launcher sashok724's v3 from Gravit [![Build Status](https://api.travis-ci.com/GravitLauncher/Launcher.svg?branch=master)](https://travis-ci.com/GravitLauncher/Launcher)
 
 * [Discord channel](https://discord.gg/b9QG4ygY75)
 
