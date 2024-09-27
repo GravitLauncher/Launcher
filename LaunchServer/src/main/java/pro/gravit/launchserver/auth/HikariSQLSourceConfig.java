@@ -19,15 +19,15 @@ public class HikariSQLSourceConfig implements SQLSourceConfig {
     private boolean initializeAtStart;
 
     public void init() {
-        if (dataSource != null) {
-            return;
-        }
         if(initializeAtStart) {
             initializeConnection();
         }
     }
 
     private void initializeConnection() {
+        if (dataSource != null) {
+            return;
+        }
         HikariConfig config = new HikariConfig();
         consumeIfNotNull(config::setDataSourceClassName, dsClass);
         consumeIfNotNull(config::setDataSourceProperties, dsProps);
