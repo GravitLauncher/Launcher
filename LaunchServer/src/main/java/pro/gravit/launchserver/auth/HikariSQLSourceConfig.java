@@ -9,18 +9,25 @@ import java.util.Properties;
 import java.util.function.Consumer;
 
 public class HikariSQLSourceConfig implements SQLSourceConfig {
-    private transient HikariDataSource dataSource;
+    private transient volatile HikariDataSource dataSource;
     private String dsClass;
     private Properties dsProps;
     private String driverClass;
     private String jdbcUrl;
     private String username;
     private String password;
+    private boolean initializeAtStart;
 
     public void init() {
         if (dataSource != null) {
             return;
         }
+        if(initializeAtStart) {
+            initializeConnection();
+        }
+    }
+
+    private void initializeConnection() {
         HikariConfig config = new HikariConfig();
         consumeIfNotNull(config::setDataSourceClassName, dsClass);
         consumeIfNotNull(config::setDataSourceProperties, dsProps);
@@ -34,6 +41,11 @@ public class HikariSQLSourceConfig implements SQLSourceConfig {
 
     @Override
     public Connection getConnection() throws SQLException {
+        if(dataSource == null && !initializeAtStart) {
+            synchronized (this) {
+                initializeConnection();
+            }
+        }
         return dataSource.getConnection();
     }
 
