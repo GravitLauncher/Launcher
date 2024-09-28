@@ -1,10 +1,10 @@
 project.ext {
     verAsm = '9.7'
     verNetty = '4.1.111.Final'
-    verOshiCore = '6.6.2'
+    verOshiCore = '6.6.4'
     verJunit = '5.10.2'
     verJansi = '2.4.1'
-    verJline = '3.26.1'
+    verJline = '3.26.3'
     verJwt = '0.12.5'
     verGson = '2.11.0'
     verBcpkix = '1.78.1'
@@ -12,7 +12,7 @@ project.ext {
     verLog4j = '2.23.1'
     verMySQLConn = '9.0.0'
     verMariaDBConn = '3.4.0'
-    verPostgreSQLConn = '42.7.3'
-    verH2Conn = '2.2.224'
+    verPostgreSQLConn = '42.7.4'
+    verH2Conn = '2.3.232'
     verProguard = '7.5.0'
 }
