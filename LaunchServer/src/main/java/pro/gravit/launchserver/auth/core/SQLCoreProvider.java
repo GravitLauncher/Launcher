@@ -7,8 +7,10 @@ import pro.gravit.launchserver.auth.HikariSQLSourceConfig;
 import pro.gravit.launchserver.auth.MySQLSourceConfig;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
+import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportExtendedCheckServer;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportHardware;
+import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.ByteArrayInputStream;
@@ -19,7 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupportHardware {
+public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupportHardware, AuthSupportExtendedCheckServer {
     public HikariSQLSourceConfig holder;
 
     @Override
@@ -289,6 +291,18 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupp
     @Override
     protected AbstractSQLCoreProvider.SQLUserSession createSession(AbstractSQLCoreProvider.SQLUser user) {
         return new SQLUserSession(user);
+    }
+
+    @Override
+    public UserSession extendedCheckServer(Client client, String username, String serverID) throws IOException {
+        AbstractSQLCoreProvider.SQLUser user = (AbstractSQLCoreProvider.SQLUser) getUserByUsername(username);
+        if (user == null) {
+            return null;
+        }
+        if (user.getUsername().equals(username) && user.getServerId().equals(serverID)) {
+            return createSession(user);
+        }
+        return null;
     }
 
     public class SQLUserSession extends AbstractSQLCoreProvider.SQLUserSession implements UserSessionSupportHardware {
