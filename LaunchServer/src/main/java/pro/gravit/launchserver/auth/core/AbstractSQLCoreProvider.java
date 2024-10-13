@@ -295,7 +295,9 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
                 user = constructUser(set);
             }
         }
-        user.permissions = requestPermissions(user.uuid.toString());
+        if(user != null) {
+            user.permissions = requestPermissions(user.uuid.toString());
+        }
         return user;
     }
 
