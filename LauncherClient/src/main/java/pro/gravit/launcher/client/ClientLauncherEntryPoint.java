@@ -88,7 +88,7 @@ public class ClientLauncherEntryPoint {
         ClientParams params = readParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
         ClientLauncherMethods.verifyNoAgent();
         if(params.timestamp > System.currentTimeMillis() || params.timestamp + 30*1000 < System.currentTimeMillis() ) {
-            LogHelper.error("Timestamp failed. Exit");
+            LogHelper.error("Timestamp failed: current %d | params %d | diff %d", System.currentTimeMillis(), params.timestamp, System.currentTimeMillis() - params.timestamp);
             ClientLauncherMethods.exitLauncher(-662);
             return;
         }
