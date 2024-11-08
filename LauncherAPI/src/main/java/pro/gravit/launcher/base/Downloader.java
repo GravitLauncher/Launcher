@@ -141,7 +141,6 @@ public class Downloader {
             }
         }
         tasks.clear();
-        executor.shutdownNow();
     }
 
     public boolean isCanceled() {

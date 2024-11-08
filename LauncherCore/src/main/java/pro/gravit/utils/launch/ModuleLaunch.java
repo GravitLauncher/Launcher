@@ -262,6 +262,9 @@ public class ModuleLaunch implements Launch {
 
         @Override
         public String findLibrary(String name) {
+            if(nativePath == null) {
+                return null;
+            }
             return nativePath.concat(IOHelper.PLATFORM_SEPARATOR).concat(JVMHelper.NATIVE_PREFIX).concat(name).concat(JVMHelper.NATIVE_EXTENSION);
         }
 

@@ -142,9 +142,7 @@ public class ClientLauncherProcess {
         }
         //ADD CLASSPATH
         processArgs.add(JVMHelper.jvmProperty("java.library.path", this.params.nativesDir));
-        if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.AGENT) {
-            processArgs.add("-javaagent:".concat(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString()));
-        } else if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
+        if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
             Set<Path> ignorePath = new HashSet<>();
             var moduleConf = params.profile.getModuleConf();
             if(moduleConf != null) {
@@ -158,6 +156,24 @@ public class ClientLauncherProcess {
                 if(moduleConf.modules != null && !moduleConf.modules.isEmpty()) {
                     processArgs.add("--add-modules");
                     processArgs.add(String.join(",", moduleConf.modules));
+                }
+                if(moduleConf.exports != null && !moduleConf.exports.isEmpty()) {
+                    for(var e : moduleConf.exports.entrySet()) {
+                        processArgs.add("--add-exports");
+                        processArgs.add(String.format("%s=%s", e.getKey(), e.getValue()));
+                    }
+                }
+                if(moduleConf.opens != null && !moduleConf.opens.isEmpty()) {
+                    for(var e : moduleConf.opens.entrySet()) {
+                        processArgs.add("--add-opens");
+                        processArgs.add(String.format("%s=%s", e.getKey(), e.getValue()));
+                    }
+                }
+                if(moduleConf.reads != null && !moduleConf.reads.isEmpty()) {
+                    for(var e : moduleConf.reads.entrySet()) {
+                        processArgs.add("--add-reads");
+                        processArgs.add(String.format("%s=%s", e.getKey(), e.getValue()));
+                    }
                 }
             }
             systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(ignorePath, workDir, params.actions, params.profile)

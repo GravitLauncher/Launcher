@@ -52,7 +52,7 @@ public class LauncherResponse extends SimpleResponse {
                 client.checkSign = true;
                 sendResult(new LauncherRequestEvent(false, server.config.netty.launcherURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
+                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherURL, null, 0));
             }
         } else if (launcher_type == 2) //EXE
         {
@@ -62,7 +62,7 @@ public class LauncherResponse extends SimpleResponse {
                 client.checkSign = true;
                 sendResult(new LauncherRequestEvent(false, server.config.netty.launcherEXEURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
+                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL, null, 0));
             }
         } else sendError("Request launcher type error");
     }

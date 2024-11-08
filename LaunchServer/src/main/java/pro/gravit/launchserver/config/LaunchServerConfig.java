@@ -14,6 +14,8 @@ import pro.gravit.launchserver.auth.profiles.ProfileProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
+import pro.gravit.launchserver.auth.updates.LocalUpdatesProvider;
+import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
@@ -32,13 +34,13 @@ public final class LaunchServerConfig {
     public String[] mirrors;
     public String binaryName;
     public boolean copyBinaries = true;
-    public boolean cacheUpdates = true;
     public LauncherConfig.LauncherEnvironment env;
     public Map<String, AuthProviderPair> auth;
     // Handlers & Providers
     public ProtectHandler protectHandler;
     public Map<String, Component> components;
     public ProfileProvider profileProvider = new LocalProfileProvider();
+    public UpdatesProvider updatesProvider = new LocalUpdatesProvider();
     public NettyConfig netty;
     public LauncherConf launcher;
     public JarSignerConf sign;
@@ -174,6 +176,10 @@ public final class LaunchServerConfig {
             server.registerObject("profileProvider", profileProvider);
             profileProvider.init(server);
         }
+        if(updatesProvider != null) {
+            server.registerObject("updatesProvider", updatesProvider);
+            updatesProvider.init(server);
+        }
         if (components != null) {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
         }
@@ -217,6 +223,10 @@ public final class LaunchServerConfig {
         if(profileProvider != null) {
             server.unregisterObject("profileProvider", profileProvider);
             profileProvider.close();
+        }
+        if(updatesProvider != null) {
+            server.unregisterObject("updatesProvider", updatesProvider);
+            updatesProvider.close();
         }
     }
 

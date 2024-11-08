@@ -86,11 +86,9 @@ public class ClientLauncherEntryPoint {
         modulesManager.invokeEvent(new PreConfigPhase());
         LogHelper.debug("Reading ClientLauncher params");
         ClientParams params = readParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
-        if (params.profile.getClassLoaderConfig() != ClientProfile.ClassLoaderConfig.AGENT) {
-            ClientLauncherMethods.verifyNoAgent();
-        }
+        ClientLauncherMethods.verifyNoAgent();
         if(params.timestamp > System.currentTimeMillis() || params.timestamp + 30*1000 < System.currentTimeMillis() ) {
-            LogHelper.error("Timestamp failed. Exit");
+            LogHelper.error("Timestamp failed: current %d | params %d | diff %d", System.currentTimeMillis(), params.timestamp, System.currentTimeMillis() - params.timestamp);
             ClientLauncherMethods.exitLauncher(-662);
             return;
         }
@@ -160,7 +158,7 @@ public class ClientLauncherEntryPoint {
                 System.load(Paths.get(params.nativesDir).resolve(ClientService.findLibrary(e)).toAbsolutePath().toString());
             }
         }
-        if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER) {
+        if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER || classLoaderConfig == ClientProfile.ClassLoaderConfig.MODULE) {
             if(JVMHelper.JVM_VERSION <= 11) {
                 launch = new LegacyLaunch();
             } else {
@@ -170,20 +168,12 @@ public class ClientLauncherEntryPoint {
             System.setProperty("java.class.path", classpath.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator)));
             modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(launch, classLoaderControl, profile));
             ClientService.baseURLs = classLoaderControl.getURLs();
-        } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.AGENT) {
-            launch = new BasicLaunch(LauncherAgent.inst);
-            classpathURLs.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toUri().toURL());
-            classLoaderControl = launch.init(classpath, params.nativesDir, options);
-            for (URL url : classpathURLs) {
-                LauncherAgent.addJVMClassPath(Paths.get(url.toURI()));
-            }
-            ClientService.instrumentation = LauncherAgent.inst;
-            modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(launch, null, profile));
-            ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
         } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
             launch = new BasicLaunch();
             classLoaderControl = launch.init(classpath, params.nativesDir, options);
             ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
+        } else {
+            throw new UnsupportedOperationException(String.format("Unknown classLoaderConfig %s", classLoaderConfig));
         }
         if(profile.hasFlag(ClientProfile.CompatibilityFlags.CLASS_CONTROL_API)) {
             ClientService.classLoaderControl = classLoaderControl;

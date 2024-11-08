@@ -1,7 +1,6 @@
 apply plugin: 'org.openjfx.javafxplugin'
 
-String mainClassName = "pro.gravit.launcher.ClientLauncherWrapper"
-String mainAgentName = "pro.gravit.launcher.LauncherAgent"
+String mainClassName = "pro.gravit.launcher.start.ClientLauncherWrapper"
 
 repositories {
     maven {
@@ -14,7 +13,6 @@ targetCompatibility = '17'
 jar {
     archiveClassifier.set('clean')
     manifest.attributes("Main-Class": mainClassName,
-            "Premain-Class": mainAgentName,
             "Multi-Release": "true")
 }
 
