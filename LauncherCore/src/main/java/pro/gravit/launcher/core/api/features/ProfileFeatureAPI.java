@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface ProfileFeatureAPI extends FeatureAPI {
     CompletableFuture<List<ClientProfile>> getProfiles();
+    CompletableFuture<Void> changeCurrentProfile(ClientProfile profile);
     CompletableFuture<UpdateInfo> fetchUpdateInfo(String dirName);
 
     interface UpdateInfo {

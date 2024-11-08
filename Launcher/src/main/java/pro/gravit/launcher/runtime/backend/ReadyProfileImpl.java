@@ -1,9 +1,11 @@
 package pro.gravit.launcher.runtime.backend;
 
 import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.base.profiles.PlayerProfile;
+import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 import pro.gravit.launcher.runtime.client.ClientLauncherProcess;
@@ -61,9 +63,14 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
             builder.setUpdateExclusions(new ArrayList<>());
             profile = builder.createClientProfile();
         }
-        process = new ClientLauncherProcess(clientDir.path(), assetDir.path(), settings.getSelectedJava(), clientDir.path().resolve("resourcepacks"),
+        var java = settings.getSelectedJava();
+        if(java == null) {
+            java = settings.getRecommendedJava();
+        }
+        process = new ClientLauncherProcess(clientDir.path(), assetDir.path(), java, clientDir.path().resolve("resourcepacks"),
                 profile, new PlayerProfile(backend.getSelfUser()), settings.view, backend.getSelfUser().getAccessToken(),
-                clientDir.dir(), assetDir.dir(), javaDir == null ? null : javaDir.dir());
+                clientDir.dir(), assetDir.dir(), javaDir == null ? null : javaDir.dir(),
+                new AuthRequestEvent.OAuthRequestEvent(backend.getAuthToken()), backend.getAuthMethod().getName());
         process.params.ram = (int) (settings.getReservedMemoryBytes(LauncherBackendAPI.ClientProfileSettings.MemoryClass.TOTAL) >> 20);
         if (process.params.ram > 0) {
             process.jvmArgs.add("-Xms" + process.params.ram + 'M');

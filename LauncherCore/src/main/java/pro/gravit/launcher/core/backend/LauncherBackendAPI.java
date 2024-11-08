@@ -63,6 +63,7 @@ public interface LauncherBackendAPI {
         void enableOptional(ProfileFeatureAPI.OptionalMod mod, ChangedOptionalStatusCallback callback);
         void disableOptional(ProfileFeatureAPI.OptionalMod mod, ChangedOptionalStatusCallback callback);
         Java getSelectedJava();
+        Java getRecommendedJava();
         void setSelectedJava(Java java);
         boolean isRecommended(Java java);
         boolean isCompatible(Java java);

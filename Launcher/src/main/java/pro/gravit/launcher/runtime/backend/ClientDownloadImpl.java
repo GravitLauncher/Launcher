@@ -37,7 +37,8 @@ public class ClientDownloadImpl {
         AtomicReference<DownloadedDir> clientRef = new AtomicReference<>();
         AtomicReference<DownloadedDir> assetRef = new AtomicReference<>();
         AtomicReference<DownloadedDir> javaRef = new AtomicReference<>();
-        return downloadDir(profile.getDir(), profile.getClientUpdateMatcher(), settings.view, callback).thenCompose((clientDir -> {
+        return LauncherAPIHolder.profile().changeCurrentProfile(profile)
+                .thenCompose(vv -> downloadDir(profile.getDir(), profile.getClientUpdateMatcher(), settings.view, callback)).thenCompose((clientDir -> {
             clientRef.set(clientDir);
             return downloadAsset(profile.getAssetDir(), profile.getAssetUpdateMatcher(), profile.getAssetIndex(), callback);
         })).thenCompose(assetDir -> {
@@ -53,7 +54,7 @@ public class ClientDownloadImpl {
 
     CompletableFuture<DownloadedDir> downloadAsset(String dirName, FileNameMatcher matcher, String assetIndexString, LauncherBackendAPI.DownloadCallback callback) {
         Path targetDir = DirBridge.dirUpdates.resolve(dirName);
-        Path assetIndexPath = targetDir.resolve("indexes").resolve(assetIndexString);
+        Path assetIndexPath = targetDir.resolve("indexes").resolve(assetIndexString+".json");
         return LauncherAPIHolder.profile().fetchUpdateInfo(dirName).thenComposeAsync((response) -> {
                     callback.onStage(LauncherBackendAPI.DownloadCallback.STAGE_ASSET_VERIFY);
                     return verifyAssetIndex(assetIndexString, response, assetIndexPath, targetDir);
@@ -116,7 +117,7 @@ public class ClientDownloadImpl {
                 callback.onStage(LauncherBackendAPI.DownloadCallback.STAGE_HASHING);
                 HashedDir realFiles = new HashedDir(targetDir, matcher, false, true);
                 callback.onStage(LauncherBackendAPI.DownloadCallback.STAGE_DIFF);
-                return realFiles.diff(updateInfo.getHashedDir(), matcher);
+                return updateInfo.getHashedDir().diff(realFiles, matcher);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -165,7 +166,12 @@ public class ClientDownloadImpl {
         List<Downloader.SizedFile> files = new ArrayList<>();
         mismatch.walk(File.separator, (path, name, entry) -> {
             if(entry.getType() == HashedEntry.Type.DIR) {
-                Files.createDirectory(dir.resolve(path));
+                var dirPath = dir.resolve(path);
+                if(!Files.exists(dirPath)) {
+                    Files.createDirectory(dirPath);
+                } else if (!Files.isDirectory(dirPath)) {
+                    throw new IOException(String.format("%s is not a directory", path));
+                }
                 return HashedDir.WalkAction.CONTINUE;
             }
             String pathFixed = path.replace(File.separatorChar, '/');

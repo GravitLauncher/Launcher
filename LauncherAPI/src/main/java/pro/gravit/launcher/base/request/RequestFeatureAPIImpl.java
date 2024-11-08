@@ -1,6 +1,7 @@
 package pro.gravit.launcher.base.request;
 
 import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.request.auth.*;
 import pro.gravit.launcher.base.request.auth.password.*;
 import pro.gravit.launcher.base.request.update.ProfilesRequest;
@@ -89,6 +90,8 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
             return new AuthCodePassword(oauth.redirectUrl());
         } else if(password instanceof AuthRequest.AuthPasswordInterface custom) {
             return custom;
+        } else if(password == null) {
+            return null;
         }
         else {
             throw new UnsupportedOperationException();
@@ -162,6 +165,11 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
     @Override
     public CompletableFuture<List<ProfileFeatureAPI.ClientProfile>> getProfiles() {
         return request.request(new ProfilesRequest()).thenApply(response -> (List) response.profiles);
+    }
+
+    @Override
+    public CompletableFuture<Void> changeCurrentProfile(ClientProfile profile) {
+        return request.request(new SetProfileRequest((pro.gravit.launcher.base.profiles.ClientProfile) profile)).thenApply(response -> null);
     }
 
     @Override

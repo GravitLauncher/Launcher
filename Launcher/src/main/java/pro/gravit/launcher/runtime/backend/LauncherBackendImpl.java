@@ -16,6 +16,7 @@ import pro.gravit.launcher.core.backend.UserSettings;
 import pro.gravit.launcher.core.backend.exceptions.LauncherBackendException;
 import pro.gravit.launcher.core.backend.extensions.Extension;
 import pro.gravit.launcher.runtime.NewLauncherSettings;
+import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.launcher.runtime.client.ServerPinger;
 import pro.gravit.launcher.runtime.debug.DebugMain;
 import pro.gravit.launcher.runtime.managers.SettingsManager;
@@ -73,6 +74,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
         allSettings = settingsManager.getConfig();
         backendSettings = (BackendSettings) getUserSettings("backend", (k) -> new BackendSettings());
         permissions = new ClientPermissions();
+        DirBridge.dirUpdates = DirBridge.defaultUpdatesDir;
     }
 
     @Override
@@ -100,6 +102,14 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
             }
             return new LauncherInitData(authMethods);
         }, executorService);
+    }
+
+    public AuthFeatureAPI.AuthToken getAuthToken() {
+        return backendSettings.auth.toToken();
+    }
+
+    public AuthMethod getAuthMethod() {
+        return authMethod;
     }
 
     @Override
@@ -175,9 +185,11 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
         var settings = backendSettings.settings.get(profile.getUUID());
         if(settings == null) {
             settings = new ProfileSettingsImpl((ClientProfile) profile);
+            settings.backend = this;
+            settings.updateEnabledMods();
         } else {
             settings = settings.copy();
-            settings.initAfterGson((ClientProfile) profile, this);
+            //settings.initAfterGson((ClientProfile) profile, this);
         }
         return settings;
     }
@@ -211,6 +223,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
                     return e;
                 });
             }
+            return availableJavasFuture;
         }
         return CompletableFuture.completedFuture(availableJavas);
     }

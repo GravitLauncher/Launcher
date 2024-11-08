@@ -12,6 +12,7 @@ import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.JavaHelper;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSettings {
     transient ClientProfile profile;
@@ -121,6 +122,30 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
     }
 
     @Override
+    public JavaHelper.JavaVersion getRecommendedJava() {
+        JavaHelper.JavaVersion result = null;
+        try {
+            for(var java : backend.getAvailableJava().get()) {
+                if(isRecommended(java)) {
+                    return (JavaHelper.JavaVersion) java;
+                }
+                if(isCompatible(java)) {
+                    if(result == null) {
+                        result = (JavaHelper.JavaVersion) java;
+                        continue;
+                    }
+                    if(result.getMajorVersion() < java.getMajorVersion()) {
+                        result = (JavaHelper.JavaVersion) java;
+                    }
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
+    }
+
+    @Override
     public void setSelectedJava(LauncherBackendAPI.Java java) {
         selectedJava = (JavaHelper.JavaVersion) java;
     }
@@ -138,6 +163,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
     @Override
     public ProfileSettingsImpl copy() {
         ProfileSettingsImpl cloned = new ProfileSettingsImpl();
+        cloned.backend = backend;
         cloned.profile = profile;
         cloned.ram = new HashMap<>(ram);
         cloned.flags = new HashSet<>(flags);
@@ -155,7 +181,9 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         for(var e : view.enabled) {
             enabled.add(e.name);
         }
-        saveJavaPath = selectedJava.getPath().toAbsolutePath().toString();
+        if(selectedJava != null) {
+            saveJavaPath = selectedJava.getPath().toAbsolutePath().toString();
+        }
     }
 
     public void initAfterGson(ClientProfile profile, LauncherBackendImpl backend) {

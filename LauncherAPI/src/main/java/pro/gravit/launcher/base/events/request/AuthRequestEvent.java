@@ -87,6 +87,12 @@ public class AuthRequestEvent extends RequestEvent {
             this.expire = expire;
         }
 
+        public OAuthRequestEvent(AuthFeatureAPI.AuthToken token) {
+            this.accessToken = token.getAccessToken();
+            this.refreshToken = token.getRefreshToken();
+            this.expire = token.getExpire();
+        }
+
         @Override
         public String getAccessToken() {
             return accessToken;
