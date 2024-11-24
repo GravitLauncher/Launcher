@@ -4,6 +4,7 @@ import pro.gravit.launcher.core.hasher.HashedDir;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,5 +38,6 @@ public interface ProfileFeatureAPI extends FeatureAPI {
         String getDescription();
         String getCategory();
         boolean isVisible();
+        Set<OptionalMod> getDependencies();
     }
 }

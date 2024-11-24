@@ -6,6 +6,7 @@ import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class OptionalFile implements ProfileFeatureAPI.OptionalMod {
     @LauncherNetworkAPI
@@ -70,6 +71,11 @@ public class OptionalFile implements ProfileFeatureAPI.OptionalMod {
 
     public boolean isVisible() {
         return visible;
+    }
+
+    @Override
+    public Set<ProfileFeatureAPI.OptionalMod> getDependencies() {
+        return Set.of(dependencies);
     }
 
     public boolean isMark() {
