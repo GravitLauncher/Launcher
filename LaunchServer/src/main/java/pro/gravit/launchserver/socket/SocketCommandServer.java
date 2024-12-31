@@ -73,7 +73,6 @@ public class SocketCommandServer implements Runnable {
                         if (bytesRead < 0) {
                             break;
                         }
-                        logger.info("DEBUG: readed {}", new String(buffer.array(), 0, buffer.limit()));
                         for (var i=0;i<buffer.limit();i++) {
                             if(buffer.get(i) == '\n') {
                                 command = new String(buffer.array(), 0, i);
