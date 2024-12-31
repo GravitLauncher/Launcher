@@ -30,6 +30,13 @@ configure(subprojects.findAll { it.name != 'modules' }) {
         maven {
             url "https://jitpack.io/"
         }
+        maven {
+            url 'https://maven.gravit-support.ru/repository/jitpack'
+            credentials {
+                username = 'gravitlauncher'
+                password = 'gravitlauncher'
+            }
+        }
     }
 
     jar {
