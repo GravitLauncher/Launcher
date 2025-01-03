@@ -5,7 +5,7 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.1.0' apply false
 }
 group = 'pro.gravit.launcher'
-version = '5.6.8'
+version = '5.6.9'
 
 apply from: 'props.gradle'
 
@@ -29,6 +29,13 @@ configure(subprojects.findAll { it.name != 'modules' }) {
         }
         maven {
             url "https://jitpack.io/"
+        }
+        maven {
+            url 'https://maven.gravit-support.ru/repository/jitpack'
+            credentials {
+                username = 'gravitlauncher'
+                password = 'gravitlauncher'
+            }
         }
     }
 

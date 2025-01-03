@@ -21,6 +21,7 @@ import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.modules.events.*;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.Client;
+import pro.gravit.launchserver.socket.SocketCommandServer;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.launchserver.socket.response.auth.ProfilesResponse;
 import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
@@ -85,6 +86,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final Path modulesDir;
     public final Path launcherModulesDir;
     public final Path librariesDir;
+    public final Path controlFile;
     /**
      * This object contains runtime configuration
      */
@@ -113,6 +115,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     // Server
     public final CommandHandler commandHandler;
     public final NettyServerSocketHandler nettyServerSocketHandler;
+    public final SocketCommandServer socketCommandServer;
     public final ScheduledExecutorService service;
     public final AtomicBoolean started = new AtomicBoolean(false);
     public final LauncherModuleLoader launcherModuleLoader;
@@ -139,6 +142,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         modulesDir = directories.modules;
         launcherModulesDir = directories.launcherModules;
         librariesDir = directories.librariesDir;
+        controlFile = directories.controlFile;
         this.shardId = shardId;
         if(!Files.isDirectory(launcherPack)) {
             Files.createDirectories(launcherPack);
@@ -190,6 +194,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
         launcherModuleLoader.init();
         nettyServerSocketHandler = new NettyServerSocketHandler(this);
+        socketCommandServer = new SocketCommandServer(commandHandler, controlFile);
         if(config.sign.checkCertificateExpired) {
             checkCertificateExpired();
             service.scheduleAtFixedRate(this::checkCertificateExpired, 24, 24, TimeUnit.HOURS);
@@ -353,6 +358,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 }
             }));
             CommonHelper.newThread("Command Thread", true, commandHandler).start();
+            CommonHelper.newThread("Socket Command Thread", true, socketCommandServer).start();
             // Sync updates dir
             CommonHelper.newThread("Profiles and updates sync", true, () -> {
                 try {
@@ -461,7 +467,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public static class LaunchServerDirectories {
         public static final String UPDATES_NAME = "updates",
                 TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
-                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack", KEY_NAME = ".keys", MODULES = "modules", LAUNCHER_MODULES = "launcher-modules", LIBRARIES = "libraries";
+                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack", KEY_NAME = ".keys", MODULES = "modules", LAUNCHER_MODULES = "launcher-modules", LIBRARIES = "libraries", CONTROL_FILE = "control-file";
         public Path updatesDir;
         public Path librariesDir;
         public Path launcherLibrariesDir;
@@ -473,6 +479,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         public Path tmpDir;
         public Path modules;
         public Path launcherModules;
+        public Path controlFile;
 
         public void collect() {
             if (updatesDir == null) updatesDir = getPath(UPDATES_NAME);
@@ -486,6 +493,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (modules == null) modules = getPath(MODULES);
             if (launcherModules == null) launcherModules = getPath(LAUNCHER_MODULES);
             if (librariesDir == null) librariesDir = getPath(LIBRARIES);
+            if (controlFile == null) controlFile = getPath(CONTROL_FILE);
             if (tmpDir == null)
                 tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("launchserver-%s".formatted(SecurityHelper.randomStringToken()));
         }

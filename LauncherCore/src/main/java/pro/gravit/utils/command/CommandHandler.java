@@ -10,8 +10,18 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class CommandHandler implements Runnable {
-    private final List<Category> categories = new ArrayList<>();
-    private final CommandCategory baseCategory = new BaseCommandCategory();
+    protected final List<Category> categories;
+    protected final CommandCategory baseCategory;
+
+    public CommandHandler() {
+        this.categories = new ArrayList<>();
+        this.baseCategory = new BaseCommandCategory();
+    }
+
+    protected CommandHandler(List<Category> categories, CommandCategory baseCategory) {
+        this.categories = categories;
+        this.baseCategory = baseCategory;
+    }
 
     public void eval(String line, boolean bell) {
         LogHelper.info("Command '%s'", line);
