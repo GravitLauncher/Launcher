@@ -63,7 +63,7 @@ public class LaunchServerStarter {
         directories.collect();
         CertificateManager certificateManager = new CertificateManager();
         try {
-            certificateManager.readTrustStore(dir.resolve("truststore"));
+            certificateManager.readTrustStore(directories.trustStore);
         } catch (CertificateException e) {
             throw new IOException(e);
         }
