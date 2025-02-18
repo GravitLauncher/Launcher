@@ -88,6 +88,10 @@ dependencies {
     bundle group: 'io.netty', name: 'netty-transport-classes-epoll', version: rootProject['verNetty']
     bundle group: 'io.netty', name: 'netty-transport-native-epoll', version: rootProject['verNetty'], classifier: 'linux-x86_64'
     bundle group: 'io.netty', name: 'netty-transport-native-epoll', version: rootProject['verNetty'], classifier: 'linux-aarch_64'
+    // Netty
+    implementation 'org.jboss.marshalling:jboss-marshalling:1.4.11.Final'
+    implementation 'com.google.protobuf.nano:protobuf-javanano:3.1.0'
+    //
     bundle group: 'org.slf4j', name: 'slf4j-api', version: rootProject['verSlf4j']
     bundle group: 'com.mysql', name: 'mysql-connector-j', version: rootProject['verMySQLConn']
     bundle group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: rootProject['verMariaDBConn']
