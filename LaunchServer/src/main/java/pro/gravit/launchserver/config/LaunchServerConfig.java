@@ -19,6 +19,7 @@ import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
+import pro.gravit.launchserver.socket.NettyObjectFactory;
 
 import java.util.*;
 
@@ -64,12 +65,7 @@ public final class LaunchServerConfig {
         newConfig.netty.fileServerEnabled = true;
         newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
         newConfig.netty.performance = new NettyPerformanceConfig();
-        try {
-            newConfig.netty.performance.usingEpoll = Epoll.isAvailable();
-        } catch (Throwable e) {
-            // Epoll class line 51+ catch (Exception) but Error will be thrown by System.load
-            newConfig.netty.performance.usingEpoll = false;
-        } // such as on ARM
+        newConfig.netty.performance.mode = NettyObjectFactory.NettyFactoryMode.AUTO;
         newConfig.netty.performance.bossThread = 2;
         newConfig.netty.performance.workerThread = 8;
         newConfig.netty.performance.schedulerThread = 2;
@@ -277,7 +273,7 @@ public final class LaunchServerConfig {
     }
 
     public static class NettyPerformanceConfig {
-        public boolean usingEpoll;
+        public NettyObjectFactory.NettyFactoryMode mode = NettyObjectFactory.NettyFactoryMode.AUTO;
         public int bossThread;
         public int workerThread;
         public int schedulerThread;

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class Main {
-    private static final List<String> classpathOnly = List.of("proguard", "jline", "progressbar", "kotlin", "epoll");
+    private static final List<String> classpathOnly = List.of("proguard", "jline", "progressbar", "kotlin");
     private static final String LOG4J_PROPERTY = "log4j2.configurationFile";
     private static final String DEBUG_PROPERTY = "launchserver.main.debug";
     private static final String LIBRARIES_PROPERTY = "launchserver.dir.libraries";

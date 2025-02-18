@@ -36,14 +36,9 @@ public class LauncherNettyServer implements AutoCloseable {
 
     public LauncherNettyServer(LaunchServer server) {
         LaunchServerConfig.NettyConfig config = server.config.netty;
-        NettyObjectFactory.setUsingEpoll(config.performance.usingEpoll);
+        NettyObjectFactory.setMode(config.performance.mode);
         Logger logger = LogManager.getLogger();
-        if (config.performance.usingEpoll) {
-            logger.debug("Netty: Epoll enabled");
-        }
-        if (config.performance.usingEpoll && !Epoll.isAvailable()) {
-            logger.error("Epoll is not available: (netty,perfomance.usingEpoll configured wrongly)", Epoll.unavailabilityCause());
-        }
+        logger.info("Netty usage {} transport mode", NettyObjectFactory.getMode());
         bossGroup = NettyObjectFactory.newEventLoopGroup(config.performance.bossThread, "LauncherNettyServer.bossGroup");
         workerGroup = NettyObjectFactory.newEventLoopGroup(config.performance.workerThread, "LauncherNettyServer.workerGroup");
         serverBootstrap = new ServerBootstrap();
