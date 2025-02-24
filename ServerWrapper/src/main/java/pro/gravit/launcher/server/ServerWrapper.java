@@ -308,13 +308,13 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
 
         public void applyEnv() {
-            this.authId = applyEnvOrDefault("LAUNCHSERVER_AUTH_ID", this.authId);
-            this.address = applyEnvOrDefault("LAUNCHSERVER_ADDRESS", this.address);
-            this.serverName = applyEnvOrDefault("LAUNCHSERVER_SERVER_NAME", this.serverName);
-            this.encodedServerEcPublicKey = applyEnvOrDefault("LAUNCHSERVER_EC_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
-            this.encodedServerRsaPublicKey = applyEnvOrDefault("LAUNCHSERVER_RSA_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
+            this.authId = applyEnvOrDefault("SERVERWRAPPER_AUTH_ID", this.authId);
+            this.address = applyEnvOrDefault("SERVERWRAPPER_ADDRESS", this.address);
+            this.serverName = applyEnvOrDefault("SERVERWRAPPER_SERVER_NAME", this.serverName);
+            this.encodedServerEcPublicKey = applyEnvOrDefault("SERVERWRAPPER_EC_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
+            this.encodedServerRsaPublicKey = applyEnvOrDefault("SERVERWRAPPER_RSA_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
             {
-                String token = System.getenv("CHECK_SERVER_TOKEN");
+                String token = System.getenv("SERVERWRAPPER_CHECK_SERVER_TOKEN");
                 if(token != null) {
                     if(extendedTokens == null) {
                         extendedTokens = new HashMap<>();

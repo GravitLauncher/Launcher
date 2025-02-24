@@ -26,7 +26,7 @@ public class VoidRequestService implements RequestService {
     }
 
     @Override
-    public void open() {
+    public void connect() {
 
     }
 

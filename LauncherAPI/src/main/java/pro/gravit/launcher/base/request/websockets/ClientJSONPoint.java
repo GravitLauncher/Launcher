@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
+import java.nio.ByteBuffer;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -63,7 +64,7 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
         }
     }
 
-    public void open() throws Exception {
+    public void connect() throws Exception {
         webSocket = webSocketBuilder.buildAsync(uri, this).get();
     }
 
@@ -95,6 +96,17 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
     public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
         onDisconnect(statusCode, reason);
         return WebSocket.Listener.super.onClose(webSocket, statusCode, reason);
+    }
+
+    @Override
+    public void onOpen(WebSocket webSocket) {
+        onOpen();
+        WebSocket.Listener.super.onOpen(webSocket);
+    }
+
+    @Override
+    public CompletionStage<?> onBinary(WebSocket webSocket, ByteBuffer data, boolean last) {
+        return WebSocket.Listener.super.onBinary(webSocket, data, last);
     }
 
     @Override

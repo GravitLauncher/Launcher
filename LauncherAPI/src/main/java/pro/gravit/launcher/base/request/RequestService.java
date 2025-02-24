@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutionException;
 
 public interface RequestService {
     <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) throws IOException;
-    void open();
+    void connect() throws Exception;
 
     void registerEventHandler(EventHandler handler);
 
