@@ -29,6 +29,7 @@ import java.util.List;
 public class CertificateManager {
     private transient final Logger logger = LogManager.getLogger();
     public LauncherTrustManager trustManager;
+    private Path truststorePath;
 
     public void writePrivateKey(Path file, PrivateKey privateKey) throws IOException {
         writePrivateKey(IOHelper.newWriter(file), privateKey);
@@ -91,6 +92,7 @@ public class CertificateManager {
     }
 
     public void readTrustStore(Path dir) throws IOException, CertificateException {
+        this.truststorePath = dir;
         if (!IOHelper.isDir(dir)) {
             Files.createDirectories(dir);
             try {
@@ -130,5 +132,9 @@ public class CertificateManager {
     public LauncherTrustManager.CheckClassResult checkClass(Class<?> clazz) {
         X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
         return trustManager.checkCertificates(certificates, trustManager::stdCertificateChecker);
+    }
+
+    public Path getTruststorePath() {
+        return truststorePath;
     }
 }

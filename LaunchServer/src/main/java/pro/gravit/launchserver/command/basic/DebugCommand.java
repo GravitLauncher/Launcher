@@ -32,6 +32,7 @@ public class DebugCommand extends Command {
         boolean value = Boolean.parseBoolean(args[0]);
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
+        config.getWatchManager().setIntervalSeconds(-1);
         LoggerConfig loggerConfig = config.getLoggerConfig("pro.gravit");
         loggerConfig.setLevel(value ? Level.TRACE : Level.DEBUG);
         ctx.updateLoggers();
