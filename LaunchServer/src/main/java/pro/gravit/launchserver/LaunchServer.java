@@ -2,7 +2,6 @@ package pro.gravit.launchserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.events.RequestEvent;
 import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.base.modules.events.ClosePhase;
@@ -23,20 +22,16 @@ import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.SocketCommandServer;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
-import pro.gravit.launchserver.socket.response.auth.ProfilesResponse;
 import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.security.KeyStore;
 import java.time.Duration;
 import java.time.Instant;

@@ -56,7 +56,7 @@ public abstract class LauncherBinary extends BinaryPipeline {
     public void init() {
     }
 
-    public final boolean sync() throws IOException {
+    public final boolean sync() {
         try {
             var target = syncBinaryFile.toString();
             var path = server.config.updatesProvider.download(null, List.of(target)).get(target);

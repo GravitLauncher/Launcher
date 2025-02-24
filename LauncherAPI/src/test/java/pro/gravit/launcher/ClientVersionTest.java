@@ -7,9 +7,9 @@ import pro.gravit.launcher.base.profiles.ClientProfile;
 public class ClientVersionTest {
     @Test
     public void parseTest() {
-        Assertions.assertEquals(ClientProfile.Version.of("1.0.0").toCleanString(), "1.0.0");
-        Assertions.assertEquals(ClientProfile.Version.of("1.0.0-1").toCleanString(), "1.0.0.1");
-        Assertions.assertEquals(ClientProfile.Version.of("-----1.0.0").toCleanString(), "1.0.0");
+        Assertions.assertEquals("1.0.0", ClientProfile.Version.of("1.0.0").toCleanString());
+        Assertions.assertEquals("1.0.0.1", ClientProfile.Version.of("1.0.0-1").toCleanString());
+        Assertions.assertEquals("1.0.0", ClientProfile.Version.of("-----1.0.0").toCleanString());
     }
 
     @Test

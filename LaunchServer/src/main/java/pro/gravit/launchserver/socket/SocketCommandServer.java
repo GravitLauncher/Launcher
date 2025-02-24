@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.config.log4j.LogAppender;
 import pro.gravit.utils.command.CommandHandler;
 
-import java.io.IOException;
 import java.net.StandardProtocolFamily;
 import java.net.UnixDomainSocketAddress;
 import java.nio.ByteBuffer;
@@ -64,29 +63,28 @@ public class SocketCommandServer implements Runnable {
             ByteBuffer buffer = ByteBuffer.allocate(1024);
             while (true) {
                 SocketChannel channel = serverChannel.accept();
-                channel.configureBlocking(true);
-                String command = null;
-                try {
+                try (channel) {
+                    channel.configureBlocking(true);
+                    String command = null;
                     mark:
                     while (true) {
                         int bytesRead = channel.read(buffer);
                         if (bytesRead < 0) {
                             break;
                         }
-                        for (var i=0;i<buffer.limit();i++) {
-                            if(buffer.get(i) == '\n') {
+                        for (var i = 0; i < buffer.limit(); i++) {
+                            if (buffer.get(i) == '\n') {
                                 command = new String(buffer.array(), 0, i);
                                 break mark;
                             }
                         }
 
                     }
-                    if(command != null) {
+                    if (command != null) {
                         runCommand(channel, command);
                     }
                 } finally {
                     buffer.clear();
-                    channel.close();
                 }
             }
         } catch (Throwable e) {

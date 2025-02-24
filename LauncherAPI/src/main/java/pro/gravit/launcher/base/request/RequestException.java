@@ -3,7 +3,6 @@ package pro.gravit.launcher.base.request;
 import java.io.IOException;
 
 public final class RequestException extends IOException {
-    private static final long serialVersionUID = 7558237657082664821L;
 
 
     public RequestException(String message) {

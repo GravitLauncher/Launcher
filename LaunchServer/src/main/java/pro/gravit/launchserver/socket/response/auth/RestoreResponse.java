@@ -44,7 +44,7 @@ public class RestoreResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if (accessToken == null && !client.isAuth && needUserInfo) {
             sendError("Invalid request");
             return;

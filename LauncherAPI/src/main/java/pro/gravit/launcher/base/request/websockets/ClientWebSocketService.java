@@ -33,7 +33,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
     public OnCloseCallback onCloseCallback;
     public ReconnectCallback reconnectCallback;
 
-    public ClientWebSocketService(String address) throws SSLException {
+    public ClientWebSocketService(String address) {
         super(createURL(address));
         this.gson = Launcher.gsonManager.gson;
         this.onConnect = true;

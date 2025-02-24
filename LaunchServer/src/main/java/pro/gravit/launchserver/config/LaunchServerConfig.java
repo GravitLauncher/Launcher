@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.config;
 
-import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

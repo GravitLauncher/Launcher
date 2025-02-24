@@ -143,7 +143,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public User checkServer(Client client, String username, String serverID) throws IOException {
+    public User checkServer(Client client, String username, String serverID) {
         var savedServerId = sqlSessionStore.getServerIdByUsername(username);
         if (!serverID.equals(savedServerId)) {
             return null;
@@ -153,7 +153,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) {
         User user;
         try {
             user = createUserFromMinecraftToken(accessToken);

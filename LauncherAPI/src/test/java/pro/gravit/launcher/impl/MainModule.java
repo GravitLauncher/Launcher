@@ -17,8 +17,8 @@ public class MainModule extends LauncherModule {
     @Override
     public void init(LauncherInitContext initContext) {
         Depend1Module module = modulesManager.getModule(Depend1Module.class);
-        Assertions.assertEquals(module.getInitStatus(), InitStatus.FINISH);
+        Assertions.assertEquals(InitStatus.FINISH, module.getInitStatus());
         Depend2Module module2 = modulesManager.getModule(Depend2Module.class);
-        Assertions.assertEquals(module2.getInitStatus(), InitStatus.FINISH);
+        Assertions.assertEquals(InitStatus.FINISH, module2.getInitStatus());
     }
 }

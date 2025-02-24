@@ -12,7 +12,6 @@ import pro.gravit.utils.launch.LaunchOptions;
 
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
-import java.nio.file.Path;
 import java.util.*;
 
 public final class ClientProfile implements Comparable<ClientProfile> {

@@ -33,7 +33,7 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
     private final Object sendSyncObject = new Object();
     private volatile StringBuilder builder = new StringBuilder();
 
-    public ClientJSONPoint(final String uri) throws SSLException {
+    public ClientJSONPoint(final String uri) {
         this(URI.create(uri));
     }
 
@@ -114,7 +114,7 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
 
     abstract void onOpen();
 
-    public void close() throws InterruptedException {
+    public void close() {
         webSocket.abort();
     }
 

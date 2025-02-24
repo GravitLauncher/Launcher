@@ -22,7 +22,7 @@ public class ListProfilesCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) throws Exception {
+    public void invoke(String... args) {
         for(var profile : server.getProfiles()) {
             logger.info("{} ({}) {}", profile.getTitle(), profile.getVersion().toString(), profile.isLimited() ? "limited" : "");
         }

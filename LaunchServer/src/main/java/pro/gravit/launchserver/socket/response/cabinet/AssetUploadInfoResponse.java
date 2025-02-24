@@ -12,7 +12,7 @@ public class AssetUploadInfoResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         if(!client.isAuth || client.auth == null || client.getUser() == null) {
             sendError("Access denied");
             return;

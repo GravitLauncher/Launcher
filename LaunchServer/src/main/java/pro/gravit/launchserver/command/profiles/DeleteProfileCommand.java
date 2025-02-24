@@ -5,9 +5,7 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.utils.helper.IOHelper;
 
-import java.nio.file.Files;
 import java.util.UUID;
 
 public class DeleteProfileCommand extends Command {

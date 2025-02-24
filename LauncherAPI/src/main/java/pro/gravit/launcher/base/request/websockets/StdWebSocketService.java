@@ -40,11 +40,7 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
         service.openAsync(() -> {
             future.complete(service);
             JVMHelper.RUNTIME.addShutdownHook(new Thread(() -> {
-                try {
-                    service.close();
-                } catch (InterruptedException e) {
-                    LogHelper.error(e);
-                }
+                service.close();
             }));
         }, future::completeExceptionally);
         return future;
