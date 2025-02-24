@@ -26,14 +26,11 @@ sourceCompatibility = '21'
 targetCompatibility = '21'
 
 configurations {
-    compileOnlyA
     bundleOnly
     bundle
-    hikari
     pack
-    launch4j
     bundleOnly.extendsFrom bundle
-    api.extendsFrom bundle, hikari, pack, launch4j
+    api.extendsFrom bundle, pack
 }
 
 jar {
@@ -110,40 +107,26 @@ dependencies {
     annotationProcessor(group: 'org.apache.logging.log4j', name: 'log4j-core', version: rootProject['verLog4j'])
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 
-    hikari 'io.micrometer:micrometer-core:1.13.1'
-    hikari('com.zaxxer:HikariCP:5.1.0') {
+    bundle 'io.micrometer:micrometer-core:1.14.4'
+    bundle('com.zaxxer:HikariCP:6.2.1') {
         exclude group: 'javassist'
         exclude group: 'io.micrometer'
         exclude group: 'org.slf4j'
     }
 }
 
-tasks.register('hikari', Copy) {
-    duplicatesStrategy = 'EXCLUDE'
-    into "$buildDir/libs/libraries/hikaricp"
-    from configurations.hikari
-}
-
 tasks.register('dumpLibs', Copy) {
     duplicatesStrategy = 'EXCLUDE'
-    dependsOn tasks.hikari
     into "$buildDir/libs/libraries"
     from configurations.bundleOnly
 }
 
-tasks.register('dumpCompileOnlyLibs', Copy) {
-    duplicatesStrategy = 'EXCLUDE'
-    into "$buildDir/libs/launcher-libraries-compile"
-    from configurations.compileOnlyA
-}
-
 tasks.register('bundle', Zip) {
     duplicatesStrategy = 'EXCLUDE'
-    dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.jar
+    dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.jar
     archiveFileName = 'LaunchServer.zip'
     destinationDirectory = file("$buildDir")
     from(tasks.dumpLibs.destinationDir) { into 'libraries' }
-    from(tasks.dumpCompileOnlyLibs.destinationDir) { into 'launcher-libraries-compile' }
     from(tasks.jar)
     from(parent.childProjects.Launcher.tasks.dumpLibs) { into 'launcher-libraries' }
 }
@@ -154,7 +137,7 @@ tasks.register('dumpClientLibs', Copy) {
     from parent.childProjects.Launcher.tasks.dumpLibs
 }
 
-assemble.dependsOn tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle, tasks.cleanjar
+assemble.dependsOn tasks.dumpLibs, tasks.dumpClientLibs, tasks.bundle, tasks.cleanjar
 
 
 publishing {
