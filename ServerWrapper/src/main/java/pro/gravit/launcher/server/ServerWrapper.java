@@ -310,6 +310,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public void applyEnv() {
             this.authId = applyEnvOrDefault("LAUNCHSERVER_AUTH_ID", this.authId);
             this.address = applyEnvOrDefault("LAUNCHSERVER_ADDRESS", this.address);
+            this.serverName = applyEnvOrDefault("LAUNCHSERVER_SERVER_NAME", this.serverName);
             this.encodedServerEcPublicKey = applyEnvOrDefault("LAUNCHSERVER_EC_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
             this.encodedServerRsaPublicKey = applyEnvOrDefault("LAUNCHSERVER_RSA_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
             {
