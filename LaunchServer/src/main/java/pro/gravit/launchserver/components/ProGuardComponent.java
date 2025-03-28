@@ -117,7 +117,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                 Files.deleteIfExists(proguardConf.mappings);
             }
         });
-        return null;
+        return commands;
     }
 
     public static class ProGuardMultiReleaseFixer implements LauncherBuildTask {
