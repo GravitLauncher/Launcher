@@ -49,7 +49,6 @@ public class MakeProfileHelper {
         // Official Mojang launcher java arguments
         if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) <= 0) {
             // lwjgl3ify arguments https://github.com/GTNewHorizons/lwjgl3ify
-            jvmArgs.add("-Djava.security.manager=allow");
             jvmArgs.add("--add-opens");
             jvmArgs.add("java.base/jdk.internal.loader=ALL-UNNAMED");
             jvmArgs.add("--add-opens");
