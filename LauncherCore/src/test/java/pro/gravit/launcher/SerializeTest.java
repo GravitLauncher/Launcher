@@ -30,8 +30,8 @@ public class SerializeTest {
         String json2 = gson.toJson(new MyTestClass2("BBBB"), TestInterface.class);
         TestInterface test1 = gson.fromJson(json, TestInterface.class);
         TestInterface test2 = gson.fromJson(json2, TestInterface.class);
-        Assertions.assertEquals(test1.get(), "AAAA");
-        Assertions.assertEquals(test2.get(), "BBBB");
+        Assertions.assertEquals("AAAA", test1.get());
+        Assertions.assertEquals("BBBB", test2.get());
     }
 
     public interface TestInterface {

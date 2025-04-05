@@ -30,8 +30,11 @@ public class ServerWrapperSetup {
 
     public void run() throws Exception {
         ServerWrapper wrapper = ServerWrapper.wrapper;
-        System.out.println("Print server jar filename:");
-        String jarName = commands.commandHandler.readLine();
+        String jarName = System.getenv("SERVERWRAPPER_JAR_NAME");
+        if(jarName == null) {
+            System.out.println("Print server jar filename:");
+            jarName = commands.commandHandler.readLine();
+        }
         Path jarPath = Paths.get(jarName);
         String mainClassName;
         String agentClassName;
@@ -56,14 +59,18 @@ public class ServerWrapperSetup {
         if (agentClassName != null) {
             LogHelper.info("Found PremainClass %s", agentClassName);
         }
-        System.out.println("Print your server name:");
-        wrapper.config.serverName = commands.commandHandler.readLine();
+        if(wrapper.config.serverName == null || wrapper.config.serverName.isEmpty()) {
+            System.out.println("Print your server name:");
+            wrapper.config.serverName = commands.commandHandler.readLine();
+        }
         wrapper.config.mainclass = mainClassName;
         boolean altMode = false;
         for (int i = 0; i < 10; ++i) {
             if(!Request.isAvailable() || Request.getRequestService().isClosed()) {
-                System.out.println("Print launchserver websocket host( ws://host:port/api ):");
-                wrapper.config.address = commands.commandHandler.readLine();
+                if(wrapper.config.address == null || wrapper.config.address.isEmpty()) {
+                    System.out.println("Print launchserver websocket host( ws://host:port/api ):");
+                    wrapper.config.address = commands.commandHandler.readLine();
+                }
                 StdWebSocketService service;
                 try {
                     service = StdWebSocketService.initWebSockets(wrapper.config.address).get();
@@ -73,9 +80,11 @@ public class ServerWrapperSetup {
                 }
                 Request.setRequestService(service);
             }
-            System.out.println("Print server token:");
-            String checkServerToken = commands.commandHandler.readLine();
-            wrapper.config.extendedTokens.put("checkServer", new Request.ExtendedToken(checkServerToken, 0));
+            if(wrapper.config.extendedTokens == null || wrapper.config.extendedTokens.get("checkServer") == null) {
+                System.out.println("Print server token:");
+                String checkServerToken = commands.commandHandler.readLine();
+                wrapper.config.extendedTokens.put("checkServer", new Request.ExtendedToken(checkServerToken, 0));
+            }
             wrapper.updateLauncherConfig();
             try {
                 wrapper.restore();
@@ -93,7 +102,9 @@ public class ServerWrapperSetup {
         }
         if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_18) >= 0) {
             LogHelper.info("Switch to alternative start mode (1.18)");
-            wrapper.config.classpath.add(jarName);
+            if(!wrapper.config.classpath.contains(jarName)) {
+                wrapper.config.classpath.add(jarName);
+            }
             wrapper.config.classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;
             altMode = true;
         }

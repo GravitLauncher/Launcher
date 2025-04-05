@@ -2,14 +2,10 @@ package pro.gravit.launchserver.command.profiles;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.helper.MakeProfileHelper;
-import pro.gravit.utils.helper.IOHelper;
-
-import java.io.Writer;
 
 public class MakeProfileCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();

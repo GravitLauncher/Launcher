@@ -11,9 +11,7 @@ import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportExtended
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportHardware;
 import pro.gravit.launchserver.socket.Client;
-import pro.gravit.utils.helper.IOHelper;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Base64;
@@ -85,7 +83,7 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupp
                 set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), set.getLong(hardwareIdColumn)) : null;
     }
 
-    private SQLUserHardware fetchHardwareInfo(ResultSet set) throws SQLException, IOException {
+    private SQLUserHardware fetchHardwareInfo(ResultSet set) throws SQLException {
         HardwareReportRequest.HardwareInfo hardwareInfo = new HardwareReportRequest.HardwareInfo();
         hardwareInfo.hwDiskId = set.getString("hwDiskId");
         hardwareInfo.baseboardSerialNumber = set.getString("baseboardSerialNumber");
@@ -126,7 +124,7 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupp
                     return null;
                 }
             }
-        } catch (SQLException | IOException throwables) {
+        } catch (SQLException throwables) {
             logger.error("SQL Error", throwables);
             return null;
         }
@@ -149,7 +147,7 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupp
                     }
                 }
             }
-        } catch (SQLException | IOException throwables) {
+        } catch (SQLException throwables) {
             logger.error("SQL Error", throwables);
         }
         return null;
@@ -170,7 +168,7 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupp
                     return null;
                 }
             }
-        } catch (SQLException | IOException throwables) {
+        } catch (SQLException throwables) {
             logger.error("SQL Error", throwables);
             return null;
         }
@@ -294,7 +292,7 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupp
     }
 
     @Override
-    public UserSession extendedCheckServer(Client client, String username, String serverID) throws IOException {
+    public UserSession extendedCheckServer(Client client, String username, String serverID) {
         AbstractSQLCoreProvider.SQLUser user = (AbstractSQLCoreProvider.SQLUser) getUserByUsername(username);
         if (user == null) {
             return null;

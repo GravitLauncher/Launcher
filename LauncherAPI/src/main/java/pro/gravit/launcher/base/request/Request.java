@@ -154,7 +154,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
 
     public static void reconnect() throws Exception {
 
-        getRequestService().open();
+        getRequestService().connect();
         restore();
     }
 

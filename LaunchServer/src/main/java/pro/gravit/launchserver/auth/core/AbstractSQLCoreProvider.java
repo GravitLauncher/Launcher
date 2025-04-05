@@ -174,7 +174,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
     }
 
     @Override
-    public User checkServer(Client client, String username, String serverID) throws IOException {
+    public User checkServer(Client client, String username, String serverID) {
         SQLUser user = (SQLUser) getUserByUsername(username);
         if (user == null) {
             return null;

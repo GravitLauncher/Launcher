@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
+import java.nio.ByteBuffer;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -33,7 +34,7 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
     private final Object sendSyncObject = new Object();
     private volatile StringBuilder builder = new StringBuilder();
 
-    public ClientJSONPoint(final String uri) throws SSLException {
+    public ClientJSONPoint(final String uri) {
         this(URI.create(uri));
     }
 
@@ -63,7 +64,7 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
         }
     }
 
-    public void open() throws Exception {
+    public void connect() throws Exception {
         webSocket = webSocketBuilder.buildAsync(uri, this).get();
     }
 
@@ -98,6 +99,17 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
     }
 
     @Override
+    public void onOpen(WebSocket webSocket) {
+        onOpen();
+        WebSocket.Listener.super.onOpen(webSocket);
+    }
+
+    @Override
+    public CompletionStage<?> onBinary(WebSocket webSocket, ByteBuffer data, boolean last) {
+        return WebSocket.Listener.super.onBinary(webSocket, data, last);
+    }
+
+    @Override
     public void onError(WebSocket webSocket, Throwable error) {
         LogHelper.error(error);
         WebSocket.Listener.super.onError(webSocket, error);
@@ -114,7 +126,7 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
 
     abstract void onOpen();
 
-    public void close() throws InterruptedException {
+    public void close() {
         webSocket.abort();
     }
 

@@ -16,10 +16,10 @@ public class Depend1Module extends LauncherModule {
     @Override
     public void init(LauncherInitContext initContext) {
         InternalModule module = modulesManager.getModule(InternalModule.class);
-        Assertions.assertEquals(module.getInitStatus(), InitStatus.FINISH);
+        Assertions.assertEquals(InitStatus.FINISH, module.getInitStatus());
         Depend3Module module1 = modulesManager.getModule(Depend3Module.class);
-        Assertions.assertEquals(module1.getInitStatus(), InitStatus.FINISH);
+        Assertions.assertEquals(InitStatus.FINISH, module1.getInitStatus());
         VirtualInterface virtualInterface = modulesManager.getModuleByInterface(VirtualInterface.class);
-        Assertions.assertEquals(((LauncherModule) virtualInterface).getInitStatus(), InitStatus.FINISH);
+        Assertions.assertEquals(InitStatus.FINISH, ((LauncherModule) virtualInterface).getInitStatus());
     }
 }

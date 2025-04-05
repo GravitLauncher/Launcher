@@ -13,7 +13,6 @@ import pro.gravit.launchserver.helper.MakeProfileHelper;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.helper.IOHelper;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;

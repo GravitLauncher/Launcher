@@ -1,20 +1,10 @@
 package pro.gravit.launchserver.manangers;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.core.hasher.HashedDir;
-import pro.gravit.launcher.core.serialize.HInput;
-import pro.gravit.launcher.core.serialize.HOutput;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.modules.events.LaunchServerUpdatesSyncEvent;
-import pro.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Stream;
 
 public class UpdatesManager {
     private final LaunchServer server;
@@ -24,12 +14,12 @@ public class UpdatesManager {
     }
 
     @Deprecated
-    public void readUpdatesFromCache() throws IOException {
+    public void readUpdatesFromCache() {
 
     }
 
     @Deprecated
-    public void readUpdatesDir() throws IOException {
+    public void readUpdatesDir() {
 
     }
 

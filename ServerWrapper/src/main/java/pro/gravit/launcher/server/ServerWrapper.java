@@ -32,6 +32,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
@@ -121,6 +122,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
         LogHelper.debug("Read ServerWrapperConfig.json");
         loadConfig();
+        config.applyEnv();
         updateLauncherConfig();
         Launcher.applyLauncherEnv(Objects.requireNonNullElse(config.env, LauncherConfig.LauncherEnvironment.STD));
         StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
@@ -303,6 +305,39 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 ConfigService.checkServerConfig.needHardware = checkServerNeedHardware;
                 ConfigService.checkServerConfig.needProperties = checkServerNeedProperties;
             }
+        }
+
+        public void applyEnv() {
+            this.authId = applyEnvOrDefault("SERVERWRAPPER_AUTH_ID", this.authId);
+            this.address = applyEnvOrDefault("SERVERWRAPPER_ADDRESS", this.address);
+            this.serverName = applyEnvOrDefault("SERVERWRAPPER_SERVER_NAME", this.serverName);
+            this.encodedServerEcPublicKey = applyEnvOrDefault("SERVERWRAPPER_EC_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
+            this.encodedServerRsaPublicKey = applyEnvOrDefault("SERVERWRAPPER_RSA_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
+            {
+                String token = System.getenv("SERVERWRAPPER_CHECK_SERVER_TOKEN");
+                if(token != null) {
+                    if(extendedTokens == null) {
+                        extendedTokens = new HashMap<>();
+                    }
+                    extendedTokens.put("checkServer", new Request.ExtendedToken(token, 0L));
+                }
+            }
+        }
+
+        private static String applyEnvOrDefault(String envName, String def) {
+            String value = System.getenv(envName);
+            if(value == null) {
+                return def;
+            }
+            return value;
+        }
+
+        private static<T> T applyEnvOrDefault(String envName, Function<String, T> mappingFunction, T def) {
+            String value = System.getenv(envName);
+            if(value == null) {
+                return def;
+            }
+            return mappingFunction.apply(value);
         }
     }
 }

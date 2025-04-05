@@ -49,12 +49,12 @@ public class ModulesTest {
         moduleManager.loadModule(new Depend3Module());
         moduleManager.loadModule(new MainModule());
         moduleManager.initModules(null);
-        Assertions.assertEquals(moduleManager.getModule("depend1").getInitStatus(), LauncherModule.InitStatus.FINISH);
-        Assertions.assertEquals(moduleManager.getModule("depend2").getInitStatus(), LauncherModule.InitStatus.FINISH);
-        Assertions.assertEquals(moduleManager.getModule("depend3").getInitStatus(), LauncherModule.InitStatus.FINISH);
-        Assertions.assertEquals(moduleManager.getModule("internal").getInitStatus(), LauncherModule.InitStatus.FINISH);
-        Assertions.assertEquals(moduleManager.getModule("virtual").getInitStatus(), LauncherModule.InitStatus.FINISH);
-        Assertions.assertEquals(moduleManager.getModule("main").getInitStatus(), LauncherModule.InitStatus.FINISH);
+        Assertions.assertEquals(LauncherModule.InitStatus.FINISH, moduleManager.getModule("depend1").getInitStatus());
+        Assertions.assertEquals(LauncherModule.InitStatus.FINISH, moduleManager.getModule("depend2").getInitStatus());
+        Assertions.assertEquals(LauncherModule.InitStatus.FINISH, moduleManager.getModule("depend3").getInitStatus());
+        Assertions.assertEquals(LauncherModule.InitStatus.FINISH, moduleManager.getModule("internal").getInitStatus());
+        Assertions.assertEquals(LauncherModule.InitStatus.FINISH, moduleManager.getModule("virtual").getInitStatus());
+        Assertions.assertEquals(LauncherModule.InitStatus.FINISH, moduleManager.getModule("main").getInitStatus());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ModulesTest {
         moduleManager.loadModule(new CyclicDependModule());
         moduleManager.loadModule(new Cyclic2DependModule());
         moduleManager.initModules(null);
-        Assertions.assertEquals(moduleManager.getModule("cyclic1").getInitStatus(), LauncherModule.InitStatus.FINISH);
-        Assertions.assertEquals(moduleManager.getModule("cyclic2").getInitStatus(), LauncherModule.InitStatus.FINISH);
+        Assertions.assertEquals(LauncherModule.InitStatus.FINISH, moduleManager.getModule("cyclic1").getInitStatus());
+        Assertions.assertEquals(LauncherModule.InitStatus.FINISH, moduleManager.getModule("cyclic2").getInitStatus());
     }
 }

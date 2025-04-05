@@ -41,12 +41,12 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public User checkServer(Client client, String username, String serverID) throws IOException {
+    public User checkServer(Client client, String username, String serverID) {
         return null;
     }
 
     @Override
-    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
+    public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) {
         return false;
     }
 

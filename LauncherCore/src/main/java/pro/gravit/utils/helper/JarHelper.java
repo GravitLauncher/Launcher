@@ -83,7 +83,7 @@ public class JarHelper {
         return IOHelper.read(classLoader.getResourceAsStream(getClassFile(clazz)));
     }
 
-    public static InputStream getClassBytesStream(Class<?> clazz) throws IOException {
+    public static InputStream getClassBytesStream(Class<?> clazz) {
         return getClassBytesStream(clazz, clazz.getClassLoader());
     }
 

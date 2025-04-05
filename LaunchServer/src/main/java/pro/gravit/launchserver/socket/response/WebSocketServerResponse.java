@@ -7,7 +7,7 @@ import pro.gravit.launchserver.socket.Client;
 public interface WebSocketServerResponse extends WebSocketRequest {
     String getType();
 
-    void execute(ChannelHandlerContext ctx, Client client) throws Exception;
+    void execute(ChannelHandlerContext ctx, Client client);
 
     default ThreadSafeStatus getThreadSafeStatus() {
         return ThreadSafeStatus.READ;

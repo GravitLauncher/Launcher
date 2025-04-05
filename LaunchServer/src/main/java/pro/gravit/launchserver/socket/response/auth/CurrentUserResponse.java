@@ -23,7 +23,7 @@ public class CurrentUserResponse extends SimpleResponse {
     }
 
     @Override
-    public void execute(ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(ChannelHandlerContext ctx, Client client) {
         sendResult(new CurrentUserRequestEvent(collectUserInfoFromClient(server, client)));
     }
 }

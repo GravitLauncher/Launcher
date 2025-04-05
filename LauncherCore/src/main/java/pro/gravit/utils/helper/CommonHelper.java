@@ -221,37 +221,39 @@ public final class CommonHelper {
                     continue;
                 }
             }
-            if(arg.equals("--module-path") || arg.equals("-p")) {
-                prevArgType = PrevArgType.MODULE_PATH;
-                continue;
-            }
-            if(arg.equals("--classpath") || arg.equals("-cp")) {
-                prevArgType = PrevArgType.CLASSPATH;
-                continue;
-            }
-            if(arg.equals("--add-modules")) {
-                prevArgType = PrevArgType.ADD_MODULES;
-                continue;
-            }
-            if(arg.equals("--add-opens")) {
-                prevArgType = PrevArgType.ADD_OPENS;
-                continue;
-            }
-            if(arg.equals("--add-exports")) {
-                prevArgType = PrevArgType.ADD_EXPORTS;
-                continue;
-            }
-            if(arg.equals("--add-reads")) {
-                prevArgType = PrevArgType.ADD_READS;
-                continue;
-            }
-            if(arg.equals("--module") || arg.equals("-m")) {
-                prevArgType = PrevArgType.MODULE;
-                continue;
-            }
-            if(arg.equals("-jar")) {
-                prevArgType = PrevArgType.JAR;
-                continue;
+            switch (arg) {
+                case "--module-path", "-p" -> {
+                    prevArgType = PrevArgType.MODULE_PATH;
+                    continue;
+                }
+                case "--classpath", "-cp" -> {
+                    prevArgType = PrevArgType.CLASSPATH;
+                    continue;
+                }
+                case "--add-modules" -> {
+                    prevArgType = PrevArgType.ADD_MODULES;
+                    continue;
+                }
+                case "--add-opens" -> {
+                    prevArgType = PrevArgType.ADD_OPENS;
+                    continue;
+                }
+                case "--add-exports" -> {
+                    prevArgType = PrevArgType.ADD_EXPORTS;
+                    continue;
+                }
+                case "--add-reads" -> {
+                    prevArgType = PrevArgType.ADD_READS;
+                    continue;
+                }
+                case "--module", "-m" -> {
+                    prevArgType = PrevArgType.MODULE;
+                    continue;
+                }
+                case "-jar" -> {
+                    prevArgType = PrevArgType.JAR;
+                    continue;
+                }
             }
             jvmArgs.add(arg);
         }

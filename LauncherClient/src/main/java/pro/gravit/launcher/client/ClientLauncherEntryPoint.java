@@ -124,7 +124,7 @@ public class ClientLauncherEntryPoint {
                 LogHelper.dev("Classpath entry %s", e);
             }
         }
-        List<URL> classpathURLs = classpath.stream().map(IOHelper::toURL).collect(Collectors.toList());
+        List<URL> classpathURLs = classpath.stream().map(IOHelper::toURL).toList();
         // Start client with WatchService monitoring
         RequestService service;
         if (params.offlineMode) {
