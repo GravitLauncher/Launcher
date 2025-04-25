@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launchserver.socket.NettyConnectContext;
+import pro.gravit.launchserver.socket.severlet.StatusSeverlet;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.net.URLDecoder;
@@ -34,6 +35,7 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
     public NettyWebAPIHandler(NettyConnectContext context) {
         super();
         this.context = context;
+        addNewSeverlet("status", new StatusSeverlet());
     }
 
     public static void addNewSeverlet(String path, SimpleSeverletHandler callback) {
