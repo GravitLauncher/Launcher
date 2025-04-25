@@ -75,9 +75,9 @@ dependencies {
     pack project(':LauncherAPI')
     bundle group: 'me.tongfei', name: 'progressbar', version: '0.10.1'
     bundle group: 'org.fusesource.jansi', name: 'jansi', version: rootProject['verJansi']
-    bundle group: 'org.jline', name: 'jline', version: rootProject['verJline']
+    bundle group: 'org.jline', name: 'jline-native', version: rootProject['verJline']
     bundle group: 'org.jline', name: 'jline-reader', version: rootProject['verJline']
-    bundle group: 'org.jline', name: 'jline-terminal', version: rootProject['verJline']
+    bundle group: 'org.jline', name: 'jline-terminal-ffm', version: rootProject['verJline']
     bundle group: 'org.bouncycastle', name: 'bcprov-jdk18on', version: rootProject['verBcpkix']
     bundle group: 'org.bouncycastle', name: 'bcpkix-jdk18on', version: rootProject['verBcpkix']
     bundle group: 'org.ow2.asm', name: 'asm-commons', version: rootProject['verAsm']
