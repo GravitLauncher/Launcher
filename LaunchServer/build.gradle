@@ -29,6 +29,7 @@ configurations {
     bundleOnly
     bundle
     pack
+    proguardPack
     bundleOnly.extendsFrom bundle
     api.extendsFrom bundle, pack
 }
@@ -36,11 +37,13 @@ configurations {
 jar {
     dependsOn parent.childProjects.Launcher.tasks.assemble
     from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
+    exclude("module-info.class")
     from(parent.childProjects.Launcher.tasks.shadowJar)
     from(parent.childProjects.Launcher.tasks.genRuntimeJS)
     manifest.attributes("Main-Class": mainClassName,
             "Premain-Class": mainAgentName,
             "Multi-Release": "true",
+            "Automatic-Module-Name": "launchserver"
     )
 }
 
@@ -72,7 +75,10 @@ tasks.register('cleanjar', Jar) {
 
 
 dependencies {
-    pack project(':LauncherAPI')
+    pack(project(':LauncherAPI')) {
+        exclude group: "com.google.code.gson"
+    }
+    bundle group: 'com.google.code.gson', name: 'gson', version: rootProject['verGson']
     bundle group: 'me.tongfei', name: 'progressbar', version: '0.10.1'
     bundle group: 'org.fusesource.jansi', name: 'jansi', version: rootProject['verJansi']
     bundle group: 'org.jline', name: 'jline-native', version: rootProject['verJline']
@@ -84,10 +90,10 @@ dependencies {
     bundle group: 'io.netty', name: 'netty-codec-http', version: rootProject['verNetty']
     bundle group: 'io.netty', name: 'netty-transport-classes-epoll', version: rootProject['verNetty']
     bundle group: 'io.netty', name: 'netty-transport-native-epoll', version: rootProject['verNetty'], classifier: 'linux-x86_64'
-    bundle group: 'io.netty', name: 'netty-transport-native-epoll', version: rootProject['verNetty'], classifier: 'linux-aarch_64'
+    //bundle group: 'io.netty', name: 'netty-transport-native-epoll', version: rootProject['verNetty'], classifier: 'linux-aarch_64'
     bundle group: 'io.netty', name: 'netty-transport-classes-io_uring', version: rootProject['verNetty']
     bundle group: 'io.netty', name: 'netty-transport-native-io_uring', version: rootProject['verNetty'], classifier: 'linux-x86_64'
-    bundle group: 'io.netty', name: 'netty-transport-native-io_uring', version: rootProject['verNetty'], classifier: 'linux-aarch_64'
+    //bundle group: 'io.netty', name: 'netty-transport-native-io_uring', version: rootProject['verNetty'], classifier: 'linux-aarch_64'
     // Netty
     bundle 'org.jboss.marshalling:jboss-marshalling:1.4.11.Final'
     bundle 'com.google.protobuf.nano:protobuf-javanano:3.1.0'
@@ -97,7 +103,7 @@ dependencies {
     bundle group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: rootProject['verMariaDBConn']
     bundle group: 'org.postgresql', name: 'postgresql', version: rootProject['verPostgreSQLConn']
     bundle group: 'com.h2database', name: 'h2', version: rootProject['verH2Conn']
-    bundle group: 'com.guardsquare', name: 'proguard-base', version: rootProject['verProguard']
+    proguardPack group: 'com.guardsquare', name: 'proguard-base', version: rootProject['verProguard']
     bundle group: 'org.apache.logging.log4j', name: 'log4j-core', version: rootProject['verLog4j']
     bundle group: 'org.apache.logging.log4j', name: 'log4j-slf4j2-impl', version: rootProject['verLog4j']
     bundle group: 'io.jsonwebtoken', name: 'jjwt-api', version: rootProject['verJwt']
@@ -121,6 +127,12 @@ tasks.register('dumpLibs', Copy) {
     from configurations.bundleOnly
 }
 
+tasks.register('dumpProguard', Copy) {
+    duplicatesStrategy = 'EXCLUDE'
+    into "$buildDir/libs/proguard"
+    from configurations.proguardPack
+}
+
 tasks.register('bundle', Zip) {
     duplicatesStrategy = 'EXCLUDE'
     dependsOn parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.jar
@@ -137,7 +149,7 @@ tasks.register('dumpClientLibs', Copy) {
     from parent.childProjects.Launcher.tasks.dumpLibs
 }
 
-assemble.dependsOn tasks.dumpLibs, tasks.dumpClientLibs, tasks.bundle, tasks.cleanjar
+assemble.dependsOn tasks.dumpLibs, tasks.dumpClientLibs, tasks.bundle, tasks.cleanjar, tasks.dumpProguard
 
 
 publishing {
