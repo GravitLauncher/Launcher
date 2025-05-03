@@ -1,16 +1,17 @@
 package pro.gravit.launchserver.asm;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.Closeable;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarFile;
 
 /**
@@ -18,14 +19,32 @@ import java.util.jar.JarFile;
  * чего угодно. Работает через поиск class-файлов в classpath.
  */
 public class ClassMetadataReader implements Closeable {
+    private final Logger logger = LogManager.getLogger(ClassMetadataReader.class);
     private final List<JarFile> cp;
+    private final Map<String, Module> moduleClassFinder;
 
     public ClassMetadataReader(List<JarFile> cp) {
         this.cp = cp;
+        //var moduleLayer = ClassMetadataReader.class.getModule().getLayer() == null ? ModuleLayer.boot() : ClassMetadataReader.class.getModule().getLayer();
+        var moduleLayer = ModuleLayer.boot();
+        moduleClassFinder = collectModulePackages(moduleLayer);
     }
 
     public ClassMetadataReader() {
         this.cp = new ArrayList<>();
+        //var moduleLayer = ClassMetadataReader.class.getModule().getLayer() == null ? ModuleLayer.boot() : ClassMetadataReader.class.getModule().getLayer();
+        var moduleLayer = ModuleLayer.boot();
+        moduleClassFinder = collectModulePackages(moduleLayer);
+    }
+
+    private Map<String, Module> collectModulePackages(ModuleLayer layer) {
+        var map = new HashMap<String, Module>();
+        for(var m : layer.modules()) {
+            for(var p : m.getPackages()) {
+                map.put(p, m);
+            }
+        }
+        return map;
     }
 
     public List<JarFile> getCp() {
@@ -58,7 +77,42 @@ public class ClassMetadataReader implements Closeable {
                 return bytes;
             }
         }
-        return IOHelper.read(IOHelper.getResourceURL(className + ".class"));
+        if(ClassMetadataReader.class.getModule().isNamed()) {
+            String pkg = getClassPackage(className).replace('/', '.');
+            var module = moduleClassFinder.get(pkg);
+            if(module != null) {
+                var cl = module.getClassLoader();
+                if(cl == null) {
+                    cl = ClassLoader.getPlatformClassLoader();
+                }
+                var stream = cl.getResourceAsStream(className+".class");
+                if(stream != null) {
+                    try(stream) {
+                        return IOHelper.read(stream);
+                    }
+                } else {
+                    throw new FileNotFoundException("Class "+className + ".class");
+                }
+            } else {
+                throw new FileNotFoundException("Package "+pkg);
+            }
+        }
+        var stream = ClassLoader.getSystemClassLoader().getResourceAsStream(className+".class");
+        if(stream != null) {
+            try(stream) {
+                return IOHelper.read(stream);
+            }
+        } else {
+            throw new FileNotFoundException(className + ".class");
+        }
+    }
+
+    private String getClassPackage(String type) {
+        int idx = type.lastIndexOf("/");
+        if(idx <= 0) {
+            return type;
+        }
+        return type.substring(0, idx);
     }
 
     public String getSuperClass(String type) {
@@ -66,6 +120,7 @@ public class ClassMetadataReader implements Closeable {
         try {
             return getSuperClassASM(type);
         } catch (Exception e) {
+            logger.warn("getSuperClass: type {} not found ({}: {})", type, e.getClass().getName(), e.getMessage());
             return "java/lang/Object";
         }
     }
@@ -100,7 +155,7 @@ public class ClassMetadataReader implements Closeable {
         String superClassName;
 
         public CheckSuperClassVisitor() {
-            super(Opcodes.ASM7);
+            super(Opcodes.ASM9);
         }
 
         @Override

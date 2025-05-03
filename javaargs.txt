@@ -1,0 +1,4 @@
+--add-opens java.base/java.lang.invoke=launchserver
+--add-modules java.net.http
+-Dlauncher.useSlf4j=true
+-Dio.netty.noUnsafe=true

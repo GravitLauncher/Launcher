@@ -29,6 +29,18 @@ public class ModuleLaunch implements Launch {
     private ModuleLayer layer;
     private MethodHandles.Lookup hackLookup;
     private boolean disablePackageDelegateSupport;
+    private static final MethodHandle ENABLE_NATIVE_ACCESS;
+
+    static {
+        MethodHandle mh;
+        try {
+            mh = MethodHandles.lookup().findVirtual(ModuleLayer.Controller.class, "enableNativeAccess", MethodType.methodType(ModuleLayer.Controller.class, Module.class));
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            mh = null;
+        }
+        ENABLE_NATIVE_ACCESS = mh;
+    }
+
     @Override
     public ClassLoaderControl init(List<Path> files, String nativePath, LaunchOptions options) {
         this.disablePackageDelegateSupport = options.disablePackageDelegateSupport;
@@ -118,6 +130,20 @@ public class ModuleLaunch implements Launch {
                         ModuleHacks.createController(hackLookup, source.getLayer()).addReads(source, target);
                     } else {
                         controller.addReads(source, target);
+                    }
+                }
+                for(var e : options.moduleConf.enableNativeAccess) {
+                    LogHelper.dev("Enable Native Access %s", e);
+                    Module source = layer.findModule(e).orElse(null);
+                    if(source == null) {
+                        throw new RuntimeException(String.format("Module %s not found", e));
+                    }
+                    if(ENABLE_NATIVE_ACCESS != null) {
+                        try {
+                            ENABLE_NATIVE_ACCESS.invoke(controller, source);
+                        } catch (Throwable ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 }
                 moduleClassLoader.initializeWithLayer(layer);

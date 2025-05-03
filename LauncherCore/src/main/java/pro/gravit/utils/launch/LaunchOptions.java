@@ -14,5 +14,6 @@ public class LaunchOptions {
         public Map<String, String> exports = new HashMap<>();
         public Map<String, String> opens = new HashMap<>();
         public Map<String, String> reads = new HashMap<>();
+        public List<String> enableNativeAccess = new ArrayList<>();
     }
 }

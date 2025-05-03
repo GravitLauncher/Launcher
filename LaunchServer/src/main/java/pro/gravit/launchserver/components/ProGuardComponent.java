@@ -213,7 +213,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                     args.add(IOHelper.resolveJavaBin(IOHelper.JVM_DIR).toAbsolutePath().toString());
                     args.addAll(component.jvmArgs);
                     args.add("-cp");
-                    try(Stream<Path> files = Files.walk(server.librariesDir, FileVisitOption.FOLLOW_LINKS)) {
+                    try(Stream<Path> files = Files.walk(server.proguardDir, FileVisitOption.FOLLOW_LINKS)) {
                         args.add(files
                                 .filter(e -> e.getFileName().toString().endsWith(".jar"))
                                 .map(path -> path.toAbsolutePath().toString())

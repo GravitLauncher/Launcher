@@ -1,0 +1,2 @@
+--enable-native-access=org.fusesource.jansi
+--enable-native-access=io.netty.common

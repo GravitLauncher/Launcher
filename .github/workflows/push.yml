@@ -42,6 +42,8 @@ jobs:
           cp LauncherAuthlib/build/libs/LauncherAuthlib.jar artifacts/LauncherAuthlib.jar || true
           cp modules/*_module/build/libs/*.jar artifacts/modules || true
           cp modules/*_lmodule/build/libs/*.jar artifacts/modules || true
+          cp javaargs.txt artifacts/javaargs.txt || true
+          cp java24args.txt artifacts/java24args.txt || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

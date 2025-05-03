@@ -54,7 +54,7 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
     private static byte[] classFix(InputStream input, ClassMetadataReader reader, boolean stripNumbers) throws IOException {
         ClassReader cr = new ClassReader(input);
         ClassNode cn = new ClassNode();
-        cr.accept(cn, stripNumbers ? (ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES) : ClassReader.SKIP_FRAMES);
+        cr.accept(cn, stripNumbers ? (ClassReader.SKIP_DEBUG) : 0);
         ClassWriter cw = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         cn.accept(cw);
         return cw.toByteArray();

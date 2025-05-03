@@ -82,6 +82,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final Path launcherModulesDir;
     public final Path librariesDir;
     public final Path controlFile;
+    public final Path proguardDir;
     /**
      * This object contains runtime configuration
      */
@@ -138,6 +139,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherModulesDir = directories.launcherModules;
         librariesDir = directories.librariesDir;
         controlFile = directories.controlFile;
+        proguardDir = directories.proguardDir;
         this.shardId = shardId;
         if(!Files.isDirectory(launcherPack)) {
             Files.createDirectories(launcherPack);
@@ -462,13 +464,16 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public static class LaunchServerDirectories {
         public static final String UPDATES_NAME = "updates",
                 TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
-                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack", KEY_NAME = ".keys", MODULES = "modules", LAUNCHER_MODULES = "launcher-modules", LIBRARIES = "libraries", CONTROL_FILE = "control-file";
+                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack",
+                KEY_NAME = ".keys", MODULES = "modules", LAUNCHER_MODULES = "launcher-modules",
+                LIBRARIES = "libraries", CONTROL_FILE = "control-file", PROGUARD_DIR = "proguard-libraries";
         public Path updatesDir;
         public Path librariesDir;
         public Path launcherLibrariesDir;
         public Path launcherLibrariesCompileDir;
         public Path launcherPackDir;
         public Path keyDirectory;
+        public Path proguardDir;
         public Path dir;
         public Path trustStore;
         public Path tmpDir;
@@ -489,6 +494,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (launcherModules == null) launcherModules = getPath(LAUNCHER_MODULES);
             if (librariesDir == null) librariesDir = getPath(LIBRARIES);
             if (controlFile == null) controlFile = getPath(CONTROL_FILE);
+            if (proguardDir == null) proguardDir = getPath(PROGUARD_DIR);
             if (tmpDir == null)
                 tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("launchserver-%s".formatted(SecurityHelper.randomStringToken()));
         }
