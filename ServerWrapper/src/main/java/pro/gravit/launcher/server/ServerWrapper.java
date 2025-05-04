@@ -142,6 +142,19 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
         ClientService.nativePath = config.nativesDir;
         ConfigService.serverName = config.serverName;
+        if(config.configServiceSettings != null) {
+            config.configServiceSettings.apply();
+        }
+    }
+
+    public void runCompatClasses() throws Throwable {
+        if(config.compatClasses != null) {
+            for (String e : config.compatClasses) {
+                Class<?> clazz = classLoaderControl == null ? Class.forName(e) : classLoaderControl.getClass(e);
+                MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class, ClassLoaderControl.class));
+                runMethod.invoke(classLoaderControl);
+            }
+        }
     }
 
     public void run(String... args) throws Throwable {
@@ -240,18 +253,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
         ClientService.classLoaderControl = classLoaderControl;
         ClientService.baseURLs = classLoaderControl.getURLs();
-        if(config.configServiceSettings != null) {
-            config.configServiceSettings.apply();
-        }
         LogHelper.info("Start Minecraft Server");
         try {
-            if(config.compatClasses != null) {
-                for (String e : config.compatClasses) {
-                    Class<?> clazz = classLoaderControl.getClass(e);
-                    MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class, ClassLoaderControl.class));
-                    runMethod.invoke(classLoaderControl);
-                }
-            }
+            runCompatClasses();
             LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
             launch.launch(config.mainclass, config.mainmodule, Arrays.asList(real_args));
         } catch (Throwable e) {
