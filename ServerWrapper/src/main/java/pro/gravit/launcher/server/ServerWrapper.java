@@ -25,15 +25,18 @@ import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.launch.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
@@ -209,7 +212,19 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LaunchOptions options = new LaunchOptions();
         options.enableHacks = config.enableHacks;
         options.moduleConf = config.moduleConf;
-        classLoaderControl = launch.init(config.classpath.stream().map(Paths::get).collect(Collectors.toCollection(ArrayList::new)), config.nativesDir, options);
+        classLoaderControl = launch.init(config.classpath.stream()
+                .map(Paths::get)
+                        .flatMap(p -> {
+                            if(!Files.isDirectory(p)) {
+                                return Stream.of(p);
+                            }
+                            try {
+                                return Files.walk(p).filter(e -> e.getFileName().toString().endsWith(".jar"));
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                .collect(Collectors.toCollection(ArrayList::new)), config.nativesDir, options);
         if(ServerAgent.isAgentStarted()) {
             ClientService.instrumentation = ServerAgent.inst;
         }
