@@ -103,31 +103,20 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
     }
 
-    public void run(String... args) throws Throwable {
+
+    public void initialize() throws Exception {
         initGson();
         AuthRequest.registerProviders();
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
-        if (args.length > 0 && args[0].equalsIgnoreCase("setup") && !disableSetup) {
-            LogHelper.debug("Read ServerWrapperConfig.json");
-            loadConfig();
-            ServerWrapperSetup setup = new ServerWrapperSetup();
-            setup.run();
-            System.exit(0);
-        }
-        if (args.length > 1 && args[0].equalsIgnoreCase("installAuthlib") && !disableSetup) {
-            LogHelper.debug("Read ServerWrapperConfig.json");
-            loadConfig();
-            InstallAuthlib command = new InstallAuthlib();
-            command. run(args[1]);
-            System.exit(0);
-        }
         LogHelper.debug("Read ServerWrapperConfig.json");
         loadConfig();
+    }
+
+    public void connect() throws Exception {
         config.applyEnv();
         updateLauncherConfig();
-        Launcher.applyLauncherEnv(Objects.requireNonNullElse(config.env, LauncherConfig.LauncherEnvironment.STD));
         StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
         service.reconnectCallback = () ->
         {
@@ -139,16 +128,39 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 LogHelper.error(e);
             }
         };
-        if(config.properties != null) {
-            for(Map.Entry<String, String> e : config.properties.entrySet()) {
-                System.setProperty(e.getKey(), e.getValue());
-            }
-        }
         Request.setRequestService(service);
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
             restore();
             getProfiles();
+        }
+        if(config.encodedServerRsaPublicKey != null) {
+            KeyService.serverRsaPublicKey = SecurityHelper.toPublicRSAKey(config.encodedServerRsaPublicKey);
+        }
+        if(config.encodedServerEcPublicKey != null) {
+            KeyService.serverEcPublicKey = SecurityHelper.toPublicECDSAKey(config.encodedServerEcPublicKey);
+        }
+        ClientService.nativePath = config.nativesDir;
+        ConfigService.serverName = config.serverName;
+    }
+
+    public void run(String... args) throws Throwable {
+        initialize();
+        if (args.length > 0 && args[0].equalsIgnoreCase("setup") && !disableSetup) {
+            ServerWrapperSetup setup = new ServerWrapperSetup();
+            setup.run();
+            System.exit(0);
+        }
+        if (args.length > 1 && args[0].equalsIgnoreCase("installAuthlib") && !disableSetup) {
+            InstallAuthlib command = new InstallAuthlib();
+            command. run(args[1]);
+            System.exit(0);
+        }
+        connect();
+        if(config.properties != null) {
+            for(Map.Entry<String, String> e : config.properties.entrySet()) {
+                System.setProperty(e.getKey(), e.getValue());
+            }
         }
         if(config.encodedServerRsaPublicKey != null) {
             KeyService.serverRsaPublicKey = SecurityHelper.toPublicRSAKey(config.encodedServerRsaPublicKey);
@@ -185,8 +197,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             System.arraycopy(args, 1, real_args, 0, args.length - 1);
         } else real_args = args;
         Launch launch;
-        ClientService.nativePath = config.nativesDir;
-        ConfigService.serverName = config.serverName;
         if(config.loadNatives != null) {
             for(String e : config.loadNatives) {
                 System.load(Paths.get(config.nativesDir).resolve(ClientService.findLibrary(e)).toAbsolutePath().toString());
