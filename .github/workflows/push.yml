@@ -39,6 +39,7 @@ jobs:
           cp LaunchServer.jar ../../../artifacts/LaunchServer.jar
           cd ../../..
           cp ServerWrapper/build/libs/ServerWrapper.jar artifacts/ServerWrapper.jar
+          cp ServerWrapper/build/libs/ServerWrapper-inline.jar artifacts/ServerWrapperInline.jar
           cp LauncherAuthlib/build/libs/LauncherAuthlib.jar artifacts/LauncherAuthlib.jar || true
           cp modules/*_module/build/libs/*.jar artifacts/modules || true
           cp modules/*_lmodule/build/libs/*.jar artifacts/modules || true

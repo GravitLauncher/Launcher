@@ -48,6 +48,21 @@ shadowJar {
     exclude 'module-info.class'
 }
 
+tasks.register('inlinejar', Jar) {
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.filter {! (it.name =~ /gson.*\.jar/  || it.name =~ /error_prone_annotations.*\.jar/)}.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    from {
+        sourceSets.main.output
+    }
+    archiveClassifier.set('inline')
+    manifest.attributes("Main-Class": mainClassName,
+            "Automatic-Module-Name": "ServerWrapper"
+    )
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 publishing {
     publications {
         serverwrapperapi(MavenPublication) {
@@ -94,4 +109,4 @@ signing {
     sign publishing.publications.serverwrapperapi
 }
 
-assemble.dependsOn tasks.shadowJar
+assemble.dependsOn tasks.shadowJar, tasks.inlinejar
