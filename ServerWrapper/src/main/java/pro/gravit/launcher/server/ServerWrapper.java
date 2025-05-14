@@ -282,12 +282,12 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     @Override
     public Config getDefaultConfig() {
         Config newConfig = new Config();
-        newConfig.serverName = "your server name";
+        newConfig.serverName = "";
         newConfig.mainclass = "";
         newConfig.extendedTokens = new HashMap<>();
         newConfig.args = new ArrayList<>();
         newConfig.classpath = new ArrayList<>();
-        newConfig.address = "ws://localhost:9274/api";
+        newConfig.address = "";
         newConfig.classLoaderConfig = ClientProfile.ClassLoaderConfig.SYSTEM_ARGS;
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.properties = new HashMap<>();
