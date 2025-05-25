@@ -25,15 +25,18 @@ import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.launch.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
@@ -100,31 +103,20 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
     }
 
-    public void run(String... args) throws Throwable {
+
+    public void initialize() throws Exception {
         initGson();
         AuthRequest.registerProviders();
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
-        if (args.length > 0 && args[0].equalsIgnoreCase("setup") && !disableSetup) {
-            LogHelper.debug("Read ServerWrapperConfig.json");
-            loadConfig();
-            ServerWrapperSetup setup = new ServerWrapperSetup();
-            setup.run();
-            System.exit(0);
-        }
-        if (args.length > 1 && args[0].equalsIgnoreCase("installAuthlib") && !disableSetup) {
-            LogHelper.debug("Read ServerWrapperConfig.json");
-            loadConfig();
-            InstallAuthlib command = new InstallAuthlib();
-            command. run(args[1]);
-            System.exit(0);
-        }
         LogHelper.debug("Read ServerWrapperConfig.json");
         loadConfig();
+    }
+
+    public void connect() throws Exception {
         config.applyEnv();
         updateLauncherConfig();
-        Launcher.applyLauncherEnv(Objects.requireNonNullElse(config.env, LauncherConfig.LauncherEnvironment.STD));
         StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
         service.reconnectCallback = () ->
         {
@@ -136,16 +128,52 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 LogHelper.error(e);
             }
         };
-        if(config.properties != null) {
-            for(Map.Entry<String, String> e : config.properties.entrySet()) {
-                System.setProperty(e.getKey(), e.getValue());
-            }
-        }
         Request.setRequestService(service);
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
             restore();
             getProfiles();
+        }
+        if(config.encodedServerRsaPublicKey != null) {
+            KeyService.serverRsaPublicKey = SecurityHelper.toPublicRSAKey(config.encodedServerRsaPublicKey);
+        }
+        if(config.encodedServerEcPublicKey != null) {
+            KeyService.serverEcPublicKey = SecurityHelper.toPublicECDSAKey(config.encodedServerEcPublicKey);
+        }
+        ClientService.nativePath = config.nativesDir;
+        ConfigService.serverName = config.serverName;
+        if(config.configServiceSettings != null) {
+            config.configServiceSettings.apply();
+        }
+    }
+
+    public void runCompatClasses() throws Throwable {
+        if(config.compatClasses != null) {
+            for (String e : config.compatClasses) {
+                Class<?> clazz = classLoaderControl == null ? Class.forName(e) : classLoaderControl.getClass(e);
+                MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class, ClassLoaderControl.class));
+                runMethod.invoke(classLoaderControl);
+            }
+        }
+    }
+
+    public void run(String... args) throws Throwable {
+        initialize();
+        if (args.length > 0 && args[0].equalsIgnoreCase("setup") && !disableSetup) {
+            ServerWrapperSetup setup = new ServerWrapperSetup();
+            setup.run();
+            System.exit(0);
+        }
+        if (args.length > 1 && args[0].equalsIgnoreCase("installAuthlib") && !disableSetup) {
+            InstallAuthlib command = new InstallAuthlib();
+            command. run(args[1]);
+            System.exit(0);
+        }
+        connect();
+        if(config.properties != null) {
+            for(Map.Entry<String, String> e : config.properties.entrySet()) {
+                System.setProperty(e.getKey(), e.getValue());
+            }
         }
         if(config.encodedServerRsaPublicKey != null) {
             KeyService.serverRsaPublicKey = SecurityHelper.toPublicRSAKey(config.encodedServerRsaPublicKey);
@@ -182,8 +210,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             System.arraycopy(args, 1, real_args, 0, args.length - 1);
         } else real_args = args;
         Launch launch;
-        ClientService.nativePath = config.nativesDir;
-        ConfigService.serverName = config.serverName;
         if(config.loadNatives != null) {
             for(String e : config.loadNatives) {
                 System.load(Paths.get(config.nativesDir).resolve(ClientService.findLibrary(e)).toAbsolutePath().toString());
@@ -209,24 +235,27 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         LaunchOptions options = new LaunchOptions();
         options.enableHacks = config.enableHacks;
         options.moduleConf = config.moduleConf;
-        classLoaderControl = launch.init(config.classpath.stream().map(Paths::get).collect(Collectors.toCollection(ArrayList::new)), config.nativesDir, options);
+        classLoaderControl = launch.init(config.classpath.stream()
+                .map(Paths::get)
+                        .flatMap(p -> {
+                            if(!Files.isDirectory(p)) {
+                                return Stream.of(p);
+                            }
+                            try {
+                                return Files.walk(p).filter(e -> e.getFileName().toString().endsWith(".jar"));
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                .collect(Collectors.toCollection(ArrayList::new)), config.nativesDir, options);
         if(ServerAgent.isAgentStarted()) {
             ClientService.instrumentation = ServerAgent.inst;
         }
         ClientService.classLoaderControl = classLoaderControl;
         ClientService.baseURLs = classLoaderControl.getURLs();
-        if(config.configServiceSettings != null) {
-            config.configServiceSettings.apply();
-        }
         LogHelper.info("Start Minecraft Server");
         try {
-            if(config.compatClasses != null) {
-                for (String e : config.compatClasses) {
-                    Class<?> clazz = classLoaderControl.getClass(e);
-                    MethodHandle runMethod = MethodHandles.lookup().findStatic(clazz, "run", MethodType.methodType(void.class, ClassLoaderControl.class));
-                    runMethod.invoke(classLoaderControl);
-                }
-            }
+            runCompatClasses();
             LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
             launch.launch(config.mainclass, config.mainmodule, Arrays.asList(real_args));
         } catch (Throwable e) {
@@ -253,12 +282,12 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     @Override
     public Config getDefaultConfig() {
         Config newConfig = new Config();
-        newConfig.serverName = "your server name";
+        newConfig.serverName = "";
         newConfig.mainclass = "";
         newConfig.extendedTokens = new HashMap<>();
         newConfig.args = new ArrayList<>();
         newConfig.classpath = new ArrayList<>();
-        newConfig.address = "ws://localhost:9274/api";
+        newConfig.address = "";
         newConfig.classLoaderConfig = ClientProfile.ClassLoaderConfig.SYSTEM_ARGS;
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.properties = new HashMap<>();

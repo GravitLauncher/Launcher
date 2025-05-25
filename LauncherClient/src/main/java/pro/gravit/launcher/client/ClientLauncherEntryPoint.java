@@ -116,15 +116,6 @@ public class ClientLauncherEntryPoint {
 
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
-        Set<Path> ignoredPath = new HashSet<>();
-        List<Path> classpath = resolveClassPath(ignoredPath, clientDir, params.actions, params.profile)
-                .collect(Collectors.toCollection(ArrayList::new));
-        if(LogHelper.isDevEnabled()) {
-            for(var e : classpath) {
-                LogHelper.dev("Classpath entry %s", e);
-            }
-        }
-        List<URL> classpathURLs = classpath.stream().map(IOHelper::toURL).toList();
         // Start client with WatchService monitoring
         RequestService service;
         if (params.offlineMode) {
@@ -158,6 +149,18 @@ public class ClientLauncherEntryPoint {
                 System.load(Paths.get(params.nativesDir).resolve(ClientService.findLibrary(e)).toAbsolutePath().toString());
             }
         }
+        Set<Path> ignoredPath = new HashSet<>();
+        if(options.moduleConf != null && options.moduleConf.modulePath != null) {
+            List<Path> resolvedModulePath = resolveClassPath(ignoredPath, clientDir, null, params.profile).toList();
+        }
+        List<Path> classpath = resolveClassPath(ignoredPath, clientDir, params.actions, params.profile)
+                .collect(Collectors.toCollection(ArrayList::new));
+        if(LogHelper.isDevEnabled()) {
+            for(var e : classpath) {
+                LogHelper.dev("Classpath entry %s", e);
+            }
+        }
+        List<URL> classpathURLs = classpath.stream().map(IOHelper::toURL).toList();
         if (classLoaderConfig == ClientProfile.ClassLoaderConfig.LAUNCHER || classLoaderConfig == ClientProfile.ClassLoaderConfig.MODULE) {
             if(JVMHelper.JVM_VERSION <= 11) {
                 launch = new LegacyLaunch();
@@ -274,9 +277,11 @@ public class ClientLauncherEntryPoint {
 
     public static Stream<Path> resolveClassPath(Set<Path> ignorePaths, Path clientDir, Set<OptionalAction> actions, ClientProfile profile) throws IOException {
         Stream<Path> result = resolveClassPathStream(ignorePaths, clientDir, profile.getClassPath());
-        for (OptionalAction a : actions) {
-            if (a instanceof OptionalActionClassPath)
-                result = Stream.concat(result, resolveClassPathStream(ignorePaths, clientDir, ((OptionalActionClassPath) a).args));
+        if(actions != null) {
+            for (OptionalAction a : actions) {
+                if (a instanceof OptionalActionClassPath)
+                    result = Stream.concat(result, resolveClassPathStream(ignorePaths, clientDir, ((OptionalActionClassPath) a).args));
+            }
         }
         return result;
     }

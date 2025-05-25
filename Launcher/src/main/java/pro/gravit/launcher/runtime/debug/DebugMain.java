@@ -28,6 +28,7 @@ public class DebugMain {
     public static String webSocketURL = System.getProperty("launcherdebug.websocket", "ws://localhost:9274/api");
     public static String projectName = System.getProperty("launcherdebug.projectname", "Minecraft");
     public static String unlockSecret = System.getProperty("launcherdebug.unlocksecret", "");
+    public static boolean disableConsole = Boolean.getBoolean("launcherdebug.disableConsole");
     public static boolean offlineMode = Boolean.getBoolean("launcherdebug.offlinemode");
     public static boolean disableAutoRefresh = Boolean.getBoolean("launcherdebug.disableautorefresh");
     public static String[] moduleClasses = System.getProperty("launcherdebug.modules", "").split(",");
@@ -37,6 +38,14 @@ public class DebugMain {
     public static void main(String[] args) throws Throwable {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
+        initialize();
+        LogHelper.debug("Initialization LauncherEngine");
+        LauncherEngine instance = LauncherEngine.newInstance(false, ClientRuntimeProvider.class);
+        instance.start(args);
+        LauncherEngine.exitLauncher(0);
+    }
+
+    public static void initialize() throws Exception {
         IS_DEBUG.set(true);
         LogHelper.info("Launcher start in DEBUG mode (Only for developers)");
         LogHelper.debug("Initialization LauncherConfig");
@@ -56,7 +65,9 @@ public class DebugMain {
         }
         LauncherEngine.modulesManager.initModules(null);
         LauncherEngine.initGson(LauncherEngine.modulesManager);
-        ConsoleManager.initConsole();
+        if(!disableConsole) {
+            ConsoleManager.initConsole();
+        }
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
         RequestService service;
         if (offlineMode) {
@@ -72,10 +83,6 @@ public class DebugMain {
         if(!disableAutoRefresh) {
             Request.startAutoRefresh();
         }
-        LogHelper.debug("Initialization LauncherEngine");
-        LauncherEngine instance = LauncherEngine.newInstance(false, ClientRuntimeProvider.class);
-        instance.start(args);
-        LauncherEngine.exitLauncher(0);
     }
 
     @SuppressWarnings("unchecked")
