@@ -21,6 +21,9 @@ public abstract class ProtectHandler {
 
     public abstract boolean allowGetAccessToken(AuthResponse.AuthContext context);
     public boolean allowJoinServer(Client client) {
+        if(client.permissions != null && client.permissions.hasPerm("launchserver.debug.joinserver")) {
+            return client.isAuth;
+        }
         return client.isAuth && client.type == AuthResponse.ConnectTypes.CLIENT;
     }
 
