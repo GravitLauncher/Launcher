@@ -338,6 +338,32 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                         }
                     }
                 });
+                map.put("newSession", new SubCommand("[username/uuid] [isShadow] (CLIENT/API)", "create access/refresh token without password") {
+                    @Override
+                    public void invoke(String... args) throws Exception {
+                        verifyArgs(args, 2);
+                        String login = args[0];
+                        boolean isShadow = Boolean.parseBoolean(args[1]);
+                        User user;
+                        if(login.length() == 36) {
+                            UUID uuid = UUID.fromString(login);
+                            user = getUserByUUID(uuid);
+                        } else {
+                            user = getUserByUsername(login);
+                        }
+                        if(user == null) {
+                            logger.error("User {} not found", login);
+                            return;
+                        }
+                        var report = instance.sudo(user, isShadow);
+                        User user1 = report.session().getUser();
+                        logger.info("Created session {} for user {} ({})", report.session().getID(), user1.getUsername(), user.getUUID());
+                        logger.info("- AccessToken: {}", report.oauthAccessToken());
+                        logger.info("- RefreshToken: {}", report.oauthRefreshToken());
+                        logger.info("- ExpireIn: {}", report.oauthExpire());
+                        logger.info("- MinecraftAccessToken: {}", report.minecraftAccessToken());
+                    }
+                });
             }
         }
         return map;

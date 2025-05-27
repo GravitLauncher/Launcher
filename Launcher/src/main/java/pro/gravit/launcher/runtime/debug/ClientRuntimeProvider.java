@@ -29,19 +29,14 @@ import java.util.List;
 import java.util.UUID;
 
 public class ClientRuntimeProvider implements RuntimeProvider {
+
     @Override
     public void run(String[] args) {
         ArrayList<String> newArgs = new ArrayList<>(Arrays.asList(args));
         try {
-            String username = System.getProperty("launcher.runtime.username", null);
-            String uuid = System.getProperty("launcher.runtime.uuid", null);
-            String login = System.getProperty("launcher.runtime.login", username);
-            String password = System.getProperty("launcher.runtime.password", "Player");
-            String authId = System.getProperty("launcher.runtime.auth.authid", "std");
-            String accessToken = System.getProperty("launcher.runtime.auth.accesstoken", null);
-            String refreshToken = System.getProperty("launcher.runtime.auth.refreshtoken", null);
-            String minecraftAccessToken = System.getProperty("launcher.runtime.auth.minecraftaccesstoken", "DEBUG");
-            long expire = Long.parseLong(System.getProperty("launcher.runtime.auth.expire", "0"));
+            String username = DebugProperties.USERNAME;
+            String uuid = DebugProperties.UUID;
+            String minecraftAccessToken = DebugProperties.MINECRAFT_ACCESS_TOKEN;
             String profileUUID = System.getProperty("launcher.runtime.profileuuid", null);
             String mainClass = System.getProperty("launcher.runtime.mainclass", null);
             String mainModule = System.getProperty("launcher.runtime.mainmodule", null);
@@ -55,28 +50,14 @@ public class ClientRuntimeProvider implements RuntimeProvider {
                 throw new NullPointerException("Add `-Dlauncher.runtime.mainclass=YOUR_MAIN_CLASS` to jvmArgs");
             }
             if(uuid == null) {
-                if(accessToken != null) {
-                    Request.setOAuth(authId, new AuthRequestEvent.OAuthRequestEvent(accessToken, refreshToken, expire));
-                    Request.RequestRestoreReport report = Request.restore(true, false, true);
-                    permissions = report.userInfo.permissions;
-                    username = report.userInfo.playerProfile.username;
-                    uuid = report.userInfo.playerProfile.uuid.toString();
-                    if(report.userInfo.accessToken != null) {
-                        minecraftAccessToken = report.userInfo.accessToken;
-                    }
-                } else {
-                    AuthRequest request = new AuthRequest(login, password, authId, AuthRequest.ConnectTypes.API);
-                    AuthRequestEvent event = request.request();
-                    Request.setOAuth(authId, event.oauth);
-                    if(event.accessToken != null) {
-                        minecraftAccessToken = event.accessToken;
-                    }
-                    username = event.playerProfile.username;
-                    uuid = event.playerProfile.uuid.toString();
-                }
+                var data = DebugMain.authorize();
+                minecraftAccessToken = data.userInfo().accessToken;
+                permissions = data.userInfo().permissions;
+                username = data.userInfo().playerProfile.username;
+                uuid = data.userInfo().playerProfile.uuid.toString();
             }
             if(profileUUID != null) {
-                UUID profileUuid = UUID.fromString(profileUUID);
+                UUID profileUuid = java.util.UUID.fromString(profileUUID);
                 ProfilesRequest profiles = new ProfilesRequest();
                 ProfilesRequestEvent event = profiles.request();
                 for(ClientProfile profile : event.profiles) {
@@ -94,7 +75,7 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             replaceOrCreateArgument(newArgs, "--username", username);
             replaceOrCreateArgument(newArgs, "--uuid", uuid);
             replaceOrCreateArgument(newArgs, "--accessToken", minecraftAccessToken);
-            AuthService.uuid = UUID.fromString(uuid);
+            AuthService.uuid = java.util.UUID.fromString(uuid);
             AuthService.username = username;
             AuthService.permissions = permissions;
             Launch launch;

@@ -20,5 +20,14 @@ public class CurrentUserRequestEvent extends RequestEvent {
         public ClientPermissions permissions;
         public String accessToken;
         public PlayerProfile playerProfile;
+
+        public UserInfo() {
+        }
+
+        public UserInfo(ClientPermissions permissions, String accessToken, PlayerProfile playerProfile) {
+            this.permissions = permissions;
+            this.accessToken = accessToken;
+            this.playerProfile = playerProfile;
+        }
     }
 }
