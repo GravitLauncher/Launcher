@@ -95,6 +95,35 @@ public final class HashedDir extends HashedEntry {
         return new FindRecursiveResult(current, entry, name);
     }
 
+    public FindRecursiveResult tryFindRecursive(String path) {
+        StringTokenizer t = new StringTokenizer(path, "/");
+        HashedDir current = this;
+        HashedEntry entry = null;
+        String name = null;
+        while (t.hasMoreTokens()) {
+            name = t.nextToken();
+            HashedEntry e = current.map.get(name);
+            if (e == null && !t.hasMoreTokens()) {
+                break;
+            }
+            if (e == null) {
+                return new FindRecursiveResult(current, entry, name);
+            }
+            if (e.getType() == Type.DIR) {
+                if (!t.hasMoreTokens()) {
+                    entry = e;
+                    break;
+                } else {
+                    current = ((HashedDir) e);
+                }
+            } else {
+                entry = e;
+                break;
+            }
+        }
+        return new FindRecursiveResult(current, entry, name);
+    }
+
     public HashedEntry getEntry(String name) {
         return map.get(name);
     }

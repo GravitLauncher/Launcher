@@ -43,6 +43,7 @@ public final class DownloadClientCommand extends Command {
         String versionName = args[0];
         String dirName = IOHelper.verifyFileName(args[1] != null ? args[1] : args[0]);
         Path clientDir = server.createTempDirectory("client");
+        server.config.updatesProvider.create(dirName);
 
         boolean isMirrorClientDownload = false;
         if (args.length > 2) {

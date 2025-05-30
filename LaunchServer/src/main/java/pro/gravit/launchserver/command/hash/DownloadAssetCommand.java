@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.Downloader;
+import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launchserver.HttpRequester;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
@@ -46,6 +47,10 @@ public final class DownloadAssetCommand extends Command {
         String type = args.length > 2 ? args[2] : "mojang";
         Path assetDir = server.createTempDirectory("assets");
         var updatesDir = server.config.updatesProvider.getUpdatesDir(dirName);
+        if(updatesDir == null) {
+            updatesDir = new HashedDir();
+            server.config.updatesProvider.create(dirName);
+        }
 
         // Create asset dir
         if (Files.notExists(assetDir)) {
@@ -92,7 +97,7 @@ public final class DownloadAssetCommand extends Command {
                 hash = hash.substring(0, 2) + "/" + hash;
                 var size = value.get("size").getAsLong();
                 var path = "objects/" + hash;
-                if (updatesDir.findRecursive(path).isFound()) {
+                if (updatesDir.tryFindRecursive(path).isFound()) {
                     continue;
                 }
                 toDownload.add(new Downloader.SizedFile(hash, path, size));

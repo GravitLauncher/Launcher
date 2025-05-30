@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.command.CommandException;
@@ -41,6 +42,9 @@ public final class UnindexAssetCommand extends Command {
         String indexFileName = IOHelper.verifyFileName(args[1]);
         String outputAssetDirName = IOHelper.verifyFileName(args[2]);
         var updatesDir = server.config.updatesProvider.getUpdatesDir(inputAssetDirName);
+        if(updatesDir == null) {
+            server.config.updatesProvider.create(inputAssetDirName);
+        }
         Path outputAssetDir = Path.of(outputAssetDirName);
 
         // Create new asset dir
