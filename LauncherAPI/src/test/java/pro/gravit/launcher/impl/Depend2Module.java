@@ -3,12 +3,12 @@ package pro.gravit.launcher.impl;
 import org.junit.jupiter.api.Assertions;
 import pro.gravit.launcher.base.modules.LauncherInitContext;
 import pro.gravit.launcher.base.modules.LauncherModule;
-import pro.gravit.launcher.base.modules.LauncherModuleInfo;
+import pro.gravit.launcher.base.modules.LauncherModuleInfoBuilder;
 import pro.gravit.utils.Version;
 
 public class Depend2Module extends LauncherModule {
     public Depend2Module() {
-        super(new LauncherModuleInfo("depend2"));
+        super(new LauncherModuleInfoBuilder().setName("depend2").createLauncherModuleInfo());
     }
 
     @Override

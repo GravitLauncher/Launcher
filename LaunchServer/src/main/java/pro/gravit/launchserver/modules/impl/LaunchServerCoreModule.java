@@ -2,13 +2,13 @@ package pro.gravit.launchserver.modules.impl;
 
 import pro.gravit.launcher.base.modules.LauncherInitContext;
 import pro.gravit.launcher.base.modules.LauncherModule;
-import pro.gravit.launcher.base.modules.LauncherModuleInfo;
+import pro.gravit.launcher.base.modules.LauncherModuleInfoBuilder;
 import pro.gravit.launcher.base.modules.events.InitPhase;
 import pro.gravit.utils.Version;
 
 public class LaunchServerCoreModule extends LauncherModule {
     public LaunchServerCoreModule() {
-        super(new LauncherModuleInfo("LaunchServerCore", Version.getVersion()));
+        super(new LauncherModuleInfoBuilder().setName("LaunchServerCore").setVersion(Version.getVersion()).createLauncherModuleInfo());
     }
 
     @Override

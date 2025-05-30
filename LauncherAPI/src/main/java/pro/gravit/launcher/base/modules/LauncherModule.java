@@ -16,7 +16,7 @@ public abstract class LauncherModule {
     private LauncherTrustManager.CheckClassResult checkResult;
 
     protected LauncherModule() {
-        moduleInfo = new LauncherModuleInfo("UnknownModule");
+        moduleInfo = new LauncherModuleInfoBuilder().setName("UnknownModule").createLauncherModuleInfo();
     }
 
     protected LauncherModule(LauncherModuleInfo info) {
